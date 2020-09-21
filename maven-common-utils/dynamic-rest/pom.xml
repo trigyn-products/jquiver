@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>app.trigyn.core</groupId>
+		<artifactId>commonutils</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>dynamic-rest</artifactId>
+	<name>dynamic-rest</name>
+	<description>Dynamic rest api.</description>
+
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>app.trigyn.core</groupId>
+			<artifactId>dbutils</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>app.trigyn.core</groupId>
+			<artifactId>templating</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+		    <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<dependencies>
+					<!-- The following enables the "thin jar" deployment option. -->
+					<dependency>
+						<groupId>org.springframework.boot.experimental</groupId>
+						<artifactId>spring-boot-thin-layout</artifactId>
+						<version>1.0.11.RELEASE</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			 <plugin>
+				<groupId>org.springframework.boot.experimental</groupId>
+				<artifactId>spring-boot-thin-maven-plugin</artifactId>
+				<version>1.0.25.RELEASE</version>
+				<executions>
+					<execution>
+					<!-- Download the dependencies at build time -->
+					<id>resolve</id>
+					<goals>
+						<goal>resolve</goal>
+					</goals>
+					<inherited>false</inherited>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

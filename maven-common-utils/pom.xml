@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.3.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>app.trigyn.core</groupId>
+	<artifactId>commonutils</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+	<description>Common utils</description>
+
+	<distributionManagement>
+        <repository>
+			<id>nexus</id>
+			<layout>default</layout>
+			<url>http://192.168.102.70:8081/repository/java-starters/</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus</id>
+            <layout>default</layout>
+			<url>http://192.168.102.70:8081/repository/maven-snapshots/</url>
+		</snapshotRepository>
+    </distributionManagement>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>11</java.version>
+		<maven.test.skip>true</maven.test.skip>
+	</properties>
+
+	<modules>
+		<module>dbutils</module>
+		<module>resourcebundle</module>
+		<module>templating</module>
+		<module>gridutils</module>
+		<module>notification</module>
+		<module>dashboard</module>
+		<module>typeahead</module>
+		<module>java-web-starter</module>
+		<module>dynamic-form</module>
+		<module>dynamic-rest</module>
+		<module>menu</module>
+	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+
+		<dependency>
+		    <groupId>com.lmax</groupId>
+		    <artifactId>disruptor</artifactId>
+		    <version>3.3.6</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger2</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>io.springfox</groupId>
+		    <artifactId>springfox-swagger-ui</artifactId>
+		    <version>2.9.2</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.codehaus.jettison</groupId>
+		    <artifactId>jettison</artifactId>
+		    <version>1.3.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.9</version>
+		</dependency>
+
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+		    <plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<dependencies>
+					<!-- The following enables the "thin jar" deployment option. -->
+					<dependency>
+						<groupId>org.springframework.boot.experimental</groupId>
+						<artifactId>spring-boot-thin-layout</artifactId>
+						<version>1.0.11.RELEASE</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			 <plugin>
+				<groupId>org.springframework.boot.experimental</groupId>
+				<artifactId>spring-boot-thin-maven-plugin</artifactId>
+				<version>1.0.25.RELEASE</version>
+				<executions>
+					<execution>
+					<!-- Download the dependencies at build time -->
+					<id>resolve</id>
+					<goals>
+						<goal>resolve</goal>
+					</goals>
+					<inherited>false</inherited>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.3</version>
+                <extensions>true</extensions>
+				<configuration>
+					<serverId>nexus</serverId>
+					<nexusUrl>http://192.168.102.70:8081/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <skipStaging>true</skipStaging>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
