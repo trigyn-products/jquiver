@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>app.trigyn.core</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>dynamic-rest</artifactId>
 	<name>dynamic-rest</name>
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>app.trigyn.core</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
