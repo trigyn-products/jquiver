@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>app.trigyn.core</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
 	<name>java-web-starter</name>
