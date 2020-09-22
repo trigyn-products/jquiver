@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package com.trigyn.jws.dynamicform.vo;
 
 public class DynamicFormSaveQueryVO {

@@ -14,10 +14,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 
-/**
- * The persistent class for the jws_dynamic_rest_dao_details database table.
- * 
- */
+
 @Entity
 @Table(name="jws_dynamic_rest_dao_details")
 @NamedQuery(name="JwsDynamicRestDaoDetail.findAll", query="SELECT j FROM JwsDynamicRestDaoDetail j")

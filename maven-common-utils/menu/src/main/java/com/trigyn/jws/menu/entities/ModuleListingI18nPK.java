@@ -5,10 +5,7 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-/**
- * The primary key class for the module_listing_i18n database table.
- * 
- */
+
 @Embeddable
 public class ModuleListingI18nPK implements Serializable {
 	private static final long serialVersionUID 		= 1L;

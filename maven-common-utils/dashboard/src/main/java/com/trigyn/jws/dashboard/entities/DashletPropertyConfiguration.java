@@ -12,9 +12,7 @@ import javax.persistence.Table;
 @Table(name = "dashlet_property_configuration")
 public class DashletPropertyConfiguration implements Serializable {
 
-	/**
-	 * 
-	 */
+	
 	private static final long	serialVersionUID	= 1L;
 
 	@EmbeddedId
@@ -33,30 +31,22 @@ public class DashletPropertyConfiguration implements Serializable {
 		this.propertyValue 	= propertyValue;
 	}
 
-	/**
-	 * @return the id
-	 */
+	
 	public DashletPropertyConfigurationPK getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(DashletPropertyConfigurationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the propertyValue
-	 */
+	
 	public String getPropertyValue() {
 		return propertyValue;
 	}
 
-	/**
-	 * @param propertyValue the propertyValue to set
-	 */
+	
 	public void setPropertyValue(String propertyValue) {
 		this.propertyValue = propertyValue;
 	}

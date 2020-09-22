@@ -44,72 +44,52 @@ public class DashboardLookupCategory implements Serializable{
 		this.updatedDate 		= updatedDate;
 	}
 
-	/**
-	 * @return the lookupCategoryId
-	 */
+	
 	public String getLookupCategoryId() {
 		return lookupCategoryId;
 	}
 
-	/**
-	 * @param lookupCategoryId the lookupCategoryId to set
-	 */
+	
 	public void setLookupCategoryId(String lookupCategoryId) {
 		this.lookupCategoryId = lookupCategoryId;
 	}
 
-	/**
-	 * @return the lookupCategory
-	 */
+	
 	public String getLookupCategory() {
 		return lookupCategory;
 	}
 
-	/**
-	 * @param lookupCategory the lookupCategory to set
-	 */
+	
 	public void setLookupCategory(String lookupCategory) {
 		this.lookupCategory = lookupCategory;
 	}
 
-	/**
-	 * @return the lookupDescription
-	 */
+	
 	public String getLookupDescription() {
 		return lookupDescription;
 	}
 
-	/**
-	 * @param lookupDescription the lookupDescription to set
-	 */
+	
 	public void setLookupDescription(String lookupDescription) {
 		this.lookupDescription = lookupDescription;
 	}
 
-	/**
-	 * @return the updatedBy
-	 */
+	
 	public String getUpdatedBy() {
 		return updatedBy;
 	}
 
-	/**
-	 * @param updatedBy the updatedBy to set
-	 */
+	
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
 	}
 
-	/**
-	 * @return the updatedDate
-	 */
+	
 	public Date getUpdatedDate() {
 		return updatedDate;
 	}
 
-	/**
-	 * @param updatedDate the updatedDate to set
-	 */
+	
 	public void setUpdatedDate(Date updatedDate) {
 		this.updatedDate = updatedDate;
 	}

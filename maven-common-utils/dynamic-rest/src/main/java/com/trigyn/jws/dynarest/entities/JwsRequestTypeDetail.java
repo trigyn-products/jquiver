@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-/**
- * The persistent class for the jws_request_type_details database table.
- * 
- */
+
 @Entity
 @Table(name="jws_request_type_details")
 @NamedQuery(name="JwsRequestTypeDetail.findAll", query="SELECT j FROM JwsRequestTypeDetail j")

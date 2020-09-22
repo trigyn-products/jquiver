@@ -70,29 +70,17 @@ public class DashboardCrudService {
 	@Autowired
 	private DownloadUploadModuleFactory moduleFactory = null;
 	
-    /**
-	 * @param dashboardId
-	 * @return {@link Dashboard}
-	 * @throws Exception
-	 */
+    
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
 		return dashboardCrudDAO.findDashboardByDashboardId(dashboardId);
 	}
 
-	/**
-	 * @param dashboardId
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+	
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId) throws Exception {
 		return dashboardCrudDAO.findDashboardRoleByDashboardId(dashboardId);
 	}
 
-	/**
-	 * @param userId
-	 * @param dashboard
-	 * @throws Exception
-	 */
+	
 	public void saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);
 		iDashboardRepository.saveAndFlush(dashboardEntity);
@@ -126,11 +114,7 @@ public class DashboardCrudService {
 		}
     }
     
-    /**
-	 * @param dashboardVO
-	 * @param userId
-	 * @return {@link Dashboard}
-	 */
+    
 	private Dashboard convertDashboarVOToEntity(DashboardVO dashboardVO, String userId) {
 		Dashboard dashboardEntity = new Dashboard();
 		Date date = new Date();
@@ -150,18 +134,12 @@ public class DashboardCrudService {
 		return dashboardEntity;
     }
     
-    /**
-	 * @param dashboardDashletAssociation
-	 * @throws Exception
-	 */
+    
 	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
 		dashboardCrudDAO.saveDashboardDashletAssociation(dashboardDashletAssociation);
     }
     
-    /**
-	 * @return
-	 * @throws Exception
-	 */
+    
 	public Map<String, String> findContextDetails() throws Exception {
 		Map<String, String> contextDetails = new HashMap<>();
 		List<ContextMasterVO> contextMasterVOList = iContextMasterRepository.findAllContext();
@@ -171,12 +149,7 @@ public class DashboardCrudService {
 		return contextDetails;
     }
     
-     /**
-     * @param userId
-     * @param dashlet
-     * @return {@link Boolean}
-     * @throws Exception
-     */
+     
     public Boolean saveDashlet(String userId, DashletVO dashletVO) throws Exception {
     	Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
 		dashlet 		= iDashletRepository.saveAndFlush(dashlet);
@@ -213,12 +186,7 @@ public class DashboardCrudService {
     }
     
     
-    /**
-     * @param userId
-     * @param dashletVO
-     * @return {@link Dashlet}
-     * @throws Exception
-     */
+    
     public Dashlet convertDashletVOToEntity(String userId, DashletVO dashletVO) throws Exception{
     	Dashlet dashlet = new Dashlet();
 		Date date 		= new Date();
@@ -250,12 +218,7 @@ public class DashboardCrudService {
 
     }
     
-    /**
-     * @param userId
-     * @param dashletVO
-     * @return
-     * @throws Exception
-     */
+    
     public DashletProperties convertDashletPropertyVOtoEntity(String dashletId, DashletPropertyVO dashletPropertyVO) throws Exception{
     	DashletProperties dashletProperties 	= new DashletProperties();
     	try {

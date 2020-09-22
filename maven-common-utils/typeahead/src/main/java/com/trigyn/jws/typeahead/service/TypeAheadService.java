@@ -23,18 +23,12 @@ public class TypeAheadService {
 	@Autowired
 	private TypeAheadRepository typeAheadRepository = null;
 	
-	/**
-	 * @param autocompleteParams
-	 * @return
-	 */
+	
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
 		return typeAheadDAO.getAutocompleteData(autocompleteParams);
 	}
 	
-	/**
-	 * @param autocompleteParams
-	 * @return
-	 */
+	
 	public Integer getCountOfData(AutocompleteParams autocompleteParams) {
 		return typeAheadDAO.getCountOfData(autocompleteParams);
     }

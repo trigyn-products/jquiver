@@ -24,10 +24,7 @@ public class TypeAheadDAO extends DBConnection {
     
 	private static final String AUTOCOMPLETE_QUERY_SELECTOR = "SELECT ac_select_query FROM autocomplete_details WHERE ac_id = :ac_id";
 
-	/**
-	 * @param autocompleteParams
-	 * @return
-	 */
+	
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
 		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
 		sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
@@ -36,11 +33,7 @@ public class TypeAheadDAO extends DBConnection {
 		return displayList;
 	}
 
-	/**
-	 * @param a_autocompleteQuery
-	 * @param a_autocompleteParams
-	 * @return
-	 */
+	
 	private List<Map<String, Object>> getAutocompleteDetails(String a_autocompleteQuery, AutocompleteParams a_autocompleteParams) {
 
 		boolean is_LimitPresent = true;
@@ -67,10 +60,7 @@ public class TypeAheadDAO extends DBConnection {
 		return displayList;
 	}
 
-	/**
-	 * @param a_autocompleteParams
-	 * @return
-	 */
+	
 	public Integer getCountOfData(AutocompleteParams a_autocompleteParams) {
 		String a_autocompleteQuery = "SELECT COUNT(*) FROM ("+getQueryForAutoComplete(a_autocompleteParams);
 		boolean is_LimitPresent = true;
@@ -96,11 +86,7 @@ public class TypeAheadDAO extends DBConnection {
 		return count;
 	}
 	
-	/**
-	 * {@code This method is used to fetch autocomplete query based on autocomplete id}
-	 * @param autocompleteParams
-	 * @return
-	 */
+	
 	private String getQueryForAutoComplete(AutocompleteParams autocompleteParams) {
 		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
 		sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
@@ -108,10 +94,7 @@ public class TypeAheadDAO extends DBConnection {
 		return list;
 	}
 	
-	/**
-	 * @param data
-	 * @return
-	 */
+	
 	private static String escapeSql(String data) {
 		data = data.replace("\\", "\\\\\\\\");
 		data = data.replace("%", "\\%");

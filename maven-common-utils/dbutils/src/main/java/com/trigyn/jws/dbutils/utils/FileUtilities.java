@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileUtilities {
 
-    /**
-     *
-     */
+    
     private static final String SHA_256 = "SHA-256";
 
     public  String generateFileChecksum(File file) throws NoSuchAlgorithmException {

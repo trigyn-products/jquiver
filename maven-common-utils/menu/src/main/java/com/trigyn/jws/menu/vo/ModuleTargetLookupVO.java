@@ -19,30 +19,22 @@ public class ModuleTargetLookupVO implements Serializable{
 		this.description 	= description;
 	}
 
-	/**
-	 * @return the lookupId
-	 */
+	
 	public Integer getLookupId() {
 		return lookupId;
 	}
 
-	/**
-	 * @param lookupId the lookupId to set
-	 */
+	
 	public void setLookupId(Integer lookupId) {
 		this.lookupId = lookupId;
 	}
 
-	/**
-	 * @return the description
-	 */
+	
 	public String getDescription() {
 		return description;
 	}
 
-	/**
-	 * @param description the description to set
-	 */
+	
 	public void setDescription(String description) {
 		this.description = description;
 	}

@@ -109,10 +109,7 @@ public class DashletDAO extends DBConnection {
 		getCurrentSession().saveOrUpdate(dashletRoleAssociation);
 	}
 
-	/**
-	 * @param dashletId
-	 * @return
-	 */
+	
 	public List<String> findDashletRoleByDashletId(String dashletId)throws Exception {
 		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_DASHLET_ROLES_ID_BY_DASHLET_ID);
 		query.setParameter("dashletId", dashletId);

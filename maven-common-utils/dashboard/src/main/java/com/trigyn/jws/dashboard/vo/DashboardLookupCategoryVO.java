@@ -28,44 +28,32 @@ public class DashboardLookupCategoryVO implements Serializable{
 		this.lookupDescription 	= lookupDescription;
 	}
 
-	/**
-	 * @return the lookupCategoryId
-	 */
+	
 	public String getLookupCategoryId() {
 		return lookupCategoryId;
 	}
 
-	/**
-	 * @param lookupCategoryId the lookupCategoryId to set
-	 */
+	
 	public void setLookupCategoryId(String lookupCategoryId) {
 		this.lookupCategoryId = lookupCategoryId;
 	}
 
-	/**
-	 * @return the lookupCategory
-	 */
+	
 	public String getLookupCategory() {
 		return lookupCategory;
 	}
 
-	/**
-	 * @param lookupCategory the lookupCategory to set
-	 */
+	
 	public void setLookupCategory(String lookupCategory) {
 		this.lookupCategory = lookupCategory;
 	}
 
-	/**
-	 * @return the lookupDescription
-	 */
+	
 	public String getLookupDescription() {
 		return lookupDescription;
 	}
 
-	/**
-	 * @param lookupDescription the lookupDescription to set
-	 */
+	
 	public void setLookupDescription(String lookupDescription) {
 		this.lookupDescription = lookupDescription;
 	}

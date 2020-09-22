@@ -36,73 +36,53 @@ public class DashboardDashletVO implements Serializable {
 		this.contextId 		= contextId;
 	}
 	
-	/**
-	 * @return the dashboardId
-	 */
+	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	/**
-	 * @param dashboardId the dashboardId to set
-	 */
+	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
 	
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	/**
-	 * @return the dashletName
-	 */
+	
 	public String getDashletName() {
 		return dashletName;
 	}
 
-	/**
-	 * @param dashletName the dashletName to set
-	 */
+	
 	public void setDashletName(String dashletName) {
 		this.dashletName = dashletName;
 	}
 
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
-	/**
-	 * @return the isSelected
-	 */
+	
 	public Boolean getIsSelected() {
 		return isSelected;
 	}
 
-	/**
-	 * @param isSelected the isSelected to set
-	 */
+	
 	public void setIsSelected(Boolean isSelected) {
 		this.isSelected = isSelected;
 	}

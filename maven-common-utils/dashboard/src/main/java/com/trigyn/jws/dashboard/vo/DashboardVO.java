@@ -10,9 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "This model is used to hold dashboard and its associated dashlet information.")
 public class DashboardVO implements Serializable{
 	
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID 						= 3073208964632498741L;
 
 	@ApiModelProperty(position = 1, name = "dashboardId")
@@ -55,114 +53,82 @@ public class DashboardVO implements Serializable{
 		this.isExportable 	= isExportable;
 	}
 	
-	/**
-	 * @return the dashboardId
-	 */
+	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	/**
-	 * @param dashboardId the dashboardId to set
-	 */
+	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
-	/**
-	 * @return the dashboardName
-	 */
+	
 	public String getDashboardName() {
 		return dashboardName;
 	}
 
-	/**
-	 * @param dashboardName the dashboardName to set
-	 */
+	
 	public void setDashboardName(String dashboardName) {
 		this.dashboardName = dashboardName;
 	}
 
-	/**
-	 * @return the dashboardType
-	 */
+	
 	public String getDashboardType() {
 		return dashboardType;
 	}
 
-	/**
-	 * @param dashboardType the dashboardType to set
-	 */
+	
 	public void setDashboardType(String dashboardType) {
 		this.dashboardType = dashboardType;
 	}
 
-	/**
-	 * @return the roleIdList
-	 */
+	
 	public List<String> getRoleIdList() {
 		return roleIdList;
 	}
 
-	/**
-	 * @param roleIdList the roleIdList to set
-	 */
+	
 	public void setRoleIdList(List<String> roleIdList) {
 		this.roleIdList = roleIdList;
 	}
 
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
-	/**
-	 * @return the dashletIdList
-	 */
+	
 	public List<String> getDashletIdList() {
 		return dashletIdList;
 	}
 
-	/**
-	 * @param dashletIdList the dashletIdList to set
-	 */
+	
 	public void setDashletIdList(List<String> dashletIdList) {
 		this.dashletIdList = dashletIdList;
 	}
 
-	/**
-	 * @return the isDraggable
-	 */
+	
 	public Integer getIsDraggable() {
 		return isDraggable;
 	}
 
-	/**
-	 * @param isDraggable the isDraggable to set
-	 */
+	
 	public void setIsDraggable(Integer isDraggable) {
 		this.isDraggable = isDraggable;
 	}
 
-	/**
-	 * @return the isExportable
-	 */
+	
 	public Integer getIsExportable() {
 		return isExportable;
 	}
 
-	/**
-	 * @param isExportable the isExportable to set
-	 */
+	
 	public void setIsExportable(Integer isExportable) {
 		this.isExportable = isExportable;
 	}

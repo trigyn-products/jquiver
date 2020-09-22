@@ -3,10 +3,7 @@ package com.trigyn.jws.menu.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
-/**
- * The primary key class for the module_role_association database table.
- * 
- */
+
 @Embeddable
 public class ModuleRoleAssociationPK implements Serializable {
 	//default serial version id, required for serializable classes.

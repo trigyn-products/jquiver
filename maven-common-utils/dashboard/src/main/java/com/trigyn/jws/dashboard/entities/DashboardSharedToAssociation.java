@@ -12,9 +12,7 @@ import javax.persistence.Table;
 @Table(name = "dashboard_shared_to_association")
 public class DashboardSharedToAssociation implements Serializable{
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID 	= 1L;
 
 	@EmbeddedId
@@ -32,30 +30,22 @@ public class DashboardSharedToAssociation implements Serializable{
 		this.id = id;
 	}
 
-	/**
-	 * @return the id
-	 */
+	
 	public DashboardSharedToAssociationPK getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(DashboardSharedToAssociationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the dashboardPermissionType
-	 */
+	
 	public String getDashboardPermissionType() {
 		return dashboardPermissionType;
 	}
 
-	/**
-	 * @param dashboardPermissionType the dashboardPermissionType to set
-	 */
+	
 	public void setDashboardPermissionType(String dashboardPermissionType) {
 		this.dashboardPermissionType = dashboardPermissionType;
 	}

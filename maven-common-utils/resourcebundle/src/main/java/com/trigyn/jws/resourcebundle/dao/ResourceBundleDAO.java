@@ -26,11 +26,7 @@ public class ResourceBundleDAO extends DBConnection {
     }
 
     
-    /** 
-     * @param dbresource
-     * @param languageVO
-     * @throws Exception
-     */
+    
     public void deleteResourceEntry(ResourceBundleVO dbresource, LanguageVO languageVO) throws Exception {
         
         List<LanguageVO> languageVOList = getLanguageIdByLanguageName(languageVO);
@@ -43,10 +39,7 @@ public class ResourceBundleDAO extends DBConnection {
 
 	
     
-    /** 
-     * @param dbresource
-     * @throws Exception
-     */
+    
     public void saveOrUpdateRecord(ResourceBundleVO dbresource)throws Exception {
 		
 		List<ResourceBundleVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_MESSAGE_DETAILS,
@@ -72,11 +65,7 @@ public class ResourceBundleDAO extends DBConnection {
 
 	
     
-    /** 
-     * @param languageVO
-     * @return List<DBResource>
-     * @throws Exception
-     */
+    
     private List<LanguageVO> getLanguageIdByLanguageName(LanguageVO languageVO)throws Exception {
 
 		List<LanguageVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_LANGAUGE_ID_BY_NAME, new Object[] { languageVO.getLanguageName() },
@@ -92,12 +81,7 @@ public class ResourceBundleDAO extends DBConnection {
 
 	
 	
-    /** 
-     * @param resKey
-     * @param langId
-     * @return List<DBResource>
-     * @throws Exception
-     */
+    
     public List<ResourceBundleVO> checkResourceData(String resKey,String langId) throws Exception {
 			
 		List<ResourceBundleVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_MESSAGE_DETAILS,
@@ -116,11 +100,7 @@ public class ResourceBundleDAO extends DBConnection {
 	}
 
     
-    /** 
-     * @param resourceKey
-     * @return List<DBResource>
-     * @throws Exception
-     */
+    
     public List<ResourceBundleVO> getLanguageIdAndText(String resourceKey) throws Exception {
         Map<String,String> namedParameters = new HashMap<String, String>();
         namedParameters.put("resourceKey", resourceKey);

@@ -28,44 +28,32 @@ public class ContextMasterVO implements Serializable{
 		this.contextDescription = contextDescription;
 	}
 
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
-	/**
-	 * @return the contextDescription
-	 */
+	
 	public String getContextDescription() {
 		return contextDescription;
 	}
 
-	/**
-	 * @param contextDescription the contextDescription to set
-	 */
+	
 	public void setContextDescription(String contextDescription) {
 		this.contextDescription = contextDescription;
 	}
 
-	/**
-	 * @return the allowDashboardAddition
-	 */
+	
 	public Integer getAllowDashboardAddition() {
 		return allowDashboardAddition;
 	}
 
-	/**
-	 * @param allowDashboardAddition the allowDashboardAddition to set
-	 */
+	
 	public void setAllowDashboardAddition(Integer allowDashboardAddition) {
 		this.allowDashboardAddition = allowDashboardAddition;
 	}

@@ -13,9 +13,7 @@ public class FileUtilities {
 
 	private final static Logger logger = LogManager.getLogger(FileUtilities.class);
 	
-    /**
-     *
-     */
+    
     private static final String SHA_256 = "SHA-256";
 
     public static String generateFileChecksum(File file) throws NoSuchAlgorithmException {

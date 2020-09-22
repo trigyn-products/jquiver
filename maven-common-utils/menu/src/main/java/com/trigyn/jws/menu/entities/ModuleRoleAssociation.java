@@ -4,10 +4,7 @@ import java.io.Serializable;
 import javax.persistence.*;
 
 
-/**
- * The persistent class for the module_role_association database table.
- * 
- */
+
 @Entity
 @Table(name="module_role_association")
 @NamedQuery(name="ModuleRoleAssociation.findAll", query="SELECT m FROM ModuleRoleAssociation m")

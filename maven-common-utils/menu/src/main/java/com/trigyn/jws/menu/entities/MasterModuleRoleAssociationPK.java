@@ -5,10 +5,7 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-/**
- * The primary key class for the master_module_role_association database table.
- * 
- */
+
 @Embeddable
 public class MasterModuleRoleAssociationPK implements Serializable {
 	
@@ -29,30 +26,22 @@ public class MasterModuleRoleAssociationPK implements Serializable {
 		this.roleId 			= roleId;
 	}
 
-	/**
-	 * @return the masterModuleId
-	 */
+	
 	public String getMasterModuleId() {
 		return masterModuleId;
 	}
 
-	/**
-	 * @param masterModuleId the masterModuleId to set
-	 */
+	
 	public void setMasterModuleId(String masterModuleId) {
 		this.masterModuleId = masterModuleId;
 	}
 
-	/**
-	 * @return the roleId
-	 */
+	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	/**
-	 * @param roleId the roleId to set
-	 */
+	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}

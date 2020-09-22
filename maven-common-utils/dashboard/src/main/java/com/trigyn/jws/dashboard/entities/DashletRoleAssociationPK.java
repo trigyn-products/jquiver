@@ -5,10 +5,7 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-/**
- * The primary key class for the dashlet_role_association database table.
- * 
- */
+
 @Embeddable
 public class DashletRoleAssociationPK implements Serializable {
 	
@@ -29,30 +26,22 @@ public class DashletRoleAssociationPK implements Serializable {
 		this.roleId 		= roleId;
 	}
 
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	/**
-	 * @return the roleId
-	 */
+	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	/**
-	 * @param roleId the roleId to set
-	 */
+	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}

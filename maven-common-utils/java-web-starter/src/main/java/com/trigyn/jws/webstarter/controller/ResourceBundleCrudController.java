@@ -41,10 +41,7 @@ public class ResourceBundleCrudController {
 	private TemplatingUtils templateEngine 						= null;
 	
 
-	/**
-	 * @return String
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
 	public String dbResourceBundleListing() throws Exception {
 		
@@ -59,11 +56,7 @@ public class ResourceBundleCrudController {
 
 	
 
-	/**
-	 * @param resourceBundleKey
-	 * @return String
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/aerb")
 	public String dbResourceJsp(@RequestParam("resource-key") String resourceBundleKey) throws Exception {
 		Map<String, Object> templateMap = new HashMap<>();
@@ -81,11 +74,7 @@ public class ResourceBundleCrudController {
 	}
 
 
-	/**
-	 * @param resourceBundleKey
-	 * @return {@link ResponseEntity}
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/crbk", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Boolean> checkResourceData(@RequestParam("resourceKey") String resourceBundleKey) throws Exception {
 		
@@ -100,12 +89,7 @@ public class ResourceBundleCrudController {
 
 	}
 	
-	/**
-	 * @param resourceBundleKey
-	 * @param dbResourceList
-	 * @return {@link ResponseEntity}
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/srb", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Boolean> saveResourceDetails(@RequestParam("resourceBundleKey") String resourceBundleKey,
 			@RequestBody List<ResourceBundleVO> dbResourceList) throws Exception {

@@ -13,10 +13,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 
-/**
- * The persistent class for the user_role database table.
- * 
- */
+
 @Entity
 @Table(name="user_role")
 @NamedQuery(name="UserRole.findAll", query="SELECT u FROM UserRole u")
@@ -49,58 +46,42 @@ public class UserRole implements Serializable {
 		this.roleName 			= roleName;
 	}
 
-	/**
-	 * @return the roleId
-	 */
+	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	/**
-	 * @param roleId the roleId to set
-	 */
+	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
 
-	/**
-	 * @return the isDeleted
-	 */
+	
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	/**
-	 * @param isDeleted the isDeleted to set
-	 */
+	
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
-	/**
-	 * @return the roleDescription
-	 */
+	
 	public String getRoleDescription() {
 		return roleDescription;
 	}
 
-	/**
-	 * @param roleDescription the roleDescription to set
-	 */
+	
 	public void setRoleDescription(String roleDescription) {
 		this.roleDescription = roleDescription;
 	}
 
-	/**
-	 * @return the roleName
-	 */
+	
 	public String getRoleName() {
 		return roleName;
 	}
 
-	/**
-	 * @param roleName the roleName to set
-	 */
+	
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}

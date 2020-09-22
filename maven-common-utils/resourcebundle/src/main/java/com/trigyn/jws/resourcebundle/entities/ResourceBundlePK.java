@@ -27,30 +27,22 @@ public class ResourceBundlePK implements Serializable{
 		this.languageId 	= languageId;
 	}
 
-	/**
-	 * @return the resourceKey
-	 */
+	
 	public String getResourceKey() {
 		return resourceKey;
 	}
 
-	/**
-	 * @param resourceKey the resourceKey to set
-	 */
+	
 	public void setResourceKey(String resourceKey) {
 		this.resourceKey = resourceKey;
 	}
 
-	/**
-	 * @return the languageId
-	 */
+	
 	public Integer getLanguageId() {
 		return languageId;
 	}
 
-	/**
-	 * @param languageId the languageId to set
-	 */
+	
 	public void setLanguageId(Integer languageId) {
 		this.languageId = languageId;
 	}

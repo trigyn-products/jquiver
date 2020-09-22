@@ -48,12 +48,7 @@ public class DashboardController {
 
 
 
-	/**
-	 * @param contextId
-	 * @return
-	 * @throws NumberFormatException
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/gdbc", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<DashboardDashletVO> getDashletByContextId(
 			@RequestHeader(value = "context-id", required = true) String contextId,
@@ -62,12 +57,7 @@ public class DashboardController {
 		return dashboardServiceImpl.getDashletsByContextId(contextId, dashboardId);
 	}
 
-	/**
-	 * @param dashboardId
-	 * @param userId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/dls", produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String dashlets(@RequestParam(value = "dashboardId") String dashboardId,
@@ -80,12 +70,7 @@ public class DashboardController {
 
 	}
 
-	/**
-	 * @param userId
-	 * @param dashboardId
-	 * @param dashlets
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/sdc")
 	public void saveDashletCoordinates(@RequestHeader(value = "user-id", required = false) String userId,
 			@RequestParam(value = "dashboardId") String dashboardId,
@@ -107,13 +92,7 @@ public class DashboardController {
 		return dashletService.refreshDashletContent(userId, dashletId, paramArray);
 	}
 
-	/**
-	 * @param userId
-	 * @param dashletId
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/oc")
 	public String openDashletConfig(@RequestHeader(value = "user-id", required = false) String userId, 
 			@RequestParam(value = "dashletId") String dashletId, @RequestParam(value = "dashboardId") String dashboardId) throws Exception {

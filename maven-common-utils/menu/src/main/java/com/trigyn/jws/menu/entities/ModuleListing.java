@@ -9,10 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-/**
- * The persistent class for the module_listing database table.
- * 
- */
+
 @Entity
 @Table(name="module_listing")
 @NamedQuery(name="ModuleListing.findAll", query="SELECT m FROM ModuleListing m")

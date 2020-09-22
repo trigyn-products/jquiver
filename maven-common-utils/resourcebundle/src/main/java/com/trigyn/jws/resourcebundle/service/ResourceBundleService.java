@@ -34,11 +34,7 @@ public class ResourceBundleService {
     private ILanguageRepository iLanguageRepository						= null;
 
 	
-	/** 
-	 * @param resourceBundleKey
-	 * @return List<DBResource>
-	 * @throws Exception
-	 */
+	
 	public Map<Integer, ResourceBundleVO> getResourceBundleVOMap(String resourceBundleKey) throws Exception {
 		try{
 			Map<Integer, ResourceBundleVO> resourceBundleVOMap = new HashMap<Integer, ResourceBundleVO>();
@@ -56,10 +52,7 @@ public class ResourceBundleService {
 	
 	
 	
-	/** 
-	 * @return List<DBResource>
-	 * @throws Exception
-	 */
+	
 	public List<LanguageVO> getLanguagesList()throws Exception {
 		try{
 			return iLanguageRepository.getAllLanguages(Constant.RecordStatus.INSERTED.getStatus());
@@ -69,10 +62,7 @@ public class ResourceBundleService {
 	}
 	
 	
-	/**
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public Boolean checkResourceKeyExist(String resourceBundleKey)throws Exception {
 		Boolean keyAlreadyExist = true;
 		try{
@@ -88,11 +78,7 @@ public class ResourceBundleService {
 	}
 	
 	
-	/** 
-	 * @param resourceBundleKey 
-	 * @param resourceBundleVOList
-	 * @throws Exception
-	 */
+	
 	@Transactional(readOnly = false)
 	public void saveResourceBundleDetails(String resourceBundleKey, List<ResourceBundleVO> resourceBundleVOList)throws Exception {
 		try{
@@ -122,12 +108,7 @@ public class ResourceBundleService {
 	}
 	
 	
-	/**
-	 * @param resourceBundleKey
-	 * @param resourceBundleVO
-	 * @return {@link ResourceBundle}
-	 * @throws Exception
-	 */
+	
 	private ResourceBundle convertResourceBundleEntityToVO(String resourceBundleKey, ResourceBundleVO resourceBundleVO) throws Exception{
 		ResourceBundle resourceBundle 		= new ResourceBundle();
 		ResourceBundlePK resourceBundlePK 	= new ResourceBundlePK();
@@ -139,10 +120,7 @@ public class ResourceBundleService {
 	}
 	
 	
-	/** 
-	 * @param dbresource
-	 * @throws Exception
-	 */
+	
 	@Transactional(readOnly = false)
 	public void deleteDbResourceEntry(ResourceBundleVO dbresource) throws Exception{
 		try{
@@ -153,12 +131,7 @@ public class ResourceBundleService {
 	}
 
 	
-	/** 
-	 * @param resKey
-	 * @param langId
-	 * @return DBResource
-	 * @throws Exception
-	 */
+	
 	public ResourceBundleVO checkResourceData(String resKey,String langId) throws Exception {
 		try{
 			List<ResourceBundleVO> resData 	= dbResourceDAO.checkResourceData(resKey,langId);

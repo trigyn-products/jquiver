@@ -5,10 +5,7 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-/**
- * The primary key class for the jws_dynamic_rest_role_association database table.
- * 
- */
+
 @Embeddable
 public class JwsDynamicRestRoleAssociationPK implements Serializable {
 	
@@ -29,30 +26,22 @@ public class JwsDynamicRestRoleAssociationPK implements Serializable {
 		this.roleId 			= roleId;
 	}
 
-	/**
-	 * @return the jwsDynamicRestId
-	 */
+	
 	public Integer getJwsDynamicRestId() {
 		return jwsDynamicRestId;
 	}
 
-	/**
-	 * @param jwsDynamicRestId the jwsDynamicRestId to set
-	 */
+	
 	public void setJwsDynamicRestId(Integer jwsDynamicRestId) {
 		this.jwsDynamicRestId = jwsDynamicRestId;
 	}
 
-	/**
-	 * @return the roleId
-	 */
+	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	/**
-	 * @param roleId the roleId to set
-	 */
+	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}

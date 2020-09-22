@@ -52,86 +52,62 @@ public class ContextMaster implements Serializable{
 	}
 	
 	
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
-	/**
-	 * @return the contextDescription
-	 */
+	
 	public String getContextDescription() {
 		return contextDescription;
 	}
 
-	/**
-	 * @param contextDescription the contextDescription to set
-	 */
+	
 	public void setContextDescription(String contextDescription) {
 		this.contextDescription = contextDescription;
 	}
 
-	/**
-	 * @return the allowDashboardAddition
-	 */
+	
 	public Integer getAllowDashboardAddition() {
 		return allowDashboardAddition;
 	}
 
-	/**
-	 * @param allowDashboardAddition the allowDashboardAddition to set
-	 */
+	
 	public void setAllowDashboardAddition(Integer allowDashboardAddition) {
 		this.allowDashboardAddition = allowDashboardAddition;
 	}
 
-	/**
-	 * @return the createdBy
-	 */
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
 
-	/**
-	 * @param createdBy the createdBy to set
-	 */
+	
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
 
-	/**
-	 * @return the createdDate
-	 */
+	
 	public Date getCreatedDate() {
 		return createdDate;
 	}
 
-	/**
-	 * @param createdDate the createdDate to set
-	 */
+	
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
-	/**
-	 * @return the dashlet
-	 */
+	
 	public List<Dashlet> getDashlet() {
 		return dashlet;
 	}
 
-	/**
-	 * @param dashlet the dashlet to set
-	 */
+	
 	public void setDashlet(List<Dashlet> dashlet) {
 		this.dashlet = dashlet;
 	}

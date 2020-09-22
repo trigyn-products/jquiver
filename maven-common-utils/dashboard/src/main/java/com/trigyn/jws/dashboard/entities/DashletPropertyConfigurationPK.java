@@ -30,44 +30,32 @@ public class DashletPropertyConfigurationPK implements Serializable{
 		this.dashboardId 	= dashboardId;
 	}
 
-	/**
-	 * @return the userId
-	 */
+	
 	public String getUserId() {
 		return userId;
 	}
 
-	/**
-	 * @param userId the userId to set
-	 */
+	
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
-	/**
-	 * @return the propertyId
-	 */
+	
 	public String getPropertyId() {
 		return propertyId;
 	}
 
-	/**
-	 * @param propertyId the propertyId to set
-	 */
+	
 	public void setPropertyId(String propertyId) {
 		this.propertyId = propertyId;
 	}
 
-	/**
-	 * @return the dashboardId
-	 */
+	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	/**
-	 * @param dashboardId the dashboardId to set
-	 */
+	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}

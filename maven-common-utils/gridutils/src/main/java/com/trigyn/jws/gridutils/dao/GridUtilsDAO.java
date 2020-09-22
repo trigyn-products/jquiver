@@ -29,9 +29,7 @@ public class GridUtilsDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	/**
-	 * @throws Exception
-	 */
+	
 	public void getGridDetails() throws Exception {
 		System.out.println();
 	}

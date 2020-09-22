@@ -13,10 +13,7 @@ import javax.persistence.Table;
 import com.trigyn.jws.dbutils.entities.UserRole;
 
 
-/**
- * The persistent class for the master_module_role_association database table.
- * 
- */
+
 @Entity
 @Table(name="master_module_role_association")
 @NamedQuery(name="MasterModuleRoleAssociation.findAll", query="SELECT m FROM MasterModuleRoleAssociation m")
@@ -43,44 +40,32 @@ public class MasterModuleRoleAssociation implements Serializable {
 		this.userRole 	= userRole;
 	}
 
-	/**
-	 * @return the id
-	 */
+	
 	public MasterModuleRoleAssociationPK getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(MasterModuleRoleAssociationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the moduleListing
-	 */
+	
 	public ModuleListing getModuleListing() {
 		return moduleListing;
 	}
 
-	/**
-	 * @param moduleListing the moduleListing to set
-	 */
+	
 	public void setModuleListing(ModuleListing moduleListing) {
 		this.moduleListing = moduleListing;
 	}
 	
-	/**
-	 * @return the userRole
-	 */
+	
 	public UserRole getUserRole() {
 		return userRole;
 	}
 
-	/**
-	 * @param userRole the userRole to set
-	 */
+	
 	public void setUserRole(UserRole userRole) {
 		this.userRole = userRole;
 	}

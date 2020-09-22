@@ -24,44 +24,32 @@ public class DataGridResponse
         this.total = total + "";
     }
 
-    /**
-	 * @return the total
-	 */
+    
 	public String getTotal() {
 		return total;
 	}
 
-	/**
-	 * @param total the total to set
-	 */
+	
 	public void setTotal(String total) {
 		this.total = total;
 	}
 
-	/**
-	 * @return the rows
-	 */
+	
 	public List<Map<String, Object>> getRows() {
 		return rows;
 	}
 
-	/**
-	 * @param rows the rows to set
-	 */
+	
 	public void setRows(List<Map<String, Object>> rows) {
 		this.rows = rows;
 	}
 
-	/**
-	 * @return the curPage
-	 */
+	
 	public String getCurPage() {
 		return curPage;
 	}
 
-	/**
-	 * @param curPage the curPage to set
-	 */
+	
 	public void setCurPage(String curPage) {
 		this.curPage = curPage;
 	}

@@ -21,46 +21,31 @@ public class NotificationDAO extends DBConnection {
     }
     
     
-    /** 
-     * @throws Exception
-     */
+    
     public void getNotificationDetails() throws Exception{
         System.out.println();
     }
 
-	/**
-	 * @param notificationId
-	 * @return
-	 */
+	
 	public GenericUserNotification getNotificationDetails(String notificationId) {
 		GenericUserNotification genericUserNotificationDetails = (GenericUserNotification) sessionFactory.getCurrentSession().get(GenericUserNotification.class, notificationId);
 		return genericUserNotificationDetails;
 	}
 
-	/**
-	 * @param userNotification
-	 */
+	
 	public void saveEditedNotification(GenericUserNotification userNotification) {
 		sessionFactory.getCurrentSession().saveOrUpdate(userNotification);
 	}
 	
 
-	/**
-	 * @param selectionQuery
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public Boolean executeSelectionCriteria(String selectionQuery) throws Exception {
 		NativeQuery sqlQuery = sessionFactory.getCurrentSession().createSQLQuery(selectionQuery);
 		Boolean data = sqlQuery.uniqueResult().toString().equalsIgnoreCase("1");
 		return data;
     }
     
-	 /**
-	 * @param contextName
-	 * @return
-	 * @throws Exception
-	 */
+	 
 	public List<GenericUserNotification> getNotificationData(String contextName) throws Exception {
 			String hql = " FROM GenericUserNotification WHERE  "
 					+ "CURDATE() BETWEEN messageValidFrom AND messageValidTill AND targetPlatform = :targetPlatform"

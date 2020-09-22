@@ -52,142 +52,102 @@ public class ModuleDetailsVO implements Serializable{
 		this.subModuleCount 	= subModuleCount;
 	}
 
-	/**
-	 * @return the moduleId
-	 */
+	
 	public String getModuleId() {
 		return moduleId;
 	}
 
-	/**
-	 * @param moduleId the moduleId to set
-	 */
+	
 	public void setModuleId(String moduleId) {
 		this.moduleId = moduleId;
 	}
 
-	/**
-	 * @return the moduleName
-	 */
+	
 	public String getModuleName() {
 		return moduleName;
 	}
 
-	/**
-	 * @param moduleName the moduleName to set
-	 */
+	
 	public void setModuleName(String moduleName) {
 		this.moduleName = moduleName;
 	}
 
-	/**
-	 * @return the moduleURL
-	 */
+	
 	public String getModuleURL() {
 		return moduleURL;
 	}
 
-	/**
-	 * @param moduleURL the moduleURL to set
-	 */
+	
 	public void setModuleURL(String moduleURL) {
 		this.moduleURL = moduleURL;
 	}
 
-	/**
-	 * @return the parentModuleId
-	 */
+	
 	public String getParentModuleId() {
 		return parentModuleId;
 	}
 
-	/**
-	 * @param parentModuleId the parentModuleId to set
-	 */
+	
 	public void setParentId(String parentModuleId) {
 		this.parentModuleId = parentModuleId;
 	}
 
-	/**
-	 * @return the parentModuleName
-	 */
+	
 	public String getParentModuleName() {
 		return parentModuleName;
 	}
 
-	/**
-	 * @param parentModuleName the parentModuleName to set
-	 */
+	
 	public void setParentModuleName(String parentModuleName) {
 		this.parentModuleName = parentModuleName;
 	}
 
-	/**
-	 * @return the sequence
-	 */
+	
 	public Integer getSequence() {
 		return sequence;
 	}
 
-	/**
-	 * @param sequence the sequence to set
-	 */
+	
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
 
-	/**
-	 * @return the targetLookupId
-	 */
+	
 	public Integer getTargetLookupId() {
 		return targetLookupId;
 	}
 
-	/**
-	 * @param targetLookupId the targetLookupId to set
-	 */
+	
 	public void setTargetLookupId(Integer targetLookupId) {
 		this.targetLookupId = targetLookupId;
 	}
 
-	/**
-	 * @return the targetLookupDesc
-	 */
+	
 	public String getTargetLookupDesc() {
 		return targetLookupDesc;
 	}
 
-	/**
-	 * @param targetLookupDesc the targetLookupDesc to set
-	 */
+	
 	public void setTargetLookupDesc(String targetLookupDesc) {
 		this.targetLookupDesc = targetLookupDesc;
 	}
 
-	/**
-	 * @return the targetTypeId
-	 */
+	
 	public String getTargetTypeId() {
 		return targetTypeId;
 	}
 
-	/**
-	 * @param targetTypeId the targetTypeId to set
-	 */
+	
 	public void setTargetTypeId(String targetTypeId) {
 		this.targetTypeId = targetTypeId;
 	}
 
-	/**
-	 * @return the subModuleCount
-	 */
+	
 	public Long getSubModuleCount() {
 		return subModuleCount;
 	}
 
-	/**
-	 * @param subModuleCount the subModuleCount to set
-	 */
+	
 	public void setSubModuleCount(Long subModuleCount) {
 		this.subModuleCount = subModuleCount;
 	}

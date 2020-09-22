@@ -9,9 +9,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class DashboardDashletAssociationPK implements Serializable{
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID 	= -6922215861439332377L;
 
 	@Column(name = "dashboard_id")
@@ -29,30 +27,22 @@ public class DashboardDashletAssociationPK implements Serializable{
 		
 	}
 	
-	/**
-	 * @return the dashboardId
-	 */
+	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	/**
-	 * @param dashboardId the dashboardId to set
-	 */
+	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}

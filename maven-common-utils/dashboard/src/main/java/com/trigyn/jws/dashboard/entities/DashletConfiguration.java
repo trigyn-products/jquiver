@@ -12,9 +12,7 @@ import javax.persistence.Table;
 @Table(name = "dashlet_configuration")
 public class DashletConfiguration implements Serializable {
 
-	/**
-	 * 
-	 */
+	
 	private static final long	serialVersionUID	= 1L;
 
 	@EmbeddedId
@@ -37,44 +35,32 @@ public class DashletConfiguration implements Serializable {
 		this.yCoordinate 	= yCoordinate;
 	}
 
-	/**
-	 * @return the id
-	 */
+	
 	public DashletConfigurationPK getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(DashletConfigurationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the xCoordinate
-	 */
+	
 	public Integer getxCoordinate() {
 		return xCoordinate;
 	}
 
-	/**
-	 * @param xCoordinate the xCoordinate to set
-	 */
+	
 	public void setxCoordinate(Integer xCoordinate) {
 		this.xCoordinate = xCoordinate;
 	}
 
-	/**
-	 * @return the yCoordinate
-	 */
+	
 	public Integer getyCoordinate() {
 		return yCoordinate;
 	}
 
-	/**
-	 * @param yCoordinate the yCoordinate to set
-	 */
+	
 	public void setyCoordinate(Integer yCoordinate) {
 		this.yCoordinate = yCoordinate;
 	}

@@ -18,30 +18,22 @@ public class ModuleTargetTypeDetailsVO implements Serializable{
 		this.targetTypeName 	= targetTypeName;
 	}
 
-	/**
-	 * @return the targetTypeId
-	 */
+	
 	public String getTargetTypeId() {
 		return targetTypeId;
 	}
 
-	/**
-	 * @param targetTypeId the targetTypeId to set
-	 */
+	
 	public void setTargetTypeId(String targetTypeId) {
 		this.targetTypeId = targetTypeId;
 	}
 
-	/**
-	 * @return the targetTypeName
-	 */
+	
 	public String getTargetTypeName() {
 		return targetTypeName;
 	}
 
-	/**
-	 * @param targetTypeName the targetTypeName to set
-	 */
+	
 	public void setTargetTypeName(String targetTypeName) {
 		this.targetTypeName = targetTypeName;
 	}

@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-/**
- * The persistent class for the jws_response_producer_details database table.
- * 
- */
+
 @Entity
 @Table(name="jws_response_producer_details")
 @NamedQuery(name="JwsResponseProducerDetail.findAll", query="SELECT j FROM JwsResponseProducerDetail j")

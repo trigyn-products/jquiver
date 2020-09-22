@@ -22,27 +22,19 @@ public class LanguageVO implements Serializable{
 	}
 	
 	
-	/**
-	 * @return the languageId
-	 */
+	
 	public Integer getLanguageId() {
 		return languageId;
 	}
-	/**
-	 * @param languageId the languageId to set
-	 */
+	
 	public void setLanguageId(Integer languageId) {
 		this.languageId = languageId;
 	}
-	/**
-	 * @return the languageName
-	 */
+	
 	public String getLanguageName() {
 		return languageName;
 	}
-	/**
-	 * @param languageName the languageName to set
-	 */
+	
 	public void setLanguageName(String languageName) {
 		this.languageName = languageName;
 	}

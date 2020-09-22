@@ -14,9 +14,7 @@ import javax.persistence.Table;
 @Table(name = "dashboard_dashlet_association")
 public class DashboardDashletAssociation implements Serializable{
 
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID 	= 1L;
 
 	@EmbeddedId
@@ -38,45 +36,33 @@ public class DashboardDashletAssociation implements Serializable{
 		this.id 			= id;
 	}
 	
-	/**
-	 * @return the id
-	 */
+	
 	public DashboardDashletAssociationPK getId() {
 		return id;
 	}
 
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(DashboardDashletAssociationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the dashboard
-	 */
+	
 	public Dashboard getDashboard() {
 		return dashboard;
 	}
 
-	/**
-	 * @param dashboard the dashboard to set
-	 */
+	
 	public void setDashboard(Dashboard dashboard) {
 		this.dashboard = dashboard;
 	}
 
-	/**
-	 * @return the dashlet
-	 */
+	
 	public Dashlet getDashlet() {
 		return dashlet;
 	}
 
-	/**
-	 * @param dashlet the dashlet to set
-	 */
+	
 	public void setDashlet(Dashlet dashlet) {
 		this.dashlet = dashlet;
 	}

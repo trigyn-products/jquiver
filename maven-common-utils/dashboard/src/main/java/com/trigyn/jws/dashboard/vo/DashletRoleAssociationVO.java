@@ -20,30 +20,22 @@ public class DashletRoleAssociationVO implements Serializable {
 		this.dashletId 	= dashletId;
 	}
 
-	/**
-	 * @return the roleId
-	 */
+	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	/**
-	 * @param roleId the roleId to set
-	 */
+	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
 
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}

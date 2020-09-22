@@ -25,11 +25,7 @@ public class ModuleDAO extends DBConnection{
 
 
 
-	/**
-	 * @param targetTypeId
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+	
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> findTargetTypeDetails(Integer targetTypeId) throws Exception{
 		List<Map<String, Object>> targetTypeList 		= null;

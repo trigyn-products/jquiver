@@ -27,11 +27,7 @@ public class TypeAheadController {
     @Autowired
 	private TypeAheadService typeAheadService = null;
 
-    /**
-	 * @param a_httpServletRequest
-	 * @param a_httpServletRequestResponse
-	 * @return
-	 */
+    
 	@ApiOperation(value = "Get count of autocomplete data by autocomplete id.")
 	@PostMapping(value = "/autocomplete-data", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public List<Map<String, Object>> getAutocompleteData(HttpServletRequest request) {
@@ -39,11 +35,7 @@ public class TypeAheadController {
 		return typeAheadService.getAutocompleteData(autocompleteParams);
 	}
 
-	/**
-	 * @param request
-	 * @param response
-	 * @return
-	 */
+	
 	@ApiOperation(value = "Get count of autocomplete data by autocomplete id")
 	@GetMapping(value = "/count-data", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
 	public Integer getCountOfData(@RequestBody AutocompleteParams requestParams) {

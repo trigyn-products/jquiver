@@ -29,72 +29,52 @@ public class DynamicFormVO  implements Serializable{
 		this.formBodyCheckSum       = formBodyCheckSum;
 	}
 
-	/**
-	 * @return the formId
-	 */
+	
 	public String getFormId() {
 		return formId;
 	}
 
-	/**
-	 * @param formId the formId to set
-	 */
+	
 	public void setFormId(String formId) {
 		this.formId = formId;
 	}
 
-	/**
-	 * @return the formName
-	 */
+	
 	public String getFormName() {
 		return formName;
 	}
 
-	/**
-	 * @param formName the formName to set
-	 */
+	
 	public void setFormName(String formName) {
 		this.formName = formName;
 	}
 
-	/**
-	 * @return the formDescription
-	 */
+	
 	public String getFormDescription() {
 		return formDescription;
 	}
 
-	/**
-	 * @param formDescription the formDescription to set
-	 */
+	
 	public void setFormDescription(String formDescription) {
 		this.formDescription = formDescription;
 	}
 
-	/**
-	 * @return the formSelectQuery
-	 */
+	
 	public String getFormSelectQuery() {
 		return formSelectQuery;
 	}
 
-	/**
-	 * @param formSelectQuery the formSelectQuery to set
-	 */
+	
 	public void setFormSelectQuery(String formSelectQuery) {
 		this.formSelectQuery = formSelectQuery;
 	}
 
-	/**
-	 * @return the formBody
-	 */
+	
 	public String getFormBody() {
 		return formBody;
 	}
 
-	/**
-	 * @param formBody the formBody to set
-	 */
+	
 	public void setFormBody(String formBody) {
 		this.formBody = formBody;
 	}

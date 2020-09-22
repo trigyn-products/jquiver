@@ -59,13 +59,7 @@ public class JwsDynamicRestDetailService {
     private JwsDynamicRestDetailsRepository dyanmicRestDetailsRepository 	= null;
     
 
-    /**
-     * @param requestParameterMap
-     * @param daoResultSets
-     * @param restApiDetails
-     * @return
-     * @throws Exception
-     */
+    
     public Object createSourceCodeAndInvokeServiceLogic(Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> apiDetails = objectMapper.convertValue(restApiDetails, Map.class);
@@ -80,14 +74,7 @@ public class JwsDynamicRestDetailService {
     }
 
 
-    /**
-     * @param requestParameterMap
-     * @param daoResultSets
-     * @param restApiDetails
-     * @return
-     * @throws IOException
-     * @throws TemplateException
-     */
+    
     private Object invokeAndExecuteFTL(Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws IOException, TemplateException {
         if(restApiDetails.getServiceLogic() != null || Boolean.FALSE.equals("".equals(restApiDetails.getServiceLogic()))) {
             requestParameterMap.putAll(daoResultSets);
@@ -97,20 +84,7 @@ public class JwsDynamicRestDetailService {
     }
 
     
-    /**
-     * @param requestParameterMap
-     * @param daoResultSets
-     * @param restApiDetails
-     * @return
-     * @throws Exception
-     * @throws IOException
-     * @throws TemplateException
-     * @throws ClassNotFoundException
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws InstantiationException
-     */
+    
     private Object invokeAndExecuteOnJava(Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, IOException, TemplateException, ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         TemplateVO templateVO = dbTemplatingService.getTemplateByName(DYNAREST_CLASS_STRUCTURE_TEMPLATE);
@@ -125,14 +99,7 @@ public class JwsDynamicRestDetailService {
     
     
 
-    /**
-     * @param sourceCode
-     * @param sourceFile
-     * @param className
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
+    
     private Class<?> getCompiledClassOfServiceLogic(String sourceCode, File sourceFile, String className) throws IOException, ClassNotFoundException {
         sourceFile.deleteOnExit();
         FileWriter writer = new FileWriter(sourceFile);
@@ -155,23 +122,14 @@ public class JwsDynamicRestDetailService {
     }
 
     
-    /**
-     * @param requestUri
-     * @return
-     */
+    
     public RestApiDetails getRestApiDetails(String requestUri) {
         return dyanmicRestDetailsRepository.findByJwsDynamicRestUrl(requestUri);
     }
 
     
     
-    /**
-     * @param dynarestId
-     * @param parameterMap
-     * @return
-     * @throws IOException
-     * @throws TemplateException
-     */
+    
     public Map<String, Object> executeDAOQueries(Integer dynarestId, Map<String, Object> parameterMap) throws IOException, TemplateException {
         List<RestApiDaoQueries> apiDaoQueries = dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
         Map<String, Object> resultSetMap = new HashMap<>();

@@ -42,11 +42,7 @@ public class MenuCrudController {
     @Autowired
     private TemplatingUtils templateEngine 			= null;
     
-	/**
-	 * @param moduleId
-	 * @return {@link String}
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditModule(@RequestParam(value = "module-id") String moduleId) throws Exception {
 		Map<String, Object> templateMap = new HashMap<>();
@@ -62,11 +58,7 @@ public class MenuCrudController {
 	}
 	
 	
-	/**
-	 * @param targetTypeId
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/ltlm", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<Map<String, Object>> getTargetTypes(
 			@RequestHeader(value = "target-lookup-id", required = true) Integer targetTypeId)
@@ -74,11 +66,7 @@ public class MenuCrudController {
 		return moduleService.getTargetTypes(targetTypeId);
 	}
 
-	/**
-	 * @param moduleDetailsVO
-	 * @return {@link ResponseEntity}
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/cms")
 	@ResponseBody
 	public String checkSequenceNumber(
@@ -92,11 +80,7 @@ public class MenuCrudController {
 	}
 	
 	
-	/**
-	 * @param moduleDetailsVO
-	 * @return {@link ResponseEntity}
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/cmurl")
 	@ResponseBody
 	public String checkModuleURL(
@@ -105,11 +89,7 @@ public class MenuCrudController {
 	}
 	
 
-	/**
-	 * @param moduleDetailsVO
-	 * @return {@link ResponseEntity}
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/sm", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<String> saveModule(@RequestBody ModuleDetailsVO moduleDetailsVO) throws Exception {
 		HttpHeaders httpHeaders = new HttpHeaders();

@@ -76,198 +76,142 @@ public class DashletVO implements Serializable{
 		this.isActive 		= isActive;
 	}
 
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	/**
-	 * @return the dashletTitle
-	 */
+	
 	public String getDashletTitle() {
 		return dashletTitle;
 	}
 
-	/**
-	 * @param dashletTitle the dashletTitle to set
-	 */
+	
 	public void setDashletTitle(String dashletTitle) {
 		this.dashletTitle = dashletTitle;
 	}
 
-	/**
-	 * @return the dashletName
-	 */
+	
 	public String getDashletName() {
 		return dashletName;
 	}
 
-	/**
-	 * @param dashletName the dashletName to set
-	 */
+	
 	public void setDashletName(String dashletName) {
 		this.dashletName = dashletName;
 	}
 
-	/**
-	 * @return the dashletBody
-	 */
+	
 	public String getDashletBody() {
 		return dashletBody;
 	}
 
-	/**
-	 * @param dashletBody the dashletBody to set
-	 */
+	
 	public void setDashletBody(String dashletBody) {
 		this.dashletBody = dashletBody;
 	}
 
-	/**
-	 * @return the dashletQuery
-	 */
+	
 	public String getDashletQuery() {
 		return dashletQuery;
 	}
 
-	/**
-	 * @param dashletQuery the dashletQuery to set
-	 */
+	
 	public void setDashletQuery(String dashletQuery) {
 		this.dashletQuery = dashletQuery;
 	}
 
-	/**
-	 * @return the xCoordinate
-	 */
+	
 	public Integer getxCoordinate() {
 		return xCoordinate;
 	}
 
-	/**
-	 * @param xCoordinate the xCoordinate to set
-	 */
+	
 	public void setXCoordinate(Integer xCoordinate) {
 		this.xCoordinate = xCoordinate;
 	}
 
-	/**
-	 * @return the yCoordinate
-	 */
+	
 	public Integer getyCoordinate() {
 		return yCoordinate;
 	}
 
-	/**
-	 * @param yCoordinate the yCoordinate to set
-	 */
+	
 	public void setYCoordinate(Integer yCoordinate) {
 		this.yCoordinate = yCoordinate;
 	}
 
-	/**
-	 * @return the width
-	 */
+	
 	public Integer getWidth() {
 		return width;
 	}
 
-	/**
-	 * @param width the width to set
-	 */
+	
 	public void setWidth(Integer width) {
 		this.width = width;
 	}
 
-	/**
-	 * @return the height
-	 */
+	
 	public Integer getHeight() {
 		return height;
 	}
 
-	/**
-	 * @param height the height to set
-	 */
+	
 	public void setHeight(Integer height) {
 		this.height = height;
 	}
 
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
-	/**
-	 * @return the showHeader
-	 */
+	
 	public Integer getShowHeader() {
 		return showHeader;
 	}
 
-	/**
-	 * @param showHeader the showHeader to set
-	 */
+	
 	public void setShowHeader(Integer showHeader) {
 		this.showHeader = showHeader;
 	}
 
-	/**
-	 * @return the isActive
-	 */
+	
 	public Integer getIsActive() {
 		return isActive;
 	}
 
-	/**
-	 * @param isActive the isActive to set
-	 */
+	
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
 	}
 
-	/**
-	 * @return the roleIdList
-	 */
+	
 	public List<String> getRoleIdList() {
 		return roleIdList;
 	}
 
-	/**
-	 * @param roleIdList the roleIdList to set
-	 */
+	
 	public void setRoleIdList(List<String> roleIdList) {
 		this.roleIdList = roleIdList;
 	}
 
-	/**
-	 * @return the dashletPropertVOList
-	 */
+	
 	public List<DashletPropertyVO> getDashletPropertVOList() {
 		return dashletPropertVOList;
 	}
 
-	/**
-	 * @param dashletPropertVOList the dashletPropertVOList to set
-	 */
+	
 	public void setDashletPropertVOList(List<DashletPropertyVO> dashletPropertVOList) {
 		this.dashletPropertVOList = dashletPropertVOList;
 	}

@@ -10,19 +10,12 @@ public class ResourceBundleVO  implements Serializable {
 	private String resourceKey					= null;
 	private String text							= null;
 
-	/**
-	 * 
-	 */
+	
 	public ResourceBundleVO() {
 		
 	}
 
-	/**
-	 * @param languageId
-	 * @param resourceKey
-	 * @param text
-	 * @param languageName
-	 */
+	
 	public ResourceBundleVO(Integer languageId, String resourceKey, String text) {
 		this.languageId 	= languageId;
 		this.resourceKey 	= resourceKey;

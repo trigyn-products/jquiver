@@ -61,10 +61,7 @@ public class DashboardCrudController {
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO = null;
     
-    /**
-	 * @return
-	 * @throws Exception
-	 */
+    
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashletMasterListing() throws Exception {
 		TemplateVO templateVO = templatingService.getTemplateByName("dashlet-listing");
@@ -74,21 +71,14 @@ public class DashboardCrudController {
 		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), modelMap);
 	}
 
-	/**
-	 * @return
-	 * @throws Exception
-	 */
+	
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashboardMasterListing() throws Exception {
 		TemplateVO templateVO = templatingService.getTemplateByName("dashboard-listing");
 		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
     }
 
-    /**
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+    
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId) throws Exception {
 		Map<String, Object> templateMap = new HashMap<>();
@@ -110,11 +100,7 @@ public class DashboardCrudController {
 				templateMap);
 	}
 
-	/**
-	 * @param dashboardVO
-	 * @param userId
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/sdb", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Boolean> saveDashboard(@RequestBody DashboardVO dashboardVO,
 			@RequestHeader(value = "user-id", required = true) String userId) throws Exception {
@@ -128,12 +114,7 @@ public class DashboardCrudController {
 		}
     }
     
-    /**
-	 * @param dashletId
-	 * @return String
-	 * @throws NumberFormatException
-	 * @throws Exception
-	 */
+    
 	@PostMapping(value = "/aedl", produces = {MediaType.TEXT_HTML_VALUE})
 	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId) throws Exception {
 		Map<String, Object> templateMap 		= new HashMap<>();
@@ -148,12 +129,7 @@ public class DashboardCrudController {
 	}
 	
 
-	/**
-	 * @param userId
-	 * @param dashletVO
-	 * @return
-	 * @throws Exception
-	 */
+	
 	@PostMapping(value = "/sdl", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Boolean> saveDashlet(@RequestHeader(value = "user-id", required = true) String userId
 			, @RequestBody DashletVO dashletVO) throws Exception {

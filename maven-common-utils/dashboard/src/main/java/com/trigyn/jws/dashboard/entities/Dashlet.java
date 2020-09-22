@@ -22,9 +22,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "dashlet")
 public class Dashlet implements Serializable {
 
-	/**
-	 * 
-	 */
+	
 	private static final long			serialVersionUID		= 1L;
 
 	@Id
@@ -155,337 +153,253 @@ public class Dashlet implements Serializable {
 		this.dashletBodyChecksum 		= dashletBodyChecksum;
 	}
 	
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
 
-	/**
-	 * @return the dashletName
-	 */
+	
 	public String getDashletName() {
 		return dashletName;
 	}
 
 
-	/**
-	 * @param dashletName the dashletName to set
-	 */
+	
 	public void setDashletName(String dashletName) {
 		this.dashletName = dashletName;
 	}
 
 
-	/**
-	 * @return the dashletTitle
-	 */
+	
 	public String getDashletTitle() {
 		return dashletTitle;
 	}
 
 
-	/**
-	 * @param dashletTitle the dashletTitle to set
-	 */
+	
 	public void setDashletTitle(String dashletTitle) {
 		this.dashletTitle = dashletTitle;
 	}
 
 
-	/**
-	 * @return the xCoordinate
-	 */
+	
 	public Integer getXCoordinate() {
 		return xCoordinate;
 	}
 
 
-	/**
-	 * @param xCoordinate the xCoordinate to set
-	 */
+	
 	public void setXCoordinate(Integer xCoordinate) {
 		this.xCoordinate = xCoordinate;
 	}
 
 
-	/**
-	 * @return the yCoordinate
-	 */
+	
 	public Integer getYCoordinate() {
 		return yCoordinate;
 	}
 
 
-	/**
-	 * @param yCoordinate the yCoordinate to set
-	 */
+	
 	public void setYCoordinate(Integer yCoordinate) {
 		this.yCoordinate = yCoordinate;
 	}
 
 
-	/**
-	 * @return the width
-	 */
+	
 	public Integer getWidth() {
 		return width;
 	}
 
 
-	/**
-	 * @param width the width to set
-	 */
+	
 	public void setWidth(Integer width) {
 		this.width = width;
 	}
 
 
-	/**
-	 * @return the height
-	 */
+	
 	public Integer getHeight() {
 		return height;
 	}
 
 
-	/**
-	 * @param height the height to set
-	 */
+	
 	public void setHeight(Integer height) {
 		this.height = height;
 	}
 
 
-	/**
-	 * @return the contextId
-	 */
+	
 	public String getContextId() {
 		return contextId;
 	}
 
 
-	/**
-	 * @param contextId the contextId to set
-	 */
+	
 	public void setContextId(String contextId) {
 		this.contextId = contextId;
 	}
 
 
-	/**
-	 * @return the showHeader
-	 */
+	
 	public Integer getShowHeader() {
 		return showHeader;
 	}
 
 
-	/**
-	 * @param showHeader the showHeader to set
-	 */
+	
 	public void setShowHeader(Integer showHeader) {
 		this.showHeader = showHeader;
 	}
 
 
-	/**
-	 * @return the dashletQuery
-	 */
+	
 	public String getDashletQuery() {
 		return dashletQuery;
 	}
 
 
-	/**
-	 * @param dashletQuery the dashletQuery to set
-	 */
+	
 	public void setDashletQuery(String dashletQuery) {
 		this.dashletQuery = dashletQuery;
 	}
 
 
-	/**
-	 * @return the dashletBody
-	 */
+	
 	public String getDashletBody() {
 		return dashletBody;
 	}
 
 
-	/**
-	 * @param dashletBody the dashletBody to set
-	 */
+	
 	public void setDashletBody(String dashletBody) {
 		this.dashletBody = dashletBody;
 	}
 
 
-	/**
-	 * @return the createdBy
-	 */
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
 
 
-	/**
-	 * @param createdBy the createdBy to set
-	 */
+	
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
 
 
-	/**
-	 * @return the createdDate
-	 */
+	
 	public Date getCreatedDate() {
 		return createdDate;
 	}
 
 
-	/**
-	 * @param createdDate the createdDate to set
-	 */
+	
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
 	}
 
 
-	/**
-	 * @return the isActive
-	 */
+	
 	public Integer getIsActive() {
 		return isActive;
 	}
 
 
-	/**
-	 * @param isActive the isActive to set
-	 */
+	
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
 	}
 
 
-	/**
-	 * @return the updatedBy
-	 */
+	
 	public String getUpdatedBy() {
 		return updatedBy;
 	}
 
 
-	/**
-	 * @param updatedBy the updatedBy to set
-	 */
+	
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
 	}
 
 
-	/**
-	 * @return the updatedDate
-	 */
+	
 	public Date getUpdatedDate() {
 		return updatedDate;
 	}
 
 
-	/**
-	 * @param updatedDate the updatedDate to set
-	 */
+	
 	public void setUpdatedDate(Date updatedDate) {
 		this.updatedDate = updatedDate;
 	}
 
 
-	/**
-	 * @return the properties
-	 */
+	
 	public List<DashletProperties> getProperties() {
 		return properties;
 	}
 
 
-	/**
-	 * @param properties the properties to set
-	 */
+	
 	public void setProperties(List<DashletProperties> properties) {
 		this.properties = properties;
 	}
 
 
-	/**
-	 * @return the roleAssociation
-	 */
+	
 	public List<DashletRoleAssociation> getRoleAssociation() {
 		return roleAssociation;
 	}
 
 
-	/**
-	 * @param roleAssociation the roleAssociation to set
-	 */
+	
 	public void setRoleAssociation(List<DashletRoleAssociation> roleAssociation) {
 		this.roleAssociation = roleAssociation;
 	}
 
 
-	/**
-	 * @return the dashboardAssociation
-	 */
+	
 	public List<DashboardDashletAssociation> getDashboardAssociation() {
 		return dashboardAssociation;
 	}
 
 
-	/**
-	 * @param dashboardAssociation the dashboardAssociation to set
-	 */
+	
 	public void setDashboardAssociation(List<DashboardDashletAssociation> dashboardAssociation) {
 		this.dashboardAssociation = dashboardAssociation;
 	}
 
 
-	/**
-	 * @return the dashletRoleAssociations
-	 */
+	
 	public List<DashletRoleAssociation> getDashletRoleAssociations() {
 		return dashletRoleAssociations;
 	}
 
 
-	/**
-	 * @param dashletRoleAssociations the dashletRoleAssociations to set
-	 */
+	
 	public void setDashletRoleAssociations(List<DashletRoleAssociation> dashletRoleAssociations) {
 		this.dashletRoleAssociations = dashletRoleAssociations;
 	}
 	
 	
-	/**
-	 * @return the contextMaster
-	 */
+	
 	public ContextMaster getContextMaster() {
 		return contextMaster;
 	}
 
 
-	/**
-	 * @param contextMaster the contextMaster to set
-	 */
+	
 	public void setContextMaster(ContextMaster contextMaster) {
 		this.contextMaster = contextMaster;
 	}

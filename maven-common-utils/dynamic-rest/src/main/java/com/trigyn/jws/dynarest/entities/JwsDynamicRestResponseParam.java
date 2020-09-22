@@ -13,10 +13,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 
-/**
- * The persistent class for the jws_dynamic_rest_response_params database table.
- * 
- */
+
 @Entity
 @Table(name="jws_dynamic_rest_response_params")
 @NamedQuery(name="JwsDynamicRestResponseParam.findAll", query="SELECT j FROM JwsDynamicRestResponseParam j")

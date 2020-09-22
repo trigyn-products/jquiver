@@ -38,11 +38,7 @@ public class ModuleService {
 	private ModuleDAO moduleDAO											= null;
 	
 	
-	/**
-	 * @param moduleId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{
 		if(moduleId != null && !moduleId.isBlank() && !moduleId.isEmpty()) {
 			return iModuleListingRepository.getModuleDetails(moduleId, Constants.DEFAULT_LANGUAGE_ID ,Constants.DEFAULT_LANGUAGE_ID);
@@ -55,11 +51,7 @@ public class ModuleService {
 		return iModuleListingRepository.getAllModulesDetails(Constants.DEFAULT_LANGUAGE_ID ,Constants.DEFAULT_LANGUAGE_ID);
 	}
 	
-	/**
-	 * @param moduleId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<ModuleDetailsVO> getAllModules(String moduleId) throws Exception{
 		List<ModuleDetailsVO> moduleDetailsVOList  = new ArrayList<>();
 		List<ModuleDetailsVO> moduleDetailsVOs  = new ArrayList<>();
@@ -82,11 +74,7 @@ public class ModuleService {
 	
 	
 	
-	/**
-	 * @param moduleDetailsVO
-	 * @return {@link String}
-	 * @throws Exception
-	 */
+	
 	public String saveModuleDetails(ModuleDetailsVO moduleDetailsVO) throws Exception {
 		ModuleListing moduleListing = convertModuleVOToEntitity(moduleDetailsVO);
 		ModuleListingI18n moduleListingI18n = convertModuleVOToI18nEntitity(moduleDetailsVO);
@@ -97,12 +85,7 @@ public class ModuleService {
 		return moduleListing.getModuleId();
 	}
 	
-	/**
-	 * @param parentModuleId
-	 * @param sequence
-	 * @return {@link String}
-	 * @throws Exception
-	 */
+	
 	public String getModuleIdBySequence(String parentModuleId, Integer sequence) throws Exception {
 		if(!StringUtils.isEmpty(parentModuleId)) {
 			return iModuleListingRepository.getParentModuleIdBySequence(parentModuleId, sequence);
@@ -113,20 +96,13 @@ public class ModuleService {
 	}
 	
 	
-	/**
-	 * @param parentModuleId
-	 * @return {@link String}
-	 * @throws Exception
-	 */
+	
 	public String getModuleIdByURL(String moduleURL) throws Exception {
 		return iModuleListingRepository.getModuleIdByURL(moduleURL);
 	}
 	
 	
-	/**
-	 * @param moduleDetailsVO
-	 * @return
-	 */
+	
 	private ModuleListing convertModuleVOToEntitity(ModuleDetailsVO moduleDetailsVO) {
 		ModuleListing moduleListing = new ModuleListing();
 		
@@ -143,10 +119,7 @@ public class ModuleService {
 		return moduleListing;
     }
 	
-	/**
-	 * @param moduleDetailsVO
-	 * @return
-	 */
+	
 	private ModuleListingI18n convertModuleVOToI18nEntitity(ModuleDetailsVO moduleDetailsVO) {
 		ModuleListingI18n moduleListingI18n = new ModuleListingI18n();
 		ModuleListingI18nPK moduleListingI18nPK = new ModuleListingI18nPK();
@@ -160,11 +133,7 @@ public class ModuleService {
     }
 
 
-	/**
-	 * @param targetTypeId
-	 * @return {@link List}
-	 * @throws Exception 
-	 */
+	
 	public List<Map<String, Object>> getTargetTypes(Integer targetTypeId) throws Exception {
 		List<Map<String, Object>> targetTypeMapList = new ArrayList<>();
 		if(targetTypeId != null) {

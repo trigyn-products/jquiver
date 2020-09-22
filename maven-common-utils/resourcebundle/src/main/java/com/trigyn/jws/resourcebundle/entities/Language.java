@@ -38,19 +38,12 @@ public class Language implements Serializable {
 	private List<ResourceBundle> resourceBundles	= null;
     
 
-	/**
-	 * 
-	 */
+	
 	public Language() {
         
     }
     
-    /**
-     * @param languageId
-     * @param languageName
-     * @param languageCode
-     * @param lastUpdateTs
-     */
+    
     public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs) {
         this.languageId     = languageId;
         this.languageName   = languageName;
@@ -66,87 +59,63 @@ public class Language implements Serializable {
 		this.lastUpdateTs 	= lastUpdateTs;
 		this.isDeleted 		= isDeleted;
 	}
-    /**
-     * @return the languageId
-     */
+    
     public Integer getLanguageId() {
         return languageId;
     }
 
-    /**
-     * @param languageId the languageId to set
-     */
+    
     public void setLanguageId(Integer languageId) {
         this.languageId = languageId;
     }
 
-    /**
-     * @return the languageName
-     */
+    
     public String getLanguageName() {
         return languageName;
     }
 
-    /**
-     * @param languageName the languageName to set
-     */
+    
     public void setLanguageName(String languageName) {
         this.languageName = languageName;
     }
 
-    /**
-     * @return the languageCode
-     */
+    
     public String getLanguageCode() {
         return languageCode;
     }
 
-    /**
-     * @param languageCode the languageCode to set
-     */
+    
     public void setLanguageCode(String languageCode) {
         this.languageCode = languageCode;
     }
 
-    /**
-     * @return the lastUpdateTs
-     */
+    
     public Date getLastUpdateTs() {
         return lastUpdateTs;
     }
 
-    /**
-     * @param lastUpdateTs the lastUpdateTs to set
-     */
+    
     public void setLastUpdateTs(Date lastUpdateTs) {
         this.lastUpdateTs = lastUpdateTs;
     }
 
-	/**
-	 * @return
-	 */
+	
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	/**
-	 * @param isDeleted
-	 */
+	
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 	
     
-	/**
-	 * @return the resourceBundles
-	 */
+	
 	public List<ResourceBundle> getResourceBundles() {
 		return resourceBundles;
 	}
 
-	/**
-	 * @param resourceBundles the resourceBundles to set
-	 */
+	
 	public void setResourceBundles(List<ResourceBundle> resourceBundles) {
 		this.resourceBundles = resourceBundles;
 	}

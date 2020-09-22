@@ -17,10 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 
-/**
- * The persistent class for the jws_dynamic_rest_details database table.
- * 
- */
+
 @Entity
 @Table(name="jws_dynamic_rest_details")
 @NamedQuery(name="JwsDynamicRestDetail.findAll", query="SELECT j FROM JwsDynamicRestDetail j")

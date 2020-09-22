@@ -26,30 +26,22 @@ public class DashboardSharedToAssociationPK implements Serializable{
 		this.userId 		= userId;
 	}
 
-	/**
-	 * @return the dashboardId
-	 */
+	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	/**
-	 * @param dashboardId the dashboardId to set
-	 */
+	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
-	/**
-	 * @return the userId
-	 */
+	
 	public String getUserId() {
 		return userId;
 	}
 
-	/**
-	 * @param userId the userId to set
-	 */
+	
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}

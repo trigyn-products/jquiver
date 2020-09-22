@@ -42,21 +42,12 @@ public class TemplateMaster implements Serializable {
     @Column(name = "checksum")
     private String checksum                     = null;
 
-    /**
-     * 
-     */
+    
     public TemplateMaster() {
 
     }
 
-    /**
-     * @param templateId
-     * @param templateName
-     * @param template
-     * @param createdBy
-     * @param updatedBy
-     * @param updatedDate
-     */
+    
     public TemplateMaster(String templateId, String templateName, String template, String createdBy, String updatedBy,
             Date updatedDate) {
         this.templateId     = templateId;

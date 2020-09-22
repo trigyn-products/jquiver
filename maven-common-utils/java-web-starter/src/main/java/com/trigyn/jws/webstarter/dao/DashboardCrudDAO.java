@@ -26,41 +26,26 @@ public class DashboardCrudDAO extends DBConnection {
         super(dataSource);
     }
 
-    /**
-	 * @param dashboardId
-	 * @return {@link Dashboard}
- 	 * @throws Exception
-	 */
+    
 	public Dashboard findDashboardByDashboardId(String dashboardId)  throws Exception{
 		return hibernateTemplate.get(Dashboard.class, dashboardId);
     }
     
-    /**
-	 * @param dashboardId
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+    
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId)  throws Exception{
 		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_FIND_DASHBOARD_ROLE_DASHBOARD_ID);
 		query.setParameter("dashboardId", dashboardId);
 		return query.list();
 	}
     
-    /**
-	 * @param dashboardId
-	 * @param dashboardId
-	 * @throws Exception
-	 */
+    
 	public void deleteAllDashletFromDashboard(String dashboardId) throws Exception {
 		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_ALL_DELETE_DASHLET_FROM_DASHBOARD.toString());
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
     }
     
-    /**
-	 * @param dashboardDashletAssociation
-	 * @throws Exception
-	 */
+    
 	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
 		getCurrentSession().saveOrUpdate(dashboardDashletAssociation);
 	}

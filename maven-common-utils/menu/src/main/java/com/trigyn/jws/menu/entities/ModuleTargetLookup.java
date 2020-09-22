@@ -12,10 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 
-/**
- * The persistent class for the module_target_lookup database table.
- * 
- */
+
 @Entity
 @Table(name="module_target_lookup")
 @NamedQuery(name="ModuleTargetLookup.findAll", query="SELECT m FROM ModuleTargetLookup m")

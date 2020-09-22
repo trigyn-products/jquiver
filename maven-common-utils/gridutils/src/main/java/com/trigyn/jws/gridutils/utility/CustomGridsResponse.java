@@ -4,24 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomGridsResponse {
-	/**
-	 * Current page of the query
-	 */
+	
 	private String page = null;
 	
-	/**
-	 * Total pages for the query
-	 */
+	
 	private String total = null;
 	
-	/**
-	 * Total number of records for the query
-	 */
+	
 	private String records = null;
 	
-	/**
-	 * An array that contains the actual objects
-	 */
+	
 	private List<Map<String,Object>> rows = null;
 	
 	

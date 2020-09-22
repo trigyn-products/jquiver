@@ -41,128 +41,92 @@ public class DashletPropertyVO implements Serializable{
 		this.sequence 				= sequence;
 	}
 
-	/**
-	 * @return the dashletPropertyId
-	 */
+	
 	public String getPropertyId() {
 		return dashletPropertyId;
 	}
 
-	/**
-	 * @param dashletPropertyId the dashletPropertyId to set
-	 */
+	
 	public void setPropertyId(String dashletPropertyId) {
 		this.dashletPropertyId = dashletPropertyId;
 	}
 
-	/**
-	 * @return the placeholderName
-	 */
+	
 	public String getPlaceholderName() {
 		return placeholderName;
 	}
 
-	/**
-	 * @param placeholderName the placeholderName to set
-	 */
+	
 	public void setPlaceholderName(String placeholderName) {
 		this.placeholderName = placeholderName;
 	}
 
-	/**
-	 * @return the displayName
-	 */
+	
 	public String getDisplayName() {
 		return displayName;
 	}
 
-	/**
-	 * @param displayName the displayName to set
-	 */
+	
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
-	/**
-	 * @return the type
-	 */
+	
 	public String getType() {
 		return type;
 	}
 
-	/**
-	 * @param type the type to set
-	 */
+	
 	public void setType(String type) {
 		this.type = type;
 	}
 
-	/**
-	 * @return the value
-	 */
+	
 	public String getValue() {
 		return value;
 	}
 
-	/**
-	 * @param value the value to set
-	 */
+	
 	public void setValue(String value) {
 		this.value = value;
 	}
 
-	/**
-	 * @return the defaultValue
-	 */
+	
 	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	/**
-	 * @param defaultValue the defaultValue to set
-	 */
+	
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 
-	/**
-	 * @return the configurationScript
-	 */
+	
 	public String getConfigurationScript() {
 		return configurationScript;
 	}
 
-	/**
-	 * @param configurationScript the configurationScript to set
-	 */
+	
 	public void setConfigurationScript(String configurationScript) {
 		this.configurationScript = configurationScript;
 	}
 
-	/**
-	 * @return the toDisplay
-	 */
+	
 	public Integer getToDisplay() {
 		return toDisplay;
 	}
 
-	/**
-	 * @param toDisplay the toDisplay to set
-	 */
+	
 	public void setToDisplay(Integer toDisplay) {
 		this.toDisplay = toDisplay;
 	}
 
-	/**
-	 * @return the sequence
-	 */
+	
 	public Integer getSequence() {
 		return sequence;
 	}
 
-	/**
-	 * @param sequence the sequence to set
-	 */
+	
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}

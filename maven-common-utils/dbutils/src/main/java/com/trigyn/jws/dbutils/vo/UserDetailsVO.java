@@ -25,44 +25,32 @@ public class UserDetailsVO implements Serializable{
 		this.roleIdList 	= roleIdList;
 	}
 	
-	/**
-	 * @return the userId
-	 */
+	
 	public String getUserId() {
 		return userId;
 	}
 
-	/**
-	 * @param userId the userId to set
-	 */
+	
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
-	/**
-	 * @return the userName
-	 */
+	
 	public String getUserName() {
 		return userName;
 	}
 
-	/**
-	 * @param userName the userName to set
-	 */
+	
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
 
-	/**
-	 * @return the roleIdList
-	 */
+	
 	public List<String> getRoleIdList() {
 		return roleIdList;
 	}
 
-	/**
-	 * @param roleIdList the roleIdList to set
-	 */
+	
 	public void setRoleIdList(List<String> roleIdList) {
 		this.roleIdList = roleIdList;
 	}

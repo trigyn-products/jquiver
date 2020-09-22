@@ -8,10 +8,7 @@ import javax.persistence.*;
 import com.trigyn.jws.dbutils.entities.UserRole;
 
 
-/**
- * The persistent class for the dashboard_role_association database table.
- * 
- */
+
 @Entity
 @Table(name="dashboard_role_association")
 @NamedQuery(name="DashboardRoleAssociation.findAll", query="SELECT d FROM DashboardRoleAssociation d")
@@ -38,30 +35,22 @@ public class DashboardRoleAssociation implements Serializable {
 		this.userRole 	= userRole;
 	}
 
-	/**
-	 * @return the id
-	 */
+	
 	public DashboardRoleAssociationPK getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
+	
 	public void setId(DashboardRoleAssociationPK id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the userRole
-	 */
+	
 	public UserRole getUserRole() {
 		return userRole;
 	}
 
-	/**
-	 * @param userRole the userRole to set
-	 */
+	
 	public void setUserRole(UserRole userRole) {
 		this.userRole = userRole;
 	}

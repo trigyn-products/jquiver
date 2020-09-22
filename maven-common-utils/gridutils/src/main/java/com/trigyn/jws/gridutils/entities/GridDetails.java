@@ -33,20 +33,12 @@ public class GridDetails implements Serializable{
     @Column(name = "query_type")
     private Integer queryType                    = null;
 
-    /**
-     * 
-     */
+    
     public GridDetails() {
         
     }
 
-    /**
-     * @param gridId
-     * @param gridName
-     * @param gridDescription
-     * @param gridTableName
-     * @param gridColumnNames
-     */
+    
     public GridDetails(String gridId, String gridName, String gridDescription, String gridTableName,
             String gridColumnNames, Integer queryType) {
         this.gridId             = gridId;
@@ -57,72 +49,52 @@ public class GridDetails implements Serializable{
         this.queryType          = queryType;
     }
 
-    /**
-     * @return the gridId
-     */
+    
     public String getGridId() {
         return gridId;
     }
 
-    /**
-     * @param gridId the gridId to set
-     */
+    
     public void setGridId(String gridId) {
         this.gridId = gridId;
     }
 
-    /**
-     * @return the gridName
-     */
+    
     public String getGridName() {
         return gridName;
     }
 
-    /**
-     * @param gridName the gridName to set
-     */
+    
     public void setGridName(String gridName) {
         this.gridName = gridName;
     }
 
-    /**
-     * @return the gridDescription
-     */
+    
     public String getGridDescription() {
         return gridDescription;
     }
 
-    /**
-     * @param gridDescription the gridDescription to set
-     */
+    
     public void setGridDescription(String gridDescription) {
         this.gridDescription = gridDescription;
     }
 
-    /**
-     * @return the gridTableName
-     */
+    
     public String getGridTableName() {
         return gridTableName;
     }
 
-    /**
-     * @param gridTableName the gridTableName to set
-     */
+    
     public void setGridTableName(String gridTableName) {
         this.gridTableName = gridTableName;
     }
 
-    /**
-     * @return the gridColumnNames
-     */
+    
     public String getGridColumnNames() {
         return gridColumnNames;
     }
 
-    /**
-     * @param gridColumnNames the gridColumnNames to set
-     */
+    
     public void setGridColumnNames(String gridColumnNames) {
         this.gridColumnNames = gridColumnNames;
     }

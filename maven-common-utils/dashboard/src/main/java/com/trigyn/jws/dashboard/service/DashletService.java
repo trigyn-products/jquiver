@@ -71,23 +71,14 @@ public class DashletService {
 		return dashletDAO.findById(id);
 	}
 
-	/**
-	 * @param dashletId
-	 * @param includeHidden
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden)
 			throws Exception {
 		return dashletDAO.findDashletPropertyByDashletId(dashletId, includeHidden);
 	}
 
 
-	/**
-	 * @param userRoleList
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<Dashlet> getDashlets(List<String> userRoleList, String dashboardId) throws Exception {
 		List<Object[]> dashlets = dashletDAO.getDashlets(userRoleList, dashboardId);
 		List<Dashlet> listOfDashlets = new ArrayList<>();
@@ -98,34 +89,18 @@ public class DashletService {
 		return listOfDashlets;
 	}
 
-	/**
-	 * @param selectionQuery
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<Map<String, String>> getDashletData(String selectionQuery) throws Exception {
 		return dashletDAO.getDashletData(selectionQuery);
 	}
 
-	/**
-	 * @param userId
-	 * @param string
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId)
 			throws Exception {
 		return dashletDAO.getUserDashletCoordinates(userId, dashletId);
 	}
 
-	/**
-	 * @param formData
-	 * @param userId
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public Boolean saveConfiguration(MultiValueMap<String, String> formData, String userId, String dashboardId)
 			throws Exception {
 		Iterator<String> it = formData.keySet().iterator();
@@ -145,13 +120,7 @@ public class DashletService {
 		return true;
 	}
 
-	/**
-	 * @param userId
-	 * @param dashlets
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public Boolean saveDashletConfiguration(String userId, String[] dashlets, String dashboardId) throws Exception {
 		for (int dashletCnt = 0; dashletCnt < dashlets.length; dashletCnt++) {
 			JSONObject jsonObj = new JSONObject(dashlets[dashletCnt]);
@@ -171,10 +140,7 @@ public class DashletService {
 	}
 
 
-	/**
-	 * @param contextId
-	 * @return
-	 */
+	
 	public List<Map<String, Object>> getDashletsByContextId(String contextId) {
 		return dashletDAO.getDashletsByContextId(contextId);
 	}
@@ -318,11 +284,7 @@ public class DashletService {
 	}
 
 	
-	/**
-	 * @param dashletId
-	 * @return {@link DashletVO}
-	 * @throws Exception
-	 */
+	
 	public DashletVO getDashletDetailsById(String dashletId) throws Exception{
 		DashletVO dashletVO					= new DashletVO();
 		try {
@@ -349,38 +311,23 @@ public class DashletService {
 	}
 	
 	
-    /**
-     * @param dashletId
-     * @return {@link DashletVO}
-     * @throws Exception
-     */
+    
     public DashletVO findDashletByDashletId(String dashletId) throws Exception {
 		return iDashletRepository.findDashletByDashletId(dashletId);
     }
     
     
-    /**
-     * @param dashletId
-     * @return {@link List}
-     * @throws Exception
-     */
+    
     public List<DashletPropertyVO> getDashletPropertyByDashletId(String dashletId) throws Exception {
 		return iDashletPropertiesRepository.findDashletPropertyByDashletId(dashletId, Constants.RecordStatus.INSERTED.getStatus());
     }
     
-    /**
-     * @param dashletId
-     * @return
-     */
+    
     public List<String> findDashletRolesByDashletId(String dashletId) throws Exception {
 		return dashletDAO.findDashletRoleByDashletId(dashletId);
 	}
 
-	/**
-	 * @param componentName
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public Map<String, String> findComponentTypes(String componentName)throws Exception {
 		Map<String, String> componentTypes = new HashMap<String, String>();
 		List<DashboardLookupCategoryVO> dashboardLookupCategoryVOList = iDashboardLookupCategoryRepository.findDashboardLookupCategoryByName(componentName);

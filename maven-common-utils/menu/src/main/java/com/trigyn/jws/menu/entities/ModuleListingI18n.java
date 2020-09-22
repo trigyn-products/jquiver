@@ -6,10 +6,7 @@ import java.util.Objects;
 import javax.persistence.*;
 
 
-/**
- * The persistent class for the module_listing_i18n database table.
- * 
- */
+
 @Entity
 @Table(name="module_listing_i18n")
 @NamedQuery(name="ModuleListingI18n.findAll", query="SELECT m FROM ModuleListingI18n m")

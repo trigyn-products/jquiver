@@ -14,10 +14,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-/**
- * The persistent class for the dynamic_form_save_queries database table.
- * 
- */
+
 @Entity
 @Table(name = "dynamic_form_save_queries")
 @NamedQuery(name = "DynamicFormSaveQuery.findAll", query = "SELECT d FROM DynamicFormSaveQuery d")

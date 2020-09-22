@@ -34,20 +34,12 @@ public class DashboardService {
 	private IDashboardLookupCategoryRepository iDashboardLookupCategoryRepository	= null;
 	
 	
-	/**
-	 * @param dashboardRoleAssociation
-	 * @throws Exception
-	 */
+	
 	public void saveDashboardRoleAssociation(DashboardRoleAssociation dashboardRoleAssociation) throws Exception {
 		dashboardDao.saveDashboardRoleAssociation(dashboardRoleAssociation);
 	}
 
-	/**
-	 * @param contextName
-	 * @param userRoles
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+	
 	public List<Dashboard> findDashboardsByContextId(String contextName, List<String> userRoles) throws Exception {
 		String userId = Constants.ANON_USER_STR;
 		String contextId = dashboardDao.getContextNameById(contextName);
@@ -60,11 +52,7 @@ public class DashboardService {
 		return dashboards;
 	}
 
-	/**
-	 * @param dashboardId
-	 * @return {@link List}
-	 * @throws Exception
-	 */
+	
 	public List<Dashlet> loadDashboardDahlets(String dashboardId) throws Exception {
 		List<Object[]> dashletsDetails = dashboardDao.loadDashboardDashlets(dashboardId);
 		List<Dashlet> dashletList = new ArrayList<>();
@@ -75,49 +63,28 @@ public class DashboardService {
 		return dashletList;
 	}
 
-	/**
-	 * @param contextName
-	 * @return {@link String}
-	 * @throws Exception
-	 */
+	
 	public String getContextNameById(String contextName) throws Exception {
 		return dashboardDao.getContextNameById(contextName);
 	}
 
-	/**
-	 * @param contextName
-	 * @return {@link Integer}
-	 * @throws Exception
-	 */
+	
 	public Integer getContextBasedPermissions(String contextName) throws Exception {
 		return dashboardDao.getContextBasedPermissions(contextName);
 	}
 
-	/**
-	 * @param dashletId
-	 * @param dashboardId
-	 * @throws Exception
-	 */
+	
 	public void removeDashletFromDashboard(String dashletId, String dashboardId) throws Exception {
 		dashboardDao.removeDashletFromDashboard(dashletId, dashboardId);
 	}
 
-	/**
-	 * @param contextId
-	 * @param dashboardId
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<DashboardDashletVO> getDashletsByContextId(String contextId, String dashboardId) throws Exception {
 		return iDashletRepository.findDashletByContextId(contextId, dashboardId);
 	}
 
 	
-	/**
-	 * @param categoryName
-	 * @return
-	 * @throws Exception
-	 */
+	
 	public List<DashboardLookupCategoryVO> getDashboardLookupDetails(String categoryName) throws Exception {
 		return iDashboardLookupCategoryRepository.findDashboardLookupCategoryByName(categoryName);
 	}

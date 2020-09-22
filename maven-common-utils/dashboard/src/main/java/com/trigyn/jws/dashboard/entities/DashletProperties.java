@@ -21,9 +21,7 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = 0")
 public class DashletProperties implements Serializable {
 
-	/**
-	 * 
-	 */
+	
 	private static final long	serialVersionUID	= 1L;
 
 	@Id
@@ -102,170 +100,122 @@ public class DashletProperties implements Serializable {
 		this.dashlet 				= dashlet;
 	}
 
-	/**
-	 * @return the propertyId
-	 */
+	
 	public String getPropertyId() {
 		return propertyId;
 	}
 
-	/**
-	 * @param propertyId the propertyId to set
-	 */
+	
 	public void setPropertyId(String propertyId) {
 		this.propertyId = propertyId;
 	}
 
-	/**
-	 * @return the dashletId
-	 */
+	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	/**
-	 * @param dashletId the dashletId to set
-	 */
+	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	/**
-	 * @return the placeholderName
-	 */
+	
 	public String getPlaceholderName() {
 		return placeholderName;
 	}
 
-	/**
-	 * @param placeholderName the placeholderName to set
-	 */
+	
 	public void setPlaceholderName(String placeholderName) {
 		this.placeholderName = placeholderName;
 	}
 
-	/**
-	 * @return the displayName
-	 */
+	
 	public String getDisplayName() {
 		return displayName;
 	}
 
-	/**
-	 * @param displayName the displayName to set
-	 */
+	
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
-	/**
-	 * @return the type
-	 */
+	
 	public String getType() {
 		return type;
 	}
 
-	/**
-	 * @param type the type to set
-	 */
+	
 	public void setType(String type) {
 		this.type = type;
 	}
 
-	/**
-	 * @return the value
-	 */
+	
 	public String getValue() {
 		return value;
 	}
 
-	/**
-	 * @param value the value to set
-	 */
+	
 	public void setValue(String value) {
 		this.value = value;
 	}
 
-	/**
-	 * @return the defaultValue
-	 */
+	
 	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	/**
-	 * @param defaultValue the defaultValue to set
-	 */
+	
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 
-	/**
-	 * @return the configurationScript
-	 */
+	
 	public String getConfigurationScript() {
 		return configurationScript;
 	}
 
-	/**
-	 * @param configurationScript the configurationScript to set
-	 */
+	
 	public void setConfigurationScript(String configurationScript) {
 		this.configurationScript = configurationScript;
 	}
 
-	/**
-	 * @return the isDeleted
-	 */
+	
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	/**
-	 * @param isDeleted the isDeleted to set
-	 */
+	
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
-	/**
-	 * @return the toDisplay
-	 */
+	
 	public Integer getToDisplay() {
 		return toDisplay;
 	}
 
-	/**
-	 * @param toDisplay the toDisplay to set
-	 */
+	
 	public void setToDisplay(Integer toDisplay) {
 		this.toDisplay = toDisplay;
 	}
 
-	/**
-	 * @return the sequence
-	 */
+	
 	public Integer getSequence() {
 		return sequence;
 	}
 
-	/**
-	 * @param sequence the sequence to set
-	 */
+	
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
 
-	/**
-	 * @return the dashlet
-	 */
+	
 	public Dashlet getDashlet() {
 		return dashlet;
 	}
 
-	/**
-	 * @param dashlet the dashlet to set
-	 */
+	
 	public void setDashlet(Dashlet dashlet) {
 		this.dashlet = dashlet;
 	}
