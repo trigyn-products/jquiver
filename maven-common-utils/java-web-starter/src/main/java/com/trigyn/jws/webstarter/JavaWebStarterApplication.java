@@ -1,13 +1,13 @@
-package app.trigyn.common.dashboard;
+package com.trigyn.jws.webstarter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DashboardApplication {
+public class JavaWebStarterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DashboardApplication.class, args);
+		SpringApplication.run(JavaWebStarterApplication.class, args);
 	}
 
 }
