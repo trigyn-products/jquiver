@@ -4,9 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.1-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>templating</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<name>templating</name>
 	<description>A helper jar which uses freemarker to render templates.</description>
 

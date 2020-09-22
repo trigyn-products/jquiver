@@ -4,9 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.1-SNAPSHOT</version>
+		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<name>java-web-starter</name>
 	<description>A admin panel for all trigyn core apps</description>
 
