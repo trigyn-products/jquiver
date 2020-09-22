@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
 	<name>java-web-starter</name>
@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>webjars</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0</version>
 		</dependency>
 
 		<dependency>
