@@ -52,7 +52,7 @@
 
 	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <destinationDir>${project.build.outputDirectory}/META-INF/resources/${project.artifactId}/${project.version}</destinationDir>
+        <destinationDir>${project.build.outputDirectory}/META-INF/resources/${project.artifactId}/1.0</destinationDir>
     </properties>
 
     <dependencies>
