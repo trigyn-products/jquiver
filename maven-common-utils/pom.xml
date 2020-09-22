@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.trigyn</groupId>
 	<artifactId>commonutils</artifactId>
-	<version>1.0_SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>Common utils</description>
 	<url>https://github.com/trigyn-products/java-web-starter</url>
