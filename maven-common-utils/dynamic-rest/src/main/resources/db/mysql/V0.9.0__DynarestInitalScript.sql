@@ -69,6 +69,19 @@ CREATE TABLE `jws_dynamic_rest_dao_details` (
   CONSTRAINT `jws_dynamic_rest_dao_details_ibfk_1` FOREIGN KEY (`jws_dynamic_rest_details_id`) REFERENCES `jws_dynamic_rest_details` (`jws_dynamic_rest_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `jws_dynamic_rest_role_association`;
+CREATE TABLE `jws_dynamic_rest_role_association`(
+`jws_dynamic_rest_id` INT(11) NOT NULL
+, `role_id` VARCHAR(50) NOT NULL
+, PRIMARY KEY (`jws_dynamic_rest_id`, `role_id`)
+, KEY `jws_dynamic_rest_id` (`jws_dynamic_rest_id`)
+, KEY `role_id` (`role_id`)
+, CONSTRAINT `jws_dynamic_rest_role_association_ibfk_1` FOREIGN KEY (`jws_dynamic_rest_id`) REFERENCES `jws_dynamic_rest_details` (`jws_dynamic_rest_id`)
+, CONSTRAINT `jws_dynamic_rest_role_association_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `user_role` (`role_id`)  
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 SET FOREIGN_KEY_CHECKS=1;
 
 insert into `jws_response_code_details`(`jws_response_code_id`,`jws_response_status_code`,`jws_response_code_description`) values (1,200,'Success');

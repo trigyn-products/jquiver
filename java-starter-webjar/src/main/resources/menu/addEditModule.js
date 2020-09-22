@@ -13,16 +13,20 @@ AddEditModule.prototype.fn = {
 			moduleDetails.moduleId = $("#moduleId").val();
 		}	
 		
-		let isValid = context.validateMandatoryFileds();
-		if(isValid === false){
+		if(context.validateMandatoryFileds() == false){
 			$("#errorMessage").show();
 			return false;
 		}
-		let isSequenceExist = context.checkSequenceExist();
-		if(isSequenceExist === true){
+		if(context.checkSequenceExist()){
 			$("#errorMessage").show();
 			return false;
 		}
+		
+		if(context.checkMoudleURLExist()){
+			$("#errorMessage").show();
+			return false;
+		}
+		
 		moduleDetails.moduleName = $("#moduleName").val();
 		moduleDetails.parentModuleId = $("#parentModuleName").find(":selected").val();
 		moduleDetails.moduleURL = $("#moduleURL").val();
@@ -36,6 +40,7 @@ AddEditModule.prototype.fn = {
 				contentType : "application/json",
 				data : JSON.stringify(moduleDetails),
 				success : function(data) {
+					$("#moduleId").val(data);
 					$('#snackbar').html("Information saved successfully.");
 					context.showSnackbarModule();
 		       	},
@@ -121,6 +126,35 @@ AddEditModule.prototype.fn = {
     },
     
     
+    checkMoudleURLExist : function(){
+    	let isModuleURLExist = true;
+    	let moduleURL = $("#moduleURL").val();
+    	let moduleId = $("#moduleId").val();
+    	$.ajax({
+			type : "GET",
+			url : contextPath+"/cf/cmurl",
+			async: false,
+			cache : false,
+			headers: {
+    			"module-URL":  moduleURL,
+    		},
+			success : function(data) {
+				if(data == "" || data == moduleId){
+					isModuleURLExist = false;
+				}
+		   	},
+	       	error : function(xhr, error){
+	       		$("#errorMessage").show();
+				$('#errorMessage').html("Error occurred while validating module URL.");
+	       	},
+	        	
+		});
+		if(isModuleURLExist === true){
+			$("#moduleURL").focus();
+			$('#errorMessage').html("URL already exists.");
+		}
+		return isModuleURLExist;
+    },
     
     getTargeTypeNames : function(){
     	let targetLookupId = $("#targetLookupType").find(":selected").val();

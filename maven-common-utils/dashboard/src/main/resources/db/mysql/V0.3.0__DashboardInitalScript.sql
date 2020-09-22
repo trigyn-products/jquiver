@@ -71,12 +71,15 @@ CREATE TABLE `dashboard_lookup_category` (
 
 DROP TABLE IF EXISTS `dashboard_role_association`;
 CREATE TABLE `dashboard_role_association` (
-  `dashboard_id` varchar(50) NOT NULL,
-  `role_id` varchar(50) NOT NULL,
-  PRIMARY KEY (`dashboard_id`,`role_id`),
-  KEY `role_id` (`role_id`),
-  CONSTRAINT `dashboard_role_association_ibfk_1` FOREIGN KEY (`dashboard_id`) REFERENCES `dashboard` (`dashboard_id`)
+  `dashboard_id` varchar(50) NOT NULL
+, `role_id` varchar(50) NOT NULL
+, PRIMARY KEY (`dashboard_id`,`role_id`)
+, KEY `dashboard_id` (`dashboard_id`)
+, KEY `role_id` (`role_id`)
+, CONSTRAINT `dashboard_role_association_ibfk_1` FOREIGN KEY (`dashboard_id`) REFERENCES `dashboard` (`dashboard_id`)
+, CONSTRAINT `dashboard_role_association_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `user_role` (`role_id`) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `dashboard_shared_to_association`;
 CREATE TABLE `dashboard_shared_to_association` (
@@ -133,11 +136,15 @@ CREATE TABLE `dashlet_property_configuration` (
 
 DROP TABLE IF EXISTS `dashlet_role_association`;
 CREATE TABLE `dashlet_role_association` (
-  `dashlet_id` varchar(50) NOT NULL,
-  `role_id` varchar(100) NOT NULL,
-  PRIMARY KEY (`dashlet_id`,`role_id`),
-  CONSTRAINT `dashlet_role_association_ibfk_1` FOREIGN KEY (`dashlet_id`) REFERENCES `dashlet` (`dashlet_id`)
+  `dashlet_id` varchar(50) NOT NULL
+, `role_id` varchar(100) NOT NULL
+, PRIMARY KEY (`dashlet_id`,`role_id`)
+, KEY `dashlet_id` (`dashlet_id`)
+, KEY `role_id` (`role_id`)
+, CONSTRAINT `dashlet_role_association_ibfk_1` FOREIGN KEY (`dashlet_id`) REFERENCES `dashlet` (`dashlet_id`)
+, CONSTRAINT `dashlet_role_association_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `user_role` (`role_id`) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 ALTER TABLE dashboard ADD UNIQUE INDEX (dashboard_name);
 ALTER TABLE dashlet ADD UNIQUE INDEX (dashlet_name);

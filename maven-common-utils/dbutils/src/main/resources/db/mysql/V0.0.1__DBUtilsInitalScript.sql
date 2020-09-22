@@ -12,6 +12,17 @@ CREATE TABLE `jws_property_master` (
   PRIMARY KEY (`owner_type`,`owner_id`,`property_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `user_role`;
+CREATE TABLE `user_role` (
+`role_id` VARCHAR(50) NOT NULL
+, `role_name` VARCHAR(100) NOT NULL
+, `role_description` VARCHAR(2000)
+, `is_deleted` INT(2) DEFAULT 0
+, PRIMARY KEY (`role_id`)
+,UNIQUE KEY `role_name` (`role_name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 REPLACE INTO jws_property_master(owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES ('system', 'system', 'profile', 'dev', 0, NOW(), 'admin', 1.00, 'Checks the profile in which the application is running.');
 
@@ -20,3 +31,7 @@ VALUES ('system', 'system', 'template-storage-path', 'D:\\commons\\documents', 0
 
 REPLACE INTO jws_property_master (owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments) 
 VALUES ('system', 'system', 'acl-jws', 'admin,maintainer', 0, NOW(), 'admin', 1.0000, 'List of roles authorized to access jws admin panel.');
+
+INSERT INTO user_role (role_id,role_name,role_description,is_deleted) VALUES ('ab751695-fcb9-11ea-954a-f48e38ab8cd7','ADMIN','' ,0);
+   
+INSERT INTO user_role (role_id,role_name,role_description,is_deleted) VALUES ('b18cf436-fcb9-11ea-954a-f48e38ab8cd7','Anonymous','' ,0);

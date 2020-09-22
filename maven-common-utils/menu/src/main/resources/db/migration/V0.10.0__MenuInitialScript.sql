@@ -42,6 +42,18 @@ module_id VARCHAR(50) NOT NULL
 )ENGINE=InnoDB CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `master_module_role_association`;
+CREATE TABLE `master_module_role_association`(
+`master_module_id` VARCHAR(50) NOT NULL
+, `role_id` VARCHAR(50) NOT NULL
+, PRIMARY KEY (`master_module_id`, `role_id`)
+, KEY `master_module_id` (`master_module_id`)
+, KEY `role_id` (`role_id`)
+, CONSTRAINT `master_module_role_association_ibfk_1` FOREIGN KEY (`master_module_id`) REFERENCES `master_module` (`master_module_id`)
+, CONSTRAINT `master_module_role_association_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `user_role` (`role_id`)  
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 INSERT INTO module_target_lookup (lookup_id,description) VALUES (1,'Dashboard');
 INSERT INTO module_target_lookup (lookup_id,description) VALUES (2,'Dynamic Form');
 INSERT INTO module_target_lookup (lookup_id,description) VALUES (3,'Dynamic REST');
