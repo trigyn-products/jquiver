@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>${project.version}</version>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

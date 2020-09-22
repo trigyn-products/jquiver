@@ -13,7 +13,7 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<dbutils>${project.version}</dbutils>
+		<dbutils>1.0-SNAPSHOT</dbutils>
 	</properties>
 
 	<dependencies>

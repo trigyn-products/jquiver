@@ -59,7 +59,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>11</java.version>
 		<maven.test.skip>true</maven.test.skip>
-		<commonutils.version>${project.version}</commonutils.version>
+		<commonutils.version>1.0-SNAPSHOT</commonutils.version>
 	</properties>
 
 	<modules>
