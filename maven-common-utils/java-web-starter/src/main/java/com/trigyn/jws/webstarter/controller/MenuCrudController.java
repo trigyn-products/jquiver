@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.menu.service.ModuleService;
 import com.trigyn.jws.menu.vo.ModuleDetailsVO;
 import com.trigyn.jws.menu.vo.ModuleTargetLookupVO;
@@ -45,10 +46,13 @@ public class MenuCrudController {
 	
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditModule(@RequestParam(value = "module-id") String moduleId) throws Exception {
-		Map<String, Object> templateMap = new HashMap<>();
-		ModuleDetailsVO moduleDetailsVO = moduleService.getModuleDetails(moduleId);
-		List<ModuleDetailsVO> moduleListingVOList = moduleService.getAllModules(moduleId);	
-		List<ModuleTargetLookupVO> moduleTargetLookupVOList = moduleService.getAllModuleLookUp();
+		Map<String, Object> templateMap 						= new HashMap<>();
+		ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
+		List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
+		List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
+		List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
+		
+		templateMap.put("userRoleVOs", userRoleVOs);
 		templateMap.put("moduleDetailsVO", moduleDetailsVO);
 		templateMap.put("moduleListingVOList", moduleListingVOList);
 		templateMap.put("moduleTargetLookupVOList", moduleTargetLookupVOList);

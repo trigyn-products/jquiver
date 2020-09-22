@@ -12,8 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
-import com.trigyn.jws.service.JwsDynamicRestDetailService;
 
 @RestController
 @RequestMapping("/dyn")

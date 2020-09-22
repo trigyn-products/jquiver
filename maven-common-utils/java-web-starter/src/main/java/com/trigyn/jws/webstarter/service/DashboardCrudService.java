@@ -33,6 +33,8 @@ import com.trigyn.jws.dashboard.vo.ContextMasterVO;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
+import com.trigyn.jws.dbutils.repository.UserRoleRepository;
+import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModuleFactory;
@@ -68,7 +70,10 @@ public class DashboardCrudService {
 	private IDashletRoleAssociationRepository iDashletRoleAssociationRepository		= null;
     
 	@Autowired
-	private DownloadUploadModuleFactory moduleFactory = null;
+	private DownloadUploadModuleFactory moduleFactory 								= null;
+	
+    @Autowired
+    private UserRoleRepository userRoleRepository									= null; 
 	
     
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
@@ -80,6 +85,13 @@ public class DashboardCrudService {
 		return dashboardCrudDAO.findDashboardRoleByDashboardId(dashboardId);
 	}
 
+	
+	
+	public List<UserRoleVO> getAllUserRoles() throws Exception{
+		return userRoleRepository.getAllActiveRoles(Constants.RecordStatus.INSERTED.getStatus());
+	}
+	
+	
 	
 	public void saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);

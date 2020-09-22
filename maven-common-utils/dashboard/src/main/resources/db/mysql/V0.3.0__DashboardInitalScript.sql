@@ -226,12 +226,12 @@ INSERT INTO dashboard_dashlet_association (dashboard_id, dashlet_id) VALUES ('ab
 INSERT INTO dashboard_dashlet_association (dashboard_id, dashlet_id) VALUES ('ab7202bf-eadd-11ea-a036-e454e805e22f','3d97273b-eadf-11ea-a036-e454e805e22f');
 INSERT INTO dashboard_dashlet_association (dashboard_id, dashlet_id) VALUES ('ab7202bf-eadd-11ea-a036-e454e805e22f','44cb330d-eadf-11ea-a036-e454e805e22f');
 
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('09b78b43-eade-11ea-a036-e454e805e22f', 'ADMIN');
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('0eb8adc4-eade-11ea-a036-e454e805e22f', 'ADMIN');
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'ADMIN');
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('37dbbc8d-eadf-11ea-a036-e454e805e22f', 'ADMIN');
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('3d97273b-eadf-11ea-a036-e454e805e22f', 'ADMIN');
-INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('44cb330d-eadf-11ea-a036-e454e805e22f', 'ADMIN');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('09b78b43-eade-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('0eb8adc4-eade-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('37dbbc8d-eadf-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('3d97273b-eadf-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
+INSERT INTO dashlet_role_association (dashlet_id, role_id) VALUES ('44cb330d-eadf-11ea-a036-e454e805e22f', 'ab751695-fcb9-11ea-954a-f48e38ab8cd7');
 
 INSERT INTO dashboard_lookup_category (lookup_category_id, lookup_category, lookup_description, updated_by, updated_date) VALUES
 ('368732c8-1e8b-11e8-8d69-000d3a173cc5', 'COMPONENT_TYPE', 'select', 'admin', NOW()), 

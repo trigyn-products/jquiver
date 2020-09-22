@@ -2357,6 +2357,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
+			
+			        <div class="col-3">
+	     		<div class="col-inner-form full-form-fields"> 
+		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>Roles</label>
+		  			<div id = "roles">
+            <#if userRoleVOs??>
+              <#list userRoleVOs as userRoleVO>
+                <lable for="${(userRoleVO?api.getRoleId())!''''}">${(userRoleVO?api.getRoleName())!''''}</label>
+                <input type="checkbox" id="${(userRoleVO?api.getRoleId())!''''}" name="${(userRoleVO?api.getRoleId())!''''}"/>
+              </#list>
+            </#if>
+            </div>
+		  			<div class="clearfix"></div>
+				</div>
+			</div>	
+			
 		</div>
 							
 	 

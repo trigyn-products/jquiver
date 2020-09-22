@@ -32,6 +32,7 @@ import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -59,7 +60,7 @@ public class DashboardCrudController {
 	private IUserDetailsService userDetails 			= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO propertyMasterDAO 		= null;
     
     
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
@@ -81,8 +82,9 @@ public class DashboardCrudController {
     
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId) throws Exception {
-		Map<String, Object> templateMap = new HashMap<>();
-		Dashboard dashboard = new Dashboard();
+		Map<String, Object> templateMap 	= new HashMap<>();
+		Dashboard dashboard 				= new Dashboard();
+		List<UserRoleVO> userRoleVOs 		= dashboardCrudService.getAllUserRoles();
 		if (dashboardId != null && !dashboardId.isEmpty() && !dashboardId.equals("")) {
 			dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
 			List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
@@ -92,6 +94,8 @@ public class DashboardCrudController {
 		} else {
 			dashboard.setDashboardRoles(new ArrayList<>());
 		}
+		
+		templateMap.put("userRoleVOs", userRoleVOs);
 		Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
 		templateMap.put("contextDetails", contextDetails);
 		templateMap.put("dashboard", dashboard);

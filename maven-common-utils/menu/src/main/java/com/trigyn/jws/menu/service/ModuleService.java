@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.trigyn.jws.dbutils.repository.UserRoleRepository;
+import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.menu.dao.ModuleDAO;
 import com.trigyn.jws.menu.entities.ModuleListing;
 import com.trigyn.jws.menu.entities.ModuleListingI18n;
@@ -15,11 +22,6 @@ import com.trigyn.jws.menu.reposirtory.interfaces.IModuleTargetLookupRepository;
 import com.trigyn.jws.menu.utils.Constants;
 import com.trigyn.jws.menu.vo.ModuleDetailsVO;
 import com.trigyn.jws.menu.vo.ModuleTargetLookupVO;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional(readOnly = false)
@@ -36,6 +38,9 @@ public class ModuleService {
 	
 	@Autowired
 	private ModuleDAO moduleDAO											= null;
+	
+    @Autowired
+    private UserRoleRepository userRoleRepository						= null; 
 	
 	
 	
@@ -73,6 +78,10 @@ public class ModuleService {
 	}
 	
 	
+	
+	public List<UserRoleVO> getAllUserRoles() throws Exception{
+		return userRoleRepository.getAllActiveRoles(Constants.RecordStatus.INSERTED.getStatus());
+	}
 	
 	
 	public String saveModuleDetails(ModuleDetailsVO moduleDetailsVO) throws Exception {
