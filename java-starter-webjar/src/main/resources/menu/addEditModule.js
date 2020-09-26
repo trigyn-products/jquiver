@@ -1,12 +1,9 @@
 class AddEditModule {
-    constructor() {
-
+    constructor(moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
     }
-}
-
-AddEditModule.prototype.fn = {
     
-    saveModule: function(){
+    saveModule = function(){
     	let context = this;		
     	let moduleDetails = new Object();	
     	if($("#moduleId").val() !== ""){
@@ -17,15 +14,11 @@ AddEditModule.prototype.fn = {
 			$("#errorMessage").show();
 			return false;
 		}
-		if(context.checkSequenceExist()){
-			$("#errorMessage").show();
+		
+		if(context.validateExistingData()){
 			return false;
 		}
 		
-		if(context.checkMoudleURLExist()){
-			$("#errorMessage").show();
-			return false;
-		}
 		
 		moduleDetails.moduleName = $("#moduleName").val();
 		moduleDetails.parentModuleId = $("#parentModuleName").find(":selected").val();
@@ -37,6 +30,7 @@ AddEditModule.prototype.fn = {
 		$.ajax({
 				type : "POST",
 				url : contextPath+"/cf/sm",
+				async: false,
 				contentType : "application/json",
 				data : JSON.stringify(moduleDetails),
 				success : function(data) {
@@ -51,9 +45,9 @@ AddEditModule.prototype.fn = {
 	        	},
 	        	
 			});
-    },
+    }
     
-    validateMandatoryFileds : function(){
+    validateMandatoryFileds = function(){
     	$('#errorMessage').html("");
    		let moduleName = $("#moduleName").val().trim();
    		if(moduleName === ""){
@@ -84,64 +78,53 @@ AddEditModule.prototype.fn = {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if(moduleURL === "" || moduleURL.indexOf(" ") != -1){
+   		if(moduleURL === "" || moduleURL.indexOf(" ") != -1 
+   			|| moduleURL.indexOf("*") != -1 || moduleURL.indexOf("/") == 0){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
    		}
    		return true;
    		 
-    },
+    }
     
     
-    checkSequenceExist: function(){
+	validateExistingData = function(){
+    	let isDataExist = false;
     	let parentModuleId = $("#parentModuleName").find(":selected").val();
 		let sequence = $("#sequence").val();
-		let isSequenceExist = true;
-		$.ajax({
+		let moduleName = $("#moduleName").val();
+    	let moduleURL = $("#moduleURL").val();
+    	let moduleId = $("#moduleId").val();
+    	$.ajax({
 			type : "GET",
-			url : contextPath+"/cf/cms",
+			url : contextPath+"/cf/ced",
 			async: false,
 			cache : false,
 			headers: {
     			"parent-module-id": parentModuleId,
     			"sequence":  sequence,
+    			"module-url" : moduleURL,
+    			"module-name" : moduleName
     		},
 			success : function(data) {
-				if(data == ""){
-					isSequenceExist = false;
-				}
-		   	},
-	       	error : function(xhr, error){
-	       		$("#errorMessage").show();
-				$('#errorMessage').html("Error occurred while validating sequence number.");
-	       	},
-	        	
-		});
-		if(isSequenceExist === true){
-			$("#sequence").focus();
-			$('#errorMessage').html("Sequence number already exists. Please select different one.");
-		}
-		return isSequenceExist;
-    },
-    
-    
-    checkMoudleURLExist : function(){
-    	let isModuleURLExist = true;
-    	let moduleURL = $("#moduleURL").val();
-    	let moduleId = $("#moduleId").val();
-    	$.ajax({
-			type : "GET",
-			url : contextPath+"/cf/cmurl",
-			async: false,
-			cache : false,
-			headers: {
-    			"module-URL":  moduleURL,
-    		},
-			success : function(data) {
-				if(data == "" || data == moduleId){
-					isModuleURLExist = false;
-				}
+				if(data != ""){
+	    			let moduleIdName = data.moduleIdName;
+	    			let moduleIdSequence = data.moduleIdSequence;
+	    			let moduleIdURL = data.moduleIdURL
+	    			if(moduleIdName != undefined && moduleIdName != moduleId){
+	    				isDataExist = true;
+	    				$('#errorMessage').html("Module name already exist");
+	    			}
+	    			if(isDataExist == false && moduleIdSequence != undefined && moduleIdSequence != moduleId){
+	    				isDataExist = true;
+	    				$('#errorMessage').html("Sequence number already exist");
+	    			}
+	    			if(isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId){
+	    				isDataExist = true;
+	    				$('#errorMessage').html("Module URL already exist");
+	    			}
+	    		}
 		   	},
 	       	error : function(xhr, error){
 	       		$("#errorMessage").show();
@@ -149,14 +132,15 @@ AddEditModule.prototype.fn = {
 	       	},
 	        	
 		});
-		if(isModuleURLExist === true){
-			$("#moduleURL").focus();
-			$('#errorMessage').html("URL already exists.");
+		if(isDataExist === true){
+			$("#errorMessage").show();
 		}
-		return isModuleURLExist;
-    },
+		return isDataExist;
+    }
     
-    getTargeTypeNames : function(){
+    
+    getTargeTypeNames = function(){
+    	let context = this;
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
     	$("#targetTypeName").empty();
     			$.ajax({
@@ -173,8 +157,14 @@ AddEditModule.prototype.fn = {
 	    				let dashletDiv;
 	    				for(let iCounter = 0; iCounter < moduleTargetTypeArray.length; ++iCounter){
 	    					let optionElement;
-	    					optionElement = $('<option value="'+moduleTargetTypeArray[iCounter].targetTypeId+'">');
-	            			optionElement.append(moduleTargetTypeArray[iCounter].targetTypeName+'</option>');
+	    					let targetTypeId = moduleTargetTypeArray[iCounter].targetTypeId;
+	    					
+	    					if(targetTypeId == context.moduleTypeId){
+	    						optionElement = $('<option value="'+targetTypeId+'" selected>');
+	    					}else{
+	    						optionElement = $('<option value="'+targetTypeId+'">');
+	    					}
+							optionElement.append(moduleTargetTypeArray[iCounter].targetTypeName+'</option>');	    					
 	    					$("#targetTypeName").append(optionElement);
 	    				}
 	    			}else {
@@ -188,18 +178,17 @@ AddEditModule.prototype.fn = {
 	        	},
 	        	
 			});
-    },
+    }
     
-    backToModuleListingPage : function() {
+    backToModuleListingPage = function() {
 		location.href = contextPath+"/cf/mul";
-	},
+	}
 		
-	showSnackbarModule : function() {
+	showSnackbarModule = function() {
 	   	let snackBar = $("#snackbar");
 	   	snackBar.addClass('show');
 	   	setTimeout(function(){ 
 	   		snackBar.removeClass("show");
 	   	}, 3000);
-	},
-    
+	}
 }

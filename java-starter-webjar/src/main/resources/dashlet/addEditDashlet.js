@@ -102,6 +102,7 @@ AddEditDashlet.prototype.fn = {
 	        	},
 				data : JSON.stringify(dashlet),
 				success : function(data) {
+					$("#dashletId").val(data);
 					$('#snackbar').html("Information saved successfully.");
 					context.showSnackbarDashlet();
 		       	},
@@ -225,7 +226,7 @@ AddEditDashlet.prototype.fn = {
 		
 		deletePropertyContext.click(function(){
 			let objectId = deletePropertyContext[0].id;
-			context.removeProperty(objectId);
+			context.deleteProperty(objectId);
 		});
 		actionColumn = $('<td></td>');
 		actionColumn.append(moverUpContext);
@@ -333,7 +334,47 @@ AddEditDashlet.prototype.fn = {
 		$(targetTr).find("input[name=sequence]").val(targetTr.index() + 1)
 	},
 	
+	
+	deleteProperty : function(currentObjectId){
+		let context = this;
+		$("#deletePropertyConfirm").html("Are you sure you want to delete?");
+		$("#deletePropertyConfirm").dialog({
+		bgiframe		 : true,
+		autoOpen		 : true, 
+		modal		 : true,
+		closeOnEscape : true,
+		draggable	 : true,
+		resizable	 : false,
+		title		 : "Delete",
+		buttons		 : [{
+				text		:"Cancel",
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			},
+			{
+				text		: "Delete",
+				click	: function(){
+					$(this).dialog('close');
+					context.removeProperty(currentObjectId);
+				}
+           	},
+       ],	
+		open		: function( event, ui ) {
+			$('.ui-dialog-buttonpane').find('button:contains("delete")').removeClass('ui-button-text-only')
+	   	    .addClass('ui-button ui-corner-all ui-widget')
+	   	    .prepend('<span class="fa fa-trash"></span>');                             
+   	   
+	   	   $('.ui-dialog-buttonpane')
+	   	    .find('button:contains("cancel")').removeClass('ui-button-text-only').addClass('ui-button ui-corner-all ui-widget')
+	   	    .prepend('<span class="fa fa-times-circle-o"></span>');
+       }	
+	   });
+	
+	},
+	
 	removeProperty : function(currentObjectId){
+		let context = this;
 		dashletPropertiesCount = dashletPropertiesCount - 1;
 		let currentObjectTr = $('#'+currentObjectId).closest('tr');
 		

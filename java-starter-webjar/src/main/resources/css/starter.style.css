@@ -1,42 +1,60 @@
 @charset "utf-8";
 /* CSS Document */
 
- body,div,span
+
+
+/************* Body ***************************/
+
+
+body, html{ height: 100%; font-size:13px !important; font-family: 'Roboto', sans-serif !important; background: #fafafa;}
+
+
+/************* Navigation ***************************/
+
+
+
+
+/************* Header ***************************/
+
+
+
+/************* Table ***************************/
+
+
+
+
+/************* Common ***************************/
+
+a, div, p, button:focus{ outline:0 !important;}
+
+
+/*  body,div,span
 {
   scrollbar-highlight-color:#F5F5F5;
   scrollbar-face-color: #4e4e4e;
   scrollbar-arrow-color: #4e4e4e;
   font-family: 'Roboto', sans-serif;
-}
+} */
 
 
 
-@font-face {
-  font-family: 'icomoon';
-  src:  url('../fonts/icomoon.eot?91hsue');
-  src:  url('../fonts/icomoon.eot?91hsue#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon.ttf?91hsue') format('truetype'),
-    url('../fonts/icomoon.woff?91hsue') format('woff'),
-    url('../fonts/icomoon.svg?91hsue#icomoon') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
 
-a, div, p, button:focus{ outline:0 !important;}
 
-body, html{ height: 100%; font-size:13px !important; font-family: 'Roboto', sans-serif !important; background: #fafafa;}
+
 
 .container{
     border: 1px solid #ccc;    
     background: #fff;
     min-height:100%;
+    padding-top:20px;
+    padding-bottom:20px;
  /*  -webkit-box-shadow: 0px 0px 5px 0px rgba(230,230,230,0.2);
 -moz-box-shadow: 0px 0px 5px 0px rgba(230,230,230,0.2);
 box-shadow: 0px 0px 5px 0px rgba(230,230,230,0.2); */
 }
 
 .topband{
-    margin:30px 0 10px;
+    margin:0px 0 10px;
     border-bottom: 1px solid #ccc;
     padding-bottom: 7px;
     width:100%;
@@ -213,6 +231,18 @@ span.grid_action_icons{
 	cursor: pointer;
 }
 
+span.grid_action_icons:hover{
+	 
+	background:#e6e6e6;
+	 
+
+}
+
+
+span.grid_action_icons:hover .fa{	
+	color:#0277bd;
+}
+
 .fa {  
     font: normal normal normal 14px/1 FontAwesome !important;
  }
@@ -302,6 +332,10 @@ div.pq-grid *{
     background: #fcfcfc;
 }
 
+.ml-selected-items-list li:hover{
+ background: #eeeeee;
+}
+
 .ml-selected-items-list li .ml-selected-item{
 	float:left;
 	width:90%;
@@ -361,12 +395,16 @@ div.pq-grid *{
     font-size: 18px;
     color: #666;
     transition: ease 0.3s;
-        cursor: pointer;
+    cursor: pointer;
 }
 
 .closeicon .fa {  
      font-size: 18px !important;
  }
+
+.closeicon .fa:hover{
+	color:#0277bd;
+}
 
 .closeicon:hover{
 color:#555454;
@@ -399,6 +437,11 @@ color:#555454;
     text-decoration: underline;
     margin-left: 10px;
         cursor: pointer;
+}
+
+
+.clearall-cls:hover{
+	text-decoration:none;
 }
 
 .ml-selected-items-div {
@@ -702,9 +745,10 @@ body {
       font-size: 30px;
     cursor: pointer;
     margin: 0 15px;
-    height: 47px;
-  
-    width: 47px;
+    height: 38px;
+      line-height: 34px;
+
+    width: 38px;
 	color:#fff;
     text-align: center;
 	display:none;
@@ -722,12 +766,11 @@ display:none;
   height: 100%;
   width: 0;
   position: fixed;
-  z-index: 1;
-  top: 50px;
+  z-index: 999;
+  top:38px;
   left: 0;
-  background-color: #111;
   overflow-x: hidden;
-  transition: 0.5s;
+   transition: 0.5s;
   
 }
 
@@ -783,23 +826,26 @@ margin-top:10px;
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
 
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: -webkit-sticky;
-    position: sticky;
-  }
-}
+ 
 
 .sidebar .nav-link {
-  font-weight: 500;
-  color: #333;
+  font-weight: normal;
+  color: #fff;
+  padding:10px 0;
+      cursor: pointer;
   font-size:14px;
+      transition: 0.3s;
+}
+
+.sidebar .nav-link:hover{
+	    opacity: 0.6;
 }
 
  
 
 .sidebar .nav-link.active {
-  color: #007bff;
+    color: #fff;
+    font-weight: 600;
 }
  
 
@@ -825,11 +871,16 @@ margin-top:10px;
     font-size: 30px;
     cursor: pointer;
     margin: 0 15px;
-    height: 47px;
-   
-    width: 47px;
+    height:38px;
+   padding-top:5px;
+    width: 38px;
     text-align: center;
  }
+
+.hamburger .fa.fa-bars{
+	
+	font-size:30px !important;
+}
 
 .navbar-brand {
   padding-top: .75rem;
@@ -841,7 +892,6 @@ margin-top:10px;
 
 
 .navbar{
-align-items:left;
 justify-content: inherit;
 display:block;
 }
@@ -872,3 +922,36 @@ display:block;
 .pq-pager-msg{
 	float: right;
 }
+
+
+.error_block {
+    display: block;
+    width: 450px;
+    height: 300px;
+    margin: 0px auto;
+    text-align: center;
+}
+
+.error_block img {
+    width:320px;
+    display: block;
+    height:auto;
+    margin: 20px auto 0px;
+}
+
+
+.error_block h2{
+    color: #0277bd;
+    display:block;
+    margin:10px 0 0;
+    font-size: 32px;
+}
+
+.overlaycls{
+	z-index:-1;
+	position:relative;
+}
+
+.ui-widget-overlay {
+	opacity: .7;	
+}	

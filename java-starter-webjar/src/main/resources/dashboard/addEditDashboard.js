@@ -93,6 +93,7 @@ AddEditDashboard.prototype.fn = {
 				contentType : "application/json",
 				data : JSON.stringify(dashboardDetails),
 				success : function(data) {
+					$("#dashboardId").val(data);
 					$('#snackbar').html("Information saved successfully.");
 					context.showSnackbarDashboard();
 		       	},

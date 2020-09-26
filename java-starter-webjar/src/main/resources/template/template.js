@@ -12,9 +12,15 @@ class TemplateEngine {
         htmlEditor.setOption("showInvisibles", false);
         htmlEditor.setTheme("ace/theme/monokai");
         htmlEditor.getSession().setMode("ace/mode/html");
-        htmlEditor.getSession().setValue($("#contentDiv").val().trim());
-        $("#contentDiv").remove();
-        this.htmlEditor = htmlEditor;
+    	$.ajax({
+    		type: "get",
+    		url: contextPath+"/cf/gtbi",
+    		data: { templateId: this.templateId },
+    		success: function(data) {
+    			htmlEditor.getSession().setValue(data);
+    			this.htmlEditor = htmlEditor;
+    		}
+    	});
     }
 
     validateSaveVelocity = function (){
@@ -52,8 +58,9 @@ class TemplateEngine {
 
     onSaveAndClose = function() {
         const context = this;
-        var velocityName = $("#vmName").val();
-        var velocityTempData = this.htmlEditor.getSession().getValue();
+        const velocityName = $("#vmName").val();
+        const htmlEditor = ace.edit("htmlEditor");
+        let velocityTempData = htmlEditor.getSession().getValue();
         velocityTempData = velocityTempData.replaceAll("</textarea>", "&lt;/textarea&gt;");
         if(velocityTempData == ""){
             return false;
