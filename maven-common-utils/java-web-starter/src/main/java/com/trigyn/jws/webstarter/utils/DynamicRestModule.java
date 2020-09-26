@@ -15,7 +15,7 @@ import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
 @Component("dynamic-rest")
-public class DynaRestModule implements DownloadUploadModule {
+public class DynamicRestModule implements DownloadUploadModule {
 
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO = null;
