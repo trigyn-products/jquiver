@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(value = "app.trigyn.*")
 public class DButilsApplication {
 
 	public static void main(String[] args) {

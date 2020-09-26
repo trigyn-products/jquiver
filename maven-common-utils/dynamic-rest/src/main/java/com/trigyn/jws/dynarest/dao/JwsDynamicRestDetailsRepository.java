@@ -1,5 +1,7 @@
 package com.trigyn.jws.dynarest.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.stereotype.Repository;
@@ -12,5 +14,11 @@ public interface JwsDynamicRestDetailsRepository extends JpaRepositoryImplementa
 
     @Query(QueryStore.QUERY_TO_API_DETAILS_BY_URL)
     RestApiDetails findByJwsDynamicRestUrl(String jwsDynamicRestUrl);
+    
+    @Query(QueryStore.QUERY_TO_GET_DYNAMIC_REST_ID)
+    Integer findByJwsDynamicRestId(String jwsDynamicRestUrl, String jwsMethodName);
+
+    @Query(QueryStore.QUERY_TO_GET_JAVA_DYNAMIC_REST_DETAILS)
+	List<RestApiDetails> findAllJavaDynarests();
     
 }

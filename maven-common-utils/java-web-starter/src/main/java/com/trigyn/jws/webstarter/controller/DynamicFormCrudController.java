@@ -20,27 +20,28 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
+import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 @RequestMapping("/cf")
 public class DynamicFormCrudController {
 
 	@Autowired
-	private DynamicFormCrudService dynamicFormCrudService = null;
+	private DynamicFormCrudService dynamicFormCrudService 	= null;
 	
 	@Autowired
-	private DBTemplatingService templatingService = null;
+	private PropertyMasterDAO propertyMasterDAO 			= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private DynamicFormService dynamicFormService			= null;
 	
 	@Autowired
-	private TemplatingUtils templateEngine = null;
+	private MenuService			menuService					= null;
+	
 	
 	@PostMapping(value = "/aedf", produces = {MediaType.TEXT_HTML_VALUE})
 	public String addEditForm(@RequestParam("form-id") String formId) throws Exception {
@@ -61,13 +62,17 @@ public class DynamicFormCrudController {
 	
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
 	public String dynamicFormMasterListing() throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName("dynamic-form-listing");
 		Map<String,Object>  modelMap = new HashMap<>();
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), modelMap);
+		return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
 	}
 	
+	@PostMapping(value="/dfte", produces = MediaType.TEXT_HTML_VALUE)
+	public String createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
+		String tableName = httpServletRequest.getParameter("tableName");
+		return dynamicFormService.createDefaultFormByTableName(tableName);
+	}
 	
 	@GetMapping(value = "/cdd")
 	@ResponseBody

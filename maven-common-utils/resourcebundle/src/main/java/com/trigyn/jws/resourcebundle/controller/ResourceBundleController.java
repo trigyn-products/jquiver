@@ -1,8 +1,5 @@
 package com.trigyn.jws.resourcebundle.controller;
 
-import java.util.HashMap;
-import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

@@ -67,7 +67,6 @@ public class DashboardController {
 			userId = detailsVO.getUserId();
 		}
 		return dashletService.getDashletUI(userId, false, dashboardId);
-
 	}
 
 	

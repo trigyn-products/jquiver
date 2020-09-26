@@ -20,43 +20,38 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.notification.entities.GenericUserNotification;
 import com.trigyn.jws.notification.service.NotificationService;
 import com.trigyn.jws.notification.utility.Constants;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
 
 @RestController
 @RequestMapping("/cf")
 public class NotificationCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(NotificationCrudController.class);
+	private final static Logger logger 							= LogManager.getLogger(NotificationCrudController.class);
     
-    @Autowired
-	private DBTemplatingService templatingService = null;
-
 	@Autowired
-	private TemplatingUtils templateEngine = null;
-
-	@Autowired
-	private NotificationService notificationService = null;
+	private NotificationService notificationService 			= null;
 	
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService userDetailsService 				= null;
+	
+	@Autowired
+	private MenuService 		menuService						= null;
+	
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
 	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request) throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName(Constants.GENERIC_USER_NOTIFICATION);
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
+		return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
 	}
 
 	@GetMapping(value = "/aen", produces = MediaType.TEXT_HTML_VALUE)
 	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName(Constants.CREATE_NEW_USER_NOTIFICATION);
+		
+		String dateFormat 					= Constants.DATE_FORMAT;
+		String dateFormat_JS 				= Constants.DATE_FORMAT_JS;
 		Map<String, Object> templateDetails = new HashMap<>();
-		String dateFormat = Constants.DATE_FORMAT;
-		String dateFormat_JS = Constants.DATE_FORMAT_JS;
 		templateDetails.put("dateFormatter", new SimpleDateFormat(dateFormat));
 		templateDetails.put("dataFormat_JS", dateFormat_JS);
 		String notificationId = request.getParameter("notificationId");
@@ -73,13 +68,13 @@ public class NotificationCrudController {
 		}else{
 			templateDetails.put("isEdited", false);
 		}
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateDetails);
+		return menuService.getTemplateWithSiteLayout(Constants.CREATE_NEW_USER_NOTIFICATION, templateDetails);
 	}
 
 	@PostMapping(value = "/sn", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Boolean saveEditedNotification(HttpSession session, HttpServletRequest request) throws Exception {
-		UserDetailsVO detailsVO = userDetailsService.getUserDetails();
-		String updatedBy = detailsVO.getUserId();
+		UserDetailsVO detailsVO 	= userDetailsService.getUserDetails();
+		String updatedBy 			= detailsVO.getUserId();
 		notificationService.saveEditedNotificationData(GenericUserNotification.createGenericUserNotification(updatedBy, Constants.DATE_FORMAT, request.getParameterMap()));
 		return true;
     }

@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS=0;
+
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'dashboard-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -280,8 +282,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",render: dashletStatus},
 			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
 		];
 	
@@ -290,6 +291,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			colModel: colM
 		});
 	});
+	function dashletStatus(uiObject){
+		const status = uiObject.rowData.status;
+		if(status == 1){
+			return ''Active'';
+		}else{
+			return ''Inactive'';
+		}
+	}
+
 	function editDashlet(uiObject) {
 		const dashletId = uiObject.rowData.dashletId;
 		<#if environment == "dev">
@@ -342,6 +352,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" href="/webjars/1.0/dashboard/dashboard.css" />
 
@@ -514,7 +525,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 											<td>
 												<span id="upArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"   class="tblicon pull-left ${(dashletProperty?is_first)?then("disable_cls" , "")}" ><i class="fa fa-arrow-up" title="${messageSource.getMessage(''jws.moveUp'')}"></i></span>				  
 												<span id="downArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"  class="tblicon pull-left ${(dashletProperty?is_last)?then("disable_cls", "" )}" ><i class="fa fa-arrow-down" title="${messageSource.getMessage(''jws.moveDown'')}"></i></span>
-												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.removeProperty(this.id);" class="tblicon pull-left" ><i class="fa fa-trash-o" title="${messageSource.getMessage(''jws.deleteProperty'')}"></i></span>
+												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.deleteProperty(this.id);" class="tblicon pull-left" ><i class="fa fa-trash-o" title="${messageSource.getMessage(''jws.deleteProperty'')}"></i></span>
 											</td>
 			
 										</tr>
@@ -572,6 +583,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	   	${(dashletVO.dashletQuery)!""}
 	&lt;/textarea&gt;
 	
+	 <div id="deletePropertyConfirm"></div>
 	<div id="snackbar"></div>
 </div>
 <script>
@@ -598,10 +610,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </script>
 <script src="/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'admin', 'admin', NOW());
   
-
-SET FOREIGN_KEY_CHECKS=0;
-
-REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,form_body,created_by,created_date,form_select_checksum,form_body_checksum) VALUES ('e848b04c-f19b-11ea-9304-f48e38ab9348','notification','notification add/edit','select * from generic_user_notification where notification_id="${primaryId}"','<head>
+REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,form_body,created_by,created_date,form_select_checksum,form_body_checksum) VALUES ('e848b04c-f19b-11ea-9304-f48e38ab9348','notification','notification add/edit','select * from generic_user_notification where notification_id="${(primaryId)!''''}"','<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -614,118 +623,114 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 <link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
-<script type="text/javascript" src="/webjars/1.0/notification/notification.js"></script>
 
 </head>
 <div class="container">
-
-                              <div class="topband">
-                              <h2 class="title-cls-name float-left">Add Notification</h2> 
-                              <div class="float-right">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Add Notification</h2> 
+		<div class="float-right">
                                              
-                              <span onclick="backToTemplateListingPage();">
-                                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-                               </span>              
-                              </div>
+		<span onclick="backToTemplateListingPage();">
+			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+		</span>              
+	</div>
                               
-                              <div class="clearfix"></div>                         
-                              </div>
+	<div class="clearfix"></div>                         
+	</div>
 
-    
-     <form method="post" name="genericNotificationForm" id="genericNotificationForm">
-        					<input type="hidden" id="notificationId" name="notificationId"/>
-                              <div class="row">
+<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+<form method="post" name="genericNotificationForm" id="genericNotificationForm">
+	<input type="hidden" id="notificationId" name="notificationId"/>
+		<div class="row">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="fromDate">From </label>
+					<span id="fromDateTd">
+						<input id="fromDate" name= "fromDate" class="form-control" placeholder="From Date" /><button id="fromDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+					</span>
+				</div>
+			</div>
+                                                                                                        
+                                                                                                        
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="toDate">To </label>
+					<span id="toDateTd">
+						<input class="form-control" id="toDate"  name= "toDate" placeholder="To Date" /><button id="toDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+					</span>
+				</div>
+			</div>
+                                                                                                                                      
                               
-                              
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="fromDate">From </label>
-                                                                                                                                       <span id="fromDateTd">
-                                                                                                                                       <input id="fromDate" name= "fromDate" class="form-control" placeholder="From Date" /><button id="fromDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-                                                                                                                                       </span>
-                                                                                                                        </div>
-                                                                                                         </div>
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="targetPlatform">Target Platform </label>
+						<select class="form-control" id="targetPlatform" title="Target Platform" name="targetPlatform" onchange="populateOptions();">
+							<option value="" selected="selected"> --- select --- </option>
+                            <option value="wipo">WIPO</option>
+                            <option value="tsms">TSMS</option>
+							<option value="un">UN</option>
+                        </select>
+				</div>
+			</div>
+                                                                                                        
+                                                                                                         
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="messageType">Message Type  </label>
+						<select class="form-control" id="messageType" name="messageType" title="Message Type">
+							<option value="" selected="selected"> --- select --- </option>
+							<option value="Informative">Informative</option>
+							<option value="Warning">Warning</option>
+							<option value="Error">Error</option>
+						</select>
+				</div>
+			</div>
                                                                                                          
                                                                                                          
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="toDate">To </label>
-                                                                                                                                       <span id="toDateTd">
-                                                                                                                                                      <input class="form-control" id="toDate"  name= "toDate" placeholder="To Date" /><button id="toDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-                                                                                                                                       </span>
-                                                                                                                        </div>
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="selectionCriteria">Selection Criteria</label>
+						<textarea class="form-control" rows="15" cols="60" title="Select Criteria" id="selectionCriteria" placeholder="Select Criteria" name="selectionCriteria" style="height:80px">&lt;/textarea&gt;
+				</div>
+			</div>
+                                                                                                        
+                                                                                                         
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="messageText"> Message Text :</label>
+						<textarea class="form-control" rows="15" cols="60" title="Message Text" id="messageText" name="messageText" style="height:80px">&lt;/textarea&gt;
+				</div>
+			</div>
+                                                                                                         
+                                                                                                         
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="messageFormat"> Message Format</label>
+					<select class="form-control" id="messageFormat" name="messageFormat">
+						<option value="Text/Plain" selected>Text/Plain</option>
+						<option value="Text/HTML">Text/HTML</option>
+					</select>
+				</div>
+			</div>  
+	</div>
+                              
+                              
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<input id="addNotification" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveNotification();">
+				<span onclick="backToTemplateListingPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+</form>                             
 
-                                                                                                         </div>
-                                                                                                                                       
-                              
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="targetPlatform">Target Platform </label>
-                                                                                                                                       <select class="form-control" id="targetPlatform" title="Target Platform" name="targetPlatform" onchange="populateOptions();">
-                                                                                                                                                      <option value="" selected="selected"> --- select --- </option>
-                                                                                                                                                      <option value="wipo">WIPO</option>
-                                                                                                                                                      <option value="tsms">TSMS</option>
-                                                                                                                                                      <option value="un">UN</option>
-                                                                                                                                       </select>
-                                                                                                                        </div>
-                                                                                                         </div>
-                                                                                                         
-                                                                                                         
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="messageType">Message Type  </label>
-                                                                                                                                       <select class="form-control" id="messageType" name="messageType" title="Message Type">
-                                                                                                                                                      <option value="" selected="selected"> --- select --- </option>
-                                                                                                                                                      <option value="Informative">Informative</option>
-                                                                                                                                                      <option value="Warning">Warning</option>
-                                                                                                                                                      <option value="Error">Error</option>
-                                                                                                                                       </select>
-                                                                                                                        </div>
-                                                                                                         </div>
-                                                                                                         
-                                                                                                         
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="selectionCriteria">Selection Criteria</label>
-                                                                                                                                       <textarea class="form-control" rows="15" cols="60" title="Select Criteria" id="selectionCriteria" placeholder="Select Criteria" name="selectionCriteria" style="height:80px">&lt;/textarea&gt;
-                                                                                                                        </div>
-                                                                                                         </div>
-                                                                                                         
-                                                                                                         
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                       <span class="asteriskmark">*</span><label for="messageText"> Message Text :</label>
-                                                                                                                                       <textarea class="form-control" rows="15" cols="60" title="Message Text" id="messageText" name="messageText" style="height:80px">&lt;/textarea&gt;
-                                                                                                                        </div>
-                                                                                                         </div>
-                                                                                                         
-                                                                                                         
-                                                                                                         <div class="col-3">
-                                                                                                                        <div class="col-inner-form full-form-fields">
-                                                                                                                                         <span class="asteriskmark">*</span><label for="messageFormat"> Message Format</label>
-                                                                                                                                       <select class="form-control" id="messageFormat" name="messageFormat">
-                                                                                                                                                      <option value="Text/Plain" selected>Text/Plain</option>
-                                                                                                                                                      <option value="Text/HTML">Text/HTML</option>
-                                                                                                                                       </select>
-                                                                                                                        </div>
-                                                                                                         </div>  
-        </div>
-                              
-                              
-                              <div class="row">
-               <div class="col-12">
-    <div class="float-right">
-        <input id="addNotification" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveNotification();">
-        <span onclick="backToTemplateListingPage();">
-            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-        </span> 
-    </div>
-               </div>
-               </div>
-                              
-                              </div>
+</div>
         
-    </form>
+
     
                
  
@@ -778,24 +783,64 @@ $(function() {
 });  
 
 function saveNotification (){
+    if(validateFields() == false){
+        $("#errorMessage").show();
+        return false;
+    }
 	let formData = $("#genericNotificationForm").serialize() + "&formId="+formId;
-
-$.ajax({
+    
+    $.ajax({
      		type : "POST",
      		url : "sdf",
      		data : formData 
-				 
-     	});
-backToTemplateListingPage();
+ 	});
+    backToTemplateListingPage();
+}
+
+function validateFields(){
+    const fromDate = $("#fromDate").val();
+	if(fromDate == ""){
+		$("#errorMessage").html("Invalid From date");
+		return false;
+	}
+    const toDate = $("#toDate").val();
+	if(toDate == ""){
+		$("#errorMessage").html("Invalid To date");
+		return false;
+	}
+    const targetPlatform = $("#targetPlatform").val();
+    if(targetPlatform == ""){
+		$("#errorMessage").html("Please select target platform");
+		return false;
+	}
+	const messageType = $("#messageType").val();
+	if(messageType == ""){
+		$("#errorMessage").html("Please select message type");
+		return false;
+	}
+    const selectionCriteria = $("#selectionCriteria").val().trim();
+	if(selectionCriteria == ""){
+		$("#errorMessage").html("Please enter selection criteria");
+		return false;
+	}
+    const messageText = $("#messageText").val().trim();
+	if(messageText == ""){
+		$("#errorMessage").html("Please enter message text");
+		return false;
+	}
+    const messageFormat = $("#messageFormat").val();
+	if(messageFormat == ""){
+		$("#errorMessage").html("Please select message format");
+		return false;
+	}
+    return true;
 }
 
 function backToTemplateListingPage(){
-		window.location.href=contextPath+"/cf/nl";
-	}     
+	window.location.href=contextPath+"/cf/nl";
+}     
 </script>
 ','admin',NOW(),null,null);
-
-SET FOREIGN_KEY_CHECKS=1;
 
 REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
    'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("notificationId"))?has_content>
@@ -993,8 +1038,21 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                         <input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
                     </div>
                 </div>
-                                                            
-                                                            
+                
+                <#if (tables)?has_content>                                            
+                  <div class="col-6">
+	                   <div class="col-inner-form full-form-fields">
+					<label for="formTemplate" >Form template : </label>
+                        		<select id="formTemplate" name="formTemplate" placeholder="Select for default template" class="form-control" onchange="loadTableTemplate(event);"/>   
+                              <option>Select</option>
+                        			<#list tables as tableName>
+                							<option>${tableName}</option>
+                            
+						                  </#list>
+            </select>
+	                    </div>
+                	</div>
+                </#if>
             </div>
                    
            <div class="row margin-t-b">  
@@ -1080,7 +1138,18 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
   let dashletSQLEditors = [];
 	const addEdit = new AddEditDynamicForm();
 	AddEditDynamicForm.prototype.loadAddEditDynamicForm();
-	
+	function loadTableTemplate(event){
+    $.ajax({
+      type: "POST",
+      url: contextPath+"/cf/dfte",
+      data: {
+        tableName: event.currentTarget.value
+      },
+      success: function(data) {
+		dashletHTMLEditor.getSession().setValue(data);
+      }
+    });
+  }
    </script>
   ','admin','admin',now() );
   
@@ -1092,7 +1161,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
-<div class="container" style="padding-top: 40px">
+<div class="container">
     <div class="page-header">
         <h2 class="maintitle_name"> Java Web Starter </h2>
         <p>
@@ -1103,119 +1172,119 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
         </p>
     </div>
 
-	<div class="list-group custom-list-home">
-		<a href="../cf/gd" class="list-group-item list-group-item-action">
-		    <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1"> <span>Grid Utils</span></h5>
-			<small>Today</small>
-			</div>
-			<p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
-			<small>Now any master listing page will be created without much efforts</small>
-			</div>
-		</a>
-		<a href="../cf/te" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Templating utils</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
-			<small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
-			</div>
-		</a>
-		<a href="../cf/rb" class="list-group-item list-group-item-action">
-			<div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">DB Resource Bundle</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
-			<small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
-			</div>
-		</a>
-			<a href="../cf/adl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">TypeAhead</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
-			<small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
-			</div>
-		</a>
-		<a href="../cf/nl" class="list-group-item list-group-item-action">
-		<div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Notification</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine.</p>
-			<small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
-			</div>
-			 
-		</a>
-		<a href="../cf/dbm" class="list-group-item list-group-item-action">
-		<div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Dashboard</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
-			<small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
-			</div>
-		</a>
-		<a href="../cf/dfl" class="list-group-item list-group-item-action">
-		<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Dynamic Form</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine </p>
-			<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-			</div>
-		</a>
-		<a href="../cf/dynl" class="list-group-item list-group-item-action">
-		<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Dynamic API Listing</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine </p>
-			<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-			</div>
-		</a>
-    		<a href="../cf/mul" class="list-group-item list-group-item-action">
-		<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-		    <div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Menu</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine </p>
-			<small class="text-muted">Create menu for your application.</small>
-			</div>
-		</a>
-		<a href="../cf/pml" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-		    	<div class="home_list_content">
-			<div class="d-flex w-100 justify-content-between">
-			<h5 class="mb-1">Property Master</h5>
-			<small class="text-muted">Today</small>
-			</div>
-			<p class="mb-1">Built using Freemarker templating engine </p>
-			<small class="text-muted">Create menu for your application.</small>
-			</div>
-		</a>
-	</div>
+               <div class="list-group custom-list-home">
+                              <a href="../cf/gd" class="list-group-item list-group-item-action">
+                                  <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1"> <span>Grid Utils</span></h5>
+                                             <small>Today</small>
+                                             </div>
+                                             <p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
+                                             <small>Now any master listing page will be created without much efforts</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/te" class="list-group-item list-group-item-action">
+                                             <div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Templating utils</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
+                                             <small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/rb" class="list-group-item list-group-item-action">
+                                             <div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">DB Resource Bundle</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
+                                             <small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
+                                             </div>
+                              </a>
+                                             <a href="../cf/adl" class="list-group-item list-group-item-action">
+                                             <div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">TypeAhead</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
+                                             <small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/nl" class="list-group-item list-group-item-action">
+                              <div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Notification</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine.</p>
+                                             <small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
+                                             </div>
+                                             
+                              </a>
+                              <a href="../cf/dbm" class="list-group-item list-group-item-action">
+                              <div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Dashboard</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
+                                             <small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/dfl" class="list-group-item list-group-item-action">
+                              <div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Dynamic Form</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine </p>
+                                             <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/dynl" class="list-group-item list-group-item-action">
+                              <div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Dynamic API Listing</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine </p>
+                                             <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/mul" class="list-group-item list-group-item-action">
+                              <div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Menu</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine </p>
+                                             <small class="text-muted">Create menu for your application.</small>
+                                             </div>
+                              </a>
+                              <a href="../cf/pml" class="list-group-item list-group-item-action">
+                                             <div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
+                                             <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">Property Master</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine </p>
+                                             <small class="text-muted">Create menu for your application.</small>
+                                             </div>
+                              </a>
+               </div>
 </div>', 'admin', 'admin', NOW());
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
@@ -1344,9 +1413,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		
 		<h2 class="title-cls-name float-left">Grid Details Master</h2> 
 		<div class="float-right">
-		<span>
-  		    <input id="addGridDetails" class="btn btn-primary" name="addGridDetails" value="Add Grid Details" type="button">
-		</span>
+		<form id="addEditNotification" action="/cf/df" method="post" class="margin-r-5 pull-left">
+	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
+	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
+	            <button type="submit" class="btn btn-primary">Add Grid Details</button>
+        	</form>
 
          <span onclick="backToWelcomePage();">
           	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -1362,9 +1433,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </div>
 
 
-<form action="${(contextPath)!''''}/cf/aeg" method="POST" id="frmGdRedirect">
-	<input type="hidden" id="gridId" name="gridId">
-</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	function backToWelcomePage() {
@@ -1381,13 +1449,24 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Action", width: 50, align: "center", render: editGridDetails, dataIndx: "action" }
 		];
 		let grid = $("#divGridDetailsListing").grid({
 	      gridId: "gridDetailsListing",
 	      colModel: colM
 	  });
+	  
 	});
+	function editGridDetails(uiObject) {
+		const gridId = uiObject.rowData.gridId;
+		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="$"></i></span>''.toString();
+	}
+	
+	function submitForm(element) {
+		$("#primaryId").val(element.id);
+		$("#addEditNotification").submit();
+	}
 </script>', 'admin', 'admin', NOW());
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
@@ -1587,10 +1666,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <div id="snackbar"></div>
 </div>
 
-<textarea id="contentDiv" style="display: none">
-  ${(templateDetails.template)!""}
-&lt;/textarea&gt;
-
 <script>
 	contextPath = "${(contextPath)!''''}";
 	const ftlTemplateId = "${(templateDetails.templateId)!0}";
@@ -1609,6 +1684,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
 						$("#defaultTemplateId").append("<option>"+defaultTemplates[counter]["name"]+"</option>");
 					}
+					$("#defaultTemplateId").change(function(event){
+						templateMaster.htmlEditor.getSession().setValue(defaultTemplates.find(te => te.name == event.currentTarget.value).template);
+					});
 				}
 			});
 		}
@@ -1955,8 +2033,6 @@ function backToWelcomePage() {
 </#if>
 </script>', 'admin', 'admin', NOW(), NULL);
 
-SET FOREIGN_KEY_CHECKS=0;
-
 REPLACE into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
 jdrd.jws_method_description as dynarestMethodDescription, 
@@ -2102,7 +2178,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"',
   $(function () {
       dynarest = new DynamicRest();
 	  
-	  <#if (resultSet)??>
+	  <#if (resultSet)?? && resultSet?has_content>
 		<#list resultSet as resultSetList>
 			<#if resultSetList?is_first>
 				$("#dynarestId").val(''${(resultSetList?api.get("dynarestId"))!''''}'');
@@ -2124,8 +2200,6 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"',
 	
 	', 'admin', NOW());
 
-SET FOREIGN_KEY_CHECKS=0;
-
 REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
 ('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
     UPDATE jws_dynamic_rest_details SET 
@@ -2134,22 +2208,22 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
         ,jws_method_description = ''${formData?api.getFirst("dynarestMethodDescription")}''
         ,jws_request_type_id = ''${formData?api.getFirst("dynarestRequestTypeId")}''
         ,jws_response_producer_type_id = ''${formData?api.getFirst("dynarestProdTypeId")}''
+        ,jws_rbac_id = 1
         ,jws_service_logic = ''${formData?api.getFirst("serviceLogic")}''
         ,jws_platform_id = ''${formData?api.getFirst("dynarestPlatformId")}''
     WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
-
 <#else>
-    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES (
+    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES (
          ''${formData?api.getFirst("dynarestUrl")}''
          , ''${formData?api.getFirst("dynarestMethodName")}''
          , ''${formData?api.getFirst("dynarestMethodDescription")}''
+         , 1
          , ''${formData?api.getFirst("dynarestRequestTypeId")}''
          , ''${formData?api.getFirst("dynarestProdTypeId")}''
-         , ''${formData?api.getFirst("serviceLogic")}''
+         ,' '${formData?api.getFirst("serviceLogic")}''
          , ''${formData?api.getFirst("dynarestPlatformId")}''
     );
 </#if>', 1);
-
 
 REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
 (3, 'dynarestDetails', 1, 'getDynamicRestDetails', 'Method to get dynamic rest details', 2, 7, 'Map<String, Object> response = new HashMap<>();
@@ -2165,7 +2239,7 @@ REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_
 
 REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id,jws_result_variable_name,jws_dao_query_template,jws_query_sequence) VALUES (
 6,3,"dynarestDetails" ,	'SELECT  
-jdrd.jws_service_logic AS dynarestServiceLogic,
+jdrd.jws_service_logic AS dynarestServiceLogic,jdrdd.jws_result_variable_name AS variableName,
 jdrdd.jws_dao_query_template AS dynarestDaoQuery, jdrdd.jws_query_sequence AS dynarestQuerySequence 
 FROM jws_dynamic_rest_details AS jdrd 
 LEFT OUTER JOIN jws_dynamic_rest_dao_details AS jdrdd ON jdrdd.jws_dynamic_rest_details_id = jdrd.jws_dynamic_rest_id
@@ -2178,8 +2252,6 @@ return response;', 1);
 
 REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
 (7,4, 'defaultTemplates', 'select template_name as name, template as template from template_master where template_name like ("default-%")', 1);
-
-SET FOREIGN_KEY_CHECKS=1;
 
 REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'menu-module-listing', '<head>
@@ -2258,6 +2330,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
    
  
  
+
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'addEditModule', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -2276,7 +2349,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditModule")}</h2> 
 		<div class="float-right">
-			<span onclick="addEditModuleFn.backToModuleListingPage();">
+			<span onclick="addEditModule.backToModuleListingPage();">
   				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
   		 	</span>	
 		</div>
@@ -2300,7 +2373,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
-          <select id="parentModuleName" name="parentModuleName" onchange="addEditModuleFn();" class="form-control">
+					<select id="parentModuleName" name="parentModuleName" onchange="addEditModuleFn();" class="form-control">
 						<option value="">Select</option>
 						<#if (moduleListingVOList)??>
 							<#list moduleListingVOList as moduleListingVO>
@@ -2316,14 +2389,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
       
       
-      <div class="col-3">
+			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
-          <select id="targetLookupType" name="targetLookupType" onchange="addEditModuleFn.getTargeTypeNames();" class="form-control">
+					<select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
 						<option value="">Select</option>
 						<#if (moduleTargetLookupVOList)??>
 							<#list moduleTargetLookupVOList as moduleTargetLookupVO>
-									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleListingVO?api.getTargetLookupId())?? && (moduleTargetLookupVO?api.getLookupId()) == moduleListingVO?api.getTargetLookupId()>
+									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? && (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
 										<option value="${moduleTargetLookupVO?api.getLookupId()}" selected>${moduleTargetLookupVO?api.getDescription()!''''}</option>
 									<#else>
 										<option value="${moduleTargetLookupVO?api.getLookupId()}">${moduleTargetLookupVO?api.getDescription()!''''}</option>
@@ -2334,11 +2407,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 	 
-         <div class="col-3">
+			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Name</label>
           				<select id="targetTypeName" name="targetTypeName"  class="form-control">
-						<option value="">Select</option>
+						<option value="Select">Select</option>
 					</select>
 				</div>
 			</div>
@@ -2351,28 +2424,28 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 	 
       
-      			<div class="col-3">
+      		<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
+					<input type="text"  id = "urlPrefix" name = "urlPrefix" value = "${(urlPrefix)!''''}" readOnly="readonly" class="form-control">
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			        <div class="col-3">
+			<div class="col-3">
 	     		<div class="col-inner-form full-form-fields"> 
 		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>Roles</label>
 		  			<div id = "roles">
-            <#if userRoleVOs??>
-              <#list userRoleVOs as userRoleVO>
-                <lable for="${(userRoleVO?api.getRoleId())!''''}">${(userRoleVO?api.getRoleName())!''''}</label>
-                <input type="checkbox" id="${(userRoleVO?api.getRoleId())!''''}" name="${(userRoleVO?api.getRoleId())!''''}"/>
-              </#list>
-            </#if>
-            </div>
+						<#if userRoleVOs??>
+							<#list userRoleVOs as userRoleVO>
+								<lable for="${(userRoleVO?api.getRoleId())!''''}">${(userRoleVO?api.getRoleName())!''''}</label>
+								<input type="checkbox" id="${(userRoleVO?api.getRoleId())!''''}" name="${(userRoleVO?api.getRoleId())!''''}"/>
+							</#list>
+						</#if>
+					</div>
 		  			<div class="clearfix"></div>
 				</div>
 			</div>	
-			
 		</div>
 							
 	 
@@ -2380,8 +2453,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">		 
-	 				<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditModuleFn.saveModule();">	 
-	 				<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModuleFn.backToModuleListingPage();">
+	 				<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditModule.saveModule();">	 
+	 				<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModule.backToModuleListingPage();">
 				</div>
 	 		</div>
 		</div>	
@@ -2393,17 +2466,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <script>
 	contextPath = "${(contextPath)!''''}";
-	let addEditModuleFn;
-	
+	let addEditModule;
 	$(function() {
-		  
-	  const addEditModule = new AddEditModule();
-	  addEditModuleFn = addEditModule.fn;
-	  
+
+      let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
+	    addEditModule = new AddEditModule(moduleTypeId);
+      addEditModule.getTargeTypeNames();
 	});
 
 </script>
 <script src="/webjars/1.0/menu/addEditModule.js"></script>', 'admin', 'admin',NOW());
+
+
+
 
 
 
@@ -2419,83 +2494,70 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 
 </head>
-
-    <nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
-		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Project Name</a>
-		<span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">&#9776;</span>
-		<span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">&times;</span>
-		<ul class="navbar-nav px-3 float-right">
+	<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
+		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/cf/home">Java Web Starter</a>
+        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
+			<i class="fa fa-bars" aria-hidden="true"></i>
+		</span>
+        <span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">×</span>
+        <ul class="navbar-nav px-3 float-right">
 			<li class="nav-item text-nowrap">
 				<a class="nav-link" href="#">Sign out</a>
-			</li>
-	  </ul>
+            </li>
+        </ul>
 	</nav>
+
 <div class="container-fluid ">
-  <div class="row">
-	
-    <nav id="mySidenav" class=" bg-light sidenav sidebar">
-	
-      <div class="nav-inside">
-		<input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
-        <ul class="nav flex-column customnav">
-		
-			<#if moduleDetailsVOList??>
-				<#list moduleDetailsVOList as moduleDetailsVO>
-					<#if (moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1>
-
-						<li class="nav-item">
-							<a class="nav-link active"  data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">               
-							  ${moduleDetailsVO?api.getModuleName()!''''}  
-							  <i class="fa fa-caret-down" aria-hidden="true"></i>
-							</a>
-							<div class="collapse" id="collapseExample">
-								<ul class="subcategory">
-
-
-									<li>
-										<span class="nav-link" onclick="homePageFn.populateBodyContent(''${moduleDetailsVO?api.getModuleURL()!''''}'')">Manage Dashboard</span>
-									</li>
-							<#list moduleDetailsVOList as moduleDetailsVOChild>
-								<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
-									<li >
-                  						<span class="nav-link" onclick="homePageFn.populateBodyContent(''${moduleDetailsVOChild?api.getModuleURL()!''''}'')">${moduleDetailsVOChild?api.getModuleName()!''''}</span>
-									</li>
-								</#if>
-							</#list>
-							</ul>
-							</div>
-					<#else>
-
+	<div class="row">
+		<nav id="mySidenav" class=" bg-dark sidenav sidebar">
+			<div class="nav-inside">
+				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter()">
+				<ul id="menuUL" class="nav flex-column customnav">
+					<#if moduleDetailsVOList??>
+						<#list moduleDetailsVOList as moduleDetailsVO>
+							
+							<#if (moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1>
+								<li class="nav-item">
+									<a class="nav-link active"  data-toggle="collapse" href="#subModule_${moduleDetailsVO?index}" aria-expanded="false" aria-controls="collapseExample">${moduleDetailsVO?api.getModuleName()!''''}   
+										<i class="fa fa-caret-down" aria-hidden="true"></i>
+                                    </a>
+									<div class="collapse" id="subModule_${moduleDetailsVO?index}">
+										<ul class="subcategory">
+											<li>
+												<a href = "/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">Manage ${moduleDetailsVO?api.getModuleName()!''''}</a>
+											</li>
+											<#list moduleDetailsVOList as moduleDetailsVOChild>
+												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
+													<li>
+														<a href = "/view/${moduleDetailsVOChild?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''''}</a> 
+													</li>
+												</#if>
+											</#list>
+										</ul>
+									</div>
+							
+							<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
+								<li class="nav-item">
+									<span data-feather="file"></span>
+									<a href = "/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVO?api.getModuleName()!''''}</a>
+								</li>
+							</#if>
 						
-						 <li class="nav-item">
-							<span class="nav-link" onclick="homePageFn.populateBodyContent(''${moduleDetailsVO?api.getModuleURL()!''''}'')">
-								<span data-feather="file"></span>${moduleDetailsVO?api.getModuleName()!''''}
-							</span>
-						</li>
+						</#list>
 					</#if>
-				</#list>
-			</#if>
-                
-
-        
-      </div>
-    </nav>
-
-   <main id="main" class="main-container">
-      <div id="titleDiv" class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Dashboard</h1>
-        
-		  </div>
-      <div id="bodyDiv">
-      		<#include "template-body">
-      </div>
-   </main>
-  </div>
+				</div>
+			</nav>
+	
+	<main id="main" class="main-container">
+		<div id="bodyDiv">
+			<#include "template-body">
+		</div>
+	</main>
+	
+	</div>
 </div>
 
-
-	<div id="snackbar"></div>
-</div>
+<div id="snackbar"></div>
 
 <script>
 	const contextPathHome = "${(contextPath)!''''}";
@@ -2513,10 +2575,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/1.0/home/home.js"></script>', 'admin', 'admin',NOW());
 
 
-
-
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'error-page-not-found', '<head>
+(UUID(), 'error-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -2530,11 +2590,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container"> 
 
-	<div class="topband">
-		<h2 class="title-cls-name float-left">404 Not Found</h2> 
-		<div class="clearfix"></div>		
+	<div class="error_block">
+		<img src="/webjars/1.0/images/error1.jpg">
+		<h2 class="errorcontent">Opps!!! Something went wrong</h2> 
 	</div>
-	
+    
 </div>
 
 
@@ -2712,3 +2772,523 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	
 </div>', 'admin', 'admin',NOW());
+
+replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+('8a80cb8174bebc3c0174bec1892c0000', 'grid-details-form', 'Form to add edit grid details', 'SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName , grid_column_names AS gridColumnName
+, query_type AS queryType FROM grid_details WHERE grid_id="${primaryId}"', '<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Add Edit Grid Details</h2> 
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	<form method="post" name="addEditForm" id="addEditForm">
+		
+		<!-- You can include any type of form element over here -->
+		<div class="row">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Id</label>
+					<input type="text" id="gridId" name="gridId" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Name</label>
+					<input type="text" id="gridName" name="gridName" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridDescription" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Description</label>
+					<input type="text" id="gridDescription" name="gridDescription" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Table Name</label>
+					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Column Names</label>
+					<input type="text" id="gridColumnName" name="gridColumnName" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="queryType" style="white-space:nowrap">Query Type</label>
+						<select id="queryType" name="queryType"  class="form-control">
+							<option value="1">View/Table</option>
+							<option value="2">Stored Prod.</option>
+						</select>
+					</label>
+				</div>
+			</div>
+		</div>
+		<!-- Your form fields end -->
+		
+		
+		<div class="row">
+			<div class="col-12">
+				<div class="float-right">
+					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
+					<span onclick="backToPreviousPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>
+		
+	</form>
+
+
+	<div id="snackbar"></div>
+</div>
+
+
+
+<script>
+	let formId = "${formId}";
+	contextPath = "${contextPath}";
+	
+	$(function() {
+	    <#if (resultSet)??>
+    	    <#list resultSet as resultSetList>
+        		$("#gridId").val(''${resultSetList?api.get("gridId")}'');
+        		$("#gridName").val(''${resultSetList?api.get("gridName")}''); 
+        		$("#gridDescription").val(''${resultSetList?api.get("gridDescription")}'');
+        		$("#gridTableName").val(''${resultSetList?api.get("gridTableName")}'');
+        		$("#gridColumnName").val(''${resultSetList?api.get("gridColumnName")}'');
+        		$("#queryType option[value=''${resultSetList?api.get("queryType")}'']").attr("selected", "selected");
+    	    </#list>
+        </#if>
+	});   
+
+	//Add logic to save form data
+	function saveData (){
+		if(validateFields() == false){
+	        $("#errorMessage").show();
+	        return false;
+	    }
+		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
+		$.ajax({
+		     		type : "POST",
+		     		url : contextPath+"/cf/sdf",
+		     		data : formData 		 
+		     	});
+		backToPreviousPage();
+	}
+	
+	function validateFields(){
+        const gridId = $("#gridId").val().trim();
+        const gridName = $("#gridName").val().trim();
+        const gridDescription = $("#gridDescription").val().trim();
+        const gridTableName = $("#gridTableName").val().trim();
+        const gridColumnName = $("#gridColumnName").val().trim();
+        const queryType = $("#queryType").val();
+        if(gridId == "" || gridName == "" || gridDescription == "" 
+                || gridTableName == "" || gridColumnName == ""){
+            $("#errorMessage").html("All fields are mandatory");
+    		return false;
+        }
+        return true;
+    }
+    
+	//Code go back to previous page
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/gd";
+	}
+</script>', 'admin', NOW(), NULL, NULL);
+
+
+replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'insert into grid_details (
+   grid_id
+  ,grid_name
+  ,grid_description
+  ,grid_table_name
+  ,grid_column_names
+  ,query_type
+) VALUES (
+   ''${formData?api.getFirst("gridId")}'' 
+  ,''${formData?api.getFirst("gridName")}''  
+  ,''${formData?api.getFirst("gridDescription")}''  
+  ,''${formData?api.getFirst("gridTableName")}'' 
+  ,''${formData?api.getFirst("gridColumnName")}'' 
+  ,''${formData?api.getFirst("queryType")}'' 
+);', 1, NULL);
+
+replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'select * from jws_property_master where owner_id = "${ownerId}" and owner_type = "${ownerType}" and property_name = "${propertyName}"
+', '<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Add edit property master.</h2>
+		<div class="clearfix"></div>		
+	</div>
+	
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>	
+	<form method="post" name="addEditForm" id="addEditForm">
+		
+		<!-- You can include any type of form element over here -->
+		<div class="row">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Id</label>
+					<input type="text" id="ownerId" name="ownerId" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="ownerType" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Type</label>
+					<input type="text" id="ownerType" name="ownerType" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Name</label>
+					<input type="text" id="propertyName" name="propertyName" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Value</label>
+					<input type="text" id="propertyValue" name="propertyValue" value="" maxlength="100" required class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="appVersion" style="white-space:nowrap"><span class="asteriskmark">*</span>App Version</label>
+					<input type="number" id="appVersion" name="appVersion" value="" maxlength="7" required class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="comment" style="white-space:nowrap"><span class="asteriskmark">*</span>Comments</label>
+					<input type="text" id="comment" name="comment" value="" maxlength="100" required class="form-control">
+				</div>
+			</div>
+			
+		</div>
+		<!-- Your form fields end -->
+		
+		
+		<div class="row">
+			<div class="col-12">
+				<div class="float-right">
+					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
+					<span onclick="backToPreviousPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>
+		
+	</form>
+
+
+	<div id="snackbar"></div>
+</div>
+
+
+
+<script>
+	contextPath = "${contextPath}";
+	let formId = "${formId}";
+	let edit = 0;
+	
+	//Add logic to save form data
+	function saveData (){
+	    if(validateFields() == false){
+	        $("#errorMessage").show();
+	        return false;
+	    }
+		let formData = $("#addEditForm").serialize() + "&formId="+formId;
+		if(edit === 1) {
+		    formData = formData + "&edit="+edit;
+		}
+		$.ajax({
+     		type : "POST",
+     		url : contextPath+"/cf/sdf",
+     		data : formData,
+     		success: function(data){
+     		    backToPreviousPage();
+     		}
+     	});
+	}
+	
+    function validateFields(){
+        const ownerId = $("#ownerId").val().trim();
+        const ownerType = $("#ownerType").val().trim();
+        const propertyName = $("#propertyName").val().trim();
+        const propertyValue = $("#propertyValue").val().trim();
+        const appVersion = $("#appVersion").val().trim();
+        const comment = $("#comment").val().trim();
+        if(ownerId == "" || ownerType == "" || propertyName == "" 
+                || propertyValue == "" || appVersion == "" || comment == ""){
+            $("#errorMessage").html("All fields are mandatory");
+    		return false;
+        }
+        return true;
+    }
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/pml"
+	}
+	
+	$(function() {
+	    <#if (resultSet)??>
+        	<#list resultSet as resultSetList>
+        		$("#ownerId").val(''${resultSetList?api.get("owner_id")}'');
+        		$("#ownerType").val(''${resultSetList?api.get("owner_type")}'');
+        		$("#propertyName").val(''${resultSetList?api.get("property_name")}'');
+        		$("#propertyValue").val(''${resultSetList?api.get("property_value")}'');
+        		$("#comment").val(''${resultSetList?api.get("comments")}'');
+        		$("#appVersion").val(''${resultSetList?api.get("app_version")}'');
+        	</#list>
+        </#if>
+        
+        <#if (requestDetails?api.get("ownerId")) != "">
+            edit = 1;
+        </#if>
+	});
+</script>
+	', 'admin', NOW(), NULL, NULL);
+  
+replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '<#if  (formData?api.getFirst("edit"))?has_content>
+	update jws_property_master SET
+   owner_id = ''${formData?api.getFirst("ownerId")}''  
+  ,owner_type = ''${formData?api.getFirst("ownerType")}'' 
+  ,property_name = ''${formData?api.getFirst("propertyName")}'' 
+  ,property_value = ''${formData?api.getFirst("propertyValue")}'' 
+  ,last_modified_date = NOW()
+  ,modified_by = ''admin''
+  ,app_version = ${formData?api.getFirst("appVersion")} 
+  ,comments = ''${formData?api.getFirst("comment")}'' 
+WHERE owner_id = ''${formData?api.getFirst("ownerId")}'' and owner_type = ''${formData?api.getFirst("ownerType")}'' and property_name = ''${formData?api.getFirst("propertyName")}'';
+
+<#else>
+insert into jws_property_master (
+   owner_type
+  ,owner_id
+  ,property_name
+  ,property_value
+  ,is_deleted
+  ,last_modified_date
+  ,modified_by
+  ,app_version
+  ,comments
+) VALUES (
+   ''${formData?api.getFirst("ownerId")}'' 
+  ,''${formData?api.getFirst("ownerType")}''
+  ,''${formData?api.getFirst("propertyName")}''
+  ,''${formData?api.getFirst("propertyValue")}''
+  ,0
+  ,NOW()
+  ,''admin''
+  ,${formData?api.getFirst("appVersion")}
+  ,''${formData?api.getFirst("comment")}''
+);
+</#if>', 1, NULL);
+
+replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Property Master Listing</h2> 
+		<div class="float-right">
+			<form id="addEditProperty" action="/cf/df" method="post" class="margin-r-5 pull-left">
+                <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
+                <input type="hidden" name="ownerId" id="ownerId" value=""/>
+                <input type="hidden" name="ownerType" id="ownerType" value=""/>
+                <input type="hidden" name="propertyName" id="propertyName" value=""/>
+                <button type="submit" class="btn btn-primary"> Add Property </button>
+            </form>
+			<span onclick="backToWelcomePage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="propertyMasterListingGrid"></div>
+
+	<div id="snackbar"></div>
+</div>
+
+
+
+<script>
+	contextPath = "";
+	let grid;
+	$(function () {
+	//Add all columns that needs to be displayed in the grid
+		let colM = [
+			{ title: "Owner Id", width: 130, dataIndx: "owner_id", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Owner Type", width: 130, dataIndx: "owner_type", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Property Name", width: 130, dataIndx: "property_name", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Property Value", width: 130, dataIndx: "property_value", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Modified By", width: 130, dataIndx: "modified_by", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+		];
+	
+	//System will fecth grid data based on gridId
+		grid = $("#propertyMasterListingGrid").grid({
+	      gridId: "propertyMasterGrid",
+	      colModel: colM
+	  	});
+	
+	});
+	
+	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+	function manageRecord(uiObject) {
+        let rowIndx = uiObject.rowIndx;
+		return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	}
+	
+	//Add logic to navigate to create new record
+	function createNew(element) {
+		let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
+		$("#ownerId").val(rowData.owner_id);
+		$("#ownerType").val(rowData.owner_type);
+		$("#propertyName").val(rowData.property_name);
+		$("#addEditProperty").submit();
+	}
+
+	//Code go back to previous page
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+
+replace into grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
+('propertyMasterGrid', 'Property master listing', 'Property master listing grid', 'jws_property_master', '*', 1);
+
+replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+(UUID(), 'system-form-html-template', '
+<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Add Edit Details</h2> 
+		<div class="clearfix"></div>		
+	</div>
+  <form method="post" name="addEditForm" id="addEditForm">
+    
+    <#if (columnDetails)??>
+    	<#list columnDetails as columnDetailsList>
+    		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+		            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+		              ${columnDetailsList?api.get("fieldName")!""}
+		            </label>
+				<input type="${columnDetailsList?api.get(''columnType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="" maxlength="${columnDetailsList?api.get(''columnSize'')}" class="form-control">
+			</div>
+		</div>
+    	</#list>
+    </#if>
+    
+  </form>
+  <div class="row">
+			<div class="col-12">
+				<div class="float-right">
+					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
+					<span onclick="backToPreviousPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>
+</div>
+<script>
+	let formId;
+	contextPath = "${contextPath}";
+	
+	//Add logic to save form data
+	function saveData (){
+		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
+		$.ajax({
+		     		type : "POST",
+		     		url : contextPath+"/cf/sdf",
+		     		data : formData,
+            success: function(data) {
+              backToPreviousPage();
+            }
+		     	});
+	}
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/home";
+	}
+</script>
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+
+SET FOREIGN_KEY_CHECKS=1;

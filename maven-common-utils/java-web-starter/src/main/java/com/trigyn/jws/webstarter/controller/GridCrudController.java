@@ -10,25 +10,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.menu.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
 public class GridCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(GridCrudController.class);
+	private final static Logger logger 						= LogManager.getLogger(GridCrudController.class);
 
-    @Autowired
-    private DBTemplatingService templateService = null;
-
-    @Autowired
-    private TemplatingUtils templateEngine = null;
+	@Autowired
+	private MenuService 	menuService			= null;
     
     @GetMapping(value = "/gd", produces = MediaType.TEXT_HTML_VALUE)
     public String gridUtilsPage() throws Exception {
-        TemplateVO templateVO = templateService.getTemplateByName("grid-listing");
-        return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
+        return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());    
     }
 }

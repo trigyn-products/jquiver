@@ -1,5 +1,8 @@
 package com.trigyn.jws.dynamicform.dao;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +71,41 @@ public class DynamicFormCrudDAO extends DBConnection {
 	     query.setParameter("formName", formName);
 	     DynamicForm data = (DynamicForm) query.uniqueResult();
 	     return data;
+	}
+
+	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
+		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, " + 
+				"REPLACE(CONCAT(UPPER(SUBSTRING(COLUMN_NAME,1,1)),LOWER(SUBSTRING(COLUMN_NAME,2))), '_', ' ') as fieldName, " + 
+				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" ELSE DATA_TYPE END as columnType, " + 
+				"CASE WHEN DATA_TYPE = \"varchar\" THEN CHARACTER_MAXIMUM_LENGTH WHEN DATA_TYPE = \"int\" THEN NUMERIC_PRECISION ELSE CHARACTER_MAXIMUM_LENGTH END as columnSize " + 
+				"from information_schema.COLUMNS where TABLE_NAME = :tableName and DATA_TYPE IN (\"varchar\", \"int\") " + 
+				"and TABLE_SCHEMA = :schemaName " + 
+				"order by ORDINAL_POSITION ASC ";
+		List<Map<String, Object>> resultSet = new ArrayList<>();
+		try {
+			String schemaName = dataSource.getConnection().getCatalog();
+			Map<String, Object> parameterMap = new HashMap<>();
+			parameterMap.put("tableName", tableName);
+			parameterMap.put("schemaName", schemaName);
+			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultSet;
+	}
+
+	public List<String> getAllTablesListInSchema() {
+		String query = "select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA = :schemaName";
+		List<String> resultSet = new ArrayList<>();
+		try {
+			String schemaName = dataSource.getConnection().getCatalog();
+			Map<String, Object> parameterMap = new HashMap<>();
+			parameterMap.put("schemaName", schemaName);
+			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultSet;
 	}
 
 }

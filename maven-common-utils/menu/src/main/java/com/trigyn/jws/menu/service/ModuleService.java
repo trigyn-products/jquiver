@@ -2,12 +2,14 @@ package com.trigyn.jws.menu.service;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.trigyn.jws.dbutils.repository.UserRoleRepository;
@@ -41,8 +43,7 @@ public class ModuleService {
 	
     @Autowired
     private UserRoleRepository userRoleRepository						= null; 
-	
-	
+    
 	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{
 		if(moduleId != null && !moduleId.isBlank() && !moduleId.isEmpty()) {
@@ -94,6 +95,27 @@ public class ModuleService {
 		return moduleListing.getModuleId();
 	}
 	
+	public Map<String, Object> getExistingModuleData(String moduleName, String parentModuleId, Integer sequence, String moduleURL) throws Exception {
+		Map<String, Object> moduleDetailsMap = new HashMap<>();
+		String moduleId = getModuleIdByName(moduleName, Constants.DEFAULT_LANGUAGE_ID, Constants.DEFAULT_LANGUAGE_ID);
+		if(!StringUtils.isEmpty(moduleId)) {
+			moduleDetailsMap.put("moduleIdName", moduleId);
+		}
+		moduleId = getModuleIdBySequence(parentModuleId, sequence);
+		if(!StringUtils.isEmpty(moduleId)) {
+			moduleDetailsMap.put("moduleIdSequence", moduleId);
+		}
+			
+		moduleId = getModuleIdByURL(moduleURL);
+		if(!StringUtils.isEmpty(moduleId)) {
+			moduleDetailsMap.put("moduleIdURL", moduleId);
+		}
+		return moduleDetailsMap;
+	}
+	
+	public String getModuleIdByName(String moduleName, Integer languageId, Integer defaultLanguageId) throws Exception {
+		return iModuleListingRepository.getModuleIdByName(moduleName, languageId, defaultLanguageId);
+	}
 	
 	public String getModuleIdBySequence(String parentModuleId, Integer sequence) throws Exception {
 		if(!StringUtils.isEmpty(parentModuleId)) {
@@ -103,7 +125,6 @@ public class ModuleService {
 		}
 		
 	}
-	
 	
 	
 	public String getModuleIdByURL(String moduleURL) throws Exception {
@@ -143,13 +164,24 @@ public class ModuleService {
 
 
 	
-	public List<Map<String, Object>> getTargetTypes(Integer targetTypeId) throws Exception {
+	public List<Map<String, Object>> getTargetTypes(Integer targetLookupId, String targetTypeId) throws Exception {
 		List<Map<String, Object>> targetTypeMapList = new ArrayList<>();
-		if(targetTypeId != null) {
-			targetTypeMapList = moduleDAO.findTargetTypeDetails(targetTypeId);
+		if(targetLookupId != null) {
+			targetTypeMapList = moduleDAO.findTargetTypeDetails(targetLookupId, targetTypeId);
 		}
 		return targetTypeMapList;
 	}
 	
+	public Map<String, Object> getModuleTargetTypeName(String moduleURL) throws Exception {
+		Map<String, Object> moduleDetailsMap = new HashMap<>();
+		ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getTargetTypeDetails(moduleURL);
+		List<Map<String, Object>> targetTypeList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
+		moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
+		if(!CollectionUtils.isEmpty(targetTypeList)) {
+			moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
+        	moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
+		}
+		return moduleDetailsMap;
+	}
     
 }

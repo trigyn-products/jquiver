@@ -14,7 +14,7 @@ import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 
-@Component
+@Component("dashlet")
 public class DashletModule implements DownloadUploadModule {
 
 	@Autowired
@@ -71,7 +71,7 @@ public class DashletModule implements DownloadUploadModule {
 	}
 
 	@Override
-	public void uploadCodeToLocal() throws Exception {
+	public void uploadCodeToDB() throws Exception {
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Dashlets";

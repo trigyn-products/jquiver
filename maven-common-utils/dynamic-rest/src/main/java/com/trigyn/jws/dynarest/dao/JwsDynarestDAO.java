@@ -47,6 +47,7 @@ public class JwsDynarestDAO extends DBConnection {
 		 getCurrentSession().flush();
 	}
 
+	
 	public void saveJwsDynamicRestDAO(JwsDynamicRestDaoDetail daoDetail) {
 		getCurrentSession().save(daoDetail);
 		

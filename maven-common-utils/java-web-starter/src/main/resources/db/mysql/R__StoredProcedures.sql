@@ -315,12 +315,37 @@ END;
 
 
 DROP PROCEDURE IF EXISTS gridDetails;
-CREATE PROCEDURE gridDetails (gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100), gridColumnName varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE `gridDetails`(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100), gridColumnName varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' select grid_id as gridId, grid_name as gridName, grid_description as gridDesc, grid_table_name as gridTableName, grid_column_names as gridColumnName ';
-  SET @fromString  = ' from grid_details ';
+  SET @resultQuery = ' SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDesc, grid_table_name AS gridTableName, grid_column_names AS gridColumnName ';
+  SET @fromString  = ' FROM grid_details ';
   SET @whereString = ' ';
-  SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT gridId IS NULL THEN
+    SET @gridId= REPLACE(gridId,"'","''");
+    SET @whereString = CONCAT(@whereString,' WHERE grid_id LIKE ''%',@gridId,'%''');
+  END IF;
+  
+  IF NOT gridName IS NULL THEN
+    SET @gridName= REPLACE(gridName,"'","''");
+    SET @whereString = CONCAT(@whereString,' WHERE grid_name LIKE ''%',@gridName,'%''');
+  END IF;
+  
+  IF NOT gridDesc IS NULL THEN
+    SET @gridDesc= REPLACE(gridDesc,"'","''");
+    SET @whereString = CONCAT(@whereString,' WHERE grid_description LIKE ''%',@gridDesc,'%''');
+  END IF;
+  
+  IF NOT gridTableName IS NULL THEN
+    SET @gridTableName= REPLACE(gridTableName,"'","''");
+    SET @whereString = CONCAT(@whereString,' WHERE grid_table_name LIKE ''%',@gridTableName,'%''');
+  END IF;
+
+  IF NOT gridColumnName IS NULL THEN
+    SET @gridColumnName= REPLACE(gridColumnName,"'","''");
+    SET @whereString = CONCAT(@whereString,' WHERE grid_column_names LIKE ''%',@gridColumnName,'%''');
+  END IF;
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
@@ -329,7 +354,7 @@ BEGIN
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) as cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
   ELSE
   	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
   END IF;
@@ -338,6 +363,7 @@ BEGIN
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
 END;
+
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName');
 
@@ -462,22 +488,38 @@ BEGIN
   
   IF NOT moduleName IS NULL THEN
     SET @moduleName= REPLACE(moduleName,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
+    ELSE
+      SET @whereString = CONCAT(@whereString, 'WHERE COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
+    END IF;  
   END IF;
   
   IF NOT moduleURL IS NULL THEN
     SET @moduleURL= REPLACE(moduleURL,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND ml.module_url LIKE ''%',@moduleURL,'%'''); 
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString, 'AND ml.module_url LIKE ''%',@moduleURL,'%'''); 
+    ELSE
+      SET @whereString = CONCAT(@whereString, 'WHERE ml.module_url LIKE ''%',@moduleURL,'%'''); 
+    END IF; 
   END IF;
   
   IF NOT parentModuleName IS NULL THEN
     SET @parentModuleName= REPLACE(parentModuleName,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18nParent.module_name, mli18nParent2.module_name) LIKE ''%',@parentModuleName,'%'''); 
-  END IF;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18nParent.module_name, mli18nParent2.module_name) LIKE ''%',@parentModuleName,'%''');  
+    ELSE
+      SET @whereString = CONCAT(@whereString, 'WHERE COALESCE(mli18nParent.module_name, mli18nParent2.module_name) LIKE ''%',@parentModuleName,'%'''); 
+    END IF; 
+ END IF;
   
   IF NOT sequence IS NULL THEN
     SET @sequence= REPLACE(sequence,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND  ml.sequence = ''%',@sequence,'%'''); 
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString, 'AND  ml.sequence = ''',@sequence,''''); 
+    ELSE
+      SET @whereString = CONCAT(@whereString, 'WHERE ml.sequence = ''',@sequence,''''); 
+    END IF; 
   END IF;
   
 
@@ -501,6 +543,7 @@ BEGIN
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
 END;
+
 
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names)

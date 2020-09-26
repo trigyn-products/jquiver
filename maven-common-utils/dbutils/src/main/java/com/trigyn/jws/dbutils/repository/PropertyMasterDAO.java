@@ -7,6 +7,8 @@ import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.trigyn.jws.dbutils.entities.PropertyMaster;
+
 @Repository
 @Transactional
 public class PropertyMasterDAO extends DBConnection {
@@ -30,5 +32,9 @@ public class PropertyMasterDAO extends DBConnection {
 			propertyValue = propertValueObj.toString();
 		}
 		return propertyValue;
+	}
+	
+	public void save(PropertyMaster propertyMaster) {
+		getCurrentSession().saveOrUpdate(propertyMaster);
 	}
 }

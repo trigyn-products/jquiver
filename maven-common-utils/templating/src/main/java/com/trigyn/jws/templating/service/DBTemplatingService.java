@@ -79,6 +79,7 @@ public class DBTemplatingService {
         if (templateId != null && !templateId.isEmpty()) {
             templateDetails.setUpdatedBy(detailsVO.getUserId());
             templateDetails.setTemplateId(templateId);
+            templateDetails.setCreatedBy(detailsVO.getUserId());
         } else {
             templateDetails.setCreatedBy(detailsVO.getUserId());
         }

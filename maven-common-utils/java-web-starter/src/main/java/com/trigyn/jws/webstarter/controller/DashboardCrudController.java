@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
@@ -105,17 +106,11 @@ public class DashboardCrudController {
 	}
 
 	
-	@PostMapping(value = "/sdb", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Boolean> saveDashboard(@RequestBody DashboardVO dashboardVO,
+	@PostMapping(value = "/sdb")
+	@ResponseBody
+	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
 			@RequestHeader(value = "user-id", required = true) String userId) throws Exception {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		try {
-			dashboardCrudService.saveDashboardDetails(dashboardVO, userId);
-			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId);
     }
     
     
@@ -134,17 +129,11 @@ public class DashboardCrudController {
 	
 
 	
-	@PostMapping(value = "/sdl", produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<Boolean> saveDashlet(@RequestHeader(value = "user-id", required = true) String userId
+	@PostMapping(value = "/sdl")
+	@ResponseBody
+	public String saveDashlet(@RequestHeader(value = "user-id", required = true) String userId
 			, @RequestBody DashletVO dashletVO) throws Exception {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		try {
-			dashboardCrudService.saveDashlet(userId, dashletVO);
-			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		return dashboardCrudService.saveDashlet(userId, dashletVO);
 	}
     
 	@PostMapping(value = "/ddl")

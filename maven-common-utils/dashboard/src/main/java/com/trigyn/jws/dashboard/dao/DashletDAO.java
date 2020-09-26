@@ -59,10 +59,12 @@ public class DashletDAO extends DBConnection {
 
 	public List<Object[]> getDashlets(List<String> userRoleList,String dashboardId) throws Exception {
 
-		String hqlQuery = "FROM Dashlet AS d INNER JOIN d.roleAssociation AS ra INNER JOIN d.dashboardAssociation AS da WHERE ra.id.roleId IN ( :roleIds ) AND d.isActive = :isActive AND da.id.dashboardId =:dashboardId  GROUP BY d.dashletId";
+		String hqlQuery = "FROM Dashlet AS d INNER JOIN d.roleAssociation AS ra INNER JOIN d.dashboardAssociation AS da "
+				+ " LEFT OUTER JOIN ra.userRole AS ur "
+				+ " WHERE ur.roleName IN ( :roleNames ) AND d.isActive = :isActive AND da.id.dashboardId =:dashboardId  GROUP BY d.dashletId ";
 		Query hql = getCurrentSession().createQuery(hqlQuery);
 		hql.setParameter("isActive", Constants.DashletStatus.ACTIVE.getDashletStatus());
-		hql.setParameter("roleIds", userRoleList);
+		hql.setParameter("roleNames", userRoleList);
 		hql.setParameter("dashboardId",dashboardId);
 		List<Object[]> resultSet = (List<Object[]>) hql.getResultList();
 

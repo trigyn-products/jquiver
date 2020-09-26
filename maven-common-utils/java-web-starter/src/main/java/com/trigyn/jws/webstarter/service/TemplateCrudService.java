@@ -4,11 +4,11 @@ package com.trigyn.jws.webstarter.service;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
-import com.trigyn.jws.webstarter.utils.DownloadUploadModuleFactory;
 
 @Service
 @Transactional
@@ -18,21 +18,20 @@ public class TemplateCrudService {
 	private TemplateDAO templateDAO = null;
 	
 	@Autowired
-	private DownloadUploadModuleFactory moduleFactory = null;
+	@Qualifier("template")
+	private DownloadUploadModule downloadUploadModule = null;
 	
 	public void downloadTemplates() throws Exception {
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("templates");
 		downloadUploadModule.downloadCodeToLocal();
 		
 	}
 	
 	public void uploadTemplates() throws Exception {
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("templates");
-		downloadUploadModule.uploadCodeToLocal();
+		downloadUploadModule.uploadCodeToDB();
 	}
 
 	
-	   public String checkVelocityData(String velocityName) throws Exception {
-		   return templateDAO.checkVelocityData(velocityName);
-	   }
+   public String checkVelocityData(String velocityName) throws Exception {
+	   return templateDAO.checkVelocityData(velocityName);
+   }
 }

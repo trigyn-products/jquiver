@@ -17,7 +17,9 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.templating.vo.TemplateVO;
 
 @Service
 @Transactional
@@ -33,10 +35,13 @@ public class DynamicFormService {
 	private PropertyMasterDAO propertyMasterDAO = null;
 	
 	@Autowired
+	private DBTemplatingService templateService = null;
+	
+	@Autowired
 	private FileUtilities fileUtilities  = null;
 	
 	
-	public String loadDynamicForm(String formId, String primaryId, Map<String, Object> additionalParam)
+	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam)
 			throws Exception {
 
 		String selectTemplateQuery = null;
@@ -59,26 +64,21 @@ public class DynamicFormService {
 	         formBody = form.getFormBody();
 	      }
 		
+		List<Map<String, Object>> selectResultSet = null;
 
-		if (StringUtils.isNotEmpty(primaryId)) {
-
-			List<Map<String, Object>> selectResultSet = null;
-			Map<String, Object> selectTemplateMap = new HashMap<>();
-
-			selectTemplateMap.put("primaryId", primaryId);
-			if (additionalParam != null) {
-				selectTemplateMap.putAll(additionalParam);
-			}
-
-			selectTemplateQuery = templateEngine.processTemplateContents(selectQuery, formName, selectTemplateMap);
-
-			if (StringUtils.isNotEmpty(selectTemplateQuery)) {
-				selectResultSet = dynamicFormDAO.getFormData(selectTemplateQuery.toString());
-			}
-			formHtmlTemplateMap.put("resultSet", selectResultSet);
-
+		if (additionalParam != null) {
+			requestParam.putAll(additionalParam);
 		}
+
+		selectTemplateQuery = templateEngine.processTemplateContents(selectQuery, formName, requestParam);
+
+		if (StringUtils.isNotEmpty(selectTemplateQuery)) {
+			selectResultSet = dynamicFormDAO.getFormData(selectTemplateQuery.toString());
+		}
+		formHtmlTemplateMap.put("resultSet", selectResultSet);
+
 		formHtmlTemplateMap.put("formId", formId);
+		formHtmlTemplateMap.put("requestDetails", requestParam);
 		templateHtml = templateEngine.processTemplateContents(formBody, formName, formHtmlTemplateMap);
 
 		return templateHtml;
@@ -125,5 +125,19 @@ public class DynamicFormService {
 		}else {
 			throw new Exception("Please download the forms from dynamic form  listing  " + formName);
 		}
+	}
+
+	public String createDefaultFormByTableName(String tableName) {
+		List<Map<String, Object>> tableDetails = dynamicFormDAO.getTableDetailsByTableName(tableName);
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("columnDetails", tableDetails);
+		String template = null;
+		try {
+			TemplateVO templateVO = templateService.getTemplateByName("system-form-html-template");
+			template = templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), parameters);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return template;
 	}
 }

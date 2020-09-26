@@ -3,14 +3,14 @@ package com.trigyn.jws.webstarter.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,57 +19,63 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.menu.service.ModuleService;
 import com.trigyn.jws.menu.vo.ModuleDetailsVO;
 import com.trigyn.jws.menu.vo.ModuleTargetLookupVO;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
 
 @RestController
 @RequestMapping("/cf")
 public class MenuCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(MenuCrudController.class);
+	private final static Logger logger 						= LogManager.getLogger(MenuCrudController.class);
 
     @Autowired
-    private ModuleService moduleService 			= null;
+    private ModuleService moduleService 					= null;
     
-    @Autowired
-    private DBTemplatingService templateService 	= null;
-
-    @Autowired
-    private TemplatingUtils templateEngine 			= null;
-    
+	@Autowired
+	private MenuService menuService						= null;
 	
+    @Autowired
+    private RequestMappingHandlerMapping handlerMapping = null;
+    
+    @GetMapping(value = "/mul", produces = MediaType.TEXT_HTML_VALUE)
+    public String moduleListingPage() throws Exception {
+        return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
+    }
+    
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditModule(@RequestParam(value = "module-id") String moduleId) throws Exception {
+	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest) throws Exception {
 		Map<String, Object> templateMap 						= new HashMap<>();
 		ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
 		List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
 		List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
 		List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
+		String uri 												= a_httHttpServletRequest.getRequestURI();
+		String url 												= a_httHttpServletRequest.getRequestURL().toString();
+		StringBuilder urlPrefix									= new StringBuilder();
+		url = url.replace(uri, "");
+		urlPrefix.append(url).append("/view/");
 		
+		templateMap.put("urlPrefix", urlPrefix);
 		templateMap.put("userRoleVOs", userRoleVOs);
 		templateMap.put("moduleDetailsVO", moduleDetailsVO);
 		templateMap.put("moduleListingVOList", moduleListingVOList);
 		templateMap.put("moduleTargetLookupVOList", moduleTargetLookupVOList);
-		TemplateVO templateVO = templateService.getTemplateByName("addEditModule");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				templateMap);
+		return menuService.getTemplateWithSiteLayout("addEditModule", templateMap); 
 	}
 	
 	
 	
 	@GetMapping(value = "/ltlm", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<Map<String, Object>> getTargetTypes(
-			@RequestHeader(value = "target-lookup-id", required = true) Integer targetTypeId)
+			@RequestHeader(value = "target-lookup-id", required = true) Integer targetLookupId)
 			throws Exception {
-		return moduleService.getTargetTypes(targetTypeId);
+		return moduleService.getTargetTypes(targetLookupId, null);
 	}
-
 	
 	@GetMapping(value = "/cms")
 	@ResponseBody
@@ -92,17 +98,27 @@ public class MenuCrudController {
 		return moduleService.getModuleIdByURL(moduleURL);
 	}
 	
+	@GetMapping(value = "/ced", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public Map<String, Object> getExistingData(
+			@RequestHeader(name = "module-name", required = false) String moduleName
+			, @RequestHeader(name = "parent-module-id", required = false) String parentModuleId
+			, @RequestHeader(name = "sequence", required = true) Integer sequence
+			, @RequestHeader(name = "module-url", required = false) String moduleURL)
+			throws Exception {
+		return moduleService.getExistingModuleData(moduleName, parentModuleId, sequence, moduleURL);
+	}
 
 	
-	@PostMapping(value = "/sm", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<String> saveModule(@RequestBody ModuleDetailsVO moduleDetailsVO) throws Exception {
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		try {
-			String moduleId = moduleService.saveModuleDetails(moduleDetailsVO);
-			return new ResponseEntity<>(moduleId, httpHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+	@PostMapping(value = "/sm")
+	@ResponseBody
+	public String saveModule(@RequestBody ModuleDetailsVO moduleDetailsVO) throws Exception {
+		List<?> systemUrls = handlerMapping.getHandlerMethods().keySet()
+							.stream()
+							.map(requestMappingInfo -> requestMappingInfo.getPatternsCondition())
+							.collect(Collectors.toList());
+		for (Object object : systemUrls) {
+			System.out.println(object);
 		}
+		return moduleService.saveModuleDetails(moduleDetailsVO);
     }
 }

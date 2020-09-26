@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
 
@@ -24,38 +22,34 @@ import com.trigyn.jws.typeahead.service.TypeAheadService;
 public class TypeAheadCrudController {
 	
 	private final static Logger logger = LogManager.getLogger(TypeAheadCrudController.class);
-    
-    @Autowired
-	private DBTemplatingService templateService = null;
-	
-	@Autowired
-	private TemplatingUtils templateEngine = null;
 
 	@Autowired
 	private TypeAheadService typeAheadService = null;
 
+	@Autowired
+	private MenuService menuService = null;
+	
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
     public String autocompleteListingsPage() throws Exception {
-        TemplateVO templateVO = templateService.getTemplateByName("autocompleteListing");
-        return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
+    	return menuService.getTemplateWithSiteLayout("autocompleteListing",  new HashMap<>());
     }
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
     public String demoAutocomplete() throws Exception {
-        TemplateVO templateVO = templateService.getTemplateByName("demoAutocomplete");
-        return templateVO.getTemplate();
+        return menuService.getTemplateWithSiteLayout("demoAutocomplete",  new HashMap<>());
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
     public String addEditAutocompleteDetails(HttpServletRequest request) throws Exception {
-        TemplateVO templateVO = templateService.getTemplateByName("addEditAutocompleteDetails");
-		String autocompleteId = request.getParameter("acId");
-		Map<String, Object> templateData = new HashMap<>();
+		
+		String autocompleteId 				= request.getParameter("acId");
+		Map<String, Object> templateData 	= new HashMap<>();
+		
 		if (autocompleteId != null) {
 			AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 			templateData.put("autocompleteVO", autocompleteVO);
 		}
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateData);
+		return menuService.getTemplateWithSiteLayout("addEditAutocompleteDetails",  templateData);
     }
     
 }

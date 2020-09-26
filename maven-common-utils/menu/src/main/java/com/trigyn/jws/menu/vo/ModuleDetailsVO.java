@@ -1,6 +1,7 @@
 package com.trigyn.jws.menu.vo;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 public class ModuleDetailsVO implements Serializable{
@@ -17,13 +18,14 @@ public class ModuleDetailsVO implements Serializable{
 	private String targetLookupDesc					= null;
 	private String targetTypeId						= null;
 	private Long subModuleCount						= null;
+	private List<String> roleIdList					= null;
 	
 	public ModuleDetailsVO() {
 		
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,
-			String parentModuleName, Integer sequence, Integer targetLookupId, String targetLookupDesc, String targetTypeId) {
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,String parentModuleName
+			, Integer sequence, Integer targetLookupId, String targetLookupDesc, String targetTypeId) {
 		this.moduleId 				= moduleId;
 		this.moduleName 			= moduleName;
 		this.moduleURL 				= moduleURL;
@@ -51,8 +53,13 @@ public class ModuleDetailsVO implements Serializable{
 		this.sequence 			= sequence;
 		this.subModuleCount 	= subModuleCount;
 	}
-
 	
+	
+	public ModuleDetailsVO(Integer targetLookupId, String targetTypeId) {
+		this.targetLookupId = targetLookupId;
+		this.targetTypeId = targetTypeId;
+	}
+
 	public String getModuleId() {
 		return moduleId;
 	}
@@ -150,6 +157,20 @@ public class ModuleDetailsVO implements Serializable{
 	
 	public void setSubModuleCount(Long subModuleCount) {
 		this.subModuleCount = subModuleCount;
+	}
+	
+	/**
+	 * @return the roleIdList
+	 */
+	public List<String> getRoleIdList() {
+		return roleIdList;
+	}
+
+	/**
+	 * @param roleIdList the roleIdList to set
+	 */
+	public void setRoleIdList(List<String> roleIdList) {
+		this.roleIdList = roleIdList;
 	}
 
 	@Override

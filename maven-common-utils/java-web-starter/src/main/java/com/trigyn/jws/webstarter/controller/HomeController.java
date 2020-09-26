@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.webstarter.service.MasterModuleService;
+import com.trigyn.jws.menu.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
@@ -19,11 +19,11 @@ public class HomeController {
 	private final static Logger logger = LogManager.getLogger(HomeController.class);
 
     @Autowired
-    private MasterModuleService moduleService = null;
+    private MenuService menuService = null;
     
     @GetMapping(value = "/home", produces = MediaType.TEXT_HTML_VALUE)
     public String homePage() throws Exception {
-        return moduleService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+        return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
     }
     
 }

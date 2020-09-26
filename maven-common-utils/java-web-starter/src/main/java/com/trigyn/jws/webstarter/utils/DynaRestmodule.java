@@ -14,8 +14,8 @@ import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
-@Component
-public class DynaRestmodule implements DownloadUploadModule {
+@Component("dynamic-rest")
+public class DynaRestModule implements DownloadUploadModule {
 
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO = null;
@@ -25,6 +25,7 @@ public class DynaRestmodule implements DownloadUploadModule {
 	
 	@Autowired
 	private FileUtilities fileUtilities  = null;
+	
 	
 	@Override
 	public void downloadCodeToLocal() throws Exception {
@@ -72,7 +73,7 @@ public class DynaRestmodule implements DownloadUploadModule {
 	}
 
 	@Override
-	public void uploadCodeToLocal() throws Exception {
+	public void uploadCodeToDB() throws Exception {
 		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "DynamicRest";

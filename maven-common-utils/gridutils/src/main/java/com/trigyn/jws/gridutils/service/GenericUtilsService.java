@@ -14,7 +14,6 @@ import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.gridutils.utility.GenericGridParams;
 
 @Service
-@Transactional(readOnly = true)
 public class GenericUtilsService {
 	
 	private final static Logger logger = LogManager.getLogger(GenericUtilsService.class);

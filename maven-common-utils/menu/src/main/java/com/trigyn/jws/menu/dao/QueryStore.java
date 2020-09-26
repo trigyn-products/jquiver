@@ -37,11 +37,17 @@ public final class QueryStore {
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nP ON mlI18nP.id.languageId = :languageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nPDef ON mlI18nPDef.id.languageId = :defaultLanguageId "
-    		+ " GROUP BY ml.moduleId ";
+    		+ " GROUP BY ml.moduleId ORDER BY CASE WHEN  ml.parentId IS NULL THEN ml.sequence END ASC ";
+    
+    public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_NAME = "SELECT ml.moduleId AS moduleId"
+    		+ " FROM ModuleListing AS ml "
+    		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = :languageId "
+    		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
+    		+ " WHERE mlI18n.moduleName = :moduleName OR mlI18nDef.moduleName = :moduleName ";
     
     public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_SEQUENCE = "SELECT ml.moduleId AS moduleId"
     		+ " FROM ModuleListing AS ml "
-    		+ " WHERE ml.sequence = :sequence ";
+    		+ " WHERE ml.parentId IS NULL AND ml.sequence = :sequence ";
     
     public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_PARENT_SEQUENCE = "SELECT ml.moduleId AS moduleId "
     		+ " FROM ModuleListing AS ml "
@@ -60,7 +66,10 @@ public final class QueryStore {
     		+ " WHERE mtl.lookupId = :targetTypeId ORDER BY description ASC ";
     
     
-    
+    public static final String JPA_QUERY_TO_GET_TARGET_TYPE_BY_URL = "SELECT  new com.trigyn.jws.menu.vo.ModuleDetailsVO( "
+    		+ " ml.targetLookupId AS targetLookupId, ml.targetTypeId AS targetTypeId )"
+    		+ " FROM ModuleListing AS ml "
+    		+ " WHERE ml.moduleUrl = :moduleURL ";
     
     
 }

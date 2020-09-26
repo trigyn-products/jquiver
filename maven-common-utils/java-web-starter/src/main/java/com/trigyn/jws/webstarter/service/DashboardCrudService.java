@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,7 +38,6 @@ import com.trigyn.jws.dbutils.repository.UserRoleRepository;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
-import com.trigyn.jws.webstarter.utils.DownloadUploadModuleFactory;
 
 @Service
 @Transactional(readOnly = false)
@@ -69,11 +69,12 @@ public class DashboardCrudService {
     @Autowired
 	private IDashletRoleAssociationRepository iDashletRoleAssociationRepository		= null;
     
-	@Autowired
-	private DownloadUploadModuleFactory moduleFactory 								= null;
 	
     @Autowired
     private UserRoleRepository userRoleRepository									= null; 
+
+	@Qualifier("dashlet")
+	private DownloadUploadModule downloadUploadModule = null;
 	
     
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
@@ -93,7 +94,7 @@ public class DashboardCrudService {
 	
 	
 	
-	public void saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
+	public String saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);
 		iDashboardRepository.saveAndFlush(dashboardEntity);
 		if (!CollectionUtils.isEmpty(dashboardVO.getRoleIdList())) {
@@ -105,13 +106,6 @@ public class DashboardCrudService {
 				dashboardRoleAssociation.setId(dashboardRoleAssociationPK);
 				iDashboardRoleRepository.saveAndFlush(dashboardRoleAssociation);
 			}
-		}else if(userId != null && !userId.isBlank() && !userId.isEmpty()) {
-			DashboardRoleAssociation dashboardRoleAssociation 		= new DashboardRoleAssociation();
-			DashboardRoleAssociationPK dashboardRoleAssociationPK 	= new DashboardRoleAssociationPK();
-			dashboardRoleAssociationPK.setDashboardId(dashboardEntity.getDashboardId());
-			dashboardRoleAssociationPK.setRoleId(userId);
-			dashboardRoleAssociation.setId(dashboardRoleAssociationPK);
-			iDashboardRoleRepository.saveAndFlush(dashboardRoleAssociation);
 		}
 		if (!CollectionUtils.isEmpty(dashboardVO.getDashletIdList())) {
 			dashboardCrudDAO.deleteAllDashletFromDashboard(dashboardEntity.getDashboardId());
@@ -124,8 +118,8 @@ public class DashboardCrudService {
 				iDashboardDashletRepository.save(dashboardDashletAssociation);
 			}
 		}
+		return dashboardEntity.getDashboardId();
     }
-    
     
 	private Dashboard convertDashboarVOToEntity(DashboardVO dashboardVO, String userId) {
 		Dashboard dashboardEntity = new Dashboard();
@@ -162,7 +156,7 @@ public class DashboardCrudService {
     }
     
      
-    public Boolean saveDashlet(String userId, DashletVO dashletVO) throws Exception {
+    public String saveDashlet(String userId, DashletVO dashletVO) throws Exception {
     	Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
 		dashlet 		= iDashletRepository.saveAndFlush(dashlet);
 		
@@ -182,19 +176,12 @@ public class DashboardCrudService {
 					dashletRoleAssociation.setId(dashletRoleAssociationPK);
 					iDashletRoleAssociationRepository.saveAndFlush(dashletRoleAssociation);
 				}
-			}else if(userId != null && !userId.isBlank() && !userId.isEmpty()) {
-				DashletRoleAssociation dashletRoleAssociation = new DashletRoleAssociation();
-				DashletRoleAssociationPK dashletRoleAssociationPK = new DashletRoleAssociationPK();
-				dashletRoleAssociationPK.setDashletId(dashlet.getDashletId());
-				dashletRoleAssociationPK.setRoleId(userId);
-				dashletRoleAssociation.setId(dashletRoleAssociationPK);
-				iDashletRoleAssociationRepository.saveAndFlush(dashletRoleAssociation);
 			}
-			return true;
-		} catch (Exception e) {
-			throw new RuntimeException("Error ocurred while saving dashlet details.");
-		}
+			
+		} catch (Exception exception) {
 
+		}
+		return dashlet.getDashletId();
     }
     
     
@@ -223,11 +210,10 @@ public class DashboardCrudService {
 			dashlet.setUpdatedBy(userId);
 			dashlet.setUpdatedDate(date);
 			dashlet.setIsActive(dashletVO.getIsActive());
-	    	return dashlet;
-		} catch (Exception e) {
-			throw new RuntimeException("Error occurred while converting instance of DashletVO to Dashlet entity.");
+		} catch (Exception exception) {
+			
 		}
-
+    	return dashlet;
     }
     
     
@@ -255,13 +241,10 @@ public class DashboardCrudService {
     }
 
 	public void downloadDashlets() throws Exception {
-		
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("dynarest");
 		downloadUploadModule.downloadCodeToLocal();
 	}
 
 	public void uploadDashlets() throws Exception {
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("dynarest");
-		downloadUploadModule.downloadCodeToLocal();
+		downloadUploadModule.uploadCodeToDB();
 	}    
 }

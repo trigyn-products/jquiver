@@ -9,8 +9,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +25,6 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
-import com.trigyn.jws.webstarter.utils.DownloadUploadModuleFactory;
 
 @Service
 @Transactional
@@ -36,16 +37,14 @@ public class DynamicFormCrudService {
 	private TemplatingUtils templateEngine = null;
 	
 	@Autowired
-	private DownloadUploadModuleFactory moduleFactory = null;
-	
-	@Autowired
 	private DBTemplatingService templatingService = null;
 
 	@Autowired
-	private DynamicFormCrudDAO formDAO = null;
-
-	@Autowired
 	private IDynamicFormQueriesRepository dynamicFormQueriesRepository = null;
+	
+	@Autowired
+	@Qualifier("dynamic-form")
+	private DownloadUploadModule downloadUploadModule = null;
 
 	public String addEditForm(String formId) throws Exception {
 
@@ -53,7 +52,10 @@ public class DynamicFormCrudService {
 		TemplateVO templateVO = templatingService.getTemplateByName("dynamic-form-manage-details");
 		DynamicForm dynamicForm = new DynamicForm();
 		if (StringUtils.isNotEmpty(formId)) {
-			dynamicForm = formDAO.findDynamicFormById(formId);
+			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
+		} else {
+			List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
+			templateMap.put("tables", tables);
 		}
 		templateMap.put("dynamicForm", dynamicForm);
 		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
@@ -66,7 +68,7 @@ public class DynamicFormCrudService {
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = new ArrayList<>();
 		String formId = formData.getFirst("formId").toString();
 		if (StringUtils.isNotEmpty(formId)) {
-			dynamicForm = formDAO.findDynamicFormById(formId);
+			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 
 		} else {
 			dynamicForm.setCreatedBy("admin");
@@ -77,12 +79,12 @@ public class DynamicFormCrudService {
 		dynamicForm.setFormBody(formData.getFirst("formBody").toString());
 		dynamicForm.setFormName(formData.getFirst("formName").toString());
 		dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
-		formDAO.saveDynamicFormData(dynamicForm);
-		if(!dynamicForm.getDynamicFormSaveQueries().isEmpty()) {
-			formDAO.deleteFormQueries(formId);
-		}	
+		dynamicFormDAO.saveDynamicFormData(dynamicForm);
 		String queriesList = formData.getFirst("formSaveQuery");
 		List<String> queries = new ObjectMapper().readValue(queriesList, List.class);
+		if(!CollectionUtils.isEmpty(queries)) {
+			dynamicFormDAO.deleteFormQueries(formId);
+		}
 		int counter = 1;
 		for (String query : queries) {
 			DynamicFormSaveQuery dynamicFormSaveQuery = new DynamicFormSaveQuery();
@@ -112,14 +114,12 @@ public class DynamicFormCrudService {
 	}
 
 	public void downloadDynamicFormTemplates() throws Exception {
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("dynarest");
 		downloadUploadModule.downloadCodeToLocal();
 	}
 
 
 	public void uploadAllFormsToDB() throws Exception {
-		DownloadUploadModule downloadUploadModule = moduleFactory.getModule("dynarest");
-		downloadUploadModule.uploadCodeToLocal();
+		downloadUploadModule.uploadCodeToDB();
 	}
 
 }

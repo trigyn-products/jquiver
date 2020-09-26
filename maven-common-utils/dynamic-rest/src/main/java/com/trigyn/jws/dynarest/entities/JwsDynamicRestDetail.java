@@ -56,7 +56,7 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Column(name="jws_response_producer_type_id")
 	private Integer jwsResponseProducerTypeId			= null;
 	
-	@OneToMany(mappedBy="jwsDynamicRestDetail")
+	@OneToMany(mappedBy="jwsDynamicRestDetail", fetch = FetchType.LAZY)
 	private List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails				= null;
 
 	@ManyToOne(fetch = FetchType.LAZY)

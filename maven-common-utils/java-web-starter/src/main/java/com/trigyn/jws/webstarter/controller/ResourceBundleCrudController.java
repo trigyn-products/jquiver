@@ -18,28 +18,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
 
 @RestController
 @RequestMapping(value = "/cf")
 public class ResourceBundleCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(ResourceBundleCrudController.class);
+	private final static Logger logger 						= LogManager.getLogger(ResourceBundleCrudController.class);
 
 	@Autowired
-	private ResourceBundleService resourceBundleService 		= null;
+	private ResourceBundleService resourceBundleService 	= null;
 
 	@Autowired
-	private DBTemplatingService templatingService 				= null;
-
-	@Autowired
-	private TemplatingUtils templateEngine 						= null;
-	
+	private MenuService menuService			= null;
 
 	
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
@@ -48,13 +42,9 @@ public class ResourceBundleCrudController {
 		Map<String, Object> templateMap = new HashMap<>();
 		List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
 		templateMap.put("languageVOList", languageVOList);
-		TemplateVO templateVO = templatingService.getTemplateByName("resource-bundle-listing");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				templateMap);
+		return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
 	}
 
-
-	
 
 	
 	@PostMapping(value = "/aerb")
@@ -67,10 +57,7 @@ public class ResourceBundleCrudController {
 		List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
 		templateMap.put("languageVOList", languageVOList);
 		templateMap.put("resourceBundleKey", resourceBundleKey);
-		TemplateVO templateVO = templatingService.getTemplateByName("resource-bundle-manage-details");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				templateMap);
-
+		return menuService.getTemplateWithSiteLayout("resource-bundle-manage-details", templateMap);
 	}
 
 

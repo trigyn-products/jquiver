@@ -16,7 +16,7 @@ import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 
-@Component
+@Component("dynamic-form")
 public class DynamicFormModule implements DownloadUploadModule {
 
 	@Autowired
@@ -82,7 +82,7 @@ public class DynamicFormModule implements DownloadUploadModule {
 	}
 
 	@Override
-	public void uploadCodeToLocal() throws Exception {
+	public void uploadCodeToDB() throws Exception {
 
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";

@@ -18,65 +18,69 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.webstarter.service.MasterModuleService;
 import com.trigyn.jws.webstarter.service.TemplateCrudService;
 
 @RestController
 @RequestMapping("/cf")
 public class TemplateCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(TemplateCrudController.class);
+	private final static Logger logger 						= LogManager.getLogger(TemplateCrudController.class);
 
 	@Autowired
-	private DBTemplatingService dbTemplatingService = null;
-	
-    @Autowired
-	private DBTemplatingService templateService = null;
+	private DBTemplatingService dbTemplatingService 		= null;
 	
 	@Autowired
-	private TemplatingUtils templateEngine = null;
+	private TemplateCrudService templateCrudService			= null;
 	
 	@Autowired
-	private TemplateCrudService templateCrudService =  null;
+	private PropertyMasterDAO propertyMasterDAO 			= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private MenuService 				menuService			= null;
 
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
     public String templatePage() throws Exception {
-		TemplateVO templateVO = templateService.getTemplateByName("template-listing");
-		Map<String,Object>  modelMap = new HashMap<>();
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+		Map<String,Object>  modelMap 	= new HashMap<>();
+		String environment 				= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), modelMap);
+		return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
     }
 
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
 	public String velocityTemplateEditor(HttpServletRequest request) throws Exception {
-		TemplateVO templateVO = dbTemplatingService.getTemplateByName("template-manage-details");
-		String templateId = request.getParameter("vmMasterId");
-		Map<String, Object> vmTemplateData = new HashMap<>();
+		String templateId 					= request.getParameter("vmMasterId");
+		Map<String, Object> vmTemplateData 	= new HashMap<>();
 		if (templateId != null) {
 			TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
+			templateDetails.setTemplate("");
 			vmTemplateData.put("templateDetails", templateDetails);
 		}
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				vmTemplateData);
+		return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 	}
-
+	
 	@RequestMapping(value = "/ctd")
 	@ResponseBody
 	public String checkTemplateData(HttpServletRequest request, HttpServletResponse response) {
-		String templateName = request.getParameter("templateName");
-		String templateId = null;
+		String templateName 	= request.getParameter("templateName");
+		String templateId 		= null;
 		try {
 			templateId = templateCrudService.checkVelocityData(templateName);
 			return templateId;
 		} catch (Exception e) {
 			return null;
 		}
+	}
+	
+	
+	@GetMapping(value = "/gtbi")
+	public String getTemplateByTemplateId(HttpServletRequest request) throws Exception {
+		String templateId = request.getParameter("templateId");
+		TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
+		return templateDetails.getTemplate();
 	}
 	
 	@PostMapping(value = "/std")
@@ -86,10 +90,7 @@ public class TemplateCrudController {
 	
 	@PostMapping(value = "/dtl")
 	public void downloadAllTemplatesToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		
 		templateCrudService.downloadTemplates();
-	
-		
 	}
 
 	@PostMapping(value = "/utd")

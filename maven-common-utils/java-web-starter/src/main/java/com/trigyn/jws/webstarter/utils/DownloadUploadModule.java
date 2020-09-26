@@ -7,5 +7,5 @@ public interface DownloadUploadModule {
 
 	void downloadCodeToLocal() throws Exception;
 	
-	void uploadCodeToLocal() throws Exception;
+	void uploadCodeToDB() throws Exception;
 }

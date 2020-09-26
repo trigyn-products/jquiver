@@ -17,7 +17,7 @@ import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
-@Component
+@Component("template")
 public class TemplateModule implements DownloadUploadModule {
 
 	@Autowired
@@ -80,7 +80,7 @@ public class TemplateModule implements DownloadUploadModule {
 	}
 
 	@Override
-	public void uploadCodeToLocal() throws Exception {
+	public void uploadCodeToDB() throws Exception {
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Templates";

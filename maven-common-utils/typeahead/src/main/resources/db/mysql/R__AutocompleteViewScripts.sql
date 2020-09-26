@@ -1,3 +1,4 @@
+
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'demoAutocomplete', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -35,11 +36,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<div class="multiselectcount_clear_block">
-					<div class="pull-right">
-						<span title="Clear All" class="clearall-cls disable_cls" id="rbMultiselect_removeAll"  onclick="multiselect.removeAllElements(''rbMultiselect'')">Clear All</span>
+					<div id="rbMultiselect_removeAll" class="pull-right disable_cls">
+						<span title="Clear All" class="clearall-cls" onclick="multiselect.removeAllElements(''rbMultiselect'')" style="pointer-events:none">Clear All</span>
 					</div>
-					<div class="multiselectcount pull-right">
-						<span title="hide show" id="rbMultiselect_count" onclick="multiselect.showHideDataDiv(''rbMultiselect_selectedOptions'')" class="disable_cls">0</span>
+					<div id="rbMultiselect_count" class="multiselectcount pull-right disable_cls">
+						<span title="hide show" onclick="multiselect.showHideDataDiv(''rbMultiselect_selectedOptions'')" style="pointer-events:none">0</span>
 					</div>
 				</div>
 				
@@ -50,6 +51,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
  			</div>
 		</div>
 		
+		<div id="rbMultiselect_deleteConfirmation"></div>
     </div>
 </div>
 <script>
@@ -232,8 +234,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="col-12">
 		<div class="sql_script">
 			<div class="grp_lblinp">
-			    <div id="htmlContainer">
-	                <div id="sqlEditor"></div>
+			    <div id="htmlContainer" class="ace-editor-container">
+	                <div id="sqlEditor" class="ace-editor"></div>
 					 
                 </div>            
             </div>

@@ -96,5 +96,12 @@ public class TemplatingUtils {
 		String generateFileCheckSum = fileUtilities.generateFileChecksum(file);
 		templateVO.setChecksum(generateFileCheckSum);
 	}
+	
+	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap) throws IOException, TemplateException {
+		Template templateObj = new Template(templateName, new StringReader(templateContent), freeMarkerConfigurer.getConfiguration());
+        Writer writer = new StringWriter();
+        templateObj.process(modelMap, writer);
+        return writer.toString();
+	}
     
 }
