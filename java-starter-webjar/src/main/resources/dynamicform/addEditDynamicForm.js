@@ -5,18 +5,40 @@ class AddEditDynamicForm {
     
     loadAddEditDynamicForm() {
     	const context = this;
-    	dashletSQLEditor = ace.edit("sqlEditor");
-		dashletSQLEditor.setTheme("ace/theme/monokai");
-		dashletSQLEditor.setOption("showInvisibles", false);
-		dashletSQLEditor.getSession().setMode("ace/mode/sql");
-		dashletSQLEditor.getSession().setValue($("#sqlContent").val());
-
-		dashletHTMLEditor = ace.edit("htmlEditor");
-		dashletHTMLEditor.setOption("showInvisibles", false);
-		dashletHTMLEditor.setTheme("ace/theme/monokai");
-		dashletHTMLEditor.getSession().setMode("ace/mode/html");
-		dashletHTMLEditor.getSession().setValue($("#htmlContent").val());
 		
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
+		        	value: $("#sqlContent").val(),
+		            language: "sql",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 100,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	        	$("#sqlContent").remove();
+    	});
+    	
+    	require(["vs/editor/editor.main"], function() {
+        dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
+		        	value: $("#htmlContent").val(),
+		            language: "html",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 250,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	        	$("#htmlContent").remove();
+    	});
+
 		let formId = $("#formId").val();
 		
 		if(formId != "") {
@@ -34,11 +56,7 @@ class AddEditDynamicForm {
 			context.addSaveQueryEditor("");
 		}
 			
-		$("#htmlContent").remove();
-		$("#sqlContent").remove();   
 		$("#saveSqlContent").remove(); 
-    	
-    	
     }
     
     backToDynamicFormListing(){
@@ -48,12 +66,24 @@ class AddEditDynamicForm {
 	addSaveQueryEditor(data){
 		let index = dashletSQLEditors.length;
 		$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
-		dashletSAVESQLEditor = ace.edit("saveSqlEditor_"+index);
-		dashletSAVESQLEditor.setTheme("ace/theme/monokai");
-		dashletSAVESQLEditor.setOption("showInvisibles", false);
-		dashletSAVESQLEditor.getSession().setMode("ace/mode/sql");
-		dashletSAVESQLEditor.getSession().setValue(data);
-		dashletSQLEditors.push(dashletSAVESQLEditor);
+
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
+		        	value: data,
+		            language: "sql",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 100,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	        	dashletSQLEditors.push(dashletSAVESQLEditor);
+    	});
+    	
 	}
 	
 	removeSaveQueryEditor(){
@@ -66,13 +96,13 @@ class AddEditDynamicForm {
     
     saveDynamicForm (){
     	let context = this;
-     	let formHTMLData = dashletHTMLEditor.getSession().getValue().toString();
+     	let formHTMLData = dashletHTMLEditor.getValue().toString();
     	formHTMLData = formHTMLData.replaceAll("</textarea>", "&lt;/textarea&gt;");
-		$("#formSelectQuery").val(dashletSQLEditor.getSession().getValue().toString());
+		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
 		$("#formBody").val(formHTMLData);
 		let queries = new Array();	 
 		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-			queries.push(dashletSQLEditors[iCounter].getSession().getValue().toString());
+			queries.push(dashletSQLEditors[iCounter].getValue().toString());
 		}
 		$("#formSaveQuery").val(JSON.stringify(queries));
 		var formData = $("#dynamicform").serialize();

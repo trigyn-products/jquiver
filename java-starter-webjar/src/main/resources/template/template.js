@@ -8,19 +8,40 @@ class TemplateEngine {
     }
     
     initPage = function() {
-        let htmlEditor = ace.edit("htmlEditor");
-        htmlEditor.setOption("showInvisibles", false);
-        htmlEditor.setTheme("ace/theme/monokai");
-        htmlEditor.getSession().setMode("ace/mode/html");
-    	$.ajax({
+    	const context = this;
+    	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        context.editor = monaco.editor.create(document.getElementById("htmlEditor"), {
+		        	value: "",
+		            language: "html",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 120,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	       context.setTemplateValue();
+	       context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+			    context.validateSaveVelocity("stay");
+			});
+    	});
+    }
+    
+    setTemplateValue = function (){
+    	const context = this;
+    	if(context.templateId != "0") {
+    		$.ajax({
     		type: "get",
     		url: contextPath+"/cf/gtbi",
     		data: { templateId: this.templateId },
     		success: function(data) {
-    			htmlEditor.getSession().setValue(data);
-    			this.htmlEditor = htmlEditor;
-    		}
-    	});
+    				context.editor.setValue(data);
+    			}
+    		});
+    	}
     }
 
     validateSaveVelocity = function (){
@@ -59,8 +80,7 @@ class TemplateEngine {
     onSaveAndClose = function() {
         const context = this;
         const velocityName = $("#vmName").val();
-        const htmlEditor = ace.edit("htmlEditor");
-        let velocityTempData = htmlEditor.getSession().getValue();
+        let velocityTempData = context.editor.getValue();
         velocityTempData = velocityTempData.replaceAll("</textarea>", "&lt;/textarea&gt;");
         if(velocityTempData == ""){
             return false;

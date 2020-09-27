@@ -44,14 +44,26 @@ class DynamicRest {
     }
     
     populateServiceLogic = function(serviceLogicContent){
-    	this.serviceLogicContent = ace.edit("htmlEditor");
-		this.serviceLogicContent.setTheme("ace/theme/monokai");
-		this.serviceLogicContent.setOption("showInvisibles", false);
-		this.serviceLogicContent.getSession().setMode("ace/mode/java");
-		this.serviceLogicContent.getSession().setValue(serviceLogicContent);
+    	const context = this;
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        context.serviceLogicContent = monaco.editor.create(document.getElementById("htmlEditor"), {
+		        	value: serviceLogicContent,
+		            language: "java",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 100,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+    	});
     }
     
     addSaveQueryEditor = function(variableName, saveQueryContent){
+    	const context = this;
 		let index = this.saveUpdateEditors.length;
 		if(variableName){
 			$("#saveScriptContainer").append("<input id='inputcontainer_"+index+"' value ="+variableName+" type ='text' class='form-control' />");
@@ -59,12 +71,23 @@ class DynamicRest {
 			$("#saveScriptContainer").append("<input id='inputcontainer_"+index+"' type ='text' class='form-control' />");
 		}
 		$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
-		let saveUpdateEditor = ace.edit("saveSqlEditor_"+index);
-		saveUpdateEditor.setTheme("ace/theme/monokai");
-		saveUpdateEditor.setOption("showInvisibles", false);
-		saveUpdateEditor.getSession().setMode("ace/mode/sql");
-		saveUpdateEditor.getSession().setValue(saveQueryContent);
-		this.saveUpdateEditors.push(saveUpdateEditor);
+		
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        let saveUpdateEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
+		        	value: saveQueryContent,
+		            language: "sql",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 100,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	        	context.saveUpdateEditors.push(saveUpdateEditor);
+    	});
 	}
 	
 	removeSaveQueryEditor = function(){
@@ -83,7 +106,7 @@ class DynamicRest {
 			$('#errorMessage').show();
 			return false;
 		}
-		$("#serviceLogic").val(this.serviceLogicContent.getSession().getValue().toString());
+		$("#serviceLogic").val(this.serviceLogicContent.getValue().toString());
 		let formData = $("#dynamicRestForm").serialize() + "&formId="+formId;
 		
 		$.ajax({
@@ -144,7 +167,7 @@ class DynamicRest {
 		let saveEditorLength = this.saveUpdateEditors.length;
 		for(let iCounter = 0; iCounter < saveEditorLength; ++iCounter){
 			let variableName = $('#inputcontainer_'+iCounter).val();
-			let daoQuery = (this.saveUpdateEditors[iCounter].getSession().getValue().toString());
+			let daoQuery = (this.saveUpdateEditors[iCounter].getValue().toString());
 			variableNameArray.push(variableName);
 			daoQueryArray.push(daoQuery);
 		}

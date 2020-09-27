@@ -13,22 +13,31 @@ AddEditDashlet.prototype.fn = {
 		let isActive = $("#isActive").val();
 		let showHeader = $("#showHeader").val();
 		
-		dashletSQLEditor = ace.edit("sqlEditor");
-		dashletSQLEditor.setTheme("ace/theme/monokai");
-  		dashletSQLEditor.setOption("showInvisibles", false);
-		dashletSQLEditor.getSession().setMode("ace/mode/sql");
-		dashletSQLEditor.getSession().setValue($("#sqlContent").val());
-
-		dashletHTMLEditor = ace.edit("htmlEditor");
-		dashletHTMLEditor.setOption("showInvisibles", false);
-		dashletHTMLEditor.setTheme("ace/theme/monokai");
-		dashletHTMLEditor.getSession().setMode("ace/mode/html");
-		dashletHTMLEditor.getSession().setValue($("#htmlContent").val());
-  
-  		$("#htmlContent").remove();
-  		$("#sqlContent").remove();
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
+		        	value: $("#sqlContent").val(),
+		            language: "sql",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark"
+	        	});
+	        	$("#sqlContent").remove();
+    	});
+    	
+    	require(["vs/editor/editor.main"], function() {
+        dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
+		        	value: $("#htmlContent").val(),
+		            language: "html",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark"
+	        	});
+	        	$("#htmlContent").remove();
+    	})
   		
-	
 		if (isActive === "1") {
 			$("#isActiveCheckbox").prop("checked", true);
 		} else if(isActive === "0"){
@@ -89,8 +98,8 @@ AddEditDashlet.prototype.fn = {
 				dashlet.showHeader = 0;
 			}
 				
-			dashlet.dashletBody = dashletHTMLEditor.getSession().getValue();
-			dashlet.dashletQuery = dashletSQLEditor.getSession().getValue();
+			dashlet.dashletBody = dashletHTMLEditor.getValue();
+			dashlet.dashletQuery = dashletSQLEditor.getValue();
 				
 	
 			$.ajax({
@@ -162,14 +171,14 @@ AddEditDashlet.prototype.fn = {
 			return false;
 		}
 		
-		let sqlScriptValidation=dashletSQLEditor.getSession().getValue().trim();
+		let sqlScriptValidation=dashletSQLEditor.getValue().trim();
 		if(sqlScriptValidation ==""){
 			$("#sqlContainer").focus();
 			$('#errorMessage').html("Please enter sql script");
 			return false;
 		}
 		
-		let dashletHTMLEditorValidation=dashletHTMLEditor.getSession().getValue().trim();
+		let dashletHTMLEditorValidation=dashletHTMLEditor.getValue().trim();
 		if(dashletHTMLEditorValidation ==""){
 			$("#htmlEditor").focus();	
 			$('#errorMessage').html("Please enter html script");
