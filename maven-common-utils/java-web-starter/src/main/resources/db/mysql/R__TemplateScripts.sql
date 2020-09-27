@@ -350,11 +350,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" href="/webjars/1.0/dashboard/dashboard.css" />
+<script src="/webjars/1.0/monaco/require.js"></script>
+<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
 
 
 <div class="container">
@@ -615,7 +616,6 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/jscal2.css" />
@@ -844,7 +844,7 @@ function backToTemplateListingPage(){
 
 REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
    'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("notificationId"))?has_content>
-	update generic_user_notification SET
+	UPDATE generic_user_notification SET
   target_platform = ''${formData?api.getFirst("targetPlatform")}''  
   ,message_valid_from = STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
   ,message_valid_till = STR_TO_DATE( "${formData?api.getFirst("toDate") }","%d-%b-%Y") 
@@ -857,7 +857,7 @@ REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,
 WHERE notification_id = ''${formData?api.getFirst("notificationId")}''   ;
 
 <#else>
-insert into generic_user_notification (
+REPLACE INTO generic_user_notification (
    notification_id
   ,target_platform
   ,message_valid_from
@@ -999,7 +999,8 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
    <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
    <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
    <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   <script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
+   <script src="/webjars/1.0/monaco/require.js"></script>
+   <script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
    <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
    <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
    <script src="/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
@@ -1137,19 +1138,21 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 	let dashletSAVESQLEditor;
   let dashletSQLEditors = [];
 	const addEdit = new AddEditDynamicForm();
-	AddEditDynamicForm.prototype.loadAddEditDynamicForm();
-	function loadTableTemplate(event){
-    $.ajax({
-      type: "POST",
-      url: contextPath+"/cf/dfte",
-      data: {
-        tableName: event.currentTarget.value
-      },
-      success: function(data) {
-		dashletHTMLEditor.getSession().setValue(data);
+  $(function () {
+    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
+    function loadTableTemplate(event){
+      $.ajax({
+          type: "POST",
+          url: contextPath+"/cf/dfte",
+          data: {
+            tableName: event.currentTarget.value
+          },
+          success: function(data) {
+  		      dashletHTMLEditor.setValue(data);
+          }
+        });
       }
-    });
-  }
+  });
    </script>
   ','admin','admin',now() );
   
@@ -1288,111 +1291,103 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 </div>', 'admin', 'admin', NOW());
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'template-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+(UUID(), 'template-manage-details', '<head>
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>   
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="/webjars/1.0/monaco/require.js"></script>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+
 </head>
-<script>
-
-</script>
 <div class="container">
-		<div class="topband">
-		<h2 class="title-cls-name float-left">Template Master</h2> 
-		<div class="float-right">
-			<#if environment == "dev">
-				<input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="Download Template" type="button">
-				<input id="uploadTemplate" class="btn btn-primary" onclick= "uploadTemplate();" name="uploadTemplate" value="Upload Template" type="button">
-			</#if>
-			<a href="${(contextPath)!''''}/cf/aet"> 
-				<input id="addVelocityTemp" class="btn btn-primary" name="addVelocityTemp" value="Add Template" type="button">
-			</a>
-			<span onclick="backToWelcomePage();">
-  		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-  		 </span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-		</div>
-		
-		<div id="divTemplateGrid"></table>
 
-		<div id="snackbar"></div>
+	<div class="topband">
+    	<h2 class="title-cls-name float-left">Update Template Details</h2> 
+        <div class="float-right">
+                                             
+        <span onclick="templateMaster.backToTemplateListingPage();">
+        	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+        </span>              
+        </div>
+                              
+        <div class="clearfix"></div>                         
+    </div>
+
+	<div class="row">
+	    	<div class="col-9">
+	        <div class="col-inner-form full-form-fields">
+	             <label for="vmName"><span class="asteriskmark">*</span>Template Name </label>                                                                                                                                       
+	             <input type="text" class="form-control" value="${(templateDetails.templateName)!}" maxlength="100" name="vmName" id="vmName">                                                                                                                       
+	        </div>
+	    </div>
+	    <div id="defaultTemplateDiv" class="col-3" style="display: none;">
+	        <div class="col-inner-form full-form-fields">
+	             <label for="defaultTemplateId"><span class="asteriskmark">*</span>Default template </label>                                                                                                                                       
+	             <select class="form-control" id="defaultTemplateId" name="defaultTemplateId" title="Default template">
+                   </select>                                                                                                                    
+	        </div>
+	    </div>
+      </div>
+         
+         	<div class="row">                                                                                                
+				<div class="col-12">
+				<div class="html_script">
+						<div class="grp_lblinp">
+				<div id="htmlContainer" class="ace-editor-container">
+					<div id="htmlEditor" class="ace-editor"></div>
+				</div>
+            </div>
+					</div>
+            </div>
+			
+			
+			</div>
+               
+       <div class="row margin-t-b">                      
+        <div class="col-12">
+        	<div class="float-right">
+            	<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="templateMaster.validateSaveVelocity();">
+                <span onclick="templateMaster.backToTemplateListingPage();">
+                	<input id="cancelBtn" class="btn btn-secondary" name="cancelBtn" value="Cancel" type="button">
+                </span>              
+            </div>
+            </div>
+        </div>
+
+    
+    <div id="snackbar"></div>
 </div>
 
-
-<form action="${(contextPath)!''''}/cf/aet" method="GET" id="formVmRedirect">
-	<input type="hidden" id="vmMasterId" name="vmMasterId">
-</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
-	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
-	}
+	const ftlTemplateId = "${(templateDetails.templateId)!0}";
+	let templateMaster;
+	let defaultTemplates = new Array();
 	$(function () {
-		let colM = [
-	        { title: "", hidden: true, sortable : false, dataIndx: "templateId" },
-	        { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Created By", width: 100, align: "center",  sortable : true, dataIndx: "createdBy", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 50, align: "center", render: editTemplate, dataIndx: "action" }
-		];
-	 let grid = $("#divTemplateGrid").grid({
-	      gridId: "templateListingGrid",
-	      colModel: colM
-	  });
+		templateMaster = new TemplateEngine(ftlTemplateId);
+		templateMaster.initPage();
+		if(ftlTemplateId == 0) {
+			$("#defaultTemplateDiv").show();
+			$.ajax({
+				type : "GET",
+				url : contextPath+"/dyn/api/defaultTemplates",
+				success : function(data){
+					defaultTemplates = data["defaultTemplates"];
+					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
+						$("#defaultTemplateId").append("<option>"+defaultTemplates[counter]["name"]+"</option>");
+					}
+					$("#defaultTemplateId").change(function(event){
+						templateMaster.editor.setValue(defaultTemplates.find(te => te.name == event.currentTarget.value).template);
+					});
+				}
+			});
+		}
 	});
-	
-	function editTemplate(uiObject) {
-		const templateId = uiObject.rowData.templateId;
-			<#if environment == "dev">
-				 return ''<span id="''+templateId+''"  class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
-			<#else>
-				 return ''<span id="''+templateId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
-			</#if>
-	}
-	
-	function submitForm(element) {
-	  $("#vmMasterId").val(element.id);
-	  $("#formVmRedirect").submit();
-	}
-	<#if environment == "dev">
-		function downloadTemplate(){
-		    $.ajax({
-		        url:"/cf/dtl",
-		        type:"POST",
-		        success:function(data){
-		            debugger;
-		            alert("Downloaded Successfully");
-		        }
-		        
-		    });
-		}
-		function uploadTemplate(){
-		    $.ajax({
-		        url:"/cf/utd",
-		        type:"POST",
-		        success:function(data){
-		            debugger;
-		            alert("Uploaded Successfully");
-		        }
-		        
-		    });
-		}
-	</#if>
-</script>', 'admin', 'admin', NOW());
+</script>
+<script src="/webjars/1.0/template/template.js"></script>', 'admin', 'admin', NOW());
  
  REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'grid-listing', '<head>
@@ -1460,7 +1455,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 	function editGridDetails(uiObject) {
 		const gridId = uiObject.rowData.gridId;
-		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="$"></i></span>''.toString();
+		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>''.toString();
 	}
 	
 	function submitForm(element) {
@@ -1596,103 +1591,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	}
 </script>', 'admin', 'admin', NOW());
 
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'template-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-
-</head>
-<div class="container">
-
-	<div class="topband">
-    	<h2 class="title-cls-name float-left">Update Template Details</h2> 
-        <div class="float-right">
-                                             
-        <span onclick="templateMaster.backToTemplateListingPage();">
-        	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-        </span>              
-        </div>
-                              
-        <div class="clearfix"></div>                         
-    </div>
-
-	<div class="row">
-	    	<div class="col-9">
-	        <div class="col-inner-form full-form-fields">
-	             <label for="vmName"><span class="asteriskmark">*</span>Template Name </label>                                                                                                                                       
-	             <input type="text" class="form-control" value="${(templateDetails.templateName)!}" maxlength="100" name="vmName" id="vmName">                                                                                                                       
-	        </div>
-	    </div>
-	    <div id="defaultTemplateDiv" class="col-3" style="display: none;">
-	        <div class="col-inner-form full-form-fields">
-	             <label for="defaultTemplateId"><span class="asteriskmark">*</span>Default template </label>                                                                                                                                       
-	             <select class="form-control" id="defaultTemplateId" name="defaultTemplateId" title="Default template">
-                   </select>                                                                                                                    
-	        </div>
-	    </div>
-      </div>
-         
-         	<div class="row">                                                                                                
-				<div class="col-12">
-				<div class="html_script">
-						<div class="grp_lblinp">
-				<div id="htmlContainer" class="ace-editor-container">
-					<div id="htmlEditor" class="ace-editor"></div>
-				</div>
-            </div>
-					</div>
-            </div>
-			
-			
-			</div>
-               
-        	<div class="row margin-t-b">                      
-        <div class="col-12">
-        	<div class="float-right">
-            	<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="templateMaster.validateSaveVelocity();">
-                <span onclick="templateMaster.backToTemplateListingPage();">
-                	<input id="cancelBtn" class="btn btn-secondary" name="cancelBtn" value="Cancel" type="button">
-                </span>              
-            </div>
-            </div>
-        </div>
-
-    
-    <div id="snackbar"></div>
-</div>
-
-<script>
-	contextPath = "${(contextPath)!''''}";
-	const ftlTemplateId = "${(templateDetails.templateId)!0}";
-	let templateMaster;
-	let defaultTemplates = new Array();
-	$(function () {
-		templateMaster = new TemplateEngine(ftlTemplateId);
-		templateMaster.initPage();
-		if(ftlTemplateId == 0) {
-			$("#defaultTemplateDiv").show();
-			$.ajax({
-				type : "GET",
-				url : contextPath+"/dyn/api/defaultTemplates",
-				success : function(data){
-					defaultTemplates = data["defaultTemplates"];
-					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
-						$("#defaultTemplateId").append("<option>"+defaultTemplates[counter]["name"]+"</option>");
-					}
-					$("#defaultTemplateId").change(function(event){
-						templateMaster.htmlEditor.getSession().setValue(defaultTemplates.find(te => te.name == event.currentTarget.value).template);
-					});
-				}
-			});
-		}
-	});
-</script>
-<script src="/webjars/1.0/template/template.js"></script>', 'admin', 'admin', NOW());
 
 REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`) VALUES (UUID() ,'resource-bundle-manage-details','<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -1974,7 +1872,23 @@ function editNotification(thisObj){
 </div>
 <script>
 contextPath = "${(contextPath)!''''}";
+let requestType = [{"": "All"}];
+let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}];
 $(function () {
+  $.ajax({
+			type : "GET",
+			url : contextPath+"/dyn/api/dynarestDetails",
+      async: false,
+			success : function(data) {
+				for(let counter = 0; counter < data["methodTypes"].length; ++counter) {
+					let object = data["methodTypes"][counter];
+          let details = new Object()
+          details[object["value"]] = object["name"];
+					requestType.push(details);
+				}
+			}
+		});
+    
 	let colM = [
         { title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -1982,10 +1896,10 @@ $(function () {
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "Method Description", width: 160, align: "center", dataIndx: "jws_method_description", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Type", width: 160, align: "center", dataIndx: "jws_request_type_id", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Platform", width: 160, align: "center", dataIndx: "jws_platform_id", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "Method Type", width: 160, align: "center", dataIndx: "jws_request_type_id", align: "left", halign: "center", render: requestTypes,
+        filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
+        { title: "Platform", width: 160, align: "center", dataIndx: "jws_platform_id", align: "left", halign: "center", render: platforms,
+        filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
         { title: "Action", width: 30, align: "center", render: editDynarest, dataIndx: "action" }
 	];
     let grid = $("#divDynarestGrid").grid({
@@ -1993,6 +1907,16 @@ $(function () {
       colModel: colM
   });
 });
+
+function requestTypes(uiObject){
+  let cellValue = uiObject.rowData.jws_request_type_id;
+  return requestType.find(el => el[cellValue])[cellValue];
+}
+
+function platforms(uiObject){
+  let cellValue = uiObject.rowData.jws_platform_id;
+  return platformValues.find(el => el[cellValue])[cellValue];
+}
 
 function editDynarest(uiObject) {
 	let dynarestUrl = uiObject.rowData.jws_dynamic_rest_url;
@@ -2013,7 +1937,6 @@ function backToWelcomePage() {
 			url:"/cf/ddr",
 			type:"POST",
 			success:function(data){
-				debugger;
 				alert("Downloaded Successfully");
 			}
 			
@@ -2024,7 +1947,6 @@ function backToWelcomePage() {
 			url:"/cf/udr",
 			type:"POST",
 			success:function(data){
-				debugger;
 				alert("Uploaded Successfully");
 			}
 			
@@ -2035,7 +1957,7 @@ function backToWelcomePage() {
 
 REPLACE into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
-jdrd.jws_method_description as dynarestMethodDescription, 
+jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
 jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId 
 from jws_dynamic_rest_details as jdrd 
 where jdrd.jws_dynamic_rest_url = "${primaryId}"', 
@@ -2044,7 +1966,8 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"',
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
+<script src="/webjars/1.0/monaco/require.js"></script>
+<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 <script src="/webjars/1.0/dynarest/dynarest.js"></script>
@@ -2922,7 +2845,7 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
 
 
 replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'insert into grid_details (
+('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'REPLACE INTO grid_details (
    grid_id
   ,grid_name
   ,grid_description
@@ -3107,7 +3030,7 @@ replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
 WHERE owner_id = ''${formData?api.getFirst("ownerId")}'' and owner_type = ''${formData?api.getFirst("ownerType")}'' and property_name = ''${formData?api.getFirst("propertyName")}'';
 
 <#else>
-insert into jws_property_master (
+REPLACE INTO jws_property_master (
    owner_type
   ,owner_id
   ,property_name

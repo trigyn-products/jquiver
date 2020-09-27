@@ -11,10 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,9 +31,7 @@ import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 
 @RestController
@@ -45,12 +40,6 @@ public class DashboardCrudController {
 
 	private final static Logger logger = LogManager.getLogger(DashboardCrudController.class);
 	
-    @Autowired
-	private DBTemplatingService templatingService 		= null;
-
-	@Autowired
-	private TemplatingUtils templateEngine 				= null;
-
 	@Autowired
 	private DashboardCrudService dashboardCrudService 	= null;
 
@@ -62,22 +51,23 @@ public class DashboardCrudController {
 	
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO 		= null;
+	
+	@Autowired
+	private MenuService menuService 					= null;
     
     
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashletMasterListing() throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName("dashlet-listing");
 		Map<String,Object>  modelMap = new HashMap<>();
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), modelMap);
+		return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
 	}
 
 	
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashboardMasterListing() throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName("dashboard-listing");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
+		return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
     }
 
     
@@ -100,9 +90,7 @@ public class DashboardCrudController {
 		Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
 		templateMap.put("contextDetails", contextDetails);
 		templateMap.put("dashboard", dashboard);
-		TemplateVO templateVO = templatingService.getTemplateByName("dashboard-manage-details");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				templateMap);
+		return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
 	}
 
 	
@@ -123,8 +111,7 @@ public class DashboardCrudController {
 		templateMap.put("dashletVO", dashletVO);
 		templateMap.put("componentMap", componentsMap);
 		templateMap.put("contextDetailsMap", contextDetailsMap);
-		TemplateVO templateVO = templatingService.getTemplateByName("dashlet-manage-details");
-		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
+		return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
 	}
 	
 

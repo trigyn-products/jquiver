@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
+import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
+import com.trigyn.jws.dynarest.utils.Constants;
 import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
 
 @Service
@@ -43,6 +46,9 @@ public class DynarestCrudService {
 	
 	@Autowired
 	private JwsDynarestDAO dynarestDAO 										= null;
+	
+	@Autowired
+	private JwsDynamicRestDetailService dynamicRestDetailService 			= null;
 	
 	public void downloadDynamicRestCode() throws Exception {
 		downloadUploadModule.downloadCodeToLocal();
@@ -97,9 +103,21 @@ public class DynarestCrudService {
 				dynamicRestDAORepository.saveAndFlush(dynamicRestDaoDetail);
 			}
 		}
+		updateLocalClassFiles();
 		return true;
 	}
 	
+	private void updateLocalClassFiles() throws Exception {
+		String path = propertyMasterDAO.findPropertyMasterValue("system","system", Constants.DYNAREST_CLASS_FILE_PATH);
+		File file = Paths.get(path).toFile();
+		if (file.exists()) {
+			file.delete();
+		}
+		File sourceFile = File.createTempFile(Constants.SERVICE_CLASS_NAME, ".java");
+        String className = sourceFile.getName().replaceAll(".java", "");
+		dynamicRestDetailService.precompileClassAndGetFileLocation(className, sourceFile);
+	}
+
 	@Transactional(readOnly = false)
 	public void deleteDAOQueries(MultiValueMap<String, String> formData) throws Exception {
 		String dynarestUrl 			= formData.getFirst("dynarestUrl");

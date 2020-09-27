@@ -1,5 +1,7 @@
 package com.trigyn.jws.gridutils.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +45,11 @@ public class GridUtilsDAO extends DBConnection {
 			rowCount = jdbcTemplate.queryForObject(query, criteriaParams, Integer.class);
 		} else {
 			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(gridDetails.getGridTableName());
+			try (Connection connection = dataSource.getConnection();){
+				simpleJdbcCall.setCatalogName(connection.getCatalog());
+			} catch (SQLException sqlException) {
+				logger.error("Didn't find the schema name in datasource ", sqlException);
+			}
 			Map<String, Object> inParamMap = GridUtility.generateParamMap(gridDetails, gridParams, true);
 			SqlParameterSource in = new MapSqlParameterSource(inParamMap);
 			Map<String, Object> simpleJdbcCallResult = simpleJdbcCall.execute(in);
@@ -61,6 +68,11 @@ public class GridUtilsDAO extends DBConnection {
 			list = (List<Map<String, Object>>) (Object) jdbcTemplate.queryForList(query, criteriaParams);
 		} else {
 			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(gridDetails.getGridTableName());
+			try (Connection connection = dataSource.getConnection();){
+				simpleJdbcCall.setCatalogName(connection.getCatalog());
+			} catch (SQLException sqlException) {
+				logger.error("Didn't find the schema name in datasource ", sqlException);
+			}
 			Map<String, Object> inParamMap = GridUtility.generateParamMap(gridDetails, gridParams, false);
 			SqlParameterSource in = new MapSqlParameterSource(inParamMap);
 			Map<String, Object> simpleJdbcCallResult = simpleJdbcCall.execute(in);

@@ -197,7 +197,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/webjars/ace/01.08.2014/src-noconflict/ace.js" ></script>
+<script src="/webjars/1.0/monaco/require.js"></script>
+<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 </head>
@@ -207,7 +208,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<h2 class="title-cls-name float-left">Update Autocomplete Details</h2> 
 		<div class="float-right">
 			 
-		<span onclick="backToListingPage();">
+		<span onclick="addEditAutocomplete.backToListingPage();">
   		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
   		 </span>	
 		</div>
@@ -215,17 +216,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="clearfix"></div>		
 		</div>
 	
+    <form id="autocompleteForm" method="post" >
 	  <div class="row">
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>Autocomplete Id </label>
-	        <input id="autoId" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
+	        <input id="autoId" name="autoCompleteId" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
 			</div>
 	    </div>
 	    <div class="col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoDesc">Autocomplete Description </label>
-	        <input class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
+	        <input name="autoCompleteDescription" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
 			</div>
 	    </div>
 	</div>
@@ -234,7 +236,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="col-12">
 		<div class="sql_script">
 			<div class="grp_lblinp">
-			    <div id="htmlContainer" class="ace-editor-container">
+			    <div id="sqlContainer" class="ace-editor-container">
 	                <div id="sqlEditor" class="ace-editor"></div>
 					 
                 </div>            
@@ -247,14 +249,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="row margin-t-b">
 	<div class="col-12">
 		 <div class="float-right">
-		<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="validateSaveVelocity();">
-		<span onclick="backToListingPage();">
+		<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="addEditAutocomplete.saveAutocompleteDetail();">
+		<span onclick="addEditAutocomplete.backToListingPage();">
 			<input id="cancelBtn" class="btn btn-secondary" name="cancelBtn" value="Cancel" type="button">
 		</span>	
 		</div>
 	</div>
 	</div>
- 
+   <input type="hidden" name="autoCompleteSelectQuery" id="acSelectQuery">
+   
+  </form>
+  
+ 	<div id="snackbar"></div>
+ 	
 <textarea id="sqlContentDiv" style="display: none">
 	${(autocompleteVO.autocompleteQuery)!""}
 &lt;/textarea&gt;
@@ -262,16 +269,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	const acId = "${(autocompleteVO.autocompleteId)!''''}";
-	function backToListingPage() {
-		location.href = contextPath+"/cf/adl";
-	}
-	let sqlEditor = ace.edit("sqlEditor");
-	sqlEditor.setOption("showInvisibles", false);
-	sqlEditor.setTheme("ace/theme/monokai");
-	sqlEditor.getSession().setMode("ace/mode/sql");
-	sqlEditor.getSession().setValue($("#sqlContentDiv").val().trim());
-	$("#contentDiv").remove();
-</script>', 'admin', 'admin',NOW());
+
+	let addEditAutocomplete;
+	$(function() {
+	    addEditAutocomplete = new AddEditAutocomplete();
+	    addEditAutocomplete.loadAutocompletDetails();
+	});
+</script>
+<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'admin', 'admin',NOW());
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
 CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))

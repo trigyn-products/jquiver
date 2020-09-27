@@ -12,16 +12,17 @@ import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @Transactional(readOnly = false)
 public class TypeAheadService {
     
     @Autowired
-	private TypeAheadDAO typeAheadDAO = null;
+	private TypeAheadDAO typeAheadDAO 					= null;
 
 	@Autowired
-	private TypeAheadRepository typeAheadRepository = null;
+	private TypeAheadRepository typeAheadRepository 	= null;
 	
 	
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
@@ -39,5 +40,20 @@ public class TypeAheadService {
         AutocompleteVO autocompleteVO = new AutocompleteVO(autocomplete.getAutocompleteId(), autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
         return autocompleteVO;
 	}
+	
+	public String saveAutocompleteDetails(MultiValueMap<String, String> formDataMap) throws Exception {
+		String autoCompleteId				= formDataMap.getFirst("autoCompleteId");
+		String autoCompleteDesc				= formDataMap.getFirst("autoCompleteDescription");
+		String autoCompleteSelectQuery 		= formDataMap.getFirst("autoCompleteSelectQuery");
+		
+		Autocomplete autocomplete	= new Autocomplete();
+		autocomplete.setAutocompleteId(autoCompleteId);
+		autocomplete.setAutocompleteDesc(autoCompleteDesc);
+		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
+		typeAheadRepository.saveAndFlush(autocomplete);
+		
+		return autoCompleteId;
+		
+	}	
     
 }

@@ -1,6 +1,7 @@
 package com.trigyn.jws.dbutils.entities;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -51,6 +52,27 @@ public class PropertyMasterPK  implements Serializable {
 	}
 
 	public PropertyMasterPK() {
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(ownerId, ownerType, propertyName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		PropertyMasterPK other = (PropertyMasterPK) obj;
+		return Objects.equals(ownerId, other.ownerId) && Objects.equals(ownerType, other.ownerType)
+				&& Objects.equals(propertyName, other.propertyName);
 	}
 	
 	

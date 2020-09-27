@@ -9,8 +9,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.menu.service.MenuService;
@@ -21,13 +25,13 @@ import com.trigyn.jws.typeahead.service.TypeAheadService;
 @RequestMapping("/cf")
 public class TypeAheadCrudController {
 	
-	private final static Logger logger = LogManager.getLogger(TypeAheadCrudController.class);
+	private final static Logger logger 			= LogManager.getLogger(TypeAheadCrudController.class);
 
 	@Autowired
-	private TypeAheadService typeAheadService = null;
+	private TypeAheadService typeAheadService	= null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService menuService 			= null;
 	
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
     public String autocompleteListingsPage() throws Exception {
@@ -50,6 +54,13 @@ public class TypeAheadCrudController {
 			templateData.put("autocompleteVO", autocompleteVO);
 		}
 		return menuService.getTemplateWithSiteLayout("addEditAutocompleteDetails",  templateData);
+    }
+	
+	@PostMapping(value = "/sacd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@ResponseBody
+    public String saveAutocompleteDetails(
+    		@RequestBody MultiValueMap<String, String> formDataMap) throws Exception {
+		return typeAheadService.saveAutocompleteDetails(formDataMap);
     }
     
 }

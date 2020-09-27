@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.menu.dao.ModuleDAO;
 import com.trigyn.jws.menu.reposirtory.interfaces.IModuleListingRepository;
+import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.menu.vo.ModuleDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -36,6 +37,9 @@ public class URLExceptionHandler implements ErrorController {
     
 	@Autowired
 	private ModuleDAO moduleDAO									= null;
+	
+	@Autowired
+	private MenuService		menuService							= null;
     
     @RequestMapping("/error")
 	public String errorHandler(HttpServletRequest httpServletRequest) throws Exception {
@@ -48,12 +52,12 @@ public class URLExceptionHandler implements ErrorController {
     			TemplateVO fallbackTemplate = getTemplateIfAssociatedWithURL(httpServletRequest);
     			templateVO =  fallbackTemplate == null ? templateVO : fallbackTemplate;
     			if(templateVO != null) {
-    				return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), new HashMap<>());
+    				return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), new HashMap<>());
     			}
   			 }
         	parameterMap.put("statusCode", statusCode);
     	}
-    	return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), parameterMap);
+    	return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 	}
 
 	private TemplateVO getTemplateIfAssociatedWithURL(HttpServletRequest httpServletRequest) throws Exception {

@@ -1,5 +1,6 @@
 package com.trigyn.jws.dynamicform.dao;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,8 +83,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 				"and TABLE_SCHEMA = :schemaName " + 
 				"order by ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();
-		try {
-			String schemaName = dataSource.getConnection().getCatalog();
+		try (Connection connection = dataSource.getConnection();){
+			String schemaName = connection.getCatalog();
 			Map<String, Object> parameterMap = new HashMap<>();
 			parameterMap.put("tableName", tableName);
 			parameterMap.put("schemaName", schemaName);
@@ -97,8 +98,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 	public List<String> getAllTablesListInSchema() {
 		String query = "select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA = :schemaName";
 		List<String> resultSet = new ArrayList<>();
-		try {
-			String schemaName = dataSource.getConnection().getCatalog();
+		try (Connection connection = dataSource.getConnection();){
+			String schemaName = connection.getCatalog();
 			Map<String, Object> parameterMap = new HashMap<>();
 			parameterMap.put("schemaName", schemaName);
 			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);

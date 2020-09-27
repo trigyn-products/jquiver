@@ -50,7 +50,7 @@ public class DBTemplatingService {
 
     public TemplateVO getVelocityDataById(String templateId) throws Exception {
         TemplateMaster templateMaster = dbTemplatingRepository.findById(templateId)
-                .orElseThrow(() -> new Exception("User not found with id : " + templateId));
+                .orElseThrow(() -> new Exception("Template not found with id : " + templateId));
         return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
                 templateMaster.getTemplate());
     }

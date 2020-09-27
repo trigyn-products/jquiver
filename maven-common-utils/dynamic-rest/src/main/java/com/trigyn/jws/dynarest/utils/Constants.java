@@ -6,6 +6,9 @@ public final class Constants {
 
     }
 
+    public static final String SERVICE_CLASS_NAME 							= "ServiceLogic";
+    public static final String DYNAREST_CLASS_FILE_PATH 					= "dynarest-class-file-path";
+	
     public enum Platforms {
         JAVA(1), FTL(2);
 
