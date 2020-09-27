@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.1</version>
+		<version>1.3.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
-	<version>1.3.1</version>
+	<version>1.3.2-SNAPSHOT</version>
 	<name>java-web-starter</name>
 	<description>A admin panel for all trigyn core apps</description>
 
@@ -20,55 +20,55 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>notification</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dashboard</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>resourcebundle</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>typeahead</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-rest</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>menu</artifactId>
-			<version>1.3.1</version>
+			<version>1.3.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
