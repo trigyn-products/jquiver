@@ -35,12 +35,12 @@ public class TypeAheadCrudController {
 	
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
     public String autocompleteListingsPage() throws Exception {
-    	return menuService.getTemplateWithSiteLayout("autocompleteListing",  new HashMap<>());
+    	return menuService.getTemplateWithSiteLayout("autocomplete-listing",  new HashMap<>());
     }
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
     public String demoAutocomplete() throws Exception {
-        return menuService.getTemplateWithSiteLayout("demoAutocomplete",  new HashMap<>());
+        return menuService.getTemplateWithSiteLayout("autocomplete-demo",  new HashMap<>());
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
@@ -53,7 +53,7 @@ public class TypeAheadCrudController {
 			AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 			templateData.put("autocompleteVO", autocompleteVO);
 		}
-		return menuService.getTemplateWithSiteLayout("addEditAutocompleteDetails",  templateData);
+		return menuService.getTemplateWithSiteLayout("autocomplete-manage-details",  templateData);
     }
 	
 	@PostMapping(value = "/sacd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

@@ -1140,7 +1140,9 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 	const addEdit = new AddEditDynamicForm();
   $(function () {
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();
-    function loadTableTemplate(event){
+  });
+
+  function loadTableTemplate(event){
       $.ajax({
           type: "POST",
           url: contextPath+"/cf/dfte",
@@ -1151,8 +1153,8 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
   		      dashletHTMLEditor.setValue(data);
           }
         });
-      }
-  });
+    }
+    
    </script>
   ','admin','admin',now() );
   
@@ -1289,6 +1291,117 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                               </a>
                </div>
 </div>', 'admin', 'admin', NOW());
+
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
+<script src="/webjars/1.0/gridutils/gridutils.js"></script>   
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+<script>
+
+ 
+
+</script>
+<div class="container">
+        <div class="topband">
+        <h2 class="title-cls-name float-left">Template Master</h2> 
+        <div class="float-right">
+            <#if environment == "dev">
+                <input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="Download Template" type="button">
+                <input id="uploadTemplate" class="btn btn-primary" onclick= "uploadTemplate();" name="uploadTemplate" value="Upload Template" type="button">
+            </#if>
+            <a href="${(contextPath)!''''}/cf/aet"> 
+                <input id="addVelocityTemp" class="btn btn-primary" name="addVelocityTemp" value="Add Template" type="button">
+            </a>
+            <span onclick="backToWelcomePage();">
+            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+           </span>    
+        </div>
+        
+        <div class="clearfix"></div>        
+        </div>
+        
+        <div id="divTemplateGrid"></table>
+
+ 
+
+        <div id="snackbar"></div>
+</div>
+
+ 
+
+
+<form action="${(contextPath)!''''}/cf/aet" method="GET" id="formVmRedirect">
+    <input type="hidden" id="vmMasterId" name="vmMasterId">
+</form>
+<script>
+    contextPath = "${(contextPath)!''''}";
+    function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+    }
+    $(function () {
+        let colM = [
+            { title: "", hidden: true, sortable : false, dataIndx: "templateId" },
+            { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
+            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Created By", width: 100, align: "center",  sortable : true, dataIndx: "createdBy", align: "left", halign: "center",
+            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
+            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
+            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Action", width: 50, align: "center", render: editTemplate, dataIndx: "action" }
+        ];
+     let grid = $("#divTemplateGrid").grid({
+          gridId: "templateListingGrid",
+          colModel: colM
+      });
+    });
+    
+    function editTemplate(uiObject) {
+        const templateId = uiObject.rowData.templateId;
+            <#if environment == "dev">
+                 return ''<span id="''+templateId+''"  class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+            <#else>
+                 return ''<span id="''+templateId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+            </#if>
+    }
+    
+    function submitForm(element) {
+      $("#vmMasterId").val(element.id);
+      $("#formVmRedirect").submit();
+    }
+    <#if environment == "dev">
+        function downloadTemplate(){
+            $.ajax({
+                url:"/cf/dtl",
+                type:"POST",
+                success:function(data){
+                    alert("Downloaded Successfully");
+                }
+                
+            });
+        }
+        function uploadTemplate(){
+            $.ajax({
+                url:"/cf/utd",
+                type:"POST",
+                success:function(data){
+                    alert("Uploaded Successfully");
+                }
+                
+            });
+        }
+    </#if>
+</script>', 'admin', 'admin', NOW(), NULL);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'template-manage-details', '<head>

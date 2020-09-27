@@ -1,6 +1,6 @@
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'demoAutocomplete', '<head>
+(UUID(), 'autocomplete-demo', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -118,7 +118,7 @@ $(function () {
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'autocompleteListing', '<head>
+(UUID(), 'autocomplete-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -192,7 +192,7 @@ function backToWelcomePage() {
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'addEditAutocompleteDetails', '<head>
+(UUID(), 'autocomplete-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>

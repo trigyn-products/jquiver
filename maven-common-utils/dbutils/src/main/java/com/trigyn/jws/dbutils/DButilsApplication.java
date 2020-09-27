@@ -7,7 +7,6 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 public class DButilsApplication {
@@ -25,6 +24,8 @@ public class DButilsApplication {
 		configuration.outOfOrder(Boolean.TRUE);
 		configuration.ignorePendingMigrations(Boolean.TRUE);
 		configuration.ignoreMissingMigrations(Boolean.TRUE);
+		configuration.baselineOnMigrate(Boolean.TRUE);
+		configuration.baselineVersion("0");
 		return configuration;
 	}
 
