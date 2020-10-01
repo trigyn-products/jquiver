@@ -2,6 +2,7 @@ class DynamicRest {
 
 	constructor() {
     	this.saveUpdateEditors = new Array();
+    	this.daoDetailsIds = new Array();
     	this.serviceLogicContent;
     }
     
@@ -18,7 +19,8 @@ class DynamicRest {
 				if(dynarestDetailsArray !== null && dynarestDetailsArray.length != 0){
 					context.populateServiceLogic(dynarestDetailsArray[0].dynarestServiceLogic);
 					for (let counter = 0; counter < dynarestDetailsArray.length; counter++){
-						context.addSaveQueryEditor(dynarestDetailsArray[counter].variableName, dynarestDetailsArray[counter].dynarestDaoQuery);
+						context.addSaveQueryEditor(dynarestDetailsArray[counter].daoDetailsId, dynarestDetailsArray[counter].versionDetails
+							, dynarestDetailsArray[counter].variableName, dynarestDetailsArray[counter].dynarestDaoQuery);
 					}
 				}else{
 					context.populateServiceLogic();
@@ -62,19 +64,25 @@ class DynamicRest {
     	});
     }
     
-    addSaveQueryEditor = function(variableName, saveQueryContent){
+    addSaveQueryEditor = function(daoDetailsId, versionDetails, variableName, saveQueryContent){
     	const context = this;
-		let index = this.saveUpdateEditors.length;
-		if(variableName){
-			$("#saveScriptContainer").append("<input id='inputcontainer_"+index+"' value ="+variableName+" type ='text' class='form-control' />");
-		}else{
-			$("#saveScriptContainer").append("<input id='inputcontainer_"+index+"' type ='text' class='form-control' />");
-		}
-		$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
-		
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
-        let saveUpdateEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
+			let index = context.saveUpdateEditors.length;
+			
+			if(versionDetails != undefined && versionDetails != ""){
+	    		$("#saveScriptContainer").append("<div class='col-3'><div id='compareDiv_"+index+"' class='col-inner-form full-form-fields'><label for='versionId'>Compare with </label>");
+	    		$("#compareDiv_"+index).append("<select class='form-control' id='versionSelect_"+index+"' onchange='addEdit.getSelectTemplateData();' name='versionId' title='Template Versions'>");
+	    		$("#versionSelect_"+index).append("<option value='' selected>Select</option>");
+	    	}
+	    	
+	    	$("#saveScriptContainer").append("<input id='inputcontainer_"+index+"' type ='text' class='form-control' />");	
+			$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
+			if(variableName){
+				$("#inputcontainer_"+index).val(variableName);
+			}
+		
+        	let saveUpdateEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
 		        	value: saveQueryContent,
 		            language: "sql",
 		            roundedSelection: false,
@@ -87,6 +95,10 @@ class DynamicRest {
 					wrappingIndent: "indent"
 	        	});
 	        	context.saveUpdateEditors.push(saveUpdateEditor);
+	        	if(daoDetailsId != undefined){
+	        		$("#saveScriptContainer").append("<input type='hidden' id='daoDetailsId_"+daoDetailsId+"' value="+daoDetailsId+"/>");
+	        		context.daoDetailsIds.push(daoDetailsId);
+	        	}
     	});
 	}
 	
@@ -95,7 +107,12 @@ class DynamicRest {
 		if(index != 0){
 			$("#container_"+index).remove();
 			$("#inputcontainer_"+index).remove();
+			$("#compareDiv_"+index).remove();
 			this.saveUpdateEditors.pop();
+			if($("#daoDetailsId_"+index).length == 1){
+				$("#daoDetailsId_"+index).remove();
+				this.daoDetailsIds.pop();
+			}
 		}
 	}
 	
@@ -135,8 +152,8 @@ class DynamicRest {
 		
 		let dynarestMethodName =  $("#dynarestMethodName").val().trim();
 		if(dynarestMethodName === "" || dynarestMethodName.indexOf(" ") != -1){
-			$("#dynarestUrl").focus();
-			$('#errorMessage').html("Method name cannot be blank");
+			$("#dynarestMethodName").focus();
+			$('#errorMessage').html("Please enter valid method name");
 			return false;
 		}
 		
@@ -160,6 +177,7 @@ class DynamicRest {
 		let form = $('<form id="saveUpdateQueryForm"></form>');
 		form.append('<input name="dynarestUrl" id="dynarestUrlDAO" type="hidden" />');
 		form.append('<input name="dynarestMethodName" id="dynarestMethodNameDAO" type="hidden" />');
+		form.append('<input name="daoDetailsIds" id="daoDetailsIds" type="hidden" />');
 		form.append('<input name="variableName" id="variableName" type="hidden" />');
 		form.append('<input name="daoQueryDetails" id="daoQueryDetails" type="hidden" />');
 		form.insertAfter($("#dynamicRestForm"));
@@ -173,6 +191,7 @@ class DynamicRest {
 		}
 		$("#dynarestUrlDAO").val($("#dynarestUrl").val());
 		$("#dynarestMethodNameDAO").val($("#dynarestMethodName").val());
+		$("#daoDetailsIds").val(JSON.stringify(this.daoDetailsIds));
 		$("#variableName").val(JSON.stringify(variableNameArray));
 		$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
 		

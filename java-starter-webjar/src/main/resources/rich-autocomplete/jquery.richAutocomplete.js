@@ -105,7 +105,6 @@
             context.showList.apply(context, [event]);
         });
 
-        /*This code Added by Pankaj to handle jquery dialog scrolling issue in richautcomplete*/
         var clicky;
 
         $(document).mousedown(function(e) {
@@ -115,16 +114,13 @@
         $(document).mouseup(function(e) {
             clicky = null;
         });
-        /*This code Added by Pankaj to handle jquery dialog scrolling issue in richautcomplete*/
         
         this.element.blur(function(event) {
-        	/*This code Added by Pankaj to handle jquery dialog scrolling issue in richautcomplete*/
         	if(clicky == null || clicky.hasClass("rich-autocomplete-list") == false){
         		context.hideList.apply(context, [event]);
         	}else{
         		this.focus();
         	}
-        	/*This code Added by Pankaj to handle jquery dialog scrolling issue in richautcomplete*/
         });
 
         this.element.keyup(function(event) {
@@ -391,6 +387,7 @@
 
         //inform the select option
         this.options.select(item);
+        this.options.selectedObjectData(item);
 
         //update the list
         this.filterResults();
@@ -554,7 +551,8 @@
             loadPage: function(searchTerm, pageNumber) {
                 return [];
             },
-            selectEmpty: function (item) {}
+            selectEmpty: function (item) {},
+            selectedObjectData: function (item) {}
         };
 
         options = $.extend(defaultOptions, options);

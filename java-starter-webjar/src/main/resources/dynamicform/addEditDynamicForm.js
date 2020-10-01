@@ -43,17 +43,17 @@ class AddEditDynamicForm {
 		
 		if(formId != "") {
 			$.ajax({
-			type : "POST",
-			url : "gfsq",
-			data : {formId: formId},
-			success : function(data) {
+				type : "POST",
+				url : "gfsq",
+				data : {formId: formId},
+				success : function(data) {
 					for(let counter = 0; counter < data.length; ++counter) {
-						context.addSaveQueryEditor(data[counter].formSaveQuery);
+						context.addSaveQueryEditor(data[counter].versionDetailsMap, data[counter].formQueryId, data[counter].formSaveQuery);
 					}
 				}
 			});
 		} else {
-			context.addSaveQueryEditor("");
+			context.addSaveQueryEditor();
 		}
 			
 		$("#saveSqlContent").remove(); 
@@ -63,25 +63,40 @@ class AddEditDynamicForm {
 		window.location.href="./dfl"
 	}
 	
-	addSaveQueryEditor(data){
-		let index = dashletSQLEditors.length;
-		$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
-
+	addSaveQueryEditor(versionDetailsMap, formQueryId, data){
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
-        dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
-		        	value: data,
-		            language: "sql",
-		            roundedSelection: false,
-					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark",
-					wordWrap: 'wordWrapColumn',
-					wordWrapColumn: 100,
-					wordWrapMinified: true,
-					wrappingIndent: "indent"
-	        	});
-	        	dashletSQLEditors.push(dashletSAVESQLEditor);
+    		let index = dashletSQLEditors.length;
+    		
+    		if(versionDetailsMap != undefined && $.isEmptyObject(versionDetailsMap) === false){
+    			$("#saveScriptContainer").append("<div class='col-3'><div id='compareDiv_"+index+"' class='col-inner-form full-form-fields'><label for='versionId'>Compare with </label>");
+    			$("#compareDiv_"+index).append("<select class='form-control' id="+formQueryId+" onchange='addEdit.getSelectTemplateData(this.id);' name='versionId' title='Template Versions'>");
+    			$("#"+formQueryId).append("<option value='' selected>Select</option>");
+    			for (let prop in versionDetailsMap) {
+   			 		if (Object.prototype.hasOwnProperty.call(versionDetailsMap, prop)) {
+        				$("#"+formQueryId).append("<option value="+prop+">"+versionDetailsMap[prop]+"</option>");
+    				}
+				}
+    		}
+    		
+			$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
+        	dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
+	        	value: data,
+	            language: "sql",
+	            roundedSelection: false,
+				scrollBeyondLastLine: false,
+				readOnly: false,
+				theme: "vs-dark",
+				wordWrap: 'wordWrapColumn',
+				wordWrapColumn: 100,
+				wordWrapMinified: true,
+				wrappingIndent: "indent"
+        	});
+        	dashletSQLEditors.push(dashletSAVESQLEditor);
+        	if(formQueryId != undefined){
+        		$("#saveScriptContainer").append("<input type='hidden' id='formQueryId_"+index+"' value="+formQueryId+"/>");
+        		formQueryIds.push(formQueryId);
+        	}
     	});
     	
 	}
@@ -90,7 +105,12 @@ class AddEditDynamicForm {
 		let index = dashletSQLEditors.length - 1;
 		if(index != 0) {
 			$("#container_"+index).remove();
+			$("#compareDiv_"+index).remove();
 			dashletSQLEditors.pop();
+			if($("#formQueryId_"+index).length == 1){
+				$("#formQueryId_"+index).remove();
+				formQueryIds.pop();
+			}
 		}
 	}
     
@@ -100,10 +120,11 @@ class AddEditDynamicForm {
     	formHTMLData = formHTMLData.replaceAll("</textarea>", "&lt;/textarea&gt;");
 		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
 		$("#formBody").val(formHTMLData);
-		let queries = new Array();	 
+		let queries = new Array();	
 		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
 			queries.push(dashletSQLEditors[iCounter].getValue().toString());
 		}
+		$("#formSaveQueryId").val(JSON.stringify(formQueryIds));
 		$("#formSaveQuery").val(JSON.stringify(queries));
 		var formData = $("#dynamicform").serialize();
 		
@@ -127,22 +148,63 @@ class AddEditDynamicForm {
                  }
              }
          });
-		
-		
-		//AddEditDynamicForm.prototype.backToDynamicFormListing();
 	}
     
     saveFormData(formData){
+    const context = this;
 	    $.ajax({
 			type : "POST",
 			url : "sdfd",
 			data : formData,
 			 success : function(data) {
-				 AddEditDynamicForm.prototype.backToDynamicFormListing();
+				$("#snackbar").html("Information saved successfully");
+				context.showSnackbar();
 			 }
 																						  
 		});
     }
+    
+    getSelectTemplateData = function(formQueryId) {
+        const context = this;
+		let versionId = $('#'+formQueryId).find(":selected").val();
+        
+        $('#diffEditor').html("");
+        if(versionId != ""){
+	       	const diffEditor = monaco.editor.createDiffEditor(document.getElementById("diffEditor"),{
+				originalEditable: false,
+	    		readOnly: false,
+	       	});
+	        $.ajax({
+	            async : false,
+	            type : "GET",
+	            cache : false,
+	            url : "/cf/vdfd", 
+	            headers : {
+	                "form-id" : formQueryId,
+	                "version-id" : versionId,
+	            },
+	            success : function(data) {
+					let modifiedContent = dashletHTMLEditor.getValue();
+					let originalModel = monaco.editor.createModel(data, "text/plain");
+					let modifiedModel = monaco.editor.createModel(modifiedContent, "text/plain");
+					
+					diffEditor.setModel({
+						original: originalModel,
+						modified: modifiedModel
+					});
+					
+	            }
+	        });
+        }
+    }
+    
+    showSnackbar() {
+    	let snackBar = $("#snackbar");
+    	snackBar.addClass('show');
+    	setTimeout(function(){ 
+    		snackBar.removeClass("show");
+    	}, 3000);
+	}
 }
 
 

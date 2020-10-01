@@ -11,7 +11,7 @@ class TemplateEngine {
     	const context = this;
     	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
-        context.editor = monaco.editor.create(document.getElementById("htmlEditor"), {
+        	context.editor = monaco.editor.create(document.getElementById("htmlEditor"), {
 		        	value: "",
 		            language: "html",
 		            roundedSelection: false,
@@ -23,8 +23,8 @@ class TemplateEngine {
 					wordWrapMinified: true,
 					wrappingIndent: "indent"
 	        	});
-	       context.setTemplateValue();
-	       context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+			context.setTemplateValue();
+			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 			    context.validateSaveVelocity("stay");
 			});
     	});
@@ -96,8 +96,42 @@ class TemplateEngine {
                 velocityTempData : velocityTempData
             },
             success : function(data) {
-                location.href = "/cf/te";
+           		location.href = "/cf/te";
             }
         });
+    }
+    
+    
+	getTemplateData = function() {
+        const context = this;
+        const versionId = $("#versionId").find(":selected").val();
+        $('#diffEditor').html("");
+        if(versionId != ""){
+	       	const diffEditor = monaco.editor.createDiffEditor(document.getElementById("diffEditor"),{
+				originalEditable: false,
+	    		readOnly: false,
+	       	});
+	        $.ajax({
+	            async : false,
+	            type : "GET",
+	            cache : false,
+	            url : "/cf/vtd", 
+	            headers : {
+	                "template-id" : context.templateId,
+	                "version-id" : versionId,
+	            },
+	            success : function(data) {
+					let modifiedContent = context.editor.getValue();
+					let originalModel = monaco.editor.createModel(data, "text/plain");
+					let modifiedModel = monaco.editor.createModel(modifiedContent, "text/plain");
+					
+					diffEditor.setModel({
+						original: originalModel,
+						modified: modifiedModel
+					});
+					
+	            }
+	        });
+        }
     }
 }

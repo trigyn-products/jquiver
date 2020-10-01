@@ -64,7 +64,7 @@ class AddEditModule {
    		}
    		
    		let contextName = $("#targetTypeName").val();
-   		if(contextName === ""){
+   		if(contextName === "" && contextType != "6"){
    			$("#targetTypeName").focus();
    			$('#errorMessage').html("Please select context name");
    			return false;
@@ -78,8 +78,8 @@ class AddEditModule {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if(moduleURL === "" || moduleURL.indexOf(" ") != -1 
-   			|| moduleURL.indexOf("*") != -1 || moduleURL.indexOf("/") == 0){
+   		if((moduleURL === "" || moduleURL.indexOf(" ") != -1 
+   			|| moduleURL.indexOf("*") != -1 || moduleURL.indexOf("/") == 0) && contextType != "6"){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
@@ -120,7 +120,7 @@ class AddEditModule {
 	    				isDataExist = true;
 	    				$('#errorMessage').html("Sequence number already exist");
 	    			}
-	    			if(isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId){
+	    			if(isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId && moduleURL !== "#"){
 	    				isDataExist = true;
 	    				$('#errorMessage').html("Module URL already exist");
 	    			}
@@ -143,6 +143,23 @@ class AddEditModule {
     	let context = this;
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
     	$("#targetTypeName").empty();
+    	let selectOption = $('<option value=" ">Select</option>');
+    	$("#targetTypeName").append(selectOption);
+    	if(targetLookupId === "6") {
+	    	$("#targetTypeName").val(" ");
+	    	$("#moduleURL").val("#");
+	    	$("#parentModuleName").val("");
+	    	$("#targetTypeName").attr('disabled','disabled');
+	    	$("#moduleURL").attr('disabled','disabled');
+	    	$("#parentModuleName").attr('disabled','disabled');
+    		return;
+    	}else{
+    		$("#parentModuleName").val("");
+    		$("#targetTypeName").prop('disabled',false);
+	    	$("#moduleURL").prop('disabled',false);
+	    	$("#parentModuleName").prop('disabled',false);
+    	}
+    	if(targetLookupId != 4){
     			$.ajax({
 				type : "GET",
 				url : contextPath+"/cf/ltlm",
@@ -169,7 +186,7 @@ class AddEditModule {
 	    				}
 	    			}else {
 	    				$("#errorMessage").html("");
-	    				$("#errorMessage").html("Sorry target name are availabel");
+	    				$("#errorMessage").html("Sorry target name are available");
 	    			}
 	       		},
 	        	error : function(xhr, error){
@@ -178,6 +195,7 @@ class AddEditModule {
 	        	},
 	        	
 			});
+		}
     }
     
     backToModuleListingPage = function() {

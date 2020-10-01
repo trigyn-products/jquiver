@@ -26,7 +26,7 @@ class AddEditAutocomplete{
 	
 	saveAutocompleteDetail = function(){
 		const context = this;
-		const sqlEditor = ace.edit("sqlEditor");
+		const sqlEditor = context.sqlQuery.getValue();
 		$("#acSelectQuery").val(context.sqlQuery.getValue().toString());
 		const formData = $("#autocompleteForm").serialize();
 		$.ajax({

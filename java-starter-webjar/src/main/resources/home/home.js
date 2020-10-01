@@ -13,6 +13,7 @@ HomePage.prototype.fn = {
 		$("#openbtni").addClass("hidecls");
 		$('body').css('background-color', 'rgba(0,0,0,0.4)');
 		$(".container").addClass("overlaycls");
+		$('#searchInput').focus();
 	},
 
 	closeNavigation : function() {

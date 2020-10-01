@@ -5,6 +5,7 @@
         constructor(element, options) {
             this.element = element;
             this.options = options;
+            this.selectedObject = [];
         }
 
         loadServerPages = function (searchTerm, pageNumber, pageSize) {
@@ -44,12 +45,28 @@
             }
             return deferred.promise();
         }
+        
+        getSelectedObject = function(){
+        	return this.selectedObject;
+        }
+        
+        setSelectedObject = function(list){
+        	return this.selectedObject = list;
+        }
     }
 
     class Autocomplete extends TypeAhead {
-        constructor(element, options) {
+        constructor(element, options, selectedItem) {
             super(element, options);
             this.init(this.options);
+            this.initWithValues(selectedItem);
+        }
+        
+        initWithValues = function(item){
+        	this.selectedObject = item;
+        	let value = this.options.extractText(item);
+        	$(this.element).val(value);
+        	return this.selectedObject;
         }
     }
 
@@ -64,15 +81,31 @@
             emptyRender: options.emptyRender,
             select: options.select,
             render: options.render,
-            extractText: options.extractText
+            extractText: options.extractText,
+            selectedObjectData: options.selectedObjectData
         });
     }
 
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
-        constructor(element, options) {
+        constructor(element, options, selectedItems) {
             super(element, options);
             this.init(this.options);
+            this.initWithValues(selectedItems);
+        }
+        
+        setSelectedObject = function(item){
+        	this.selectedObject.push(item);
+        	Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, item);
+        	return this.selectedObject;
+        }
+        
+        initWithValues = function(items){
+        	this.selectedObject = items;
+        	for(let iCounter = 0; iCounter < this.selectedObject.length; iCounter++) {
+        		Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, this.selectedObject[iCounter]);
+        	}
+        	return this.selectedObject;
         }
     }
 
@@ -87,7 +120,8 @@
             emptyRender: options.emptyRender,
             render: options.render,
             extractText: options.extractText,
-            select: options.select
+            select: options.select,
+            selectedObjectData: options.selectedObjectData
         });
         
         const maxHeight = 200;
@@ -98,8 +132,7 @@
         options.multiselectItem.append(this.list)
     }
 
-    Multiselect.prototype.createElementForMultiselect = function(multiselectId, itemData) {
-        const context = this;
+    Multiselect.prototype.createElementForMultiselect = function(context, multiselectId, itemData) {
         if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
             const element = context.options.selectedItemRender(itemData);
             let listsElement = $("<li></li>");
@@ -149,21 +182,21 @@
 		const context = this;
     	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to delete?");
 		$("#"+multiselectId+"_deleteConfirmation").dialog({
-			bgiframe		 : true,
-			autoOpen		 : true, 
-			modal		 : true,
-			closeOnEscape : true,
+			bgiframe		: true,
+			autoOpen		: true, 
+			modal		 	: true,
+			closeOnEscape 	: true,
 			draggable	 : true,
 			resizable	 : false,
 			title		 : "Delete",
 			buttons		 : [{
-					text		:"Cancel",
-					click	: function() { 
+					text :"Cancel",
+					click: function() { 
 						$(this).dialog('close');
 					},
 				},
 				{
-					text		: "Delete",
+					text	: "Delete",
 					click	: function(){
 						$(this).dialog('close');
 				    	let multiselectIdDivId = context.options.multiselectItem[0].id;
@@ -198,8 +231,8 @@
 		}
     }
     
-    $.fn.autocomplete = function(options) {
-
+    $.fn.autocomplete = function(options, selectedItem) {
+		selectedItem = selectedItem == undefined ? {} : selectedItem;
         const tOptions = {
             autocompleteId: String,
             emptyMsgRender: function() {
@@ -222,7 +255,7 @@
             },
             selectedObjectData: function(item) {
                 this.selectedObject.push(item);
-                return this.selectedObjectData;
+                return this.selectedObject;
             },
             multiselectItem: Object,
             debounce: 500,
@@ -238,12 +271,12 @@
         };
 
         options = $.extend(tOptions, options);
-        $(this).data('autocomplete', new Autocomplete(this, options));
-        return options;
+        $(this).data('autocomplete', new Autocomplete(this, options, selectedItem));
+        return $(this).data('autocomplete');
     }
 
-    $.fn.multiselect = function(options) {
-        
+    $.fn.multiselect = function(options, selectedItems) {
+        selectedItems = selectedItems == undefined ? [] : selectedItems;
         const tOptions = {
             autocompleteId: String,
             emptyMsgRender: function() {
@@ -266,7 +299,7 @@
             },
             selectedObjectData: function(item) {
                 this.selectedObject.push(item);
-                return this.selectedObjectData;
+                return this.selectedObject;
             },
             multiselectItem: Object,
             debounce: 500,
@@ -282,7 +315,7 @@
         };
 
         options = $.extend(tOptions, options);
-        const multiselect = new Multiselect(this, options);
+        const multiselect = new Multiselect(this, options, selectedItems);
         $(this).data('multiselect', multiselect);
         return multiselect;
     }

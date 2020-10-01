@@ -67,8 +67,8 @@ AddEditDashlet.prototype.fn = {
 				let dashletProperty = new Object();
 	  			$(this).find('td > input').each (function() {
 	  				let fieldName = $(this).prop("name")
-	  				if(fieldName == "sequence" || fieldName == "toDisplay"){
-	  					dashletProperty[fieldName] = parseInt($(this).val());
+	  				if(fieldName == "toDisplay"){
+	  					dashletProperty[fieldName] = $(this).prop("checked")?1:0;
 	  				}else{
 	    				dashletProperty[fieldName] = $(this).val();
 	    			}
@@ -207,7 +207,7 @@ AddEditDashlet.prototype.fn = {
         propertyRow.append(propertyDetails);
         propertyRow.append('<td><input type="text" name="displayName" id="displayName_'+dashletPropertiesCount+'" class="form-control"></td>');
         propertyRow.append(context.getTypeDropdown());
-        propertyRow.append('<td><input type="text" name="value" id="value_'+dashletPropertiesCount+'" class="form-control"  disabled></td>');
+        propertyRow.append('<td><input type="text" name="value" id="value_'+dashletPropertiesCount+'" class="form-control" ></td>');
         propertyRow.append('<td><input type="text" name="defaultValue" id="defaultValue_'+dashletPropertiesCount+'" class="form-control"></td>');
         propertyRow.append('<td><input type="checkbox" name="toDisplay" id="toDisplay_'+dashletPropertiesCount+'" class="form-control" value="1" checked/></td>');
 
@@ -218,8 +218,7 @@ AddEditDashlet.prototype.fn = {
         			  
 		}else{
 			moverUpContext = $('<span id="upArrow_'+dashletPropertiesCount+'" class="tblicon pull-left"><i class="fa fa-arrow-up"></i></span>');
-			let previousRowDownArrow =  "downArrow_"+(dashletPropertiesCount-1);
-        	$('#'+previousRowDownArrow).removeClass("disable_cls");
+        	$("#dashletProps tr:last td:last").find("span[id*='down']").removeClass("disable_cls");
 		} 
 		moverDownContext = $('<span id="downArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-arrow-down"></i></span>');
 		deletePropertyContext = $('<span id="removeProperty_'+dashletPropertiesCount+'" class="tblicon pull-left"><i class="fa fa-trash-o"></i></span>');
