@@ -9,5 +9,6 @@ public class JavaWebStarterApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(JavaWebStarterApplication.class, args);
 	}
+	
 
 }
