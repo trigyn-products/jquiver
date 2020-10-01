@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.3</version>
+		<version>1.3.4-SNAPSHOT</version>
 	</parent>
 	<artifactId>templating</artifactId>
-	<version>1.3.3</version>
+	<version>1.3.4-SNAPSHOT</version>
 	<name>templating</name>
 	<description>A helper jar which uses freemarker to render templates.</description>
 
@@ -31,13 +31,13 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.3.3</version>
+			<version>1.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>resourcebundle</artifactId>
-			<version>1.3.3</version>
+			<version>1.3.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
