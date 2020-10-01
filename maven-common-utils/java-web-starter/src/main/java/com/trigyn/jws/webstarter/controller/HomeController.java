@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
@@ -22,8 +22,12 @@ public class HomeController {
     private MenuService menuService = null;
     
     @GetMapping(value = "/home", produces = MediaType.TEXT_HTML_VALUE)
-    public String homePage() throws Exception {
-        return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+    public String homePage() {
+        try {
+        	return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+        }catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
     }
     
 }

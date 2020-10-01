@@ -1,28 +1,51 @@
 
 package com.trigyn.jws.dynamicform.vo;
 
+import java.util.Map;
+
 public class DynamicFormSaveQueryVO {
 
-	private String formSaveQuery = null;
-
-	private Integer sequence = null;
+	private String formQueryId							= null;
 	
-	private String checksum = null;
+	private String formSaveQuery 						= null;
 
+	private Integer sequence 							= null;
+	
+	private String checksum 							= null;
+
+	private Map<Double, String> versionDetailsMap		= null;
+	
 	public DynamicFormSaveQueryVO() {
 
 	}
 
-	public DynamicFormSaveQueryVO(String formSaveQuery, Integer sequence) {
-		this.formSaveQuery = formSaveQuery;
-		this.sequence = sequence;
+	public DynamicFormSaveQueryVO(String formQueryId, String formSaveQuery, Integer sequence, Map<Double, String> versionDetailsMap) {
+		this.formQueryId 		= formQueryId;
+		this.formSaveQuery 		= formSaveQuery;
+		this.sequence 			= sequence;
+		this.versionDetailsMap	= versionDetailsMap;
 	}
 	
 	public DynamicFormSaveQueryVO(String formSaveQuery, Integer sequence,String checksum) {
-		this.formSaveQuery = formSaveQuery;
-		this.sequence = sequence;
-		this.checksum = checksum;
+		this.formSaveQuery 	= formSaveQuery;
+		this.sequence 		= sequence;
+		this.checksum 		= checksum;
 	}
+	
+	/**
+	 * @return the formQueryId
+	 */
+	public String getFormQueryId() {
+		return formQueryId;
+	}
+
+	/**
+	 * @param formQueryId the formQueryId to set
+	 */
+	public void setFormQueryId(String formQueryId) {
+		this.formQueryId = formQueryId;
+	}
+
 
 	public String getFormSaveQuery() {
 		return formSaveQuery;
@@ -49,6 +72,21 @@ public class DynamicFormSaveQueryVO {
 		this.checksum = checksum;
 	}
 
+	/**
+	 * @return the versionDetailsMap
+	 */
+	public Map<Double, String> getVersionDetailsMap() {
+		return versionDetailsMap;
+	}
+
+	/**
+	 * @param versionDetailsMap the versionDetailsMap to set
+	 */
+	public void setVersionDetailsMap(Map<Double, String> versionDetailsMap) {
+		this.versionDetailsMap = versionDetailsMap;
+	}
+
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

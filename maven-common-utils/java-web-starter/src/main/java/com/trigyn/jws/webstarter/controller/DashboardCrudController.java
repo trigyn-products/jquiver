@@ -31,7 +31,7 @@ import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 
 @RestController
@@ -57,61 +57,79 @@ public class DashboardCrudController {
     
     
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashletMasterListing() throws Exception {
-		Map<String,Object>  modelMap = new HashMap<>();
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		modelMap.put("environment", environment);
-		return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
+	public String dashletMasterListing(){
+		try{
+			Map<String,Object>  modelMap = new HashMap<>();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+			modelMap.put("environment", environment);
+			return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 	}
 
 	
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashboardMasterListing() throws Exception {
-		return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
+	public String dashboardMasterListing() {
+		try{
+			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
     }
 
     
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId) throws Exception {
-		Map<String, Object> templateMap 	= new HashMap<>();
-		Dashboard dashboard 				= new Dashboard();
-		List<UserRoleVO> userRoleVOs 		= dashboardCrudService.getAllUserRoles();
-		if (dashboardId != null && !dashboardId.isEmpty() && !dashboardId.equals("")) {
-			dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
-			List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
-			if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
-				dashboard.setDashboardRoles(dashletRoleAssociation);
+	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId) {
+		try{
+			Map<String, Object> templateMap 	= new HashMap<>();
+			Dashboard dashboard 				= new Dashboard();
+			List<UserRoleVO> userRoleVOs 		= dashboardCrudService.getAllUserRoles();
+			if (dashboardId != null && !dashboardId.isEmpty() && !dashboardId.equals("")) {
+				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
+				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
+				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
+					dashboard.setDashboardRoles(dashletRoleAssociation);
+				}
+			} else {
+				dashboard.setDashboardRoles(new ArrayList<>());
 			}
-		} else {
-			dashboard.setDashboardRoles(new ArrayList<>());
+			
+			templateMap.put("userRoleVOs", userRoleVOs);
+			Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
+			templateMap.put("contextDetails", contextDetails);
+			templateMap.put("dashboard", dashboard);
+			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
 		}
-		
-		templateMap.put("userRoleVOs", userRoleVOs);
-		Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
-		templateMap.put("contextDetails", contextDetails);
-		templateMap.put("dashboard", dashboard);
-		return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
 	}
 
 	
 	@PostMapping(value = "/sdb")
 	@ResponseBody
 	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
-			@RequestHeader(value = "user-id", required = true) String userId) throws Exception {
+			@RequestHeader(value = "user-id", required = true) String userId) throws Exception{
+		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
+		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
 		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId);
     }
     
     
 	@PostMapping(value = "/aedl", produces = {MediaType.TEXT_HTML_VALUE})
-	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId) throws Exception {
-		Map<String, Object> templateMap 		= new HashMap<>();
-		DashletVO dashletVO						= dashletServive.getDashletDetailsById(dashletId);
-		Map<String, String> componentsMap		= dashletServive.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
-		Map<String, String> contextDetailsMap	= dashboardCrudService.findContextDetails();
-		templateMap.put("dashletVO", dashletVO);
-		templateMap.put("componentMap", componentsMap);
-		templateMap.put("contextDetailsMap", contextDetailsMap);
-		return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
+	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId) {
+		try{
+			Map<String, Object> templateMap 		= new HashMap<>();
+			DashletVO dashletVO						= dashletServive.getDashletDetailsById(dashletId);
+			Map<String, String> componentsMap		= dashletServive.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
+			Map<String, String> contextDetailsMap	= dashboardCrudService.findContextDetails();
+			templateMap.put("dashletVO", dashletVO);
+			templateMap.put("componentMap", componentsMap);
+			templateMap.put("contextDetailsMap", contextDetailsMap);
+			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 	}
 	
 
@@ -120,6 +138,8 @@ public class DashboardCrudController {
 	@ResponseBody
 	public String saveDashlet(@RequestHeader(value = "user-id", required = true) String userId
 			, @RequestBody DashletVO dashletVO) throws Exception {
+		dashboardCrudService.deleteAllDashletProperty(dashletVO);
+		dashboardCrudService.deleteAllDashletRoles(dashletVO);
 		return dashboardCrudService.saveDashlet(userId, dashletVO);
 	}
     

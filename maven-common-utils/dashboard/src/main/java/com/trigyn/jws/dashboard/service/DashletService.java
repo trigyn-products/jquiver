@@ -33,6 +33,7 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 
 import com.trigyn.jws.templating.service.DBTemplatingService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
@@ -65,7 +66,10 @@ public class DashletService {
 	private PropertyMasterDAO propertyMasterDAO										= null;
 	
 	@Autowired
-	private FileUtilities fileUtilities  = null;
+	private FileUtilities fileUtilities  											= null;
+	
+	@Autowired
+	private MenuService menuService													= null;
 	
 	public Dashlet getDashletById(String id) throws Exception {
 		return dashletDAO.findById(id);

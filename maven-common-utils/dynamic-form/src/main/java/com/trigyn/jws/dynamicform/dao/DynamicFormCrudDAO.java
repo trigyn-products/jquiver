@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -54,7 +55,21 @@ public class DynamicFormCrudDAO extends DBConnection {
 		query.setParameter("formId", formId);
 		query.executeUpdate();
 	}
-
+	
+	public void deleteFormQueriesByIds(String formId, List<String> formQueryIds) {
+		StringBuilder deleteFormQuery = new StringBuilder("DELETE FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ");
+		
+		if(!CollectionUtils.isEmpty(formQueryIds)) {
+			deleteFormQuery.append(" AND dfs.dynamicFormQueryId NOT IN(:formQueryIds) ");
+		}
+		Query query = getCurrentSession().createQuery(deleteFormQuery.toString());
+		query.setParameter("formId", formId);
+		if(!CollectionUtils.isEmpty(formQueryIds)) {
+			query.setParameterList("formQueryIds", formQueryIds);
+		}
+		query.executeUpdate();
+	}
+	
 	public String checkFormName(String formName) {
 		 Query query = getCurrentSession().createQuery("SELECT formId FROM DynamicForm  WHERE lower(formName) = lower(:formName)");
 	     query.setParameter("formName", formName);
@@ -77,9 +92,9 @@ public class DynamicFormCrudDAO extends DBConnection {
 	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
 		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, " + 
 				"REPLACE(CONCAT(UPPER(SUBSTRING(COLUMN_NAME,1,1)),LOWER(SUBSTRING(COLUMN_NAME,2))), '_', ' ') as fieldName, " + 
-				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" ELSE DATA_TYPE END as columnType, " + 
+				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" ELSE \"textarea\" END as columnType, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN CHARACTER_MAXIMUM_LENGTH WHEN DATA_TYPE = \"int\" THEN NUMERIC_PRECISION ELSE CHARACTER_MAXIMUM_LENGTH END as columnSize " + 
-				"from information_schema.COLUMNS where TABLE_NAME = :tableName and DATA_TYPE IN (\"varchar\", \"int\") " + 
+				"from information_schema.COLUMNS where TABLE_NAME = :tableName and (DATA_TYPE IN (\"varchar\", \"int\") OR DATA_TYPE LIKE \"%text%\") " + 
 				"and TABLE_SCHEMA = :schemaName " + 
 				"order by ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();
@@ -103,6 +118,22 @@ public class DynamicFormCrudDAO extends DBConnection {
 			Map<String, Object> parameterMap = new HashMap<>();
 			parameterMap.put("schemaName", schemaName);
 			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultSet;
+	}
+
+	public List<Map<String, Object>> getTableInformationByName(String tableName) {
+		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
+				"and TABLE_SCHEMA = :schemaName ORDER BY ORDINAL_POSITION ASC ";
+		List<Map<String, Object>> resultSet = new ArrayList<>();
+		try (Connection connection = dataSource.getConnection();){
+			String schemaName = connection.getCatalog();
+			Map<String, Object> parameterMap = new HashMap<>();
+			parameterMap.put("tableName", tableName);
+			parameterMap.put("schemaName", schemaName);
+			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

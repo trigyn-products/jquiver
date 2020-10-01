@@ -3,16 +3,21 @@ package com.trigyn.jws.templating.service;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.trigyn.jws.dbutils.spi.IUserDetailsService;
-import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -21,18 +26,26 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 @Transactional(readOnly = true)
 public class DBTemplatingService {
 
+	private static final Logger logger = LogManager.getLogger(DBTemplatingService.class);
     
 	@Autowired
-	private DBTemplatingRepository dbTemplatingRepository = null;
+	private DBTemplatingRepository dbTemplatingRepository 	= null;
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO propertyMasterDAO 			= null;
 	
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService userDetailsService 			= null;
 
 	@Autowired
-	private FileUtilities fileUtilities  = null;
+	private FileUtilities fileUtilities  					= null;
+	
+	@Autowired
+	private TemplateVersionService templateVersionService	= null;
+	
+	@Autowired
+	@Qualifier("template")
+	private TemplateModule templateModule 					= null;
 	
 	public TemplateVO getTemplateByName(String templateName) throws Exception {
 	    	
@@ -41,10 +54,10 @@ public class DBTemplatingService {
 	            throw new Exception("No template was found with the  name " + templateName);
 	        }
 	        String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-	        if(environment.equalsIgnoreCase("dev") && (!templateName.equalsIgnoreCase("template-listing") )) {
-	    		getTemplateContentsForDevEnvironment(templateName, templateVO);
+	        if(environment.equalsIgnoreCase("dev") && !templateName.equalsIgnoreCase("template-listing")
+	        		&& !templateName.equalsIgnoreCase("home-page")) {
+	        	getTemplateContentsForDevEnvironment(templateName, templateVO);
 	        }
-	       
 	        return templateVO;
 	}
 
@@ -100,7 +113,8 @@ public class DBTemplatingService {
             templateDetails.setChecksum(fileUtilities.writeFileContents(templateVO.getTemplate(), templateFile));
         }
         
-        dbTemplatingRepository.saveAndFlush(templateDetails);
+        TemplateMaster templateMaster = dbTemplatingRepository.saveAndFlush(templateDetails);
+        templateVersionService.saveTemplateVersion(templateData,null, templateMaster.getTemplateId(), "template_master");
         
     }
 
@@ -121,7 +135,9 @@ public class DBTemplatingService {
 		folderLocation = folderLocation +File.separator+templateDirectory;
 		
 		if(!new File(folderLocation).exists()) {
-			throw new Exception("Please download the templates from template master listing  " + templateName);
+			logger.warn("Templates not downloaded on system, downloading templates to system.");
+			templateModule.downloadCodeToLocal();
+			logger.info("Templates downloaded to local machine");
 		}
 		File file = new File(folderLocation+ File.separator+templateVO.getTemplateName()+ftlCustomExtension);
 		if(file.exists()) {

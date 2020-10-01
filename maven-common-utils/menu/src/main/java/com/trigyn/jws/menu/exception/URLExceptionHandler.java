@@ -15,13 +15,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.menu.dao.ModuleDAO;
-import com.trigyn.jws.menu.reposirtory.interfaces.IModuleListingRepository;
-import com.trigyn.jws.menu.service.MenuService;
-import com.trigyn.jws.menu.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
+import com.trigyn.jws.dbutils.repository.ModuleDAO;
+import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
+
+import freemarker.core.InvalidReferenceException;
 
 @RestController
 public class URLExceptionHandler implements ErrorController {
@@ -29,9 +30,6 @@ public class URLExceptionHandler implements ErrorController {
     @Autowired
     private DBTemplatingService templateService 				= null;
 
-    @Autowired
-    private TemplatingUtils templateEngine 						= null;
-    
     @Autowired
     private IModuleListingRepository iModuleListingRepository	= null; 
     
@@ -44,6 +42,7 @@ public class URLExceptionHandler implements ErrorController {
     @RequestMapping("/error")
 	public String errorHandler(HttpServletRequest httpServletRequest) throws Exception {
     	Object status = httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+    	Exception exception = (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
     	TemplateVO templateVO = templateService.getTemplateByName("error-page");
     	Map<String, Object> parameterMap = new HashMap<String, Object>();
     	if(status != null) {
@@ -56,6 +55,7 @@ public class URLExceptionHandler implements ErrorController {
     			}
   			 }
         	parameterMap.put("statusCode", statusCode);
+        	parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
     	}
     	return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 	}

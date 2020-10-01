@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
@@ -35,9 +36,9 @@ import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.UserRoleRepository;
+import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
-import com.trigyn.jws.webstarter.utils.DownloadUploadModule;
 
 @Service
 @Transactional(readOnly = false)
@@ -93,6 +94,19 @@ public class DashboardCrudService {
 	}
 	
 	
+	public void deleteAllDashletFromDashboard(DashboardVO dashboardVO) throws Exception {
+		String dashboardId = dashboardVO.getDashboardId();
+		if(!StringUtils.isEmpty(dashboardId)) {
+			dashboardCrudDAO.deleteAllDashletFromDashboard(dashboardId);
+		}
+	}
+	
+	public void deleteAllDashboardRoles(DashboardVO dashboardVO) throws Exception {
+		String dashboardId = dashboardVO.getDashboardId();
+		if(!StringUtils.isEmpty(dashboardId)) {
+			dashboardCrudDAO.deleteAllDashboardRoles(dashboardId);
+		}
+	}
 	
 	public String saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);
@@ -108,7 +122,6 @@ public class DashboardCrudService {
 			}
 		}
 		if (!CollectionUtils.isEmpty(dashboardVO.getDashletIdList())) {
-			dashboardCrudDAO.deleteAllDashletFromDashboard(dashboardEntity.getDashboardId());
 			for (String dahsletId : dashboardVO.getDashletIdList()) {
 				DashboardDashletAssociation dashboardDashletAssociation 	= new DashboardDashletAssociation();
 				DashboardDashletAssociationPK dashboardDashletAssociationPK = new DashboardDashletAssociationPK();
@@ -121,6 +134,7 @@ public class DashboardCrudService {
 		return dashboardEntity.getDashboardId();
     }
     
+	
 	private Dashboard convertDashboarVOToEntity(DashboardVO dashboardVO, String userId) {
 		Dashboard dashboardEntity = new Dashboard();
 		Date date = new Date();
@@ -155,7 +169,21 @@ public class DashboardCrudService {
 		return contextDetails;
     }
     
-     
+	public void deleteAllDashletProperty(DashletVO dashletVO) throws Exception {
+		String dashletId = dashletVO.getDashletId();
+		if(!StringUtils.isEmpty(dashletId)) {
+			dashboardCrudDAO.deleteAllDashletProperty(dashletId);
+		}
+	}
+	
+	public void deleteAllDashletRoles(DashletVO dashletVO) throws Exception {
+		String dashletId = dashletVO.getDashletId();
+		if(!StringUtils.isEmpty(dashletId)) {
+			dashboardCrudDAO.deleteAllDashletRoles(dashletId);
+		}
+	}
+	
+	
     public String saveDashlet(String userId, DashletVO dashletVO) throws Exception {
     	Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
 		dashlet 		= iDashletRepository.saveAndFlush(dashlet);
@@ -183,8 +211,6 @@ public class DashboardCrudService {
 		}
 		return dashlet.getDashletId();
     }
-    
-    
     
     public Dashlet convertDashletVOToEntity(String userId, DashletVO dashletVO) throws Exception{
     	Dashlet dashlet = new Dashlet();

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
@@ -19,10 +19,14 @@ public class GridCrudController {
 	private final static Logger logger 						= LogManager.getLogger(GridCrudController.class);
 
 	@Autowired
-	private MenuService 	menuService			= null;
+	private MenuService 	menuService						= null;
     
     @GetMapping(value = "/gd", produces = MediaType.TEXT_HTML_VALUE)
-    public String gridUtilsPage() throws Exception {
-        return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());    
+    public String gridUtilsPage()  {
+    	try {
+    		return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());
+    	}catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
     }
 }

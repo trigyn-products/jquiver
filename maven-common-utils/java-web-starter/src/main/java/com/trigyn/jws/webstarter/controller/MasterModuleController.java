@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dashboard.service.DashletService;
+import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
-import com.trigyn.jws.menu.service.MenuService;
-import com.trigyn.jws.menu.service.ModuleService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
@@ -40,31 +40,38 @@ public class MasterModuleController {
 
 	@RequestMapping()
 	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws Exception {
-		String moduleUrl = httpServletRequest.getRequestURI();
-		moduleUrl = moduleUrl.replaceFirst("/view/", "");
-		if("".equals(moduleUrl)) {
-			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+			 {
+		try {	
+			String moduleUrl = httpServletRequest.getRequestURI();
+			moduleUrl = moduleUrl.replaceFirst("/view/", "");
+			if("".equals(moduleUrl)) {
+				return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+			}
+			Map<String, Object> moduleDetailsMap = moduleService.getModuleTargetTypeName(moduleUrl);
+			Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
+			Integer targetLookupId = Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
+			String templateName = moduleDetailsMap.get("targetTypeName").toString();
+			String targetTypeId = moduleDetailsMap.get("targetTypeId").toString();
+			if(targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
+				return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
+			}else if(targetLookupId.equals(Constant.TargetLookupId.DASHBOARD.getTargetLookupId())){
+				UserDetailsVO detailsVO = userDetails.getUserDetails();
+				String userId = detailsVO.getUserId();
+				String template = dashletService.getDashletUI(userId, false, targetTypeId);
+				return menuService.getDashletTemplateWithLayout(template, null);
+			}else if(targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())){
+				String template = dynamicFormService.loadDynamicForm(targetTypeId,parameterMap,null);
+				Map<String, Object> templateMap = new HashMap<>();
+				templateMap.put("formId", targetTypeId);
+				return menuService.getDashletTemplateWithLayout(template, templateMap);
+			}
+			return null;
+		}catch (NullPointerException exception) {
+			throw new RuntimeException(exception.getMessage());
+		}catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
 		}
-		Map<String, Object> moduleDetailsMap = moduleService.getModuleTargetTypeName(moduleUrl);
-		Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
-		Integer targetLookupId = Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
-		String templateName = moduleDetailsMap.get("targetTypeName").toString();
-		String targetTypeId = moduleDetailsMap.get("targetTypeId").toString();
-		if(targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
-			return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
-		}else if(targetLookupId.equals(Constant.TargetLookupId.DASHBOARD.getTargetLookupId())){
-			UserDetailsVO detailsVO = userDetails.getUserDetails();
-			String userId = detailsVO.getUserId();
-			String template = dashletService.getDashletUI(userId, false, targetTypeId);
-			return menuService.getDashletTemplateWithLayout(template, null);
-		}else if(targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())){
-			String template = dynamicFormService.loadDynamicForm(targetTypeId,parameterMap,null);
-			Map<String, Object> templateMap = new HashMap<>();
-			templateMap.put("formId", targetTypeId);
-			return menuService.getDashletTemplateWithLayout(template, templateMap);
-		}
-		return null;
+		
 	}
 	
 	 private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {

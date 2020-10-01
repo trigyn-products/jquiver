@@ -3,7 +3,6 @@ package com.trigyn.jws.webstarter.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,11 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.trigyn.jws.dbutils.service.ModuleService;
+import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
-import com.trigyn.jws.menu.service.MenuService;
-import com.trigyn.jws.menu.service.ModuleService;
-import com.trigyn.jws.menu.vo.ModuleDetailsVO;
-import com.trigyn.jws.menu.vo.ModuleTargetLookupVO;
+import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
@@ -48,24 +47,29 @@ public class MenuCrudController {
     }
     
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest) throws Exception {
-		Map<String, Object> templateMap 						= new HashMap<>();
-		ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
-		List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
-		List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
-		List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
-		String uri 												= a_httHttpServletRequest.getRequestURI();
-		String url 												= a_httHttpServletRequest.getRequestURL().toString();
-		StringBuilder urlPrefix									= new StringBuilder();
-		url = url.replace(uri, "");
-		urlPrefix.append(url).append("/view/");
+	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest)  {
+		try {
+			Map<String, Object> templateMap 						= new HashMap<>();
+			ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
+			List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
+			List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
+			List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
+			String uri 												= a_httHttpServletRequest.getRequestURI();
+			String url 												= a_httHttpServletRequest.getRequestURL().toString();
+			StringBuilder urlPrefix									= new StringBuilder();
+			url = url.replace(uri, "");
+			urlPrefix.append(url).append("/view/");
+			
+			templateMap.put("urlPrefix", urlPrefix);
+			templateMap.put("userRoleVOs", userRoleVOs);
+			templateMap.put("moduleDetailsVO", moduleDetailsVO);
+			templateMap.put("moduleListingVOList", moduleListingVOList);
+			templateMap.put("moduleTargetLookupVOList", moduleTargetLookupVOList);
+			return menuService.getTemplateWithSiteLayout("addEditModule", templateMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 		
-		templateMap.put("urlPrefix", urlPrefix);
-		templateMap.put("userRoleVOs", userRoleVOs);
-		templateMap.put("moduleDetailsVO", moduleDetailsVO);
-		templateMap.put("moduleListingVOList", moduleListingVOList);
-		templateMap.put("moduleTargetLookupVOList", moduleTargetLookupVOList);
-		return menuService.getTemplateWithSiteLayout("addEditModule", templateMap); 
 	}
 	
 	
@@ -112,13 +116,10 @@ public class MenuCrudController {
 	@PostMapping(value = "/sm")
 	@ResponseBody
 	public String saveModule(@RequestBody ModuleDetailsVO moduleDetailsVO) throws Exception {
-		List<?> systemUrls = handlerMapping.getHandlerMethods().keySet()
-							.stream()
-							.map(requestMappingInfo -> requestMappingInfo.getPatternsCondition())
-							.collect(Collectors.toList());
-		for (Object object : systemUrls) {
-			System.out.println(object);
-		}
+//		List<?> systemUrls = handlerMapping.getHandlerMethods().keySet()
+//							.stream()
+//							.map(requestMappingInfo -> requestMappingInfo.getPatternsCondition())
+//							.collect(Collectors.toList());
 		return moduleService.saveModuleDetails(moduleDetailsVO);
     }
 }

@@ -7,11 +7,11 @@ import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
-
-import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
-import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import org.springframework.util.CollectionUtils;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
 @Repository
 public class JwsDynarestDAO extends DBConnection {
@@ -47,6 +47,20 @@ public class JwsDynarestDAO extends DBConnection {
 		 getCurrentSession().flush();
 	}
 
+	public void deleteDAOQueriesById(Integer jwsDynamicRestDetailId, List<Integer> daoDetailsIdList) {
+		StringBuilder deleteDaoQuery = new StringBuilder("DELETE FROM JwsDynamicRestDaoDetail AS jdrdd WHERE jdrdd.jwsDynamicRestDetailId = :jwsDynamicRestDetailId ");
+		
+		if(!CollectionUtils.isEmpty(daoDetailsIdList)) {
+			deleteDaoQuery.append(" AND jdrdd.jwsDaoDetailsId NOT IN(:daoDetailsIdList) ");
+		}
+		
+		Query query = getCurrentSession().createQuery(deleteDaoQuery.toString());
+		query.setParameter("jwsDynamicRestDetailId", jwsDynamicRestDetailId);
+		if(!CollectionUtils.isEmpty(daoDetailsIdList)) {
+			query.setParameterList("daoDetailsIdList", daoDetailsIdList);
+		}
+		query.executeUpdate();
+	}
 	
 	public void saveJwsDynamicRestDAO(JwsDynamicRestDaoDetail daoDetail) {
 		getCurrentSession().save(daoDetail);

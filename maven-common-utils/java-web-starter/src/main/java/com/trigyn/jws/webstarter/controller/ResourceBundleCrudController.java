@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
+import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -37,12 +37,17 @@ public class ResourceBundleCrudController {
 
 	
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
-	public String dbResourceBundleListing() throws Exception {
+	public String dbResourceBundleListing() {
 		
-		Map<String, Object> templateMap = new HashMap<>();
-		List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
-		templateMap.put("languageVOList", languageVOList);
-		return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
+		try {
+			Map<String, Object> templateMap = new HashMap<>();
+			List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
+			templateMap.put("languageVOList", languageVOList);
+			return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
+		
 	}
 
 

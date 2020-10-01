@@ -14,15 +14,17 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 
@@ -42,10 +44,16 @@ public class DynamicFormCrudController {
 	@Autowired
 	private MenuService			menuService					= null;
 	
+	@Autowired
+	private TemplateVersionService templateVersionService	= null;
 	
 	@PostMapping(value = "/aedf", produces = {MediaType.TEXT_HTML_VALUE})
-	public String addEditForm(@RequestParam("form-id") String formId) throws Exception {
-		return dynamicFormCrudService.addEditForm(formId);
+	public String addEditForm(@RequestParam("form-id") String formId) {
+		try{
+			return dynamicFormCrudService.addEditForm(formId);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 	}
 	
 	@PostMapping(value = "/gfsq", produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -61,15 +69,19 @@ public class DynamicFormCrudController {
 	}
 	
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
-	public String dynamicFormMasterListing() throws Exception {
-		Map<String,Object>  modelMap = new HashMap<>();
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		modelMap.put("environment", environment);
-		return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
+	public String dynamicFormMasterListing() {
+		try{
+			Map<String,Object>  modelMap = new HashMap<>();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+			modelMap.put("environment", environment);
+			return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 	}
 	
-	@PostMapping(value="/dfte", produces = MediaType.TEXT_HTML_VALUE)
-	public String createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
+	@PostMapping(value="/dfte", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
 		String tableName = httpServletRequest.getParameter("tableName");
 		return dynamicFormService.createDefaultFormByTableName(tableName);
 	}
@@ -91,5 +103,12 @@ public class DynamicFormCrudController {
 	@PostMapping(value = "/udf")
 	public void uploadAllFormsToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		dynamicFormCrudService.uploadAllFormsToDB();
+	}
+	
+	@GetMapping(value = "/vdfd")
+	@ResponseBody
+	public String getTemplateDataByVersion(@RequestHeader(name = "form-id", required = true) String formId
+			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
+		return templateVersionService.getTemplateData(formId, versionId);
 	}
 }

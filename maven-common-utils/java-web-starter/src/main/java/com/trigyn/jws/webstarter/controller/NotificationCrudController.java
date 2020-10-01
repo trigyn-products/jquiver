@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.menu.service.MenuService;
 import com.trigyn.jws.notification.entities.GenericUserNotification;
 import com.trigyn.jws.notification.service.NotificationService;
 import com.trigyn.jws.notification.utility.Constants;
+import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
 @RequestMapping("/cf")
@@ -42,33 +43,41 @@ public class NotificationCrudController {
 	
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
-	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request) throws Exception {
-		return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
+	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request) {
+		try {
+			return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
 	}
 
 	@GetMapping(value = "/aen", produces = MediaType.TEXT_HTML_VALUE)
-	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
 		
-		String dateFormat 					= Constants.DATE_FORMAT;
-		String dateFormat_JS 				= Constants.DATE_FORMAT_JS;
-		Map<String, Object> templateDetails = new HashMap<>();
-		templateDetails.put("dateFormatter", new SimpleDateFormat(dateFormat));
-		templateDetails.put("dataFormat_JS", dateFormat_JS);
-		String notificationId = request.getParameter("notificationId");
-		if (notificationId != null) {
-			GenericUserNotification genericUserNotificationDetails = notificationService.getNotification(notificationId);
-			if (genericUserNotificationDetails == null) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid Notification Id");
-				return null;
+		try {
+			String dateFormat 					= Constants.DATE_FORMAT;
+			String dateFormat_JS 				= Constants.DATE_FORMAT_JS;
+			Map<String, Object> templateDetails = new HashMap<>();
+			templateDetails.put("dateFormatter", new SimpleDateFormat(dateFormat));
+			templateDetails.put("dataFormat_JS", dateFormat_JS);
+			String notificationId = request.getParameter("notificationId");
+			if (notificationId != null) {
+				GenericUserNotification genericUserNotificationDetails = notificationService.getNotification(notificationId);
+				if (genericUserNotificationDetails == null) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid Notification Id");
+					return null;
+				}
+				String obj = new Gson().toJson(genericUserNotificationDetails);
+				
+				templateDetails.put("genericUserNotificationDetails", obj);
+				templateDetails.put("isEdited", true);
+			}else{
+				templateDetails.put("isEdited", false);
 			}
-			String obj = new Gson().toJson(genericUserNotificationDetails);
-			
-			templateDetails.put("genericUserNotificationDetails", obj);
-			templateDetails.put("isEdited", true);
-		}else{
-			templateDetails.put("isEdited", false);
+			return menuService.getTemplateWithSiteLayout(Constants.CREATE_NEW_USER_NOTIFICATION, templateDetails);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
 		}
-		return menuService.getTemplateWithSiteLayout(Constants.CREATE_NEW_USER_NOTIFICATION, templateDetails);
 	}
 
 	@PostMapping(value = "/sn", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynarestCrudService;
 
 @RestController

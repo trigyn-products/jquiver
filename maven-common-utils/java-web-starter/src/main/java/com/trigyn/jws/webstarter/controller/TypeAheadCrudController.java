@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.menu.service.MenuService;
+import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
 
@@ -34,8 +34,12 @@ public class TypeAheadCrudController {
 	private MenuService menuService 			= null;
 	
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
-    public String autocompleteListingsPage() throws Exception {
-    	return menuService.getTemplateWithSiteLayout("autocomplete-listing",  new HashMap<>());
+    public String autocompleteListingsPage() {
+    	try {
+			return menuService.getTemplateWithSiteLayout("autocomplete-listing",  new HashMap<>());
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
+		}
     }
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
@@ -44,16 +48,20 @@ public class TypeAheadCrudController {
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
-    public String addEditAutocompleteDetails(HttpServletRequest request) throws Exception {
+    public String addEditAutocompleteDetails(HttpServletRequest request)  {
 		
-		String autocompleteId 				= request.getParameter("acId");
-		Map<String, Object> templateData 	= new HashMap<>();
-		
-		if (autocompleteId != null) {
-			AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
-			templateData.put("autocompleteVO", autocompleteVO);
+		try {
+			String autocompleteId 				= request.getParameter("acId");
+			Map<String, Object> templateData 	= new HashMap<>();
+			
+			if (autocompleteId != null) {
+				AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
+				templateData.put("autocompleteVO", autocompleteVO);
+			}
+			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details",  templateData);
+		} catch (Exception exception) {
+			throw new RuntimeException(exception.getMessage());
 		}
-		return menuService.getTemplateWithSiteLayout("autocomplete-manage-details",  templateData);
     }
 	
 	@PostMapping(value = "/sacd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

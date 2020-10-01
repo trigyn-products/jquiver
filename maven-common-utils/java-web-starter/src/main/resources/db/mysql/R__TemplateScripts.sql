@@ -520,7 +520,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				   							</td>
           
           									<td>
-								            	<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''''}" class="form-control" ${(dashletProperty?is_first)?then("checked" , "")}/>
+												<#if (dashletProperty.toDisplay)?? && (dashletProperty.toDisplay) == 1>
+													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''''}" class="form-control" checked/>
+												<#else>
+													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''''}" class="form-control"/>
+												</#if>
+								            	
 								            </td>
 			 
 											<td>
@@ -619,7 +624,7 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/jscal2.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css//border-radius.css" />
+<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/border-radius.css" />
 <link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
@@ -931,6 +936,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
 			let colM = [
+				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center"},
 				{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
@@ -971,7 +977,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		        url:"/cf/ddf",
 		        type:"POST",
 		        success:function(data){
-		            debugger;
 		            alert("Downloaded Successfully");
 		        }
 		        
@@ -982,7 +987,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		        url:"/cf/udf",
 		        type:"POST",
 		        success:function(data){
-		            debugger;
 		            alert("Uploaded Successfully");
 		        }
 		        
@@ -995,131 +999,156 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date)
 VALUES (UUID(),'dynamic-form-manage-details','<head>
-   <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-   <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-   <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-   <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-   <script src="/webjars/1.0/monaco/require.js"></script>
-   <script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-   <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-   <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-   <script src="/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="/webjars/1.0/monaco/require.js"></script>
+	<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<script src="/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+</head>
 
-
-    <div class="container">
-                              
-                              
-		<div class="topband">
-			<h2 class="title-cls-name float-left">Add/Edit Dynamic Form</h2> 
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Add/Edit Dynamic Form</h2> 
 		<div class="float-right">				
 			<span onclick="addEdit.backToDynamicFormListing();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
 			</span>              
 		</div>
 		<div class="clearfix"></div>                         
-		</div>
+	</div>
                               
-                              
-
-        <form id="dynamicform" method="post" >
-            <div class="row">
-                <div class="col-6">
-                    <div class="col-inner-form full-form-fields">
-                    	<span class="asteriskmark">*</span>
-						<label for="formName" >Form name: </label>
-                        <input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
-                        <input type="text" id="formName" name="formName"  placeholder="Enter Form name" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
-                     </div>
-                </div>
+    <form id="dynamicform" method="post" >
+		<div class="row">
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span>
+					<label for="formName" >Form name: </label>
+					<input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
+					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
+				</div>
+			</div>
                                                                                                                         
-               <div class="col-6">
-                   <div class="col-inner-form full-form-fields">
-                   		<span class="asteriskmark">*</span>
-						<label for="formDescription" >Form Description: </label>
-                        <input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
-                    </div>
-                </div>
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span>
+					<label for="formDescription" >Form Description: </label>
+					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
+				</div>
+			</div>
                 
-                <#if (tables)?has_content>                                            
-                  <div class="col-6">
-	                   <div class="col-inner-form full-form-fields">
-					<label for="formTemplate" >Form template : </label>
-                        		<select id="formTemplate" name="formTemplate" placeholder="Select for default template" class="form-control" onchange="loadTableTemplate(event);"/>   
-                              <option>Select</option>
-                        			<#list tables as tableName>
-                							<option>${tableName}</option>
-                            
-						                  </#list>
-            </select>
-	                    </div>
-                	</div>
-                </#if>
-            </div>
+            <#if (tables)?has_content>                                            
+				<div class="col-6">
+					<div class="col-inner-form full-form-fields">
+						<label for="formTemplate" >Form template : </label>
+                        <select id="formTemplate" name="formTemplate" placeholder="Select for default template" class="form-control" onchange="loadTableTemplate(event);"/>   
+							<option>Select</option>
+                        	<#list tables as tableName>
+								<option>${tableName}</option>
+                            </#list>
+						</select>
+					</div>
+				</div>
+			</#if>
+				
+
+		</div>
                    
-           <div class="row margin-t-b">  
-				<div class="col-12">
+        <div class="row margin-t-b">  
+			<div class="col-12">
 				<h3 class="titlename"><span class="asteriskmark">*</span>Select Script</h3>
-            	    <div class="html_script">
-                		<div class="grp_lblinp">
-	                		<div  class="ace-editor-container" id="sqlContainer">
-	                			<div class= "ace-editor"  id="sqlEditor">
-	                			</div>
+            	<div class="html_script">
+					<div class="grp_lblinp">
+	                	<div  class="ace-editor-container" id="sqlContainer">
+	                		<div class= "ace-editor"  id="sqlEditor">
 	                		</div>
-                		</div>
+	                	</div>
                 	</div>
                 </div>
-			</div>                  
+			</div>
+		</div>                  
                               
-            <div class="row margin-t-b">                 
-	            <div class="col-12">
-	            <h3 class="titlename"><span class="asteriskmark">*</span>HTML Script</h3>
-					<div class="html_script">
-						<div class="grp_lblinp">
-							<div id="htmlContainer" class="ace-editor-container">
-								<div id="htmlEditor" class="ace-editor">
-								</div>
+        <div class="row margin-t-b">
+			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content
+				&& versionDetailsMap?? && versionDetailsMap?has_content>
+				<div class="col-3">
+					<div class="col-inner-form full-form-fields">
+						<label for="vmName">Compare with </label>
+						<select class="form-control" id="${(dynamicForm?api.getFormId())!''''}" onchange="addEdit.getSelectTemplateData(''${(dynamicForm?api.getFormId())!}'');" name="versionId" title="Template Versions">
+							<option value="" selected>Select</option>
+							<#list versionDetailsMap as versionId, updatedDate>
+								<option value="${versionId}">${updatedDate}</option>
+							</#list>
+						</select> 
+					</div>
+				</div>
+			</#if>		
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>HTML Script</h3>
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="htmlContainer" class="ace-editor-container">
+							<div id="htmlEditor" class="ace-editor">
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
                
              
-             <div class="row margin-t-b">  
-             	<div class="col-12">
-             	<h3 class="titlename"><span class="asteriskmark">*</span>Save/Update Script</h3>
-	                	<div id = "saveScriptContainer">
-		                	
-	                	</div>
-                	</div>
+        <div class="row margin-t-b">  
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>Save/Update Script</h3>
+				<div id = "saveScriptContainer"></div>
+			</div>
 		</div>
 
 		<div class="row margin-t-b">
-                <div class="col-12">
-                    <div class="float-left"> 
-                        <div class="btn-icons nomargin-right-cls pull-right">
-                            <input type="button" value="Add" class="btn btn-primary" onclick="addEdit.addSaveQueryEditor();">
-                            <input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor();">
-                        </div>    
-                    </div>
-                </div>
+			<div class="col-12">
+				<div class="float-left"> 
+					<div class="btn-icons nomargin-right-cls pull-right">
+						<input type="button" value="Add" class="btn btn-primary" onclick="addEdit.addSaveQueryEditor();">
+						<input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor();">
+                    </div>    
+				</div>
+			</div>
 		</div>          
   
-            <div class="row margin-t-b">
-                <div class="col-12">
-                    <div class="float-right"> 
-                        <div class="btn-icons nomargin-right-cls pull-right">
-                            <input type="button" value="Save" class="btn btn-primary" onclick="addEdit.saveDynamicForm();">
-                            <input type="button" id="cancelDynamicForm" value="Cancel" class="btn btn-secondary" onclick="addEdit.backToDynamicFormListing();">
-                        </div>    
-                    </div>
-                </div>
-		</div>	
+		<div class="row margin-t-b">
+			<div class="col-12">
+				<div class="float-right"> 
+					<div class="btn-icons nomargin-right-cls pull-right">
+						<input type="button" value="Save" class="btn btn-primary" onclick="addEdit.saveDynamicForm();">
+						<input type="button" id="cancelDynamicForm" value="Cancel" class="btn btn-secondary" onclick="addEdit.backToDynamicFormListing();">
+					</div>    
+				</div>
+			</div>
+		</div>
+
+		<#if versionDetailsMap?? && versionDetailsMap?has_content>
+			<div class="row">                                                                                                
+				<div class="col-12">
+					<div class="html_script">
+						<div class="grp_lblinp">
+							<div id="diffContainer" class="ace-editor-container">
+								<div id="diffEditor" class="ace-editor"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</#if>
             <input type="hidden" name="formSelectQuery" id="formSelectQuery">
             <input type="hidden" name="formBody" id="formBody">
+            <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
             <input type="hidden" name="formSaveQuery" id="formSaveQuery">                     
         </form>
-    </div>              
+    </div>
+
 	<textarea id="htmlContent" style="display: none">
     	${(dynamicForm?api.getFormBody())!""}
 	&lt;/textarea&gt;
@@ -1136,13 +1165,15 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 	let dashletSQLEditor;
 	let dashletHTMLEditor;
 	let dashletSAVESQLEditor;
-  let dashletSQLEditors = [];
+	let dashletSQLEditors = [];
+	let formQueryIds = [];
 	const addEdit = new AddEditDynamicForm();
   $(function () {
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();
   });
 
   function loadTableTemplate(event){
+  	let tableName = event.currentTarget.value;
       $.ajax({
           type: "POST",
           url: contextPath+"/cf/dfte",
@@ -1150,13 +1181,15 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
             tableName: event.currentTarget.value
           },
           success: function(data) {
-  		      dashletHTMLEditor.setValue(data);
+  		      dashletHTMLEditor.setValue(data["form-template"].trim());
+  		      dashletSAVESQLEditor.setValue(data["save-template"].trim());
+  		      dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
           }
         });
     }
     
    </script>
-  ','admin','admin',now() );
+  ','admin','admin',now() );  
   
  REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'home', '<head>
@@ -1431,33 +1464,46 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	<div class="row">
 	    	<div class="col-9">
-	        <div class="col-inner-form full-form-fields">
-	             <label for="vmName"><span class="asteriskmark">*</span>Template Name </label>                                                                                                                                       
-	             <input type="text" class="form-control" value="${(templateDetails.templateName)!}" maxlength="100" name="vmName" id="vmName">                                                                                                                       
-	        </div>
-	    </div>
-	    <div id="defaultTemplateDiv" class="col-3" style="display: none;">
-	        <div class="col-inner-form full-form-fields">
-	             <label for="defaultTemplateId"><span class="asteriskmark">*</span>Default template </label>                                                                                                                                       
-	             <select class="form-control" id="defaultTemplateId" name="defaultTemplateId" title="Default template">
-                   </select>                                                                                                                    
-	        </div>
-	    </div>
-      </div>
-         
-         	<div class="row">                                                                                                
-				<div class="col-12">
-				<div class="html_script">
-						<div class="grp_lblinp">
-				<div id="htmlContainer" class="ace-editor-container">
-					<div id="htmlEditor" class="ace-editor"></div>
+				<div class="col-inner-form full-form-fields">
+					 <label for="vmName"><span class="asteriskmark">*</span>Template Name </label>                                                                                                                                       
+					 <input type="text" class="form-control" value="${(templateDetails.templateName)!}" maxlength="100" name="vmName" id="vmName">                                                                                                                       
 				</div>
-            </div>
-					</div>
-            </div>
-			
-			
 			</div>
+			
+		<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content
+			&& versionDetailsMap?? && versionDetailsMap?has_content>
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="vmName">Compare with </label>
+					<select class="form-control" id="versionId" onchange="templateMaster.getTemplateData();" name="versionId" title="Template Versions">
+						<option value="" selected>Select</option>
+						<#list versionDetailsMap as versionId, updatedDate>
+								<option value="${versionId}">${updatedDate}</option>
+						</#list>
+					</select> 
+				</div>
+			</div>
+		</#if>
+      
+		<div id="defaultTemplateDiv" class="col-3" style="display: none;">
+			<div class="col-inner-form full-form-fields">
+				<label for="defaultTemplateId"><span class="asteriskmark">*</span>Default template </label>                                                                                                                                       
+				<select class="form-control" id="defaultTemplateId" name="defaultTemplateId" title="Default template"> </select>                                                                                                                    
+	        </div>
+		</div>
+	</div>
+         
+	<div class="row">                                                                                                
+		<div class="col-12">
+			<div class="html_script">
+				<div class="grp_lblinp">
+					<div id="htmlContainer" class="ace-editor-container">
+						<div id="htmlEditor" class="ace-editor"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
                
        <div class="row margin-t-b">                      
         <div class="col-12">
@@ -1470,7 +1516,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             </div>
         </div>
 
-    
+    <#if versionDetailsMap?? && versionDetailsMap?has_content>
+		<div class="row">                                                                                                
+			<div class="col-12">
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="diffContainer" class="ace-editor-container">
+							<div id="diffEditor" class="ace-editor"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </#if>
     <div id="snackbar"></div>
 </div>
 
@@ -1501,6 +1559,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 </script>
 <script src="/webjars/1.0/template/template.js"></script>', 'admin', 'admin', NOW());
+ 
  
  REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'grid-listing', '<head>
@@ -2256,7 +2315,7 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
          , 1
          , ''${formData?api.getFirst("dynarestRequestTypeId")}''
          , ''${formData?api.getFirst("dynarestProdTypeId")}''
-         ,' '${formData?api.getFirst("serviceLogic")}''
+         ,''${formData?api.getFirst("serviceLogic")}''
          , ''${formData?api.getFirst("dynarestPlatformId")}''
     );
 </#if>', 1);
@@ -2405,26 +2464,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>	
 
-			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
-					<select id="parentModuleName" name="parentModuleName" onchange="addEditModuleFn();" class="form-control">
-						<option value="">Select</option>
-						<#if (moduleListingVOList)??>
-							<#list moduleListingVOList as moduleListingVO>
-									<#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
-										<option value="${moduleListingVO?api.getModuleId()}" selected>${moduleListingVO?api.getModuleName()!''''}</option>
-									<#else>
-										<option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''''}</option>
-									</#if>
-							</#list>
-						</#if>
-					</select>
-				</div>
-			</div>
-      
-      
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
@@ -2445,13 +2484,32 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Name</label>
+					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
           				<select id="targetTypeName" name="targetTypeName"  class="form-control">
 						<option value="Select">Select</option>
 					</select>
 				</div>
 			</div>
-      
+				
+			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+					<select id="parentModuleName" name="parentModuleName" onchange="addEditModuleFn();" class="form-control">
+						<option value="">Select</option>
+						<#if (moduleListingVOList)??>
+							<#list moduleListingVOList as moduleListingVO>
+									<#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
+										<option value="${moduleListingVO?api.getModuleId()}" selected>${moduleListingVO?api.getModuleName()!''''}</option>
+									<#else>
+										<option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''''}</option>
+									</#if>
+							</#list>
+						</#if>
+					</select>
+				</div>
+			</div>
+			
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="sequence" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.sequence")}</label>
@@ -2514,10 +2572,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/1.0/menu/addEditModule.js"></script>', 'admin', 'admin',NOW());
 
 
-
-
-
-
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'home-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -2551,17 +2605,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<ul id="menuUL" class="nav flex-column customnav">
 					<#if moduleDetailsVOList??>
 						<#list moduleDetailsVOList as moduleDetailsVO>
-							
-							<#if (moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1>
+							<#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1) || moduleDetailsVO?api.getModuleURL() == "#">
 								<li class="nav-item">
 									<a class="nav-link active"  data-toggle="collapse" href="#subModule_${moduleDetailsVO?index}" aria-expanded="false" aria-controls="collapseExample">${moduleDetailsVO?api.getModuleName()!''''}   
 										<i class="fa fa-caret-down" aria-hidden="true"></i>
                                     </a>
 									<div class="collapse" id="subModule_${moduleDetailsVO?index}">
 										<ul class="subcategory">
-											<li>
-												<a href = "/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">Manage ${moduleDetailsVO?api.getModuleName()!''''}</a>
-											</li>
 											<#list moduleDetailsVOList as moduleDetailsVOChild>
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
 													<li>
@@ -2596,7 +2646,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div id="snackbar"></div>
 
 <script>
-	const contextPathHome = "${(contextPath)!''''}";
+	const contextPathHome = "${contextPath}";
 	let homePageFn;
 	
 	$(function() {
@@ -2629,8 +2679,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="error_block">
 		<img src="/webjars/1.0/images/error1.jpg">
 		<h2 class="errorcontent">Opps!!! Something went wrong</h2> 
+		<div class="">${(errorMessage)!''''}</h2>
 	</div>
     
+	
 </div>
 
 
@@ -2655,7 +2707,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="topband">
 		<h2 class="title-cls-name float-left">Your page title here</h2> 
 		<div class="float-right">
-			<input class="btn btn-primary" name="createDashboard" value="Create new" type="button" onclick="createNew()">
+			<form id="addEditRecords" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
+				<input type="hidden" name="formId" value=""/>
+				<input type="hidden" name="primaryId" id="primaryId" value=""/>
+				<button type="submit" class="btn btn-primary"> Create New </button>
+			</form>
+
+
 			<span onclick="backToWelcomePage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
 			</span>	
@@ -2672,7 +2730,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 <script>
-	contextPath = "${(contextPath)!''}";
+	contextPath = "${contextPath}";
 	$(function () {
 	//Add all columns that needs to be displayed in the grid
 		let colM = [
@@ -2691,17 +2749,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
 	function manageRecord(uiObject) {
+		let primaryId = uiObject.rowData;
+
 		console.log(uiObject);
 	}
 	
 	//Add logic to navigate to create new record
-	function createNew() {
-		
+	function createNew(element) {
+		$("#primaryId").val(element.id);
+		$("#addEditRecords").submit();
 	}
 
 	//Code go back to previous page
 	function backToWelcomePage() {
-
+		location.href = contextPath+"/cf/home";
 	}
 </script>', 'admin', 'admin',NOW());
 
@@ -2777,7 +2838,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 <script>
-	contextPath = "${(contextPath)!''}";
+	contextPath = "${contextPath}";
 	
 	//Add logic to save form data
 	function saveData (){
@@ -3076,6 +3137,8 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
 	        $("#errorMessage").show();
 	        return false;
 	    }
+		let propertyValue = $('#propertyValue').val().replace(/\\/g, "\\\\");
+		$('#propertyValue').val(propertyValue);
 		let formData = $("#addEditForm").serialize() + "&formId="+formId;
 		if(edit === 1) {
 		    formData = formData + "&edit="+edit;
@@ -3116,7 +3179,9 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
         		$("#ownerId").val(''${resultSetList?api.get("owner_id")}'');
         		$("#ownerType").val(''${resultSetList?api.get("owner_type")}'');
         		$("#propertyName").val(''${resultSetList?api.get("property_name")}'');
-        		$("#propertyValue").val(''${resultSetList?api.get("property_value")}'');
+				<#outputformat "RTF">
+					$("#propertyValue").val(''${resultSetList?api.get("property_value")}'');
+				</#outputformat>
         		$("#comment").val(''${resultSetList?api.get("comments")}'');
         		$("#appVersion").val(''${resultSetList?api.get("app_version")}'');
         	</#list>
@@ -3279,16 +3344,24 @@ replace into template_master (template_id, template_name, template, updated_by, 
   <form method="post" name="addEditForm" id="addEditForm">
     
     <#if (columnDetails)??>
+    	<div class="row">
     	<#list columnDetails as columnDetailsList>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
+			<#if columnDetailsList?api.get(''columnType'') != "textarea">
 		            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
 		              ${columnDetailsList?api.get("fieldName")!""}
 		            </label>
 				<input type="${columnDetailsList?api.get(''columnType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="" maxlength="${columnDetailsList?api.get(''columnSize'')}" class="form-control">
+			<#else>
+				<span class="asteriskmark">*</span>
+				<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
+				<textarea class="form-control" rows="15" cols="90" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"></textarea>
+			</#if>
 			</div>
 		</div>
     	</#list>
+    	</div>
     </#if>
     
   </form>
@@ -3304,9 +3377,24 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		</div>
 </div>
 <script>
-	let formId;
+  <#noparse>
+	let formId = "${formId}";
 	contextPath = "${contextPath}";
-	
+	</#noparse>
+  
+  $(function(){
+    // setting value on edit.
+    <#noparse>
+      <#if (resultSet)??>
+      	<#list resultSet as resultSetList>
+      		$("#fieldId option[value=''${resultSetList?api.get("aliasFromSelectQuery")}'']").attr("selected", "selected");
+      		$("#fieldId").val(''${resultSetList?api.get("aliasFromSelectQuery")}'');
+      	</#list>
+      </#if>
+    </#noparse>
+    
+  });
+  
 	//Add logic to save form data
 	function saveData (){
 		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
@@ -3314,9 +3402,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		     		type : "POST",
 		     		url : contextPath+"/cf/sdf",
 		     		data : formData,
-            success: function(data) {
-              backToPreviousPage();
-            }
+		            success: function(data) {
+		              backToPreviousPage();
+		            }
 		     	});
 	}
 	
@@ -3325,6 +3413,21 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		location.href = contextPath+"/cf/home";
 	}
 </script>
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+
+replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+(UUID(), 'system-form-save-query-template', '
+  <#noparse>
+    <#if (formData?api.getFirst("yourPrimaryKey"))?has_content>
+  </#noparse>
+    ${updateQuery}
+  <#noparse>
+    <#else>
+  </#noparse>
+    ${insertQuery}
+  <#noparse>
+    </#if>
+  </#noparse>
 ', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 SET FOREIGN_KEY_CHECKS=1;

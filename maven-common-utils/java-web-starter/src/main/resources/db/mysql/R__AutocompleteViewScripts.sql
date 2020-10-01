@@ -83,7 +83,7 @@ $(function () {
         select: function(item) {
             $("#rbAutocomplete").blur();
         }, 	
-    });
+    }, {key: "jws.action", languageId: 1, text: "Action"});
     
     multiselect = $(''#rbMultiselect'').multiselect({
         autocompleteId: "resourcesAutocomplete",
@@ -109,9 +109,9 @@ $(function () {
         },
         select: function(item) {
             $("#rbMultiselect").blur();
-            multiselect.createElementForMultiselect(''rbMultiselect'',item);
+            multiselect.setSelectedObject(item);
         },	
-    });
+    }, [{key: "jws.action", languageId: 1, text: "Action"}]);
 });
 </script>', 'admin', 'admin', NOW());
 
