@@ -3137,8 +3137,8 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
 	        $("#errorMessage").show();
 	        return false;
 	    }
-		let propertyValue = $("#propertyValue").val().replace(/\\/g, "\\\\");
-		$("#propertyValue").val(propertyValue);
+		let propertyValue = $(''#propertyValue'').val().replace(/\\\\/g, "\\\\\\\\");
+        	$("#propertyValue").val(propertyValue);
 		let formData = $("#addEditForm").serialize() + "&formId="+formId;
 		if(edit === 1) {
 		    formData = formData + "&edit="+edit;
