@@ -81,7 +81,6 @@ class TemplateEngine {
         const context = this;
         const velocityName = $("#vmName").val();
         let velocityTempData = context.editor.getValue();
-        velocityTempData = velocityTempData.replaceAll("</textarea>", "&lt;/textarea&gt;");
         if(velocityTempData == ""){
             return false;
         }

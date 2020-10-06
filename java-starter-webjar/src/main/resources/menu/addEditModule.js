@@ -1,6 +1,7 @@
 class AddEditModule {
-    constructor(moduleTypeId) {
+    constructor(moduleTypeId, parentModuleId) {
 		this.moduleTypeId = moduleTypeId;
+		this.parentModuleId = parentModuleId;
     }
     
     saveModule = function(){
@@ -25,7 +26,7 @@ class AddEditModule {
 		moduleDetails.moduleURL = $("#moduleURL").val();
 		moduleDetails.sequence = $("#sequence").val();
 		moduleDetails.targetLookupId = $("#targetLookupType").find(":selected").val();
-		moduleDetails.targetTypeId = $("#targetTypeName").find(":selected").val();
+		moduleDetails.targetTypeId = $("#targetTypeNameId").val();
 		
 		$.ajax({
 				type : "POST",
@@ -34,6 +35,8 @@ class AddEditModule {
 				contentType : "application/json",
 				data : JSON.stringify(moduleDetails),
 				success : function(data) {
+					$("#errorMessage").hide();
+					context.parentModuleId = $("#parentModuleName").find(":selected").val();
 					$("#moduleId").val(data);
 					$('#snackbar').html("Information saved successfully.");
 					context.showSnackbarModule();
@@ -142,60 +145,70 @@ class AddEditModule {
     getTargeTypeNames = function(){
     	let context = this;
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
-    	$("#targetTypeName").empty();
-    	let selectOption = $('<option value=" ">Select</option>');
-    	$("#targetTypeName").append(selectOption);
+    	$("#targetTypeName").prop('disabled',true);
     	if(targetLookupId === "6") {
-	    	$("#targetTypeName").val(" ");
+	    	$("#targetTypeName").val("");
 	    	$("#moduleURL").val("#");
 	    	$("#parentModuleName").val("");
 	    	$("#targetTypeName").attr('disabled','disabled');
 	    	$("#moduleURL").attr('disabled','disabled');
 	    	$("#parentModuleName").attr('disabled','disabled');
+	    	context.getSequenceByGroup();
     		return;
     	}else{
-    		$("#parentModuleName").val("");
+    		$("#parentModuleName").val(context.parentModuleId);
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
 	    	$("#parentModuleName").prop('disabled',false);
     	}
-    	if(targetLookupId != 4){
-    			$.ajax({
-				type : "GET",
-				url : contextPath+"/cf/ltlm",
-				contentType : "application/json",
-				dataType: "json",
-				headers: {
-    				"target-lookup-id":  targetLookupId,
-    			},
-				success : function(data) {
-					if(data.length > 0){
-	    				let moduleTargetTypeArray = data;
-	    				let dashletDiv;
-	    				for(let iCounter = 0; iCounter < moduleTargetTypeArray.length; ++iCounter){
-	    					let optionElement;
-	    					let targetTypeId = moduleTargetTypeArray[iCounter].targetTypeId;
-	    					
-	    					if(targetTypeId == context.moduleTypeId){
-	    						optionElement = $('<option value="'+targetTypeId+'" selected>');
-	    					}else{
-	    						optionElement = $('<option value="'+targetTypeId+'">');
-	    					}
-							optionElement.append(moduleTargetTypeArray[iCounter].targetTypeName+'</option>');	    					
-	    					$("#targetTypeName").append(optionElement);
-	    				}
-	    			}else {
-	    				$("#errorMessage").html("");
-	    				$("#errorMessage").html("Sorry target name are available");
-	    			}
-	       		},
-	        	error : function(xhr, error){
-	        		$("#errorMessage").show();
-					$('#errorMessage').html("Error occurred while fetching target name");
-	        	},
-	        	
-			});
+    	if(targetLookupId == ""){
+    		$("#targetTypeName").prop('disabled',true);
+		} else if(targetLookupId == 1){
+    		$("#targetTypeName").prop('disabled',false);
+    		autocomplete.options.autocompleteId = "dashboardListing";
+		} else if(targetLookupId == 2){
+    		$("#targetTypeName").prop('disabled',false);
+    		autocomplete.options.autocompleteId = "dynamicForms";
+		} else if(targetLookupId == 3){
+    		$("#targetTypeName").prop('disabled',false);
+    		autocomplete.options.autocompleteId = "dynarestListing";
+		} else if(targetLookupId == 5){
+    		$("#targetTypeName").prop('disabled',false);
+    		autocomplete.options.autocompleteId = "templateListing";
 		}
+    }
+    
+    
+    getSequenceByParent = function(){
+        let parentModuleId = $("#parentModuleName").find(":selected").val();
+    	$.ajax({
+			type : "GET",
+			url : contextPath+"/cf/dsp",
+			async: false,
+			cache : false,
+			headers: {
+    			"parent-module-id": parentModuleId,
+    		},
+			success : function(data) {
+				if(data != ""){
+					$("#sequence").val(data);
+				}
+			}
+		});
+    }
+    
+    getSequenceByGroup = function(){
+    	$.ajax({
+			type : "GET",
+			url : contextPath+"/cf/dsg",
+			async: false,
+			cache : false,
+			success : function(data) {
+				if(data != ""){
+					$("#sequence").val(data);
+				}
+			}
+		});
     }
     
     backToModuleListingPage = function() {

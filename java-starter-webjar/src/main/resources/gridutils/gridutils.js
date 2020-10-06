@@ -8,29 +8,34 @@
         enableFilter: true,
         draggableColumns : false,
     }
+    
+    const dataModelOption = {
+        location: "remote",
+        sorting: "remote",
+        dataType: "JSON",
+        method: "POST",
+        url: "/cf/pq-grid-data",
+        getData: function (dataJSON) {
+            return { curPage: dataJSON.curPage, totalRecords: dataJSON.total, data: dataJSON.rows };
+        }
+    }
 
     class Grid {
         constructor(element, options) {
             this.element = element;
             this.options = $.extend(gridOption, options);
+            let dataModel = $.extend(dataModelOption, options.dataModel);
+            const postData = {
+	            gridId: options.gridId,
+	            additionalParameters: JSON.stringify(options.additionalParameters)
+	        }
+	        dataModel["postData"] = postData;
+            this.options.dataModel = dataModel;
         }
 
         createGrid = function(options) {
             if(Object.keys(options.dataModel).length === 0) {
-                options.dataModel = {
-                    location: "remote",
-                    sorting: "remote",
-                    dataType: "JSON",
-                    method: "POST",
-                    url: "/cf/pq-grid-data",
-                    postData: {
-                        gridId: options.gridId,
-                        additionalParameters: JSON.stringify(options.additionalParameters)
-                    },
-                    getData: function (dataJSON) {
-                        return { curPage: dataJSON.curPage, totalRecords: dataJSON.total, data: dataJSON.rows };
-                    }
-                }
+                options.dataModel = dataModelOption
             }
 
             const pqGridObject = {

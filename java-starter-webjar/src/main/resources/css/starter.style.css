@@ -926,7 +926,6 @@ display:block;
 
 .error_block {
     display: block;
-    width: 450px;
     height: 300px;
     margin: 0px auto;
     text-align: center;
@@ -952,6 +951,67 @@ display:block;
 	position:relative;
 }
 
+
+
+
 .ui-widget-overlay {
 	opacity: .7;	
 }	
+
+#listingDetailsTable {
+  border-collapse: collapse;
+  font-size: 13px !important;
+  width: 100%;
+}
+
+#formDetailsTable {
+  border-collapse: collapse;
+  font-size: 13px !important;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+#listingDetailsTable tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+#formDetailsTable tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.search-cover{
+	position: relative;	
+}
+
+.search-cover .fa-search{
+	position: absolute;
+	top: 7px;
+	left: 7px;	
+	color: #999;
+}
+
+.search-cover .rich-autocomplete input {
+	padding-left: 25px !important;
+	width:100%;
+}
+
+.method-sign-info-div {
+    background: #f3f3f3;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.method-sign-info {
+	font-weight: bold;
+    margin-bottom: 0px;
+}
+
+.method-sign-info .fa {
+	font-size: 18px !important;
+    margin-right: 5px;
+}

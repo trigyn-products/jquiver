@@ -25,7 +25,6 @@ class AddEditDynamicForm {
     	
     	require(["vs/editor/editor.main"], function() {
         dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
-		        	value: $("#htmlContent").val(),
 		            language: "html",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,
@@ -48,7 +47,7 @@ class AddEditDynamicForm {
 				data : {formId: formId},
 				success : function(data) {
 					for(let counter = 0; counter < data.length; ++counter) {
-						context.addSaveQueryEditor(data[counter].versionDetailsMap, data[counter].formQueryId, data[counter].formSaveQuery);
+						context.addSaveQueryEditor(data[counter]);
 					}
 				}
 			});
@@ -63,11 +62,23 @@ class AddEditDynamicForm {
 		window.location.href="./dfl"
 	}
 	
-	addSaveQueryEditor(versionDetailsMap, formQueryId, data){
+	addSaveQueryEditor(data){
+		let formQueryId;
+		let formBody;
+		let formSaveQuery;
+		let versionDetailsMap;
+		
+		if(data != undefined){
+			formQueryId = data.formQueryId;
+			formBody = data.formBody;
+			formSaveQuery = data.formSaveQuery;
+			versionDetailsMap = data.versionDetailsMap;
+		}
+    		
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
-    		let index = dashletSQLEditors.length;
     		
+    		let index = dashletSQLEditors.length;
     		if(versionDetailsMap != undefined && $.isEmptyObject(versionDetailsMap) === false){
     			$("#saveScriptContainer").append("<div class='col-3'><div id='compareDiv_"+index+"' class='col-inner-form full-form-fields'><label for='versionId'>Compare with </label>");
     			$("#compareDiv_"+index).append("<select class='form-control' id="+formQueryId+" onchange='addEdit.getSelectTemplateData(this.id);' name='versionId' title='Template Versions'>");
@@ -79,9 +90,13 @@ class AddEditDynamicForm {
 				}
     		}
     		
+    		if(formBody != undefined){
+    			dashletHTMLEditor.setValue(formBody);
+    		}
+    		
 			$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
         	dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
-	        	value: data,
+	        	value: formSaveQuery,
 	            language: "sql",
 	            roundedSelection: false,
 				scrollBeyondLastLine: false,
@@ -92,6 +107,7 @@ class AddEditDynamicForm {
 				wordWrapMinified: true,
 				wrappingIndent: "indent"
         	});
+        	
         	dashletSQLEditors.push(dashletSAVESQLEditor);
         	if(formQueryId != undefined){
         		$("#saveScriptContainer").append("<input type='hidden' id='formQueryId_"+index+"' value="+formQueryId+"/>");
@@ -117,7 +133,6 @@ class AddEditDynamicForm {
     saveDynamicForm (){
     	let context = this;
      	let formHTMLData = dashletHTMLEditor.getValue().toString();
-    	formHTMLData = formHTMLData.replaceAll("</textarea>", "&lt;/textarea&gt;");
 		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
 		$("#formBody").val(formHTMLData);
 		let queries = new Array();	

@@ -10,7 +10,7 @@ class DynamicRest {
     	let context = this;
 		$.ajax({
 			type : "GET",
-			url : contextPath+"/dyn/api/dynarestDetails",
+			url : contextPath+"/api/dynarestDetails",
 			data : {
 				url : dynaresturl
 			},

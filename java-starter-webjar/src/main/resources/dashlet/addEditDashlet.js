@@ -345,7 +345,8 @@ AddEditDashlet.prototype.fn = {
 	
 	deleteProperty : function(currentObjectId){
 		let context = this;
-		$("#deletePropertyConfirm").html("Are you sure you want to delete?");
+		let selectedPropName = $("#displayName_"+currentObjectId.split("_")[1]).val();
+		$("#deletePropertyConfirm").html("Are you sure you want to delete " + selectedPropName + "?");
 		$("#deletePropertyConfirm").dialog({
 		bgiframe		 : true,
 		autoOpen		 : true, 
@@ -369,14 +370,10 @@ AddEditDashlet.prototype.fn = {
            	},
        ],	
 		open		: function( event, ui ) {
-			$('.ui-dialog-buttonpane').find('button:contains("delete")').removeClass('ui-button-text-only')
-	   	    .addClass('ui-button ui-corner-all ui-widget')
-	   	    .prepend('<span class="fa fa-trash"></span>');                             
-   	   
-	   	   $('.ui-dialog-buttonpane')
-	   	    .find('button:contains("cancel")').removeClass('ui-button-text-only').addClass('ui-button ui-corner-all ui-widget')
-	   	    .prepend('<span class="fa fa-times-circle-o"></span>');
-       }	
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
 	   });
 	
 	},

@@ -387,7 +387,6 @@
 
         //inform the select option
         this.options.select(item);
-        this.options.selectedObjectData(item);
 
         //update the list
         this.filterResults();

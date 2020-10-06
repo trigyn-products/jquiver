@@ -95,15 +95,20 @@
         }
         
         setSelectedObject = function(item){
-        	this.selectedObject.push(item);
         	Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, item);
         	return this.selectedObject;
         }
         
+        setSelectedObjectArray = function(item){
+        	for(let iCounter = 0; iCounter < item.length; iCounter++) {
+        		Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, item[iCounter]);
+        	}
+        	return this.selectedObject;
+        }
+        
         initWithValues = function(items){
-        	this.selectedObject = items;
-        	for(let iCounter = 0; iCounter < this.selectedObject.length; iCounter++) {
-        		Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, this.selectedObject[iCounter]);
+        	for(let iCounter = 0; iCounter < items.length; iCounter++) {
+        		Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, items[iCounter]);
         	}
         	return this.selectedObject;
         }
@@ -134,6 +139,7 @@
 
     Multiselect.prototype.createElementForMultiselect = function(context, multiselectId, itemData) {
         if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+        	context.selectedObject.push(itemData);
             const element = context.options.selectedItemRender(itemData);
             let listsElement = $("<li></li>");
             let itemSpan = $('<span class="ml-selected-item">'+element+'</span>');
@@ -166,21 +172,52 @@
     }
 
     Multiselect.prototype.deleteItem = function(multiselectId, item) {
-        let noOfElements = parseInt($("#"+multiselectId+"_count > span").text()) - 1;
-    	$("#"+multiselectId+"_count > span").text(noOfElements);
-    	if(noOfElements === 0){
-    		$("#"+multiselectId+"_count").addClass("disable_cls");
-    		$("#"+multiselectId+"_count > span" ).css('pointer-events','none');
-    		$("#"+multiselectId+"_removeAll").addClass("disable_cls");
-    		$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
-    	}
-        $(this.parent()).remove();
-        return item;
+    	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to remove '"+item.text + "'?");
+		$("#"+multiselectId+"_deleteConfirmation").dialog({
+			bgiframe		: true,
+			autoOpen		: true, 
+			modal		 	: true,
+			closeOnEscape 	: true,
+			draggable	 : true,
+			resizable	 : false,
+			title		 : "Delete",
+			buttons		 : [{
+					text :"Cancel",
+					click: function() { 
+						$(this).dialog('close');
+					},
+				},
+				{
+					text	: "Delete",
+					click	: function(){
+						$(this).dialog('close');
+				        let noOfElements = parseInt($("#"+multiselectId+"_count > span").text()) - 1;
+				    	$("#"+multiselectId+"_count > span").text(noOfElements);
+				    	if(noOfElements === 0){
+				    		$("#"+multiselectId+"_count").addClass("disable_cls");
+				    		$("#"+multiselectId+"_count > span" ).css('pointer-events','none');
+				    		$("#"+multiselectId+"_removeAll").addClass("disable_cls");
+				    		$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
+				    	}
+				        $(this.parent()).remove();
+				        return item;
+					}
+	           	},
+	       ],
+	       open		: function( event, ui ) {	    	
+		   	   $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+		   }	
+	
+		});
+		
+
     },
     
     Multiselect.prototype.removeAllElements = function(multiselectId){
 		const context = this;
-    	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to delete?");
+    	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to clear all selected items?");
 		$("#"+multiselectId+"_deleteConfirmation").dialog({
 			bgiframe		: true,
 			autoOpen		: true, 
@@ -210,17 +247,28 @@
 					}
 	           	},
 	       ],	
-			open		: function( event, ui ) {
-				$('.ui-dialog-buttonpane').find('button:contains("delete")').removeClass('ui-button-text-only')
-		   	    .addClass('ui-button ui-corner-all ui-widget')
-		   	    .prepend('<span class="fa fa-trash"></span>');                             
-	   	   
-		   	   $('.ui-dialog-buttonpane')
-		   	    .find('button:contains("cancel")').removeClass('ui-button-text-only').addClass('ui-button ui-corner-all ui-widget')
-		   	    .prepend('<span class="fa fa-times-circle-o"></span>');
-	       }	
+	       
+	       open		: function( event, ui ) {	    	
+		   	   $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+		   }
+	
 		});
 
+    }
+    
+    Multiselect.prototype.removeAll = function(){
+    	let multiselectIdDivId = this.options.multiselectItem[0].id;
+    	let multiselectId = multiselectIdDivId.split("_")[0];
+    	this.selectedObjects = new Array();
+    	$("#"+multiselectId+"_count").addClass("disable_cls");
+    	$("#"+multiselectId+"_count > span" ).css('pointer-events','none');
+    	$("#"+multiselectId+"_count > span").text("0");
+    	$("#"+multiselectId+"_removeAll").addClass("disable_cls");
+    	$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
+    	$("#"+multiselectIdDivId+"_ul").empty();
+    	this.selectedObject = new Array();
     }
     
     Multiselect.prototype.showHideDataDiv = function(multiselectId){
