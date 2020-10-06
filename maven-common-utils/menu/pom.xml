@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.5-SNAPSHOT</version>
+		<version>1.3.5</version>
 	</parent>
 	<artifactId>menu</artifactId>
-	<version>1.3.5-SNAPSHOT</version>
+	<version>1.3.5</version>
 	<name>menu</name>
 	<description>Java web starter menu</description>
 
@@ -20,25 +20,25 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.3.5-SNAPSHOT</version>
+			<version>1.3.5</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dashboard</artifactId>
-			<version>1.3.5-SNAPSHOT</version>
+			<version>1.3.5</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-form</artifactId>
-			<version>1.3.5-SNAPSHOT</version>
+			<version>1.3.5</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-rest</artifactId>
-			<version>1.3.5-SNAPSHOT</version>
+			<version>1.3.5</version>
 		</dependency>
 		
 		<dependency>
