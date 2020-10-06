@@ -20,6 +20,10 @@ public class JwsDynarestDAO extends DBConnection {
         super(dataSource);
     }
 
+	public JwsDynamicRestDetail findDynamicRestById(Integer dynarestDetailsId){
+		return hibernateTemplate.get(JwsDynamicRestDetail.class, dynarestDetailsId);
+	}
+	
     public List<Map<String, Object>> executeQueries(String query, Map<String, Object> parameterMap) {
         return namedParameterJdbcTemplate.queryForList(query, parameterMap);
     }

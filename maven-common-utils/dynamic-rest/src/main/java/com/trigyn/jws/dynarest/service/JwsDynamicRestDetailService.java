@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
@@ -63,6 +65,9 @@ public class JwsDynamicRestDetailService {
     @Autowired
 	private PropertyMasterService propertyMasterService 		 			= null;
     
+    @Autowired
+    private IUserDetailsService detailsService								= null;
+    
 
     public Object createSourceCodeAndInvokeServiceLogic(Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -85,25 +90,17 @@ public class JwsDynamicRestDetailService {
         }
         return null;
     }
-
     
     private Object invokeAndExecuteOnJava(Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, IOException, TemplateException, ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    	String path = propertyMasterService.findPropertyMasterValue(DYNAREST_CLASS_FILE_PATH);
-        File sourceFile = Paths.get(path).toFile();
-        String className = sourceFile.getName().replace(".java", "");
-        requestParameterMap.put("className", className);
-        Class<?> serviceClass = getCompiledClassOfServiceLogic(sourceFile, className);
-        Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), Map.class, Map.class);
-        return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), requestParameterMap, daoResultSets);
+        Class<?> serviceClass = getCompiledClassOfServiceLogic(restApiDetails);
+        Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), Map.class, Map.class, UserDetailsVO.class);
+        return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), requestParameterMap, daoResultSets, detailsService.getUserDetails());
     }
     
-    
 
-    private Class<?> getCompiledClassOfServiceLogic(File sourceFile, String className) throws IOException, ClassNotFoundException {
-    	File parentDirectory = sourceFile.getParentFile();
-        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { parentDirectory.toURI().toURL() });
-        return classLoader.loadClass(className);
+    private Class<?> getCompiledClassOfServiceLogic(RestApiDetails restApiDetails) throws ClassNotFoundException {
+        return Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
     }
 
     
@@ -122,25 +119,4 @@ public class JwsDynamicRestDetailService {
 		return resultSetMap;
 	}
     
-    public void precompileClassAndGetFileLocation(String className, File sourceFile) throws Exception {
-    	List<RestApiDetails> dynamicRestDetails = dyanmicRestDetailsRepository.findAllJavaDynarests();
-		TemplateVO templateVO = dbTemplatingService.getTemplateByName(DYNAREST_CLASS_STRUCTURE_TEMPLATE);
-        Map<String, Object> requestParameterMap = new HashMap<>();
-        requestParameterMap.put("className", className);
-        requestParameterMap.put("dynamicRestDetails", dynamicRestDetails);
-        String sourceCode = templatingUtils.processFtl(templateVO.getTemplateName(), templateVO.getTemplate(), requestParameterMap);
-        FileWriter writer = new FileWriter(sourceFile);
-        writer.write(sourceCode);
-        writer.close();
-
-        // compile the source file
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        File parentDirectory = sourceFile.getParentFile();
-        fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(parentDirectory));
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(sourceFile));
-        compiler.getTask(null, fileManager, null, null, null, compilationUnits).call();
-        fileManager.close();
-        propertyMasterService.savePropertyDetails(DYNAREST_CLASS_FILE_PATH, sourceFile.getPath());
-    }
 }

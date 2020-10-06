@@ -2,9 +2,11 @@ package com.trigyn.jws.dashboard.service;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +34,15 @@ public class DashletModule implements DownloadUploadModule {
 	
 	
 	@Override
-	public void downloadCodeToLocal() throws Exception {
-		List<Dashlet> dashlets =  dashletDAO.getAllDashlets();
+	public void downloadCodeToLocal(Object dashletObj) throws Exception {
+		List<Dashlet> dashlets = new ArrayList<>();
+		if(dashletObj != null) {
+			Dashlet dynamicForm = (Dashlet) dashletObj;
+			dashlets.add(dynamicForm);
+		}else {
+			dashlets =  dashletDAO.getAllDashlets();
+		}
+		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Dashlets";
 		String selectQuery = "selectQuery";
@@ -71,8 +80,9 @@ public class DashletModule implements DownloadUploadModule {
 		
 	}
 
+
 	@Override
-	public void uploadCodeToDB() throws Exception {
+	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Dashlets";
@@ -86,14 +96,21 @@ public class DashletModule implements DownloadUploadModule {
 		}
 		FilenameFilter textFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(ftlCustomExtension);
+            	return name.toLowerCase().endsWith(ftlCustomExtension);
             }
         };
         
         File[] directories = directory.listFiles((new FilenameFilter() {
         	  @Override
         	  public boolean accept(File current, String name) {
-        	    return new File(current, name).isDirectory();
+        		  if(!StringUtils.isBlank(uploadFileName)) {
+        			  if(name.equalsIgnoreCase(uploadFileName)) {
+        				  return new File(current, name).isDirectory();  
+        			  }
+        		  }else {
+        			  return new File(current, name).isDirectory();
+        		  }
+				return false;
         	  }
         	}));
         
@@ -143,5 +160,4 @@ public class DashletModule implements DownloadUploadModule {
 		
 	}
 
-	
 }

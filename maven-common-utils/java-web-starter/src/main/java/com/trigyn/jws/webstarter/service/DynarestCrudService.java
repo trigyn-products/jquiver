@@ -1,7 +1,6 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,15 +13,15 @@ import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
+import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
-import com.trigyn.jws.dynarest.utils.Constants;
 
 @Service
 @Transactional
@@ -53,12 +52,17 @@ public class DynarestCrudService {
 	@Autowired
 	private TemplateVersionService templateVersionService					= null;
 	
-	public void downloadDynamicRestCode() throws Exception {
-		downloadUploadModule.downloadCodeToLocal();
+	public void downloadDynamicRestTemplate(Integer dashletId) throws Exception {
+		if(dashletId != null) {
+			JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dashletId);
+			downloadUploadModule.downloadCodeToLocal(dynamicRestDetail);	
+		}else {
+			downloadUploadModule.downloadCodeToLocal(null);
+		}
 	}
 
-	public void uploadDynamicRestCode() throws Exception {
-		downloadUploadModule.uploadCodeToDB();
+	public void uploadDynamicRestTemplate(String uploadFileName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(uploadFileName);
 	}
 
 	public  String getContentForDevEnvironment(String formName, String fileName) throws Exception {
@@ -120,21 +124,9 @@ public class DynarestCrudService {
 			}
 		}
 		
-		updateLocalClassFiles();
 		return true;
 	}
 	
-	private void updateLocalClassFiles() throws Exception {
-		String path = propertyMasterDAO.findPropertyMasterValue("system","system", Constants.DYNAREST_CLASS_FILE_PATH);
-		File file = Paths.get(path).toFile();
-		if (file.exists()) {
-			file.delete();
-		}
-		File sourceFile = File.createTempFile(Constants.SERVICE_CLASS_NAME, ".java");
-        String className = sourceFile.getName().replaceAll(".java", "");
-		dynamicRestDetailService.precompileClassAndGetFileLocation(className, sourceFile);
-	}
-
 	@Transactional(readOnly = false)
 	public void deleteDAOQueries(MultiValueMap<String, String> formData) throws Exception {
 		String dynarestUrl 					= formData.getFirst("dynarestUrl");

@@ -19,7 +19,7 @@ public class ModuleListingI18n implements Serializable {
 	@Column(name="module_name")
 	private String moduleName						= null;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="module_id", insertable = false, updatable = false)
 	private ModuleListing moduleListing				= null;
 

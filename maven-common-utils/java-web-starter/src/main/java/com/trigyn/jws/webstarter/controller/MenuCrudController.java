@@ -1,14 +1,17 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,13 +50,14 @@ public class MenuCrudController {
     }
     
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest)  {
+	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws IOException  {
 		try {
 			Map<String, Object> templateMap 						= new HashMap<>();
 			ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
 			List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
 			List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
 			List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
+			Integer defaultSequence									= moduleService.getModuleMaxSequence();
 			String uri 												= a_httHttpServletRequest.getRequestURI();
 			String url 												= a_httHttpServletRequest.getRequestURL().toString();
 			StringBuilder urlPrefix									= new StringBuilder();
@@ -62,12 +66,15 @@ public class MenuCrudController {
 			
 			templateMap.put("urlPrefix", urlPrefix);
 			templateMap.put("userRoleVOs", userRoleVOs);
+			templateMap.put("defaultSequence", defaultSequence);
 			templateMap.put("moduleDetailsVO", moduleDetailsVO);
 			templateMap.put("moduleListingVOList", moduleListingVOList);
 			templateMap.put("moduleTargetLookupVOList", moduleTargetLookupVOList);
-			return menuService.getTemplateWithSiteLayout("addEditModule", templateMap);
+			return menuService.getTemplateWithSiteLayout("module-manage-details", templateMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 		
 	}
@@ -122,4 +129,18 @@ public class MenuCrudController {
 //							.collect(Collectors.toList());
 		return moduleService.saveModuleDetails(moduleDetailsVO);
     }
+	
+	@GetMapping(value = "/dsp")
+	@ResponseBody
+	public Integer getMaxSequenceByParent(
+			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId)
+			throws Exception {
+		return moduleService.getMaxSequenceByParent(parentModuleId);
+	}
+	
+	@GetMapping(value = "/dsg")
+	@ResponseBody
+	public Integer getMaxSequenceByGroup()throws Exception {
+		return moduleService.getModuleMaxSequence();
+	}
 }

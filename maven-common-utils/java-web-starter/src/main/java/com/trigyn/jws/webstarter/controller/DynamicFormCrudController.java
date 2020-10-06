@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +30,12 @@ import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
-import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 @RequestMapping("/cf")
 public class DynamicFormCrudController {
+	
+	private final static Logger logger = LogManager.getLogger(DynamicFormCrudController.class);
 
 	@Autowired
 	private DynamicFormCrudService dynamicFormCrudService 	= null;
@@ -48,16 +53,18 @@ public class DynamicFormCrudController {
 	private TemplateVersionService templateVersionService	= null;
 	
 	@PostMapping(value = "/aedf", produces = {MediaType.TEXT_HTML_VALUE})
-	public String addEditForm(@RequestParam("form-id") String formId) {
+	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse) throws IOException {
 		try{
 			return dynamicFormCrudService.addEditForm(formId);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 	
 	@PostMapping(value = "/gfsq", produces = {MediaType.APPLICATION_JSON_VALUE})
-	public List<DynamicFormSaveQueryVO> getAllFormQueriesById(HttpServletRequest httpServletRequest) throws Exception {
+	public List<Map<String, Object>> getAllFormQueriesById(HttpServletRequest httpServletRequest) throws Exception {
 		String formId = httpServletRequest.getParameter("formId");
 		return dynamicFormCrudService.getAllFormQueriesById(formId);
 	}
@@ -69,21 +76,24 @@ public class DynamicFormCrudController {
 	}
 	
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
-	public String dynamicFormMasterListing() {
+	public String dynamicFormMasterListing(HttpServletResponse httpServletResponse) throws IOException {
 		try{
 			Map<String,Object>  modelMap = new HashMap<>();
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 	
 	@PostMapping(value="/dfte", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
 		String tableName = httpServletRequest.getParameter("tableName");
-		return dynamicFormService.createDefaultFormByTableName(tableName);
+		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName);
+		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails);
 	}
 	
 	@GetMapping(value = "/cdd")
@@ -97,12 +107,12 @@ public class DynamicFormCrudController {
 	
 	@PostMapping(value = "/ddf")
 	public void downloadAllFormsToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		dynamicFormCrudService.downloadDynamicFormTemplates();
+		dynamicFormCrudService.downloadDynamicFormsTemplate(null);
 	}
 
 	@PostMapping(value = "/udf")
 	public void uploadAllFormsToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		dynamicFormCrudService.uploadAllFormsToDB();
+		dynamicFormCrudService.uploadFormsToDB(null);
 	}
 	
 	@GetMapping(value = "/vdfd")
@@ -111,4 +121,17 @@ public class DynamicFormCrudController {
 			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
 		return templateVersionService.getTemplateData(formId, versionId);
 	}
+	
+	@PostMapping(value = "/ddfbi")
+	public void downloadFormByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
+		String formId = request.getParameter("formId");
+		dynamicFormCrudService.downloadDynamicFormsTemplate(formId);
+	}
+	
+	@PostMapping(value = "/udfbn")
+	public void uploadFormsByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String formName = request.getParameter("formName");
+		dynamicFormCrudService.uploadFormsToDB(formName);
+	}
+
 }

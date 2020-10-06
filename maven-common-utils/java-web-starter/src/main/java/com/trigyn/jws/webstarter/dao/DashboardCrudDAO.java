@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
+import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.webstarter.controller.DashboardCrudController;
 
@@ -31,7 +32,10 @@ public class DashboardCrudDAO extends DBConnection {
 		return hibernateTemplate.get(Dashboard.class, dashboardId);
     }
     
-    
+	public Dashlet findDashletByDashletId(String dashletId)  throws Exception{
+		return hibernateTemplate.get(Dashlet.class, dashletId);
+    }
+	
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId)  throws Exception{
 		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_FIND_DASHBOARD_ROLE_DASHBOARD_ID);
 		query.setParameter("dashboardId", dashboardId);

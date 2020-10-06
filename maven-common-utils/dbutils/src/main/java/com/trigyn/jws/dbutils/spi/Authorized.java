@@ -13,5 +13,5 @@ import org.springframework.web.bind.annotation.Mapping;
 @Documented
 @Mapping
 public @interface Authorized {
-
+	
 }

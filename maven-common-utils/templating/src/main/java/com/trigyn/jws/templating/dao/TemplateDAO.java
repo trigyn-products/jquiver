@@ -19,6 +19,10 @@ public class TemplateDAO extends DBConnection {
     public TemplateDAO(DataSource dataSource) {
         super(dataSource);
     }
+    
+	public TemplateMaster findTemplateById(String templateId){
+		return hibernateTemplate.get(TemplateMaster.class, templateId);
+	}
 
     public Map<String, Object> getVelocityDataById(String vmMasterId) throws Exception {
         Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_BY_ID);

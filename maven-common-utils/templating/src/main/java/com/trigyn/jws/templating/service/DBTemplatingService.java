@@ -54,8 +54,7 @@ public class DBTemplatingService {
 	            throw new Exception("No template was found with the  name " + templateName);
 	        }
 	        String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-	        if(environment.equalsIgnoreCase("dev") && !templateName.equalsIgnoreCase("template-listing")
-	        		&& !templateName.equalsIgnoreCase("home-page")) {
+	        if(environment.equalsIgnoreCase("dev")) {
 	        	getTemplateContentsForDevEnvironment(templateName, templateVO);
 	        }
 	        return templateVO;
@@ -114,7 +113,7 @@ public class DBTemplatingService {
         }
         
         TemplateMaster templateMaster = dbTemplatingRepository.saveAndFlush(templateDetails);
-        templateVersionService.saveTemplateVersion(templateData,null, templateMaster.getTemplateId(), "template_master");
+        templateVersionService.saveTemplateVersion(templateDetails,null, templateMaster.getTemplateId(), "template_master");
         
     }
 
@@ -127,6 +126,10 @@ public class DBTemplatingService {
 		dbTemplatingRepository.saveAll(templates);
 	}
 	
+	public TemplateMaster saveTemplateMaster(TemplateMaster templateMaster) {
+		return dbTemplatingRepository.save(templateMaster);
+	}
+	
 
 	private void getTemplateContentsForDevEnvironment(String templateName, TemplateVO templateVO) throws Exception {
 		String ftlCustomExtension = ".tgn";
@@ -136,7 +139,7 @@ public class DBTemplatingService {
 		
 		if(!new File(folderLocation).exists()) {
 			logger.warn("Templates not downloaded on system, downloading templates to system.");
-			templateModule.downloadCodeToLocal();
+			templateModule.downloadCodeToLocal(null);
 			logger.info("Templates downloaded to local machine");
 		}
 		File file = new File(folderLocation+ File.separator+templateVO.getTemplateName()+ftlCustomExtension);

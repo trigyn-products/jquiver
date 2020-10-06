@@ -1,13 +1,16 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,11 +37,13 @@ public class TypeAheadCrudController {
 	private MenuService menuService 			= null;
 	
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
-    public String autocompleteListingsPage() {
+    public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException {
     	try {
 			return menuService.getTemplateWithSiteLayout("autocomplete-listing",  new HashMap<>());
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
     }
 
@@ -48,7 +53,7 @@ public class TypeAheadCrudController {
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
-    public String addEditAutocompleteDetails(HttpServletRequest request)  {
+    public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
 		
 		try {
 			String autocompleteId 				= request.getParameter("acId");
@@ -60,7 +65,9 @@ public class TypeAheadCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details",  templateData);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
     }
 	

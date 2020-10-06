@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
@@ -35,6 +35,7 @@ import com.trigyn.jws.dashboard.vo.ContextMasterVO;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.UserRoleRepository;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
@@ -74,8 +75,12 @@ public class DashboardCrudService {
     @Autowired
     private UserRoleRepository userRoleRepository									= null; 
 
+    @Autowired
 	@Qualifier("dashlet")
-	private DownloadUploadModule downloadUploadModule = null;
+	private DownloadUploadModule downloadUploadModule 								= null;
+    
+	@Autowired
+	private PropertyMasterDAO propertyMasterDAO 									= null;
 	
     
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
@@ -96,14 +101,14 @@ public class DashboardCrudService {
 	
 	public void deleteAllDashletFromDashboard(DashboardVO dashboardVO) throws Exception {
 		String dashboardId = dashboardVO.getDashboardId();
-		if(!StringUtils.isEmpty(dashboardId)) {
+		if(!StringUtils.isBlank(dashboardId)) {
 			dashboardCrudDAO.deleteAllDashletFromDashboard(dashboardId);
 		}
 	}
 	
 	public void deleteAllDashboardRoles(DashboardVO dashboardVO) throws Exception {
 		String dashboardId = dashboardVO.getDashboardId();
-		if(!StringUtils.isEmpty(dashboardId)) {
+		if(!StringUtils.isBlank(dashboardId)) {
 			dashboardCrudDAO.deleteAllDashboardRoles(dashboardId);
 		}
 	}
@@ -171,14 +176,14 @@ public class DashboardCrudService {
     
 	public void deleteAllDashletProperty(DashletVO dashletVO) throws Exception {
 		String dashletId = dashletVO.getDashletId();
-		if(!StringUtils.isEmpty(dashletId)) {
+		if(!StringUtils.isBlank(dashletId)) {
 			dashboardCrudDAO.deleteAllDashletProperty(dashletId);
 		}
 	}
 	
 	public void deleteAllDashletRoles(DashletVO dashletVO) throws Exception {
 		String dashletId = dashletVO.getDashletId();
-		if(!StringUtils.isEmpty(dashletId)) {
+		if(!StringUtils.isBlank(dashletId)) {
 			dashboardCrudDAO.deleteAllDashletRoles(dashletId);
 		}
 	}
@@ -205,6 +210,11 @@ public class DashboardCrudService {
 					iDashletRoleAssociationRepository.saveAndFlush(dashletRoleAssociation);
 				}
 			}
+			
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+	        if(environment.equalsIgnoreCase("dev")) {
+	        	downloadUploadModule.downloadCodeToLocal(dashlet);
+	        }
 			
 		} catch (Exception exception) {
 
@@ -266,11 +276,18 @@ public class DashboardCrudService {
     	}
     }
 
-	public void downloadDashlets() throws Exception {
-		downloadUploadModule.downloadCodeToLocal();
+	public void downloadDashlets(String dashletId) throws Exception {
+		if(!StringUtils.isBlank(dashletId)) {
+			Dashlet dashlet = dashboardCrudDAO.findDashletByDashletId(dashletId);
+			downloadUploadModule.downloadCodeToLocal(dashlet);
+		}else {
+			downloadUploadModule.downloadCodeToLocal(null);
+		}
 	}
 
-	public void uploadDashlets() throws Exception {
-		downloadUploadModule.uploadCodeToDB();
-	}    
+	public void uploadDashlets(String dashletName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(dashletName);
+	}
+
+
 }

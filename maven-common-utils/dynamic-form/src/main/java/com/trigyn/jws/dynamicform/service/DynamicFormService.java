@@ -1,9 +1,7 @@
 package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -25,29 +23,27 @@ import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
-import freemarker.template.TemplateException;
-
 @Service
 @Transactional
 public class DynamicFormService {
 
 	@Autowired
-	private TemplatingUtils templateEngine = null;
+	private TemplatingUtils templateEngine 					= null;
 
 	@Autowired
-	private DynamicFormCrudDAO dynamicFormDAO = null;
+	private DynamicFormCrudDAO dynamicFormDAO 				= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO propertyMasterDAO 			= null;
 	
 	@Autowired
-	private DBTemplatingService templateService = null;
+	private DBTemplatingService templateService 			= null;
 	
 	@Autowired
-	private FileUtilities fileUtilities  = null;
+	private FileUtilities fileUtilities  					= null;
 	
 	@Autowired
-	private MenuService menuService		= null;
+	private MenuService menuService							= null;
 	
 	
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam){
@@ -138,8 +134,7 @@ public class DynamicFormService {
 		}
 	}
 
-	public Map<String, String> createDefaultFormByTableName(String tableName) {
-		List<Map<String, Object>> tableDetails = dynamicFormDAO.getTableDetailsByTableName(tableName);
+	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails) {
 		Map<String, String> templatesMap = new HashMap<>();
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
@@ -151,35 +146,47 @@ public class DynamicFormService {
 			e.printStackTrace();
 		}
 		
-		createSaveUpdateQueryTemplate(tableName, templatesMap);
+		createSaveUpdateQueryTemplate(tableDetails, tableName, templatesMap);
 		return templatesMap;
 	}
+	
+	public List<Map<String, Object>> getTableInformationByName(String tableName) {
+		return dynamicFormDAO.getTableInformationByName(tableName);
+	}
+	
+	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
+		return dynamicFormDAO.getTableDetailsByTableName(tableName);
+	}
 
-	private void createSaveUpdateQueryTemplate(String tableName, Map<String, String> templatesMap) {
-		List<Map<String, Object>> tableInformation = dynamicFormDAO.getTableInformationByName(tableName);
+	private void createSaveUpdateQueryTemplate(List<Map<String, Object>> tableInformation, String tableName, Map<String, String> templatesMap) {
 		
 		StringJoiner insertJoiner = new StringJoiner(",", "INSERT INTO "+tableName+" (", ")");
 		StringJoiner insertValuesJoiner = new StringJoiner(",", " VALUES (", ")");
 		for (Map<String, Object> info : tableInformation) {
-			String columnName = info.get("columnName").toString();
+			String columnName = info.get("tableColumnName").toString();
+			String dataType = info.get("dataType").toString();
+			String columnKey = info.get("columnKey").toString();
 			insertJoiner.add(columnName);
-			insertValuesJoiner.add("'" + columnName + "'");
+			joinQueryBuilder(insertValuesJoiner, columnName, dataType);
+			
 		}
 		StringBuilder queryBuilder = new StringBuilder(insertJoiner.toString());
 		queryBuilder.append(insertValuesJoiner);
 		
 		Map<String, Object> saveQueryparameters = new HashMap<>();
-		saveQueryparameters.put("insertQuery", queryBuilder.toString());
+		saveQueryparameters.put("insertQuery",queryBuilder.toString());
 		
 		StringJoiner updateQuery = new StringJoiner(",", "UPDATE "+tableName+" SET ", "");
 		StringJoiner updateWhereQuery = new StringJoiner(" AND ", " WHERE ", "");
 		for (Map<String, Object> info : tableInformation) {
-			String columnName = info.get("columnName").toString();
+			String columnName = info.get("tableColumnName").toString();
+			String dataType = info.get("dataType").toString();
 			String columnKey = info.get("columnKey").toString();
-			if("PRI".equals(columnKey))
-				updateWhereQuery.add(columnName+ " = '" + columnName + "'");
-			else
-				updateQuery.add(columnName+ " = '" + columnName + "'");
+			if("PRI".equals(columnKey)) {
+				joinQueryBuilder(updateWhereQuery, columnName, dataType);
+			} else {
+				joinQueryBuilder(updateQuery, columnName, dataType);
+			}
 		}
 		StringBuilder updateQueryBuilder = new StringBuilder(updateQuery.toString());
 		updateQueryBuilder.append(updateWhereQuery);
@@ -191,6 +198,18 @@ public class DynamicFormService {
 			templatesMap.put("save-template", template);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType) {
+		if(dataType.contains("varchar") || dataType.contains("text")) {
+			String value = "'${formData?api.getFirst(\\\"" + columnName.replaceAll("_", "") + "\\\")}'";
+			insertValuesJoiner.add(value.replace("\\", ""));
+		} else if (dataType.contains("int") || dataType.contains("decimal")) {
+			String value = "${formData?api.getFirst(\\\"" + columnName.replaceAll("_", "") + "\\\")}";
+			insertValuesJoiner.add(value.replace("\\", ""));
+		} else if (dataType.contains("date") || dataType.contains("timestamp")) {
+			insertValuesJoiner.add("NOW()");
 		}
 	}
 }

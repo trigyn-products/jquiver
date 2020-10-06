@@ -2,10 +2,12 @@ package com.trigyn.jws.templating.service;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +38,15 @@ public class TemplateModule implements DownloadUploadModule {
 	private FileUtilities fileUtilities  = null;
 	
 	@Override
-	public void downloadCodeToLocal() throws Exception {
-		List<TemplateMaster> templates = dbTemplatingService.getAllTemplates();
+	public void downloadCodeToLocal(Object templateObj) throws Exception {
+		List<TemplateMaster> templates = new ArrayList<>();
+		if(templateObj != null) {
+			TemplateMaster templateMaster = (TemplateMaster) templateObj;
+			templates.add(templateMaster);
+		}else {
+			templates = dbTemplatingService.getAllTemplates();
+		}
+		
 		List<TemplateVO> templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(),
                 template.getTemplateName(), template.getTemplate(), template.getChecksum())).collect(Collectors.toList());
 		
@@ -76,11 +85,11 @@ public class TemplateModule implements DownloadUploadModule {
 				templateDAO.updateChecksum(templateVO);
 			}	
 		}
-
+		
 	}
 
 	@Override
-	public void uploadCodeToDB() throws Exception {
+	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Templates";
@@ -92,7 +101,11 @@ public class TemplateModule implements DownloadUploadModule {
 		}
 		FilenameFilter textFilter = new FilenameFilter() {
 	            public boolean accept(File dir, String name) {
-	                return name.toLowerCase().endsWith(ftlCustomExtension);
+	            	if(!StringUtils.isBlank(uploadFileName)) {
+	            		return name.toLowerCase().equalsIgnoreCase(uploadFileName + ftlCustomExtension);
+	            	}else {
+	            		return name.toLowerCase().endsWith(ftlCustomExtension);
+	            	}
 	            }
 	        };
         File[] files = directory.listFiles(textFilter);
@@ -124,5 +137,6 @@ public class TemplateModule implements DownloadUploadModule {
 			}
 
 	}
+
 
 }

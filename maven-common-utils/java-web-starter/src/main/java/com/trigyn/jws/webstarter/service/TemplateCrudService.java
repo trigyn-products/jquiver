@@ -3,12 +3,14 @@ package com.trigyn.jws.webstarter.service;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.templating.dao.TemplateDAO;
+import com.trigyn.jws.templating.entities.TemplateMaster;
 
 @Service
 @Transactional
@@ -21,13 +23,17 @@ public class TemplateCrudService {
 	@Qualifier("template")
 	private DownloadUploadModule downloadUploadModule 	= null;
 	
-	public void downloadTemplates() throws Exception {
-		downloadUploadModule.downloadCodeToLocal();
-		
+	public void downloadTemplates(String templateId) throws Exception {
+		if(!StringUtils.isBlank(templateId)) {
+			TemplateMaster templateMaster = templateDAO.findTemplateById(templateId);
+			downloadUploadModule.downloadCodeToLocal(templateMaster);
+		}else {
+			downloadUploadModule.downloadCodeToLocal(null);
+		}
 	}
 	
-	public void uploadTemplates() throws Exception {
-		downloadUploadModule.uploadCodeToDB();
+	public void uploadTemplates(String templateName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(templateName);
 	}
 
 	

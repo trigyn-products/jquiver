@@ -5,6 +5,8 @@ public final class Constant {
 	public static final Double INITIAL_VERSION_NUMBER 		= 1.00;
 	public static final Integer MAX_DECIMAL_VERSION_NUMBER 	= 99;
 	public static final Integer DEFAULT_LANGUAGE_ID 		= 1;
+	public static final Integer DEFAULT_SEQUENCE_NUMBER		= 1;
+	public static final Integer MODULE_GROUP_ID		 		= 6;
 	public static final String GROUP_MODULE_URL				= "#";
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);

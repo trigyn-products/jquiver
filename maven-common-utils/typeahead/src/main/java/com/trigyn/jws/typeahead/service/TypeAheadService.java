@@ -3,6 +3,7 @@ package com.trigyn.jws.typeahead.service;
 import java.util.List;
 import java.util.Map;
 
+import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.typeahead.dao.TypeAheadDAO;
 import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -19,10 +20,13 @@ import org.springframework.util.MultiValueMap;
 public class TypeAheadService {
     
     @Autowired
-	private TypeAheadDAO typeAheadDAO 					= null;
+	private TypeAheadDAO typeAheadDAO 								= null;
 
 	@Autowired
-	private TypeAheadRepository typeAheadRepository 	= null;
+	private TypeAheadRepository typeAheadRepository 				= null;
+	
+	@Autowired
+	private TemplateVersionService templateVersionService			= null;
 	
 	
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
@@ -51,6 +55,7 @@ public class TypeAheadService {
 		autocomplete.setAutocompleteDesc(autoCompleteDesc);
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
 		typeAheadRepository.saveAndFlush(autocomplete);
+		templateVersionService.saveTemplateVersion(autocomplete,null, autoCompleteId, "autocomplete_details");
 		
 		return autoCompleteId;
 		

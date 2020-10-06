@@ -90,11 +90,11 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
-		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, " + 
+		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, COLUMN_NAME as tableColumnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, " + 
 				"REPLACE(CONCAT(UPPER(SUBSTRING(COLUMN_NAME,1,1)),LOWER(SUBSTRING(COLUMN_NAME,2))), '_', ' ') as fieldName, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" ELSE \"textarea\" END as columnType, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN CHARACTER_MAXIMUM_LENGTH WHEN DATA_TYPE = \"int\" THEN NUMERIC_PRECISION ELSE CHARACTER_MAXIMUM_LENGTH END as columnSize " + 
-				"from information_schema.COLUMNS where TABLE_NAME = :tableName and (DATA_TYPE IN (\"varchar\", \"int\") OR DATA_TYPE LIKE \"%text%\") " + 
+				"from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
 				"and TABLE_SCHEMA = :schemaName " + 
 				"order by ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();
@@ -111,21 +111,35 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<String> getAllTablesListInSchema() {
-		String query = "select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA = :schemaName";
+		String query = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schemaName";
 		List<String> resultSet = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();){
 			String schemaName = connection.getCatalog();
 			Map<String, Object> parameterMap = new HashMap<>();
 			parameterMap.put("schemaName", schemaName);
 			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException exception) {
+			
+		}
+		return resultSet;
+	}
+	
+	public List<String> getAllViewsListInSchema() {
+		String query = "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = :schemaName";
+		List<String> resultSet = new ArrayList<>();
+		try (Connection connection = dataSource.getConnection();){
+			String schemaName = connection.getCatalog();
+			Map<String, Object> parameterMap = new HashMap<>();
+			parameterMap.put("schemaName", schemaName);
+			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+		} catch (SQLException exception) {
+			
 		}
 		return resultSet;
 	}
 
 	public List<Map<String, Object>> getTableInformationByName(String tableName) {
-		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
+		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
 				"and TABLE_SCHEMA = :schemaName ORDER BY ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();){

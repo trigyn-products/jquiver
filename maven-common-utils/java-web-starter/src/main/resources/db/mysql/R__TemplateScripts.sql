@@ -247,11 +247,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
 		<div class="float-right">
 			<#if environment == "dev">
-				<input id="downloadDashlet" class="btn btn-primary" onclick= "downloadDashlet();" name="downloadDashlet" value="Download Dashlet" type="button">
-				<input id="uploadDashlet" class="btn btn-primary" onclick= "uploadDashlet();" name="uploadDashlet" value="Upload Dashlet" type="button">
+				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlet" type="button">
+				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlet" type="button">
 			</#if>
-			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage(''jws.createNewDashlet'')}" type="button" onclick="submitForm(this)">
-    		<span onclick="backToDashboarListing();">
+			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage(''jws.createNewDashlet'')}" type="button" onclick="dashletListing.submitForm(this)">
+    		<span onclick="dashletListing.backToDashboarListing();">
     	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
     	 	</span>	
 		</div>
@@ -268,7 +268,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="dashletId" name="dashlet-id">
 </form>
 <script>
+	let dashletListing;
 	$(function () {
+	dashletListing = new DashletListing();
 		var colM = [
 			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
@@ -302,46 +304,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	function editDashlet(uiObject) {
 		const dashletId = uiObject.rowData.dashletId;
+		const dashletName = uiObject.rowData.dashletName;
+		let element;
 		<#if environment == "dev">
-			return ''<span id="''+dashletId+''"  class= "grid_action_icons"><i class="fa fa-pencil"  title="${messageSource.getMessage("jws.editDashlet")}"></i></span>''.toString();
+			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil'' title=''${messageSource.getMessage("jws.editDashlet")}''></i></span>";
+      		element = element + "<span id=''"+dashletId+"'' class= ''grid_action_icons'' onclick=''dashletListing.downloadDashletById(this)''><i class=''fa fa-download''></i></span>";
+          element = element + "<span id=''"+dashletId+"_upload'' name=''"+dashletName+"'' class= ''grid_action_icons'' onclick=''dashletListing.uploadDashletById(this)''><i class=''fa fa-upload''></i></span>";
 		<#else>
-			return ''<span id="''+dashletId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"  title="${messageSource.getMessage("jws.editDashlet")}"></i></span>''.toString();
+			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";		
 		</#if>
+		return element;
 	}
 	
-	function submitForm(element) {
-	  $("#dashletId").val(element.id);
-	  $("#formDMRedirect").submit();
-	}
+
 	
-	function backToDashboarListing() {
-		location.href = contextPath+"/cf/dbm";
-	}
-	<#if environment == "dev">
-		function downloadDashlet(){
-		     $.ajax({
-		        url:"/cf/ddl",
-		        type:"POST",
-		        success:function(data){
-		            debugger;
-		            alert("Downloaded Successfully");
-		        }
-		        
-		    });
-		}
-		function uploadDashlet(){
-		     $.ajax({
-		        url:"/cf/udl",
-		        type:"POST",
-		        success:function(data){
-		            debugger;
-		            alert("Uploaded Successfully");
-		        }
-		        
-		    });
-		}
-	</#if>
-</script>', 'admin', 'admin', NOW());
+</script>
+<script src="/webjars/1.0/dashlet/dashletListing.js"></script>', 'admin', 'admin', NOW());
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
@@ -583,11 +561,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	<textarea id="htmlContent" style="display: none">
 	   	${(dashletVO.dashletBody)!""}
-	&lt;/textarea&gt;
+	</textarea>
 	 
 	<textarea id="sqlContent" style="display: none">
 	   	${(dashletVO.dashletQuery)!""}
-	&lt;/textarea&gt;
+	</textarea>
 	
 	 <div id="deletePropertyConfirm"></div>
 	<div id="snackbar"></div>
@@ -696,7 +674,7 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="selectionCriteria">Selection Criteria</label>
-						<textarea class="form-control" rows="15" cols="60" title="Select Criteria" id="selectionCriteria" placeholder="Select Criteria" name="selectionCriteria" style="height:80px">&lt;/textarea&gt;
+						<textarea class="form-control" rows="15" cols="60" title="Select Criteria" id="selectionCriteria" placeholder="Select Criteria" name="selectionCriteria" style="height:80px"></textarea>
 				</div>
 			</div>
                                                                                                         
@@ -704,7 +682,7 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="messageText"> Message Text :</label>
-						<textarea class="form-control" rows="15" cols="60" title="Message Text" id="messageText" name="messageText" style="height:80px">&lt;/textarea&gt;
+						<textarea class="form-control" rows="15" cols="60" title="Message Text" id="messageText" name="messageText" style="height:80px"></textarea>
 				</div>
 			</div>
                                                                                                          
@@ -955,18 +933,52 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 	
 	function editDynamicFormFormatter(uiObject) {	
-		var dynamicFormId = uiObject.rowData.formId;
+		let dynamicFormId = uiObject.rowData.formId;
+		let dynamicFormName = uiObject.rowData.formName;
+		let element;
 		<#if environment == "dev">
-			var element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+      		element = element + "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons'' onclick=''downloadFormById(this)''><i class=''fa fa-download''></i></span>";
+          element = element + "<span id=''"+dynamicFormId+"_upload'' name=''"+dynamicFormName+"'' class= ''grid_action_icons'' onclick=''uploadFormById(this)''><i class=''fa fa-upload''></i></span>";
 		<#else>
-			var element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''  onclick=''submitForm(this)''><i class=''fa fa-pencil''></i></span>";		
+			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''  onclick=''submitForm(this)''><i class=''fa fa-pencil''></i></span>";		
 		</#if>	
 		return element;	
-	}	
+	}
+		
 	function submitForm(thisObj){	
 		$("#formId").val(thisObj.id);	
 		$("#addEditDynamicForm").submit();	
 	}
+  
+  	function downloadFormById(thisObj){
+	  	let formId = thisObj.id;
+	  	$.ajax({
+			url:"/cf/ddfbi",
+			type:"POST",
+	        data:{
+	        	formId : formId,
+	        },
+			success:function(data){
+				alert("Downloaded Successfully");
+			}
+	    });  
+  	}
+	
+	function uploadFormById(thisObj){
+	  	let formId = thisObj.id;
+		let formName = $("#"+formId).attr("name");
+	  	$.ajax({
+			url:"/cf/udfbn",
+			type:"POST",
+	        data:{
+	        	formName : formName,
+	        },
+			success:function(data){
+				alert("Uploaded Successfully");
+			}
+	    });  
+  	}
 	
 	function backToHome() {
 		location.href = "/cf/home";
@@ -1149,17 +1161,14 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
         </form>
     </div>
 
-	<textarea id="htmlContent" style="display: none">
-    	${(dynamicForm?api.getFormBody())!""}
-	&lt;/textarea&gt;
-  
+
   	<textarea id="sqlContent" style="display: none">
     	${(dynamicForm?api.getFormSelectQuery())!""}
-	&lt;/textarea&gt;
+	</textarea>
 	
-		<textarea id="saveSqlContent" style="display: none">
+	<textarea id="saveSqlContent" style="display: none">
     	${(dynamicForm?api.getFormSaveQuery())!""}
-	&lt;/textarea&gt;
+	</textarea>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	let dashletSQLEditor;
@@ -1191,7 +1200,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
    </script>
   ','admin','admin',now() );  
   
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+  REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
 (UUID(), 'home', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -1211,6 +1220,17 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
     </div>
 
                <div class="list-group custom-list-home">
+                               <a href="../cf/mg" class="list-group-item list-group-item-action">
+                                  <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+                                  <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1"> <span>Manage Masters</span></h5>
+                                             <small>Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using freemarker, supports pq-grid </p>
+                                             <small>Now any master modules will be created without much efforts</small>
+                                             </div>
+                              </a>
                               <a href="../cf/gd" class="list-group-item list-group-item-action">
                                   <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
                                   <div class="home_list_content">
@@ -1401,13 +1421,46 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     
     function editTemplate(uiObject) {
         const templateId = uiObject.rowData.templateId;
+		const templateName = uiObject.rowData.templateName;
             <#if environment == "dev">
-                 return ''<span id="''+templateId+''"  class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+                 let element = "<span id=''"+templateId+"''  class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+                 element = element + "<span id=''"+templateId+"'' class= ''grid_action_icons'' onclick=''downloadTemplateById(this)''><i class=''fa fa-download''></i></span>";
+				 element = element + "<span id=''"+templateId+"_upload'' name=''"+templateName+"'' class= ''grid_action_icons'' onclick=''uploadTemplateById(this)''><i class=''fa fa-upload''></i></span>";
+                 return element;
             <#else>
                  return ''<span id="''+templateId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
             </#if>
     }
     
+    function downloadTemplateById(thisObj){
+	  	let templateId = thisObj.id;
+	  	$.ajax({
+			url:"/cf/dtbi",
+			type:"POST",
+	        data:{
+	        	templateId : templateId,
+	        },
+			success:function(data){
+				alert("Downloaded Successfully");
+			}
+	    });  
+  	}
+    
+	function uploadTemplateById(thisObj){
+	  	let templateId = thisObj.id;
+		let templateName = $("#"+templateId).attr("name");
+	  	$.ajax({
+			url:"/cf/utdbi",
+			type:"POST",
+	        data:{
+	        	templateName : templateName,
+	        },
+			success:function(data){
+				alert("Uploaded Successfully");
+			}
+	    });  
+  	}
+	
     function submitForm(element) {
       $("#vmMasterId").val(element.id);
       $("#formVmRedirect").submit();
@@ -1544,7 +1597,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			$("#defaultTemplateDiv").show();
 			$.ajax({
 				type : "GET",
-				url : contextPath+"/dyn/api/defaultTemplates",
+				url : contextPath+"/api/defaultTemplates",
 				success : function(data){
 					defaultTemplates = data["defaultTemplates"];
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
@@ -1816,7 +1869,7 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 							<label for="targetPlatform">${messageSource.getMessage("jws.resource")} </label>
 							<label>${languages.languageName}</label>
 						</#if>
-						<textarea id="textBx_${languages.languageId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''''}&lt;/textarea&gt;
+						<textarea id="textBx_${languages.languageId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''''}</textarea>
 					</div>							  
 				</div>
 			</#list>
@@ -2020,8 +2073,8 @@ function editNotification(thisObj){
 		<h2 class="title-cls-name float-left">Dynamic API Master</h2> 
 		<div class="float-right">
 			<#if environment == "dev">
-				<input id="downloadDynamicForm" class="btn btn-primary" onclick= "downloadDynamicForm();" name="downloadDynamicForm" value="Download Dynamic Form" type="button">
-				<input id="uploadDynamicForm" class="btn btn-primary" onclick= "uploadDynamicForm();" name="uploadDynamicForm" value="Upload Dynamic Form" type="button">
+				<input id="downloadDynamicForm" class="btn btn-primary" onclick= "downloadDynamicForm();" name="downloadDynamicForm" value="Download Dynamic API" type="button">
+				<input id="uploadDynamicForm" class="btn btn-primary" onclick= "uploadDynamicForm();" name="uploadDynamicForm" value="Upload Dynamic API" type="button">
 			</#if>
 			<form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
@@ -2049,7 +2102,7 @@ let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}];
 $(function () {
   $.ajax({
 			type : "GET",
-			url : contextPath+"/dyn/api/dynarestDetails",
+			url : contextPath+"/api/dynarestDetails",
       async: false,
 			success : function(data) {
 				for(let counter = 0; counter < data["methodTypes"].length; ++counter) {
@@ -2092,7 +2145,17 @@ function platforms(uiObject){
 
 function editDynarest(uiObject) {
 	let dynarestUrl = uiObject.rowData.jws_dynamic_rest_url;
-  	return ''<span id="''+dynarestUrl+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	let methodName = uiObject.rowData.jws_method_name;
+	let dynarestId = uiObject.rowData.jws_dynamic_rest_id;
+	let element;
+	<#if environment == "dev">
+		element = "<span id=''"+dynarestUrl+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+		element = element + "<span id=''"+dynarestId+"_download'' class= ''grid_action_icons'' onclick=''downloadDynarestById(this)''><i class=''fa fa-download''></i></span>";
+		element = element + "<span id=''"+methodName+"_upload'' name=''"+methodName+"'' class= ''grid_action_icons'' onclick=''uploadDynaresById(this)''><i class=''fa fa-upload''></i></span>";
+	<#else>
+		element = "<span id=''"+dynarestUrl+"'' onclick=''submitForm(this)'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+	</#if>
+	return element;
 }
 
 function submitForm(element) {
@@ -2100,6 +2163,34 @@ function submitForm(element) {
   $("#addEditNotification").submit();
 }
 
+  	function downloadDynarestById(thisObj){
+	  	let dynarestDetailsId = thisObj.id.split("_")[0];
+	  	$.ajax({
+			url:"/cf/ddrbi",
+			type:"POST",
+	        data:{
+	        	dynarestDetailsId : dynarestDetailsId,
+	        },
+			success:function(data){
+				alert("Downloaded Successfully");
+			}
+	    });  
+  	}
+	
+	function uploadDynaresById(thisObj){
+	  	let dynarestMethodName = thisObj.id.split("_")[0];
+	  	$.ajax({
+			url:"/cf/udrbn",
+			type:"POST",
+	        data:{
+	        	dynarestMethodName : dynarestMethodName,
+	        },
+			success:function(data){
+				alert("Uploaded Successfully");
+			}
+	    });  
+  	}
+	
 function backToWelcomePage() {
 	location.href = contextPath+"/cf/home";
 }
@@ -2127,152 +2218,180 @@ function backToWelcomePage() {
 </#if>
 </script>', 'admin', 'admin', NOW(), NULL);
 
-REPLACE into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date) VALUES
+replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
 jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
 jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId 
 from jws_dynamic_rest_details as jdrd 
-where jdrd.jws_dynamic_rest_url = "${primaryId}"', 
-'<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/monaco/require.js"></script>
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/dynarest/dynarest.js"></script>
+where jdrd.jws_dynamic_rest_url = "${primaryId}"
+	', '    	<head>
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="/webjars/1.0/monaco/require.js"></script>
+	<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<script src="/webjars/1.0/dynarest/dynarest.js"></script>
 </head>
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic Rest API</h2> 
+		<h2 class="title-cls-name float-left">Dynamic Rest API</h2>
 		<div class="float-right">
 			<span onclick="dynarest.backToDynarestListingPage();">
   				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>	
+  		 	</span>
 		</div>
-		
-		<div class="clearfix"></div>		
+
+		<div class="clearfix"></div>
 	</div>
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	
-    <form method="post" name="dynamicRestForm" id="dynamicRestForm">
-       <input type="hidden" id="dynarestId" name="dynarestId"/>
-       <div class="row">                        
-              <div class="col-3">
-                    <div class="col-inner-form full-form-fields">
-                       <span class="asteriskmark">*</span><label for="dynarestUrl">Dynamic Rest URL </label>
-                       <span id="dynarestURLSapn">
-                            <input id="dynarestUrl" name= "dynarestUrl" class="form-control" placeholder="Dynamic Rest URL" />
-                       </span>
-                    </div>
-              </div>
-                                                                                                                                                                     
-             <div class="col-3">
-                    <div class="col-inner-form full-form-fields">
-                       <span class="asteriskmark">*</span><label for="dynarestMethodName">Dynamic Rest Method Name</label>
-                       <span id="dynarestMethodNameSpan">
+
+	<form method="post" name="dynamicRestForm" id="dynamicRestForm">
+		<input type="hidden" id="dynarestId" name="dynarestId"/>
+		<div class="row">
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="dynarestUrl">Dynamic Rest URL </label>
+					<span><label class="float-right">${requestDetails?api.get("urlPrefix")!""}<label></span>
+					<span id="dynarestURLSapn">
+						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" placeholder="Dynamic Rest URL" />
+					</span>
+				</div>
+			</div>
+
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="dynarestMethodName">Dynamic Rest Method Name</label>
+					<span id="dynarestMethodNameSpan">
                               <input class="form-control" id="dynarestMethodName"  name= "dynarestMethodName" placeholder="Method Name" />
                        </span>
-                    </div>
-             </div>
-                                                                                                                           
-             <div class="col-3">
-                    <div class="col-inner-form full-form-fields">
-                        <span class="asteriskmark">*</span><label for="dynarestMethodDescription">Dynamic Rest Method Description</label>
-                       <span id="dynarestMethodDescriptionSpan">
+				</div>
+			</div>
+
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="dynarestMethodDescription">Dynamic Rest Method Description</label>
+					<span id="dynarestMethodDescriptionSpan">
                               <input class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
                        </span>
-                    </div>
-             </div>
-                                                                                             
-             <div class="col-3">
-                    <div class="col-inner-form full-form-fields">
-                         <span class="asteriskmark">*</span><label for="dynarestRequestTypeId">HTTP Method Type  </label>
-                         <select class="form-control" id="dynarestRequestTypeId" name="dynarestRequestTypeId" title="HTTP Method Type">
-                         </select>
-                    </div>
-             </div>
-                                                                 
-           <div class="col-3">
-                  <div class="col-inner-form full-form-fields">
-                         <span class="asteriskmark">*</span><label for="dynarestProdTypeId">HTTP Produces Type  </label>
-                         <select class="form-control" id="dynarestProdTypeId" name="dynarestProdTypeId" title="HTTP Produces Type">
-                         </select>
-                    </div>
-           </div>
+				</div>
+			</div>
 
-           <div class="col-3">
-                    <span class="asteriskmark">*</span><label for="dynarestPlatformId">Platform Id</label>
-                     <select class="form-control" id="dynarestPlatformId" name="dynarestPlatformId" title="Platform Id">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="dynarestRequestTypeId">HTTP Method Type  </label>
+					<select class="form-control" id="dynarestRequestTypeId" name="dynarestRequestTypeId" title="HTTP Method Type">
+                         </select>
+				</div>
+			</div>
+
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span><label for="dynarestProdTypeId">HTTP Produces Type  </label>
+					<select class="form-control" id="dynarestProdTypeId" onchange="togglePlatform(this)" name="dynarestProdTypeId" title="HTTP Produces Type">
+                         </select>
+				</div>
+			</div>
+
+			<div class="col-3">
+				<span class="asteriskmark">*</span><label for="dynarestPlatformId">Platform Id</label>
+				<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this)" name="dynarestPlatformId" title="Platform Id">
                                     <option value="2" selected="selected"> FTL </option>
                                     <option value="1"> JAVA </option>
                      </select>
-           </div>
+			</div>
 
-      </div>
-      
-        <div class="row margin-t-b">                 
-	            <div class="col-12">
-	            <h3 class="titlename"><span class="asteriskmark">*</span>Service Logic</h3>
-					<div class="html_script">
-						<div class="grp_lblinp">
-							<div id="htmlContainer" class="ace-editor-container">
-								<div id="htmlEditor" class="ace-editor">
-								</div>
+		
+			</div>
+			
+			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
+				<h3 class="titlename method-sign-info">
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="methodSignature">Method Signature</label>
+				</h3>
+				<span id="methodSignature"><span>
+			</div>
+
+		
+		<div class="row margin-t-b">
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>Service Logic/Package Name</h3>
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="htmlContainer" class="ace-editor-container">
+							<div id="htmlEditor" class="ace-editor">
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-               
-             
-             <div class="row margin-t-b">  
-             	<div class="col-12">
-             	<h3 class="titlename"><span class="asteriskmark">*</span>DAO Queries</h3>
-                	<div id = "saveScriptContainer">
-	                	
-                	</div>
-                </div>
-		    </div>
-		    
-       <div class="row margin-t-b">
-            <div class="col-12">
-                    <div class="float-left"> 
-                        <div class="btn-icons nomargin-right-cls pull-right">
-                            <input type="button" value="Add" class="btn btn-primary" onclick="dynarest.addSaveQueryEditor();">
-                            <input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="dynarest.removeSaveQueryEditor();">
-                        </div>    
-                    </div>
-            </div>
+		</div>
+
+		<div class="row margin-t-b">
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>DAO Queries</h3>
+			<div id="saveScriptContainer">
+
+			</div>
+		</div>
+</div>
+
+<div class="row margin-t-b">
+	<div class="col-12">
+		<div class="float-left">
+			<div class="btn-icons nomargin-right-cls pull-right">
+				<input type="button" value="Add" class="btn btn-primary" onclick="dynarest.addSaveQueryEditor();">
+				<input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="dynarest.removeSaveQueryEditor();">
+                        </div>
+			</div>
+		</div>
 	</div>
 
-       <div class="row">
-              <div class="col-12">
-                    <div class="float-right">
-                        <input id="addDynarest" class="btn btn-primary" name="addDynarest" value="Save" type="button" onclick="dynarest.saveDynarest(''${formId}'');">
-                        <span onclick="dynarest.backToDynarestListingPage();">
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<input id="addDynarest" class="btn btn-primary" name="addDynarest" value="Save" type="button" onclick="dynarest.saveDynarest(''${formId}'');">
+				<span onclick="dynarest.backToDynarestListingPage();">
                             <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-                        </span> 
-                    </div>
-              </div>
-      </div> 
-      <input type="hidden" name="serviceLogic" id="serviceLogic">
-      <input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">        
+                        </span>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="serviceLogic" id="serviceLogic">
+	<input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">
     </form>
 	<div id="snackbar"></div>
 </div>
 <script type="text/javascript">
-
-  
-  let contextPath = "${contextPath}";
+	let contextPath = "${contextPath}";
   let dynarest;
+  function togglePlatform(element) {
+         if(element.value != "7" && element.value != "12") {
+              $("#dynarestPlatformId option[value=1]").prop("selected", true);
+              $("#dynarestPlatformId option[value=2]").prop("disabled", true);
+         } else {
+              $("#dynarestPlatformId option[value=2]").prop("disabled", false);
+         }
+         showMethodSignature($("#dynarestPlatformId"));
+  }
+
+  function showMethodSignature(element){
+         if(element.value == "1"){
+              $("#methodSignatureDiv").show();
+              $("#methodSignature").html("public T "+$("#dynarestMethodName").val()+
+                     "(Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
+         } else {
+              $("#methodSignatureDiv").hide();
+         }
+         
+  }
+
   $(function () {
       dynarest = new DynamicRest();
-	  
+	  $("#methodSignatureDiv").hide();
 	  <#if (resultSet)?? && resultSet?has_content>
 		<#list resultSet as resultSetList>
 			<#if resultSetList?is_first>
@@ -2292,8 +2411,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"',
 	
   });
 </script>
-	
-	', 'admin', NOW());
+	', 'admin', NOW(), NULL, NULL);
 
 REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
 ('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
@@ -2422,47 +2540,48 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		$("#formMuRedirect").submit();
 	}
 </script>', 'admin', 'admin', NOW());
-   
- 
  
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'addEditModule', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+('89ee344b-03f6-11eb-a183-e454e805e22f', 'module-manage-details', '<head>
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 
-</head> 
+</head>
 
-<div class="container"> 
+<div class="container">
 
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditModule")}</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditModule")}</h2>
 		<div class="float-right">
 			<span onclick="addEditModule.backToModuleListingPage();">
   				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>	
+  		 	</span>
 		</div>
-		
-		<div class="clearfix"></div>		
+
+		<div class="clearfix"></div>
 	</div>
 
 	<div id="formDiv">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	 
-	 	<div class="row">
+
+		<div class="row">
 			<input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''''}">
-	     	<div class="col-3">
-				  <div class="col-inner-form full-form-fields">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
 					<input type="text"  id = "moduleName" name = "moduleName" value = "${(moduleDetailsVO?api.getModuleName())!''''}" maxlength="100" class="form-control">
 				</div>
-			</div>	
+			</div>
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
@@ -2481,13 +2600,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					</select>
 				</div>
 			</div>
-	 
+
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
-          				<select id="targetTypeName" name="targetTypeName"  class="form-control">
-						<option value="Select">Select</option>
-					</select>
+						<div class="search-cover">
+						<input type="text" id="targetTypeName" value= "" name="targetTypeName" class="form-control">
+						<i class="fa fa-search" aria-hidden="true"></i>
+                        			</div>
+                        			<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
 				</div>
 			</div>
 				
@@ -2495,7 +2616,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
-					<select id="parentModuleName" name="parentModuleName" onchange="addEditModuleFn();" class="form-control">
+					<select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
 						<option value="">Select</option>
 						<#if (moduleListingVOList)??>
 							<#list moduleListingVOList as moduleListingVO>
@@ -2509,67 +2630,99 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="sequence" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.sequence")}</label>
-					<input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''''}" maxlength="100" class="form-control">
+					<#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
+						<input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''''}" maxlength="100" class="form-control">
+					<#else>
+						<input type="number"  id = "sequence" name = "sequence" value = "${(defaultSequence)!''''}" maxlength="100" class="form-control">
+					</#if>
 				</div>
 			</div>
-	 
-      
-      		<div class="col-3">
+
+			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
 					<input type="text"  id = "urlPrefix" name = "urlPrefix" value = "${(urlPrefix)!''''}" readOnly="readonly" class="form-control">
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
-			
+
 			<div class="col-3">
-	     		<div class="col-inner-form full-form-fields"> 
-		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>Roles</label>
-		  			<div id = "roles">
+				<div class="col-inner-form full-form-fields">
+					<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>Roles</label>
+					<div id="roles">
 						<#if userRoleVOs??>
 							<#list userRoleVOs as userRoleVO>
-								<lable for="${(userRoleVO?api.getRoleId())!''''}">${(userRoleVO?api.getRoleName())!''''}</label>
+								<lable for="${(userRoleVO?api.getRoleId())!''''}">
+									${(userRoleVO?api.getRoleName())!''''}
+								</label>
 								<input type="checkbox" id="${(userRoleVO?api.getRoleId())!''''}" name="${(userRoleVO?api.getRoleId())!''''}"/>
 							</#list>
 						</#if>
 					</div>
-		  			<div class="clearfix"></div>
+					<div class="clearfix"></div>
 				</div>
-			</div>	
+			</div>
 		</div>
-							
-	 
-	 
+
 		<div class="row">
 			<div class="col-12">
-				<div id="buttons" class="pull-right">		 
-	 				<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditModule.saveModule();">	 
-	 				<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModule.backToModuleListingPage();">
-				</div>
-	 		</div>
-		</div>	
-	
+				<div id="buttons" class="pull-right">
+					<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditModule.saveModule();">
+					<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModule.backToModuleListingPage();">
+		        </div>
+			</div>
+		</div>
 
-	
-	<div id="snackbar"></div>
-</div>
+		<div id="snackbar"></div>
+	</div>
 
 <script>
-	contextPath = "${(contextPath)!''''}";
-	let addEditModule;
-	$(function() {
-
-      let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
-	    addEditModule = new AddEditModule(moduleTypeId);
-      addEditModule.getTargeTypeNames();
-	});
+contextPath = "${(contextPath)!''''}";
+let addEditModule;
+let autocomplete;
+$(function() {
+    let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
+    let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
+	let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''''}";
+	
+    let selectedTargetDetails = new Object();
+    if(moduleTypeId != "") {
+        selectedTargetDetails["targetTypeId"] = moduleTypeId;
+        selectedTargetDetails["targetTypeName"] = moduleName;
+    }
+	addEditModule = new AddEditModule(moduleTypeId, parentModuleId);
+    autocomplete = $(''#targetTypeName'').autocomplete({
+        autocompleteId: "qw",
+        render: function(item) {
+        	var renderStr ='''';
+        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+    		{
+        		renderStr = ''<p>''+item.targetTypeName+''</p>'';
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.targetTypeName;
+        },
+        select: function(item) {
+            $("#targetTypeName").blur();
+            $("#targetTypeNameId").val(item.targetTypeId)
+        }, 	
+    }, selectedTargetDetails);
+    addEditModule.getTargeTypeNames();
+});
 
 </script>
-<script src="/webjars/1.0/menu/addEditModule.js"></script>', 'admin', 'admin',NOW());
+<script src="/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 

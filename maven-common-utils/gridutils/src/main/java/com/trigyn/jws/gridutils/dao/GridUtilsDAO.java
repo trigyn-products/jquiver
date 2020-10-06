@@ -87,5 +87,10 @@ public class GridUtilsDAO extends DBConnection {
 		return jdbcTemplate.queryForObject(sql, new Object[] { gridId }, (rs, rowNum) -> new GridDetails(rs.getString("grid_id"), rs.getString("grid_name"), rs.getString("grid_description"),
 				rs.getString("grid_table_name"), rs.getString("grid_column_names"), Integer.parseInt(rs.getString("query_type"))));
 	}
+	
+	public GridDetails saveGridDetails(GridDetails gridDetails) {
+		getCurrentSession().save(gridDetails);
+		return gridDetails;
+	}
 
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +34,15 @@ public class DynamicFormModule implements DownloadUploadModule {
 	private DynamicFormCrudDAO dynamicFormDAO = null;
 	
 	@Override
-	public void downloadCodeToLocal() throws Exception {
+	public void downloadCodeToLocal(Object dynamicFormObj) throws Exception {
+		List<DynamicForm>  formList = new ArrayList<>();
+		if(dynamicFormObj != null) {
+			DynamicForm dynamicForm = (DynamicForm) dynamicFormObj;
+			formList.add(dynamicForm);
+		}else {
+			formList = dynamicFormDAO.getAllDynamicForms();
+		}
 		
-		List<DynamicForm>  formList = dynamicFormDAO.getAllDynamicForms();
 		String templateDirectory = "DynamicForm";
 		String ftlCustomExtension = ".tgn";
 		String selectQuery = "selectQuery";
@@ -46,45 +53,47 @@ public class DynamicFormModule implements DownloadUploadModule {
 		
 		for (DynamicForm dynamicForm : formList) {
 			boolean isCheckSumChanged = false;
-				String formName = dynamicForm.getFormName();
-				String formFolder =  folderLocation + File.separator + formName;
-				if(!new File(formFolder).exists()) {
-					File fileDirectory = new File(formFolder);
-					fileDirectory.mkdirs();
-				}
-				// select
-				String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dynamicForm.getFormSelectQuery(),dynamicForm.getFormSelectChecksum(),ftlCustomExtension);
-				if(selectCheckSum!= null) {
-					isCheckSumChanged = true;
-					dynamicForm.setFormSelectChecksum(selectCheckSum);
-				}
+			String formName = dynamicForm.getFormName();
+			String formFolder =  folderLocation + File.separator + formName;
+			if(!new File(formFolder).exists()) {
+				File fileDirectory = new File(formFolder);
+				fileDirectory.mkdirs();
+			}
+			
+			// select
+			String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dynamicForm.getFormSelectQuery(),dynamicForm.getFormSelectChecksum(),ftlCustomExtension);
+			if(selectCheckSum!= null) {
+				isCheckSumChanged = true;
+				dynamicForm.setFormSelectChecksum(selectCheckSum);
+			}
 				
-				//htmlBody
-				String htmlBodyCheckSum  = fileUtilities.checkFileContents(htmlBody, formFolder, dynamicForm.getFormBody(),dynamicForm.getFormBodyChecksum(),ftlCustomExtension);
-				if(htmlBodyCheckSum!= null) {
-					isCheckSumChanged = true;
-					dynamicForm.setFormBodyChecksum(htmlBodyCheckSum);
-				}
+			//htmlBody
+			String htmlBodyCheckSum  = fileUtilities.checkFileContents(htmlBody, formFolder, dynamicForm.getFormBody(),dynamicForm.getFormBodyChecksum(),ftlCustomExtension);
+			if(htmlBodyCheckSum!= null) {
+				isCheckSumChanged = true;
+				dynamicForm.setFormBodyChecksum(htmlBodyCheckSum);
+			}
 				
-				//save
-				for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
-					String sequence = saveQuery+formSaveQuery.getSequence();
-					String checksum =	fileUtilities.checkFileContents(sequence , formFolder, formSaveQuery.getDynamicFormSaveQuery(),formSaveQuery.getChecksum(),ftlCustomExtension);
-					if(checksum!= null) {
-						isCheckSumChanged = true;
-						formSaveQuery.setChecksum(checksum);
-					}
+			//save
+			for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
+				String sequence = saveQuery+formSaveQuery.getSequence();
+				String checksum =	fileUtilities.checkFileContents(sequence , formFolder, formSaveQuery.getDynamicFormSaveQuery(),formSaveQuery.getChecksum(),ftlCustomExtension);
+				if(checksum!= null) {
+					isCheckSumChanged = true;
+					formSaveQuery.setChecksum(checksum);
 				}
+			}
+		
 			// save checksum
-				if(isCheckSumChanged) {
-					dynamicFormDAO.saveDynamicFormData(dynamicForm);
-				}	
+			if(isCheckSumChanged) {
+				dynamicFormDAO.saveDynamicFormData(dynamicForm);
+			}	
 		}
+		
 	}
 
 	@Override
-	public void uploadCodeToDB() throws Exception {
-
+	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user ="admin";
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "DynamicForm";
@@ -99,14 +108,21 @@ public class DynamicFormModule implements DownloadUploadModule {
 		}
 		FilenameFilter textFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(ftlCustomExtension);
+            	return name.toLowerCase().endsWith(ftlCustomExtension);
             }
         };
         
         File[] directories = directory.listFiles((new FilenameFilter() {
         	  @Override
         	  public boolean accept(File current, String name) {
-        	    return new File(current, name).isDirectory();
+        		  if(!StringUtils.isBlank(uploadFileName)) {
+        			  if(name.equalsIgnoreCase(uploadFileName)) {
+        				  return new File(current, name).isDirectory();  
+        			  }
+        		  }else {
+        			  return new File(current, name).isDirectory();
+        		  }
+				return false;
         	  }
         	}));
         for (File currentDirectory : directories) {
@@ -185,5 +201,5 @@ public class DynamicFormModule implements DownloadUploadModule {
 		}
 
 	}
-
+	
 }

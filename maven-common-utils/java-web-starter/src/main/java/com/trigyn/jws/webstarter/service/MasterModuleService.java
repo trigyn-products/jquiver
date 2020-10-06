@@ -1,8 +1,7 @@
 package com.trigyn.jws.webstarter.service;
 
-import javax.transaction.Transactional;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

@@ -264,7 +264,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
  	
 <textarea id="sqlContentDiv" style="display: none">
 	${(autocompleteVO.autocompleteQuery)!""}
-&lt;/textarea&gt;
+</textarea>
   
 <script>
 	contextPath = "${(contextPath)!''''}";

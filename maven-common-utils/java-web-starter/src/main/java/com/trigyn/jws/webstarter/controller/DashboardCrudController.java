@@ -1,16 +1,19 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,30 +60,32 @@ public class DashboardCrudController {
     
     
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashletMasterListing(){
+	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException{
 		try{
 			Map<String,Object>  modelMap = new HashMap<>();
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 
 	
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashboardMasterListing() {
+	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException {
 		try{
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
     }
 
     
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId) {
+	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId, HttpServletResponse httpServletResponse) throws IOException {
 		try{
 			Map<String, Object> templateMap 	= new HashMap<>();
 			Dashboard dashboard 				= new Dashboard();
@@ -101,7 +106,8 @@ public class DashboardCrudController {
 			templateMap.put("dashboard", dashboard);
 			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 
@@ -117,7 +123,7 @@ public class DashboardCrudController {
     
     
 	@PostMapping(value = "/aedl", produces = {MediaType.TEXT_HTML_VALUE})
-	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId) {
+	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId, HttpServletResponse httpServletResponse) throws IOException {
 		try{
 			Map<String, Object> templateMap 		= new HashMap<>();
 			DashletVO dashletVO						= dashletServive.getDashletDetailsById(dashletId);
@@ -128,7 +134,9 @@ public class DashboardCrudController {
 			templateMap.put("contextDetailsMap", contextDetailsMap);
 			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 	
@@ -145,12 +153,24 @@ public class DashboardCrudController {
     
 	@PostMapping(value = "/ddl")
 	public void downloadAllDashletsToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		dashboardCrudService.downloadDashlets();
+		dashboardCrudService.downloadDashlets(null);
 	}
 
 	@PostMapping(value = "/udl")
 	public void uploadAllDashletsToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		dashboardCrudService.uploadDashlets();
+		dashboardCrudService.uploadDashlets(null);
 	}
 	
+	
+	@PostMapping(value = "/ddlbi")
+	public void downloadDashletByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
+		String dashletId = request.getParameter("dashletId");
+		dashboardCrudService.downloadDashlets(dashletId);
+	}
+	
+	@PostMapping(value = "/udlbn")
+	public void uploadDashletsByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String dashletName = request.getParameter("dashletName");
+		dashboardCrudService.uploadDashlets(dashletName);
+	}
 }

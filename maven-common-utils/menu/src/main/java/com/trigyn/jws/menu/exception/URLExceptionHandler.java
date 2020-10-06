@@ -55,7 +55,12 @@ public class URLExceptionHandler implements ErrorController {
     			}
   			 }
         	parameterMap.put("statusCode", statusCode);
-        	parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
+        	if(exception != null) {
+        		parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
+        	} else {
+        		parameterMap.put("errorMessage", "<#noparse>" + httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) + "</#noparse>");
+        	}
+        		
     	}
     	return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 	}

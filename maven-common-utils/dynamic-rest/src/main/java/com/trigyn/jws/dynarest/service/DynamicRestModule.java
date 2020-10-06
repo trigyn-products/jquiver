@@ -5,6 +5,7 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +30,15 @@ public class DynamicRestModule implements DownloadUploadModule {
 	
 	
 	@Override
-	public void downloadCodeToLocal() throws Exception {
+	public void downloadCodeToLocal(Object dynarestDetailsObj) throws Exception {
+		List<JwsDynamicRestDetail>  dynamicRestDetails = new ArrayList<>();
+		if(dynarestDetailsObj != null) {
+			JwsDynamicRestDetail dynamicForm = (JwsDynamicRestDetail) dynarestDetailsObj;
+			dynamicRestDetails.add(dynamicForm);
+		}else {
+			dynamicRestDetails = dynarestDAO.getAllDynamicRestDetails();
+		}
 		
-		List<JwsDynamicRestDetail>  dynamicRestDetails = dynarestDAO.getAllDynamicRestDetails();
 		String templateDirectory = "DynamicRest";
 		String ftlCustomExtension = ".tgn";
 		String serviceLogic = "serviceLogic";
@@ -74,7 +81,7 @@ public class DynamicRestModule implements DownloadUploadModule {
 	}
 
 	@Override
-	public void uploadCodeToDB() throws Exception {
+	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "DynamicRest";
@@ -88,14 +95,21 @@ public class DynamicRestModule implements DownloadUploadModule {
 		}
 		FilenameFilter textFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(ftlCustomExtension);
+	            return name.toLowerCase().endsWith(ftlCustomExtension);
             }
         };
         
         File[] directories = directory.listFiles((new FilenameFilter() {
         	  @Override
         	  public boolean accept(File current, String name) {
-        	    return new File(current, name).isDirectory();
+        		  if(!StringUtils.isBlank(uploadFileName)) {
+        			  if(name.equalsIgnoreCase(uploadFileName)) {
+        				  return new File(current, name).isDirectory();  
+        			  }
+        		  }else {
+        			  return new File(current, name).isDirectory();
+        		  }
+				return false;
         	  }
         	}));
         for (File currentDirectory : directories) {

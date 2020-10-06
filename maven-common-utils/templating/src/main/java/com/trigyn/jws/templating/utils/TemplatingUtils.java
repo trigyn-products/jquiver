@@ -23,6 +23,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
 import freemarker.cache.StringTemplateLoader;
@@ -44,6 +45,9 @@ public class TemplatingUtils {
 
     @Autowired
     private MessageSource           messageSource       = null;
+    
+    @Autowired
+    private DBTemplatingService 	templatingService 	= null;
 	
 	@Autowired
 	private FileUtilities fileUtilities  = null;
@@ -103,5 +107,16 @@ public class TemplatingUtils {
         templateObj.process(modelMap, writer);
         return writer.toString();
 	}
+	
+	
+	public String processTemplate(String templateName, Map<String, Object> modelMap) throws Exception {
+        TemplateVO templateVO = templatingService.getTemplateByName(templateName);
+        addTemplateProperties(modelMap);
+        Template templateObj = new Template(templateName, new StringReader(templateVO.getTemplate()),
+                freeMarkerConfigurer.getConfiguration());
+        Writer writer = new StringWriter();
+        templateObj.process(modelMap, writer);
+        return writer.toString();
+    }
     
 }

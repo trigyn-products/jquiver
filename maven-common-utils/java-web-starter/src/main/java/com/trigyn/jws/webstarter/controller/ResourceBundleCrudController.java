@@ -1,8 +1,11 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +40,7 @@ public class ResourceBundleCrudController {
 
 	
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
-	public String dbResourceBundleListing() {
+	public String dbResourceBundleListing(HttpServletResponse httpServletResponse) throws IOException {
 		
 		try {
 			Map<String, Object> templateMap = new HashMap<>();
@@ -45,7 +48,9 @@ public class ResourceBundleCrudController {
 			templateMap.put("languageVOList", languageVOList);
 			return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 		
 	}
@@ -76,6 +81,7 @@ public class ResourceBundleCrudController {
 			Boolean keyAlreadyExist = resourceBundleService.checkResourceKeyExist(resourceBundleKey);
 			return new ResponseEntity<>(keyAlreadyExist, httpHeaders, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("Error ", e);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -92,6 +98,7 @@ public class ResourceBundleCrudController {
 			resourceBundleService.saveResourceBundleDetails(resourceBundleKey, dbResourceList);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error("Error ", e);
 			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 

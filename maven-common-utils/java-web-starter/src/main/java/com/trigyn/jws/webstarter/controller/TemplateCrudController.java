@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,19 +49,21 @@ public class TemplateCrudController {
 	private TemplateVersionService templateVersionService	= null;
 
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
-    public String templatePage() {
+    public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String,Object>  modelMap 	= new HashMap<>();
 			String environment 				= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
     }
 
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
-	public String velocityTemplateEditor(HttpServletRequest request)  {
+	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
 		try {
 			String templateId 					= request.getParameter("vmMasterId");
 			Map<String, Object> vmTemplateData 	= new HashMap<>();
@@ -72,7 +76,9 @@ public class TemplateCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 	
@@ -104,12 +110,12 @@ public class TemplateCrudController {
 	
 	@PostMapping(value = "/dtl")
 	public void downloadAllTemplatesToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		templateCrudService.downloadTemplates();
+		templateCrudService.downloadTemplates(null);
 	}
 
 	@PostMapping(value = "/utd")
 	public void uploadAllTemplatesToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		templateCrudService.uploadTemplates();
+		templateCrudService.uploadTemplates(null);
 	}
 	
 	@GetMapping(value = "/vtd")
@@ -117,5 +123,19 @@ public class TemplateCrudController {
 	public String getTemplateDatabByVersion(@RequestHeader(name = "template-id", required = true) String templateId
 			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
 		return templateVersionService.getTemplateData(templateId, versionId);
+	}
+	
+	
+	@PostMapping(value = "/dtbi")
+	public void downloadTemplateByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
+		String templateId = request.getParameter("templateId");
+		templateCrudService.downloadTemplates(templateId);
+	}
+	
+	
+	@PostMapping(value = "/utdbi")
+	public void uploadTemplateByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String templateName = request.getParameter("templateName");
+		templateCrudService.uploadTemplates(templateName);
 	}
 }

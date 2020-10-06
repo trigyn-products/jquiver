@@ -24,7 +24,8 @@ public final class QueryStore {
     		+ " (ml.moduleId AS moduleId, COALESCE(mlI18n.moduleName, mlI18nDef.moduleName) AS moduleName ) "
     		+ " FROM ModuleListing AS ml "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = :languageId "
-    		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId ";
+    		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
+    		+ " WHERE ml.parentId IS NULL ";
     
     public static final String JPA_QUERY_TO_GET_ALL_MODULES_DETAILS = "SELECT new com.trigyn.jws.dbutils.vo.ModuleDetailsVO "
     		+ " (ml.moduleId AS moduleId, COALESCE(mlI18n.moduleName, mlI18nDef.moduleName) AS moduleName "
@@ -37,7 +38,7 @@ public final class QueryStore {
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nP ON mlI18nP.id.languageId = :languageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nPDef ON mlI18nPDef.id.languageId = :defaultLanguageId "
-    		+ " GROUP BY ml.moduleId ORDER BY CASE WHEN  ml.parentId IS NULL THEN ml.sequence END ASC ";
+    		+ " GROUP BY ml.moduleId ORDER BY ml.sequence ASC ";
     
     public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_NAME = "SELECT ml.moduleId AS moduleId"
     		+ " FROM ModuleListing AS ml "

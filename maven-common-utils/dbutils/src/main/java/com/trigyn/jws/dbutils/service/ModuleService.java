@@ -44,10 +44,22 @@ public class ModuleService {
     @Autowired
     private UserRoleRepository userRoleRepository						= null; 
     
+	@Autowired
+	private TemplateVersionService templateVersionService				= null;
+    
 	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{
-		if(moduleId != null && !moduleId.isBlank() && !moduleId.isEmpty()) {
-			return iModuleListingRepository.getModuleDetails(moduleId, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
+		if(!StringUtils.isBlank(moduleId)) {
+			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
+			
+			if(moduleDetailsVO != null) {
+				Integer targetLookupId = moduleDetailsVO.getTargetLookupId();
+				if( targetLookupId != null && !targetLookupId.equals(Constant.MODULE_GROUP_ID)) {
+					Map<String, Object> moduleDetailsMap = getContextNameDetailsByType(moduleDetailsVO);
+					moduleDetailsVO.setTargetLookupName(moduleDetailsMap.get("targetTypeName").toString());
+				}
+			}
+			return moduleDetailsVO;
 		}		
 		return null;
 	}
@@ -177,8 +189,15 @@ public class ModuleService {
 	}
 	
 	public Map<String, Object> getModuleTargetTypeName(String moduleURL) throws Exception {
-		Map<String, Object> moduleDetailsMap = new HashMap<>();
 		ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getTargetTypeDetails(moduleURL);
+		Map<String, Object> moduleDetailsMap = getContextNameDetailsByType(moduleDetailsVO);
+		return moduleDetailsMap;
+	}
+
+
+	private Map<String, Object> getContextNameDetailsByType(ModuleDetailsVO moduleDetailsVO)
+			throws Exception {
+		Map<String, Object> moduleDetailsMap = new HashMap<>();
 		List<Map<String, Object>> targetTypeList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
 		moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 		if(!CollectionUtils.isEmpty(targetTypeList)) {
@@ -188,4 +207,23 @@ public class ModuleService {
 		return moduleDetailsMap;
 	}
     
+	public Integer getModuleMaxSequence() throws Exception {
+		Integer defaultSequence = moduleDAO.getModuleMaxSequence();
+		if(defaultSequence != null) {
+			defaultSequence = defaultSequence + 1;
+		}else {
+			defaultSequence = Constant.DEFAULT_SEQUENCE_NUMBER;
+		}
+		return defaultSequence;
+	}
+	
+	public Integer getMaxSequenceByParent(String parentModuleId) throws Exception {
+		Integer defaultSequence = moduleDAO.getMaxSequenceByParent(parentModuleId);
+		if(defaultSequence != null) {
+			defaultSequence = defaultSequence + 1;
+		}else {
+			defaultSequence = Constant.DEFAULT_SEQUENCE_NUMBER;
+		}
+		return defaultSequence;
+	}
 }

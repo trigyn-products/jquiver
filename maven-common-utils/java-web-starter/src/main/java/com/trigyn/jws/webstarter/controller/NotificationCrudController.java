@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,16 +44,18 @@ public class NotificationCrudController {
 	
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
-	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request) {
+	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 
 	@GetMapping(value = "/aen", produces = MediaType.TEXT_HTML_VALUE)
-	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		
 		try {
 			String dateFormat 					= Constants.DATE_FORMAT;
@@ -76,7 +79,9 @@ public class NotificationCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout(Constants.CREATE_NEW_USER_NOTIFICATION, templateDetails);
 		} catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
 		}
 	}
 

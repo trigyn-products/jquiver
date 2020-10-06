@@ -16,6 +16,7 @@ public class ModuleDetailsVO implements Serializable{
 	private Integer sequence						= null;
 	private Integer targetLookupId					= null;
 	private String targetLookupDesc					= null;
+	private String targetLookupName					= null;
 	private String targetTypeId						= null;
 	private Long subModuleCount						= null;
 	private List<String> roleIdList					= null;
@@ -171,6 +172,18 @@ public class ModuleDetailsVO implements Serializable{
 	 */
 	public void setRoleIdList(List<String> roleIdList) {
 		this.roleIdList = roleIdList;
+	}
+	
+	public String getTargetLookupName() {
+		return targetLookupName;
+	}
+
+	public void setTargetLookupName(String targetLookupName) {
+		this.targetLookupName = targetLookupName;
+	}
+
+	public void setParentModuleId(String parentModuleId) {
+		this.parentModuleId = parentModuleId;
 	}
 
 	@Override

@@ -1,12 +1,16 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +26,8 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @RestController
 @RequestMapping(value = "/view/**", produces = MediaType.TEXT_HTML_VALUE)
 public class MasterModuleController {
+	
+	private final static Logger logger = LogManager.getLogger(MasterCreatorController.class);
 
 	@Autowired
 	private ModuleService moduleService 					= null;
@@ -39,7 +45,7 @@ public class MasterModuleController {
 	private DynamicFormService dynamicFormService 			= null;
 
 	@RequestMapping()
-	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException
 			 {
 		try {	
 			String moduleUrl = httpServletRequest.getRequestURI();
@@ -65,13 +71,14 @@ public class MasterModuleController {
 				templateMap.put("formId", targetTypeId);
 				return menuService.getDashletTemplateWithLayout(template, templateMap);
 			}
-			return null;
 		}catch (NullPointerException exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 		}catch (Exception exception) {
-			throw new RuntimeException(exception.getMessage());
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 		}
-		
+		return null;
 	}
 	
 	 private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {

@@ -38,27 +38,45 @@ public class DynarestCrudController {
 	
     
     @GetMapping(value = "/dynl", produces = MediaType.TEXT_HTML_VALUE)
-    public String loadDynarestListing() throws Exception {
-        Map<String,Object>  modelMap = new HashMap<>();
+	public String loadDynarestListing(HttpServletRequest httpServletRequest) throws Exception {
+		Map<String, Object> modelMap = new HashMap<>();
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-        return menuService.getTemplateWithSiteLayout("dynarest-details-listing", modelMap);
-    }
+		String uri = httpServletRequest.getRequestURI();
+		String url = httpServletRequest.getRequestURL().toString();
+		StringBuilder urlPrefix = new StringBuilder();
+		url = url.replace(uri, "");
+		urlPrefix.append(url).append("/api/");
+		modelMap.put("urlPrefix", urlPrefix);
+		return menuService.getTemplateWithSiteLayout("dynarest-details-listing", modelMap);
+	}
     
 	@PostMapping(value = "/ddr")
 	public void downloadAllDynamicRestCodeToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		 dynarestCrudService.downloadDynamicRestCode();
+		 dynarestCrudService.downloadDynamicRestTemplate(null);
 	}
 
 	@PostMapping(value = "/udr")
 	public void uploadAllDynamicRestCodesToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		 dynarestCrudService.uploadDynamicRestCode();
+		 dynarestCrudService.uploadDynamicRestTemplate(null);
 	}
 	
 	@PostMapping(value = "/sdq",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Boolean saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
 		dynarestCrudService.deleteDAOQueries(formData);
 		return dynarestCrudService.saveDAOQueries(formData);
+	}
+	
+	@PostMapping(value = "/ddrbi")
+	public void downloadDynarestByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
+		Integer dashletId = request.getParameter("dynarestDetailsId") == null ? null : Integer.parseInt(request.getParameter("dynarestDetailsId"));
+		dynarestCrudService.downloadDynamicRestTemplate(dashletId);
+	}
+	
+	@PostMapping(value = "/udrbn")
+	public void uploadDynarestByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String dynarestMethodName = request.getParameter("dynarestMethodName");
+		dynarestCrudService.uploadDynamicRestTemplate(dynarestMethodName);
 	}
     
 }

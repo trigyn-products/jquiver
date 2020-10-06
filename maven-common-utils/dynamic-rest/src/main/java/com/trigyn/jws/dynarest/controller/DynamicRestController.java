@@ -1,11 +1,14 @@
 package com.trigyn.jws.dynarest.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +19,19 @@ import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
 
 @RestController
-@RequestMapping("/dyn")
 public class DynamicRestController {
 
+	private static final Logger LOGGER = LogManager.getLogger(DynamicRestController.class);
+	
+    private static final String METHOD_SIGNATURE_MESSAGE = "Make sure you have the method signature correct. Signature should be similar to : - public T methodName(Map<String, Object> requestParameters, Map<String, Object> resultSetParameters, UserDetailsVO, details) {}";
+	
     @Autowired
     private JwsDynamicRestDetailService jwsService = null;
-
+    
     @RequestMapping("/api/**")
     public ResponseEntity<?> callDynamicEntity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String requestUri = httpServletRequest.getRequestURI();
-        requestUri = requestUri.replaceFirst("/dyn/api/", "");
+        requestUri = requestUri.replaceFirst("/api/", "");
         RestApiDetails restApiDetails = jwsService.getRestApiDetails(requestUri);
         Map<String, Object> requestParams;
 
@@ -43,7 +49,21 @@ public class DynamicRestController {
 
         try {
             Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(), requestParams);
-            Object response = jwsService.createSourceCodeAndInvokeServiceLogic(requestParams, queriesResponse, restApiDetails);
+            Object response = null;
+			try {
+				response = jwsService.createSourceCodeAndInvokeServiceLogic(requestParams, queriesResponse, restApiDetails);
+			} catch (IllegalArgumentException exception) {
+				LOGGER.error("Error occured while invoking the method ", exception);
+				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
+			} catch (InvocationTargetException exception) {
+				LOGGER.error("Error occured while invoking the method ", exception);
+			} catch (NoSuchMethodException exception) {
+				LOGGER.error("Error occured while invoking the method ", exception);
+				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
+			} catch (ClassNotFoundException exception) {
+				LOGGER.error("Error occured while invoking the method ", exception);
+				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "The class was not found in the mentioned package.");
+			}
             buildResponseEntity(httpServletResponse, restApiDetails);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
