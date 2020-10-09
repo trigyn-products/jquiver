@@ -55,7 +55,7 @@ public class DynamicFormService {
 			String formBody = null;
 			Map<String, Object> formHtmlTemplateMap = new HashMap<>();
 			String selectQueryFile = "selectQuery";
-			String htmlBodyFile = "hmtlQuery";
+			String htmlBodyFile = "htmlContent";
 
 			DynamicForm form = dynamicFormDAO.findDynamicFormById(formId);
 			String formName = form.getFormName();

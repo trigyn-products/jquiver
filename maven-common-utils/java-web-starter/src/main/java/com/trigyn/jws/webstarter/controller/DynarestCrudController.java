@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynarestCrudService;
 
@@ -62,15 +64,16 @@ public class DynarestCrudController {
 	}
 	
 	@PostMapping(value = "/sdq",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public Boolean saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
+	public Integer saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
 		dynarestCrudService.deleteDAOQueries(formData);
-		return dynarestCrudService.saveDAOQueries(formData);
+		List<JwsDynamicRestDaoDetail> dynamicRestDaoDetails = dynarestCrudService.saveDAOQueries(formData);
+		return dynarestCrudService.downloadCodeToLocal(dynamicRestDaoDetails);
 	}
 	
 	@PostMapping(value = "/ddrbi")
 	public void downloadDynarestByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
-		Integer dashletId = request.getParameter("dynarestDetailsId") == null ? null : Integer.parseInt(request.getParameter("dynarestDetailsId"));
-		dynarestCrudService.downloadDynamicRestTemplate(dashletId);
+		Integer dynarestDetailsId = request.getParameter("dynarestDetailsId") == null ? null : Integer.parseInt(request.getParameter("dynarestDetailsId"));
+		dynarestCrudService.downloadDynamicRestTemplate(dynarestDetailsId);
 	}
 	
 	@PostMapping(value = "/udrbn")

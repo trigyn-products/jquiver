@@ -146,8 +146,6 @@ public class DBTemplatingService {
 		if(file.exists()) {
 			String content = fileUtilities.readContentsOfFile(file.getAbsolutePath());
 			templateVO.setTemplate(content);
-		}else {
-			throw new Exception("Please download the templates from template master listing  " + templateName);
 		}
 	}
 }

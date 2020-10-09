@@ -8,6 +8,8 @@ public final class Constant {
 	public static final Integer DEFAULT_SEQUENCE_NUMBER		= 1;
 	public static final Integer MODULE_GROUP_ID		 		= 6;
 	public static final String GROUP_MODULE_URL				= "#";
+	public static final Integer HOME_PAGE_MODULE_SEQUENCE	= 9999;
+	public static final String HOME_PAGE_MODULE_URL			= "home-module";
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);
 		

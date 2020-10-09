@@ -1,13 +1,15 @@
 package com.trigyn.jws.dynamicform.controller;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +42,10 @@ public class FileUploadController {
 		String message = "";
 		try {
 			String fileId = storageService.save(file);
-			return new ObjectMapper().writeValueAsString("1");
+			Map<String, Object> uploadDetails = new HashMap<String, Object>();
+			uploadDetails.put("fileId", fileId);
+			uploadDetails.put("success", "1");
+			return new ObjectMapper().writeValueAsString(uploadDetails);
 		} catch (Exception e) {
 			message = "Fail to upload files!";
 			return message;
@@ -58,8 +63,10 @@ public class FileUploadController {
 				String fileId = storageService.save(file);
 				fileNames.add(fileId);
 			});
-
-			return new ObjectMapper().writeValueAsString("1");
+			Map<String, Object> uploadDetails = new HashMap<String, Object>();
+			uploadDetails.put("fileIds", fileNames);
+			uploadDetails.put("success", "1");
+			return new ObjectMapper().writeValueAsString(uploadDetails);
 		} catch (Exception e) {
 			message = "Fail to upload files!";
 			return message;
@@ -74,17 +81,17 @@ public class FileUploadController {
 					.fromMethodName(FileUploadController.class, "getFile", path.getFileName().toString()).build()
 					.toString();
 
-			return new FileInfo(filename, url);
+			return new FileInfo(null, null, null);
 		}).collect(Collectors.toList());
 
 		return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
 	}
 
 	@GetMapping("/files/{filename:.+}")
-	public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-		Resource file = storageService.load(filename);
+	public ResponseEntity<File> getFile(@PathVariable String filename) {
+		File file = storageService.load(filename);
 		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
 				.body(file);
 	}
 

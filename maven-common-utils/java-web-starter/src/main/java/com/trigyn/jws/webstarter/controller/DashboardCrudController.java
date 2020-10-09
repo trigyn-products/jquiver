@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,7 @@ public class DashboardCrudController {
 			Map<String, Object> templateMap 	= new HashMap<>();
 			Dashboard dashboard 				= new Dashboard();
 			List<UserRoleVO> userRoleVOs 		= dashboardCrudService.getAllUserRoles();
-			if (dashboardId != null && !dashboardId.isEmpty() && !dashboardId.equals("")) {
+			if (!StringUtils.isBlank(dashboardId)) {
 				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
 				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
 				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {

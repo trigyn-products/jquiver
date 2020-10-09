@@ -54,7 +54,7 @@ public class MenuCrudController {
 		try {
 			Map<String, Object> templateMap 						= new HashMap<>();
 			ModuleDetailsVO moduleDetailsVO 						= moduleService.getModuleDetails(moduleId);
-			List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllModules(moduleId);	
+			List<ModuleDetailsVO> moduleListingVOList 				= moduleService.getAllParentModules(moduleId);	
 			List<ModuleTargetLookupVO> moduleTargetLookupVOList 	= moduleService.getAllModuleLookUp();
 			List<UserRoleVO> userRoleVOs 							= moduleService.getAllUserRoles();
 			Integer defaultSequence									= moduleService.getModuleMaxSequence();
@@ -63,7 +63,7 @@ public class MenuCrudController {
 			StringBuilder urlPrefix									= new StringBuilder();
 			url = url.replace(uri, "");
 			urlPrefix.append(url).append("/view/");
-			
+
 			templateMap.put("urlPrefix", urlPrefix);
 			templateMap.put("userRoleVOs", userRoleVOs);
 			templateMap.put("defaultSequence", defaultSequence);
@@ -143,4 +143,31 @@ public class MenuCrudController {
 	public Integer getMaxSequenceByGroup()throws Exception {
 		return moduleService.getModuleMaxSequence();
 	}
+	
+	@PostMapping(value = "/chp", produces = { MediaType.TEXT_HTML_VALUE })
+	public String configHomePage(HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse)throws Exception {
+		try {
+			Map<String, Object> templateMap 				= new HashMap<>();
+			String homeModuleId								= moduleService.getHomePageModuleId();
+			ModuleDetailsVO moduleDetailsVO 				= moduleService.getModuleDetails(homeModuleId);
+			List<ModuleTargetLookupVO> targetLookupVOList 	= moduleService.getAllModuleLookUp();
+			templateMap.put("moduleDetailsVO", moduleDetailsVO);
+			templateMap.put("targetLookupVOList", targetLookupVOList);
+			return menuService.getTemplateWithSiteLayout("config-home-page", templateMap);
+		} catch (Exception exception) {
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
+		}
+	}
+	
+	@PostMapping(value = "/schm")
+	@ResponseBody
+	public String saveConfigHomeModule(HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+		String moduleId 			= a_httHttpServletRequest.getParameter("moduleId");
+		Integer targetLookupTypeId 	= a_httHttpServletRequest.getParameter("targetLookupTypeId") != null ? 
+										Integer.parseInt(a_httHttpServletRequest.getParameter("targetLookupTypeId")) : null;
+		String targetTypeId 		= a_httHttpServletRequest.getParameter("targetTypeId");
+		return moduleService.saveConfigHomePage(moduleId, targetLookupTypeId, targetTypeId);
+    }
 }

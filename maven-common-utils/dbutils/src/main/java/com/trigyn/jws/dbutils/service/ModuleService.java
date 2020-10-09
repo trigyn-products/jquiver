@@ -66,23 +66,24 @@ public class ModuleService {
 	
 	
 	public List<ModuleDetailsVO> getAllMenuModules() throws Exception{
-		return iModuleListingRepository.getAllModulesDetails(Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
+		return iModuleListingRepository.getAllModulesDetails(
+				Constant.HOME_PAGE_MODULE_URL, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
 	}
 	
 	
-	public List<ModuleDetailsVO> getAllModules(String moduleId) throws Exception{
-		List<ModuleDetailsVO> moduleDetailsVOList  = new ArrayList<>();
-		List<ModuleDetailsVO> moduleDetailsVOs  = new ArrayList<>();
-		moduleDetailsVOList = iModuleListingRepository.getAllModules(Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
-		if(moduleId != null && !moduleId.isBlank() && !moduleId.isEmpty()) {
-			for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
+	public List<ModuleDetailsVO> getAllParentModules(String moduleId) throws Exception{
+		List<ModuleDetailsVO> parentModulesList  	= new ArrayList<>();
+		List<ModuleDetailsVO> parentModuleVOs	  	= new ArrayList<>();
+		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.HOME_PAGE_MODULE_URL, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
+		if(!StringUtils.isBlank(moduleId)) {
+			for (ModuleDetailsVO moduleDetailsVO : parentModulesList) {
 				if(!moduleDetailsVO.getModuleId().equals(moduleId)) {
-					moduleDetailsVOs.add(moduleDetailsVO);
+					parentModuleVOs.add(moduleDetailsVO);
 				}
 			}
-			return moduleDetailsVOs;
+			return parentModuleVOs;
 		}
-		return moduleDetailsVOList;
+		return parentModulesList;
 	}
 	
 	
@@ -198,11 +199,13 @@ public class ModuleService {
 	private Map<String, Object> getContextNameDetailsByType(ModuleDetailsVO moduleDetailsVO)
 			throws Exception {
 		Map<String, Object> moduleDetailsMap = new HashMap<>();
-		List<Map<String, Object>> targetTypeList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
-		moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
-		if(!CollectionUtils.isEmpty(targetTypeList)) {
-			moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
-        	moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
+		if(moduleDetailsVO != null) {
+			List<Map<String, Object>> targetTypeList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
+			moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
+			if(!CollectionUtils.isEmpty(targetTypeList)) {
+				moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
+	        	moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
+			}
 		}
 		return moduleDetailsMap;
 	}
@@ -226,4 +229,34 @@ public class ModuleService {
 		}
 		return defaultSequence;
 	}
+	
+	public String getHomePageModuleId() {
+		return iModuleListingRepository.getHomeModuleId(Constant.HOME_PAGE_MODULE_URL, Constant.HOME_PAGE_MODULE_SEQUENCE);
+	}
+	
+	public String saveConfigHomePage(String moduleId, Integer targetLookupTypeId, String targetTypeId) {
+		ModuleListing moduleListing = new ModuleListing();
+		
+		if(!StringUtils.isBlank(moduleId)) {
+			moduleListing.setModuleId(moduleId);
+		}
+
+		moduleListing.setModuleUrl(Constant.HOME_PAGE_MODULE_URL);
+		moduleListing.setSequence(Constant.HOME_PAGE_MODULE_SEQUENCE);
+		moduleListing.setTargetLookupId(targetLookupTypeId);
+		moduleListing.setTargetTypeId(targetTypeId);
+		iModuleListingRepository.saveAndFlush(moduleListing);
+		
+		ModuleListingI18n moduleListingI18n = new ModuleListingI18n();
+		ModuleListingI18nPK moduleListingI18nPK = new ModuleListingI18nPK();
+		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());
+		moduleListingI18nPK.setLanguageId(Constant.DEFAULT_LANGUAGE_ID);
+		moduleListingI18n.setId(moduleListingI18nPK);
+		moduleListingI18n.setModuleName("home-page");
+		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());
+		iModuleListingI18nRepository.save(moduleListingI18n);
+		
+		return moduleListing.getModuleId();
+    }
+	
 }

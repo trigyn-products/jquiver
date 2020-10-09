@@ -17,7 +17,7 @@ import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
 @Component("dynamic-rest")
-public class DynamicRestModule implements DownloadUploadModule {
+public class DynamicRestModule implements DownloadUploadModule<JwsDynamicRestDetail> {
 
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO = null;
@@ -30,21 +30,20 @@ public class DynamicRestModule implements DownloadUploadModule {
 	
 	
 	@Override
-	public void downloadCodeToLocal(Object dynarestDetailsObj) throws Exception {
+	public void downloadCodeToLocal(JwsDynamicRestDetail a_dynarestDetails) throws Exception {
 		List<JwsDynamicRestDetail>  dynamicRestDetails = new ArrayList<>();
-		if(dynarestDetailsObj != null) {
-			JwsDynamicRestDetail dynamicForm = (JwsDynamicRestDetail) dynarestDetailsObj;
-			dynamicRestDetails.add(dynamicForm);
+		if(a_dynarestDetails != null) {
+			dynamicRestDetails.add(a_dynarestDetails);
 		}else {
 			dynamicRestDetails = dynarestDAO.getAllDynamicRestDetails();
 		}
 		
-		String templateDirectory = "DynamicRest";
-		String ftlCustomExtension = ".tgn";
-		String serviceLogic = "serviceLogic";
-		String saveQuery = "saveQuery-";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
+		String templateDirectory 		= "DynamicRest";
+		String ftlCustomExtension 		= ".tgn";
+		String serviceLogic 			= "serviceLogic";
+		String saveQuery 				= "saveQuery-";
+		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
 		for (JwsDynamicRestDetail currentDynamicRestDetail : dynamicRestDetails) {
 			boolean isCheckSumChanged = false;
@@ -83,13 +82,13 @@ public class DynamicRestModule implements DownloadUploadModule {
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "DynamicRest";
-		String serviceLogic = "serviceLogic";
-		String saveQuery = "saveQuery-";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
-		File directory = new File(folderLocation);
+		String ftlCustomExtension 	= ".tgn";
+		String templateDirectory 	= "DynamicRest";
+		String serviceLogic 		= "serviceLogic";
+		String saveQuery 			= "saveQuery-";
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 				= folderLocation +File.separator+templateDirectory;
+		File directory 				= new File(folderLocation);
 		if(!directory.exists()) {
 			throw new Exception("No such directory present");
 		}

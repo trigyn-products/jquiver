@@ -1,1207 +1,8 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashboard-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashboardMaster")}</h2> 
-		<div class="float-right">
-			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage(''jws.createNewDashboard'')}" type="button" onclick="submitForm(this)">
-			<input class="btn btn-primary" name="manageDashlets" value="${messageSource.getMessage(''jws.manageDashblet'')}" type="button" onclick="openDashlets(this)">
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-		
-	<div id="dashboardMasterGrid"></div>
-
-	<div id="snackbar"></div>
-</div>
-
-<form action="${(contextPath)!''''}/cf/aedb" method="POST" id="formDBRedirect">
-	<input type="hidden" id="dashboardId" name="dashboard-id">
-</form>
-<form action="${(contextPath)!''''}/cf/dls" method="POST" id="formDLSRedirect" target="_blank">
-	<input type="hidden" id="dashboardIdView" name="dashboardId">
-</form>
-
-<script>
-	contextPath = "${(contextPath)!''''}";
-	$(function () {
-		let colM = [
-			{ title: "", dataIndx: "dashboardId", hidden: true},
-			{ title: "${messageSource.getMessage(''jws.dashboardName'')}", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage(''jws.dashboardType'')}", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
-			{ title: "${messageSource.getMessage(''jws.lastUpdatedDate'')}", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
-			{ title: "${messageSource.getMessage(''jws.contextDescription'')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashboard}
-		];
-	
-		let grid = $("#dashboardMasterGrid").grid({
-	      gridId: "dashboardMasterListingGrid",
-	      colModel: colM
-	  	});
-	
-	});
-	
-	function editDashboard(uiObject) {
-		const dashboardId = uiObject.rowData.dashboardId;
-		return ''<span id="''+dashboardId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage("jws.editDashboard")}"></i></span>&nbsp;&nbsp;<span id="''+dashboardId+''" onclick="viewDashlets(this)" class= "grid_action_icons"><i class="fa fa-eye"  title="${messageSource.getMessage("jws.viewDashboard")}"></i></span>''.toString();
-	}
-	
-	function submitForm(element) {
-		$("#dashboardId").val(element.id);
-		$("#formDBRedirect").submit();
-	}
-	function viewDashlets(element){
-		$("#dashboardIdView").val(element.id);
-		$("#formDLSRedirect").submit();
-	}
-	
-	function openDashlets(element) {
-		location.href = contextPath+"/cf/dlm";
-	}
-	
-	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
-	}
-</script>
-', 'admin', 'admin', NOW());
-
-
-
-
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashboard-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-
-</head> 
-
-<div class="container"> 
-
-	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditDashboard")}</h2> 
-		<div class="float-right">
-			<span onclick="addEditDashboardFn.backToDashboardListingPage();">
-  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-
-	<div id="formDiv">
-		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	 
-	 	<div class="row">
-			<input type="hidden" id = "dashboardId" name = "dashboardId" value = "${(dashboard?api.getDashboardId())!''''}">
-			<div class="col-12">
-	     		<div class="col-inner-form full-form-fields"> 
-		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashlets")}</label>
-		  			<div id = "associatedDashlets"></div>
-		  			<div class="clearfix"></div>
-				</div>
-			</div>	
-
-			<div class="col-3" id="dashboardTypeDiv">
-				<div class="col-inner-form full-form-fields">
-					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
-					<input type="text"  id = "dashboardName" name = "dashboardName" value = "${(dashboard?api.getDashboardName())!''''}" maxlength="100" class="form-control">
-				</div>
-			</div>
-	 
-			<div class="col-3" id="dashboardTypeDiv">
-				<div class="col-inner-form full-form-fields">
-					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardType")}</label>
-					<select id="dashboardTypeId" name="dashboardType" class="form-control">
-						<option value="">SELECT</option>
-							<security:authorize access="hasAnyRole(''''ROLE_ADMIN'''')">
-								<option value="system">${messageSource.getMessage("jws.system")}</option>
-							</security:authorize>
-						<option value="personal">${messageSource.getMessage("jws.personal")}</option>
-					</select>
-				</div>
-			</div>
-							
-			<div class="col-3" id="contextIdDiv" >
-				<div class="col-inner-form full-form-fields">
-					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
-					<select id="contextId" name="contextId" onchange="addEditDashboardFn.populateDashlets();" class="form-control">
-						<option value="">Select</option>
-						<#if (contextDetails)??>
-							<#list contextDetails as contextId, contextName>
-								<#if contextId??>
-									<#if (dashboard?api.getContextId())?? && contextId == dashboard?api.getContextId()>
-										<option value="${contextId}" selected>${contextName}</option>
-									<#elseif contextId??>
-										<option value="${contextId}">${contextName}</option>
-									</#if>
-								</#if>
-							</#list>
-						</#if>
-					</select>								
-				</div>
-			</div>
-							
-		    <div class="col-3 margin-t-20">
-				<div id="draagableDiv">
-					<input class="pull-left comman_checkbox form-control" type="checkbox" id="isDraggableId"  name="isDraggable" value="${(dashboard?api.getIsDraggable())!''''}" ${(dashboard?api.getIsDraggable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeDraggableValue();">
-					<label class="pull-left" for="isDraggableId">${messageSource.getMessage("jws.draggableDashboard")}</label>
-				</div>	
-				<div class="clearfix"></div>
-		    </div>
-	
-			<div class="col-3"> 			
-				<div class="inpugrp pull-left" id="exportableDiv" >
-					<input type="checkbox" id="isExportableId" class="pull-left comman_checkbox form-control"  name="isExportable" value="${(dashboard?api.getIsExportable())!''''}" ${(dashboard?api.getIsExportable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeExportableValue();">
-					<label class="pull-left" for="isExportableId">${messageSource.getMessage("jws.exportableDashboard")}</label>
-      			</div>
-				<div class="clearfix"></div>
-    		</div>
-		 
-    		<div class="clearfix"></div>
-     	</div>
-	 
-	 
-		<div class="row">
-			<div class="col-12">
-				<div id="buttons" class="pull-right">		 
-	 				<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditDashboardFn.saveDashboard();">	 
-	 				<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditDashboardFn.backToDashboardListingPage();">
-				</div>
-	 		</div>
-		</div>	
-	
-	</div>
-	
-	<div id="snackbar"></div>
-</div>
-
-<script>
-	contextPath = "${(contextPath)!''''}";
-	const contextId ="${(dashboard?api.getContextId())!''''}";
-	const dashboardType = "${(dashboard?api.getDashboardType())!''''}"; 
-	const dashboardId = "${(dashboard?api.getDashboardId())!''''}"; 
-	let addEditDashboardFn;
-	
-	$(function() {
-		  
-	  const addEditDashboard = new AddEditDashboard(contextId, dashboardType, dashboardId);
-	  addEditDashboardFn = addEditDashboard.fn;
-	  addEditDashboardFn.loadDashboardPage();
-	  
-	});
-
-</script>
-<script src="/webjars/1.0/dashboard/addEditDashboard.js"></script>', 'admin', 'admin',NOW());
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashlet-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script>
-  contextPath = "${(contextPath)!''''}";
-</script>
-</head>
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
-		<div class="float-right">
-			<#if environment == "dev">
-				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlet" type="button">
-				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlet" type="button">
-			</#if>
-			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage(''jws.createNewDashlet'')}" type="button" onclick="dashletListing.submitForm(this)">
-    		<span onclick="dashletListing.backToDashboarListing();">
-    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-    	 	</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-		
-	<div id="divdDashletMasterGrid"></div>
-
-	<div id="snackbar"></div>
-</div>
-
-<form action="${(contextPath)!''''}/cf/aedl" method="POST" id="formDMRedirect">
-	<input type="hidden" id="dashletId" name="dashlet-id">
-</form>
-<script>
-	let dashletListing;
-	$(function () {
-	dashletListing = new DashletListing();
-		var colM = [
-			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",render: dashletStatus},
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
-		];
-	
-		var grid = $("#divdDashletMasterGrid").grid({
-			gridId: "dashletMasterListingGrid",
-			colModel: colM
-		});
-	});
-	function dashletStatus(uiObject){
-		const status = uiObject.rowData.status;
-		if(status == 1){
-			return ''Active'';
-		}else{
-			return ''Inactive'';
-		}
-	}
-
-	function editDashlet(uiObject) {
-		const dashletId = uiObject.rowData.dashletId;
-		const dashletName = uiObject.rowData.dashletName;
-		let element;
-		<#if environment == "dev">
-			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil'' title=''${messageSource.getMessage("jws.editDashlet")}''></i></span>";
-      		element = element + "<span id=''"+dashletId+"'' class= ''grid_action_icons'' onclick=''dashletListing.downloadDashletById(this)''><i class=''fa fa-download''></i></span>";
-          element = element + "<span id=''"+dashletId+"_upload'' name=''"+dashletName+"'' class= ''grid_action_icons'' onclick=''dashletListing.uploadDashletById(this)''><i class=''fa fa-upload''></i></span>";
-		<#else>
-			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";		
-		</#if>
-		return element;
-	}
-	
-
-	
-</script>
-<script src="/webjars/1.0/dashlet/dashletListing.js"></script>', 'admin', 'admin', NOW());
-
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'dashlet-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" href="/webjars/1.0/dashboard/dashboard.css" />
-<script src="/webjars/1.0/monaco/require.js"></script>
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-
-
-<div class="container">
-
-	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditDashlet")}</h2> 
-		<div class="float-right">
-			<span onclick="addEditDashletFn.backToDashletListing();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-			</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-
-	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	<div class="row">
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="dashletName" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletName")}</label>									 
-				<input type="hidden" id="dashletId" name="dashletId" value="${(dashletVO.dashletId)!''''}"/>
-				<input type="text" id="dashletName" name="dashletName" value="${(dashletVO.dashletName)!''''}" maxlength="100" placeholder="Enter Dashlet name" class="form-control"/>									
-			</div>
-		</div>
-						
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="dashletTitle" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletTitle")}</label>									 
-				<input type="text" id="dashletTitle" name="dashletTitle" value="${(dashletVO.dashletTitle)!''''}" maxlength="100" placeholder="Enter Dashlet Title" class="form-control"/>	
-			</div>
-		</div>
-								
-								
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="dashletTitle"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletCoordinates")}</label>
-				<div class="co-ordinates-block-cover">
-					<div class="co-ordinates-block"><input type="text" id="xCoordinate" name="xCoordinate"  class="numberValidator form-control"  value="${(dashletVO.xCoordinate)!''''}"  placeholder="X Coordinate" maxlength="2" /></div>
-					<div class="co-ordinates-block"><input type="text" id="yCoordinate" name="yCoordinate" class="numberValidator form-control" value="${(dashletVO.yCoordinate)!''''}"    placeholder="Y Coordinate" maxlength="2" /></div>
-				</div>
-			</div>
-		</div>
-							
-							
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="dashletTitle"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletDimesions")}</label>
-				<div class="co-ordinates-block-cover">	
-					<div class="co-ordinates-block"><input type="text" id="width" name="width" class="numberValidator form-control" value="${(dashletVO.width)!''''}" placeholder="Dashlet Width" /></div>
-					<div class="co-ordinates-block"><input type="text" id="height" name="height" class="numberValidator form-control" value="${(dashletVO.height)!''''}" placeholder="Dashlet Height" /></div>
-				</div>
-			</div>
-		</div>
-							
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="contextType"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextType")}</label>
-				<select id="contextId" name="contextId" class="form-control">
-					<option value="">Select</option>
-					<#if (contextDetailsMap)??>
-						<#list contextDetailsMap as contextId, contextDescription>
-							<#if (dashletVO?api.getContextId())?? && contextId == dashletVO?api.getContextId()>
-								<option value="${contextId}" selected>${contextDescription}</option>
-							<#else>
-								<option value="${contextId}">${contextDescription}</option>
-							</#if>
-						</#list>
-					</#if>
-				</select>
-			</div>
-		</div>
-								
-								
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label for="isActiveCheckbox"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletActive")}</label>
-				<div class="onoffswitch">
-					<input type="hidden" id="isActive" name="isActive" value="${(dashletVO.isActive)!''''}"/>
-					<input type="checkbox" name="isActiveCheckbox" class="onoffswitch-checkbox" id="isActiveCheckbox" onchange="" />
-					<label class="onoffswitch-label" for="isActiveCheckbox">
-						<span class="onoffswitch-inner"></span>
-						<span class="onoffswitch-switch"></span>
-					</label>
-				</div>
-			</div>
-		</div>
-								
-		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-				<label  for="contextType">${messageSource.getMessage("jws.dashletHeader")}</label>
-				<div class="onoffswitch">
-					<input type="hidden" id="showHeader" name="showHeader" value="${(dashletVO.showHeader)!''''}"/>
-					<input type="checkbox" name="showHeaderCheckbox" class="onoffswitch-checkbox" id="showHeaderCheckbox" onchange="" />
-					<label class="onoffswitch-label" for="showHeaderCheckbox">
-						<span class="onoffswitch-inner"></span>
-						<span class="onoffswitch-switch"></span>
-					</label>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="row">
-		<div class="col-12">
-			<div class="customdashletblock">
-				<div class="row">
-					<div class="col-12">
-						<h3 class="pull-left titlename">${messageSource.getMessage("jws.configurableProperties")} </h3>
-						<div class=" float-right">
-			   				<input type="button" value="${messageSource.getMessage(''jws.addProperty'')}" class="btn btn-primary" onclick="addEditDashletFn.addDashletProperty();">	    
-						</div>
-					</div>
-				</div>	
-   				
-   				<div class="row">	    
-    				<div class="col-12">
-    					<table id="dashletProps" class="defaulttable ">
-							<thead class="thead-light">
-								<tr>
-									<th>${messageSource.getMessage("jws.placeholderName")}</th>
-									<th>${messageSource.getMessage("jws.displayName")}</th>
-									<th>${messageSource.getMessage("jws.type")}</th>
-									<th>${messageSource.getMessage("jws.value")}</th>
-									<th>${messageSource.getMessage("jws.defaultValue")}</th>
-									<th>${messageSource.getMessage("jws.show")}</th>
-					        		<th>${messageSource.getMessage("jws.action")}</th>
-								</tr>
-							</thead>
-							<tbody>
-    							<#if (dashletVO?api.getDashletPropertVOList())??>
-									<#list dashletVO?api.getDashletPropertVOList() as dashletProperty>
-										<tr class="dashlet_property">
-											<td id="propertyDetails">
-							  					<input type="hidden" name="propertyId" id="${(dashletProperty.propertyId)!''''}" class="form-control" value="${(dashletProperty.propertyId)!''''}"/>
-							  					<input type="hidden" name="dashletId" id="${(dashletVO.dashletId)!''''}" class="form-control" value="${(dashletVO.dashletId)!''''}"/>
-							  					<input type="text" name="placeholderName" id="placeholderName_${(dashletProperty.sequence)!''''}" class="form-control" value="${(dashletProperty.placeholderName)!''''}"/>
-							  				    <input type="hidden" name="sequence" id="sequence_${(dashletProperty.sequence)!''''}" value="${(dashletProperty.sequence)!''''}" class="form-control"/>
-							          		</td>
-          
-											<td>
-									        	<input type="text" name="displayName" id="displayName_${(dashletProperty.sequence)!''''}" class="form-control" value="${(dashletProperty.displayName)!''''}"/>
-											</td>
-          
-        									<td>
-				  								<select id="componentType" class="form-control" name="componentType" onchange="addEditDashletFn.defaultValueChange()">
-				    								<#list componentMap as categoryId, categoryDescription>
-														<#if (dashletProperty?api.getType())?? && categoryId == dashletProperty?api.getType()>
-															<option value="${categoryId}" selected = "selected" >${categoryDescription}</option>	
-               											<#else>
-                   											<option value="${categoryId}">${categoryDescription}</option>
-               											</#if>
-													</#list>
-												</select>
-											</td>
-  			
-        									<td>
-         										<input type="text" name="value" id="value_${(dashletProperty.sequence)!''''}" class="form-control" value="${(dashletProperty.value)!''''}"/>
-											</td>
-          
-											<td>
-												<input type="text" name="defaultValue" id="defaultValue_${(dashletProperty.sequence)!''''}" class="form-control" value="${(dashletProperty.defaultValue)!''''}"/>
-				   							</td>
-          
-          									<td>
-												<#if (dashletProperty.toDisplay)?? && (dashletProperty.toDisplay) == 1>
-													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''''}" class="form-control" checked/>
-												<#else>
-													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''''}" class="form-control"/>
-												</#if>
-								            	
-								            </td>
-			 
-											<td>
-												<span id="upArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"   class="tblicon pull-left ${(dashletProperty?is_first)?then("disable_cls" , "")}" ><i class="fa fa-arrow-up" title="${messageSource.getMessage(''jws.moveUp'')}"></i></span>				  
-												<span id="downArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"  class="tblicon pull-left ${(dashletProperty?is_last)?then("disable_cls", "" )}" ><i class="fa fa-arrow-down" title="${messageSource.getMessage(''jws.moveDown'')}"></i></span>
-												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.deleteProperty(this.id);" class="tblicon pull-left" ><i class="fa fa-trash-o" title="${messageSource.getMessage(''jws.deleteProperty'')}"></i></span>
-											</td>
-			
-										</tr>
-									</#list>
-								</#if>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-   
-	<div class="row margin-t-b">
-		<div class="col-12">
-			<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.htmlScript")}</h3>
-			<div class="html_script">
-				<div class="grp_lblinp">
-					<div id="htmlContainer" class="ace-editor-container">
-						<div id="htmlEditor" class="ace-editor"></div>
-					</div>
-				</div>
-			</div>
-		</div> 
-	</div>
-	 
-
-	<div class="row margin-t-b">
-		<div class="col-12">
-			<h3  class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.sqlScript")}</h3>
-			<div class="html_script">
-				<div class="grp_lblinp">
-					<div id="sqlContainer" class="ace-editor-container">
-						<div id="sqlEditor" class="ace-editor"></div>
-					</div>
-				</div>
-			</div>	
-		</div>
-	</div>
-	 
-	<div class="row ">
-		<div class="col-12">	
-			<div class="pull-right">
-				<input type="button" value="${messageSource.getMessage(''jws.save'')}" class="btn btn-primary" onclick="addEditDashletFn.saveDashlet();">
-				<input type="button" id="cancelDashlet" value="${messageSource.getMessage(''jws.cancel'')}" class="btn btn-secondary" onclick="addEditDashletFn.backToDashletListing();">
-			</div>	
-		</div>
-	</div>
-	
-	<textarea id="htmlContent" style="display: none">
-	   	${(dashletVO.dashletBody)!""}
-	</textarea>
-	 
-	<textarea id="sqlContent" style="display: none">
-	   	${(dashletVO.dashletQuery)!""}
-	</textarea>
-	
-	 <div id="deletePropertyConfirm"></div>
-	<div id="snackbar"></div>
-</div>
-<script>
-	contextPath = "${(contextPath)!''''}";
-	let dashletSQLEditor;
-	var dashletHTMLEditor;
-	let componentArray = new Array();
-  	<#list componentMap as categoyId, categoryDescription>
-    	<#if categoyId??>
-        var componentObj = new Object();
-    	  componentObj.categoryId = "${categoyId}";
-    	  componentObj.categoryDescription = "${categoryDescription}";
-    	  componentArray.push(componentObj);
-      </#if>
-  	</#list>
-	let dashletPropertiesCount = parseInt("${(dashletVO?api.getDashletPropertVOList()?size)!''0''}");
-  	let addEditDashletFn;
-	$(function() {
-	 	const addEditDashlet = new AddEditDashlet(dashletPropertiesCount, componentArray, dashletSQLEditor, dashletHTMLEditor);
-		addEditDashletFn = addEditDashlet.fn;
-		addEditDashletFn.loadAddEditDashletPage();
-	});
-
-</script>
-<script src="/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'admin', 'admin', NOW());
-  
-REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,form_body,created_by,created_date,form_select_checksum,form_body_checksum) VALUES ('e848b04c-f19b-11ea-9304-f48e38ab9348','notification','notification add/edit','select * from generic_user_notification where notification_id="${(primaryId)!''''}"','<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/jscal2.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/border-radius.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
-
-</head>
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Add Notification</h2> 
-		<div class="float-right">
-                                             
-		<span onclick="backToTemplateListingPage();">
-			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-		</span>              
-	</div>
-                              
-	<div class="clearfix"></div>                         
-	</div>
-
-<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-<form method="post" name="genericNotificationForm" id="genericNotificationForm">
-	<input type="hidden" id="notificationId" name="notificationId"/>
-		<div class="row">
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="fromDate">From </label>
-					<span id="fromDateTd">
-						<input id="fromDate" name= "fromDate" class="form-control" placeholder="From Date" /><button id="fromDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-					</span>
-				</div>
-			</div>
-                                                                                                        
-                                                                                                        
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="toDate">To </label>
-					<span id="toDateTd">
-						<input class="form-control" id="toDate"  name= "toDate" placeholder="To Date" /><button id="toDate-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-					</span>
-				</div>
-			</div>
-                                                                                                                                      
-                              
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="targetPlatform">Target Platform </label>
-						<select class="form-control" id="targetPlatform" title="Target Platform" name="targetPlatform" onchange="populateOptions();">
-							<option value="" selected="selected"> --- select --- </option>
-                            <option value="wipo">WIPO</option>
-                            <option value="tsms">TSMS</option>
-							<option value="un">UN</option>
-                        </select>
-				</div>
-			</div>
-                                                                                                        
-                                                                                                         
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="messageType">Message Type  </label>
-						<select class="form-control" id="messageType" name="messageType" title="Message Type">
-							<option value="" selected="selected"> --- select --- </option>
-							<option value="Informative">Informative</option>
-							<option value="Warning">Warning</option>
-							<option value="Error">Error</option>
-						</select>
-				</div>
-			</div>
-                                                                                                         
-                                                                                                         
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="selectionCriteria">Selection Criteria</label>
-						<textarea class="form-control" rows="15" cols="60" title="Select Criteria" id="selectionCriteria" placeholder="Select Criteria" name="selectionCriteria" style="height:80px"></textarea>
-				</div>
-			</div>
-                                                                                                        
-                                                                                                         
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="messageText"> Message Text :</label>
-						<textarea class="form-control" rows="15" cols="60" title="Message Text" id="messageText" name="messageText" style="height:80px"></textarea>
-				</div>
-			</div>
-                                                                                                         
-                                                                                                         
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="messageFormat"> Message Format</label>
-					<select class="form-control" id="messageFormat" name="messageFormat">
-						<option value="Text/Plain" selected>Text/Plain</option>
-						<option value="Text/HTML">Text/HTML</option>
-					</select>
-				</div>
-			</div>  
-	</div>
-                              
-                              
-	<div class="row">
-		<div class="col-12">
-			<div class="float-right">
-				<input id="addNotification" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveNotification();">
-				<span onclick="backToTemplateListingPage();">
-					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-				</span> 
-			</div>
-		</div>
-	</div>
-</form>                             
-
-</div>
-        
-
-    
-               
- 
-<script>
-contextPath = "${(contextPath)!''''}";
-let formId = "${formId}";
-$(function() {
-	
-	Calendar.setup({
-			trigger    : "fromDate-trigger",
-			inputField : "fromDate",
-			dateFormat : "%d-%b-%Y",
-			onSelect   : function() { 
-				let selectedDate = this.selection.get();
-				let date = Calendar.intToDate(selectedDate);
-				date = Calendar.printDate(date, "%d-%b-%Y");
-				$("#"+this.inputField.id).val(date);
-				this.hide(); 
-			}
-		});
-		Calendar.setup({
-			trigger    : "toDate-trigger",
-			inputField : "toDate",
-			dateFormat : "%d-%b-%Y",
-			onSelect   : function() {
-				let selectedDate = this.selection.get();
-				let date = Calendar.intToDate(selectedDate);
-				date = Calendar.printDate(date, "%d-%b-%Y");
-				$("#"+this.inputField.id).val(date);
-				this.hide(); 
-			}
-		});
-
-
-
-<#if (resultSet)??>
-	<#list resultSet as resultSetList>
-		$("#targetPlatform option[value=''${resultSetList?api.get("target_platform")}'']").attr("selected", "selected");
-		$("#messageFormat option[value=''${resultSetList?api.get("message_format")}'']").attr("selected", "selected");		
-		$("#messageType option[value=''${resultSetList?api.get("message_type")}'']").attr("selected", "selected");
-		$("#fromDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_from")}'',false),"%d-%b-%Y"));
-		$("#toDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_till")}'',false),"%d-%b-%Y"));
-		$("#messageText").val(''${resultSetList?api.get("message_text")}'');
-		$("#selectionCriteria").val(''${resultSetList?api.get("selection_criteria")}''); 
-		$("#notificationId").val(''${resultSetList?api.get("notification_id")}'');
-	</#list>
-</#if>
-
-
-});  
-
-function saveNotification (){
-    if(validateFields() == false){
-        $("#errorMessage").show();
-        return false;
-    }
-	let formData = $("#genericNotificationForm").serialize() + "&formId="+formId;
-    
-    $.ajax({
-     		type : "POST",
-     		url : "sdf",
-     		data : formData 
- 	});
-    backToTemplateListingPage();
-}
-
-function validateFields(){
-    const fromDate = $("#fromDate").val();
-	if(fromDate == ""){
-		$("#errorMessage").html("Invalid From date");
-		return false;
-	}
-    const toDate = $("#toDate").val();
-	if(toDate == ""){
-		$("#errorMessage").html("Invalid To date");
-		return false;
-	}
-    const targetPlatform = $("#targetPlatform").val();
-    if(targetPlatform == ""){
-		$("#errorMessage").html("Please select target platform");
-		return false;
-	}
-	const messageType = $("#messageType").val();
-	if(messageType == ""){
-		$("#errorMessage").html("Please select message type");
-		return false;
-	}
-    const selectionCriteria = $("#selectionCriteria").val().trim();
-	if(selectionCriteria == ""){
-		$("#errorMessage").html("Please enter selection criteria");
-		return false;
-	}
-    const messageText = $("#messageText").val().trim();
-	if(messageText == ""){
-		$("#errorMessage").html("Please enter message text");
-		return false;
-	}
-    const messageFormat = $("#messageFormat").val();
-	if(messageFormat == ""){
-		$("#errorMessage").html("Please select message format");
-		return false;
-	}
-    return true;
-}
-
-function backToTemplateListingPage(){
-	window.location.href=contextPath+"/cf/nl";
-}     
-</script>
-','admin',NOW(),null,null);
-
-REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
-   'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("notificationId"))?has_content>
-	UPDATE generic_user_notification SET
-  target_platform = ''${formData?api.getFirst("targetPlatform")}''  
-  ,message_valid_from = STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
-  ,message_valid_till = STR_TO_DATE( "${formData?api.getFirst("toDate") }","%d-%b-%Y") 
-  ,message_text = ''${formData?api.getFirst("messageText")}'' 
-  ,message_type = ''${formData?api.getFirst("messageType")}''
-  ,message_format =''${formData?api.getFirst("messageFormat")}''
-  ,selection_criteria = ''${formData?api.getFirst("selectionCriteria")}'' 
-  ,updated_by = ''admin'' 
-  ,updated_date = now()
-WHERE notification_id = ''${formData?api.getFirst("notificationId")}''   ;
-
-<#else>
-REPLACE INTO generic_user_notification (
-   notification_id
-  ,target_platform
-  ,message_valid_from
-  ,message_valid_till
-  ,message_text
-  ,message_type
-  ,message_format
-  ,selection_criteria
-  ,created_by
-  ,creation_date
-  ,updated_by
-  ,updated_date
-) VALUES (
-   uuid()   
-  ,''${formData?api.getFirst("targetPlatform")}'' 
-  , STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
-  ,STR_TO_DATE( "${formData?api.getFirst("toDate") }","%d-%b-%Y") 
-  ,''${formData?api.getFirst("messageText")}'' 
-  ,''${formData?api.getFirst("messageType")}''
-  ,''${formData?api.getFirst("messageFormat")}''
-  ,''${formData?api.getFirst("selectionCriteria")}'' 
-  ,''admin''
-  ,now()  
-  ,''admin''  
-  ,now()  
-);
-</#if>'
-  ,1,null
-);
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dynamic-form-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-<div class="container">
-		<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic Form Master</h2> 
-		<div class="float-right">
-			<#if environment == "dev">
-				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="Download Form" type="button">
-				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="Upload Form" type="button">
-			</#if>
-			<input class="btn btn-primary" name="addNewDynamicForm" value="Add New Dynamic Form" type="button" onclick="submitForm(this)">
-    	 <span onclick="backToHome();">
-    	  	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-    	 </span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-		</div>
-		
-		<div id="divDynamicFormMasterGrid"></div>
-
-		<div id="snackbar"></div>
-		<form action="/cf/aedf" method="POST" id="addEditDynamicForm">	
-			<input type="hidden" id="formId" name="form-id">	
-		</form>
-		
-</div>
-
-<script>
-	contextPath = "${(contextPath)!''''}";
-	$(function () {
-			let colM = [
-				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center"},
-				{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter}
-			];
-	
-			let grid = $("#divDynamicFormMasterGrid").grid({
-				gridId: "dynamicFormListingGrid",
-				colModel: colM
-			});
-	});
-	
-	function editDynamicFormFormatter(uiObject) {	
-		let dynamicFormId = uiObject.rowData.formId;
-		let dynamicFormName = uiObject.rowData.formName;
-		let element;
-		<#if environment == "dev">
-			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-      		element = element + "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons'' onclick=''downloadFormById(this)''><i class=''fa fa-download''></i></span>";
-          element = element + "<span id=''"+dynamicFormId+"_upload'' name=''"+dynamicFormName+"'' class= ''grid_action_icons'' onclick=''uploadFormById(this)''><i class=''fa fa-upload''></i></span>";
-		<#else>
-			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''  onclick=''submitForm(this)''><i class=''fa fa-pencil''></i></span>";		
-		</#if>	
-		return element;	
-	}
-		
-	function submitForm(thisObj){	
-		$("#formId").val(thisObj.id);	
-		$("#addEditDynamicForm").submit();	
-	}
-  
-  	function downloadFormById(thisObj){
-	  	let formId = thisObj.id;
-	  	$.ajax({
-			url:"/cf/ddfbi",
-			type:"POST",
-	        data:{
-	        	formId : formId,
-	        },
-			success:function(data){
-				alert("Downloaded Successfully");
-			}
-	    });  
-  	}
-	
-	function uploadFormById(thisObj){
-	  	let formId = thisObj.id;
-		let formName = $("#"+formId).attr("name");
-	  	$.ajax({
-			url:"/cf/udfbn",
-			type:"POST",
-	        data:{
-	        	formName : formName,
-	        },
-			success:function(data){
-				alert("Uploaded Successfully");
-			}
-	    });  
-  	}
-	
-	function backToHome() {
-		location.href = "/cf/home";
-	}
-	<#if environment == "dev">
-		function downloadForm(){
-		     $.ajax({
-		        url:"/cf/ddf",
-		        type:"POST",
-		        success:function(data){
-		            alert("Downloaded Successfully");
-		        }
-		        
-		    });
-		}
-		function uploadForm(){
-		     $.ajax({
-		        url:"/cf/udf",
-		        type:"POST",
-		        success:function(data){
-		            alert("Uploaded Successfully");
-		        }
-		        
-		    });
-		}
-	</#if>
-	
-	
-</script>', 'admin','admin',now());
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date)
-VALUES (UUID(),'dynamic-form-manage-details','<head>
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<script src="/webjars/1.0/monaco/require.js"></script>
-	<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-	<script src="/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Add/Edit Dynamic Form</h2> 
-		<div class="float-right">				
-			<span onclick="addEdit.backToDynamicFormListing();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>              
-		</div>
-		<div class="clearfix"></div>                         
-	</div>
-                              
-    <form id="dynamicform" method="post" >
-		<div class="row">
-			<div class="col-6">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span>
-					<label for="formName" >Form name: </label>
-					<input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
-					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
-				</div>
-			</div>
-                                                                                                                        
-			<div class="col-6">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span>
-					<label for="formDescription" >Form Description: </label>
-					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
-				</div>
-			</div>
-                
-            <#if (tables)?has_content>                                            
-				<div class="col-6">
-					<div class="col-inner-form full-form-fields">
-						<label for="formTemplate" >Form template : </label>
-                        <select id="formTemplate" name="formTemplate" placeholder="Select for default template" class="form-control" onchange="loadTableTemplate(event);"/>   
-							<option>Select</option>
-                        	<#list tables as tableName>
-								<option>${tableName}</option>
-                            </#list>
-						</select>
-					</div>
-				</div>
-			</#if>
-				
-
-		</div>
-                   
-        <div class="row margin-t-b">  
-			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>Select Script</h3>
-            	<div class="html_script">
-					<div class="grp_lblinp">
-	                	<div  class="ace-editor-container" id="sqlContainer">
-	                		<div class= "ace-editor"  id="sqlEditor">
-	                		</div>
-	                	</div>
-                	</div>
-                </div>
-			</div>
-		</div>                  
-                              
-        <div class="row margin-t-b">
-			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content
-				&& versionDetailsMap?? && versionDetailsMap?has_content>
-				<div class="col-3">
-					<div class="col-inner-form full-form-fields">
-						<label for="vmName">Compare with </label>
-						<select class="form-control" id="${(dynamicForm?api.getFormId())!''''}" onchange="addEdit.getSelectTemplateData(''${(dynamicForm?api.getFormId())!}'');" name="versionId" title="Template Versions">
-							<option value="" selected>Select</option>
-							<#list versionDetailsMap as versionId, updatedDate>
-								<option value="${versionId}">${updatedDate}</option>
-							</#list>
-						</select> 
-					</div>
-				</div>
-			</#if>		
-			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>HTML Script</h3>
-				<div class="html_script">
-					<div class="grp_lblinp">
-						<div id="htmlContainer" class="ace-editor-container">
-							<div id="htmlEditor" class="ace-editor">
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-               
-             
-        <div class="row margin-t-b">  
-			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>Save/Update Script</h3>
-				<div id = "saveScriptContainer"></div>
-			</div>
-		</div>
-
-		<div class="row margin-t-b">
-			<div class="col-12">
-				<div class="float-left"> 
-					<div class="btn-icons nomargin-right-cls pull-right">
-						<input type="button" value="Add" class="btn btn-primary" onclick="addEdit.addSaveQueryEditor();">
-						<input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor();">
-                    </div>    
-				</div>
-			</div>
-		</div>          
-  
-		<div class="row margin-t-b">
-			<div class="col-12">
-				<div class="float-right"> 
-					<div class="btn-icons nomargin-right-cls pull-right">
-						<input type="button" value="Save" class="btn btn-primary" onclick="addEdit.saveDynamicForm();">
-						<input type="button" id="cancelDynamicForm" value="Cancel" class="btn btn-secondary" onclick="addEdit.backToDynamicFormListing();">
-					</div>    
-				</div>
-			</div>
-		</div>
-
-		<#if versionDetailsMap?? && versionDetailsMap?has_content>
-			<div class="row">                                                                                                
-				<div class="col-12">
-					<div class="html_script">
-						<div class="grp_lblinp">
-							<div id="diffContainer" class="ace-editor-container">
-								<div id="diffEditor" class="ace-editor"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</#if>
-            <input type="hidden" name="formSelectQuery" id="formSelectQuery">
-            <input type="hidden" name="formBody" id="formBody">
-            <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
-            <input type="hidden" name="formSaveQuery" id="formSaveQuery">                     
-        </form>
-    </div>
-
-
-  	<textarea id="sqlContent" style="display: none">
-    	${(dynamicForm?api.getFormSelectQuery())!""}
-	</textarea>
-	
-	<textarea id="saveSqlContent" style="display: none">
-    	${(dynamicForm?api.getFormSaveQuery())!""}
-	</textarea>
-<script>
-	contextPath = "${(contextPath)!''''}";
-	let dashletSQLEditor;
-	let dashletHTMLEditor;
-	let dashletSAVESQLEditor;
-	let dashletSQLEditors = [];
-	let formQueryIds = [];
-	const addEdit = new AddEditDynamicForm();
-  $(function () {
-    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
-  });
-
-  function loadTableTemplate(event){
-  	let tableName = event.currentTarget.value;
-      $.ajax({
-          type: "POST",
-          url: contextPath+"/cf/dfte",
-          data: {
-            tableName: event.currentTarget.value
-          },
-          success: function(data) {
-  		      dashletHTMLEditor.setValue(data["form-template"].trim());
-  		      dashletSAVESQLEditor.setValue(data["save-template"].trim());
-  		      dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
-          }
-        });
-    }
-    
-   </script>
-  ','admin','admin',now() );  
-  
-  REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'home', '<head>
+('42bf58ce-09fa-11eb-a894-f48e38ab8cd7', 'home', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
@@ -1221,10 +22,10 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
 
                <div class="list-group custom-list-home">
                                <a href="../cf/mg" class="list-group-item list-group-item-action">
-                                  <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+                                  <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1"> <span>Manage Masters</span></h5>
+                                             <h5 class="mb-1"> <span>Manage Generator</span></h5>
                                              <small>Today</small>
                                              </div>
                                              <p class="mb-1">Built using freemarker, supports pq-grid </p>
@@ -1246,7 +47,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                                              <div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Templating utils</h5>
+                                             <h5 class="mb-1">Templating</h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
@@ -1268,7 +69,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                                              <div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">TypeAhead</h5>
+                                             <h5 class="mb-1">TypeAhead / Autocomplete</h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
@@ -1302,7 +103,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                               <div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Dynamic Form</h5>
+                                             <h5 class="mb-1"> Form Builder </h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Freemarker templating engine </p>
@@ -1313,7 +114,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                               <div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Dynamic API Listing</h5>
+                                             <h5 class="mb-1">REST API </h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Freemarker templating engine </p>
@@ -1324,7 +125,7 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                               <div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
                                   <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Menu</h5>
+                                             <h5 class="mb-1">Site Layout</h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Freemarker templating engine </p>
@@ -1335,15 +136,28 @@ VALUES (UUID(),'dynamic-form-manage-details','<head>
                                              <div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
                                              <div class="home_list_content">
                                              <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Property Master</h5>
+                                             <h5 class="mb-1">Application Configuration </h5>
                                              <small class="text-muted">Today</small>
                                              </div>
                                              <p class="mb-1">Built using Freemarker templating engine </p>
                                              <small class="text-muted">Create menu for your application.</small>
                                              </div>
                               </a>
+                              <a href="../cf/um" class="list-group-item list-group-item-action">
+                                             <div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
+                                             <div class="home_list_content">
+                                             <div class="d-flex w-100 justify-content-between">
+                                             <h5 class="mb-1">User Management</h5>
+                                             <small class="text-muted">Today</small>
+                                             </div>
+                                             <p class="mb-1">Built using Freemarker templating engine,supports pq-grid </p>
+                                             <small class="text-muted">Manage users for your application.</small>
+                                             </div>
+                              </a>
+                              
+                              
                </div>
-</div>', 'admin', 'admin', NOW());
+</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
@@ -1386,7 +200,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
  
 
-        <div id="snackbar"></div>
 </div>
 
  
@@ -1440,9 +253,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        data:{
 	        	templateId : templateId,
 	        },
-			success:function(data){
-				alert("Downloaded Successfully");
-			}
+			success : function(data) {
+			  showMessage("Template downloaded successfully", "success");
+			},
+			error : function(xhr, error){
+			  showMessage("Error occurred while downloading template", "error");
+			},
 	    });  
   	}
     
@@ -1455,9 +271,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        data:{
 	        	templateName : templateName,
 	        },
-			success:function(data){
-				alert("Uploaded Successfully");
-			}
+			success : function(data) {
+			  showMessage("Template uploaded successfully", "success");
+			},
+			error : function(xhr, error){
+			  showMessage("Error occurred while uploading template", "error");
+			},
 	    });  
   	}
 	
@@ -1470,9 +289,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             $.ajax({
                 url:"/cf/dtl",
                 type:"POST",
-                success:function(data){
-                    alert("Downloaded Successfully");
-                }
+                success : function(data) {
+				  showMessage("Templates downloaded successfully", "success");
+				},
+				error : function(xhr, error){
+				  showMessage("Error occurred while downloading templates", "error");
+				},
                 
             });
         }
@@ -1480,17 +302,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             $.ajax({
                 url:"/cf/utd",
                 type:"POST",
-                success:function(data){
-                    alert("Uploaded Successfully");
-                }
+                success : function(data) {
+				  showMessage("Template uploaded successfully", "success");
+				},
+				error : function(xhr, error){
+				  showMessage("Error occurred while uploading template", "error");
+				},
                 
             });
         }
     </#if>
-</script>', 'admin', 'admin', NOW(), NULL);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'template-manage-details', '<head>
+('4d91fbd8-09fa-11eb-a894-f48e38ab8cd7', 'template-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -1504,7 +329,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container">
 
 	<div class="topband">
-    	<h2 class="title-cls-name float-left">Update Template Details</h2> 
+		<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>
+		    <h2 class="title-cls-name float-left">Edit Template Details</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">Add Template Details</h2> 
+        </#if> 
         <div class="float-right">
                                              
         <span onclick="templateMaster.backToTemplateListingPage();">
@@ -1515,6 +344,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         <div class="clearfix"></div>                         
     </div>
 
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<div class="row">
 	    	<div class="col-9">
 				<div class="col-inner-form full-form-fields">
@@ -1582,7 +412,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
     </#if>
-    <div id="snackbar"></div>
 </div>
 
 <script>
@@ -1611,863 +440,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		}
 	});
 </script>
-<script src="/webjars/1.0/template/template.js"></script>', 'admin', 'admin', NOW());
- 
- 
- REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'grid-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-		<div class="topband">
-		
-		<h2 class="title-cls-name float-left">Grid Details Master</h2> 
-		<div class="float-right">
-		<form id="addEditNotification" action="/cf/df" method="post" class="margin-r-5 pull-left">
-	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
-	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
-	            <button type="submit" class="btn btn-primary">Add Grid Details</button>
-        	</form>
-
-         <span onclick="backToWelcomePage();">
-          	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-         </span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-		</div>
-		
-		<div id="divGridDetailsListing"></div>
-
-		<div id="snackbar"></div>
-</div>
-
-
-<script>
-	contextPath = "${(contextPath)!''''}";
-	function backToWelcomePage() {
-			location.href = contextPath+"/cf/home";
-	}
-	$(function () {
-		let colM = [
-	        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Grid Name", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Grid Description", width: 160, align: "center", dataIndx: "gridDesc", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 50, align: "center", render: editGridDetails, dataIndx: "action" }
-		];
-		let grid = $("#divGridDetailsListing").grid({
-	      gridId: "gridDetailsListing",
-	      colModel: colM
-	  });
-	  
-	});
-	function editGridDetails(uiObject) {
-		const gridId = uiObject.rowData.gridId;
-		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>''.toString();
-	}
-	
-	function submitForm(element) {
-		$("#primaryId").val(element.id);
-		$("#addEditNotification").submit();
-	}
-</script>', 'admin', 'admin', NOW());
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'resource-bundle-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-        <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.resourceBundleTitle")}</h2> 
-        <div class="float-right">
-       
-       <select id="languageOptions" onchange="changeLanguage()" class="btn btn-primary">
-          <#list languageVOList as languageVO>
-            <#if languageVO??>
-              <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
-                <option value="${(languageVO?api.getLocaleId())!''''}" selected>${languageVO?api.getLanguageName()}</option>
-              <#else>
-                <option value="${(languageVO?api.getLocaleId())!''''}">${languageVO?api.getLanguageName()}</option>
-              </#if>
-            </#if>
-          </#list>
-        </select>
-             <input name="addResourceBundle" class="btn btn-primary" value="Add Resource Bundle" type="button" onclick="submitForm(this)">
-         <span onclick="backToWelcomePage();">
-              <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-         </span>    
-        </div>
-        
-        <div class="clearfix"></div>        
-        </div>
-        
-        <div id="divdbResourceBundleGrid"></div>
-
-
-        <div id="snackbar"></div>
-</div>
-
-
-<form action="${(contextPath)!''''}/cf/aerb" method="POST" id="formRbRedirect">
-	<input type="hidden" id="resource-key" name="resource-key">
-</form>
-<script>
-	contextPath = "${(contextPath)!''''}";
-	
-	$(function () {
-	
-	    var colM = [
-	        { title: "${messageSource.getMessage(''jws.resourceKey'')}", width: 130, dataIndx: "resourceKey", align: "left", halign: "center", 
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.languageName'')}", width: 100, dataIndx: "languageName", align: "left", halign: "center", 
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-	        { title: "${messageSource.getMessage(''jws.text'')}", width: 160, dataIndx: "resourceBundleText", align: "left", halign: "center", 
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDBResource}
-	    ];
-	    var grid = $("#divdbResourceBundleGrid").grid({
-	      gridId: "resourceBundleListingGrid",
-	      colModel: colM
-	  	});
-  	});
-	function editDBResource(uiObject) {
-		const resourceKey = uiObject.rowData.resourceKey;
-		return ''<span id="''+resourceKey+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage(''jws.editResourceBundle'')}"></i></span>''.toString();
-	}
-	
-	function submitForm(element) {
-	  $("#resource-key").val(element.id);
-	  $("#formRbRedirect").submit();
-	}
-	
-	function getCookie(cname) {
-	    let name = cname + "=";
-	    let decodedCookie = decodeURIComponent(document.cookie);
-	    let ca = decodedCookie.split(";");
-	    for(var i = 0; i <ca.length; i++) {
-	        var c = ca[i];
-	        while (c.charAt(0) == " ") {
-	            c = c.substring(1);
-	        }
-	        if (c.indexOf(name) == 0) {
-	            return c.substring(name.length, c.length);
-	        }
-	    }
-	    return "";
-	}
-	
-	let selectedLanguageId = getCookie("locale");
-	if(selectedLanguageId !== ""){
-		$("#languageOptions option[value="+selectedLanguageId+"]").prop("selected","selected");
-	}
-  
-	function changeLanguage(){
-  	var localeId = $("#languageOptions").find(":selected").val();
-
-  	$.ajax({
-          async : false,
-          type : "GET",
-          cache : false,
-          url : "/cf/cl?lang="+localeId, 
-          success: function(data){
-             
-            setCookie("locale", localeId, 1);
-            location.reload();
-          }
-      });
-	}
-
-	function setCookie(cname, cvalue, exdays) {
-	    let d = new Date();
-	    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-	    var expires = "expires="+d.toUTCString();
-	    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-	}
-	
-	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
-	}
-</script>', 'admin', 'admin', NOW());
-
-
-REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`) VALUES (UUID() ,'resource-bundle-manage-details','<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
-<style type="text/css">
-.area{
-  width:100%;
-}
-</style>
-</head>
-<div class="container">
-
-		
-		<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditResourceBundle")}</h2> 
-		<div class="float-right">
-			<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-			</span> 	
-		</div>
-		
-		<div class="clearfix"></div>		
-		</div>
-		
-		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="col-inner-form full-form-fields">
-					<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>									 
-					<input type="text" id="resourceBundleKey" class="form-control" maxlength="100" value="${(resourceBundleKey)!''''}" disabled="true"  name="resourceKey" style="width:100%"/>
-								 
-					</div>
-				</div>
-		</div>
-				
-				
-				
-		<div class="row">
-			<#list languageVOList as languages>
-				<div class="col-4">
-					<div class="col-inner-form full-form-fields">
-						<#if (languages.languageId) == 1>
-							<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resource")} </label>
-							<label>${languages.languageName}</label>
-						<#else>
-							<label for="targetPlatform">${messageSource.getMessage("jws.resource")} </label>
-							<label>${languages.languageName}</label>
-						</#if>
-						<textarea id="textBx_${languages.languageId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''''}</textarea>
-					</div>							  
-				</div>
-			</#list>
-		</div>
-				
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<#if resourceBundleKey ?? && resourceBundleKey?has_content>
-						<input id="addResourceBundle" class="btn btn-primary" name="addResourceBundle" value="${messageSource.getMessage(''jws.save'')}" type="button" onclick="addEditResourceBundleFn.saveResourceBundle(''isEdit'');">
-					<#else>
-						<input id="addResourceBundle" class="btn btn-primary" name="addResourceBundle" value="${messageSource.getMessage(''jws.save'')}" type="button" onclick="addEditResourceBundleFn.saveResourceBundle(''isAdd'');">
-					</#if>
-					<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
-						<input id="cancelBtn" class="btn btn-secondary" name="${messageSource.getMessage(''jws.cacel'')}" value="Cancel" type="button">
-					</span> 
-				</div>
-			</div>
-		</div>
-
- 		<div id="snackbar"></div>
- </div>
- <script>
-	contextPath = "${(contextPath)!''''}";
-	var resourceBundleFormData = new Array();
-	let addEditResourceBundleFn;
-	$(function() {
-	 	const addEditResourceBundle = new AddEditResourceBundle(resourceBundleFormData);
-		addEditResourceBundleFn = addEditResourceBundle.fn;
-		addEditResourceBundleFn.loadAddEditResourceBundlePage();
-	});
-</script>','admin','admin',NOW());
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'notification-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-<div class="container">
-	<div class="topband">
-	    <h2 class="title-cls-name float-left">Notification Master</h2> 
-    	<div class="float-right">
-
-            <form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
-<input type="hidden" name="formId" value="e848b04c-f19b-11ea-9304-f48e38ab9348"/>
-<input type="hidden" name="primaryId" id="primaryId" value=""/>
-
+<script src="/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
  
 
-<button type="submit" class="btn btn-primary">
-                Add Notification
-            </button>
-</form>
-
-	
-
-        	<button type="button" class="btn btn-primary" onclick = "loadNotifications();" data-toggle="modal" data-target="#exampleModalCenter">
-				Notifications
-			</button>
-             <span onclick="backToWelcomePage();">
-              	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-             </span>	
-	    </div>
-	
-	    <div class="clearfix"></div>		
-	</div>
-	
-	<div id="divNotificationListing"></div>
-</div>
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Current Notification</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-<form action="${(contextPath)!''''}/cf/aen" method="GET" id="formNFRedirect">
-	<input type="hidden" id="notificationId" name="notificationId">
-</form>
-<script>
-	contextPath = "${(contextPath)!''''}";
-	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
-	}
-	$(function () {
-		let colM = [
-	    	{ title: "",hidden: true, width: 130, dataIndx: "notificationId" },
-	        { title: "Target Platform", width: 100,  dataIndx: "targetPlatform", align: "left", halign: "center",
-	        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Message Type", width: 160, dataIndx: "messageType", align: "left", halign: "center", 
-	        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "Message Text", width: 200, dataIndx: "messageText", align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Message Valid From", width: 100, dataIndx: "validFrom" , align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Message Valid Till", width: 100, dataIndx: "validTill" , align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Selection Criteria", width: 100, dataIndx: "selectionCriteria" , align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Updated By", width: 100, dataIndx: "updatedBy", align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Updated Date", width: 100, dataIndx: "updatedData", align: "left", halign: "center",
-	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Action", width: 50, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
-		];
-
-	  let grid = $("#divNotificationListing").grid({
-	      gridId: "notificationDetailsListing",
-	      colModel: colM
-	  });
-});
-
-function editNotificationFormatter(uiObject) {
-	const notificationId = uiObject.rowData.notificationId;
-	let element = "<span id=''"+notificationId+"'' class= ''grid_action_icons''  onclick=''editNotification(this)''><i class=''fa fa-pencil''></i></span>";
-	return element;
-}
-
-
-function loadNotifications() {
-	$.ajax({
-				
-				async : false,
-				type : "GET",
-				cache : false,
-				url :  contextPath+"/cf/lns?contextName=tsms", 
-				data : {
-					
-				},
-				success : function(data) {
-					if(data!=""){
-					  $(".modal-body").html(data);
-				  	}else{ 
-					  $(".modal-body").html("No notifications found");
-				  	}
-        		}
-			});
-}
-function editNotification(thisObj){
-	$("#primaryId").val(thisObj.id);
-	$("#addEditNotification").submit();
-}
-</script>', 'admin', 'admin', NOW());
- 
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'loadNotifications', '<div>
-               <ul class="notification_list">
-                              <#list notifications as currentNotf >
-                                             <li>
-                                                            <#if  currentNotf?api.getMessageType() == "Error" >
-                                                                          <div class="notification_list_div">                             
-                                                            <#elseif    currentNotf?api.getMessageType() == "Informative" >
-                                                                           <div class="notification_list_div">
-                                                            <#elseif   currentNotf?api.getMessageType() == "Warning" >
-                                                                           <div class="notification_list_div">                                            
-        </#if>
-                                                                           ${ currentNotf?api.getMessageText() }
-                                                                           </div>                   
-                                             </li>
-                              </#list>  
-               </ul>
-</div>
-', 'admin', 'admin', NOW()); 
-
-
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
-('8a80cb81749b028401749b062c540002', 'dynarest-details-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>  
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-<div class="container">
-		<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic API Master</h2> 
-		<div class="float-right">
-			<#if environment == "dev">
-				<input id="downloadDynamicForm" class="btn btn-primary" onclick= "downloadDynamicForm();" name="downloadDynamicForm" value="Download Dynamic API" type="button">
-				<input id="uploadDynamicForm" class="btn btn-primary" onclick= "uploadDynamicForm();" name="uploadDynamicForm" value="Upload Dynamic API" type="button">
-			</#if>
-			<form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
-                <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
-                <input type="hidden" name="primaryId" id="primaryId" value=""/>
-                <button type="submit" class="btn btn-primary">
-                        Add Dynamic API Details
-                </button>
-            </form>
-			<span onclick="backToWelcomePage();">
-  		        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-  		    </span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-		</div>
-		
-		<div id="divDynarestGrid"></table>
-
-		<div id="snackbar"></div>
-</div>
-<script>
-contextPath = "${(contextPath)!''''}";
-let requestType = [{"": "All"}];
-let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}];
-$(function () {
-  $.ajax({
-			type : "GET",
-			url : contextPath+"/api/dynarestDetails",
-      async: false,
-			success : function(data) {
-				for(let counter = 0; counter < data["methodTypes"].length; ++counter) {
-					let object = data["methodTypes"][counter];
-          let details = new Object()
-          details[object["value"]] = object["name"];
-					requestType.push(details);
-				}
-			}
-		});
-    
-	let colM = [
-        { title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Name", width: 100, align: "center",  dataIndx: "jws_method_name", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Description", width: 160, align: "center", dataIndx: "jws_method_description", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Type", width: 160, align: "center", dataIndx: "jws_request_type_id", align: "left", halign: "center", render: requestTypes,
-        filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
-        { title: "Platform", width: 160, align: "center", dataIndx: "jws_platform_id", align: "left", halign: "center", render: platforms,
-        filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
-        { title: "Action", width: 30, align: "center", render: editDynarest, dataIndx: "action" }
-	];
-    let grid = $("#divDynarestGrid").grid({
-      gridId: "dynarestGrid",
-      colModel: colM
-  });
-});
-
-function requestTypes(uiObject){
-  let cellValue = uiObject.rowData.jws_request_type_id;
-  return requestType.find(el => el[cellValue])[cellValue];
-}
-
-function platforms(uiObject){
-  let cellValue = uiObject.rowData.jws_platform_id;
-  return platformValues.find(el => el[cellValue])[cellValue];
-}
-
-function editDynarest(uiObject) {
-	let dynarestUrl = uiObject.rowData.jws_dynamic_rest_url;
-	let methodName = uiObject.rowData.jws_method_name;
-	let dynarestId = uiObject.rowData.jws_dynamic_rest_id;
-	let element;
-	<#if environment == "dev">
-		element = "<span id=''"+dynarestUrl+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-		element = element + "<span id=''"+dynarestId+"_download'' class= ''grid_action_icons'' onclick=''downloadDynarestById(this)''><i class=''fa fa-download''></i></span>";
-		element = element + "<span id=''"+methodName+"_upload'' name=''"+methodName+"'' class= ''grid_action_icons'' onclick=''uploadDynaresById(this)''><i class=''fa fa-upload''></i></span>";
-	<#else>
-		element = "<span id=''"+dynarestUrl+"'' onclick=''submitForm(this)'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-	</#if>
-	return element;
-}
-
-function submitForm(element) {
-  $("#primaryId").val(element.id);
-  $("#addEditNotification").submit();
-}
-
-  	function downloadDynarestById(thisObj){
-	  	let dynarestDetailsId = thisObj.id.split("_")[0];
-	  	$.ajax({
-			url:"/cf/ddrbi",
-			type:"POST",
-	        data:{
-	        	dynarestDetailsId : dynarestDetailsId,
-	        },
-			success:function(data){
-				alert("Downloaded Successfully");
-			}
-	    });  
-  	}
-	
-	function uploadDynaresById(thisObj){
-	  	let dynarestMethodName = thisObj.id.split("_")[0];
-	  	$.ajax({
-			url:"/cf/udrbn",
-			type:"POST",
-	        data:{
-	        	dynarestMethodName : dynarestMethodName,
-	        },
-			success:function(data){
-				alert("Uploaded Successfully");
-			}
-	    });  
-  	}
-	
-function backToWelcomePage() {
-	location.href = contextPath+"/cf/home";
-}
-<#if environment == "dev">
-	function downloadDynamicForm(){
-		 $.ajax({
-			url:"/cf/ddr",
-			type:"POST",
-			success:function(data){
-				alert("Downloaded Successfully");
-			}
-			
-		});
-	}
-	function uploadDynamicForm(){
-		 $.ajax({
-			url:"/cf/udr",
-			type:"POST",
-			success:function(data){
-				alert("Uploaded Successfully");
-			}
-			
-		});
-	}
-</#if>
-</script>', 'admin', 'admin', NOW(), NULL);
-
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
-('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
-jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
-jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId 
-from jws_dynamic_rest_details as jdrd 
-where jdrd.jws_dynamic_rest_url = "${primaryId}"
-	', '    	<head>
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<script src="/webjars/1.0/monaco/require.js"></script>
-	<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-	<script src="/webjars/1.0/dynarest/dynarest.js"></script>
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic Rest API</h2>
-		<div class="float-right">
-			<span onclick="dynarest.backToDynarestListingPage();">
-  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>
-		</div>
-
-		<div class="clearfix"></div>
-	</div>
-
-	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-
-	<form method="post" name="dynamicRestForm" id="dynamicRestForm">
-		<input type="hidden" id="dynarestId" name="dynarestId"/>
-		<div class="row">
-			<div class="col-6">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestUrl">Dynamic Rest URL </label>
-					<span><label class="float-right">${requestDetails?api.get("urlPrefix")!""}<label></span>
-					<span id="dynarestURLSapn">
-						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" placeholder="Dynamic Rest URL" />
-					</span>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestMethodName">Dynamic Rest Method Name</label>
-					<span id="dynarestMethodNameSpan">
-                              <input class="form-control" id="dynarestMethodName"  name= "dynarestMethodName" placeholder="Method Name" />
-                       </span>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestMethodDescription">Dynamic Rest Method Description</label>
-					<span id="dynarestMethodDescriptionSpan">
-                              <input class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
-                       </span>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestRequestTypeId">HTTP Method Type  </label>
-					<select class="form-control" id="dynarestRequestTypeId" name="dynarestRequestTypeId" title="HTTP Method Type">
-                         </select>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestProdTypeId">HTTP Produces Type  </label>
-					<select class="form-control" id="dynarestProdTypeId" onchange="togglePlatform(this)" name="dynarestProdTypeId" title="HTTP Produces Type">
-                         </select>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<span class="asteriskmark">*</span><label for="dynarestPlatformId">Platform Id</label>
-				<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this)" name="dynarestPlatformId" title="Platform Id">
-                                    <option value="2" selected="selected"> FTL </option>
-                                    <option value="1"> JAVA </option>
-                     </select>
-			</div>
-
-		
-			</div>
-			
-			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
-				<h3 class="titlename method-sign-info">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="methodSignature">Method Signature</label>
-				</h3>
-				<span id="methodSignature"><span>
-			</div>
-
-		
-		<div class="row margin-t-b">
-			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>Service Logic/Package Name</h3>
-				<div class="html_script">
-					<div class="grp_lblinp">
-						<div id="htmlContainer" class="ace-editor-container">
-							<div id="htmlEditor" class="ace-editor">
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="row margin-t-b">
-			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>DAO Queries</h3>
-			<div id="saveScriptContainer">
-
-			</div>
-		</div>
-</div>
-
-<div class="row margin-t-b">
-	<div class="col-12">
-		<div class="float-left">
-			<div class="btn-icons nomargin-right-cls pull-right">
-				<input type="button" value="Add" class="btn btn-primary" onclick="dynarest.addSaveQueryEditor();">
-				<input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="dynarest.removeSaveQueryEditor();">
-                        </div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-12">
-			<div class="float-right">
-				<input id="addDynarest" class="btn btn-primary" name="addDynarest" value="Save" type="button" onclick="dynarest.saveDynarest(''${formId}'');">
-				<span onclick="dynarest.backToDynarestListingPage();">
-                            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-                        </span>
-			</div>
-		</div>
-	</div>
-	<input type="hidden" name="serviceLogic" id="serviceLogic">
-	<input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">
-    </form>
-	<div id="snackbar"></div>
-</div>
-<script type="text/javascript">
-	let contextPath = "${contextPath}";
-  let dynarest;
-  function togglePlatform(element) {
-         if(element.value != "7" && element.value != "12") {
-              $("#dynarestPlatformId option[value=1]").prop("selected", true);
-              $("#dynarestPlatformId option[value=2]").prop("disabled", true);
-         } else {
-              $("#dynarestPlatformId option[value=2]").prop("disabled", false);
-         }
-         showMethodSignature($("#dynarestPlatformId"));
-  }
-
-  function showMethodSignature(element){
-         if(element.value == "1"){
-              $("#methodSignatureDiv").show();
-              $("#methodSignature").html("public T "+$("#dynarestMethodName").val()+
-                     "(Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
-         } else {
-              $("#methodSignatureDiv").hide();
-         }
-         
-  }
-
-  $(function () {
-      dynarest = new DynamicRest();
-	  $("#methodSignatureDiv").hide();
-	  <#if (resultSet)?? && resultSet?has_content>
-		<#list resultSet as resultSetList>
-			<#if resultSetList?is_first>
-				$("#dynarestId").val(''${(resultSetList?api.get("dynarestId"))!''''}'');
-				$("#dynarestUrl").val(''${(resultSetList?api.get("dynarestUrl"))!''''}'');
-				$("#dynarestMethodName").val(''${(resultSetList?api.get("dynarestMethodName"))!''''}'');
-				$("#dynarestMethodDescription").val(''${(resultSetList?api.get("dynarestMethodDescription"))!''''}'');
-				$("#dynarestPlatformId option[value=''${(resultSetList?api.get("dynarestPlatformId"))!''''}'']").prop("selected", "selected");
-				
-        dynarest.populateDetails(''${(resultSetList?api.get("dynarestRequestTypeId"))!''''}'',
-        ''${(resultSetList?api.get("dynarestProdTypeId"))!''''}'',''${(resultSetList?api.get("dynarestUrl"))!''''}'');
-			</#if>
-		</#list>
-	<#else>
-	    dynarest.populateDetails();
-	</#if>
-	
-  });
-</script>
-	', 'admin', NOW(), NULL, NULL);
-
-REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
-('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
-    UPDATE jws_dynamic_rest_details SET 
-        jws_dynamic_rest_url = ''${formData?api.getFirst("dynarestUrl")}''
-        ,jws_method_name = ''${formData?api.getFirst("dynarestMethodName")}''
-        ,jws_method_description = ''${formData?api.getFirst("dynarestMethodDescription")}''
-        ,jws_request_type_id = ''${formData?api.getFirst("dynarestRequestTypeId")}''
-        ,jws_response_producer_type_id = ''${formData?api.getFirst("dynarestProdTypeId")}''
-        ,jws_rbac_id = 1
-        ,jws_service_logic = ''${formData?api.getFirst("serviceLogic")}''
-        ,jws_platform_id = ''${formData?api.getFirst("dynarestPlatformId")}''
-    WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
-<#else>
-    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES (
-         ''${formData?api.getFirst("dynarestUrl")}''
-         , ''${formData?api.getFirst("dynarestMethodName")}''
-         , ''${formData?api.getFirst("dynarestMethodDescription")}''
-         , 1
-         , ''${formData?api.getFirst("dynarestRequestTypeId")}''
-         , ''${formData?api.getFirst("dynarestProdTypeId")}''
-         ,''${formData?api.getFirst("serviceLogic")}''
-         , ''${formData?api.getFirst("dynarestPlatformId")}''
-    );
-</#if>', 1);
-
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
-(3, 'dynarestDetails', 1, 'getDynamicRestDetails', 'Method to get dynamic rest details', 2, 7, 'Map<String, Object> response = new HashMap<>();
-response.put("methodTypes", dAOparameters.get("dynarestMethodType"));
-response.put("producerDetails", dAOparameters.get("dynarestProducerDetails"));
-response.put("dynarestDetails", dAOparameters.get("dynarestDetails"));
-return response;', 1);
-
-REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
-(4, 3, 'dynarestMethodType', 'select jws_request_type_details_id as value, jws_request_type as name from jws_request_type_details', 1), 
-(5, 3, 'dynarestProducerDetails', 'select jws_response_producer_type_id as value, jws_response_producer_type as name from jws_response_producer_details', 2);
-
-
-REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id,jws_result_variable_name,jws_dao_query_template,jws_query_sequence) VALUES (
-6,3,"dynarestDetails" ,	'SELECT  
-jdrd.jws_service_logic AS dynarestServiceLogic,jdrdd.jws_result_variable_name AS variableName,
-jdrdd.jws_dao_query_template AS dynarestDaoQuery, jdrdd.jws_query_sequence AS dynarestQuerySequence 
-FROM jws_dynamic_rest_details AS jdrd 
-LEFT OUTER JOIN jws_dynamic_rest_dao_details AS jdrdd ON jdrdd.jws_dynamic_rest_details_id = jdrd.jws_dynamic_rest_id
-WHERE jdrd.jws_dynamic_rest_url = "${(url)!''''}" ORDER BY dynarestQuerySequence ASC', 3);
-
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
-(4, 'defaultTemplates', 1, 'defaultTemplates', 'Method to get dynamic rest details', 2, 7, 'Map<String, Object> response = new HashMap<>();
-response.put("defaultTemplates", dAOparameters.get("defaultTemplates"));
-return response;', 1);
-
-REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
-(7,4, 'defaultTemplates', 'select template_name as name, template as template from template_master where template_name like ("default-%")', 1);
 
 REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'menu-module-listing', '<head>
+('8ba1a465-09fa-11eb-a894-f48e38ab8cd7', 'menu-module-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -2486,6 +464,9 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		<h2 class="title-cls-name float-left">Menu Master</h2> 
 		<div class="float-right">
 		<span>
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Config Home Page" type="button" onclick="configHomePage(this)">
+		</span>
+		<span>
   		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="Add Module" type="button" onclick="submitForm(this)">
 		</span>
 
@@ -2499,17 +480,19 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		
 		<div id="divModuleListing"></div>
 
-		<div id="snackbar"></div>
 </div>
 
 
 <form action="${(contextPath)!''''}/cf/aem" method="POST" id="formMuRedirect">
 	<input type="hidden" id="moduleId" name="module-id">
 </form>
+<form action="${(contextPath)!''''}/cf/chp" method="POST" id="configHomeForm">
+	
+</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	function backToWelcomePage() {
-			location.href = contextPath+"/cf/home";
+		location.href = contextPath+"/cf/home";
 	}
 	$(function () {
 		let colM = [
@@ -2530,16 +513,20 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	  });
 	});
   
-  function editModule(uiObject) {
+  	function editModule(uiObject) {
 		const moduleId = uiObject.rowData.moduleId;
 		return ''<span id="''+moduleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
 	}
   
-  function submitForm(element) {
+  	function submitForm(element) {
 		$("#moduleId").val(element.id);
 		$("#formMuRedirect").submit();
 	}
-</script>', 'admin', 'admin', NOW());
+	
+	function configHomePage() {
+		$("#configHomeForm").submit();
+	}
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
  
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
@@ -2561,7 +548,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container">
 
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addEditModule")}</h2>
+		<#if (moduleDetailsVO?api.getModuleId())??>
+		    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editModule")}</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addModule")}</h2> 
+        </#if>
 		<div class="float-right">
 			<span onclick="addEditModule.backToModuleListingPage();">
   				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
@@ -2607,8 +598,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 						<div class="search-cover">
 						<input type="text" id="targetTypeName" value= "" name="targetTypeName" class="form-control">
 						<i class="fa fa-search" aria-hidden="true"></i>
-                        			</div>
-                        			<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
+				</div>
+				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
 				</div>
 			</div>
 				
@@ -2677,7 +668,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 
-		<div id="snackbar"></div>
 	</div>
 
 <script>
@@ -2690,11 +680,12 @@ $(function() {
 	let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''''}";
 	
     let selectedTargetDetails = new Object();
+	addEditModule = new AddEditModule(moduleTypeId, parentModuleId);
     if(moduleTypeId != "") {
         selectedTargetDetails["targetTypeId"] = moduleTypeId;
         selectedTargetDetails["targetTypeName"] = moduleName;
     }
-	addEditModule = new AddEditModule(moduleTypeId, parentModuleId);
+	
     autocomplete = $(''#targetTypeName'').autocomplete({
         autocompleteId: "qw",
         render: function(item) {
@@ -2718,7 +709,7 @@ $(function() {
             $("#targetTypeNameId").val(item.targetTypeId)
         }, 	
     }, selectedTargetDetails);
-    addEditModule.getTargeTypeNames();
+      addEditModule.getTargeTypeNames(''isAddEdit'');
 });
 
 </script>
@@ -2726,7 +717,7 @@ $(function() {
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'home-page', '<head>
+('9378ee23-09fa-11eb-a894-f48e38ab8cd7', 'home-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -2734,6 +725,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 
 </head>
@@ -2745,7 +737,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         <span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">×</span>
         <ul class="navbar-nav px-3 float-right">
 			<li class="nav-item text-nowrap">
-				<a class="nav-link" href="#">Sign out</a>
+				<a class="nav-link" href="/logout">Sign out</a>
             </li>
         </ul>
 	</nav>
@@ -2796,7 +788,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 </div>
 
-<div id="snackbar"></div>
 
 <script>
 	const contextPathHome = "${contextPath}";
@@ -2811,11 +802,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 </script>
-<script src="/webjars/1.0/home/home.js"></script>', 'admin', 'admin',NOW());
+<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'error-page', '<head>
+('99a707e5-09fa-11eb-a894-f48e38ab8cd7', 'error-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -2828,759 +819,219 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </head>
 
 <div class="container"> 
+	<div class="row">
 
-	<div class="error_block">
-		<img src="/webjars/1.0/images/error1.jpg">
-		<h2 class="errorcontent">Opps!!! Something went wrong</h2> 
-		<div class="">${(errorMessage)!''''}</h2>
-	</div>
-    
-	
-</div>
-
-
-</script>', 'admin', 'admin',NOW());
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'default-listing-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Your page title here</h2> 
-		<div class="float-right">
-			<form id="addEditRecords" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
-				<input type="hidden" name="formId" value=""/>
-				<input type="hidden" name="primaryId" id="primaryId" value=""/>
-				<button type="submit" class="btn btn-primary"> Create New </button>
-			</form>
-
-
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-		
-	<div id="yourGridId"></div>
-
-	<div id="snackbar"></div>
-</div>
-
-
-
-<script>
-	contextPath = "${contextPath}";
-	$(function () {
-	//Add all columns that needs to be displayed in the grid
-		let colM = [
-			{ title: "Column Name to be displayed", width: 130, dataIndx: "columnNameInQuery", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
-		];
-	
-	//System will fecth grid data based on gridId
-		let grid = $("#yourGridId").grid({
-	      gridId: "",
-	      colModel: colM
-	  	});
-	
-	});
-	
-	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
-	function manageRecord(uiObject) {
-		let primaryId = uiObject.rowData;
-
-		console.log(uiObject);
-	}
-	
-	//Add logic to navigate to create new record
-	function createNew(element) {
-		$("#primaryId").val(element.id);
-		$("#addEditRecords").submit();
-	}
-
-	//Code go back to previous page
-	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
-	}
-</script>', 'admin', 'admin',NOW());
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'default-form-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Your page title here</h2> 
-		<div class="float-right">
-			<input class="btn btn-primary" name="createDashboard" value="Create new" type="button" onclick="createNew()">
-			<span onclick="backToPreviousPage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
-		
-	<form method="post" name="addEditForm" id="addEditForm">
-		
-		<!-- You can include any type of form element over here -->
-		<div class="row">
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="field1" style="white-space:nowrap"><span class="asteriskmark">*</span>Field 1</label>
-					<input type="text" id="" name="field1" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="field1" style="white-space:nowrap">Field 2</label>
-						<select id="" name="field1"  class="form-control">
-							<option value="">Select</option>
-						</select>
-					</label>
-				</div>
-			</div>
-		</div>
-		<!-- Your form fields end -->
-		
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
-			</div>
-		</div>
-		
-	</form>
-
-
-	<div id="snackbar"></div>
-</div>
-
-
-
-<script>
-	contextPath = "${contextPath}";
-	
-	//Add logic to save form data
-	function saveData (){
-		let formData = $("#addEditForm").serialize();
-	}
-	
-	//Code go back to previous page
-	function backToPreviousPage() {
-		
-	}
-</script>', 'admin', 'admin',NOW());
-
-
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'default-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-</head>
-<div class="container" style="padding-top: 40px">
-    <div class="page-header">
+        <div class="col-8">
+           <div class="error_block">
         
+
+        <div class="error-contentblock">
+        <div class="error-code">${(statusCode)!''''}</h2></div>
+       
+        <#if (statusCode)?? && (statusCode)?has_content>
+          <#if statusCode == 404>
+            <h2 class="errorcontent">Oops!!! Page not found</h2> 
+          <#elseif statusCode == 500>
+            <h2 class="errorcontent">Oops!!! Something went wrong</h2> 
+            <span class="error-alert float-left" onclick="showHideErrorInfo()">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            </span>
+          </#if>
+        <#else>
+          <h2 class="errorcontent">Oops!!! Something went wrong</h2> 
+        </#if>
+
+        </div>
+        
+
+        <div id="errorDetailsDiv" class="errorDetailsDivcls">
+          ${(errorMessage)!''''}
+        </div>
+            
+        </div>
     </div>
 
-	
-</div>', 'admin', 'admin',NOW());
+     <div class="col-4">
+             <img class="errorImg" src="/webjars/1.0/images/error1.jpg">
+     </div>
 
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
-('8a80cb8174bebc3c0174bec1892c0000', 'grid-details-form', 'Form to add edit grid details', 'SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName , grid_column_names AS gridColumnName
-, query_type AS queryType FROM grid_details WHERE grid_id="${primaryId}"', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Add Edit Grid Details</h2> 
-		<div class="clearfix"></div>		
 	</div>
-		
-	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	<form method="post" name="addEditForm" id="addEditForm">
-		
-		<!-- You can include any type of form element over here -->
-		<div class="row">
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Id</label>
-					<input type="text" id="gridId" name="gridId" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Name</label>
-					<input type="text" id="gridName" name="gridName" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="gridDescription" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Description</label>
-					<input type="text" id="gridDescription" name="gridDescription" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Table Name</label>
-					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Column Names</label>
-					<input type="text" id="gridColumnName" name="gridColumnName" value="" maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="queryType" style="white-space:nowrap">Query Type</label>
-						<select id="queryType" name="queryType"  class="form-control">
-							<option value="1">View/Table</option>
-							<option value="2">Stored Prod.</option>
-						</select>
-					</label>
-				</div>
-			</div>
-		</div>
-		<!-- Your form fields end -->
-		
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
-			</div>
-		</div>
-		
-	</form>
-
-
-	<div id="snackbar"></div>
 </div>
 
 
-
 <script>
-	let formId = "${formId}";
-	contextPath = "${contextPath}";
-	
-	$(function() {
-	    <#if (resultSet)??>
-    	    <#list resultSet as resultSetList>
-        		$("#gridId").val(''${resultSetList?api.get("gridId")}'');
-        		$("#gridName").val(''${resultSetList?api.get("gridName")}''); 
-        		$("#gridDescription").val(''${resultSetList?api.get("gridDescription")}'');
-        		$("#gridTableName").val(''${resultSetList?api.get("gridTableName")}'');
-        		$("#gridColumnName").val(''${resultSetList?api.get("gridColumnName")}'');
-        		$("#queryType option[value=''${resultSetList?api.get("queryType")}'']").attr("selected", "selected");
-    	    </#list>
-        </#if>
-	});   
-
-	//Add logic to save form data
-	function saveData (){
-		if(validateFields() == false){
-	        $("#errorMessage").show();
-	        return false;
-	    }
-		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
-		$.ajax({
-		     		type : "POST",
-		     		url : contextPath+"/cf/sdf",
-		     		data : formData 		 
-		     	});
-		backToPreviousPage();
-	}
-	
-	function validateFields(){
-        const gridId = $("#gridId").val().trim();
-        const gridName = $("#gridName").val().trim();
-        const gridDescription = $("#gridDescription").val().trim();
-        const gridTableName = $("#gridTableName").val().trim();
-        const gridColumnName = $("#gridColumnName").val().trim();
-        const queryType = $("#queryType").val();
-        if(gridId == "" || gridName == "" || gridDescription == "" 
-                || gridTableName == "" || gridColumnName == ""){
-            $("#errorMessage").html("All fields are mandatory");
-    		return false;
-        }
-        return true;
-    }
-    
-	//Code go back to previous page
-	function backToPreviousPage() {
-		location.href = contextPath+"/cf/gd";
-	}
-</script>', 'admin', NOW(), NULL, NULL);
+function showHideErrorInfo(){
+  $("#errorDetailsDiv").slideToggle();
+}
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
 
 
-replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'REPLACE INTO grid_details (
-   grid_id
-  ,grid_name
-  ,grid_description
-  ,grid_table_name
-  ,grid_column_names
-  ,query_type
-) VALUES (
-   ''${formData?api.getFirst("gridId")}'' 
-  ,''${formData?api.getFirst("gridName")}''  
-  ,''${formData?api.getFirst("gridDescription")}''  
-  ,''${formData?api.getFirst("gridTableName")}'' 
-  ,''${formData?api.getFirst("gridColumnName")}'' 
-  ,''${formData?api.getFirst("queryType")}'' 
-);', 1, NULL);
-
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
-('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'select * from jws_property_master where owner_id = "${ownerId}" and owner_type = "${ownerType}" and property_name = "${propertyName}"
-', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+('9ea3cd47-09fa-11eb-a894-f48e38ab8cd7', 'config-home-page', '<head>
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
+
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Add edit property master.</h2>
-		<div class="clearfix"></div>		
-	</div>
-	
-	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>	
-	<form method="post" name="addEditForm" id="addEditForm">
-		
-		<!-- You can include any type of form element over here -->
-		<div class="row">
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Id</label>
-					<input type="text" id="ownerId" name="ownerId" value="" required maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="ownerType" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Type</label>
-					<input type="text" id="ownerType" name="ownerType" value="" required maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Name</label>
-					<input type="text" id="propertyName" name="propertyName" value="" required maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Value</label>
-					<input type="text" id="propertyValue" name="propertyValue" value="" maxlength="100" required class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="appVersion" style="white-space:nowrap"><span class="asteriskmark">*</span>App Version</label>
-					<input type="number" id="appVersion" name="appVersion" value="" maxlength="7" required class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="comment" style="white-space:nowrap"><span class="asteriskmark">*</span>Comments</label>
-					<input type="text" id="comment" name="comment" value="" maxlength="100" required class="form-control">
-				</div>
-			</div>
-			
-		</div>
-		<!-- Your form fields end -->
-		
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
-			</div>
-		</div>
-		
-	</form>
-
-
-	<div id="snackbar"></div>
-</div>
-
-
-
-<script>
-	contextPath = "${contextPath}";
-	let formId = "${formId}";
-	let edit = 0;
-	
-	//Add logic to save form data
-	function saveData (){
-	    if(validateFields() == false){
-	        $("#errorMessage").show();
-	        return false;
-	    }
-		let propertyValue = $(''#propertyValue'').val().replace(/\\\\/g, "\\\\\\\\");
-        	$("#propertyValue").val(propertyValue);
-		let formData = $("#addEditForm").serialize() + "&formId="+formId;
-		if(edit === 1) {
-		    formData = formData + "&edit="+edit;
-		}
-		$.ajax({
-     		type : "POST",
-     		url : contextPath+"/cf/sdf",
-     		data : formData,
-     		success: function(data){
-     		    backToPreviousPage();
-     		}
-     	});
-	}
-	
-    function validateFields(){
-        const ownerId = $("#ownerId").val().trim();
-        const ownerType = $("#ownerType").val().trim();
-        const propertyName = $("#propertyName").val().trim();
-        const propertyValue = $("#propertyValue").val().trim();
-        const appVersion = $("#appVersion").val().trim();
-        const comment = $("#comment").val().trim();
-        if(ownerId == "" || ownerType == "" || propertyName == "" 
-                || propertyValue == "" || appVersion == "" || comment == ""){
-            $("#errorMessage").html("All fields are mandatory");
-    		return false;
-        }
-        return true;
-    }
-	
-	//Code go back to previous page
-	function backToPreviousPage() {
-		location.href = contextPath+"/cf/pml"
-	}
-	
-	$(function() {
-	    <#if (resultSet)??>
-        	<#list resultSet as resultSetList>
-        		$("#ownerId").val(''${resultSetList?api.get("owner_id")}'');
-        		$("#ownerType").val(''${resultSetList?api.get("owner_type")}'');
-        		$("#propertyName").val(''${resultSetList?api.get("property_name")}'');
-				<#outputformat "RTF">
-					$("#propertyValue").val(''${resultSetList?api.get("property_value")}'');
-				</#outputformat>
-        		$("#comment").val(''${resultSetList?api.get("comments")}'');
-        		$("#appVersion").val(''${resultSetList?api.get("app_version")}'');
-        	</#list>
+		<#if (moduleDetailsVO?api.getModuleId())??>
+		    <h2 class="title-cls-name float-left">Edit Home Module</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">Add Home Module</h2> 
         </#if>
-        
-        <#if (requestDetails?api.get("ownerId")) != "">
-            edit = 1;
-        </#if>
-	});
-</script>
-	', 'admin', NOW(), NULL, NULL);
-  
-replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '<#if  (formData?api.getFirst("edit"))?has_content>
-	update jws_property_master SET
-   owner_id = ''${formData?api.getFirst("ownerId")}''  
-  ,owner_type = ''${formData?api.getFirst("ownerType")}'' 
-  ,property_name = ''${formData?api.getFirst("propertyName")}'' 
-  ,property_value = ''${formData?api.getFirst("propertyValue")}'' 
-  ,last_modified_date = NOW()
-  ,modified_by = ''admin''
-  ,app_version = ${formData?api.getFirst("appVersion")} 
-  ,comments = ''${formData?api.getFirst("comment")}'' 
-WHERE owner_id = ''${formData?api.getFirst("ownerId")}'' and owner_type = ''${formData?api.getFirst("ownerType")}'' and property_name = ''${formData?api.getFirst("propertyName")}'';
-
-<#else>
-REPLACE INTO jws_property_master (
-   owner_type
-  ,owner_id
-  ,property_name
-  ,property_value
-  ,is_deleted
-  ,last_modified_date
-  ,modified_by
-  ,app_version
-  ,comments
-) VALUES (
-   ''${formData?api.getFirst("ownerId")}'' 
-  ,''${formData?api.getFirst("ownerType")}''
-  ,''${formData?api.getFirst("propertyName")}''
-  ,''${formData?api.getFirst("propertyValue")}''
-  ,0
-  ,NOW()
-  ,''admin''
-  ,${formData?api.getFirst("appVersion")}
-  ,''${formData?api.getFirst("comment")}''
-);
-</#if>', 1, NULL);
-
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
-('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Property Master Listing</h2> 
 		<div class="float-right">
-			<form id="addEditProperty" action="/cf/df" method="post" class="margin-r-5 pull-left">
-                <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
-                <input type="hidden" name="ownerId" id="ownerId" value=""/>
-                <input type="hidden" name="ownerType" id="ownerType" value=""/>
-                <input type="hidden" name="propertyName" id="propertyName" value=""/>
-                <button type="submit" class="btn btn-primary"> Add Property </button>
-            </form>
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>	
+			<span onclick="backToModuleListingPage();">
+  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+  		 	</span>
 		</div>
-		
-		<div class="clearfix"></div>		
+
+		<div class="clearfix"></div>
 	</div>
-		
-	<div id="propertyMasterListingGrid"></div>
 
-	<div id="snackbar"></div>
-</div>
-
-
-
-<script>
-	contextPath = "";
-	let grid;
-	$(function () {
-	//Add all columns that needs to be displayed in the grid
-		let colM = [
-			{ title: "Owner Id", width: 130, dataIndx: "owner_id", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Owner Type", width: 130, dataIndx: "owner_type", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Property Name", width: 130, dataIndx: "property_name", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Property Value", width: 130, dataIndx: "property_value", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Modified By", width: 130, dataIndx: "modified_by", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
-		];
-	
-	//System will fecth grid data based on gridId
-		grid = $("#propertyMasterListingGrid").grid({
-	      gridId: "propertyMasterGrid",
-	      colModel: colM
-	  	});
-	
-	});
-	
-	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
-	function manageRecord(uiObject) {
-        let rowIndx = uiObject.rowIndx;
-		return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
-	}
-	
-	//Add logic to navigate to create new record
-	function createNew(element) {
-		let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
-		$("#ownerId").val(rowData.owner_id);
-		$("#ownerType").val(rowData.owner_type);
-		$("#propertyName").val(rowData.property_name);
-		$("#addEditProperty").submit();
-	}
-
-	//Code go back to previous page
-	function backToWelcomePage() {
-        location.href = contextPath+"/cf/home";
-	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
-
-replace into grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
-('propertyMasterGrid', 'Property master listing', 'Property master listing grid', 'jws_property_master', '*', 1);
-
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
-(UUID(), 'system-form-html-template', '
-<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Add Edit Details</h2> 
-		<div class="clearfix"></div>		
-	</div>
-  <form method="post" name="addEditForm" id="addEditForm">
+	<div id="formDiv">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
-    <#if (columnDetails)??>
-    	<div class="row">
-    	<#list columnDetails as columnDetailsList>
-    		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-			<#if columnDetailsList?api.get(''columnType'') != "textarea">
-		            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
-		              ${columnDetailsList?api.get("fieldName")!""}
-		            </label>
-				<input type="${columnDetailsList?api.get(''columnType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="" maxlength="${columnDetailsList?api.get(''columnSize'')}" class="form-control">
-			<#else>
-				<span class="asteriskmark">*</span>
-				<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-				<textarea class="form-control" rows="15" cols="90" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"></textarea>
-			</#if>
-			</div>
-		</div>
-    	</#list>
-    	</div>
-    </#if>
-    
-  </form>
-  <div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
+    <div class="row">
+    	<input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''''}">
+			  <div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
+					<select id="targetLookupType" name="targetLookupType" onchange="getTargeTypeNames();" class="form-control">
+						<option value="">Select</option>
+						<#if (targetLookupVOList)??>
+							<#list targetLookupVOList as targetLookupVO>
+									<#if (targetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? 
+                  && (targetLookupVO?api.getLookupId()) == (moduleDetailsVO?api.getTargetLookupId())>
+										<option value="${targetLookupVO?api.getLookupId()}" selected>${targetLookupVO?api.getDescription()!''''}</option>
+									<#elseif (targetLookupVO?api.getLookupId()) != 6>
+										<option value="${targetLookupVO?api.getLookupId()}">${targetLookupVO?api.getDescription()!''''}</option>
+									</#if>
+							</#list>
+						</#if>
+					</select>
 				</div>
 			</div>
+
+
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
+						<div class="search-cover">
+						<input type="text" id="targetTypeName" value= "" name="targetTypeName" class="form-control">
+						<i class="fa fa-search" aria-hidden="true"></i>
+				</div>
+				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
+				</div>
+			</div>
+    </div>
+    
+    		<div class="row">
+			<div class="col-12">
+				<div id="buttons" class="pull-right">
+					<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="saveHomeModule();">
+					<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="backToModuleListingPage();">
+		        </div>
+			</div>
 		</div>
+
+
 </div>
 <script>
-  <#noparse>
-	let formId = "${formId}";
-	contextPath = "${contextPath}";
-	</#noparse>
-  
-  $(function(){
-    // setting value on edit.
-    <#noparse>
-      <#if (resultSet)??>
-      	<#list resultSet as resultSetList>
-      		$("#fieldId option[value=''${resultSetList?api.get("aliasFromSelectQuery")}'']").attr("selected", "selected");
-      		$("#fieldId").val(''${resultSetList?api.get("aliasFromSelectQuery")}'');
-      	</#list>
-      </#if>
-    </#noparse>
-    
-  });
-  
-	//Add logic to save form data
-	function saveData (){
-		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
-		$.ajax({
-		     		type : "POST",
-		     		url : contextPath+"/cf/sdf",
-		     		data : formData,
-		            success: function(data) {
-		              backToPreviousPage();
-		            }
-		     	});
-	}
-	
-	//Code go back to previous page
-	function backToPreviousPage() {
-		location.href = contextPath+"/cf/home";
-	}
-</script>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+const contextPath = "${(contextPath)!''''}";
+let autocomplete;
+$(function() {
+	let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
+	let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
+	let selectedTargetDetails = new Object();
+    if(moduleTypeId != "") {
+        selectedTargetDetails["targetTypeId"] = moduleTypeId;
+        selectedTargetDetails["targetTypeName"] = moduleName;
+    }
+    autocomplete = $(''#targetTypeName'').autocomplete({
+        autocompleteId: "qw",
+        render: function(item) {
+        	var renderStr ='''';
+        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+    		{
+        		renderStr = ''<p>''+item.targetTypeName+''</p>'';
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.targetTypeName;
+        },
+        select: function(item) {
+            $("#targetTypeName").blur();
+            $("#targetTypeNameId").val(item.targetTypeId)
+        }, 	
+    }, selectedTargetDetails);
+});
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
-(UUID(), 'system-form-save-query-template', '
-  <#noparse>
-    <#if (formData?api.getFirst("yourPrimaryKey"))?has_content>
-  </#noparse>
-    ${updateQuery}
-  <#noparse>
-    <#else>
-  </#noparse>
-    ${insertQuery}
-  <#noparse>
-    </#if>
-  </#noparse>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+function backToModuleListingPage() {
+	location.href = contextPath+"/cf/mul";
+}
+
+function getTargeTypeNames(){
+    	let targetLookupId = $("#targetLookupType").find(":selected").val();
+		if(targetLookupId == 1){
+    		$("#targetTypeName").prop("disabled",false);
+    		autocomplete.options.autocompleteId = "dashboardListing";
+		} else if(targetLookupId == 2){
+    		$("#targetTypeName").prop("disabled",false); 
+    		autocomplete.options.autocompleteId = "dynamicForms";
+		} else if(targetLookupId == 3){
+    		$("#targetTypeName").prop("disabled",false);
+    		autocomplete.options.autocompleteId = "dynarestListing";
+		} else if(targetLookupId == 5){
+    		$("#targetTypeName").prop("disabled",false);
+    		autocomplete.options.autocompleteId = "templateListing";
+		}
+    }
+
+
+function saveHomeModule(){
+	let moduleId = $("#moduleId").val();
+	let targetLookupTypeId = $("#targetLookupType").find(":selected").val();
+	let targetTypeId = $("#targetTypeNameId").val();
+	$.ajax({
+		type : "POST",
+		url : contextPath+"/cf/schm",
+		async: false,
+		data : {
+			moduleId : moduleId,
+			targetLookupTypeId : targetLookupTypeId,
+			targetTypeId : targetTypeId
+			
+		},
+		success : function(data) {
+			$("#moduleId").val(data);
+			$("#errorMessage").hide();
+			showMessage("Information saved successfully", "success");
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while saving", "error");
+	    },
+	        	
+	});
+}
+
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+
 
 SET FOREIGN_KEY_CHECKS=1;

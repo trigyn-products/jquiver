@@ -6,7 +6,7 @@ public final class QueryStore {
 
     }
 
-    protected static final String QUERY_TO_ALL_API_QUERIES = "SELECT new com.trigyn.jws.dynarest.vo.RestApiDaoQueries(jdrdd.jwsDaoQueryTemplate , jdrdd.jwsResultVariableName, jdrdd.jwsQuerySequence) FROM JwsDynamicRestDaoDetail AS jdrdd " 
+    protected static final String QUERY_TO_ALL_API_QUERIES = "SELECT new com.trigyn.jws.dynarest.vo.RestApiDaoQueries(jdrdd.jwsDaoQueryTemplate , jdrdd.jwsResultVariableName, jdrdd.jwsQuerySequence, jdrdd.queryType) FROM JwsDynamicRestDaoDetail AS jdrdd " 
                     + " WHERE jdrdd.jwsDynamicRestDetailId = :dynarestId ORDER BY jdrdd.jwsQuerySequence ASC ";
 
     protected static final String QUERY_TO_API_DETAILS_BY_URL = "SELECT new com.trigyn.jws.dynarest.vo.RestApiDetails(jdrd.jwsDynamicRestId, jdrd.jwsDynamicRestUrl, jdrd.jwsRbacId, jdrd.jwsMethodName, "

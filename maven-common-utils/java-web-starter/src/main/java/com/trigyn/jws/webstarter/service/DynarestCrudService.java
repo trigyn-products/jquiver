@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
@@ -52,9 +54,9 @@ public class DynarestCrudService {
 	@Autowired
 	private TemplateVersionService templateVersionService					= null;
 	
-	public void downloadDynamicRestTemplate(Integer dashletId) throws Exception {
-		if(dashletId != null) {
-			JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dashletId);
+	public void downloadDynamicRestTemplate(Integer dynarestDetailsId) throws Exception {
+		if(dynarestDetailsId != null) {
+			JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dynarestDetailsId);
 			downloadUploadModule.downloadCodeToLocal(dynamicRestDetail);	
 		}else {
 			downloadUploadModule.downloadCodeToLocal(null);
@@ -86,20 +88,26 @@ public class DynarestCrudService {
 	
 	
 	@Transactional(readOnly = false)
-	public Boolean saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
+	public List<JwsDynamicRestDaoDetail> saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
 		String dynarestUrl 			= formData.getFirst("dynarestUrl");
 		String dynarestMethodName 	= formData.getFirst("dynarestMethodName");
 		String daoDetailsIds 		= formData.getFirst("daoDetailsIds");
 		String variableName 		= formData.getFirst("variableName");
+		String queryType 			= formData.getFirst("queryType");
 		String daoQueryDetails 		= formData.getFirst("daoQueryDetails");
-		
 		
 		Integer dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		
-		List<Integer> daoDetailsIdList		= new ObjectMapper().readValue(daoDetailsIds, List.class);
-		List<String> variableNameList 		= new ObjectMapper().readValue(variableName, List.class);
-		List<String> daoQueryDetailsList 	= new ObjectMapper().readValue(daoQueryDetails, List.class);
-		
+		ObjectMapper objectMapper					= new ObjectMapper();
+		TypeReference<List<Integer>> listOfInteger 	= new TypeReference<List<Integer>>() {};
+
+		List<Integer> daoDetailsIdList		= new ArrayList<>();
+		List<String> variableNameList 		= objectMapper.readValue(variableName, List.class);
+		List<Integer> queryTypeList	 		= objectMapper.readValue(queryType, listOfInteger);
+		List<String> daoQueryDetailsList 	= objectMapper.readValue(daoQueryDetails, List.class);
+		if(!StringUtils.isBlank(daoDetailsIds)) {
+			daoDetailsIdList = new ObjectMapper().readValue(daoDetailsIds, listOfInteger);
+		}
 
 		
 		List<JwsDynamicRestDaoDetail> dynamicRestDaoDetailsList = new ArrayList<>();
@@ -112,19 +120,21 @@ public class DynarestCrudService {
 				}
 				dynamicRestDaoDetail.setJwsDynamicRestDetailId(dynamicRestId);
 				dynamicRestDaoDetail.setJwsResultVariableName(variableNameList.get(counter));
+				dynamicRestDaoDetail.setQueryType(queryTypeList.get(counter));
 				dynamicRestDaoDetail.setJwsDaoQueryTemplate(daoQueryDetailsList.get(counter));
 				dynamicRestDaoDetail.setJwsQuerySequence(counter+1);
 				dynamicRestDaoDetailsList.add(dynamicRestDaoDetail);
 				
 			}
-			List<JwsDynamicRestDaoDetail> dynamicRestDaoList = dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
-			for (JwsDynamicRestDaoDetail dynamicRestDao : dynamicRestDaoList) {
+			dynamicRestDaoDetailsList = dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
+			for (JwsDynamicRestDaoDetail dynamicRestDao : dynamicRestDaoDetailsList) {
 				templateVersionService.saveTemplateVersion(dynamicRestDao.getJwsDaoQueryTemplate()
 						,dynamicRestId, dynamicRestDao.getJwsDaoDetailsId(), "jws_dynamic_rest_dao_details");
 			}
 		}
 		
-		return true;
+		return dynamicRestDaoDetailsList;
+
 	}
 	
 	@Transactional(readOnly = false)
@@ -132,11 +142,28 @@ public class DynarestCrudService {
 		String dynarestUrl 					= formData.getFirst("dynarestUrl");
 		String dynarestMethodName 			= formData.getFirst("dynarestMethodName");
 		String daoDetailsIds 				= formData.getFirst("daoDetailsIds");
-		List<Integer> daoDetailsIdList		= new ObjectMapper().readValue(daoDetailsIds, List.class);
+		ObjectMapper objectMapper					= new ObjectMapper();
+		TypeReference<List<Integer>> listOfInteger 	= new TypeReference<List<Integer>>() {};
+		List<Integer> daoDetailsIdList		= new ArrayList<>();
+		if(!StringUtils.isBlank(daoDetailsIds)) {
+			daoDetailsIdList		= objectMapper.readValue(daoDetailsIds, listOfInteger);
+		}
 		
 		Integer dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		dynarestDAO.deleteDAOQueriesById(dynamicRestId, daoDetailsIdList);
 	}
 	
+	@Transactional(readOnly = false)
+	public Integer downloadCodeToLocal(List<JwsDynamicRestDaoDetail> dynamicRestDaoList) throws Exception{
+		Integer dynamicRestId = dynamicRestDaoList.get(0).getJwsDynamicRestDetailId();
+		JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dynamicRestId);
+		dynamicRestDetail.setJwsDynamicRestDaoDetails(dynamicRestDaoList);
+		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+        if(environment.equalsIgnoreCase("dev")) {
+        	downloadUploadModule.downloadCodeToLocal(dynamicRestDetail);
+        }
+        
+		return dynamicRestId;
+	}
 	
 }

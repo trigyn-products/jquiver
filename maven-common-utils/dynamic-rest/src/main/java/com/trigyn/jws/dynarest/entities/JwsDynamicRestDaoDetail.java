@@ -40,6 +40,9 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	
 	@Column(name="checksum")
 	private String checksum								= null;
+	
+	@Column(name = "jws_dao_query_type")
+	private Integer queryType							= null;
 
 	@ManyToOne
 	@JoinColumn(name="jws_dynamic_rest_details_id", referencedColumnName = "jws_dynamic_rest_id", insertable = false, updatable = false)
@@ -96,8 +99,14 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 		this.jwsQuerySequence = jwsQuerySequence;
 	}
 
-	
-	
+	public Integer getQueryType() {
+		return queryType;
+	}
+
+	public void setQueryType(Integer queryType) {
+		this.queryType = queryType;
+	}
+
 	public Integer getJwsDynamicRestDetailId() {
 		return jwsDynamicRestDetailId;
 	}

@@ -19,37 +19,36 @@ import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 
 @Component("dynamic-form")
-public class DynamicFormModule implements DownloadUploadModule {
+public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO propertyMasterDAO 						= null;
 	
 	@Autowired
-	private IDynamicFormQueriesRepository dynamicFormQueriesRepository = null;
+	private IDynamicFormQueriesRepository dynamicFormQueriesRepository 	= null;
 	
 	@Autowired
-	private FileUtilities fileUtilities  = null;
+	private FileUtilities fileUtilities  								= null;
 	
 	@Autowired
-	private DynamicFormCrudDAO dynamicFormDAO = null;
+	private DynamicFormCrudDAO dynamicFormDAO 							= null;
 	
 	@Override
-	public void downloadCodeToLocal(Object dynamicFormObj) throws Exception {
+	public void downloadCodeToLocal(DynamicForm a_dynamicForm) throws Exception {
 		List<DynamicForm>  formList = new ArrayList<>();
-		if(dynamicFormObj != null) {
-			DynamicForm dynamicForm = (DynamicForm) dynamicFormObj;
-			formList.add(dynamicForm);
+		if(a_dynamicForm != null) {
+			formList.add(a_dynamicForm);
 		}else {
 			formList = dynamicFormDAO.getAllDynamicForms();
 		}
 		
-		String templateDirectory = "DynamicForm";
-		String ftlCustomExtension = ".tgn";
-		String selectQuery = "selectQuery";
-		String htmlBody = "hmtlQuery";
-		String saveQuery = "saveQuery-";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
+		String templateDirectory 		= "DynamicForm";
+		String ftlCustomExtension 		= ".tgn";
+		String selectQuery 				= "selectQuery";
+		String htmlBody 				= "htmlContent";
+		String saveQuery 				= "saveQuery-";
+		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
 		for (DynamicForm dynamicForm : formList) {
 			boolean isCheckSumChanged = false;
@@ -94,15 +93,15 @@ public class DynamicFormModule implements DownloadUploadModule {
 
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
-		String user ="admin";
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "DynamicForm";
-		String selectQuery = "selectQuery";
-		String htmlBody = "hmtlQuery";
-		String saveQuery = "saveQuery-";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
-		File directory = new File(folderLocation);
+		String user 				="admin";
+		String ftlCustomExtension 	= ".tgn";
+		String templateDirectory 	= "DynamicForm";
+		String selectQuery 			= "selectQuery";
+		String htmlBody 			= "htmlContent";
+		String saveQuery 			= "saveQuery-";
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 				= folderLocation +File.separator+templateDirectory;
+		File directory 				= new File(folderLocation);
 		if(!directory.exists()) {
 			throw new Exception("No such directory present");
 		}

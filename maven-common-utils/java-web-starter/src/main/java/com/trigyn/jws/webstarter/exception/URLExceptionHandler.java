@@ -1,4 +1,4 @@
-package com.trigyn.jws.menu.exception;
+package com.trigyn.jws.webstarter.exception;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,8 +21,7 @@ import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
-
-import freemarker.core.InvalidReferenceException;
+import com.trigyn.jws.webstarter.controller.MasterModuleController;
 
 @RestController
 public class URLExceptionHandler implements ErrorController {
@@ -38,6 +37,11 @@ public class URLExceptionHandler implements ErrorController {
 	
 	@Autowired
 	private MenuService		menuService							= null;
+	
+	@Autowired 
+	private MasterModuleController masterModuleController 		= null;
+	
+	private final static String HOME_PAGE_MODULE = "home-module";
     
     @RequestMapping("/error")
 	public String errorHandler(HttpServletRequest httpServletRequest) throws Exception {
@@ -47,14 +51,19 @@ public class URLExceptionHandler implements ErrorController {
     	Map<String, Object> parameterMap = new HashMap<String, Object>();
     	if(status != null) {
     		Integer statusCode = Integer.parseInt(status.toString());
+    		parameterMap.put("statusCode", statusCode);
+    		String url = httpServletRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString().replace(httpServletRequest.getContextPath(), "");
     		if(statusCode == HttpStatus.NOT_FOUND.value()) {
-    			TemplateVO fallbackTemplate = getTemplateIfAssociatedWithURL(httpServletRequest);
-    			templateVO =  fallbackTemplate == null ? templateVO : fallbackTemplate;
-    			if(templateVO != null) {
-    				return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), new HashMap<>());
+    			if( "/".equals(url) ) {
+    				url = HOME_PAGE_MODULE;
+        		}
+    			String fallbackTemplate = masterModuleController.loadTemplate(httpServletRequest, url);
+    			if(fallbackTemplate == null) {
+    				return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
+    			} else {
+    				return fallbackTemplate;
     			}
   			 }
-        	parameterMap.put("statusCode", statusCode);
         	if(exception != null) {
         		parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
         	} else {
@@ -65,9 +74,8 @@ public class URLExceptionHandler implements ErrorController {
     	return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 	}
 
-	private TemplateVO getTemplateIfAssociatedWithURL(HttpServletRequest httpServletRequest) throws Exception {
+	private TemplateVO getTemplateIfAssociatedWithURL(String requestedURL) throws Exception {
 		TemplateVO templateVO 					= null;
-    	String requestedURL 					= httpServletRequest.getRequestURI();
     	ModuleDetailsVO moduleDetailsVO 		= iModuleListingRepository.getTargetTypeDetails(requestedURL);
     	
 		if(moduleDetailsVO != null) {

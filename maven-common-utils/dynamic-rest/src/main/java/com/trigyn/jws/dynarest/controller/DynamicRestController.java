@@ -51,7 +51,7 @@ public class DynamicRestController {
             Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(), requestParams);
             Object response = null;
 			try {
-				response = jwsService.createSourceCodeAndInvokeServiceLogic(requestParams, queriesResponse, restApiDetails);
+				response = jwsService.createSourceCodeAndInvokeServiceLogic(httpServletRequest, requestParams, queriesResponse, restApiDetails);
 			} catch (IllegalArgumentException exception) {
 				LOGGER.error("Error occured while invoking the method ", exception);
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);

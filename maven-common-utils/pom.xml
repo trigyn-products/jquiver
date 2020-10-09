@@ -74,6 +74,7 @@
 		<module>dynamic-form</module>
 		<module>dynamic-rest</module>
 		<module>menu</module>
+		<module>usermanagement</module>
 	</modules>
 
 	<dependencies>

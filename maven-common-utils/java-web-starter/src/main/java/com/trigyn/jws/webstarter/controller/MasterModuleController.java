@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,10 +51,23 @@ public class MasterModuleController {
 		try {	
 			String moduleUrl = httpServletRequest.getRequestURI();
 			moduleUrl = moduleUrl.replaceFirst("/view/", "");
-			if("".equals(moduleUrl)) {
-				return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
-			}
-			Map<String, Object> moduleDetailsMap = moduleService.getModuleTargetTypeName(moduleUrl);
+			return loadTemplate(httpServletRequest, moduleUrl);
+		}catch (NullPointerException exception) {
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		}catch (Exception exception) {
+			logger.error("Error ", exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		}
+		return null;
+	}
+
+	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl) throws Exception {
+		if("".equals(moduleUrl)) {
+			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+		}
+		Map<String, Object> moduleDetailsMap = moduleService.getModuleTargetTypeName(moduleUrl);
+		if(!CollectionUtils.isEmpty(moduleDetailsMap)) {
 			Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
 			Integer targetLookupId = Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
 			String templateName = moduleDetailsMap.get("targetTypeName").toString();
@@ -71,12 +85,8 @@ public class MasterModuleController {
 				templateMap.put("formId", targetTypeId);
 				return menuService.getDashletTemplateWithLayout(template, templateMap);
 			}
-		}catch (NullPointerException exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
-		}catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} else {
+			return null;
 		}
 		return null;
 	}

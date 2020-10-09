@@ -1,0 +1,2 @@
+ALTER TABLE jws_dynamic_rest_dao_details ADD UNIQUE INDEX `jws_dynamic_rest_dao_details_unique` (`jws_dynamic_rest_details_id`,`jws_result_variable_name`);
+ALTER TABLE jws_dynamic_rest_dao_details ADD jws_dao_query_type INT(11) NOT NULL DEFAULT '1' AFTER checksum;

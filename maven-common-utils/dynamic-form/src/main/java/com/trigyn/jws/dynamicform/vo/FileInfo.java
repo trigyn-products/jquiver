@@ -1,29 +1,39 @@
 package com.trigyn.jws.dynamicform.vo;
 
 public class FileInfo {
+	private String fileId = null;
+	private String fileName = null;
+	private Long sizeInBytes = null;
 
-	private String name;
-	private String url;
-
-	public FileInfo(String name, String url) {
-		this.name = name;
-		this.url = url;
+	public FileInfo(String fileId, String fileName, Long sizeInBytes) {
+		super();
+		this.fileId = fileId;
+		this.fileName = fileName;
+		this.sizeInBytes = sizeInBytes;
 	}
 
-	public String getName() {
-		return this.name;
+	public String getFileId() {
+		return fileId;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setFileId(String fileId) {
+		this.fileId = fileId;
 	}
 
-	public String getUrl() {
-		return this.url;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public Long getSizeInBytes() {
+		return sizeInBytes;
+	}
+
+	public void setSizeInBytes(Long sizeInBytes) {
+		this.sizeInBytes = sizeInBytes;
 	}
 
 }

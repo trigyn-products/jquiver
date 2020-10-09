@@ -20,29 +20,28 @@ import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
 @Component("template")
-public class TemplateModule implements DownloadUploadModule {
+public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 	@Autowired
-	private DBTemplatingService dbTemplatingService = null;
+	private DBTemplatingService dbTemplatingService 			= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO propertyMasterDAO 				= null;
 	
 	@Autowired
-	private TemplateDAO templateDAO = null;
+	private TemplateDAO templateDAO 							= null;
 	
 	@Autowired
-	private DBTemplatingRepository dbTemplatingRepository = null;
+	private DBTemplatingRepository dbTemplatingRepository	 	= null;
 	
 	@Autowired
-	private FileUtilities fileUtilities  = null;
+	private FileUtilities fileUtilities  						= null;
 	
 	@Override
-	public void downloadCodeToLocal(Object templateObj) throws Exception {
+	public void downloadCodeToLocal(TemplateMaster a_templateMaster) throws Exception {
 		List<TemplateMaster> templates = new ArrayList<>();
-		if(templateObj != null) {
-			TemplateMaster templateMaster = (TemplateMaster) templateObj;
-			templates.add(templateMaster);
+		if(a_templateMaster != null) {
+			templates.add(a_templateMaster);
 		}else {
 			templates = dbTemplatingService.getAllTemplates();
 		}
@@ -50,10 +49,10 @@ public class TemplateModule implements DownloadUploadModule {
 		List<TemplateVO> templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(),
                 template.getTemplateName(), template.getTemplate(), template.getChecksum())).collect(Collectors.toList());
 		
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "Templates";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
+		String ftlCustomExtension 	= ".tgn";
+		String templateDirectory 	= "Templates";
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 				= folderLocation +File.separator+templateDirectory;
 		
 		if(!new File(folderLocation).exists()) {
 			File fileDirectory = new File(folderLocation);
@@ -90,12 +89,12 @@ public class TemplateModule implements DownloadUploadModule {
 
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
-		String user ="admin";
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "Templates";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
-		File directory = new File(folderLocation);
+		String user 				="admin";
+		String ftlCustomExtension 	= ".tgn";
+		String templateDirectory 	= "Templates";
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 				= folderLocation +File.separator+templateDirectory;
+		File directory 				= new File(folderLocation);
 		if(!directory.exists()) {
 			throw new Exception("No such directory present");
 		}

@@ -1,6 +1,7 @@
 package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +26,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.FileUploadRepository;
 import com.trigyn.jws.dynamicform.entities.FileUpload;
+import com.trigyn.jws.dynamicform.utils.CryptoUtils;
 
 @Component
 @Qualifier(value = "file-system-storage")
@@ -41,6 +43,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	
 	@Autowired
 	private FileUploadRepository fileUploadRepository 	= null;
+	
+	private final static String JWS_SALT = "main alag duniya";
 
 	@Override
 	public void init() {
@@ -71,6 +75,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			FileUpload fileUpload = saveFileDetails(location.toString(), file.getOriginalFilename());
 			Path root = Paths.get(location.toString());
 			Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
+			CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(), root.resolve(fileUpload.getPhysicalFileName()).toFile());
 			return fileUpload.getFileUploadId();
 		} catch (Exception exception) {
 			logger.error("Could not store the file. Error: ", exception);
@@ -89,7 +94,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	@Override
-	public Resource load(String fileUploadId) {
+	public File load(String fileUploadId) {
 		try {
 			FileUpload fileUploadDetails = fileUploadRepository.findById(fileUploadId)
 						.orElseThrow(() -> new Exception("file not found with id : " + fileUploadId));
@@ -97,7 +102,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			Path file = root.resolve(fileUploadDetails.getPhysicalFileName());
 			Resource resource = new UrlResource(file.toUri());
 			if (resource.exists() || resource.isReadable()) {
-				return resource;
+				File file2 = File.createTempFile("aman", ".tmp");
+				CryptoUtils.decrypt(JWS_SALT, resource.getFile(), file2);
+				return file2;
 			} else {
 				throw new RuntimeException("Could not read the file!");
 			}

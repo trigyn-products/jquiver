@@ -483,7 +483,7 @@ BEGIN
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18nParent ON mlParent.module_id = mli18nParent.module_id AND mli18nParent.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18nParent2 ON mlParent.module_id = mli18nParent2.module_id AND mli18nParent2.language_id = 1 ');
-  SET @whereString = ' ';
+  SET @whereString = ' WHERE ml.module_url != "home-module" ';
   
   
   IF NOT moduleName IS NULL THEN

@@ -3,6 +3,7 @@
  */
 package com.trigyn.jws.dynamicform.service;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -15,7 +16,7 @@ public interface FilesStorageService {
 
 	public String save(MultipartFile file);
 
-	public Resource load(String filename);
+	public File load(String filename);
 
 	public void deleteAll();
 

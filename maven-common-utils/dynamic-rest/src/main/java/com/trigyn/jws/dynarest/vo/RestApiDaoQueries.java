@@ -9,14 +9,17 @@ public class RestApiDaoQueries {
 	private String jwsResultVariableName				= null;
 
     private Integer jwsQuerySequence					= null;
+    
+    private Integer queryType							= null;
 
     public RestApiDaoQueries() {
     }
 
-    public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence) {
+    public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence, Integer queryType) {
         this.jwsDaoQueryTemplate = jwsDaoQueryTemplate;
         this.jwsResultVariableName = jwsResultVariableName;
         this.jwsQuerySequence = jwsQuerySequence;
+        this.queryType = queryType;
     }
 
     public String getJwsDaoQueryTemplate() {
@@ -57,8 +60,16 @@ public class RestApiDaoQueries {
         this.jwsQuerySequence = jwsQuerySequence;
         return this;
     }
+    
+    public Integer getQueryType() {
+		return queryType;
+	}
 
-    @Override
+	public void setQueryType(Integer queryType) {
+		this.queryType = queryType;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (o == this)
             return true;

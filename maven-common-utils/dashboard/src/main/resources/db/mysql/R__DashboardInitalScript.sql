@@ -31,7 +31,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             </div>        
       </div>
     </div>
-</div>','admin','admin',now());
+</div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
   
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'dashlets', '
@@ -202,7 +202,7 @@ function backToDashboardPage() {
 		</#list>
 </div>
 
-<div id="configurationDialog"></div></div>','admin','admin',now());
+<div id="configurationDialog"></div></div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'dashlet-configuration', '
@@ -231,20 +231,20 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		<input type="button" onclick="closeConfigurationDialog();" value="Ok" class="btn btn-sm btn-primary"/>
 	</#if>
 </div>
-','admin','admin',now());
+','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'select', '<script type="text/javascript">
 </script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <select id="" class="select form-control" name=""></select>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'text', '<script type="text/javascript"></script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <input type="text" id="" name="" value="" class="form-control"/>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'rangeslider', '<div class="col-lg-9 col-md-9 col-sm-8">
@@ -252,12 +252,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <input type="range" id="" class="range-slider__range" name="${property.propertyId}" value="" min="0" max="${property.value}" step="1"/>
 <span id="slider-value_" class="range-slider__value"></span>
 </div>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'number', '<script type="text/javascript"></script><div class="col-lg-9 col-md-9 col-sm-8">
 <input type="number" min="0" id="" name="" value="" class="form-control"/>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'datepicker', '<script src="${contextPath}/resources/jscore/jquery/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
@@ -273,7 +273,7 @@ jQuery(function() {
 </script>
 <div class="col-lg-9 col-md-9 col-sm-8 configurepop">
 <input type="text" id="" name="" class="date form-control" value=""/>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
 (UUID(), 'checkbox', '<div class="col-lg-9 col-md-9 col-sm-8">
@@ -283,7 +283,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   <input type="checkbox" class="roles" name="${property.propertyId}" value="false"/>
   <label for="checkbox1"><span></span>False</label>
  </div>
-</div>', 'admin','admin',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'monthpicker', '', 'admin','admin',now());
+(UUID(), 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());

@@ -1,0 +1,1 @@
+ALTER TABLE dynamic_form_save_queries ADD UNIQUE KEY `dynamic_form_save_queries_unique` (`dynamic_form_id`,`sequence`);

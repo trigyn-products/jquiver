@@ -1,4 +1,4 @@
-replace into autocomplete_details (ac_id, ac_description, ac_select_query) VALUES
+REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query) VALUES
 ('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM dashboard 
 WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")'), 
 ('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")'), 
@@ -6,7 +6,7 @@ WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")'),
 FROM jws_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")'), 
 ('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")');
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('55c2db62-0480-11eb-9926-e454e805e22f', 'master-creator', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -143,84 +143,3 @@ replace into template_master (template_id, template_name, template, updated_by, 
     let formDetails = new Array();
     let menuDetails = new Object();
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-('d3cb061d-0743-11eb-9926-e454e805e22f', 'system-listing-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-</head>
-
-<div class="container">
-    <div class="topband">
-        <h2 class="title-cls-name float-left">Your page title here</h2> 
-        <div class="float-right">
-            <form id="addEditRecords" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
-                <input type="hidden" name="formId" value="${formId}"/>
-                <#list primaryKeysIds as primaryKey>
-                <input type="hidden" name="${primaryKey}" id="${primaryKey}" value=""/>
-                </#list>
-                <button type="submit" class="btn btn-primary"> Create New </button>
-            </form>
-
-
-            <span onclick="backToWelcomePage();">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-            </span> 
-        </div>
-        
-        <div class="clearfix"></div>        
-    </div>
-        
-    <div id="${gridId}"></div>
-
-    <div id="snackbar"></div>
-</div>
-
-<script>
-    contextPath = "${contextPath}";
-    $(function () {
-    //Add all columns that needs to be displayed in the grid
-        let colM = [
-          <#list gridDetails as gridInfo>
-            { title: "${gridInfo?api.get("displayName")}", width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
-                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-          </#list>
-            { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
-        ];
-    
-    //System will fecth grid data based on gridId
-        let grid = $("#${gridId}").grid({
-          gridId: "${gridId}",
-          colModel: colM
-        });
-    
-    });
-    
-    //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
-    function manageRecord(uiObject) {
-        let rowIndx = uiObject.rowIndx;
-        return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
-    }
-    
-    //Add logic to navigate to create new record
-    function createNew(element) {
-        let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
-        <#list primaryKeys as primaryKey>
-        $("#${primaryKey?replace("_", "")}").val(rowData["${primaryKey}"]);
-        </#list>
-        $("#addEditRecords").submit();
-    }
-
-    //Code go back to previous page
-    function backToWelcomePage() {
-        location.href = contextPath+"/cf/home";
-    }
-</script>', 'admin', 'admin',NOW());

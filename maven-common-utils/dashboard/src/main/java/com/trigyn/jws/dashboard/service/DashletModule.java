@@ -18,7 +18,7 @@ import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 
 @Component("dashlet")
-public class DashletModule implements DownloadUploadModule {
+public class DashletModule implements DownloadUploadModule<Dashlet> {
 
 	@Autowired
     private DashletDAO dashletDAO = null;
@@ -34,21 +34,20 @@ public class DashletModule implements DownloadUploadModule {
 	
 	
 	@Override
-	public void downloadCodeToLocal(Object dashletObj) throws Exception {
+	public void downloadCodeToLocal(Dashlet a_dashlet) throws Exception {
 		List<Dashlet> dashlets = new ArrayList<>();
-		if(dashletObj != null) {
-			Dashlet dynamicForm = (Dashlet) dashletObj;
-			dashlets.add(dynamicForm);
+		if(a_dashlet != null) {
+			dashlets.add(a_dashlet);
 		}else {
 			dashlets =  dashletDAO.getAllDashlets();
 		}
 		
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "Dashlets";
-		String selectQuery = "selectQuery";
-		String htmlBody = "hmtlQuery";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
+		String ftlCustomExtension 		= ".tgn";
+		String templateDirectory 		= "Dashlets";
+		String selectQuery 				= "selectQuery";
+		String htmlBody 				= "htmlContent";
+		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
 		for (Dashlet dashlet : dashlets) {
 			boolean isCheckSumChanged = false;
@@ -83,14 +82,14 @@ public class DashletModule implements DownloadUploadModule {
 
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
-		String user ="admin";
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "Dashlets";
-		String selectQuery = "selectQuery";
-		String htmlBody = "hmtlQuery";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
-		File directory = new File(folderLocation);
+		String user 				= "admin";
+		String ftlCustomExtension 	= ".tgn";
+		String templateDirectory 	= "Dashlets";
+		String selectQuery 			= "selectQuery";
+		String htmlBody 			= "htmlContent";
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		folderLocation 				= folderLocation +File.separator+templateDirectory;
+		File directory 				= new File(folderLocation);
 		if(!directory.exists()) {
 			throw new Exception("No such directory present");
 		}

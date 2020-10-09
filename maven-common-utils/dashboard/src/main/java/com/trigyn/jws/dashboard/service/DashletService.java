@@ -184,7 +184,7 @@ public class DashletService {
 		String selectCriteria = null; a_dashlet.getDashletQuery();
 		String htmlBody = null; 
 		String selectQueryFile = "selectQuery";
-		String htmlBodyFile = "hmtlQuery";
+		String htmlBodyFile = "htmlContent";
 		
 		 String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 	        if(environment.equalsIgnoreCase("dev")) {

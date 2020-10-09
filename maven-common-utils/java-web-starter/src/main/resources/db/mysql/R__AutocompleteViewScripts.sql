@@ -25,6 +25,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="clearfix"></div>		
 	</div>
 
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     <div class="row">
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
@@ -51,7 +52,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
  			</div>
 		</div>
 		
-		<div id="rbMultiselect_deleteConfirmation"></div>
     </div>
 </div>
 <script>
@@ -113,7 +113,7 @@ $(function () {
         },	
     }, [{key: "jws.action", languageId: 1, text: "Action"}]);
 });
-</script>', 'admin', 'admin', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
 
 
@@ -188,7 +188,7 @@ function submitForm(element) {
 function backToWelcomePage() {
 	location.href = contextPath+"/cf/home";
 }
-</script>', 'admin', 'admin', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
@@ -205,7 +205,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	<div class="container">
 		<div class="topband">
-		<h2 class="title-cls-name float-left">Update Autocomplete Details</h2> 
+		<#if (autocompleteVO.autocompleteId)??>
+		    <h2 class="title-cls-name float-left">Edit Autocomplete Details</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">Add Autocomplete Details</h2>  
+        </#if>  
 		<div class="float-right">
 			 
 		<span onclick="addEditAutocomplete.backToListingPage();">
@@ -217,6 +221,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>
 	
     <form id="autocompleteForm" method="post" >
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	  <div class="row">
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
@@ -260,7 +265,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
    
   </form>
   
- 	<div id="snackbar"></div>
  	
 <textarea id="sqlContentDiv" style="display: none">
 	${(autocompleteVO.autocompleteQuery)!""}
@@ -276,7 +280,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	    addEditAutocomplete.loadAutocompletDetails();
 	});
 </script>
-<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'admin', 'admin',NOW());
+<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
 CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))

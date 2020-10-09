@@ -70,4 +70,8 @@ public class JwsDynarestDAO extends DBConnection {
 		getCurrentSession().save(daoDetail);
 		
 	}
+
+	public int executeDMLQueries(String query, Map<String, Object> parameterMap) {
+		return namedParameterJdbcTemplate.update(query, parameterMap);
+	}
 }
