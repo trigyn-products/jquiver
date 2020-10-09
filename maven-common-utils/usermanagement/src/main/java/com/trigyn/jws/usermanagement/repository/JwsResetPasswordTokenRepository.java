@@ -8,9 +8,10 @@ import com.trigyn.jws.usermanagement.entities.JwsResetPasswordToken;
 
 @Repository
 public interface JwsResetPasswordTokenRepository extends JpaRepository<JwsResetPasswordToken, String> {
+	
 	JwsResetPasswordToken findByTokenId(String token);
 	
 	
-	@Query("Update ResetPasswordToken set isResetUrlExpired=:isResetUrlExpired  WHERE userId=:userId and tokenId=:tokenId")
-	void updateUrlExpired(Boolean isResetUrlExpired,String userId,String tokenId);
+//	@Query("Update ResetPasswordToken set isResetUrlExpired=:isResetUrlExpired  WHERE userId=:userId and tokenId=:tokenId")
+//	void updateUrlExpired(Boolean isResetUrlExpired,String userId,String tokenId);
 }

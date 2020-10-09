@@ -44,8 +44,8 @@ public class JwsResetPasswordController {
 	@Autowired
 	private JwsUserRepository userRepository =  null;
 	
-	@Autowired
-	private JavaMailSender javaMailSender = null;
+//	@Autowired
+//	private JavaMailSender javaMailSender = null;
 	
 	@Autowired
 	private JwsResetPasswordTokenRepository resetPasswordTokenRepository =  null;
@@ -99,7 +99,7 @@ public class JwsResetPasswordController {
       		CompletableFuture.runAsync( new Runnable() {
       			@Override
       			public void run() {
-      				javaMailSender.send(mailMessage);
+//      				javaMailSender.send(mailMessage);
       			}
       			});
       		
@@ -185,7 +185,7 @@ public class JwsResetPasswordController {
         		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE);
         		userRoleAssociationRepository.save(adminRoleAssociation);
         		
-        		resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(),tokenId);
+//        		resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(),tokenId);
 	            
 	            mapDetails.put("resetPasswordSuccess","Congratulations.You have successfully changed your password.");
 				viewName = "login";
