@@ -153,8 +153,7 @@
             
             var deleteItem = function(event) {
                 var data = $(deleteItemContext).data('selected-item');
-                context.deleteItem.apply(deleteItemContext, [multiselectId, data]);
-                context.selectedObjects.splice(itemData, 1);
+                context.deleteItem.apply(deleteItemContext, [multiselectId, data, context]);
             };
             let noOfElements = parseInt($("#"+multiselectId+"_count > span").text());
     		$("#"+multiselectId+"_count > span").text(noOfElements+1);
@@ -171,9 +170,13 @@
         $(context.element).val("");
     }
 
-    Multiselect.prototype.deleteItem = function(multiselectId, item) {
-    	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to remove '"+item.text + "'?");
-		$("#"+multiselectId+"_deleteConfirmation").dialog({
+    Multiselect.prototype.deleteItem = function(multiselectId, item, context) {
+		let element = $(this);
+		let selectedText = item.text;
+		let deleleteElement = $('<div id="deleteConfirmation"></div>');
+		$("body").append(deleleteElement);
+		$("#deleteConfirmation").html("Are you sure you want to remove '"+selectedText + "'?");
+		$("#deleteConfirmation").dialog({
 			bgiframe		: true,
 			autoOpen		: true, 
 			modal		 	: true,
@@ -184,13 +187,13 @@
 			buttons		 : [{
 					text :"Cancel",
 					click: function() { 
-						$(this).dialog('close');
+						$(this).dialog("destroy");
+						$(this).remove();
 					},
 				},
 				{
 					text	: "Delete",
 					click	: function(){
-						$(this).dialog('close');
 				        let noOfElements = parseInt($("#"+multiselectId+"_count > span").text()) - 1;
 				    	$("#"+multiselectId+"_count > span").text(noOfElements);
 				    	if(noOfElements === 0){
@@ -199,7 +202,13 @@
 				    		$("#"+multiselectId+"_removeAll").addClass("disable_cls");
 				    		$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
 				    	}
-				        $(this.parent()).remove();
+				        $(element.parent()).remove();
+						context.selectedObjects = $.grep(context.selectedObjects, function( savedObj ) {
+    						return savedObj.key !== item.key;
+						});
+						$(this).dialog("destroy");
+						$(this).remove();
+						showMessage(selectedText + " removed successfully.", "success");
 				        return item;
 					}
 	           	},
@@ -212,13 +221,14 @@
 	
 		});
 		
-
     },
     
     Multiselect.prototype.removeAllElements = function(multiselectId){
 		const context = this;
-    	$("#"+multiselectId+"_deleteConfirmation").html("Are you sure you want to clear all selected items?");
-		$("#"+multiselectId+"_deleteConfirmation").dialog({
+		let deleleteElement = $('<div id="deleteConfirmation"></div>');
+		$("body").append(deleleteElement);
+    	$("#deleteConfirmation").html("Are you sure you want to clear all selected items?");
+		$("#deleteConfirmation").dialog({
 			bgiframe		: true,
 			autoOpen		: true, 
 			modal		 	: true,
@@ -229,13 +239,13 @@
 			buttons		 : [{
 					text :"Cancel",
 					click: function() { 
-						$(this).dialog('close');
+						$(this).dialog("destroy");
+						$(this).remove();
 					},
 				},
 				{
 					text	: "Delete",
 					click	: function(){
-						$(this).dialog('close');
 				    	let multiselectIdDivId = context.options.multiselectItem[0].id;
 				    	context.selectedObjects = new Array();
 				    	$("#"+multiselectId+"_count").addClass("disable_cls");
@@ -244,6 +254,9 @@
 				    	$("#"+multiselectId+"_removeAll").addClass("disable_cls");
 				    	$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
 				    	$("#"+multiselectIdDivId+"_ul").empty();
+				    	$(this).dialog("destroy");
+						$(this).remove();
+						showMessage("All items removed successfully.", "success");
 					}
 	           	},
 	       ],	

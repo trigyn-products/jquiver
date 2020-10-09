@@ -18,6 +18,7 @@ AddEditDashboard.prototype.fn = {
     
     
     populateDashlets: function(){
+    	$("#associatedDashlets").empty();
     	let selectedContextId = $("#contextId").find(":selected").val();
     	$.ajax({
     		type: "GET",
@@ -35,9 +36,9 @@ AddEditDashboard.prototype.fn = {
     					let dashletDetails = dashletDetailsArray[iCounter];
     					dashletDiv = '<div class="inpugrp pull-left checkbox">'
     					if(dashletDetails.dashboardId === dashboardId){
-    						dashletDiv = dashletDiv + "<input type = checkbox checked = checked id = chkdashlet_"+dashletDetails.dashletId+" value = chkdashlet_"+dashletDetails.dashletId+" name = dashletId class = dashlets pull-left/>";
+    						dashletDiv = dashletDiv + "<input type = checkbox checked = checked id = chkdashlet_"+dashletDetails.dashletId+" value="+dashletDetails.dashletId+" name = dashletId class = dashlets pull-left/>";
     					}else{
-    						dashletDiv = dashletDiv + "<input type = checkbox id = chkdashlet_"+dashletDetails.dashletId+" value = chkdashlet_"+dashletDetails.dashletId+" name = dashletId class = dashlets pull-left/>";
+    						dashletDiv = dashletDiv + "<input type = checkbox id = chkdashlet_"+dashletDetails.dashletId+" value="+dashletDetails.dashletId+" name = dashletId class = dashlets pull-left/>";
     					}
     					dashletDiv = dashletDiv + "<label class = p-2 pull-left for = chkdashlet_"+dashletDetails.dashletId+">"+dashletDetails.dashletName+"</label>";
     					$("#associatedDashlets").append(dashletDiv);
@@ -48,8 +49,7 @@ AddEditDashboard.prototype.fn = {
     			}
     		},
     		error: function (xhr, error) {
-				$("#errorMessage").show();
-				$('#errorMessage').html("Error occurred while fetching dashlets");
+				showMessage("Error occurred while fetching dashlets", "error");
     		}
     	});
     },
@@ -62,7 +62,6 @@ AddEditDashboard.prototype.fn = {
 			return false;
 		}
 		
-		validData = context.validateRolesChecked();
 		validData = context.validateDashletsChecked();
 		if(validData == false){
 			return false;
@@ -70,7 +69,7 @@ AddEditDashboard.prototype.fn = {
 		
 		let dashletIdArray = new Array();
 		$("input:checked.dashlets").each(function(val, index){
-			dashletIdArray.push(this.id.split("_")[1]);
+			dashletIdArray.push(this.value);
 		});
 		  
 		let dashboardDetails = new Object();
@@ -94,13 +93,11 @@ AddEditDashboard.prototype.fn = {
 				data : JSON.stringify(dashboardDetails),
 				success : function(data) {
 					$("#dashboardId").val(data);
-					$('#snackbar').html("Information saved successfully.");
-					context.showSnackbarDashboard();
+					showMessage("Information saved successfully", "success");
 		       	},
 	        
 	        	error : function(xhr, error){
-	        		$("#errorMessage").show();
-					$('#errorMessage').html("Error occurred while saving");
+					showMessage("Error occurred while saving", "error");
 	        	},
 	        	
 			});
@@ -135,7 +132,7 @@ AddEditDashboard.prototype.fn = {
 			}
 				
 			if($("#dashboardTypeId").find(":selected").val()=== undefined){
-				$("#errorMessage").html("Please select atleast dashboard type");
+				$("#errorMessage").html("Please select at least dashboard type");
 				$("#errorMessage").show();
 				return false;
 			}else{
@@ -154,7 +151,7 @@ AddEditDashboard.prototype.fn = {
 					return true;
 				}
 			}
-			$("#errorMessage").html("Please select atleast one user role");
+			$("#errorMessage").html("Please select at least one user role");
 			$("#errorMessage").show();
 			return false;
 		},
@@ -170,7 +167,7 @@ AddEditDashboard.prototype.fn = {
 					return true;
 				}
 			}
-			$("#errorMessage").html("Please select atleast one dashlet");
+			$("#errorMessage").html("Please select at least one dashlet");
 			$("#errorMessage").show();
 			return isDahletSelected;
 		},
@@ -179,12 +176,4 @@ AddEditDashboard.prototype.fn = {
 			location.href = contextPath+"/cf/dbm";
 		},
 		
-		showSnackbarDashboard : function() {
-	    	let snackBar = $("#snackbar");
-	    	snackBar.addClass('show');
-	    	setTimeout(function(){ 
-	    		snackBar.removeClass("show");
-	    	}, 3000);
-		},
-    
 }

@@ -34,12 +34,17 @@ class TemplateEngine {
     	const context = this;
     	if(context.templateId != "0") {
     		$.ajax({
-    		type: "get",
-    		url: contextPath+"/cf/gtbi",
-    		data: { templateId: this.templateId },
-    		success: function(data) {
+    			type: "get",
+    			url: contextPath+"/cf/gtbi",
+    			data: {
+    				templateId: this.templateId
+    			},
+    			success: function(data) {
     				context.editor.setValue(data);
-    			}
+    			},
+    			error : function(xhr, error){
+					showMessage("Error occurred while fetching template content", "error");
+	        	},
     		});
     	}
     }
@@ -67,8 +72,14 @@ class TemplateEngine {
                     } else {
                         context.onSaveAndClose();
                     }
-                }
+	            },
+	       		error : function(xhr, error){
+					showMessage("Error occurred while saving", "error");
+	        	},
             });
+        }else{
+        	$('#errorMessage').html("Please enter valid template name");
+        	$('#errorMessage').show();
         }
     }
 
@@ -79,8 +90,8 @@ class TemplateEngine {
 
     onSaveAndClose = function() {
         const context = this;
-        const velocityName = $("#vmName").val();
-        let velocityTempData = context.editor.getValue();
+        const velocityName = $("#vmName").val().trim();
+        let velocityTempData = context.editor.getValue().trim();
         if(velocityTempData == ""){
             return false;
         }
@@ -95,8 +106,11 @@ class TemplateEngine {
                 velocityTempData : velocityTempData
             },
             success : function(data) {
-           		location.href = "/cf/te";
-            }
+           		showMessage("Information saved successfully", "success");
+		    },
+	        error : function(xhr, error){
+				showMessage("Error occurred while saving", "error");
+	        },
         });
     }
     
@@ -129,7 +143,10 @@ class TemplateEngine {
 						modified: modifiedModel
 					});
 					
-	            }
+	            },
+	       		error : function(xhr, error){
+					showMessage("Error occurred while fetching template data", "error");
+	        	},
 	        });
         }
     }

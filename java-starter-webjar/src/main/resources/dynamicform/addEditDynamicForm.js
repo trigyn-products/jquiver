@@ -9,7 +9,7 @@ class AddEditDynamicForm {
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
         dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
-		        	value: $("#sqlContent").val(),
+		        	value: $("#sqlContent").val().trim(),
 		            language: "sql",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,
@@ -70,8 +70,8 @@ class AddEditDynamicForm {
 		
 		if(data != undefined){
 			formQueryId = data.formQueryId;
-			formBody = data.formBody;
-			formSaveQuery = data.formSaveQuery;
+			formBody = data.formBody.trim();
+			formSaveQuery = data.formSaveQuery.trim();
 			versionDetailsMap = data.versionDetailsMap;
 		}
     		
@@ -132,16 +132,21 @@ class AddEditDynamicForm {
     
     saveDynamicForm (){
     	let context = this;
-     	let formHTMLData = dashletHTMLEditor.getValue().toString();
 		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
-		$("#formBody").val(formHTMLData);
+		$("#formBody").val(dashletHTMLEditor.getValue().toString());
 		let queries = new Array();	
 		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-			queries.push(dashletSQLEditors[iCounter].getValue().toString());
+			queries.push(dashletSQLEditors[iCounter].getValue().toString().trim());
 		}
 		$("#formSaveQueryId").val(JSON.stringify(formQueryIds));
 		$("#formSaveQuery").val(JSON.stringify(queries));
-		var formData = $("#dynamicform").serialize();
+		
+		const form = $("#dynamicform");
+		let serializedForm = form.serializeArray();
+		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+  			serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
+		}
+		serializedForm = $.param(serializedForm);
 		
 		 $.ajax({
              async : false,
@@ -156,10 +161,10 @@ class AddEditDynamicForm {
                      if(data != $("#formId").val()) {
                     	 return false;
                      }else{
-                    	 AddEditDynamicForm.prototype.saveFormData(formData);
+                    	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
                      }
                  }else{
-                	 AddEditDynamicForm.prototype.saveFormData(formData);
+                	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
                  }
              }
          });
@@ -171,10 +176,12 @@ class AddEditDynamicForm {
 			type : "POST",
 			url : "sdfd",
 			data : formData,
-			 success : function(data) {
-				$("#snackbar").html("Information saved successfully");
-				context.showSnackbar();
-			 }
+			success : function(data) {
+				showMessage("Information saved successfully", "success");
+			},
+			error : function(xhr, error){
+				showMessage("Error occurred while saving", "error");
+	        },
 																						  
 		});
     }
@@ -208,18 +215,14 @@ class AddEditDynamicForm {
 						modified: modifiedModel
 					});
 					
-	            }
+	            },
+				error : function(xhr, error){
+					showMessage("Error occurred while saving", "error");
+	        	},
 	        });
         }
     }
     
-    showSnackbar() {
-    	let snackBar = $("#snackbar");
-    	snackBar.addClass('show');
-    	setTimeout(function(){ 
-    		snackBar.removeClass("show");
-    	}, 3000);
-	}
 }
 
 

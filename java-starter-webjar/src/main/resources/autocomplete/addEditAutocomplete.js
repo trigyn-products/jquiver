@@ -26,38 +26,56 @@ class AddEditAutocomplete{
 	
 	saveAutocompleteDetail = function(){
 		const context = this;
+		const validData = this.validateData();
+        if(validData == false) {
+        	return false;
+        }
 		const sqlEditor = context.sqlQuery.getValue();
 		$("#acSelectQuery").val(context.sqlQuery.getValue().toString());
-		const formData = $("#autocompleteForm").serialize();
+		
+		const form = $("#autocompleteForm");
+		let serializedForm = form.serializeArray();
+		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+  			serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
+		}
+		serializedForm = $.param(serializedForm);
+		
 		$.ajax({
 			type : "POST",
 			url :  contextPath+"/cf/sacd",
-			data : formData,
+			data : serializedForm,
 			success : function(data) {
-				$('#snackbar').html("Information saved successfully.");
-				context.showSnackbarAutocomplete();
+				showMessage("Information saved successfully", "success");
 	       	},
-	        
         	error : function(xhr, error){
-        		$("#errorMessage").show();
-        		$('#errorMessage').html("Error occurred while saving");
+        		showMessage("Error occurred while saving", "error");
         	},
 	        	
 		});
 	}
 	
+	validateData = function() {
+		$('#errorMessage').hide();
+		let context = this;
+        let autocompleteId = $.trim($("#autoId").val());
+		let autocompleteQuery = $.trim(context.sqlQuery.getValue().toString());
+
+        if(autocompleteId === ""){
+        	$('#errorMessage').html("Please enter valid autocomplete id");
+        	$('#errorMessage').show();
+        	return false;
+        }
+        if(autocompleteQuery === ""){
+        	$('#errorMessage').html("Please enter valid autocomplete query");
+        	$('#errorMessage').show();
+        	return false;
+        }
+        return true;
+    }
 	
 	backToListingPage = function() {
 		location.href = contextPath+"/cf/adl";
 	}
     
     
-    showSnackbarAutocomplete = function() {
-    	let snackBar = $("#snackbar");
-    	snackBar.addClass('show');
-    	setTimeout(function(){ 
-    		snackBar.removeClass("show");
-    	}, 3000);
-	}
-	    
 }

@@ -83,13 +83,10 @@ AddEditResourceBundle.prototype.fn = {
 			data :  JSON.stringify(resourceBundleFormData),
 			dataType : "json",				
 			success : function(data) {
-				$('#snackbar').html("Information saved successfully.");
-				context.showSnackbarResourceBundle();
+				showMessage("Information saved successfully", "success");
 	        },
-	        
 	       	error : function(xhr, error){
-	       		$("#errorMessage").show();
-	        	$('#errorMessage').html("Error occurred while saving");
+				showMessage("Error occurred while saving", "error");
 	        },
 		});
 	},
@@ -147,13 +144,4 @@ AddEditResourceBundle.prototype.fn = {
 	  location.href = contextPath+"/cf/rb"
 	},
 	
-	
-	showSnackbarResourceBundle : function() {
-    	let snackBar = $("#snackbar");
-    	snackBar.addClass('show');
-    	setTimeout(function(){ 
-    		snackBar.removeClass("show");
-    	}, 3000);
-	}
-
 }

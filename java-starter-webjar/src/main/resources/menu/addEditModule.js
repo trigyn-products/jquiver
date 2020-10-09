@@ -38,13 +38,11 @@ class AddEditModule {
 					$("#errorMessage").hide();
 					context.parentModuleId = $("#parentModuleName").find(":selected").val();
 					$("#moduleId").val(data);
-					$('#snackbar').html("Information saved successfully.");
-					context.showSnackbarModule();
+					showMessage("Information saved successfully", "success");
 		       	},
 	        
 	        	error : function(xhr, error){
-	        		$("#errorMessage").show();
-					$('#errorMessage').html("Error occurred while saving");
+	        		showMessage("Error occurred while saving", "error");
 	        	},
 	        	
 			});
@@ -130,8 +128,7 @@ class AddEditModule {
 	    		}
 		   	},
 	       	error : function(xhr, error){
-	       		$("#errorMessage").show();
-				$('#errorMessage').html("Error occurred while validating module URL.");
+	       		showMessage("Error occurred while validating with existing data", "error");
 	       	},
 	        	
 		});
@@ -142,7 +139,7 @@ class AddEditModule {
     }
     
     
-    getTargeTypeNames = function(){
+    getTargeTypeNames = function(isEditFlag){
     	let context = this;
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
     	$("#targetTypeName").prop('disabled',true);
@@ -153,7 +150,9 @@ class AddEditModule {
 	    	$("#targetTypeName").attr('disabled','disabled');
 	    	$("#moduleURL").attr('disabled','disabled');
 	    	$("#parentModuleName").attr('disabled','disabled');
-	    	context.getSequenceByGroup();
+	    	if(isEditFlag === undefined){
+	    		context.getSequenceByGroup();
+	    	}
     		return;
     	}else{
     		$("#parentModuleName").val(context.parentModuleId);
@@ -180,21 +179,29 @@ class AddEditModule {
     
     
     getSequenceByParent = function(){
+    	let context = this;
         let parentModuleId = $("#parentModuleName").find(":selected").val();
-    	$.ajax({
-			type : "GET",
-			url : contextPath+"/cf/dsp",
-			async: false,
-			cache : false,
-			headers: {
-    			"parent-module-id": parentModuleId,
-    		},
-			success : function(data) {
-				if(data != ""){
-					$("#sequence").val(data);
-				}
-			}
-		});
+        if(parentModuleId == ""){
+        	context.getSequenceByGroup();
+        }else{
+	    	$.ajax({
+				type : "GET",
+				url : contextPath+"/cf/dsp",
+				async: false,
+				cache : false,
+				headers: {
+	    			"parent-module-id": parentModuleId,
+	    		},
+				success : function(data) {
+					if(data != ""){
+						$("#sequence").val(data);
+					}
+				},
+		       	error : function(xhr, error){
+		       		showMessage("Error occurred while fetching sequence number", "error");
+		       	},
+			});
+		}
     }
     
     getSequenceByGroup = function(){
@@ -207,7 +214,10 @@ class AddEditModule {
 				if(data != ""){
 					$("#sequence").val(data);
 				}
-			}
+			},
+	       	error : function(xhr, error){
+	       		showMessage("Error occurred while fetching sequence number", "error");
+	       	},
 		});
     }
     
@@ -215,11 +225,4 @@ class AddEditModule {
 		location.href = contextPath+"/cf/mul";
 	}
 		
-	showSnackbarModule = function() {
-	   	let snackBar = $("#snackbar");
-	   	snackBar.addClass('show');
-	   	setTimeout(function(){ 
-	   		snackBar.removeClass("show");
-	   	}, 3000);
-	}
 }

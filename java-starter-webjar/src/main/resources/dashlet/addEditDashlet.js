@@ -112,13 +112,11 @@ AddEditDashlet.prototype.fn = {
 				data : JSON.stringify(dashlet),
 				success : function(data) {
 					$("#dashletId").val(data);
-					$('#snackbar').html("Information saved successfully.");
-					context.showSnackbarDashlet();
+					showMessage("Information saved successfully", "success");
 		       	},
 	        
 	        	error : function(xhr, error){
-	        		$("#errorMessage").show();
-	        		$('#errorMessage').html("Error occurred while saving");
+	        		showMessage("Error occurred while saving", "error");
 	        	},
 	        	
 			});
@@ -397,12 +395,4 @@ AddEditDashlet.prototype.fn = {
 		location.href = contextPath+"/cf/dlm";
 	},
 
-	showSnackbarDashlet : function() {
-    	let snackBar = $("#snackbar");
-    	snackBar.addClass('show');
-    	setTimeout(function(){ 
-    		snackBar.removeClass("show");
-    	}, 3000);
-	},
-		
 }

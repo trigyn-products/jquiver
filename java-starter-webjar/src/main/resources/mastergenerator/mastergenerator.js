@@ -95,8 +95,12 @@ function createMaster() {
         },
         type: 'POST',
         success: function(data) {
-            console.log(data);
-        }
+            showMessage("Information saved successfully", "success");
+        },
+		error : function(xhr, error){
+			showMessage("Error occurred while creating master", "error");
+	   	},
+				
     })
 }
 

@@ -36,12 +36,11 @@ function uploadFile(element) {
         cache:false,
         contentType: false,
         processData: false,
-
         success:function(data){
-            console.log(data);
+			showMessage("File uploaded successfully", "success");
         },
-        error: function(data){
-            console.log(data);
-        }
+		error : function(xhr, error){
+			showMessage("Error occurred while uploading a file", "error");
+	    },
     });
 }

@@ -13,9 +13,11 @@ class DashletListing {
 			url:"/cf/ddl",
 			type:"POST",
 			success:function(data){
-				$('#snackbar').html("Templates downloaded successfully.");
-				context.showSnackbarDashletListing();
-			}
+				showMessage("Dashlets downloaded successfully", "success");
+			},
+	       	error : function(xhr, error){
+	       		showMessage("Error occurred while downloading dashlets", "error");
+	       	}
 		});
 	}
 	
@@ -25,9 +27,11 @@ class DashletListing {
 			url:"/cf/udl",
 		    type:"POST",
 		    success:function(data){
-		    	$('#snackbar').html("Templates uploaded successfully.");
-				context.showSnackbarDashletListing();
-			}
+				showMessage("Dashlets uploaded successfully", "success");
+			},
+	       	error : function(xhr, error){
+	       		showMessage("Error occurred while uploading dashlets", "error");
+	       	}
 		});
 	}
 	
@@ -41,9 +45,11 @@ class DashletListing {
 	        	dashletId : dashletId,
 	        },
 			success:function(data){
-				$('#snackbar').html("Template downloaded successfully.");
-				context.showSnackbarDashletListing();
-			}
+				showMessage("Dashlet downloaded successfully", "success");
+			},
+	       	error : function(xhr, error){
+	       		showMessage("Error occurred while downloading dashlet", "error");
+	       	}
 	    });  
   	}
 	
@@ -58,23 +64,17 @@ class DashletListing {
 	        	dashletName : dashletName,
 	        },
 			success:function(data){
-				$('#snackbar').html("Template uploaded successfully.");
-				context.showSnackbarDashletListing();
-			}
+				showMessage("Dashlet uploaded successfully", "success");
+			},
+	       	error : function(xhr, error){
+	       		showMessage("Error occurred while uploading dashlet", "error");
+	       	}
 	    });  
   	}
   	
    	submitForm = function(element) {
-	  $("#dashletId").val(element.id);
-	  $("#formDMRedirect").submit();
-	}
-	
-  	showSnackbarDashletListing = function() {
-	   	let snackBar = $("#snackbar");
-	   	snackBar.addClass('show');
-	   	setTimeout(function(){ 
-	   		snackBar.removeClass("show");
-	   	}, 3000);
+		$("#dashletId").val(element.id);
+		$("#formDMRedirect").submit();
 	}
 	
 }

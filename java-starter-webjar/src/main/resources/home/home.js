@@ -45,8 +45,7 @@ HomePage.prototype.fn = {
     		},
     		
     		error : function(xhr, error){
-	        	$("#errorMessage").show();
-	        	$('#errorMessage').html("Error occurred processing request");
+	        	showMessage("Error occurred processing request", "error");
 	        },
 	        
 		})
@@ -88,5 +87,33 @@ HomePage.prototype.fn = {
 		});
 	},
 	
+	
+}
+
+const showMessage = function(a_messageText, a_messageType){
+	$("#jwsValidationDiv").remove();
+	let messageType = a_messageType.toLowerCase();
+	let validationElement = $('<div id="jwsValidationDiv"></div>');
+	$("body").append(validationElement);
+	let validationDiv = $("#jwsValidationDiv");
+
+	if(messageType === "success"){
+		validationDiv.addClass("alert alert-success common-validation-cls");
+		validationDiv.append("<i class='val-icon fa fa-check'></i>");
+	}else if(messageType === "info"){
+		validationDiv.addClass("alert alert-info common-validation-cls");
+		validationDiv.append("<i class='val-icon fa fa-info'></i>");
+	}else if(messageType === "warn"){
+		validationDiv.addClass("alert alert-warning common-validation-cls");
+		validationDiv.append("<i class='val-icon fa fa-exclamation-triangle'></i>");
+	}else if(messageType === "error"){
+		validationDiv.addClass("alert alert-danger common-validation-cls");
+		validationDiv.append("<i class='val-icon fa fa-exclamation-triangle'></i>");
+	}
+
+	validationDiv.append(a_messageText);
+	setTimeout(function(){ 
+    	$("#jwsValidationDiv").remove();
+    }, 3000);
 
 }
