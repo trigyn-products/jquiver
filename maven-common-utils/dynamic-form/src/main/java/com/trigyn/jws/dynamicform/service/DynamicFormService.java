@@ -62,8 +62,8 @@ public class DynamicFormService {
 			
 			 String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			 if(environment.equalsIgnoreCase("dev") ) {
-			     selectQuery = getContentForDevEnvironment(form.getFormName(),selectQueryFile);
-			     formBody = getContentForDevEnvironment(form.getFormName(),htmlBodyFile);
+			     selectQuery = getContentForDevEnvironment(form, form.getFormSelectQuery(), selectQueryFile);
+			     formBody = getContentForDevEnvironment(form, form.getFormBody(), htmlBodyFile);
 			  }else {
 			     selectQuery = form.getFormSelectQuery();
 			     formBody = form.getFormBody();
@@ -104,7 +104,7 @@ public class DynamicFormService {
 		for (DynamicFormSaveQuery dynamicFormSaveQuery : dynamicFormSaveQueries) {
 			String formSaveQuery = null;
 			if(environment.equalsIgnoreCase("dev") ) {
-			  formSaveQuery = getContentForDevEnvironment(form.getFormName(),saveQuery+dynamicFormSaveQuery.getSequence());
+			  formSaveQuery = getContentForDevEnvironment(form, dynamicFormSaveQuery.getDynamicFormSaveQuery(), saveQuery+dynamicFormSaveQuery.getSequence());
 			}else {
 			  formSaveQuery = dynamicFormSaveQuery.getDynamicFormSaveQuery();
 			}
@@ -115,22 +115,22 @@ public class DynamicFormService {
 	}
 	
 	
-	public  String getContentForDevEnvironment(String formName, String fileName) throws Exception {
+	public  String getContentForDevEnvironment(DynamicForm form, String dbContent, String fileName) throws Exception {
 		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "DynamicForm";
 		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory+File.separator+formName;
+		folderLocation = folderLocation +File.separator+templateDirectory+File.separator+form.getFormName();
 		File directory = new File(folderLocation);
 		if(!directory.exists()) {
-			throw new Exception("No such directory present");
+			return dbContent;
 		}
 		
 		File selectFile = new File(folderLocation+File.separator+fileName+ftlCustomExtension);
 		if(selectFile.exists()) {
 			return fileUtilities.readContentsOfFile(selectFile.getAbsolutePath());
 		}else {
-			throw new Exception("Please download the forms from dynamic form  listing  " + formName);
+			return dbContent;
 		}
 	}
 

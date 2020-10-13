@@ -1,14 +1,16 @@
 package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
 import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.FileUploadRepository;
 import com.trigyn.jws.dynamicform.entities.FileUpload;
@@ -94,17 +97,20 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	@Override
-	public File load(String fileUploadId) {
+	public Map<String, Object> load(String fileUploadId) {
 		try {
+			Map<String, Object> details = new HashMap<>();
 			FileUpload fileUploadDetails = fileUploadRepository.findById(fileUploadId)
 						.orElseThrow(() -> new Exception("file not found with id : " + fileUploadId));
 			Path root = Paths.get(fileUploadDetails.getFilePath());
-			Path file = root.resolve(fileUploadDetails.getPhysicalFileName());
-			Resource resource = new UrlResource(file.toUri());
+			Path filePath = root.resolve(fileUploadDetails.getPhysicalFileName());
+			Resource resource = new UrlResource(filePath.toUri());
 			if (resource.exists() || resource.isReadable()) {
-				File file2 = File.createTempFile("aman", ".tmp");
-				CryptoUtils.decrypt(JWS_SALT, resource.getFile(), file2);
-				return file2;
+				File newFile = resource.getFile();
+				byte[] newFiles = CryptoUtils.decrypt(JWS_SALT, newFile, null);
+				details.put("file", newFiles);
+				details.put("fileName", fileUploadDetails.getOriginalFileName());
+				return details;
 			} else {
 				throw new RuntimeException("Could not read the file!");
 			}
@@ -126,11 +132,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	@Override
-	public Stream<Path> loadAll() {
+	public List<FileInfo> loadAll() {
 		try {
-			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
-			Path root = Paths.get(fileUploadDir);
-			return Files.walk(root, 1).filter(path -> !path.equals(root)).map(root::relativize);
+			List<FileUpload> fileUploads = fileUploadRepository.findAll();
+			List<FileInfo> fileInfos = fileUploads.stream().map(files -> {
+				File file = new File(files.getFilePath());
+				return new FileInfo(files.getFileUploadId(), files.getOriginalFileName(), file.length());
+			}).collect(Collectors.toList());
+			return fileInfos;
 		} catch (Exception e) {
 			logger.error("Could not load the files!");
 		}

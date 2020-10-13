@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -15,14 +14,12 @@ import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
-import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 
 @Service
@@ -34,10 +31,6 @@ public class DynarestCrudService {
 	
 	@Autowired
 	private FileUtilities fileUtilities  									= null;
-	
-	@Autowired
-	@Qualifier("dynamic-rest")
-	private DownloadUploadModule downloadUploadModule 						= null;
 	
 	@Autowired
 	private JwsDynamicRestDetailsRepository dynamicRestDetailsRepository	= null ;
@@ -54,20 +47,7 @@ public class DynarestCrudService {
 	@Autowired
 	private TemplateVersionService templateVersionService					= null;
 	
-	public void downloadDynamicRestTemplate(Integer dynarestDetailsId) throws Exception {
-		if(dynarestDetailsId != null) {
-			JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dynarestDetailsId);
-			downloadUploadModule.downloadCodeToLocal(dynamicRestDetail);	
-		}else {
-			downloadUploadModule.downloadCodeToLocal(null);
-		}
-	}
-
-	public void uploadDynamicRestTemplate(String uploadFileName) throws Exception {
-		downloadUploadModule.uploadCodeToDB(uploadFileName);
-	}
-
-	public  String getContentForDevEnvironment(String formName, String fileName) throws Exception {
+	public String getContentForDevEnvironment(String formName, String fileName) throws Exception {
 		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "DynamicRest";
@@ -88,7 +68,7 @@ public class DynarestCrudService {
 	
 	
 	@Transactional(readOnly = false)
-	public List<JwsDynamicRestDaoDetail> saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
+	public Integer saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
 		String dynarestUrl 			= formData.getFirst("dynarestUrl");
 		String dynarestMethodName 	= formData.getFirst("dynarestMethodName");
 		String daoDetailsIds 		= formData.getFirst("daoDetailsIds");
@@ -133,7 +113,7 @@ public class DynarestCrudService {
 			}
 		}
 		
-		return dynamicRestDaoDetailsList;
+		return dynamicRestId;
 
 	}
 	
@@ -151,19 +131,6 @@ public class DynarestCrudService {
 		
 		Integer dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		dynarestDAO.deleteDAOQueriesById(dynamicRestId, daoDetailsIdList);
-	}
-	
-	@Transactional(readOnly = false)
-	public Integer downloadCodeToLocal(List<JwsDynamicRestDaoDetail> dynamicRestDaoList) throws Exception{
-		Integer dynamicRestId = dynamicRestDaoList.get(0).getJwsDynamicRestDetailId();
-		JwsDynamicRestDetail dynamicRestDetail = dynarestDAO.findDynamicRestById(dynamicRestId);
-		dynamicRestDetail.setJwsDynamicRestDaoDetails(dynamicRestDaoList);
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-        if(environment.equalsIgnoreCase("dev")) {
-        	downloadUploadModule.downloadCodeToLocal(dynamicRestDetail);
-        }
-        
-		return dynamicRestId;
 	}
 	
 }

@@ -82,15 +82,18 @@ public class DynamicFormCrudService {
 		String formId = formData.getFirst("formId").toString();
 		if (StringUtils.isNotEmpty(formId)) {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
-
 		} else {
 			dynamicForm.setCreatedBy("admin");
 			dynamicForm.setCreatedDate(new Date());
 		}
+		String formName = formData.getFirst("formName");
+		if(!StringUtils.isBlank(formName)) {
+			dynamicForm.setFormName(formName);
+		}
 		dynamicForm.setFormDescription(formData.getFirst("formDescription").toString());
 		dynamicForm.setFormSelectQuery(formData.getFirst("formSelectQuery").toString());
 		dynamicForm.setFormBody(formData.getFirst("formBody").toString());
-		dynamicForm.setFormName(formData.getFirst("formName").toString());
+
 		dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
         
 		dynamicFormDAO.saveDynamicFormData(dynamicForm);

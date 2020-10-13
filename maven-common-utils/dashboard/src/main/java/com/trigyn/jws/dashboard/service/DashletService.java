@@ -178,8 +178,6 @@ public class DashletService {
 
 	public String getDashletUIString(Dashlet a_dashlet, String userId, boolean isContentOnly, String[] params)
 			throws Exception {
-
-		
 		
 		String selectCriteria = null; a_dashlet.getDashletQuery();
 		String htmlBody = null; 
@@ -188,8 +186,8 @@ public class DashletService {
 		
 		 String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 	        if(environment.equalsIgnoreCase("dev")) {
-	        	selectCriteria =  getContentForDevEnvironment(a_dashlet.getDashletName(), selectQueryFile);
-	        	htmlBody = getContentForDevEnvironment(a_dashlet.getDashletName(), htmlBodyFile);
+	        	selectCriteria =  getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletQuery(), selectQueryFile);
+	        	htmlBody = getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletBody(), htmlBodyFile);
 	        }else {
 	        	selectCriteria =  a_dashlet.getDashletQuery();
 	        	htmlBody = a_dashlet.getDashletBody();
@@ -342,7 +340,7 @@ public class DashletService {
 		
 	}
 	
-public  String getContentForDevEnvironment(String dashletName, String fileName) throws Exception {
+public  String getContentForDevEnvironment(String dashletName, String dbContent, String fileName) throws Exception {
 		
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Dashlets";
@@ -350,14 +348,14 @@ public  String getContentForDevEnvironment(String dashletName, String fileName) 
 		folderLocation = folderLocation +File.separator+templateDirectory+File.separator+dashletName;
 		File directory = new File(folderLocation);
 		if(!directory.exists()) {
-			throw new Exception("No such directory present");
+			return dbContent;
 		}
 		
 		File selectFile = new File(folderLocation+File.separator+fileName+ftlCustomExtension);
 		if(selectFile.exists()) {
 			return fileUtilities.readContentsOfFile(selectFile.getAbsolutePath());
 		}else {
-			throw new Exception("Please download the dashlets from dashlet  listing  " + dashletName);
+			return dbContent;
 		}
 	}
 }

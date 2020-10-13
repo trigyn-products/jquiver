@@ -38,9 +38,6 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	@Column(name="jws_dynamic_rest_details_id")
 	private Integer jwsDynamicRestDetailId 				= null;
 	
-	@Column(name="checksum")
-	private String checksum								= null;
-	
 	@Column(name = "jws_dao_query_type")
 	private Integer queryType							= null;
 
@@ -51,12 +48,11 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	public JwsDynamicRestDaoDetail() {
 	}
 
-	public JwsDynamicRestDaoDetail(Integer jwsDaoDetailsId, String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence ,String checksum) {
+	public JwsDynamicRestDaoDetail(Integer jwsDaoDetailsId, String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence) {
 		this.jwsDaoDetailsId 			= jwsDaoDetailsId;
 		this.jwsDaoQueryTemplate 		= jwsDaoQueryTemplate;
 		this.jwsResultVariableName 		= jwsResultVariableName;
 		this.jwsQuerySequence 			= jwsQuerySequence;
-		this.checksum                   = checksum;
 	}
 
 	public Integer getJwsDaoDetailsId() {
@@ -113,14 +109,6 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 
 	public void setJwsDynamicRestDetailId(Integer jwsDynamicRestDetailId) {
 		this.jwsDynamicRestDetailId = jwsDynamicRestDetailId;
-	}
-
-	public String getChecksum() {
-		return checksum;
-	}
-
-	public void setChecksum(String checksum) {
-		this.checksum = checksum;
 	}
 
 	@Override

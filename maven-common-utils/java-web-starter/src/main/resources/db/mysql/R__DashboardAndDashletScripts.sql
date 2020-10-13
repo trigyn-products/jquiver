@@ -14,7 +14,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashboardMaster")}</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.dashboard'')}</h2> 
 		<div class="float-right">
 			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage(''jws.createNewDashboard'')}" type="button" onclick="submitForm(this)">
 			<input class="btn btn-primary" name="manageDashlets" value="${messageSource.getMessage(''jws.manageDashblet'')}" type="button" onclick="openDashlets(this)">

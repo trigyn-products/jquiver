@@ -1,4 +1,4 @@
-package com.trigyn.jws.menu.configurations;
+package com.trigyn.jws.dbutils.configurations;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

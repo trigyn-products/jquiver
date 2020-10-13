@@ -43,8 +43,8 @@ public class JwsUserRegistrationController {
 	@Autowired
 	private JwsConfirmationTokenRepository confirmationTokenRepository =  null;
 	
-	@Autowired
-	private JavaMailSender javaMailSender = null;
+//	@Autowired
+//	private JavaMailSender javaMailSender = null;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -78,7 +78,7 @@ public class JwsUserRegistrationController {
 	public String userRegistrationPage() throws Exception {
 		Map<String, Object> mapDetails = new HashMap<>();
 		mapDetails.put("loggedInUser", Boolean.FALSE);
-		return menuService.getTemplateWithSiteLayout("register",mapDetails);
+		return menuService.getTemplateWithSiteLayout("jws-register",mapDetails);
 	}
 	
 	@PostMapping(value="/register")
@@ -95,13 +95,14 @@ public class JwsUserRegistrationController {
         	mapDetails.put("error","This email already exists!");
         	mapDetails.put("firstName", user.getFirstName().trim());
         	mapDetails.put("lastName", user.getLastName().trim());
-            viewName = "register";
+            viewName = "jws-register";
         }
         else
         {
         	if(validatePassword(user.getPassword())) {
         		
         		user.setPassword(passwordEncoder.encode(user.getPassword()));
+        		user.setIsActive(Constants.INACTIVE);
         		userRepository.save(user);
         		
         		
@@ -113,22 +114,22 @@ public class JwsUserRegistrationController {
         		mailMessage.setSubject("Complete Registration!");
         		mailMessage.setFrom("admin@gmail.com");
         		mailMessage.setText("To confirm your account, please click here : "
-        				+"http://localhost:8080/confirm-account?token="+confirmationToken.getConfirmationToken());
+        				+"http://localhost:8080/cf/confirm-account?token="+confirmationToken.getConfirmationToken());
         		
         		
         		
         		CompletableFuture.runAsync( new Runnable() {
           			@Override
           			public void run() {
-          				javaMailSender.send(mailMessage);
+//          				javaMailSender.send(mailMessage);
           			}
           			});
         		
         		mapDetails.put("emailId", user.getEmail());
         		
-        		viewName = "successfulRegisteration";
+        		viewName = "jws-successfulRegisteration";
         	}else {
-        		 viewName = "register";
+        		 viewName = "jws-register";
         		 mapDetails.put("firstName", user.getFirstName().trim());
              	 mapDetails.put("lastName", user.getLastName().trim());
              	 mapDetails.put("emailId", user.getEmail());
@@ -178,7 +179,7 @@ public class JwsUserRegistrationController {
         		
         		
 	            
-	            viewName = "accountVerified";
+	            viewName = "jws-accountVerified";
 	        }
 	        else
 	        {

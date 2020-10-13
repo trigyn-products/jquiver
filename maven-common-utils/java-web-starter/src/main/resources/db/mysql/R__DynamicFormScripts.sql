@@ -15,13 +15,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </head>
 <div class="container">
 		<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic Form Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.formBuilder'')}</h2> 
 		<div class="float-right">
 			<#if environment == "dev">
-				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="Download Form" type="button">
-				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="Upload Form" type="button">
+				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="Download Forms" type="button">
+				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="Upload Forms" type="button">
 			</#if>
-			<input class="btn btn-primary" name="addNewDynamicForm" value="Add New Dynamic Form" type="button" onclick="submitForm(this)">
+			<input class="btn btn-primary" name="addNewDynamicForm" value="Add Form" type="button" onclick="submitForm(this)">
     	 <span onclick="backToHome();">
     	  	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
     	 </span>	
@@ -177,6 +177,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
                               
     <form id="dynamicform" method="post" >
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
@@ -189,7 +190,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                                                                                                                         
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span>
 					<label for="formDescription" >Form Description: </label>
 					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
 				</div>
@@ -319,6 +319,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let dashletSAVESQLEditor;
 	let dashletSQLEditors = [];
 	let formQueryIds = [];
+	let formName = "${(dynamicForm?api.getFormName())!''''}";
+	formName = $.trim(formName);
+	if(formName !== ""){
+		$("#formName").prop("disabled", true);
+	}
 	const addEdit = new AddEditDynamicForm();
   $(function () {
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();

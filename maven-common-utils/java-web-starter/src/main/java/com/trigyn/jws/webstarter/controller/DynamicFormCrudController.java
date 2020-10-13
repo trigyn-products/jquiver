@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.TemplateVersionService;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
-import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
 

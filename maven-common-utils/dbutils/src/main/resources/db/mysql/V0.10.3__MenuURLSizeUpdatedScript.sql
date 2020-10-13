@@ -1,0 +1,1 @@
+ALTER TABLE module_listing MODIFY COLUMN module_url VARCHAR(200);

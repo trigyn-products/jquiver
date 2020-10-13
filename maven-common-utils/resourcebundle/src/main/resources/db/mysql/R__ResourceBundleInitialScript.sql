@@ -140,5 +140,25 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.view
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.welcomeuser', 1, 'Welcome User'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.welcomeuser', 2, '&#66;&#105;&#101;&#110;&#118;&#101;&#110;&#117;&#101;&#32;&#117;&#116;&#105;&#108;&#105;&#115;&#97;&#116;&#101;&#117;&#114;'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.welcomeuser', 3, '&#2310;&#2346;&#2325;&#2366;&#32;&#2360;&#2381;&#2357;&#2366;&#2327;&#2340;&#32;&#2361;&#2376;&#32;&#2313;&#2346;&#2351;&#2379;&#2327;&#2325;&#2352;&#2381;&#2340;&#2366;');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.masterGenerator', 1, 'Master Generator'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.templating', 1, 'Templating');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multilingual', 1, 'Multilingual');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.typeAheadAutocomplete', 1, 'TypeAhead/Autocomplete');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.fileUploadConfig', 1, 'File Upload Config');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.formBuilder', 1, 'Form Builder'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.restAPIBuilder', 1, 'REST API Builder'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.siteLayout', 1, 'Site Layout'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.dashboard', 1, 'Dashboard'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.notification', 1, 'Notification'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.userManagement', 1, 'User Management'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.applicationConfiguration', 1, 'Application Configuration'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.typeAheadAutocompleteDemo', 1, 'TypeAhead/Autocomplete Demo'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocomplete', 1, 'Autocomplete'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompletePrefetch', 1, 'Autocomplete(Prefetch)');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(LocalStorage)'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselect', 1, 'Multiselect');  
+
 
 SET FOREIGN_KEY_CHECKS=1;

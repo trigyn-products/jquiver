@@ -22,8 +22,33 @@ public class CryptoUtils {
 		doCrypto(Cipher.ENCRYPT_MODE, key, inputFile, outputFile);
 	}
 
-	public static void decrypt(String key, File inputFile, File outputFile) throws CryptoException {
-		doCrypto(Cipher.DECRYPT_MODE, key, inputFile, outputFile);
+	public static byte[] decrypt(String key, File inputFile, File outputFile) throws CryptoException {
+		if(outputFile != null) {
+			doCrypto(Cipher.DECRYPT_MODE, key, inputFile, outputFile);
+			return null;
+		} else {
+			return doCrypto(Cipher.DECRYPT_MODE, key, inputFile);
+		}
+	}
+
+	private static byte[] doCrypto(int cipherMode, String key, File inputFile) throws CryptoException {
+		try {
+			Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+			Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+			cipher.init(cipherMode, secretKey);
+
+			FileInputStream inputStream = new FileInputStream(inputFile);
+			byte[] inputBytes = new byte[(int) inputFile.length()];
+			inputStream.read(inputBytes);
+
+			byte[] outputBytes = cipher.doFinal(inputBytes);
+			inputStream.close();
+			return outputBytes;
+
+		} catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException
+				| IllegalBlockSizeException | IOException ex) {
+			throw new CryptoException("Error encrypting/decrypting file", ex);
+		}
 	}
 
 	private static void doCrypto(int cipherMode, String key, File inputFile, File outputFile) throws CryptoException {

@@ -29,6 +29,7 @@ public class TemplatingApplication {
 	public Configuration getFreemarkerConfigDetails() {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
         cfg.setAPIBuiltinEnabled(Boolean.TRUE);
+        cfg.setNumberFormat("0.####");
         return cfg;
     }
 

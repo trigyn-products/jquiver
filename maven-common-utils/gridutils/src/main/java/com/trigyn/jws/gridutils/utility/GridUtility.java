@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,30 +22,26 @@ public class GridUtility {
 				: false;
 		StringBuilder query                  = new StringBuilder("select count(*) from " + gridDetails.getGridTableName() + " ");
 		if (criteriaParamsPressent) {
-			query.append("where ");
+			StringJoiner joiner = new StringJoiner(" = ? and ", " where ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				query.append(criteriaParams.getKey() + " = ? and ");
+				joiner.add(criteriaParams.getKey());
 			}
+			query.append(joiner.toString());
 		}
 		if (filterParamsPresent) {
+			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
-				query.append(!criteriaParamsPressent ? "where " : "");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					query.append(sf.getField() + " like ? or ");
+					stringJoiner.add(sf.getField() + " like ? or ");
 				}
 			} else {
-				query.append(!criteriaParamsPressent ? "where " : "");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					query.append(sf.getField() + " like ? and ");
+					stringJoiner.add(sf.getField() + " like ? and ");
 				}
 			}
+			query.append(stringJoiner.toString());
 		}
-		if (query.lastIndexOf("and ") > -1) {
-			query.replace(query.lastIndexOf("and "), query.lastIndexOf("and ") + 4, "");
-		}
-		if (query.lastIndexOf("or ") > -1) {
-			query.replace(query.lastIndexOf("or "), query.lastIndexOf("or ") + 4, "");
-		}
+		
 		return query.toString();
 	}
 
@@ -79,29 +76,22 @@ public class GridUtility {
 		StringBuilder query                  = new StringBuilder("select ");
 		query.append(gridDetails.getGridColumnNames() + " from " + gridDetails.getGridTableName() + " ");
 		if (criteriaParamsPressent) {
-			query.append("where ");
+			StringJoiner joiner = new StringJoiner(" = ? and ", " where ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				query.append(criteriaParams.getKey() + " = ? and ");
+				joiner.add(criteriaParams.getKey());
 			}
 		}
 		if (filterParamsPresent) {
+			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
-				query.append(!criteriaParamsPressent ? "where " : "");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					query.append(sf.getField() + " like ? or ");
+					stringJoiner.add(sf.getField() + " like ? or ");
 				}
 			} else {
-				query.append(!criteriaParamsPressent ? "where " : "");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					query.append(sf.getField() + " like ? and ");
+					stringJoiner.add(sf.getField() + " like ? and ");
 				}
 			}
-		}
-		if (query.lastIndexOf("and ") > -1) {
-			query.replace(query.lastIndexOf("and "), query.lastIndexOf("and ") + 4, "");
-		}
-		if (query.lastIndexOf("or ") > -1) {
-			query.replace(query.lastIndexOf("or "), query.lastIndexOf("or ") + 4, "");
 		}
 		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty()) && (gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty())) {
 			query.append("order by " + gridParams.getSortIndex() + " " + gridParams.getSortOrder());

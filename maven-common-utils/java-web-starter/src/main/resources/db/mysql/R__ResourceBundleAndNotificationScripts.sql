@@ -16,7 +16,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
         <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.resourceBundleTitle")}</h2> 
+        <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.multilingual'')}</h2> 
         <div class="float-right">
        
        <select id="languageOptions" onchange="changeLanguage()" class="btn btn-primary">
@@ -235,7 +235,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </head>
 <div class="container">
 	<div class="topband">
-	    <h2 class="title-cls-name float-left">Notification Master</h2> 
+	    <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.notification'')}</h2> 
     	<div class="float-right">
 
             <form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">

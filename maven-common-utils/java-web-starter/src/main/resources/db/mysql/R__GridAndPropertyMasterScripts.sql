@@ -17,7 +17,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 <div class="container">
 		<div class="topband">
 		
-		<h2 class="title-cls-name float-left">Grid Details Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.gridUtils'')}</h2> 
 		<div class="float-right">
 		<form id="addEditNotification" action="/cf/df" method="post" class="margin-r-5 pull-left">
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
@@ -104,47 +104,49 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		
 		<!-- You can include any type of form element over here -->
 		<div class="row">
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Id</label>
 					<input type="text" id="gridId" name="gridId" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Name</label>
 					<input type="text" id="gridName" name="gridName" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridDescription" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Description</label>
+					<label for="gridDescription" style="white-space:nowrap">Grid Description</label>
 					<input type="text" id="gridDescription" name="gridDescription" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
-			
-			<div class="col-3">
+		</div>
+					
+		<div class="row">	
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Table Name</label>
 					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Column Names</label>
 					<input type="text" id="gridColumnName" name="gridColumnName" value="" maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="queryType" style="white-space:nowrap">Query Type</label>
 						<select id="queryType" name="queryType"  class="form-control">
 							<option value="1">View/Table</option>
-							<option value="2">Stored Prod.</option>
+							<option value="2">Stored Procedure</option>
 						</select>
 					</label>
 				</div>
@@ -211,12 +213,11 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	function validateFields(){
         const gridId = $("#gridId").val().trim();
         const gridName = $("#gridName").val().trim();
-        const gridDescription = $("#gridDescription").val().trim();
         const gridTableName = $("#gridTableName").val().trim();
         const gridColumnName = $("#gridColumnName").val().trim();
         const queryType = $("#queryType").val();
-        if(gridId == "" || gridName == "" || gridDescription == "" 
-                || gridTableName == "" || gridColumnName == ""){
+        if(gridId == "" || gridName == "" ||
+                gridTableName == "" || gridColumnName == ""){
             $("#errorMessage").html("All fields are mandatory");
     		return false;
         }
@@ -265,7 +266,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Property Master Listing</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.applicationConfiguration'')}</h2> 
 		<div class="float-right">
 			<form id="addEditProperty" action="/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>

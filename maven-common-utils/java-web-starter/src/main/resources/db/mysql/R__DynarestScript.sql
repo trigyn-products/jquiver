@@ -15,18 +15,14 @@ SET FOREIGN_KEY_CHECKS=0;
 </head>
 <div class="container">
 		<div class="topband">
-		<h2 class="title-cls-name float-left">Dynamic API Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.restAPIBuilder'')}</h2> 
 		<div class="float-right">
-			<#if environment == "dev">
-				<input id="downloadDynamicForm" class="btn btn-primary" onclick= "downloadDynamicForm();" name="downloadDynamicForm" value="Download Dynamic API" type="button">
-				<input id="uploadDynamicForm" class="btn btn-primary" onclick= "uploadDynamicForm();" name="uploadDynamicForm" value="Upload Dynamic API" type="button">
-			</#if>
 			<form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
                 <input type="hidden" name="primaryId" id="primaryId" value=""/>
                 <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
                 <button type="submit" class="btn btn-primary">
-                        Add Dynamic API Details
+                        Add REST API
                 </button>
             </form>
 			<span onclick="backToWelcomePage();">
@@ -92,14 +88,7 @@ function editDynarest(uiObject) {
 	let dynarestUrl = uiObject.rowData.jws_dynamic_rest_url;
 	let methodName = uiObject.rowData.jws_method_name;
 	let dynarestId = uiObject.rowData.jws_dynamic_rest_id;
-	let element;
-	<#if environment == "dev">
-		element = "<span id=''"+dynarestUrl+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-		element = element + "<span id=''"+dynarestId+"_download'' class= ''grid_action_icons'' onclick=''downloadDynarestById(this)''><i class=''fa fa-download''></i></span>";
-		element = element + "<span id=''"+methodName+"_upload'' name=''"+methodName+"'' class= ''grid_action_icons'' onclick=''uploadDynaresById(this)''><i class=''fa fa-upload''></i></span>";
-	<#else>
-		element = "<span id=''"+dynarestUrl+"'' onclick=''submitForm(this)'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-	</#if>
+	let element = "<span id=''"+dynarestUrl+"'' onclick=''submitForm(this)'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
 	return element;
 }
 
@@ -107,72 +96,11 @@ function submitForm(element) {
   $("#primaryId").val(element.id);
   $("#addEditNotification").submit();
 }
-
-  	function downloadDynarestById(thisObj){
-	  	let dynarestDetailsId = thisObj.id.split("_")[0];
-	  	$.ajax({
-			url:"/cf/ddrbi",
-			type:"POST",
-	        data:{
-	        	dynarestDetailsId : dynarestDetailsId,
-	        },
-			success:function(data){
-				showMessage("Dynamic API Rest downloaded successfully", "success");
-			},
-	       	error : function(xhr, error){
-	       		showMessage("Error occurred while downloaded Dynamic API Rest", "error");
-	       	}
-	    });  
-  	}
-	
-	function uploadDynaresById(thisObj){
-	  	let dynarestMethodName = thisObj.id.split("_")[0];
-	  	$.ajax({
-			url:"/cf/udrbn",
-			type:"POST",
-	        data:{
-	        	dynarestMethodName : dynarestMethodName,
-	        },
-			success:function(data){
-				showMessage("Dynamic API Rest uploaded successfully", "success");
-			},
-	       	error : function(xhr, error){
-	       		showMessage("Error occurred while uploading Dynamic API Rest", "error");
-	       	}
-	    });  
-  	}
 	
 function backToWelcomePage() {
 	location.href = contextPath+"/cf/home";
 }
-<#if environment == "dev">
-	function downloadDynamicForm(){
-		 $.ajax({
-			url:"/cf/ddr",
-			type:"POST",
-			success:function(data){
-				showMessage("Dynamic API Rest downloaded successfully", "success");
-			},
-	       	error : function(xhr, error){
-	       		showMessage("Error occurred while downloaded Dynamic API Rest", "error");
-	       	}
-			
-		});
-	}
-	function uploadDynamicForm(){
-		 $.ajax({
-			url:"/cf/udr",
-			type:"POST",
-			success:function(data){
-				showMessage("Dynamic API Rest uploaded successfully", "success");
-			},
-	       	error : function(xhr, error){
-	       		showMessage("Error occurred while uploading Dynamic API Rest", "error");
-	       	}
-			
-		});
-	}
-</#if>
+
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
@@ -196,9 +124,9 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 <div class="container">
 	<div class="topband">
 		<#if (resultSet)?? && (resultSet)?has_content>
-		    <h2 class="title-cls-name float-left">Edit Dynamic Rest API</h2> 
+		    <h2 class="title-cls-name float-left">Edit REST API</h2> 
         <#else>
-            <h2 class="title-cls-name float-left">Add Dynamic Rest API</h2> 
+            <h2 class="title-cls-name float-left">Add REST API</h2> 
         </#if>
 		<div class="float-right">
 			<span onclick="dynarest.backToDynarestListingPage();">
@@ -216,17 +144,17 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 		<div class="row">
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestUrl">Dynamic Rest URL </label>
+					<span class="asteriskmark">*</span><label for="dynarestUrl">REST URL </label>
 					<span><label style="background: lightgrey;" class="float-right">${requestDetails?api.get("urlPrefix")!""}<label></span>
 					<span id="dynarestURLSapn">
-						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" placeholder="Dynamic Rest URL" />
+						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" placeholder="REST URL" />
 					</span>
 				</div>
 			</div>
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestMethodName">Dynamic Rest Method Name</label>
+					<span class="asteriskmark">*</span><label for="dynarestMethodName">REST Method Name</label>
 					<span id="dynarestMethodNameSpan">
                               <input class="form-control" id="dynarestMethodName" onchange="updateMethodName()"  name= "dynarestMethodName" placeholder="Method Name" />
                        </span>
@@ -235,7 +163,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<span class="asteriskmark">*</span><label for="dynarestMethodDescription">Dynamic Rest Method Description</label>
+					<label for="dynarestMethodDescription">REST Method Description</label>
 					<span id="dynarestMethodDescriptionSpan">
                               <input class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
                        </span>
@@ -318,8 +246,9 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 <script type="text/javascript">
 	let contextPath = "${contextPath}";
   let dynarest;
+
   function togglePlatform(element) {
-         if(element.value != "7" && element.value != "12") {
+         if(element.value != "7" && $("#dynarestProdTypeId").val() == "10" && element.value != "8" && element.value != "12") {
               $("#dynarestPlatformId option[value=1]").prop("selected", true);
               $("#dynarestPlatformId option[value=2]").prop("disabled", true);
          } else {
@@ -331,8 +260,13 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
   function showMethodSignature(value){
          if(value == "1"){
               $("#methodSignatureDiv").show();
-              $("#methodSignature").html("public T "+$("#dynarestMethodName").val()+
-                     "(HttpServletRequest a_httpServletRequest, Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
+              if($("#dynarestProdTypeId").val() == "8" || $("#dynarestProdTypeId").val() == "10") {
+			$("#methodSignature").html("public FileInfo "+$("#dynarestMethodName").val()+
+                     "(Multipart[] files, HttpServletRequest a_httpServletRequest, Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
+              }	else {
+              	$("#methodSignature").html("public T "+$("#dynarestMethodName").val()+
+                     "(HttpServletRequest a_httpServletRequest, Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }");
+              }
          } else {
               $("#methodSignatureDiv").hide();
          }
@@ -422,14 +356,16 @@ REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_d
 
 update jws_dynamic_rest_details SET jws_service_logic = "com.trigyn.jws.dynarest.service.DynaRest" where jws_platform_id = 1;
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_service_logic_checksum, jws_platform_id) VALUES
+replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
 (1001, 'js-demo', 1, 'jsdemo', 'JS', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults;
 }
 
-myFunction(requestDetails, daoResults);', NULL, 3);
+myFunction(requestDetails, daoResults);', 3);
 
-replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, checksum, jws_dao_query_type) VALUES
-(15, 1001, 'values', 'select * from jws_property_master', 1, NULL, 1);
+replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
+(15, 1001, 'values', 'select * from jws_property_master', 1, 1);
+
+delete from jws_response_producer_details where jws_response_producer_type_id = 11;
 
 SET FOREIGN_KEY_CHECKS=1;

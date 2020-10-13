@@ -73,7 +73,6 @@
 		<module>java-web-starter</module>
 		<module>dynamic-form</module>
 		<module>dynamic-rest</module>
-		<module>menu</module>
 		<module>usermanagement</module>
 	</modules>
 

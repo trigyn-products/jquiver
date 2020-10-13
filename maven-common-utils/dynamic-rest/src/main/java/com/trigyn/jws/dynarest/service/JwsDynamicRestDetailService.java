@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
@@ -74,12 +75,19 @@ public class JwsDynamicRestDetailService {
         return null;
     }
     
-    private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, IOException, TemplateException, ClassNotFoundException,
+    private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
         Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), HttpServletRequest.class, Map.class, Map.class, UserDetailsVO.class);
         return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), httpServletRequest, requestParameterMap, daoResultSets, detailsService.getUserDetails());
     }
+    
+    public Object invokeAndExecuteOnFileJava(MultipartFile[] files, HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
+    		NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+		Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
+		Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), MultipartFile.class, HttpServletRequest.class, Map.class, Map.class, UserDetailsVO.class);
+		return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), files, httpServletRequest, requestParameterMap, daoResultSets, detailsService.getUserDetails());
+	}
 
     private Object invokeAndExecuteJavascript(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws ScriptException {
        ScriptEngineManager scriptEngineManager = new ScriptEngineManager();

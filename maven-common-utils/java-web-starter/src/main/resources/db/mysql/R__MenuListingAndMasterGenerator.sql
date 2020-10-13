@@ -20,7 +20,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Create Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.masterGenerator'')}</h2> 
 		<div class="float-right">
 			<span onclick="backToPreviousPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">

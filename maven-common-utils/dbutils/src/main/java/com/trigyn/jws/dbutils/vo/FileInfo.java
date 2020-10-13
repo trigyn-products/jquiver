@@ -1,4 +1,4 @@
-package com.trigyn.jws.dynamicform.vo;
+package com.trigyn.jws.dbutils.vo;
 
 public class FileInfo {
 	private String fileId = null;

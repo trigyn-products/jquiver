@@ -20,143 +20,163 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </p>
     </div>
 
-               <div class="list-group custom-list-home">
-                               <a href="../cf/mg" class="list-group-item list-group-item-action">
-                                  <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1"> <span>Manage Generator</span></h5>
-                                             <small>Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using freemarker, supports pq-grid </p>
-                                             <small>Now any master modules will be created without much efforts</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/gd" class="list-group-item list-group-item-action">
-                                  <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1"> <span>Grid Utils</span></h5>
-                                             <small>Today</small>
-                                             </div>
-                                             <p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
-                                             <small>Now any master listing page will be created without much efforts</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/te" class="list-group-item list-group-item-action">
-                                             <div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Templating</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
-                                             <small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/rb" class="list-group-item list-group-item-action">
-                                             <div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">DB Resource Bundle</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
-                                             <small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
-                                             </div>
-                              </a>
-                                             <a href="../cf/adl" class="list-group-item list-group-item-action">
-                                             <div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">TypeAhead / Autocomplete</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
-                                             <small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/nl" class="list-group-item list-group-item-action">
-                              <div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Notification</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine.</p>
-                                             <small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
-                                             </div>
-                                             
-                              </a>
-                              <a href="../cf/dbm" class="list-group-item list-group-item-action">
-                              <div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Dashboard</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
-                                             <small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/dfl" class="list-group-item list-group-item-action">
-                              <div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1"> Form Builder </h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine </p>
-                                             <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/dynl" class="list-group-item list-group-item-action">
-                              <div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">REST API </h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine </p>
-                                             <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/mul" class="list-group-item list-group-item-action">
-                              <div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
-                                  <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Site Layout</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine </p>
-                                             <small class="text-muted">Create menu for your application.</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/pml" class="list-group-item list-group-item-action">
-                                             <div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
-                                             <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">Application Configuration </h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine </p>
-                                             <small class="text-muted">Create menu for your application.</small>
-                                             </div>
-                              </a>
-                              <a href="../cf/um" class="list-group-item list-group-item-action">
-                                             <div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
-                                             <div class="home_list_content">
-                                             <div class="d-flex w-100 justify-content-between">
-                                             <h5 class="mb-1">User Management</h5>
-                                             <small class="text-muted">Today</small>
-                                             </div>
-                                             <p class="mb-1">Built using Freemarker templating engine,supports pq-grid </p>
-                                             <small class="text-muted">Manage users for your application.</small>
-                                             </div>
-                              </a>
-                              
-                              
-               </div>
+	<div class="list-group custom-list-home">
+		<a href="../cf/mg" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.masterGenerator'')}</span></h5>
+					<small>Today</small>
+				</div>
+				<p class="mb-1">Built using freemarker, supports pq-grid </p>
+				<small>Now any master modules will be created without much efforts</small>
+			</div>
+		</a>
+		<a href="../cf/gd" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.gridUtils'')}</span></h5>
+					<small>Today</small>
+				</div>
+				<p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
+				<small>Now any master listing page will be created without much efforts</small>
+			</div>
+		</a>
+
+		<a href="../cf/te" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
+				<small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
+			</div>
+		</a>
+		
+		<a href="../cf/rb" class="list-group-item list-group-item-action">
+			<div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
+				<small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
+			</div>
+		</a>
+		
+		<a href="../cf/adl" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
+				<small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
+			</div>
+		</a>
+        
+		<a href="../cf/fucl" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.fileUploadConfig'')}</span></h5>
+					<small>Today</small>
+				</div>
+				<p class="mb-1">Built using freemarker, supports pq-grid </p>
+				<small>Configure file upload</small>
+			</div>
+		</a>
+		
+		<a href="../cf/dfl" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.formBuilder'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine </p>
+				<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+			</div>
+		</a>
+		
+		<a href="../cf/dynl" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.restAPIBuilder'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine </p>
+				<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+			</div>
+		</a>
+        
+		<a href="../cf/mul" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.siteLayout'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine </p>
+				<small class="text-muted">Create menu for your application.</small>
+			</div>
+		</a>
+				        
+		<a href="../cf/dbm" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.dashboard'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
+				<small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
+			</div>
+		</a>
+		
+		<a href="../cf/nl" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.notification'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine.</p>
+				<small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
+			</div>
+		</a>
+		
+		<a href="../cf/um" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.userManagement'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine,supports pq-grid </p>
+				<small class="text-muted">Manage users for your application.</small>
+			</div>
+		</a>
+		
+		<a href="../cf/pml" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.applicationConfiguration'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Built using Freemarker templating engine </p>
+				<small class="text-muted">Create menu for your application.</small>
+			</div>
+		</a>
+		
+	</div>
 </div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
@@ -179,7 +199,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </script>
 <div class="container">
         <div class="topband">
-        <h2 class="title-cls-name float-left">Template Master</h2> 
+        <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.templating'')}</h2> 
         <div class="float-right">
             <#if environment == "dev">
                 <input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="Download Template" type="button">
@@ -461,10 +481,10 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 <div class="container">
 		<div class="topband">
 		
-		<h2 class="title-cls-name float-left">Menu Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.siteLayout'')}</h2> 
 		<div class="float-right">
 		<span>
-  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Config Home Page" type="button" onclick="configHomePage(this)">
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Configure Default Page" type="button" onclick="configHomePage(this)">
 		</span>
 		<span>
   		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="Add Module" type="button" onclick="submitForm(this)">
@@ -578,10 +598,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<div class="col-inner-form full-form-fields">
 					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
 					<select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
-						<option value="">Select</option>
 						<#if (moduleTargetLookupVOList)??>
 							<#list moduleTargetLookupVOList as moduleTargetLookupVO>
-									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? && (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
+									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? 
+										&& (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
 										<option value="${moduleTargetLookupVO?api.getLookupId()}" selected>${moduleTargetLookupVO?api.getDescription()!''''}</option>
 									<#else>
 										<option value="${moduleTargetLookupVO?api.getLookupId()}">${moduleTargetLookupVO?api.getDescription()!''''}</option>
@@ -602,13 +622,21 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
 				</div>
 			</div>
-				
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
+					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
+					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="200" class="form-control">
+				</div>
+			</div>
+			
 			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
 					<select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
-						<option value="">Select</option>
+						<option value="">Root</option>
 						<#if (moduleListingVOList)??>
 							<#list moduleListingVOList as moduleListingVO>
 									<#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
@@ -630,14 +658,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					<#else>
 						<input type="number"  id = "sequence" name = "sequence" value = "${(defaultSequence)!''''}" maxlength="100" class="form-control">
 					</#if>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
-					<input type="text"  id = "urlPrefix" name = "urlPrefix" value = "${(urlPrefix)!''''}" readOnly="readonly" class="form-control">
-					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
 
@@ -678,16 +698,20 @@ $(function() {
     let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
     let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
 	let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''''}";
+	let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''''}";
 	
+	if(targetLookupId === ""){
+		$("#targetLookupType").val(6);
+	}
     let selectedTargetDetails = new Object();
 	addEditModule = new AddEditModule(moduleTypeId, parentModuleId);
     if(moduleTypeId != "") {
         selectedTargetDetails["targetTypeId"] = moduleTypeId;
         selectedTargetDetails["targetTypeName"] = moduleName;
     }
-	
+	let autocompleteIdByType = addEditModule.getAutocompleteId();
     autocomplete = $(''#targetTypeName'').autocomplete({
-        autocompleteId: "qw",
+        autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -752,10 +776,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 						<#list moduleDetailsVOList as moduleDetailsVO>
 							<#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1) || moduleDetailsVO?api.getModuleURL() == "#">
 								<li class="nav-item">
-									<a class="nav-link active"  data-toggle="collapse" href="#subModule_${moduleDetailsVO?index}" aria-expanded="false" aria-controls="collapseExample">${moduleDetailsVO?api.getModuleName()!''''}   
-										<i class="fa fa-caret-down" aria-hidden="true"></i>
+									<a class="nav-link clickable panel-collapsed" >${moduleDetailsVO?api.getModuleName()!''''}<i class="fa fa-caret-down" aria-hidden="true"></i>
                                     </a>
-									<div class="collapse" id="subModule_${moduleDetailsVO?index}">
+									<div class="collapse collapsein">
 										<ul class="subcategory">
 											<#list moduleDetailsVOList as moduleDetailsVOChild>
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
@@ -780,7 +803,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</nav>
 	
 	<main id="main" class="main-container">
-		<div id="bodyDiv">
+		<div id="bodyDiv" onclick="homePageFn.closeNavigation();">
 			<#include "template-body">
 		</div>
 	</main>
@@ -797,7 +820,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		  
 	  const homePage = new HomePage();
 	  homePageFn = homePage.fn;
-	  
+	  homePageFn.collapsableMenu();
 	});
 
 
@@ -885,9 +908,9 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 
 	<div class="topband">
 		<#if (moduleDetailsVO?api.getModuleId())??>
-		    <h2 class="title-cls-name float-left">Edit Home Module</h2> 
+		    <h2 class="title-cls-name float-left">Edit Default Page</h2> 
         <#else>
-            <h2 class="title-cls-name float-left">Add Home Module</h2> 
+            <h2 class="title-cls-name float-left">Add Default Page</h2> 
         </#if>
 		<div class="float-right">
 			<span onclick="backToModuleListingPage();">

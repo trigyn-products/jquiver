@@ -15,7 +15,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container">
 
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Type Demo</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.typeAheadAutocompleteDemo'')}</h2> 
 		<div class="float-right">
 			<span onclick="backToListingPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -29,11 +29,29 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <div class="row">
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
-				<label for="flammableState" style="white-space:nowrap">Autocomplete</label>
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocomplete'')}</label>
 				<input class="form-control" id="rbAutocomplete" type="text">
  			</div>
 		</div>
 	
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompletePrefetch'')}</label>
+				<input class="form-control" id="rbAutocompletePF" type="text">
+ 			</div>
+		</div>
+		<div class="clearfix"></div>
+    </div>
+	
+    <div class="row">
+    
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompleteLocalSotrage'')}</label>
+				<input class="form-control" id="rbAutocompleteLS" type="text">
+ 			</div>
+		</div>
+		
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<div class="multiselectcount_clear_block">
@@ -45,14 +63,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					</div>
 				</div>
 				
-				<label for="flammableState" style="white-space:nowrap">Multiselect</label>
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.multiselect'')}</label>
 				<input class="form-control" id="rbMultiselect" type="text">
 			
 				<div id="rbMultiselect_selectedOptions"></div>
  			</div>
 		</div>
-		
-    </div>
+	</div>
+	
 </div>
 <script>
 //const contextPath = "${(contextPath)!''''}";
@@ -60,10 +78,12 @@ function backToListingPage() {
     location.href = "/cf/adl";
 }
 let autocomplete;
+let autocompletePF;
 let multiselect;
 $(function () {
     autocomplete = $(''#rbAutocomplete'').autocomplete({
         autocompleteId: "resourcesAutocomplete",
+		prefetch : false,
         render: function(item) {
         	var renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -85,6 +105,30 @@ $(function () {
         }, 	
     }, {key: "jws.action", languageId: 1, text: "Action"});
     
+	autocompletePF = $(''#rbAutocompletePF'').autocomplete({
+        autocompleteId: "resourcesAutocomplete",
+		prefetch : true,
+        render: function(item) {
+        	var renderStr ='''';
+        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+    		{
+        		renderStr = ''<p>''+item.text+''</p>'';
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#rbAutocompletePF").blur();
+        }, 	
+    });
+	
     multiselect = $(''#rbMultiselect'').multiselect({
         autocompleteId: "resourcesAutocomplete",
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
@@ -112,9 +156,33 @@ $(function () {
             multiselect.setSelectedObject(item);
         },	
     }, [{key: "jws.action", languageId: 1, text: "Action"}]);
+    
+    
+    $("#rbAutocompleteLS").richAutocomplete({
+		items: [{
+			languageName: "English",
+			languageId: 1
+		}, {
+			languageName: "French",
+			languageId: 2
+		}, {
+			languageName: "Hindi",
+			languageId: 3
+		}],
+		extractText: function(item) {
+			return item.languageName;
+		},
+		filter: function(items, searchTerm) {
+			return items.filter(function(item) {
+				return item.languageName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+			});
+		},
+		render: function(item) {
+			return "<p>" + item.languageName + "</p><small>" + item.languageId + "</small>";
+		}
+	});
 });
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
-
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
@@ -132,7 +200,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </head>
 <div class="container">
 		<div class="topband">
-		<h2 class="title-cls-name float-left">Autocomplete Master</h2> 
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h2> 
 		<div class="float-right">
 		    <a href="${(contextPath)!''''}/cf/da"> 
 				<input id="demoAutocomplete" class="btn btn-primary" name="demoAutocomplete" value="Demo" type="button">

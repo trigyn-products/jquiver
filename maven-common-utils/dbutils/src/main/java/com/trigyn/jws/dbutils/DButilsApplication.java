@@ -6,7 +6,9 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.DispatcherServlet;
 
 @SpringBootApplication
 public class DButilsApplication {
@@ -34,6 +36,14 @@ public class DButilsApplication {
 		Flyway flyway = new Flyway(atflywayConfiguration(dataSource));
 		flyway.migrate();
 		return flyway;
+	}
+	
+	@ConditionalOnMissingBean
+	@Bean
+	public DispatcherServlet dispatcherServlet () {
+	    DispatcherServlet dispatcherServlet = new DispatcherServlet();
+	    dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+	    return dispatcherServlet;
 	}
 
 }

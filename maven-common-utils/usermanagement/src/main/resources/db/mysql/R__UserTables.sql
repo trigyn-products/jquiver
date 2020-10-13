@@ -566,7 +566,10 @@ replace into template_master (template_id, template_name, template, updated_by, 
 <script>
 contextPath = "${contextPath}";
 	// set data
-	$("#isActiveCheckbox").attr("checked",${authEnabled?c}).trigger( "change" );
+	$("#isActiveCheckbox").attr("checked",${authEnabled?c});
+	if(!${authEnabled?c}){
+		 $("#authTypeDiv").hide();
+	}
 	$("#authType").val("${authTypeId}");
 	
 
@@ -632,8 +635,8 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 			<a href="tsms/users">Users</a>
 			<a href="tsms/destinations">Destinations</a>
 		<#else>
-			<a href="register">Register here</a>
-			<a href="login">Login here</a>
+			<a href="/cf/register">Register here</a>
+			<a href="/cf/login">Login here</a>
 		</#if>
 
 	
@@ -690,14 +693,272 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         </p>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <p>
-        <a href="resetPasswordPage">Forgot password?</a> 
+        <a href="/cf/resetPasswordPage">Forgot password?</a> 
         </p>
         <p >New to TSMS?
-        <a href="register"> Click here to register</a>
+        <a href="/cf/register"> Click here to register</a>
         </p>
       </form>
 </div>
 </body></html>','admin','admin',now());
+
+
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'jws-register', ' 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Register</title>
+    <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+			<#if error??>
+				$("#email").focus();
+			</#if>
+			
+			<#if errorPassword??>
+				$("#password").focus();
+			</#if>
+		</script>
+</head>
+
+
+<body>
+	<div class="container">    
+        <form class="form-signin" action="/cf/register"  method="post">
+        
+        <h2 class="form-signin-heading">Please register</h2>
+        	<#if error??>
+        		<div class="alert alert-danger" role="alert">${error} </div>
+        	</#if>
+        	<#if errorPassword??>
+        		<div class="alert alert-danger" role="alert">${errorPassword} </div>
+        	</#if>
+        	 <p>
+          		<label for="firstName" class="sr-only">First Name</label>
+         	 	<input type="text" id="firstName" name="firstName" class="form-control" placeholder="First Name" <#if firstName??> value="${firstName}"</#if> required autofocus>
+        	</p>
+        	<p>
+          		<label for="lastName" class="sr-only">Last Name</label>
+         	 	<input type="text" id="lastName" name="lastName" class="form-control" placeholder="Last Name"  <#if lastName??> value="${lastName}"</#if> required autofocus>
+        	</p>
+        	<p>
+          		<label for="email" class="sr-only">Email</label>
+         	 	<input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
+        	</p>
+        	<p>
+          		<label for="password" class="sr-only">Password</label>
+         	 	<input type="password" id="password" name="password" class="form-control" placeholder="Password" required autofocus >
+        	</p>
+        	 <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+	   </form>
+     <p> Already Registered User? <a href="login">Click here to sign in</a>
+	</div>	   
+</body>    
+','admin','admin',now());
+	
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'successfulRegisteration', ' 
+<head>
+     <title>Registration confirmation sent </title>
+     <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+		</script>
+</head>
+<body>
+            <span>A verification email has been sent to:   ${emailId}</span>
+ </body>    
+','admin','admin',now());
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'accountVerified', ' 
+	<head>
+        <title>Congratulations!</title>
+        
+     <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+		</script>   
+    </head>
+    <body>
+            <h3>Congratulations! Your account has been activated and email is verified!</h3>
+            <a href="login">Click here to Login</a> 
+    </body>    
+','admin','admin',now());
+
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'jws-password-reset-mail', ' 
+ 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Forgot password? - TSMS</title>
+   
+    	<script>
+      
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+			
+			<#if nonRegisteredUser??>
+				$("#email").focus();
+			</#if>
+			<#if inValidLink??>
+				$("#email").focus();
+			</#if>
+			
+		</script>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-resetpassword" method="post" action="/cf/sendResetPasswordMail">
+        <h2 class="form-resetpassword-heading">Reset your password</h2>
+		<#if nonRegisteredUser??>
+        		<div class="alert alert-danger" role="alert">${nonRegisteredUser} </div>
+        </#if>
+		<#if inValidLink??>
+        		<div class="alert alert-danger" role="alert">${inValidLink} </div>
+        </#if>
+        <p>
+		Enter your user account verified email address and we will send you a password reset link.
+		</p>
+        <p>
+          <label for="username" class="sr-only">Email</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
+        </p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Send password reset email</button>
+        
+      </form> 
+</div>
+
+</body></html>','admin','admin',now() );
+
+
+
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'jws-password-reset-page', ' 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Change your password - TSMS</title>
+    <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+      <#if nonValidPassword??>
+				$("#password").focus();
+			</#if>
+			
+			
+		</script>
+</head>
+
+
+<body>
+	<div class="container">    
+        <form class="form-password-reset" action="/cf/createPassword"  method="post">
+        
+        <h2 class="form-password-reset-heading">Change your password </h2>
+        <#if nonValidPassword??>
+        		<div class="alert alert-danger" role="alert">${nonValidPassword} </div>
+        	</#if>
+        	<p>
+          		<label for="password" class="sr-only">Create new password</label>
+         	 	<input type="password" id="password" name="password" class="form-control" placeholder="Password" required autofocus>
+        	</p>
+        	<p>
+          		<label for="confirmpassword" class="sr-only">Confirm Password</label>
+         	 	<input type="password" id="confirmpassword" name="confirmpassword" class="form-control" placeholder="Confirm password" required autofocus >
+        	</p>
+        	 <button class="btn btn-lg btn-primary btn-block" type="submit">Change password</button>
+			 <input type="hidden" id="resetEmailId" name ="resetEmailId" value="${resetEmailId}">
+       <input type="hidden" id="tokenId" name="token" value="${token}">
+	   </form>
+	</div>	   
+</body>    
+','admin','admin',now());
+
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+("UUID()", 'jws-password-reset-mail-success', ' 
+ 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Reset password mail sent  - TSMS</title>
+   
+  </head>
+  <body>
+     
+ <div class="container">
+         <p>
+		  <div class="alert alert-success" role="alert">${successResetPasswordMsg} </div>
+         <a class="btn btn-lg btn-primary btn-block" href="/cf/login">  Return to sign in </a>
+
+
+        </p>
+ </div>
+</body></html>','admin','admin',now() );
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'jws-successfulRegisteration', ' 
+<head>
+     <title>Registration confirmation sent </title>
+     <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+		</script>
+</head>
+<body>
+            <span>A verification email has been sent to:   ${emailId}</span>
+ </body>    
+','admin','admin',now());
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'jws-accountVerified', ' 
+	<head>
+        <title>Congratulations!</title>
+        
+     <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+		</script>   
+    </head>
+    <body>
+            <h3>Congratulations! Your account has been activated and email is verified!</h3>
+            <a href="/cf/login">Click here to Login</a> 
+    </body>    
+','admin','admin',now());
+
 
 
 SET FOREIGN_KEY_CHECKS=1;

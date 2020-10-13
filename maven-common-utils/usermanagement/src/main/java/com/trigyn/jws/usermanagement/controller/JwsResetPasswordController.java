@@ -63,7 +63,7 @@ public class JwsResetPasswordController {
     public String displayResetPasswordPage(ModelAndView modelAndView) throws Exception {
 		Map<String, Object> mapDetails = new HashMap<>();
 		mapDetails.put("loggedInUser", Boolean.FALSE);
-		return menuService.getTemplateWithSiteLayout("password-reset-mail",mapDetails);
+		return menuService.getTemplateWithSiteLayout("jws-password-reset-mail",mapDetails);
 	}
 	
 	@PostMapping(value = "/sendResetPasswordMail")
@@ -93,7 +93,7 @@ public class JwsResetPasswordController {
       		mailMessage.setSubject("[TSMS] Please reset your password");
       		mailMessage.setFrom("admin@gmail.com");
       		mailMessage.setText("To reset your TSMS user account password, please click here : "
-      				+"http://localhost:8080/resetPassword?token="+tokenId);
+      				+"http://localhost:8080/cf/resetPassword?token="+tokenId);
       		
       		
       		CompletableFuture.runAsync( new Runnable() {
@@ -104,10 +104,10 @@ public class JwsResetPasswordController {
       			});
       		
       		mapDetails.put("successResetPasswordMsg", "Check your email for a link to reset your password. If it doesn’t appear within a few minutes, check your spam folder.");
-			viewName ="password-reset-mail-success";
+			viewName ="jws-password-reset-mail-success";
 		}else {
 			mapDetails.put("nonRegisteredUser", "Enter registered user email id to send reset password mail");
-			viewName ="password-reset-mail";
+			viewName ="jws-password-reset-mail";
 		}
 		return  menuService.getTemplateWithSiteLayout(viewName,mapDetails);
     }
@@ -136,7 +136,7 @@ public class JwsResetPasswordController {
 			                	mapDetails.put("resetEmailId", userDetails.getEmail());
 			                }
 			                mapDetails.put("token", tokenId);
-				            viewName = "password-reset-page";
+				            viewName = "jws-password-reset-page";
 					     }
 	        } else{
 	        	isInvalidLink=Boolean.TRUE;
@@ -144,7 +144,7 @@ public class JwsResetPasswordController {
 		  
 		 if(isInvalidLink) {
 			 mapDetails.put("inValidLink","The link is expired/invalid/broken.Please enter mail id again to get reset password link!");
-        	 viewName = "password-reset-mail";
+        	 viewName = "jws-password-reset-mail";
 		 }
 
 	        return  menuService.getTemplateWithSiteLayout(viewName,mapDetails);
@@ -167,11 +167,11 @@ public class JwsResetPasswordController {
 		if(password == null || (password !=null && password.trim().isEmpty()) || confirmpassword == null ||(confirmpassword !=null && confirmpassword.trim().isEmpty())) {
 			mapDetails.put("nonValidPassword","Enter valid password and confirm password");
 			mapDetails.put("token", tokenId);
-			 viewName = "password-reset-page";
+			 viewName = "jws-password-reset-page";
 		}else if(!password.equals(confirmpassword)){
 			mapDetails.put("nonValidPassword","Enter same password and confirm password");
 			mapDetails.put("token", tokenId);
-			viewName = "password-reset-page";
+			viewName = "jws-password-reset-page";
 		}else if(password.equals(confirmpassword) ){
 			if(validatePassword(password)) {
 				String encodedPassword=passwordEncoder.encode(password);
@@ -185,10 +185,10 @@ public class JwsResetPasswordController {
         		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE);
         		userRoleAssociationRepository.save(adminRoleAssociation);
         		
-//        		resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(),tokenId);
+        		resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(),tokenId);
 	            
 	            mapDetails.put("resetPasswordSuccess","Congratulations.You have successfully changed your password.");
-				viewName = "login";
+				viewName = "jws-login";
 			}else {
 			 viewName = "password-reset-page";
 			 mapDetails.put("token", tokenId);

@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 DROP PROCEDURE IF EXISTS moduleTargetType;
 CREATE PROCEDURE moduleTargetType(targetLookupId INT(11), targetTypeId VARCHAR(50))
 BEGIN
@@ -39,4 +40,12 @@ END IF;
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO module_target_lookup (lookup_id,description) VALUES (6,'Group');
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (6,'Root');
+
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (1,'Dashboard');
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (2,'Form Builder');
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (3,'REST API Builder');
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (4,'Model and View');
+REPLACE INTO module_target_lookup (lookup_id,description) VALUES (5,'Template');
+
+SET FOREIGN_KEY_CHECKS=1;

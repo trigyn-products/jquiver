@@ -1,6 +1,9 @@
 package com.trigyn.jws.usermanagement.repository;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +14,8 @@ public interface JwsResetPasswordTokenRepository extends JpaRepository<JwsResetP
 	
 	JwsResetPasswordToken findByTokenId(String token);
 	
-	
-//	@Query("Update ResetPasswordToken set isResetUrlExpired=:isResetUrlExpired  WHERE userId=:userId and tokenId=:tokenId")
-//	void updateUrlExpired(Boolean isResetUrlExpired,String userId,String tokenId);
+	@Modifying
+	@Transactional
+	@Query("Update JwsResetPasswordToken set isResetUrlExpired=:isResetUrlExpired  WHERE userId=:userId and tokenId=:tokenId")
+	void updateUrlExpired(Boolean isResetUrlExpired,String userId,String tokenId);
 }

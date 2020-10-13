@@ -557,3 +557,72 @@ VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) 
 VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1);
+
+
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
+VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
+,'fileUploadConfigId,fileTypeSupported,maxFileSize,allowMultipleFiles,updatedBy,updatedDate');
+
+
+DROP PROCEDURE IF EXISTS fileUploadConfigListing;
+CREATE PROCEDURE `fileUploadConfigListing`(fileUploadConfigId varchar(50), fileTypeSupported varchar(100), maxFileSize varchar(1000)
+,allowMultipleFiles varchar(100), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
+,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = CONCAT(" SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported "
+  ," , fuc.max_file_size AS maxFileSize, fuc.allow_multiple_files AS allowMultipleFiles, fuc.updated_by AS updatedBy " 
+  ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
+  SET @fromString  = ' FROM file_upload_config AS fuc ';
+  SET @whereString = ' WHERE fuc.is_deleted = 0';
+  
+  IF NOT fileUploadConfigId IS NULL THEN
+    SET @fileUploadConfigId= REPLACE(fileUploadConfigId,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_upload_config_id like ''%',@fileUploadConfigId,'%''');
+  END IF;
+  
+  IF NOT fileTypeSupported IS NULL THEN
+    SET @fileTypeSupported= REPLACE(fileTypeSupported,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_type_supported like ''%',@fileTypeSupported,'%''');
+  END IF;
+  
+  IF NOT maxFileSize IS NULL THEN
+    SET @maxFileSize= REPLACE(maxFileSize,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_size like ''%',@maxFileSize,'%''');
+  END IF;
+  
+  IF NOT allowMultipleFiles IS NULL THEN
+    SET @allowMultipleFiles= REPLACE(allowMultipleFiles,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.allow_multiple_files like ''%',@allowMultipleFiles,'%''');
+  END IF;
+
+  IF NOT updatedBy IS NULL THEN
+    SET @updatedBy= REPLACE(updatedBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.updated_by like ''%',@updatedBy,'%''');
+  END IF;
+
+  IF NOT updatedDate IS NULL THEN
+    SET @updatedDate= REPLACE(updatedDate,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.updated_date like ''%',@updatedDate,'%''');
+  END IF;
+  
+  
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY updatedDate DESC');
+  END IF;
+  
+  IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+ 
+END;

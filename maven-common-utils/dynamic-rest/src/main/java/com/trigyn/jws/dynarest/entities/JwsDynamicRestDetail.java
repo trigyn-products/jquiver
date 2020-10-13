@@ -47,9 +47,6 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Column(name="jws_service_logic")
 	private String jwsServiceLogic						= null;
 	
-	@Column(name="jws_service_logic_checksum")
-	private String jwsServiceLogicChecksum				= null;
-	
 	@Column(name="jws_request_type_id")
 	private Integer jwsRequestTypeId					= null;
 	
@@ -77,7 +74,7 @@ public class JwsDynamicRestDetail implements Serializable {
 	}
 
 	public JwsDynamicRestDetail(Integer jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
-			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,String jwsServiceLogicChecksum,
+			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,
 			List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails, JwsRequestTypeDetail jwsRequestTypeDetail,
 			JwsResponseProducerDetail jwsResponseProducerDetail,
 			List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
@@ -88,7 +85,6 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsPlatformId 					= jwsPlatformId;
 		this.jwsRbacId 						= jwsRbacId;
 		this.jwsServiceLogic 				= jwsServiceLogic;
-		this.jwsServiceLogicChecksum        = jwsServiceLogicChecksum;
 		this.jwsDynamicRestDaoDetails 		= jwsDynamicRestDaoDetails;
 		this.jwsRequestTypeDetail 			= jwsRequestTypeDetail;
 		this.jwsResponseProducerDetail 		= jwsResponseProducerDetail;
@@ -214,15 +210,6 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsDynamicRestResponseParams = jwsDynamicRestResponseParams;
 	}
 	
-	
-	public String getJwsServiceLogicChecksum() {
-		return jwsServiceLogicChecksum;
-	}
-
-	public void setJwsServiceLogicChecksum(String jwsServiceLogicChecksum) {
-		this.jwsServiceLogicChecksum = jwsServiceLogicChecksum;
-	}
-
 	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().add(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsDynamicRestDetail(this);
@@ -242,7 +229,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		return Objects.hash(JwsDynamicRestRoleAssociation, jwsDynamicRestDaoDetails, jwsDynamicRestId,
 				jwsDynamicRestResponseParams, jwsDynamicRestUrl, jwsMethodDescription, jwsMethodName, jwsPlatformId,
 				jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId, jwsResponseProducerDetail, jwsResponseProducerTypeId,
-				jwsServiceLogic, jwsServiceLogicChecksum);
+				jwsServiceLogic);
 	}
 
 	@Override
@@ -269,8 +256,7 @@ public class JwsDynamicRestDetail implements Serializable {
 				&& Objects.equals(jwsRequestTypeId, other.jwsRequestTypeId)
 				&& Objects.equals(jwsResponseProducerDetail, other.jwsResponseProducerDetail)
 				&& Objects.equals(jwsResponseProducerTypeId, other.jwsResponseProducerTypeId)
-				&& Objects.equals(jwsServiceLogic, other.jwsServiceLogic)
-				&& Objects.equals(jwsServiceLogicChecksum, other.jwsServiceLogicChecksum);
+				&& Objects.equals(jwsServiceLogic, other.jwsServiceLogic);
 	}
 
 	@Override
@@ -278,7 +264,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		return "JwsDynamicRestDetail [jwsDynamicRestId=" + jwsDynamicRestId + ", jwsDynamicRestUrl=" + jwsDynamicRestUrl
 				+ ", jwsMethodDescription=" + jwsMethodDescription + ", jwsMethodName=" + jwsMethodName
 				+ ", jwsPlatformId=" + jwsPlatformId + ", jwsRbacId=" + jwsRbacId + ", jwsServiceLogic="
-				+ jwsServiceLogic + ", jwsServiceLogicChecksum=" + jwsServiceLogicChecksum + ", jwsRequestTypeId="
+				+ jwsServiceLogic + ", jwsRequestTypeId="
 				+ jwsRequestTypeId + ", jwsResponseProducerTypeId=" + jwsResponseProducerTypeId
 				+ ", jwsDynamicRestDaoDetails=" + jwsDynamicRestDaoDetails + ", jwsRequestTypeDetail="
 				+ jwsRequestTypeDetail + ", jwsResponseProducerDetail=" + jwsResponseProducerDetail

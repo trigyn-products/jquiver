@@ -68,11 +68,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			http.authorizeRequests().antMatchers("/webjars/**").permitAll().antMatchers("/**")
-					.authenticated().antMatchers("/").permitAll().antMatchers("/cf/register").permitAll()
-					.antMatchers("/cf/confirm-account").permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
-					.usernameParameter("email").permitAll().successHandler(customAuthSuccessHandler).and().logout()
-					.deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
+			http.authorizeRequests().antMatchers("/webjars/**").permitAll()
+					.antMatchers("/").permitAll()
+					.antMatchers("/cf/createPassword","/cf/sendResetPasswordMail","/cf/resetPasswordPage","/cf/sendResetPasswordMail","/cf/resetPassword").permitAll()
+					.antMatchers("/cf/register","/cf/confirm-account").permitAll()
+					.antMatchers("/**").authenticated()
+					.and()
+					.csrf().disable()
+					.formLogin().loginPage("/cf/login").usernameParameter("email").permitAll().successHandler(customAuthSuccessHandler)
+					.and()
+					.logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
 		} else {
 			http.authorizeRequests().antMatchers("/**").permitAll().and().csrf().disable();
 		}

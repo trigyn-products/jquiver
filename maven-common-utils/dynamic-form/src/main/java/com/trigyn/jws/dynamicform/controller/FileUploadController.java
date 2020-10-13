@@ -1,15 +1,16 @@
 package com.trigyn.jws.dynamicform.controller;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,11 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dynamicform.service.FilesStorageService;
-import com.trigyn.jws.dynamicform.vo.FileInfo;
 
 @RestController
 @RequestMapping("/cf")
@@ -75,24 +75,19 @@ public class FileUploadController {
 
 	@GetMapping("/files")
 	public ResponseEntity<List<FileInfo>> getListFiles() {
-		List<FileInfo> fileInfos = storageService.loadAll().map(path -> {
-			String filename = path.getFileName().toString();
-			String url = MvcUriComponentsBuilder
-					.fromMethodName(FileUploadController.class, "getFile", path.getFileName().toString()).build()
-					.toString();
-
-			return new FileInfo(null, null, null);
-		}).collect(Collectors.toList());
-
+		List<FileInfo> fileInfos = storageService.loadAll();
 		return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
 	}
 
-	@GetMapping("/files/{filename:.+}")
-	public ResponseEntity<File> getFile(@PathVariable String filename) {
-		File file = storageService.load(filename);
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-				.body(file);
+	@GetMapping("/files/{fileId:.+}")
+	public ResponseEntity<InputStreamResource> getFile(@PathVariable String fileId) throws IOException {
+		Map<String, Object> fileInfo = storageService.load(fileId);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", fileInfo.get("fileName").toString());
+		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+		byte[] file = (byte[]) fileInfo.get("file");
+		InputStreamResource streamResource = new InputStreamResource(new ByteArrayInputStream(file));
+		return new ResponseEntity<InputStreamResource>(streamResource, headers, HttpStatus.OK);
 	}
 
 }
