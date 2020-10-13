@@ -11,8 +11,8 @@
         loadServerPages = function (searchTerm, pageNumber, pageSize) {
             const context = this;
             var deferred = $.Deferred();
-            var searchval = $.trim(searchTerm);
-            if(searchval != "") {
+            var searchval = $.trim($(this.element).val());
+            if(this.options.prefetch || searchval !== ""){
                 $.ajax({
                     type: "POST",
                     url: "/cf/autocomplete-data",
@@ -31,7 +31,7 @@
                         throw Error("Error while loading the data for typeahead " + error);
                     }
                 });
-            } else if(searchval == "") {
+			} else if(searchval == "") {
                 var emptyMsgArray = new Array();
                 if(pageNumber < 1) {
                     var emptyMsg = new Object();
@@ -58,16 +58,22 @@
     class Autocomplete extends TypeAhead {
         constructor(element, options, selectedItem) {
             super(element, options);
-            this.init(this.options);
+            if(this.options.prefetch === undefined){
+            	this.options.prefetch = false;
+            }
             this.initWithValues(selectedItem);
         }
         
         initWithValues = function(item){
-        	this.selectedObject = item;
-        	let value = this.options.extractText(item);
-        	$(this.element).val(value);
-        	return this.selectedObject;
+        	if(item !== undefined){
+	        	this.selectedObject = item;
+	        	let value = this.options.extractText(item);
+	        	$(this.element).val(value);
+        	}
+        	this.init(this.options);
+	        return this.selectedObject;
         }
+        
     }
 
     Autocomplete.prototype.init = function(options) {
@@ -86,12 +92,19 @@
             extractText: options.extractText,
             selectedObjectData: options.selectedObjectData
         });
+        let placeholderVal = $.trim($(this.element).prop("placeholder"));
+        if(placeholderVal === "" && this.options.prefetch === false){
+        	$(this.element).prop("placeholder","Please type text to search");
+        }
     }
 
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
         constructor(element, options, selectedItems) {
             super(element, options);
+            if(this.options.prefetch === undefined){
+            	this.options.prefetch = true;
+            }
             this.init(this.options);
             this.initWithValues(selectedItems);
         }
@@ -132,7 +145,10 @@
             select: options.select,
             selectedObjectData: options.selectedObjectData
         });
-        
+        let placeholderVal = $.trim($(this.element).prop("placeholder"));
+        if(placeholderVal === "" && this.options.prefetch === false){
+        	$(this.element).prop("placeholder","Please type text to search");
+        }
         const maxHeight = 200;
         let multiselectId = options.multiselectItem[0].id;
         this.list = $('<div class="ml-selected-items-div"><ul id="'+multiselectId+'_ul" class="ml-selected-items-list"></ul></div>');

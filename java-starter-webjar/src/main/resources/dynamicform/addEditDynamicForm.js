@@ -132,42 +132,45 @@ class AddEditDynamicForm {
     
     saveDynamicForm (){
     	let context = this;
-		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
-		$("#formBody").val(dashletHTMLEditor.getValue().toString());
-		let queries = new Array();	
-		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-			queries.push(dashletSQLEditors[iCounter].getValue().toString().trim());
+    	let formValid = context.validateDynamicForm();
+    	if(formValid){
+			$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
+			$("#formBody").val(dashletHTMLEditor.getValue().toString());
+			let queries = new Array();	
+			for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
+				queries.push(dashletSQLEditors[iCounter].getValue().toString().trim());
+			}
+			$("#formSaveQueryId").val(JSON.stringify(formQueryIds));
+			$("#formSaveQuery").val(JSON.stringify(queries));
+			
+			const form = $("#dynamicform");
+			let serializedForm = form.serializeArray();
+			for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+	  			serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
+			}
+			serializedForm = $.param(serializedForm);
+			
+			 $.ajax({
+	             async : false,
+	             type : "GET",
+	             cache : false,
+	             url : "/cf/cdd", 
+	             data : {
+	                 formName : $("#formName").val(),
+	             },
+	             success : function(data) {
+	                 if(data != ""){
+	                     if(data != $("#formId").val()) {
+	                    	 return false;
+	                     }else{
+	                    	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
+	                     }
+	                 }else{
+	                	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
+	                 }
+	             }
+	         });
 		}
-		$("#formSaveQueryId").val(JSON.stringify(formQueryIds));
-		$("#formSaveQuery").val(JSON.stringify(queries));
-		
-		const form = $("#dynamicform");
-		let serializedForm = form.serializeArray();
-		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
-  			serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
-		}
-		serializedForm = $.param(serializedForm);
-		
-		 $.ajax({
-             async : false,
-             type : "GET",
-             cache : false,
-             url : "/cf/cdd", 
-             data : {
-                 formName : $("#formName").val(),
-             },
-             success : function(data) {
-                 if(data != ""){
-                     if(data != $("#formId").val()) {
-                    	 return false;
-                     }else{
-                    	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
-                     }
-                 }else{
-                	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
-                 }
-             }
-         });
 	}
     
     saveFormData(formData){
@@ -184,6 +187,28 @@ class AddEditDynamicForm {
 	        },
 																						  
 		});
+    }
+    
+    validateDynamicForm = function(){
+    	let formName = $("#formName").val().trim();
+    	let selectQuery = $.trim(dashletSQLEditor.getValue().toString());
+    	let htmlQuery = $.trim(dashletHTMLEditor.getValue().toString());
+    	if(formName === ""){
+    		$("#errorMessage").show();
+    		$("#errorMessage").html("Please enter valid form name");
+    		return false;
+    	}
+    	if(selectQuery === ""){
+    		$("#errorMessage").show();
+    		$("#errorMessage").html("Select query can not be blank");
+    		return false;
+    	}
+    	if(htmlQuery === ""){
+    		$("#errorMessage").show();
+    		$("#errorMessage").html("HTML content can not be blank");
+    		return false;
+    	}
+    	return true;
     }
     
     getSelectTemplateData = function(formQueryId) {

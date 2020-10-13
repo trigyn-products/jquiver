@@ -52,50 +52,60 @@ HomePage.prototype.fn = {
 	
 	},
 	
+	collapsableMenu : function(){
+		$('.nav-item a.clickable').on("click", function (e) {
+		    if ($(this).hasClass('panel-collapsed')) {
+		        $(this).parents('.nav-item').find('.collapsein').slideDown();
+		        $(this).removeClass('panel-collapsed');
+		        $(this).find('i').removeClass('fa fa-caret-down').addClass('fa fa-caret-up');
+		    }
+		    else {
+		        $(this).parents('.nav-item').find('.collapsein').slideUp();
+		        $(this).addClass('panel-collapsed');
+		        $(this).find('i').removeClass('fa fa-caret-up').addClass('fa fa-caret-down');
+		    }
+		});
+	},	
 	
 	
 	menuSearchFilter : function(){
-		const inputText = $("#searchInput");
-		const filterText = inputText.val().toUpperCase();
-		
-		$(".searchedClass").each(function(){
-			$(this).remove();
-		});
-		if(filterText == "")
-		{
-			$("#menuUL li").each(function(i) {
-				$(this).css('display', 'block');
-			});
+		let inputText = $("#searchInput").val().toUpperCase().trim();
+		if(inputText == ""){
+			$("#menuUL").find("li ").show();
 			return;
 		}
-		else
-		{
-			$("#menuUL li").each(function(i) {
-				$(this).css('display', 'none');
-			});
-		}
-		
-		$("#menuUL li").each(function(){
-			var text = $(this).text();
-			var li;
-			if (text.toUpperCase().indexOf(filterText) > -1) {
-				li=$(this).clone();
-				li.css('display', 'block');
-				li.addClass("searchedClass");
-				$("#menuUL").append(li);
+		$("#menuUL").find("li").hide();
+		$("#menuUL").find("a").each(function(a_index, a_element){
+			if($(a_element).text().trim().toUpperCase().indexOf(inputText) > -1){
+				let divGroupElement = $(a_element).closest("div");
+				let rootElement = $(divGroupElement).prev();
+				$(rootElement).removeClass("panel-collapsed");
+				$(rootElement).find("i").removeClass('fa fa-caret-down').addClass('fa fa-caret-up');
+				$(a_element).parents().show()
 			}
 		});
-	},
+	}
+
+}
 	
-	
+const uuidv4 =  function() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    let r = Math.random() * 16 | 0;
+    let v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 const showMessage = function(a_messageText, a_messageType){
-	$("#jwsValidationDiv").remove();
+	$(".jwsValidationDivCls").each(function(index, a_element){
+		$(a_element).css({ top: $(a_element).position().top + 100 })
+	});
+	const currentDivID = "jwsValidationDiv" + uuidv4();
 	let messageType = a_messageType.toLowerCase();
-	let validationElement = $('<div id="jwsValidationDiv"></div>');
+	let validationElement = $('<div id="'+currentDivID+'" class="jwsValidationDivCls"></div>');
 	$("body").append(validationElement);
-	let validationDiv = $("#jwsValidationDiv");
+	let validationDiv = $("#" + currentDivID);
+
 
 	if(messageType === "success"){
 		validationDiv.addClass("alert alert-success common-validation-cls");
@@ -113,7 +123,8 @@ const showMessage = function(a_messageText, a_messageType){
 
 	validationDiv.append(a_messageText);
 	setTimeout(function(){ 
-    	$("#jwsValidationDiv").remove();
+    	$("#" + currentDivID).fadeOut();
+    	$("#" + currentDivID).remove();
     }, 3000);
 
 }

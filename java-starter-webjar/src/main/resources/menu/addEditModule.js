@@ -79,8 +79,8 @@ class AddEditModule {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if((moduleURL === "" || moduleURL.indexOf(" ") != -1 
-   			|| moduleURL.indexOf("*") != -1 || moduleURL.indexOf("/") == 0) && contextType != "6"){
+   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("*") != -1 
+   			|| moduleURL.indexOf("#") != -1 || moduleURL.indexOf("/") == 0) && contextType != "6"){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
@@ -158,23 +158,36 @@ class AddEditModule {
     		$("#parentModuleName").val(context.parentModuleId);
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
+	    	if(isEditFlag === undefined){
+	    		$("#moduleURL").val("");
+	    		$("#targetTypeName").val("");
+	    		$("#targetTypeNameId").val("");
+	    	}
 	    	$("#parentModuleName").prop('disabled',false);
     	}
-    	if(targetLookupId == ""){
+    	autocomplete.options.autocompleteId = context.getAutocompleteId();
+    }
+    
+    getAutocompleteId = function(){
+    	let context = this;
+    	let autocompleteId;
+    	let targetLookupId = $("#targetLookupType").find(":selected").val();
+        if(targetLookupId == ""){
     		$("#targetTypeName").prop('disabled',true);
 		} else if(targetLookupId == 1){
     		$("#targetTypeName").prop('disabled',false);
-    		autocomplete.options.autocompleteId = "dashboardListing";
+    		autocompleteId = "dashboardListing";
 		} else if(targetLookupId == 2){
     		$("#targetTypeName").prop('disabled',false);
-    		autocomplete.options.autocompleteId = "dynamicForms";
+    		autocompleteId = "dynamicForms";
 		} else if(targetLookupId == 3){
     		$("#targetTypeName").prop('disabled',false);
-    		autocomplete.options.autocompleteId = "dynarestListing";
+    		autocompleteId = "dynarestListing";
 		} else if(targetLookupId == 5){
     		$("#targetTypeName").prop('disabled',false);
-    		autocomplete.options.autocompleteId = "templateListing";
+    		autocompleteId = "templateListing";
 		}
+    	return autocompleteId;
     }
     
     
