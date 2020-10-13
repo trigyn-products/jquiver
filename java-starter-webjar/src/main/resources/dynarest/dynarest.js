@@ -80,7 +80,7 @@ class DynamicRest {
 	    	}
 	    	
 	    	let inputElement = "<div class='col-4'><label for='inputcontainer_"+index+"' style='white-space:nowrap'>Variable Name </label><input id='inputcontainer_"+index+"' type ='text' class='form-control' /></div>";
-	    	let selectElement = "<div class='col-4'><label for='selectcontainer_"+index+"' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_"+index+"' class='form-control'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored </option></select></div>";
+	    	let selectElement = "<div class='col-4'><label for='selectcontainer_"+index+"' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_"+index+"' class='form-control'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option></select></div>";
 	    	let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_"+index+"' value='Add' class='margin-r-5 btn btn-primary' onclick='dynarest.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_"+index+"' value='Remove' class='btn btn-secondary' onclick='dynarest.removeSaveQueryEditor(this);'></div>";
 	    	
 	    	let daoContainer = $("<div id='daoContainerDiv_"+index+"' class='margin-t-25'><div class='row'>"+ inputElement +""+ selectElement +"<div class='col-4 margin-t-25 float-right'>"+ buttonElement +"</div></div></div>");
@@ -233,7 +233,7 @@ class DynamicRest {
 		$("#variableName").val(JSON.stringify(variableNameArray));
 		$("#queryType").val(JSON.stringify(queryTypeArray));
 		$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
-		
+		debugger;
 		let formData = $("#saveUpdateQueryForm").serialize();
 		$.ajax({
 		    type : "POST",

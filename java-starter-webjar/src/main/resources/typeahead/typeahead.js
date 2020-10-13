@@ -77,6 +77,8 @@
                 return context.loadServerPages(searchTerm, pageNumber, pageSize);
             },
             paging: options.paging,
+            filter: options.filter,
+            items: options.items,
             pageSize: options.pageSize,
             emptyRender: options.emptyRender,
             select: options.select,
@@ -122,6 +124,8 @@
             },
             paging: options.paging,
             pageSize: options.pageSize,
+            filter: options.filter,
+            items: options.items,
             emptyRender: options.emptyRender,
             render: options.render,
             extractText: options.extractText,
