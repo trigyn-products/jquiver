@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.trigyn</groupId>
+	<artifactId>jquiver-archetype</artifactId>
+	<version>1.0</version>
+	<packaging>maven-archetype</packaging>
+	<description>JQuiver Archetype</description>
+	<name>jquiver-archetype</name>
+	<url>https://github.com/trigyn-products/jquiver-archetype</url>
+
+	<organization>
+		<url>https://trigyn.com</url>
+		<name>Trigyn</name>
+	</organization>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/trigyn-products/java-web-starter/blob/master/LICENSE</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/trigyn-products/java-web-starter.git</connection>
+		<developerConnection>scm:git:git@github.com:trigyn-products/java-web-starter.git</developerConnection>
+		<url>https://github.com/trigyn-products/jquiver-archetype</url>
+		<tag>jquiver-archetype-1.0</tag>
+	</scm>
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.archetype</groupId>
+				<artifactId>archetype-packaging</artifactId>
+				<version>3.1.2</version>
+			</extension>
+		</extensions>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-archetype-plugin</artifactId>
+					<version>3.1.2</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>
