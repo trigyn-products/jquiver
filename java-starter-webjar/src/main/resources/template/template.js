@@ -51,6 +51,7 @@ class TemplateEngine {
 
     validateSaveVelocity = function (){
         const context = this;
+        let isDataSaved = false;
         const validTemplate = this.validateTemplateName();
         if(validTemplate) {
             const templateName = $("#vmName").val();
@@ -65,12 +66,12 @@ class TemplateEngine {
                 success : function(data) {
                     if(data != ""){
                         if(data == context.templateId) {
-                            context.onSaveAndClose();
+                            isDataSaved = context.onSaveAndClose();
                         }else {
                             return false;
                         }
                     } else {
-                        context.onSaveAndClose();
+                        isDataSaved = context.onSaveAndClose();
                     }
 	            },
 	       		error : function(xhr, error){
@@ -81,6 +82,7 @@ class TemplateEngine {
         	$('#errorMessage').html("Please enter valid template name");
         	$('#errorMessage').show();
         }
+        return isDataSaved;
     }
 
     validateTemplateName = function() {
@@ -90,6 +92,7 @@ class TemplateEngine {
 
     onSaveAndClose = function() {
         const context = this;
+        let isDataSaved = false;
         const velocityName = $("#vmName").val().trim();
         let velocityTempData = context.editor.getValue().trim();
         if(velocityTempData == ""){
@@ -106,12 +109,14 @@ class TemplateEngine {
                 velocityTempData : velocityTempData
             },
             success : function(data) {
+           		isDataSaved = true;
            		showMessage("Information saved successfully", "success");
 		    },
 	        error : function(xhr, error){
 				showMessage("Error occurred while saving", "error");
 	        },
         });
+        return isDataSaved;
     }
     
     

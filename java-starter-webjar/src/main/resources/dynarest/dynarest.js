@@ -1,6 +1,7 @@
 class DynamicRest {
 
-	constructor() {
+	constructor(formId) {
+		this.formId = formId;
     	this.saveUpdateEditors = new Array();
     	this.daoDetailsIds = new Array();
     	this.serviceLogicContent;
@@ -40,6 +41,7 @@ class DynamicRest {
 				
 				$('#dynarestProdTypeId').val(prodTypeId);
 				$('#dynarestRequestTypeId').val(requestTypeId); 
+				context.hideShowAllowFiles();
 			}
 		});
 		
@@ -143,7 +145,8 @@ class DynamicRest {
 		}
 	}
 	
-	saveDynarest = function(formId){
+	saveDynarest = function(){
+		let isDataSaved = false;
 		let context = this;
 		let validData = context.validateDyanrestFields();
 		if(validData === false){
@@ -151,15 +154,16 @@ class DynamicRest {
 			return false;
 		}
 		$("#serviceLogic").val(this.serviceLogicContent.getValue().toString());
-		let formData = $("#dynamicRestForm").serialize() + "&formId="+formId;
+		let formData = $("#dynamicRestForm").serialize() + "&formId="+context.formId;
 		
 		$.ajax({
 		    type : "POST",
 		    url : "sdf",
+		    async : false,
 			data : formData, 
 			success : function(data){
 				if(data === true){
-					context.saveDAOQueries(formId);
+					isDataSaved = context.saveDAOQueries(context.formId);
 				}
 			},
 			error : function(xhr, data){
@@ -167,9 +171,11 @@ class DynamicRest {
 				$("#errorMessage").html("Error occurred");
 			},
 		});
+		return isDataSaved;
 	}
 
 	validateDyanrestFields = function(){
+		let context = this;
 		let dynarestUrl = $("#dynarestUrl").val();
 		if(dynarestUrl === "" || dynarestUrl.indexOf(" ") != -1){
 			$("#dynarestUrl").focus();
@@ -184,17 +190,33 @@ class DynamicRest {
 			return false;
 		}
 		
-		let dynarestMethodDesc =  $("#dynarestMethodDescription").val().trim();
-		if(dynarestMethodDesc === ""){
-			$("#dynarestMethodDescription").focus();
-			$('#errorMessage').html("Method description cannot be blank");
+		let serviceLogicContent = $.trim(context.serviceLogicContent.getValue().toString());
+		if(serviceLogicContent === ""){
+			$('#errorMessage').html("Service logic can not be blank");
+			return false;
+		}
+		
+		let variableNameArray = new Array();
+		let saveEditorLength = $("[id^=daoContainerDiv_]").length;
+		for(let iCounter = 0; iCounter < saveEditorLength; ++iCounter){
+			let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
+			let variableName = $.trim($('#inputcontainer_'+index).val());
+			variableNameArray.push(variableName);
+		}
+		if(context.checkIfDuplicateExists(variableNameArray)){
+			$('#errorMessage').html("Variable name should be unique");
 			return false;
 		}
 		return true;
 	}
 	
+	checkIfDuplicateExists = function(variableNameArray){
+    	return new Set(variableNameArray).size !== variableNameArray.length 
+	}
+	
 	saveDAOQueries = function(formId){
 		let context = this;
+		let isDataSaved = false;
 		let saveUpdateQueryArray = new Array();
 		let variableNameArray = new Array();
 		let queryTypeArray = new Array();
@@ -233,15 +255,16 @@ class DynamicRest {
 		$("#variableName").val(JSON.stringify(variableNameArray));
 		$("#queryType").val(JSON.stringify(queryTypeArray));
 		$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
-		debugger;
 		let formData = $("#saveUpdateQueryForm").serialize();
 		$.ajax({
 		    type : "POST",
+		    async : false,
 		    url : contextPath+"/cf/sdq",
 		    data : formData,
 			success : function(data){
 				$("#saveUpdateQueryForm").remove();
 				if(data !== ""){
+					isDataSaved = true;
 					$("#dynarestId").val(data);
 					showMessage("Information saved successfully", "success");
 				}
@@ -251,8 +274,23 @@ class DynamicRest {
 	        },
 			
 		});	
+		
+		return isDataSaved;
 	}
 	
+	hideShowAllowFiles = function(){
+		let dynarestProdTypeId = $("#dynarestProdTypeId").val();
+        let dynarestRequestTypeId = $("#dynarestRequestTypeId").val();
+        if((dynarestProdTypeId === "8" || dynarestProdTypeId === "10") && 
+        	(dynarestRequestTypeId === "1" || dynarestRequestTypeId === "4")){
+            $("#allowFilesDiv").show();
+        }else{
+        	$("#allowFilesCheckbox").prop("checked", false);
+        	$("#allowFiles").val(0);
+        	$("#allowFilesDiv").hide();
+        }
+        showMethodSignature($("#dynarestPlatformId").val());
+	}
 	
 	backToDynarestListingPage = function() {
     	window.location = "../cf/dynl";

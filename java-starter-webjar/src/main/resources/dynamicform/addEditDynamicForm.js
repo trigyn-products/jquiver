@@ -47,7 +47,7 @@ class AddEditDynamicForm {
 				data : {formId: formId},
 				success : function(data) {
 					for(let counter = 0; counter < data.length; ++counter) {
-						context.addSaveQueryEditor(data[counter]);
+						context.addSaveQueryEditor(null, data[counter]);
 					}
 				}
 			});
@@ -62,14 +62,13 @@ class AddEditDynamicForm {
 		window.location.href="./dfl"
 	}
 	
-	addSaveQueryEditor(data){
+	addSaveQueryEditor(element, data){
 		let formQueryId;
 		let formBody;
 		let formSaveQuery;
 		let versionDetailsMap;
 		
 		if(data != undefined){
-			formQueryId = data.formQueryId;
 			formBody = data.formBody.trim();
 			formSaveQuery = data.formSaveQuery.trim();
 			versionDetailsMap = data.versionDetailsMap;
@@ -79,8 +78,19 @@ class AddEditDynamicForm {
     	require(["vs/editor/editor.main"], function() {
     		
     		let index = dashletSQLEditors.length;
+    		let parentElement;
+			if(element != null) {
+				parentElement = $(element).parent().parent().parent().parent();
+			}
+			
     		if(versionDetailsMap != undefined && $.isEmptyObject(versionDetailsMap) === false){
-    			$("#saveScriptContainer").append("<div class='col-3'><div id='compareDiv_"+index+"' class='col-inner-form full-form-fields'><label for='versionId'>Compare with </label>");
+				let versionDiv = $("<div class='col-3'><div id='compareDiv_"+index+"' class='col-inner-form full-form-fields'><label for='versionId'>Compare with </label>");
+    			if(parentElement != undefined) {
+	    			versionDiv.insertAfter(parentElement);
+	    		} else {
+	    			$("#saveScriptContainer").append(versionDiv);	
+		    	}
+    			
     			$("#compareDiv_"+index).append("<select class='form-control' id="+formQueryId+" onchange='addEdit.getSelectTemplateData(this.id);' name='versionId' title='Template Versions'>");
     			$("#"+formQueryId).append("<option value='' selected>Select</option>");
     			for (let prop in versionDetailsMap) {
@@ -93,8 +103,14 @@ class AddEditDynamicForm {
     		if(formBody != undefined){
     			dashletHTMLEditor.setValue(formBody);
     		}
-    		
-			$("#saveScriptContainer").append("<div id='container_"+index+"' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_"+index+"' class='ace-editor-container'><div id='saveSqlEditor_"+index+"' class='ace-editor'></div></div></div></div>");
+    		let daoContainer = $('<div id="daoContainer_'+index+'"><div class="row"><div id="actionButtonDiv_'+index+'"class="col-12 margin-t-25 float-right"><div class="btn-icons float-right"><input type="button" id="addEditor_'+index+'" value="Add" class="margin-r-5 btn btn-primary" onclick="addEdit.addSaveQueryEditor(this);"><input type="button" id="removeTemplate_'+index+'"  value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor(this);"></div></div></div><div id="container_'+index+'" class="html_script" style="margin-top: 10px;"><div class="grp_lblinp"><div id="saveSqlContainer_'+index+'" class="ace-editor-container"><div id="saveSqlEditor_'+index+'" class="ace-editor"></div></div></div></div></div>');
+
+			if(parentElement != undefined) {
+	    		daoContainer.insertAfter(parentElement);
+	    	} else {
+	    		$("#saveScriptContainer").append(daoContainer);	
+		    }
+		    	
         	dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
 	        	value: formSaveQuery,
 	            language: "sql",
@@ -108,39 +124,39 @@ class AddEditDynamicForm {
 				wrappingIndent: "indent"
         	});
         	
-        	dashletSQLEditors.push(dashletSAVESQLEditor);
-        	if(formQueryId != undefined){
-        		$("#saveScriptContainer").append("<input type='hidden' id='formQueryId_"+index+"' value="+formQueryId+"/>");
-        		formQueryIds.push(formQueryId);
-        	}
+        	let editorObj = new Object();
+	        editorObj["index"] = index;
+	        editorObj["editor"] = dashletSAVESQLEditor;
+	        dashletSQLEditors.push(editorObj);
+	        $("#removeTemplate_0").remove();
     	});
     	
 	}
 	
-	removeSaveQueryEditor(){
-		let index = dashletSQLEditors.length - 1;
+	removeSaveQueryEditor(element){
+		let index = element.id.split("_")[1];
 		if(index != 0) {
-			$("#container_"+index).remove();
-			$("#compareDiv_"+index).remove();
-			dashletSQLEditors.pop();
-			if($("#formQueryId_"+index).length == 1){
-				$("#formQueryId_"+index).remove();
-				formQueryIds.pop();
-			}
+			$("#daoContainer_"+index).remove();
+			removeByAttribute(dashletSQLEditors, "index", index);
 		}
 	}
     
     saveDynamicForm (){
     	let context = this;
+    	let isDataSaved = false;
     	let formValid = context.validateDynamicForm();
     	if(formValid){
 			$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
 			$("#formBody").val(dashletHTMLEditor.getValue().toString());
 			let queries = new Array();	
 			for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-				queries.push(dashletSQLEditors[iCounter].getValue().toString().trim());
+				let index = $("[id^=daoContainer_]")[iCounter].id.split("_")[1];
+				let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
+				let queryContent = (editorObject["editor"].getValue().toString().trim());
+				if(queryContent !== ""){
+					queries.push(queryContent);
+				}
 			}
-			$("#formSaveQueryId").val(JSON.stringify(formQueryIds));
 			$("#formSaveQuery").val(JSON.stringify(queries));
 			
 			const form = $("#dynamicform");
@@ -163,23 +179,27 @@ class AddEditDynamicForm {
 	                     if(data != $("#formId").val()) {
 	                    	 return false;
 	                     }else{
-	                    	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
+	                    	 isDataSaved = AddEditDynamicForm.prototype.saveFormData(serializedForm);
 	                     }
 	                 }else{
-	                	 AddEditDynamicForm.prototype.saveFormData(serializedForm);
+	                	 isDataSaved = AddEditDynamicForm.prototype.saveFormData(serializedForm);
 	                 }
 	             }
 	         });
 		}
+		return isDataSaved;
 	}
     
     saveFormData(formData){
-    const context = this;
+    	const context = this;
+    	let isDataSaved = false;
 	    $.ajax({
 			type : "POST",
+			async : false,
 			url : "sdfd",
 			data : formData,
 			success : function(data) {
+				isDataSaved = true;
 				showMessage("Information saved successfully", "success");
 			},
 			error : function(xhr, error){
@@ -187,6 +207,7 @@ class AddEditDynamicForm {
 	        },
 																						  
 		});
+		return isDataSaved;
     }
     
     validateDynamicForm = function(){
@@ -208,6 +229,22 @@ class AddEditDynamicForm {
     		$("#errorMessage").html("HTML content can not be blank");
     		return false;
     	}
+    	let saveUpdateQuery;
+    	for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
+			if(saveUpdateQuery === undefined || saveUpdateQuery === ""){
+				let index = $("[id^=daoContainer_]")[iCounter].id.split("_")[1];
+				let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
+				let queryContent = (editorObject["editor"].getValue().toString().trim());
+				saveUpdateQuery = queryContent;
+			}
+		}
+		if(saveUpdateQuery === ""){
+			$("#errorMessage").show();
+    		$("#errorMessage").html("Save/update query can not be blank");
+    		return false;
+		}
+		
+		
     	return true;
     }
     
@@ -250,5 +287,17 @@ class AddEditDynamicForm {
     
 }
 
+
+let removeByAttribute = function(arrayObject, attr, value){
+    let iCounter = arrayObject.length;
+        while(iCounter--){
+        if( arrayObject[iCounter] 
+            && arrayObject[iCounter].hasOwnProperty(attr) 
+            && (arguments.length > 2 && arrayObject[iCounter][attr] == value ) ){ 
+            arrayObject.splice(iCounter,1);
+        }
+    }
+    return arrayObject;
+}
 
     

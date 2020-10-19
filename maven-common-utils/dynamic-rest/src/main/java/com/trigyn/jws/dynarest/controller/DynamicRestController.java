@@ -97,7 +97,7 @@ public class DynamicRestController {
             Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(), requestParams);
             FileInfo fileInfo = null;
 			try {
-				Object response = jwsService.invokeAndExecuteOnFileJava(files, httpServletRequest, requestParams, queriesResponse, restApiDetails);
+				Object response = jwsService.invokeAndExecuteOnFileJava(files, httpServletRequest, queriesResponse, restApiDetails);
 				if(response instanceof FileInfo) {
 					fileInfo = (FileInfo) response;
 				} else {

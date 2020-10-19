@@ -16,7 +16,7 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	ModuleDetailsVO getModuleDetails(String moduleId, Integer languageId, Integer defaultLanguageId);
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_PARENT_MODULES)
-	List<ModuleDetailsVO> getAllParentModules(String homeModuleURL,Integer languageId, Integer defaultLanguageId);
+	List<ModuleDetailsVO> getAllParentModules(String homeModuleURL,Integer languageId, Integer defaultLanguageId, Integer isInsideMenu);
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_MODULES_DETAILS)
 	List<ModuleDetailsVO> getAllModulesDetails(String homeModuleURL, Integer languageId, Integer defaultLanguageId);
@@ -37,6 +37,6 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	ModuleDetailsVO getTargetTypeDetails(String moduleURL);
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_HOME_PAGE_MODULE_ID)
-	String getHomeModuleId(String homeModuleURL, Integer homeModuleSequence);
+	String getHomeModuleId(String homeModuleURL);
 	
 }

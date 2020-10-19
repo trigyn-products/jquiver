@@ -114,18 +114,13 @@ public class DynamicFormCrudService {
 	private List<DynamicFormSaveQuery> saveDynamicFormQueries(MultiValueMap<String, String> formData, String dynamicFormId,
 			List<DynamicFormSaveQuery> dynamicFormSaveQueries, String formId)throws JsonProcessingException, JsonMappingException, Exception {
 		
-		String formSaveQueryId 				= formData.getFirst("formSaveQueryId");
 		String queriesList 					= formData.getFirst("formSaveQuery");
-		List<String> formSaveQueryIdList 	= new ObjectMapper().readValue(formSaveQueryId, List.class);
 		List<String> queries				= new ObjectMapper().readValue(queriesList, List.class);
 		
-		dynamicFormDAO.deleteFormQueriesByIds(formId,formSaveQueryIdList);
+		dynamicFormDAO.deleteFormQueriesByIds(formId);
 		
 		for (int queryCounter = 0; queryCounter < queries.size(); queryCounter++) {
 			DynamicFormSaveQuery dynamicFormSaveQuery = new DynamicFormSaveQuery();
-			if(!CollectionUtils.isEmpty(formSaveQueryIdList) && formSaveQueryIdList.size() > queryCounter) {
-				dynamicFormSaveQuery.setDynamicFormQueryId(formSaveQueryIdList.get(queryCounter));
-			}
 			dynamicFormSaveQuery.setDynamicFormId(dynamicFormId);
 			dynamicFormSaveQuery.setDynamicFormSaveQuery(queries.get(queryCounter));
 			dynamicFormSaveQuery.setSequence(queryCounter+1);

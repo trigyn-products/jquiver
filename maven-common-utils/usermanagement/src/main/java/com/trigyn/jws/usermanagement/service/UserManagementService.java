@@ -16,17 +16,24 @@ import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.entities.PropertyMasterPK;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.entities.JwsRoleMasterModulesAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
+import com.trigyn.jws.usermanagement.repository.JwsAuthenticationTypeRepository;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
+import com.trigyn.jws.usermanagement.vo.JwsAuthenticationTypeVO;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleMasterModulesAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
@@ -58,6 +65,13 @@ public class UserManagementService {
 	
 	@Autowired
 	private PropertyMasterRepository propertyMasterRepository = null;
+	
+	@Autowired
+	private JwsAuthenticationTypeRepository authenticationTypeRepository = null;
+	
+	@Autowired
+	private JwsEntityRoleAssociationRepository entityRoleAssociationRepository = null;
+	
 
 	public String addEditRole(String roleId) throws Exception {
 
@@ -82,16 +96,21 @@ public class UserManagementService {
 		Map<String, Object> mapDetails = new HashMap<>();
 
 		List<JwsRole> roles = new ArrayList<>();
-		roles = jwsRoleRepository.findAll();
+		roles = jwsRoleRepository.findAllRoles();
 
+		List<JwsMasterModulesVO> masterModulesVO = new ArrayList<>();
 		List<JwsMasterModules> masterModules = new ArrayList<>();
 		masterModules = jwsmasterModuleRepository.findAll();
+		
+		for (JwsMasterModules jwsMasterModule : masterModules) {
+			masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));
+		}
 
 		List<JwsRoleMasterModulesAssociation> roleModulesAssociations = new ArrayList<>();
 		roleModulesAssociations = roleModuleRepository.findAll();
 
 		mapDetails.put("roles", roles);
-		mapDetails.put("masterModules", masterModules);
+		mapDetails.put("masterModules", masterModulesVO);
 		mapDetails.put("roleModulesAssociations", roleModulesAssociations);
 
 		return menuService.getTemplateWithSiteLayout("manageRoleModule", mapDetails);
@@ -137,20 +156,12 @@ public class UserManagementService {
 		}
 
 		List<JwsRole> roles = new ArrayList<>();
-		roles = jwsRoleRepository.findAll();
+		roles = jwsRoleRepository.findAllRoles();
 		templateMap.put("roles", roles);
 		templateMap.put("jwsUser", jwsUser);
 		return menuService.getTemplateWithSiteLayout("addEditJwsUser", templateMap);
 	}
 
-	public void updatePropertyMasterValues(String authenticationEnabled, String authenticationTypeId) {
-		
-		propertyMasterRepository.updatePropertyValueByName(authenticationEnabled, "enable-user-management");
-		
-		propertyMasterRepository.updatePropertyValueByName(authenticationTypeId, "authentication-type");
-		
-		
-	}
 
 	public String loadUserManagement() throws Exception {
 		Map<String, Object> mapDetails = new HashMap<>();
@@ -160,8 +171,57 @@ public class UserManagementService {
 		PropertyMasterPK idAuthType = new PropertyMasterPK("system", "system", "authentication-type");
 		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findById(idAuthType).orElse(new PropertyMaster());
 		mapDetails.put("authTypeId", propertyMasterAuthType.getPropertyValue());
+		
+		List<JwsAuthenticationType> authenticationTypes = authenticationTypeRepository.findAll();
+		List<JwsAuthenticationTypeVO> authenticationTypesVO = new ArrayList<>();
+		
+		for (JwsAuthenticationType authenticationType : authenticationTypes) {
+			authenticationTypesVO.add(new JwsAuthenticationTypeVO().convertEntityToVO(authenticationType));
+		}
+		mapDetails.put("authenticationTypesVO", authenticationTypesVO);
+		
 		return menuService.getTemplateWithSiteLayout("user-management", mapDetails);
 		
+	}
+
+	public void updatePropertyMasterValuesAndAuthProperties(String authenticationEnabled, String authenticationTypeId,
+			String propertyJson) {
+		
+		propertyMasterRepository.updatePropertyValueByName(authenticationEnabled, "enable-user-management");
+		propertyMasterRepository.updatePropertyValueByName(authenticationTypeId, "authentication-type");
+		
+		authenticationTypeRepository.updatePropertyById(Integer.parseInt(authenticationTypeId),propertyJson);
+	}
+
+	public String manageEntityRoles() throws Exception {
+		Map<String, Object> mapDetails = new HashMap<>();
+		List<JwsRole> roles = new ArrayList<>();
+		roles = jwsRoleRepository.findAllRoles();
+		mapDetails.put("roles", roles);
+		
+		return menuService.getTemplateWithSiteLayout("manageEntityRoles", mapDetails);
+	}
+
+	public void saveUpdateEntityRole(JwsEntityRoleAssociationVO entityRoleAssociation) {
+		
+		JwsEntityRoleAssociation jwsEntityRoleAssociation = entityRoleAssociation.convertVOtoEntity(entityRoleAssociation);
+		jwsEntityRoleAssociation.setLastUpdatedBy("admin");
+		String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(jwsEntityRoleAssociation.getEntityId(),jwsEntityRoleAssociation.getRoleId());
+		jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
+		entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
+	}
+
+	public List<JwsMasterModulesVO> getModules() {
+		
+		List<JwsMasterModulesVO> masterModulesVO = new ArrayList<>();
+		List<JwsMasterModules> masterModules = new ArrayList<>();
+		masterModules = jwsmasterModuleRepository.findAll();
+		
+		for (JwsMasterModules jwsMasterModule : masterModules) {
+			masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));
+		}
+		
+		return masterModulesVO;
 	}
 
 }

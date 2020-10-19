@@ -9,7 +9,7 @@ public final class QueryStore {
     public static final String JPA_QUERY_TO_GET_MODULE_BY_MODULE_ID = "SELECT new com.trigyn.jws.dbutils.vo.ModuleDetailsVO "
     		+ " (ml.moduleId AS moduleId, COALESCE(mlI18n.moduleName, mlI18nDef.moduleName) AS moduleName "
     		+ ", ml.moduleUrl AS moduleURL, ml.parentId AS parentModuleId, COALESCE(mlI18nP.moduleName, mlI18nPDef.moduleName) AS parentModuleName "
-    		+ ", ml.sequence AS sequence, ml.targetLookupId AS targetLookupId, mtl.description AS targetLookupDesc, ml.targetTypeId AS targetTypeId) "
+    		+ ", ml.sequence AS sequence, ml.isInsideMenu AS isInsideMenu, ml.targetLookupId AS targetLookupId, mtl.description AS targetLookupDesc, ml.targetTypeId AS targetTypeId) "
     		+ " FROM ModuleListing AS ml "
     		+ " LEFT OUTER JOIN ModuleListing AS mlp ON mlp.moduleId = ml.parentId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = :languageId "
@@ -25,7 +25,7 @@ public final class QueryStore {
     		+ " FROM ModuleListing AS ml "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = :languageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
-    		+ " WHERE ml.parentId IS NULL AND ml.moduleUrl != :homeModuleURL ";
+    		+ " WHERE ml.parentId IS NULL AND ml.moduleUrl != :homeModuleURL AND ml.isInsideMenu = :isInsideMenu ";
     
     public static final String JPA_QUERY_TO_GET_ALL_MODULES_DETAILS = "SELECT new com.trigyn.jws.dbutils.vo.ModuleDetailsVO "
     		+ " (ml.moduleId AS moduleId, COALESCE(mlI18n.moduleName, mlI18nDef.moduleName) AS moduleName "
@@ -38,7 +38,7 @@ public final class QueryStore {
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nP ON mlI18nP.id.languageId = :languageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nPDef ON mlI18nPDef.id.languageId = :defaultLanguageId "
-    		+ " WHERE ml.moduleUrl != :homeModuleURL"
+    		+ " WHERE ml.moduleUrl != :homeModuleURL AND ml.sequence IS NOT NULL "
     		+ " GROUP BY ml.moduleId ORDER BY ml.sequence ASC ";
     
     public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_NAME = "SELECT ml.moduleId AS moduleId"
@@ -75,6 +75,6 @@ public final class QueryStore {
     
     public static final String JPA_QUERY_TO_GET_HOME_PAGE_MODULE_ID = "SELECT ml.moduleId AS moduleId "
     		+ " FROM ModuleListing AS ml "
-    		+ " WHERE ml.moduleUrl = :homeModuleURL AND ml.sequence = :homeModuleSequence ";
+    		+ " WHERE ml.moduleUrl = :homeModuleURL ";
     
 }

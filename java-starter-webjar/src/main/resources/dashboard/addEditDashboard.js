@@ -57,6 +57,7 @@ AddEditDashboard.prototype.fn = {
     
     saveDashboard: function(){
 		let context = this;
+		let isDataSaved = false;
 		let validData = context.validateDashletDetails();
 		if(validData == false){
 			return false;
@@ -87,12 +88,14 @@ AddEditDashboard.prototype.fn = {
 		if(validData === true){
 			$.ajax({
 				type : "POST",
+				async : false,
 				headers: {"user-id": "admin"},
 				url : contextPath+"/cf/sdb",
 				contentType : "application/json",
 				data : JSON.stringify(dashboardDetails),
 				success : function(data) {
 					$("#dashboardId").val(data);
+					isDataSaved = true;
 					showMessage("Information saved successfully", "success");
 		       	},
 	        
@@ -101,8 +104,9 @@ AddEditDashboard.prototype.fn = {
 	        	},
 	        	
 			});
-			}
-		},
+		}
+		return isDataSaved;
+	},
 
 		changeDraggableValue: function(){
 			if($("#isDraggableId").prop('checked')){

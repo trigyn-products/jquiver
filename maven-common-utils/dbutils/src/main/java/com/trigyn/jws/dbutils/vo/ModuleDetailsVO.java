@@ -14,6 +14,7 @@ public class ModuleDetailsVO implements Serializable{
 	private String parentModuleId					= null;
 	private String parentModuleName					= null;
 	private Integer sequence						= null;
+	private Integer isInsideMenu					= null;
 	private Integer targetLookupId					= null;
 	private String targetLookupDesc					= null;
 	private String targetLookupName					= null;
@@ -26,13 +27,14 @@ public class ModuleDetailsVO implements Serializable{
 	}
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,String parentModuleName
-			, Integer sequence, Integer targetLookupId, String targetLookupDesc, String targetTypeId) {
+			, Integer sequence, Integer isInsideMenu, Integer targetLookupId, String targetLookupDesc, String targetTypeId) {
 		this.moduleId 				= moduleId;
 		this.moduleName 			= moduleName;
 		this.moduleURL 				= moduleURL;
 		this.parentModuleId 		= parentModuleId;
 		this.parentModuleName 		= parentModuleName;
 		this.sequence 				= sequence;
+		this.isInsideMenu 			= isInsideMenu;
 		this.targetLookupId 		= targetLookupId;
 		this.targetLookupDesc 		= targetLookupDesc;
 		this.targetTypeId 			= targetTypeId;
@@ -121,6 +123,14 @@ public class ModuleDetailsVO implements Serializable{
 	}
 
 	
+	public Integer getIsInsideMenu() {
+		return isInsideMenu;
+	}
+
+	public void setIsInsideMenu(Integer isInsideMenu) {
+		this.isInsideMenu = isInsideMenu;
+	}
+
 	public Integer getTargetLookupId() {
 		return targetLookupId;
 	}
@@ -188,8 +198,8 @@ public class ModuleDetailsVO implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(moduleId, moduleName, moduleURL, parentModuleId, parentModuleName, sequence, subModuleCount,
-				targetLookupDesc, targetLookupId, targetTypeId);
+		return Objects.hash(isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId, parentModuleName, roleIdList,
+				sequence, subModuleCount, targetLookupDesc, targetLookupId, targetLookupName, targetTypeId);
 	}
 
 	@Override
@@ -204,22 +214,27 @@ public class ModuleDetailsVO implements Serializable{
 			return false;
 		}
 		ModuleDetailsVO other = (ModuleDetailsVO) obj;
-		return Objects.equals(moduleId, other.moduleId) && Objects.equals(moduleName, other.moduleName)
-				&& Objects.equals(moduleURL, other.moduleURL) && Objects.equals(parentModuleId, other.parentModuleId)
-				&& Objects.equals(parentModuleName, other.parentModuleName) && Objects.equals(sequence, other.sequence)
+		return Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
+				&& Objects.equals(moduleName, other.moduleName) && Objects.equals(moduleURL, other.moduleURL)
+				&& Objects.equals(parentModuleId, other.parentModuleId)
+				&& Objects.equals(parentModuleName, other.parentModuleName)
+				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(sequence, other.sequence)
 				&& Objects.equals(subModuleCount, other.subModuleCount)
 				&& Objects.equals(targetLookupDesc, other.targetLookupDesc)
 				&& Objects.equals(targetLookupId, other.targetLookupId)
+				&& Objects.equals(targetLookupName, other.targetLookupName)
 				&& Objects.equals(targetTypeId, other.targetTypeId);
 	}
 
 	@Override
 	public String toString() {
 		return "ModuleDetailsVO [moduleId=" + moduleId + ", moduleName=" + moduleName + ", moduleURL=" + moduleURL
-				+ ", parentModuleId=" + parentModuleId + ", parentModuleName=" + parentModuleName + ", sequence=" + sequence
-				+ ", targetLookupId=" + targetLookupId + ", targetLookupDesc=" + targetLookupDesc + ", targetTypeId="
-				+ targetTypeId + ", subModuleCount=" + subModuleCount + "]";
+				+ ", parentModuleId=" + parentModuleId + ", parentModuleName=" + parentModuleName + ", sequence="
+				+ sequence + ", isInsideMenu=" + isInsideMenu + ", targetLookupId=" + targetLookupId + ", targetLookupDesc="
+				+ targetLookupDesc + ", targetLookupName=" + targetLookupName + ", targetTypeId=" + targetTypeId
+				+ ", subModuleCount=" + subModuleCount + ", roleIdList=" + roleIdList + "]";
 	}
+
 
 	
 }

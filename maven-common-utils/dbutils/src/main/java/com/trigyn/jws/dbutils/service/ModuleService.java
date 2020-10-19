@@ -74,7 +74,8 @@ public class ModuleService {
 	public List<ModuleDetailsVO> getAllParentModules(String moduleId) throws Exception{
 		List<ModuleDetailsVO> parentModulesList  	= new ArrayList<>();
 		List<ModuleDetailsVO> parentModuleVOs	  	= new ArrayList<>();
-		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.HOME_PAGE_MODULE_URL, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
+		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.HOME_PAGE_MODULE_URL
+				, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID, Constant.IS_NOT_INSIDE_MENU);
 		if(!StringUtils.isBlank(moduleId)) {
 			for (ModuleDetailsVO moduleDetailsVO : parentModulesList) {
 				if(!moduleDetailsVO.getModuleId().equals(moduleId)) {
@@ -157,8 +158,15 @@ public class ModuleService {
 		if(!StringUtils.isBlank(moduleDetailsVO.getParentModuleId())) {
 			moduleListing.setParentId(moduleDetailsVO.getParentModuleId());
 		}
+		if(moduleDetailsVO.getIsInsideMenu().equals(Constant.IS_INSIDE_MENU)) {
+			moduleListing.setIsInsideMenu(moduleDetailsVO.getIsInsideMenu());
+		}else {
+			moduleListing.setSequence(moduleDetailsVO.getSequence());
+			moduleListing.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
+		}
+		
 		moduleListing.setModuleUrl(moduleDetailsVO.getModuleURL());
-		moduleListing.setSequence(moduleDetailsVO.getSequence());
+		
 		moduleListing.setTargetLookupId(moduleDetailsVO.getTargetLookupId());
 		if(!StringUtils.isBlank(moduleDetailsVO.getTargetTypeId())) {
 			moduleListing.setTargetTypeId(moduleDetailsVO.getTargetTypeId());
@@ -231,7 +239,7 @@ public class ModuleService {
 	}
 	
 	public String getHomePageModuleId() {
-		return iModuleListingRepository.getHomeModuleId(Constant.HOME_PAGE_MODULE_URL, Constant.HOME_PAGE_MODULE_SEQUENCE);
+		return iModuleListingRepository.getHomeModuleId(Constant.HOME_PAGE_MODULE_URL);
 	}
 	
 	public String saveConfigHomePage(String moduleId, Integer targetLookupTypeId, String targetTypeId) {
@@ -242,7 +250,6 @@ public class ModuleService {
 		}
 
 		moduleListing.setModuleUrl(Constant.HOME_PAGE_MODULE_URL);
-		moduleListing.setSequence(Constant.HOME_PAGE_MODULE_SEQUENCE);
 		moduleListing.setTargetLookupId(targetLookupTypeId);
 		moduleListing.setTargetTypeId(targetTypeId);
 		iModuleListingRepository.saveAndFlush(moduleListing);

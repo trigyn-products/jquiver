@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,8 +17,8 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
-@EnableWebSecurity
 @Configuration
+@Order(1)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -30,10 +30,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private ApplicationSecurityDetails applicationSecurityDetails = null;
 	
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder(10);
-	}
+	@Autowired
+	private PasswordEncoder passwordEncoder = null;
 	
 	@Bean
 	@ConditionalOnMissingBean
@@ -51,15 +49,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		String authenticationType = applicationSecurityDetails.getAuthenticationType();
 		if(authenticationType == null) {
-			auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder().encode("root")).roles("ADMIN");
+			auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
 		} else {
-			if(Constants.AuthType.INMEMORY.getAuthType().equals(authenticationType)) {
-				auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder().encode("root")).roles("ADMIN");
-			} else if (Constants.AuthType.DAO.getAuthType().equals(authenticationType)) {
-				auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-			} else if (Constants.AuthType.LDAP.getAuthType().equals(authenticationType)) {
+			Integer authType = Integer.parseInt(authenticationType);
+			if(Constants.AuthType.INMEMORY.getAuthType() == authType) {
+				auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
+			} else if (Constants.AuthType.DAO.getAuthType() == authType) {
+				auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+			} else if (Constants.AuthType.LDAP.getAuthType() == authType) {
 				// TODO : 
-			} else if (Constants.AuthType.OAUTH.getAuthType().equals(authenticationType)) {
+			} else if (Constants.AuthType.OAUTH.getAuthType() == authType) {
 				// TODO : 
 			}
 		}
@@ -84,4 +83,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	public UserDetailsService getUserDetailsService() {
+		return userDetailsService;
+	}
+
+	public AuthenticationSuccessHandler getCustomAuthSuccessHandler() {
+		return customAuthSuccessHandler;
+	}
+
+	public ApplicationSecurityDetails getApplicationSecurityDetails() {
+		return applicationSecurityDetails;
+	}
+	
 }

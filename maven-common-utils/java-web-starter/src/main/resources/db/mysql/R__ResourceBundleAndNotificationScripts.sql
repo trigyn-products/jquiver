@@ -51,8 +51,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "${(contextPath)!''''}";
 	
 	$(function () {
-	
-	    var colM = [
+		let formElement = $("#formRbRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("resource-bundle-manage-details", formDataJson);
+		
+	    let colM = [
 	        { title: "${messageSource.getMessage(''jws.resourceKey'')}", width: 130, dataIndx: "resourceKey", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage(''jws.languageName'')}", width: 100, dataIndx: "languageName", align: "left", halign: "center", 
@@ -61,7 +64,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDBResource}
 	    ];
-	    var grid = $("#divdbResourceBundleGrid").grid({
+	    let grid = $("#divdbResourceBundleGrid").grid({
 	      gridId: "resourceBundleListingGrid",
 	      colModel: colM
 	  	});
@@ -188,30 +191,41 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 			</#list>
 		</div>
 				
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<#if resourceBundleKey ?? && resourceBundleKey?has_content>
-						<input id="addResourceBundle" class="btn btn-primary" name="addResourceBundle" value="${messageSource.getMessage(''jws.save'')}" type="button" onclick="addEditResourceBundleFn.saveResourceBundle(''isEdit'');">
-					<#else>
-						<input id="addResourceBundle" class="btn btn-primary" name="addResourceBundle" value="${messageSource.getMessage(''jws.save'')}" type="button" onclick="addEditResourceBundleFn.saveResourceBundle(''isAdd'');">
-					</#if>
-					<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
-						<input id="cancelBtn" class="btn btn-secondary" name="${messageSource.getMessage(''jws.cacel'')}" value="Cancel" type="button">
-					</span> 
-				</div>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
 			</div>
 		</div>
+	</div>
+	
 
  </div>
  <script>
 	contextPath = "${(contextPath)!''''}";
+	let resourceBundleKey = "${(resourceBundleKey)!''''}";
 	var resourceBundleFormData = new Array();
 	let addEditResourceBundleFn;
 	$(function() {
 	 	const addEditResourceBundle = new AddEditResourceBundle(resourceBundleFormData);
 		addEditResourceBundleFn = addEditResourceBundle.fn;
 		addEditResourceBundleFn.loadAddEditResourceBundlePage();
+		savedAction("resource-bundle-manage-details", resourceBundleKey);
+		hideShowActionButtons();
 	});
 </script>','aar.dev@trigyn.com','aar.dev@trigyn.com',NOW());
 
@@ -290,6 +304,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		location.href = contextPath+"/cf/home";
 	}
 	$(function () {
+		let formElement = $("#addEditNotification")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("notification-add-edit", formDataJson);
+		
 		let colM = [
 	    	{ title: "",hidden: true, width: 130, dataIndx: "notificationId" },
 	        { title: "Target Platform", width: 100,  dataIndx: "targetPlatform", align: "left", halign: "center",
@@ -369,8 +387,8 @@ function editNotification(thisObj){
 </div>
 ', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW()); 
 
-
-REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,form_body,created_by,created_date,form_select_checksum,form_body_checksum) VALUES ('e848b04c-f19b-11ea-9304-f48e38ab9348','notification','notification add/edit','select * from generic_user_notification where notification_id="${(primaryId)!''''}"','<head>
+REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+('e848b04c-f19b-11ea-9304-f48e38ab9348', 'notification', 'notification add/edit', 'select * from generic_user_notification where notification_id="${(primaryId)!''''}"', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -382,6 +400,9 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 <link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script type="text/javascript" src="/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<link rel="stylesheet" type="text/css" href="/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="/webjars/1.0/fileupload/fileupload.js"></script>
 
 </head>
 <div class="container">
@@ -393,7 +414,7 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
         </#if>  
 		<div class="float-right">
                                              
-		<span onclick="backToTemplateListingPage();">
+		<span onclick="backToPreviousPage();">
 			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
 		</span>              
 	</div>
@@ -482,15 +503,26 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<input id="addNotification" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveNotification();">
-				<span onclick="backToTemplateListingPage();">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''notification-add-edit'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction(''notification-add-edit'', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction(''notification-add-edit'', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+				<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
 				</span> 
 			</div>
 		</div>
 	</div>
 </form>                             
-
+<div class="fileupload col-6 dropzone"></div>
 </div>
         
 
@@ -500,6 +532,13 @@ REPLACE INTO dynamic_form(form_id,form_name,form_description,form_select_query,f
 <script>
 contextPath = "${(contextPath)!''''}";
 let formId = "${formId}";
+let dropzoneElement = $(".fileupload").fileUpload({
+    fileUploadId : "dynamic-form",
+    successcallback: showAlert.bind(this)
+},["8a80cb81754175a10175418298b20005"]);
+function showAlert() {
+    alert("Successful");
+}
 $(function() {
 	
 	Calendar.setup({
@@ -546,27 +585,44 @@ $(function() {
 	</#list>
 </#if>
 
-
+    let isEdit = 0;
+      <#if (resultSet)?? && resultSet?has_content>
+      	isEdit = 1;
+      </#if>
+    
+	savedAction("notification-add-edit", isEdit);
+	hideShowActionButtons();
 });  
 
-function saveNotification (){
-    if(validateFields() == false){
+function saveFormData (){
+    let isDataSaved = false;
+	if(validateFields() == false){
         $("#errorMessage").show();
         return false;
     }
-	let formData = $("#genericNotificationForm").serialize() + "&formId="+formId;
+	$("#errorMessage").hide();
+	const form = $("#genericNotificationForm");
+	let serializedForm = form.serializeArray();
+	for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+		serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
+	}
+	serializedForm = $.param(serializedForm);
+	let formData = serializedForm + "&formId="+formId;
     
     $.ajax({
 	  type : "POST",
 	  url : "sdf",
+	  async: false,
 	  data : formData, 
 	  success : function(data) {
+		isDataSaved = true;
 		showMessage("Information saved successfully", "success");
 	  },
 	  error : function(xhr, error){
 		showMessage("Error occurred while saving", "error");
 	  }, 
  	});
+	return isDataSaved;
 }
 
 function validateFields(){
@@ -608,12 +664,10 @@ function validateFields(){
     return true;
 }
 
-function backToTemplateListingPage(){
+function backToPreviousPage(){
 	window.location.href=contextPath+"/cf/nl";
 }     
-</script>
-','aar.dev@trigyn.com',NOW(),null,null);
-
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
 
 REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
    'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("notificationId"))?has_content>

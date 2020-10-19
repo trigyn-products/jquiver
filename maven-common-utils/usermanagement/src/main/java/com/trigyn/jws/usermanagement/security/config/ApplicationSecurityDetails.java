@@ -33,7 +33,10 @@ public class ApplicationSecurityDetails {
 	}
 
 	public String getAuthenticationType() {
-		return authenticationType;
+		if(isAuthenticationEnabled) {
+			return authenticationType;
+		}
+		return null;
 	}
 
 	public Map<String, Object> getAuthenticationDetails() {

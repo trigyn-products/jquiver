@@ -41,6 +41,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
+		let formElement = $("#formDBRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dashboard-manage-details", formDataJson);
+		
 		let colM = [
 			{ title: "", dataIndx: "dashboardId", hidden: true},
 			{ title: "${messageSource.getMessage(''jws.dashboardName'')}", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
@@ -196,14 +200,27 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
      	</div>
 	 
 	 
-		<div class="row">
+		<div class="row margin-t-10">
 			<div class="col-12">
-				<div id="buttons" class="pull-right">		 
-	 				<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditDashboardFn.saveDashboard();">	 
-	 				<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditDashboardFn.backToDashboardListingPage();">
+				<div class="float-right">
+					<div class="btn-group dropdown custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="addEditDashboardFn.backToDashboardListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
 				</div>
-	 		</div>
-		</div>	
+			</div>
+		</div>		
 	
 	</div>
 	
@@ -221,7 +238,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  const addEditDashboard = new AddEditDashboard(contextId, dashboardType, dashboardId);
 	  addEditDashboardFn = addEditDashboard.fn;
 	  addEditDashboardFn.loadDashboardPage();
-	  
+	  savedAction("dashboard-manage-details", dashboardId);
+	  hideShowActionButtons();
 	});
 
 </script>
@@ -272,7 +290,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let dashletListing;
 	$(function () {
 	dashletListing = new DashletListing();
-		var colM = [
+		let formElement = $("#formDMRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dashlet-manage-details", formDataJson);
+		
+		let colM = [
 			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 80, dataIndx: "dashletName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 80, dataIndx: "dashletTitle", align: "left", halign: "center",
@@ -289,7 +311,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			{ title: "${messageSource.getMessage(''jws.action'')}", width: 40, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
 		];
 	
-		var grid = $("#divdDashletMasterGrid").grid({
+		let grid = $("#divdDashletMasterGrid").grid({
 			gridId: "dashletMasterListingGrid",
 			colModel: colM
 		});
@@ -555,15 +577,28 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>
 	</div>
 	 
-	<div class="row ">
-		<div class="col-12">	
-			<div class="pull-right">
-				<input type="button" value="${messageSource.getMessage(''jws.save'')}" class="btn btn-primary" onclick="addEditDashletFn.saveDashlet();">
-				<input type="button" id="cancelDashlet" value="${messageSource.getMessage(''jws.cancel'')}" class="btn btn-secondary" onclick="addEditDashletFn.backToDashletListing();">
-			</div>	
+	<div class="row margin-t-10">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+		            <div id="savedAction">
+	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		            </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            <div class="dropdown-menu action-cls"  id="actionDiv">
+		               	<ul class="dropdownmenu">
+		                   	<li id="saveAndCreateNew" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                    <li id="saveAndEdit" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		            	</ul>
+	                </div> 
+				</div>
+				<span onclick="addEditDashletFn.backToDashletListing();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
+			</div>
 		</div>
 	</div>
-	
+		
 	<textarea id="htmlContent" style="display: none">
 	   	${(dashletVO.dashletBody)!""}
 	</textarea>
@@ -579,6 +614,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let dashletSQLEditor;
 	var dashletHTMLEditor;
 	let componentArray = new Array();
+	const dashletId = "${(dashletVO.dashletId)!''''}"; 
   	<#list componentMap as categoyId, categoryDescription>
     	<#if categoyId??>
         var componentObj = new Object();
@@ -593,6 +629,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	 	const addEditDashlet = new AddEditDashlet(dashletPropertiesCount, componentArray, dashletSQLEditor, dashletHTMLEditor);
 		addEditDashletFn = addEditDashlet.fn;
 		addEditDashletFn.loadAddEditDashletPage();
+		savedAction("dashlet-manage-details", dashletId);
+		hideShowActionButtons();
 	});
 
 </script>

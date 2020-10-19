@@ -39,10 +39,16 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		</div>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-		            <label for="isActive" style="white-space:nowrap"><span class="asteriskmark">*</span>
-		              Is Active
-		            </label>   
-				<input type="checkbox" id="isActive" name="isActive" value="0" class="form-control">
+				
+				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+	            <div class="onoffswitch">
+	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" />
+	                <label class="onoffswitch-label" for="isActive">
+	                    <span class="onoffswitch-inner"></span>
+	                    <span class="onoffswitch-switch"></span>
+	                </label>
+	            </div>
+				
 			</div>
 		</div>
     	</div>
@@ -141,6 +147,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	<div id="snackbar"></div>
 </div>
 <script>
+var rolesArray = ["2ace542e-0c63-11eb-9cf5-f48e38ab9348","ae6465b3-097f-11eb-9a16-f48e38ab9348","b4a0dda1-097f-11eb-9a16-f48e38ab9348"];
 $(function () {
 	let colM = [
         { title: "Role Name", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",
@@ -158,7 +165,11 @@ $(function () {
 });
 function editRole(uiObject) {
 	let roleId = uiObject.rowData.role_id;
-  	return ''<span id="''+roleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	if(rolesArray.includes(roleId)){ 
+		return ''<span id="''+roleId+''" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
+	}else{ 
+	  	return ''<span id="''+roleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	}
 }	
 function submitForm(element) {
 	$("#roleId").val(element.id);
@@ -210,7 +221,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Manage Role Module</h2> 
+		<h2 class="title-cls-name float-left">Manage Permissions</h2> 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditModule" id="addEditModule">
@@ -233,7 +244,16 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     <tr>
                     <td>${module?api.getModuleName()}</td>
                     <#list roleIds as roleId>
-                      <td> <input id="${module?api.getModuleId()}_${roleId}" type="checkbox"> </td>
+                      <td>
+                      		<div class="onoffswitch">
+               					 <input type="checkbox" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
+                				<label class="onoffswitch-label" for="${module?api.getModuleId()}_${roleId}">
+                    				<span class="onoffswitch-inner"></span>
+                    				<span class="onoffswitch-switch"></span>
+               					 </label>
+           					 </div>	
+                       
+                       </td>
                     </#list>
                     </tr>
                   </#list>
@@ -288,7 +308,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   });
 		$.ajax({
 		     		type : "POST",
-            contentType : "application/json",
+           			contentType : "application/json",
 		     		url : contextPath+"/cf/srm",
 		     		data : JSON.stringify(roleModulesList),
 		            success: function(data) {
@@ -351,10 +371,15 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		</div>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-		            <label for="isActive" style="white-space:nowrap"><span class="asteriskmark">*</span>
-		              Is Active
-		            </label>   
-				<input type="checkbox" id="isActive" name="isActive" value="0" class="form-control">
+				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+	            <div class="onoffswitch">
+	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" />
+	                <label class="onoffswitch-label" for="isActive">
+	                    <span class="onoffswitch-inner"></span>
+	                    <span class="onoffswitch-switch"></span>
+	                </label>
+	            </div>
+				
 			</div>
 		</div>
     	</div>
@@ -363,8 +388,14 @@ Replace into template_master (template_id, template_name, template, updated_by, 
          			<div class="col-inner-form full-form-fields">
          		            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
          		              ${role?api.getRoleName()}
-         		            </label>   
-         				<input type="checkbox" id="${role?api.getRoleId()}" name="rolesAssigned" value="0" class="form-control">
+         		            </label>
+         		           <div class="onoffswitch">
+				                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox" id="${role?api.getRoleId()}" value="0" />
+				                <label class="onoffswitch-label" for="${role?api.getRoleId()}">
+				                    <span class="onoffswitch-inner"></span>
+				                    <span class="onoffswitch-switch"></span>
+				                </label>
+	           				</div>
          			</div>
  		        </div>
         
@@ -400,6 +431,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		 $("#firstName").val("${jwsUser?api.getFirstName()}"); 
         $("#lastName").val("${jwsUser?api.getLastName()}");
         $("#email").val("${jwsUser?api.getEmail()}"); 
+         $("#email").attr("disabled",true);
          if(${jwsUser?api.getIsActive()} == 1){ 
             	 $("#isActive").attr("checked",true);
             }
@@ -486,6 +518,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	<div id="snackbar"></div>
 </div>
 <script>
+var userArray = ["111415ae-0980-11eb-9a16-f48e38ab9348"];
 $(function () {
 	let colM = [
         { title: "First Name", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
@@ -505,7 +538,11 @@ $(function () {
 });
 function editUser(uiObject) {
 	let userId = uiObject.rowData.user_id;
-  	return ''<span id="''+userId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	if(userArray.includes(userId)){ 
+		return ''<span id="''+userId+''" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
+	}else{ 
+  		return ''<span id="''+userId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	}
 }	
 function submitForm(element) {
 	$("#userId").val(element.id);
@@ -521,18 +558,22 @@ function backToWelcomePage() {
 
 REPLACE INTO grid_details  VALUES ('jwsUserListingGrid','user listing','List of users','jws_user','*',1);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '<div class="row">
     <div class="col-12">
         <form id="manageRoleModule" action="/cf/mrm" method="get" class="margin-r-5 pull-left">
             <button type="submit" class="btn btn-primary"> Manage Role Modules </button>
         </form>
-
+		
+		<form id="manageEntityRoles" action="/cf/mer" method="get" class="margin-r-5 pull-left">
+            <button type="submit" class="btn btn-primary"> Manage Entity Roles </button>
+        </form>
+		
         <form id="manageRoles" action="/cf/role" method="get" class="margin-r-5 pull-left">
             <button type="submit" class="btn btn-primary">Manage role </button>
         </form>
 
-        <form id="manageRoles" action="/cf/user" method="get" class="margin-r-5 pull-left">
+        <form id="manageUsers" action="/cf/user" method="get" class="margin-r-5 pull-left">
             <button type="submit" class="btn btn-primary"> Manage Users </button>
         </form>
     </div>
@@ -548,21 +589,33 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 </label>
             </div>
         </div>
+      
+        
         <div id="authTypeDiv" class="col-4 float-left col-inner-form full-form-fields">
-            <label for="authType"><span class="asteriskmark">*</span>Authentication Type</label>
-            <select id="authType" class="form-control" onchange="updatePropertyMaster();">
-                <option value="in-memory">In Memory Authentication</option>
-                <option value="dao-based">Database Authentication</option>
-                <option value="ldap">LDAP Authentication</option>
-                <option value="oauth">Oauth</option>
-            </select>
+        <label for="authType"><span class="asteriskmark">*</span>Authentication Types</label>
+         <select id="authType" class="form-control" onchange="changeAuthentication();">
+        <#list authenticationTypesVO as authenticationType>
+            <option
+            <#if authenticationType?api.getAuthenticationProperties()??>
+                  properties=''${authenticationType?api.getAuthenticationProperties()}''
+            </#if>
+            value="${authenticationType?api.getId()}">${authenticationType?api.getAuthenticationName()}
+            </option>
+        </#list>
+        </select>
         </div>
+        <div id="props">
+          
+        </div>
+
     </div>
 </div>
 <div id="note" class="margin-t-25">
     <i>Kindly restart your server to get your configuration working.</i>
 </div>
-
+<div class="btn-icons nomargin-right-cls pull-right">
+						<input type="button" value="Save" class="btn btn-primary" onclick="saveAuthDetails();">
+					</div>
 <script>
 contextPath = "${contextPath}";
 	// set data
@@ -570,32 +623,63 @@ contextPath = "${contextPath}";
 	if(!${authEnabled?c}){
 		 $("#authTypeDiv").hide();
 	}
-	$("#authType").val("${authTypeId}");
-	
+	$("#authType").val("${authTypeId}").trigger("change");
 
     function showAuthTypeDropDown(element) {
         if(element.checked) {
             $("#authTypeDiv").show();
-            updatePropertyMaster();
         } else {
             $("#authTypeDiv").hide();
-            $("#authType").val("in-memory");
-            updatePropertyMaster();
+            $("#props").html("");
+            $("#authType").val(1);
+           
         }
     }
-    function updatePropertyMaster(){ 
+    function changeAuthentication(){ 
+      if($("#isActiveCheckbox").prop("checked")){
+        let parsedProperties;
+        let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
+        if(properties!= undefined && properties != ""){
+          parsedProperties = JSON.parse(properties);
+        }
+        $("#props").html("");
+        $.each(parsedProperties, function(key,val){
+           if(val.type=="boolean"){
+              $("#props").append(''<div class="col-4 float-left col-inner-form full-form-fields"><label for="isActiveCheckbox"><span class="asteriskmark">*</span>''+val.name
+              +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''"  /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div>'');
+              $("#"+val.name).prop("checked",val.value);
+           }
+        });
+      }
+    }
+    
+    function saveAuthDetails(){ 
     		let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
-    		
     		let authenticationTypeId= $("#authType").val();
     		
+        let parsedProperties = null;
+        let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
+        if(properties!= undefined && properties != ""){
+          parsedProperties = JSON.parse(properties);
+        }
+       
+        $.each(parsedProperties, function(key,val){
+          if(val.type=="boolean"){
+            val.value = $("#"+val.name).is(":checked");
+          }  
+        });
+        
+        
     		$.ajax({
 		     		type : "POST",
 		     		url : contextPath+"/cf/sat",
 		     		data : { 
 			     		authenticationTypeId:authenticationTypeId,
-			     		authenticationEnabled:authenticationEnabled
+			     		authenticationEnabled:authenticationEnabled,
+              propertyJson:JSON.stringify(parsedProperties)
 		     		},
 		            success: function(data) {
+                showMessage("Information saved successfully", "success");
 		            }
 		     	});
     
@@ -618,7 +702,7 @@ contextPath = "${contextPath}";
    'system'
   ,'system'
   ,'authentication-type'
-  ,'in-memory'
+  ,'1'
   ,0
   ,now()
   ,'admin'
@@ -664,42 +748,61 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="author" content="">
     <title>Please sign in</title>
    
-    	<script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-		</script>
+        <script>
+            var loggedInUser = ${loggedInUser?c};
+            if(loggedInUser == false){ 
+                $(".nav-link").hide();
+            }
+        </script>
   </head>
-  <body>
-     <div class="container">
-      <form class="form-signin" method="post" action="/cf/login">
-        <h2 class="form-signin-heading">Please sign in JWS</h2>
-        	<#if queryString?? && queryString == "error">
-        		<div class="alert alert-danger" role="alert">Bad Credentials</div>
-        	<#elseif queryString?? &&  queryString == "logout">
-        		<div class="alert alert-success" role="alert">You have been signed out</div> 
-        </#if>
-		<#if resetPasswordSuccess??>
-        		<div class="alert alert-success" role="alert">${resetPasswordSuccess} </div>
-        </#if>
-        <p>
-          <label for="username" class="sr-only">Email</label>
-          <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
-        </p>
-        <p>
-          <label for="password" class="sr-only">Password</label>
-          <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
-        </p>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        <p>
-        <a href="/cf/resetPasswordPage">Forgot password?</a> 
-        </p>
-        <p >New to TSMS?
-        <a href="/cf/register"> Click here to register</a>
-        </p>
-      </form>
-</div>
+<body>
+<div class="container">
+
+    <div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+
+        <div class="col-5">
+            <form class="form-signin" method="post" action="/cf/login">
+                <h2 class="form-signin-heading text-center">Welcome To JQuiver
+                </h2>
+                <#if queryString?? && queryString == "error">
+                    <div class="alert alert-danger" role="alert">Bad Credentials</div>
+                <#elseif queryString?? &&  queryString == "logout">
+                    <div class="alert alert-success" role="alert">You have been signed out</div> 
+                </#if>
+                <#if resetPasswordSuccess??>
+                    <div class="alert alert-success" role="alert">${resetPasswordSuccess} </div>
+                </#if>
+                <p class="divdeform">
+                    <label for="username" class="formlablename">Email</label>
+                    <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter Your Email" required autofocus>
+                </p>
+                <p class="divdeform"> 
+                    <label for="password" class="formlablename">Password</label>
+                    <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>
+                    <span class="passview"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                    <span class="remebermeblock">
+                        <input type="checkbox">   <label>Remeber Me</label>
+                    </span>    
+                    <span class="forgotpassword">
+                        <a href="/cf/resetPasswordPage">Forgot password?</a> 
+                    </span>
+                </p>
+       
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                <p class="registerlink">New User?
+                    <a href="/cf/register"> Click here to register</a>
+                </p>
+            </form>
+        </div>
+    </div>   
+</div> 
+
 </body></html>','admin','admin',now());
 
 
@@ -762,40 +865,6 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </body>    
 ','admin','admin',now());
 	
-
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'successfulRegisteration', ' 
-<head>
-     <title>Registration confirmation sent </title>
-     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-		</script>
-</head>
-<body>
-            <span>A verification email has been sent to:   ${emailId}</span>
- </body>    
-','admin','admin',now());
-
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'accountVerified', ' 
-	<head>
-        <title>Congratulations!</title>
-        
-     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-		</script>   
-    </head>
-    <body>
-            <h3>Congratulations! Your account has been activated and email is verified!</h3>
-            <a href="login">Click here to Login</a> 
-    </body>    
-','admin','admin',now());
 
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
@@ -958,6 +1027,200 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             <a href="/cf/login">Click here to Login</a> 
     </body>    
 ','admin','admin',now());
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'my-profile', ' 
+<head>
+     <title>My Profile </title>
+     <script>
+			var loggedInUser = ${loggedInUser?c};
+			if(loggedInUser == false){ 
+				$(".nav-link").hide();
+			}
+		</script>
+</head>
+<body>
+	${userName}
+</body>
+            
+','admin','admin',now());
+
+
+
+REPLACE INTO grid_details  VALUES ('manageEntityRoleGrid','manage entity roles listing','Entities and role association','manageEntityRoleListing','entityName,moduleId',2);
+
+DROP PROCEDURE IF EXISTS manageEntityRoleListing;
+CREATE PROCEDURE `manageEntityRoleListing`(entityName varchar(50), moduleId varchar(50),forCount INT, limitFrom INT, limitTo INT
+,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+
+  SET @selectRoleQuery  =  (SELECT GROUP_CONCAT(CONCAT ('GROUP_CONCAT(CASE WHEN jr.role_name="',jr.role_name,'" THEN CONCAT(jera.role_id,"@::@",jera.is_active) END)  AS ',jr.role_name)) FROM jws_role jr ORDER BY jr.role_name);
+
+  SET @resultQuery = CONCAT(" SELECT jera.entity_role_id AS entityRoleId,jera.entity_id AS entityId,jera.entity_name AS entityName,jera.module_id AS moduleId,jmm.module_name AS moduleName, "
+  ,@selectRoleQuery ) ;
+  SET @fromString  = ' FROM  jws_role jr RIGHT OUTER JOIN jws_entity_role_association jera ON jera.role_id = jr.role_id INNER JOIN jws_master_modules jmm ON jmm.module_id = jera.module_id ';
+  SET @whereString = ' WHERE jr.is_active=1 ';
+  
+  IF NOT moduleId IS NULL THEN
+    SET @moduleId= REPLACE(moduleId,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jera.module_id like ''%',@moduleId,'%''');
+  END IF;
+  
+  IF NOT entityName IS NULL THEN
+    SET @entityName= REPLACE(entityName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND entity_name like ''%',@entityName,'%''');
+  END IF;
+  
+  
+  
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY last_updated_date DESC');
+  END IF;
+  
+  SET @groupByString = CONCAT(' GROUP BY jera.entity_id ');
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString,@orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+
+  
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+ 
+END;
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+(UUID(), 'manageEntityRoles', '
+<head>
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+	<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+	<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.roleMaster'')}</h2> 
+		<div class="float-right">
+    		<span onclick="backToPreviousPage();">
+    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+    	 	</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="divManageEntityRoleGrid"></div>
+
+	<div id="snackbar"></div>
+</div>
+<script>
+let grid;
+let contextPath= "${contextPath}";
+let moduleType = [{"": "All"}];
+
+ $.ajax({
+			type : "GET",
+			url : contextPath+"/cf/modules",
+			async: false,
+			success : function(data) {
+			debugger
+				for(let counter = 0; counter < data.length; ++counter) {
+					let object = data[counter];
+					let details = new Object()
+					details[object["moduleId"]] = object["moduleName"];
+					moduleType.push(details);
+				}
+			}
+		});
+
+
+
+$(function () {
+	let colM = [
+		 { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
+        filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
+        { title: "Entity Name", width: 130, align: "center", dataIndx: "entityName", align: "left", halign: "center",
+        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        <#list roles as role>
+              { title: "${role?api.getRoleName()}", width: 100, align: "center",  dataIndx: "${role?api.getRoleName()}", halign: "center",
+        attr:"${role?api.getRoleId()}", render:addCheckBox },
+        
+        </#list>
+        
+        { title: "Action", width: 30, align: "center",  dataIndx: "action" }
+	];
+     grid = $("#divManageEntityRoleGrid").grid({
+      gridId: "manageEntityRoleGrid",
+      colModel: colM
+  });
+});
+
+function moduleTypes(uiObject){
+  let cellValue = uiObject.rowData.moduleId;
+  return moduleType.find(el => el[cellValue])[cellValue];
+}
+
+function addCheckBox(uiObject) {
+	let rowIndxPage = uiObject.rowIndxPage;
+  let columnName = uiObject.dataIndx;
+  
+  let attrChecked = uiObject.rowData[columnName]== null?false:uiObject.rowData[columnName].split("@::@")[1]=="0"?false:true;
+  if(attrChecked){
+    return "<input type=''checkbox'' checked onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
+  }
+  else{
+    return "<input type=''checkbox'' onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
+  }
+	
+}	
+
+function saveEntityRole(thisObj){
+  let attrChecked = thisObj.checked == true?1:0 ;
+  let columnName = thisObj.getAttribute("col");
+  let rowData = grid.pqGrid( "getRowData", {rowIndxPage: thisObj.getAttribute("rowIndxPage")} );
+  let colData = grid.pqGrid( "getColumn",{ dataIndx: columnName } );
+  let entityRoleId  =  rowData[columnName] == null?null:rowData["entityRoleId"];
+  let entityData = new Object();
+  entityData.roleId= colData["attr"];
+  entityData.entityName = rowData["entityName"];
+  entityData.moduleId = rowData["moduleId"];
+  entityData.entityId = rowData["entityId"];
+  entityData.isActive = attrChecked;
+
+  $.ajax({
+		     		type : "POST",
+            contentType : "application/json",
+		     		url : contextPath+"/cf/suer",
+		     		data : JSON.stringify(entityData),
+		            success: function(data) {
+		              
+		            }
+		     	});
+
+
+}
+
+function backToPreviousPage() {
+	location.href = "/cf/um";
+}
+
+</script>','admin','admin',now());
+
 
 
 

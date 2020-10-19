@@ -26,6 +26,7 @@ class AddEditAutocomplete{
 	
 	saveAutocompleteDetail = function(){
 		const context = this;
+		let isDataSaved = false;
 		const validData = this.validateData();
         if(validData == false) {
         	return false;
@@ -42,9 +43,11 @@ class AddEditAutocomplete{
 		
 		$.ajax({
 			type : "POST",
+			async : false,
 			url :  contextPath+"/cf/sacd",
 			data : serializedForm,
 			success : function(data) {
+				isDataSaved = true;
 				showMessage("Information saved successfully", "success");
 	       	},
         	error : function(xhr, error){
@@ -52,6 +55,7 @@ class AddEditAutocomplete{
         	},
 	        	
 		});
+		return isDataSaved;
 	}
 	
 	validateData = function() {

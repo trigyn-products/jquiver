@@ -19,7 +19,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.gridUtils'')}</h2> 
 		<div class="float-right">
-		<form id="addEditNotification" action="/cf/df" method="post" class="margin-r-5 pull-left">
+		<form id="addEditGridForm" action="/cf/df" method="post" class="margin-r-5 pull-left">
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
 	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
 	            <button type="submit" class="btn btn-primary">Add Grid Details</button>
@@ -44,6 +44,10 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 			location.href = contextPath+"/cf/home";
 	}
 	$(function () {
+		let formElement = $("#addEditGridForm")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("grid-details-form", formDataJson);
+		
 		let colM = [
 	        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -70,7 +74,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	
 	function submitForm(element) {
 		$("#primaryId").val(element.id);
-		$("#addEditNotification").submit();
+		$("#addEditGridForm").submit();
 	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
@@ -154,19 +158,30 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		</div>
 		<!-- Your form fields end -->
 		
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
+	</form>	
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''grid-details-form'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''grid-details-form'', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''grid-details-form'', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
 			</div>
 		</div>
+	</div>
 		
-	</form>
+
 
 
 </div>
@@ -188,10 +203,18 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         		$("#queryType option[value=''${resultSetList?api.get("queryType")}'']").attr("selected", "selected");
     	    </#list>
         </#if>
+        
+        let isEdit = 0;
+      	<#if (resultSet)?? && resultSet?has_content>
+      		isEdit = 1;
+      	</#if>
+    
+		savedAction("grid-details-form", isEdit);
+		hideShowActionButtons();
 	});   
 
-	//Add logic to save form data
 	function saveData (){
+		let isDataSaved = false;
 		if(validateFields() == false){
 	        $("#errorMessage").show();
 	        return false;
@@ -200,14 +223,17 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		$.ajax({
 		  type : "POST",
 		  url : contextPath+"/cf/sdf",
+		  async: false,
 		  data : formData,
           success : function(data) {
+          	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 		  },
 	      error : function(xhr, error){
 			showMessage("Error occurred while saving", "error");
 	      },
 		});
+		return isDataSaved;
 	}
 	
 	function validateFields(){
@@ -293,7 +319,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "";
 	let grid;
 	$(function () {
-	//Add all columns that needs to be displayed in the grid
+	    let formElement = $("#addEditProperty")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("property-master-form", formDataJson);
+		
 		let colM = [
 			{ title: "Owner Id", width: 130, dataIndx: "owner_id", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -310,7 +339,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
 		];
 	
-	//System will fecth grid data based on gridId
 		grid = $("#propertyMasterListingGrid").grid({
 	      gridId: "propertyMasterGrid",
 	      colModel: colM
@@ -318,13 +346,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	});
 	
-	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
 	function manageRecord(uiObject) {
         let rowIndx = uiObject.rowIndx;
 		return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
 	}
 	
-	//Add logic to navigate to create new record
 	function createNew(element) {
 		let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
 		$("#ownerId").val(rowData.owner_id);
@@ -333,7 +359,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		$("#addEditProperty").submit();
 	}
 
-	//Code go back to previous page
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
@@ -419,19 +444,29 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		<!-- Your form fields end -->
 		
 		
-		<div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
+	</form>
+	<div class="row margin-t-10">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+			      <div id="savedAction">
+		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''property-master-form'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		     	   </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		           	<div class="dropdown-menu action-cls"  id="actionDiv">
+		               	<ul class="dropdownmenu">
+		                  	<li id="saveAndCreateNew" onclick="typeOfAction(''property-master-form'', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		    	            <li id="saveAndEdit" onclick="typeOfAction(''property-master-form'', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+			            </ul>
+		            </div> 
+	            </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
 			</div>
 		</div>
+	</div>
 		
-	</form>
-
 
 </div>
 
@@ -442,8 +477,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	let formId = "${formId}";
 	let edit = 0;
 	
-	//Add logic to save form data
 	function saveData (){
+		let isDataSaved = false;
 	    if(validateFields() == false){
 	        $("#errorMessage").show();
 	        return false;
@@ -456,15 +491,18 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		}
 		$.ajax({
 		  type : "POST",
+		  async: false,
 		  url : contextPath+"/cf/sdf",
 		  data : formData,
           success : function(data) {
+          	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 		  },
 	      error : function(xhr, error){
 			showMessage("Error occurred while saving", "error");
 	      },
      	});
+     	return isDataSaved;
 	}
 	
     function validateFields(){
@@ -482,7 +520,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         return true;
     }
 	
-	//Code go back to previous page
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/pml"
 	}
@@ -504,6 +541,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         <#if (requestDetails?api.get("ownerId")) != "">
             edit = 1;
         </#if>
+        savedAction("property-master-form", edit);
+        hideShowActionButtons();
 	});
 </script>
 	', 'aar.dev@trigyn.com', NOW(), NULL, NULL);

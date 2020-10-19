@@ -58,6 +58,7 @@ AddEditDashlet.prototype.fn = {
 	
 	saveDashlet : function() {
 		let context = this;
+		let isDataSaved = false;
  		let dashlet = new Object();
  		let dashletPropertVOList = new Array();
 		let isValid = context.validateDashletMandatoryFields();
@@ -104,6 +105,7 @@ AddEditDashlet.prototype.fn = {
 	
 			$.ajax({
 				type : "POST",
+				async : false,
 				url :  contextPath+"/cf/sdl",
 	        	contentType : "application/json",
 	        	headers: {
@@ -112,6 +114,7 @@ AddEditDashlet.prototype.fn = {
 				data : JSON.stringify(dashlet),
 				success : function(data) {
 					$("#dashletId").val(data);
+					isDataSaved = true;
 					showMessage("Information saved successfully", "success");
 		       	},
 	        
@@ -124,6 +127,7 @@ AddEditDashlet.prototype.fn = {
 			$("#errorMessage").show();
 			window.scrollTo(0, 0);
 		}
+		return isDataSaved;
 	},
 
 	validateDashletMandatoryFields : function(){

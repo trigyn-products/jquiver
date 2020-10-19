@@ -17,7 +17,7 @@ SET FOREIGN_KEY_CHECKS=0;
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.restAPIBuilder'')}</h2> 
 		<div class="float-right">
-			<form id="addEditNotification" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
+			<form id="addEditDynarest" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
                 <input type="hidden" name="primaryId" id="primaryId" value=""/>
                 <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
@@ -41,6 +41,9 @@ contextPath = "${(contextPath)!''''}";
 let requestType = [{"": "All"}];
 let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}, {"3": "Javascript"}];
 $(function () {
+		let formElement = $("#addEditDynarest")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dynamic-rest-form", formDataJson);
   $.ajax({
 			type : "GET",
 			url : contextPath+"/api/dynarestDetails",
@@ -94,7 +97,7 @@ function editDynarest(uiObject) {
 
 function submitForm(element) {
   $("#primaryId").val(element.id);
-  $("#addEditNotification").submit();
+  $("#addEditDynarest").submit();
 }
 	
 function backToWelcomePage() {
@@ -106,10 +109,9 @@ function backToWelcomePage() {
 replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
 jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
-jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId 
+jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId, jdrd.jws_allow_files AS allowFiles 
 from jws_dynamic_rest_details as jdrd 
-where jdrd.jws_dynamic_rest_url = "${primaryId}"
-	', '    	<head>
+where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -145,7 +147,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestUrl">REST URL </label>
-					<span><label style="background: lightgrey;" class="float-right">${requestDetails?api.get("urlPrefix")!""}<label></span>
+					<span><label id="urlPrefixLabel" style="background: lightgrey;" class="float-right">${requestDetails?api.get("urlPrefix")!""}<label></span>
 					<span id="dynarestURLSapn">
 						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" placeholder="REST URL" />
 					</span>
@@ -173,7 +175,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestRequestTypeId">HTTP Method Type  </label>
-					<select class="form-control" id="dynarestRequestTypeId" name="dynarestRequestTypeId" title="HTTP Method Type">
+					<select class="form-control" id="dynarestRequestTypeId" name="dynarestRequestTypeId" onchange="dynarest.hideShowAllowFiles()" title="HTTP Method Type">
                          </select>
 				</div>
 			</div>
@@ -185,17 +187,30 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
                          </select>
 				</div>
 			</div>
-
+			
 			<div class="col-3">
 				<span class="asteriskmark">*</span><label for="dynarestPlatformId">Platform Id</label>
 				<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this.value)" name="dynarestPlatformId" title="Platform Id">
-                                    <option value="2" selected="selected"> FTL </option>
-                                    <option value="1"> JAVA </option>
-                                    <option value="3"> Javascript </option>
-                     </select>
+                        <option value="2" selected="selected"> FTL </option>
+                        <option value="1"> JAVA </option>
+                        <option value="3"> Javascript </option>
+                </select>
 			</div>
-
-		
+			
+			<div id="allowFilesDiv" class="col-3" style="display:none;">
+				<div class="col-inner-form full-form-fields">
+					<label  for="contextType">Allow Files</label>
+					<div class="onoffswitch">
+						<input type="hidden" id="allowFiles" name="allowFiles" />
+						<input type="checkbox" name="allowFilesCheckbox" class="onoffswitch-checkbox" id="allowFilesCheckbox" onchange="toggleAllowFiles()" />
+						<label class="onoffswitch-label" for="allowFilesCheckbox">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+			
 			</div>
 			
 			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
@@ -229,44 +244,76 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 		</div>
 </div>
 
-<div class="row">
-		<div class="col-12">
-			<div class="float-right">
-				<input id="addDynarest" class="btn btn-primary" name="addDynarest" value="Save" type="button" onclick="dynarest.saveDynarest(''${formId}'');">
-				<span onclick="dynarest.backToDynarestListingPage();">
-                            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-                        </span>
-			</div>
-		</div>
-	</div>
 	<input type="hidden" name="serviceLogic" id="serviceLogic">
 	<input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">
     </form>
+    
+    <div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dynamic-rest-form'', this, dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''dynamic-rest-form'', this, dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''dynamic-rest-form'', this, dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="dynarest.backToDynarestListingPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+	
 </div>
 <script type="text/javascript">
 	let contextPath = "${contextPath}";
-  let dynarest;
+	let dynarest;
+	let formId = "${(formId)!''''}";
+    let urlPrefix = "${requestDetails?api.get("urlPrefix")!""}";
+	function togglePlatform(element) {
+    	if(element.value == "8" || element.value == "10") {
+        	$("#dynarestPlatformId option[value=1]").prop("selected", true);
+            $("#dynarestPlatformId option[value=2]").prop("disabled", true);
+        } else {
+            $("#dynarestPlatformId option[value=2]").prop("disabled", false);
+        }
+        dynarest.hideShowAllowFiles();
+        showMethodSignature($("#dynarestPlatformId").val());
+  	}
 
-  function togglePlatform(element) {
-         if(element.value != "7" && $("#dynarestProdTypeId").val() == "10" && element.value != "8" && element.value != "12") {
-              $("#dynarestPlatformId option[value=1]").prop("selected", true);
-              $("#dynarestPlatformId option[value=2]").prop("disabled", true);
-         } else {
-              $("#dynarestPlatformId option[value=2]").prop("disabled", false);
-         }
-         showMethodSignature($("#dynarestPlatformId").val());
-  }
-
+	function toggleAllowFiles(){
+		let filesAllowed = $("#allowFilesCheckbox").prop("checked");
+		if(filesAllowed === true){
+			$("#allowFiles").val(1);
+		}else{
+			$("#allowFiles").val(0);
+		}
+        showMethodSignature($("#dynarestPlatformId").val());
+	}
+	 
   function showMethodSignature(value){
          if(value == "1"){
-              $("#methodSignatureDiv").show();
-              if($("#dynarestProdTypeId").val() == "8" || $("#dynarestProdTypeId").val() == "10") {
-			$("#methodSignature").html("public FileInfo "+$("#dynarestMethodName").val()+
-                     "(Multipart[] files, HttpServletRequest a_httpServletRequest, Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
-              }	else {
-              	$("#methodSignature").html("public T "+$("#dynarestMethodName").val()+
-                     "(HttpServletRequest a_httpServletRequest, Map<String, Object> requestParameters, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }");
-              }
+            $("#methodSignatureDiv").show();
+            if($("#dynarestProdTypeId").val() == "8" || $("#dynarestProdTypeId").val() == "10") {
+                let allowFileInput = $("#allowFilesCheckbox").prop("checked");
+                $("#methodSignature").html("public FileInfo "+ $("#dynarestMethodName").val() + "(" +
+                (allowFileInput == false ? "" : " Multipart[] files, ") + 
+                "HttpServletRequest a_httpServletRequest, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }")
+                let fileUrl = urlPrefix.replaceAll("api/", "file/api/");
+                $("#urlPrefixLabel").html(fileUrl);
+                $("#urlPrefixLabel").effect( "highlight", {color:"yellow"}, 3000 );
+            } else {
+                $("#methodSignature").html("public T " + $("#dynarestMethodName").val() + 
+                "(HttpServletRequest a_httpServletRequest, Map<String, Object> daoResultSets, UserDetailsVO userDetails) { }");
+                $("#urlPrefixLabel").html(urlPrefix);
+                $("#urlPrefixLabel").effect( "highlight", {color:"yellow"}, 3000 );
+            }
          } else {
               $("#methodSignatureDiv").hide();
          }
@@ -278,7 +325,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
   }
 
   $(function () {
-      dynarest = new DynamicRest();
+      dynarest = new DynamicRest(formId);
 	  $("#methodSignatureDiv").hide();
 	  <#if (resultSet)?? && resultSet?has_content>
 		<#list resultSet as resultSetList>
@@ -288,18 +335,29 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"
 				$("#dynarestMethodName").val(''${(resultSetList?api.get("dynarestMethodName"))!''''}'');
 				$("#dynarestMethodDescription").val(''${(resultSetList?api.get("dynarestMethodDescription"))!''''}'');
 				$("#dynarestPlatformId option[value=''${(resultSetList?api.get("dynarestPlatformId"))!''''}'']").prop("selected", "selected");
-				
-        dynarest.populateDetails(''${(resultSetList?api.get("dynarestRequestTypeId"))!''''}'',
-        ''${(resultSetList?api.get("dynarestProdTypeId"))!''''}'',''${(resultSetList?api.get("dynarestUrl"))!''''}'');
+				$("#allowFiles").val(''${(resultSetList?api.get("allowFiles"))!''''}'');
+                dynarest.populateDetails(''${(resultSetList?api.get("dynarestRequestTypeId"))!''''}'',
+                ''${(resultSetList?api.get("dynarestProdTypeId"))!''''}'',''${(resultSetList?api.get("dynarestUrl"))!''''}'');
 			</#if>
 		</#list>
 	<#else>
 	    dynarest.populateDetails();
 	</#if>
 	
+	let allowFiles = $("#allowFiles").val();
+	if(allowFiles === "1"){
+		$("#allowFilesCheckbox").prop("checked", true);
+	}else{
+		$("#allowFilesCheckbox").prop("checked", false);
+	}
+	let isEdit = 0;
+    <#if (resultSet)?? && resultSet?has_content>
+    	isEdit = 1;
+    </#if>
+	savedAction("dynamic-rest-form", isEdit);
+	hideShowActionButtons();
   });
-</script>
-	', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
 
 REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
 ('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
@@ -312,9 +370,10 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
         ,jws_rbac_id = 1
         ,jws_service_logic = ''${formData?api.getFirst("serviceLogic")}''
         ,jws_platform_id = ''${formData?api.getFirst("dynarestPlatformId")}''
+        ,jws_allow_files = ''${formData?api.getFirst("allowFiles")}''
     WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
 <#else>
-    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES (
+    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files) VALUES (
          ''${formData?api.getFirst("dynarestUrl")}''
          , ''${formData?api.getFirst("dynarestMethodName")}''
          , ''${formData?api.getFirst("dynarestMethodDescription")}''
@@ -323,6 +382,7 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
          , ''${formData?api.getFirst("dynarestProdTypeId")}''
          ,''${formData?api.getFirst("serviceLogic")}''
          , ''${formData?api.getFirst("dynarestPlatformId")}''
+         , ''${formData?api.getFirst("allowFiles")}''
     );
 </#if>', 1);
 

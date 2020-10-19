@@ -56,17 +56,10 @@ public class DynamicFormCrudDAO extends DBConnection {
 		query.executeUpdate();
 	}
 	
-	public void deleteFormQueriesByIds(String formId, List<String> formQueryIds) {
+	public void deleteFormQueriesByIds(String formId) {
 		StringBuilder deleteFormQuery = new StringBuilder("DELETE FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ");
-		
-		if(!CollectionUtils.isEmpty(formQueryIds)) {
-			deleteFormQuery.append(" AND dfs.dynamicFormQueryId NOT IN(:formQueryIds) ");
-		}
 		Query query = getCurrentSession().createQuery(deleteFormQuery.toString());
 		query.setParameter("formId", formId);
-		if(!CollectionUtils.isEmpty(formQueryIds)) {
-			query.setParameterList("formQueryIds", formQueryIds);
-		}
 		query.executeUpdate();
 	}
 	

@@ -64,4 +64,12 @@ public class MenuService {
 		return templateEngine.processMultipleTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap, childTemplateDetails);
 	}
 	
+	public String getTemplateWithoutLayout(String template, Map<String, Object> templateParamMap) throws Exception{
+		Map<String, Object> templateMap = new HashMap<>();
+		if(templateParamMap != null) {
+			templateMap.putAll(templateParamMap);
+		}
+		TemplateVO templateVO = templatingService.getTemplateByName(template);
+		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
+	}
 }

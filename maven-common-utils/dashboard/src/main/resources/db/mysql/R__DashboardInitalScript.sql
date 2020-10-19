@@ -1,5 +1,5 @@
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashlet-common-div', '
+('0d91402d-1062-11eb-a867-f48e38ab8cd7', 'dashlet-common-div', '
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 
  
@@ -34,7 +34,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
   
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashlets', '
+('1389accc-1062-11eb-a867-f48e38ab8cd7', 'dashlets', '
 	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -205,7 +205,7 @@ function backToDashboardPage() {
 <div id="configurationDialog"></div></div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'dashlet-configuration', '
+('1f8682c4-1062-11eb-a867-f48e38ab8cd7', 'dashlet-configuration', '
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -234,20 +234,20 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 ','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'select', '<script type="text/javascript">
+('25e7cb01-1062-11eb-a867-f48e38ab8cd7', 'select', '<script type="text/javascript">
 </script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <select id="" class="select form-control" name=""></select>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'text', '<script type="text/javascript"></script>
+('2ab671a3-1062-11eb-a867-f48e38ab8cd7', 'text', '<script type="text/javascript"></script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <input type="text" id="" name="" value="" class="form-control"/>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'rangeslider', '<div class="col-lg-9 col-md-9 col-sm-8">
+('2ff2b7ea-1062-11eb-a867-f48e38ab8cd7', 'rangeslider', '<div class="col-lg-9 col-md-9 col-sm-8">
 <div class="range-slider">
 <input type="range" id="" class="range-slider__range" name="${property.propertyId}" value="" min="0" max="${property.value}" step="1"/>
 <span id="slider-value_" class="range-slider__value"></span>
@@ -255,12 +255,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'number', '<script type="text/javascript"></script><div class="col-lg-9 col-md-9 col-sm-8">
+('369aa97d-1062-11eb-a867-f48e38ab8cd7', 'number', '<script type="text/javascript"></script><div class="col-lg-9 col-md-9 col-sm-8">
 <input type="number" min="0" id="" name="" value="" class="form-control"/>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'datepicker', '<script src="${contextPath}/resources/jscore/jquery/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+('3b902ade-1062-11eb-a867-f48e38ab8cd7', 'datepicker', '<script src="${contextPath}/resources/jscore/jquery/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
 <script type="text/javascript">
 jQuery(function() {
 	var dates = jQuery(".date").datepicker({
@@ -276,7 +276,7 @@ jQuery(function() {
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'checkbox', '<div class="col-lg-9 col-md-9 col-sm-8">
+('40a58aae-1062-11eb-a867-f48e38ab8cd7', 'checkbox', '<div class="col-lg-9 col-md-9 col-sm-8">
  <div class="control--checkbox">
   <input type="checkbox" class="roles" name="${property.propertyId}" value="true" />
   <label for="checkbox1"><span></span>True</label>
@@ -286,4 +286,4 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+('46154204-1062-11eb-a867-f48e38ab8cd7', 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());

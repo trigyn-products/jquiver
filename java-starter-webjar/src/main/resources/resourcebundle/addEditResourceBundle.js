@@ -62,6 +62,7 @@ AddEditResourceBundle.prototype.fn = {
 	
 	saveResourceBundle : function(addEditFlag){
 		let context = this;
+		let isDataSaved = false;
 		let validData = context.validateKey(addEditFlag);
 	    if (validData == false) {
 			return false;
@@ -78,17 +79,20 @@ AddEditResourceBundle.prototype.fn = {
 	
 		$.ajax({
 			type : "POST",
+			async: false,
 			contentType : "application/json",
 			url : contextPath+"/cf/srb?resourceBundleKey="+resourceBundleKey,
 			data :  JSON.stringify(resourceBundleFormData),
 			dataType : "json",				
 			success : function(data) {
+				isDataSaved = true;
 				showMessage("Information saved successfully", "success");
 	        },
 	       	error : function(xhr, error){
 				showMessage("Error occurred while saving", "error");
 	        },
 		});
+		return isDataSaved;
 	},
 	
 	validateKey : function(addEditFlag){

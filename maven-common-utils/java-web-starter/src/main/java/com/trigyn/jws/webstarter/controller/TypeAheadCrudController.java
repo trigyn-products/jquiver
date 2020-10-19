@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class TypeAheadCrudController {
 			String autocompleteId 				= request.getParameter("acId");
 			Map<String, Object> templateData 	= new HashMap<>();
 			
-			if (autocompleteId != null) {
+			if (!StringUtils.isBlank(autocompleteId)) {
 				AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 				templateData.put("autocompleteVO", autocompleteVO);
 			}

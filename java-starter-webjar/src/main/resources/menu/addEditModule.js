@@ -7,6 +7,7 @@ class AddEditModule {
     saveModule = function(){
     	let context = this;		
     	let moduleDetails = new Object();	
+    	let isDataSaved = false;
     	if($("#moduleId").val() !== ""){
 			moduleDetails.moduleId = $("#moduleId").val();
 		}	
@@ -20,13 +21,13 @@ class AddEditModule {
 			return false;
 		}
 		
-		
 		moduleDetails.moduleName = $("#moduleName").val();
 		moduleDetails.parentModuleId = $("#parentModuleName").find(":selected").val();
 		moduleDetails.moduleURL = $("#moduleURL").val();
 		moduleDetails.sequence = $("#sequence").val();
 		moduleDetails.targetLookupId = $("#targetLookupType").find(":selected").val();
 		moduleDetails.targetTypeId = $("#targetTypeNameId").val();
+		moduleDetails.isInsideMenu =  $("#isInsideMenu").val();
 		
 		$.ajax({
 				type : "POST",
@@ -37,8 +38,8 @@ class AddEditModule {
 				success : function(data) {
 					$("#errorMessage").hide();
 					context.parentModuleId = $("#parentModuleName").find(":selected").val();
-					$("#moduleId").val(data);
 					showMessage("Information saved successfully", "success");
+					isDataSaved = true;
 		       	},
 	        
 	        	error : function(xhr, error){
@@ -46,6 +47,7 @@ class AddEditModule {
 	        	},
 	        	
 			});
+		return 	isDataSaved;
     }
     
     validateMandatoryFileds = function(){
@@ -72,7 +74,7 @@ class AddEditModule {
    		}
    		
    		let sequence = $("#sequence").val().trim();
-   		if(sequence === ""){
+   		if(sequence === "" && ($("#insideMenuCheckbox").prop("checked")) === false){
    			$("#sequence").focus();
    			$('#errorMessage').html("Please enter sequence number");
    			return false;
@@ -150,22 +152,25 @@ class AddEditModule {
 	    	$("#targetTypeName").attr('disabled','disabled');
 	    	$("#moduleURL").attr('disabled','disabled');
 	    	$("#parentModuleName").attr('disabled','disabled');
+	    	$("#insideMenuCheckbox").prop('checked',false);
+	    	$("#insideMenuCheckbox").attr('disabled','disabled');
 	    	if(isEditFlag === undefined){
 	    		context.getSequenceByGroup();
 	    	}
-    		return;
     	}else{
     		$("#parentModuleName").val(context.parentModuleId);
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
+	    	$("#insideMenuCheckbox").prop('disabled',false);
 	    	if(isEditFlag === undefined){
 	    		$("#moduleURL").val("");
 	    		$("#targetTypeName").val("");
 	    		$("#targetTypeNameId").val("");
 	    	}
 	    	$("#parentModuleName").prop('disabled',false);
+	    	autocomplete.options.autocompleteId = context.getAutocompleteId();
     	}
-    	autocomplete.options.autocompleteId = context.getAutocompleteId();
+    	context.insideMenuOnChange();
     }
     
     getAutocompleteId = function(){
@@ -234,6 +239,32 @@ class AddEditModule {
 		});
     }
     
+   	insideMenuOnChange = function(){
+   		let context = this;
+   		let isInsideMenu = $("#insideMenuCheckbox").prop("checked");
+   		let targetLookupId = $("#targetLookupType").find(":selected").val();
+   		if(isInsideMenu){
+   			$("#isInsideMenu").val(1);
+   			$("#parentModuleName").val("");
+   			$("#sequence").val("");
+   			$("#sequence").prop('disabled',true);
+   			$("#parentModuleName").prop('disabled',true);
+   		}
+   		else{
+   			$("#isInsideMenu").val(0);
+   			$("#sequence").prop('disabled',false);
+   			if(targetLookupId !== "6") {
+	   			$("#parentModuleName").prop('disabled',false);
+	   		}
+   			if(sequence !== undefined && sequence !== ""){
+   				$("#sequence").val(sequence);
+   				return true;
+   			}
+   			context.getSequenceByParent();
+   		}
+   		
+   	}
+   	
     backToModuleListingPage = function() {
 		location.href = contextPath+"/cf/mul";
 	}

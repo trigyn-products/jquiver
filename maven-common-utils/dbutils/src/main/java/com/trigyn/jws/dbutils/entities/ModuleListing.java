@@ -31,6 +31,9 @@ public class ModuleListing implements Serializable {
 	@Column(name="sequence")
 	private Integer sequence						= null;
 	
+	@Column(name="is_inside_menu")
+	private Integer isInsideMenu					= null;
+	
 	@Column(name="target_lookup_id")
 	private Integer targetLookupId					= null;
 	
@@ -53,12 +56,13 @@ public class ModuleListing implements Serializable {
 
 
 	public ModuleListing(String moduleId, String moduleUrl, String parentId,
-			Integer sequence, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+			Integer sequence, Integer isInsideMenu, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
 		this.moduleId 					= moduleId;
 		this.moduleUrl 					= moduleUrl;
 		this.parentId 					= parentId;
 		this.sequence 					= sequence;
+		this.isInsideMenu 				= isInsideMenu;
 		this.targetTypeId 				= targetTypeId;
 		this.moduleListingI18ns 		= moduleListingI18ns;
 		this.moduleRoleAssociations 	= moduleRoleAssociations;
@@ -68,12 +72,13 @@ public class ModuleListing implements Serializable {
 
 
 	public ModuleListing(String moduleId, String moduleUrl, String parentId,
-			Integer sequence, Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+			Integer sequence, Integer isInsideMenu, Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
 		this.moduleId 					= moduleId;
 		this.moduleUrl 					= moduleUrl;
 		this.parentId 					= parentId;
 		this.sequence 					= sequence;
+		this.isInsideMenu 				= isInsideMenu;
 		this.targetLookupId 			= targetLookupId;
 		this.targetTypeId 				= targetTypeId;
 		this.moduleListingI18ns 		= moduleListingI18ns;
@@ -113,6 +118,14 @@ public class ModuleListing implements Serializable {
 
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
+	}
+
+	public Integer getIsInsideMenu() {
+		return isInsideMenu;
+	}
+
+	public void setIsInsideMenu(Integer isInsideMenu) {
+		this.isInsideMenu = isInsideMenu;
 	}
 
 	public Integer getTargetLookupId() {
@@ -187,8 +200,8 @@ public class ModuleListing implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(moduleId, moduleListingI18ns, moduleRoleAssociations, moduleTargetLookup,
-				moduleUrl, parentId, sequence, targetLookupId, targetTypeId);
+		return Objects.hash(isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations, moduleTargetLookup, moduleUrl,
+				parentId, sequence, targetLookupId, targetTypeId);
 	}
 
 
@@ -205,7 +218,7 @@ public class ModuleListing implements Serializable {
 			return false;
 		}
 		ModuleListing other = (ModuleListing) obj;
-		return  Objects.equals(moduleId, other.moduleId)
+		return Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
 				&& Objects.equals(moduleListingI18ns, other.moduleListingI18ns)
 				&& Objects.equals(moduleRoleAssociations, other.moduleRoleAssociations)
 				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup)
@@ -218,8 +231,8 @@ public class ModuleListing implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ModuleListing [moduleId=" + moduleId + ", moduleUrl="
-				+ moduleUrl + ", parentId=" + parentId + ", sequence=" + sequence + ", targetLookupId=" + targetLookupId
+		return "ModuleListing [moduleId=" + moduleId + ", moduleUrl=" + moduleUrl + ", parentId=" + parentId
+				+ ", sequence=" + sequence + ", isInsideMenu=" + isInsideMenu + ", targetLookupId=" + targetLookupId
 				+ ", targetTypeId=" + targetTypeId + ", moduleListingI18ns=" + moduleListingI18ns
 				+ ", moduleRoleAssociations=" + moduleRoleAssociations + ", moduleTargetLookup=" + moduleTargetLookup
 				+ "]";

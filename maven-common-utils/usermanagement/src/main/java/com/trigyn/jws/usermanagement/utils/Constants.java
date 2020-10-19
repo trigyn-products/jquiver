@@ -13,15 +13,15 @@ public final class Constants {
 	public  final static String ADMIN_ROLE  = "ae6465b3-097f-11eb-9a16-f48e38ab9348";
 	
 	public enum AuthType {
-        INMEMORY("in-memory"), DAO("dao-based"), OAUTH("oauth"), LDAP("ldap");
+        INMEMORY(1), DAO(2), OAUTH(3), LDAP(4);
 
-        final String authType;
+        final Integer authType;
 
-        AuthType(String authType) {
+        AuthType(Integer authType) {
         	this.authType = authType;
         }
 
-        public String getAuthType() {
+        public Integer getAuthType() {
             return authType;
         }
     }

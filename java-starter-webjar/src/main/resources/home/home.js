@@ -128,3 +128,121 @@ const showMessage = function(a_messageText, a_messageType){
     }, 3000);
 
 }
+
+const typeOfAction = function(formId, selectedButton, saveFunction, backFunction){
+	let selectedButtonId = $(selectedButton).prop("id");
+	localStorage.setItem(formId, selectedButtonId);
+	    
+	if(saveFunction !== undefined || backFunction !== undefined){
+	  	executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction);
+	}else{
+	   	executeCommonFunc(formId, selectedButtonId);
+	}
+}
+
+const executeDefinedFunc = function(formId, selectedButtonId, saveFunction, backFunction){
+	let isDataSaved;
+	if(selectedButtonId === "saveAndReturn"){
+	   	isDataSaved = saveFunction();
+	   	if(isDataSaved){
+	   		backFunction();
+	   	}else{
+	   		savedAction(formId,0);
+	   	}
+	}else if(selectedButtonId === "saveAndEdit"){
+	    saveFunction();
+	    savedAction(formId,1);
+	}else if(selectedButtonId === "saveAndCreateNew"){
+	   	isDataSaved = saveFunction();
+	   	if(isDataSaved){
+	   		resetForm(formId);
+	   	}
+	   	savedAction(formId,0);
+	}
+	
+}
+
+const executeCommonFunc = function(formId, selectedButtonId){
+	let isDataSaved;
+	if(selectedButtonId === "saveAndReturn"){
+	   	isDataSaved = saveData();
+	   	if(isDataSaved){
+	   		backToPreviousPage();
+	   	}else{
+	   		savedAction(formId,0);
+	   	}
+	}else if(selectedButtonId === "saveAndEdit"){
+	    saveData();
+	    savedAction(formId,1);
+	}else if(selectedButtonId === "saveAndCreateNew"){
+	   	isDataSaved = saveData();
+	   	if(isDataSaved){
+	   		resetForm(formId);
+	   	}
+	   	savedAction(formId,0);
+	}
+}
+ 
+const savedAction = function(formId, isEdit){ 	
+	
+	let actionSaved = localStorage.getItem(formId);
+	
+	if((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit"){
+		$("#actionDiv").find("#saveAndEdit").remove();
+		return true;
+	}
+	
+	if(actionSaved !== null && actionSaved !== ""){
+		let defaultAction = $("#savedAction").find("button");
+		let savedActionId = $(defaultAction).prop("id");
+		if(savedActionId !== actionSaved){
+			let updatedText = $("#actionDiv").find("#"+actionSaved).text();
+			
+			let savedActionText = $("#savedAction").text();
+			$("#actionDiv").find("#"+actionSaved).html(savedActionText);
+			$("#actionDiv").find("#"+actionSaved).prop("id",savedActionId);
+			
+			$(defaultAction).prop("id",actionSaved);
+			$(defaultAction).html(updatedText);
+		}
+	}
+	
+	if(isEdit === 0 || isEdit === ""){
+		$("#actionDiv").find("#saveAndEdit").remove();
+	}	
+}
+
+
+const actionOptions = function(sourceElement){
+	if(sourceElement !== undefined){
+		$("#actionDropdownBtn").addClass("panel-collapsed");
+		$("#actionDiv").slideUp();
+		return true;
+	}
+	if ($("#actionDropdownBtn").hasClass("panel-collapsed")) {
+		$("#actionDropdownBtn").removeClass("panel-collapsed");
+		$("#actionDiv").slideDown();
+	}else{
+		$("#actionDropdownBtn").addClass("panel-collapsed");
+		$("#actionDiv").slideUp();
+	}
+}
+
+
+const resetForm = function(a_formId){
+    let url = contextPath + "/cf/df";
+	let formJson = sessionStorage.getItem(a_formId);
+	
+	let form = JSON.parse(formJson);
+    $(document.body).append(form);
+	let formId = $(form);
+	$("#"+formId[0].id).submit();
+}
+
+const hideShowActionButtons = function(){
+    $(document).on("click", function closeMenu (event){
+        if("actionDropdownBtn" !== event.target.id){
+            actionOptions(event.target.id);
+        }
+    });
+}
