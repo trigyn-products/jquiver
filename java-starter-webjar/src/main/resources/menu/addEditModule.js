@@ -37,6 +37,7 @@ class AddEditModule {
 				data : JSON.stringify(moduleDetails),
 				success : function(data) {
 					$("#errorMessage").hide();
+					context.saveEntityRoleAssociation(data);
 					context.parentModuleId = $("#parentModuleName").find(":selected").val();
 					showMessage("Information saved successfully", "success");
 					isDataSaved = true;
@@ -171,6 +172,7 @@ class AddEditModule {
 	    	autocomplete.options.autocompleteId = context.getAutocompleteId();
     	}
     	context.insideMenuOnChange();
+    	context.getEntityRoles();
     }
     
     getAutocompleteId = function(){
@@ -268,5 +270,46 @@ class AddEditModule {
     backToModuleListingPage = function() {
 		location.href = contextPath+"/cf/mul";
 	}
+	
+    saveEntityRoleAssociation = function (menuId){
+		let roleIds =[];
+		let entityRoles = new Object();
+		entityRoles.entityName = $("#moduleName").val().trim();
+		entityRoles.moduleId=$("#masterModuleId").val();
+		entityRoles.entityId= menuId;
+		 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+			 roleIds.push(val.id);
+         	
+         });
 		
+		entityRoles.roleIds=roleIds;
+		
+		$.ajax({
+            async : false,
+            type : "POST",
+            contentType : "application/json",
+            url : "/cf/ser", 
+            data : JSON.stringify(entityRoles),
+            success : function(data) {
+		    }
+        });
+	}
+	getEntityRoles = function(){
+		$.ajax({
+            async : false,
+            type : "GET",
+            url : "/cf/ler", 
+            data : {
+            	entityId:$("#moduleId").val(),
+            	moduleId:$("#masterModuleId").val(),
+            },
+            success : function(data) {
+                $.each(data, function(key,val){
+                	multiselect.setSelectedObject(val);
+                	
+                });
+		    }
+        });
+	}
+    
 }

@@ -6,12 +6,23 @@
 			this.options = options;
 			this.selectedFiles = [];
 			this.uploaded = false;
-			this.uploadedFilesId = new Array();
 			this.dropzone = [];
 		}
 		
 		getSelectedFiles() {
-			return this.uploadedFilesId;
+			return this.dropzone.getAcceptedFiles().map(file => 
+ 				file.id != undefined ? file.id : JSON.parse(file.xhr.response).fileIds[0]);
+		}
+		
+		deleteFileFromServerById(fileId) {
+			$.ajax({
+			  type : "DELETE",
+			  async : false,
+			  url : "/cf/files/" + fileId,
+			  success: function(data) {
+			  	console.log("success");
+			  }
+			});
 		}
 		
 		getByteSize(byteSize) {
@@ -47,14 +58,12 @@
 							dropzone.emit("addedfile", file);
 							dropzone.emit("complete", file);
 		       				dropzone.files.push(file);
-							var removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-trash float-left'></i>");
 							var viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-eye float-right'></i>");
-						    removeButton.addEventListener("click", function(e) {context.removeFileEvent(e, dropzone, file)});
 						    let fileId = data[iCounter]["fileId"];
-	  		  				viewButton.addEventListener("click", function(e) {context.viewFileEvent(e, fileId)});
-						    file.previewElement.appendChild(removeButton);
+	  		  				viewButton.addEventListener("click", function(e) {
+	  		  					context.viewFileEvent(e, fileId)
+	  		  				});
 						    file.previewElement.appendChild(viewButton);
-							context.uploadedFilesId.push(data[iCounter]["fileId"]);
 			  		  	}
 			  		  }	
 			  });
@@ -65,12 +74,13 @@
 			event.preventDefault();
 		    event.stopPropagation();
 		  	_this.removeFile(file);
-		  	console.log(file);
 		  	let fileId = file.id;
 		  	if(fileId == undefined){
-		  		fileId = JSON.parse(data.xhr.response)["fileIds"][0];
+		  		fileId = JSON.parse(file.xhr.response)["fileIds"][0];
 		  	}
-		  	this.uploadedFilesId.splice(this.uploadedFilesId.indexOf(fileId), 1);
+		  	if(this.options.deletecallback != undefined) {
+		  		this.options.deletecallback(fileId);
+		  	}
 		    // If you want to the delete the file on the server as well,
 		    // you can do the AJAX request here.
 		}
@@ -78,7 +88,15 @@
 	
 	$.fn.fileUpload = function(options, selectedFiles) {
 	let fileUpload = new FileUpload(this, options, selectedFiles);
-	fileUpload.uploadedFilesId = new Array();
+	fileUpload.options = options;
+	/** Customizing the dropzone view **/
+	fileUpload.template = '<div id="template" class="col-6 file-row"><div><span class="preview"><img data-dz-thumbnail /></span></div><div>'
+            + '<p class="name" data-dz-name></p><strong class="error text-danger" data-dz-errormessage></strong></div>'
+			+ '<span><p class="size" data-dz-size></p>'
+            // + '<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">'
+            // + '<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div></div>'
+            + '</span></div><div class="clearfix"></div>';
+        	
 	Dropzone.autoDiscover = false;
 		const context = this;
 		$.ajax({
@@ -98,31 +116,41 @@
 			  maxFiles: data["allow_multiple_files"],
 	  		  acceptedFiles: data["file_type_supported"],
 	  		  createImageThumbnails: false,
+	  		  // previewTemplate: fileUpload.template,
+	  		  // previewsContainer: ".previews",
+  			  // clickable: ".start-upload",
 	  		  success: function(data) {
 	  		  	showMessage("File uploaded successfully", "success");
 	  		  	console.log(JSON.parse(data.xhr.response)["fileIds"]);
-	  		  	fileUpload.uploadedFilesId.concat(JSON.parse(data.xhr.response)["fileIds"]);
 	  		  	var viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-eye float-right'></i>");
 	  		  	let fileId = JSON.parse(data.xhr.response)["fileIds"][0];
-	  		  	viewButton.addEventListener("click", function(e) {fileUpload.viewFileEvent(e, fileId)});
+	  		  	viewButton.addEventListener("click", function(e) {
+	  		  		fileUpload.viewFileEvent(e, fileId)
+	  		  	});
 	  		  	data.previewElement.appendChild(viewButton);
 	  		  	if(options.successcallback !== undefined) {
-	  		  		options.successcallback.call();
+	  		  		options.successcallback(fileId);
 	  		  	}
 	  		  },
 	  		  error: function(data, errorMessage, xhr){
 	  		  	showMessage(errorMessage, "error");
+	  		  	fileUpload.removeFileEvent(new Event("remove"), this, data);
 	  		  },
 			  init: function() {
 			  fileUpload.dropzone = this;
-			  fileUpload.showSelectedFiles(selectedFiles, this);
+			  this.on("sending", function (file, xhr, formData) {
+		            formData.append("fileConfigData", options.fileUploadId);
+		        });
 		      this.on("addedfile", function(file) {
 			        var removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-trash float-left'></i>");
 			        var _this = this;
-			        removeButton.addEventListener("click", function(e) {fileUpload.removeFileEvent(e, _this, file)});
+			        removeButton.addEventListener("click", function(e) {
+			        	fileUpload.removeFileEvent(e, _this, file)
+			        });
 			        file.previewElement.appendChild(removeButton);
 			      });
-			    }
+			      fileUpload.showSelectedFiles(selectedFiles, this);
+			   	}
 			});
 		  },
 		  error : function(xhr, error){

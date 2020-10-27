@@ -41,6 +41,8 @@ class TemplateEngine {
     			},
     			success: function(data) {
     				context.editor.setValue(data);
+    				
+    				context.getEntityRoles();
     			},
     			error : function(xhr, error){
 					showMessage("Error occurred while fetching template content", "error");
@@ -109,6 +111,8 @@ class TemplateEngine {
                 velocityTempData : velocityTempData
             },
             success : function(data) {
+            	var templateId = data;
+            	context.saveEntityRoleAssociation(templateId);
            		isDataSaved = true;
            		showMessage("Information saved successfully", "success");
 		    },
@@ -131,7 +135,7 @@ class TemplateEngine {
 	       	});
 	        $.ajax({
 	            async : false,
-	            type : "GET",
+	            type : "POST",
 	            cache : false,
 	            url : "/cf/vtd", 
 	            headers : {
@@ -148,6 +152,8 @@ class TemplateEngine {
 						modified: modifiedModel
 					});
 					
+					
+					
 	            },
 	       		error : function(xhr, error){
 					showMessage("Error occurred while fetching template data", "error");
@@ -155,4 +161,44 @@ class TemplateEngine {
 	        });
         }
     }
+	saveEntityRoleAssociation = function (templateId){
+		let roleIds =[];
+		let entityRoles = new Object();
+		entityRoles.entityName = $("#vmName").val().trim();
+		entityRoles.moduleId=$("#moduleId").val();
+		entityRoles.entityId= templateId;
+		 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+			 roleIds.push(val.id);
+         	
+         });
+		
+		entityRoles.roleIds=roleIds;
+		
+		$.ajax({
+            async : false,
+            type : "POST",
+            contentType : "application/json",
+            url : "/cf/ser", 
+            data : JSON.stringify(entityRoles),
+            success : function(data) {
+		    }
+        });
+	}
+	getEntityRoles = function(){
+		$.ajax({
+            async : false,
+            type : "GET",
+            url : "/cf/ler", 
+            data : {
+            	entityId:this.templateId,
+            	moduleId:$("#moduleId").val(),
+            },
+            success : function(data) {
+                $.each(data, function(key,val){
+                	multiselect.setSelectedObject(val);
+                	
+                });
+		    }
+        });
+	}
 }

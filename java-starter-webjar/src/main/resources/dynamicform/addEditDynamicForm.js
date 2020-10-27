@@ -49,6 +49,7 @@ class AddEditDynamicForm {
 					for(let counter = 0; counter < data.length; ++counter) {
 						context.addSaveQueryEditor(null, data[counter]);
 					}
+					getEntityRoles();
 				}
 			});
 		} else {
@@ -200,6 +201,7 @@ class AddEditDynamicForm {
 			data : formData,
 			success : function(data) {
 				isDataSaved = true;
+				saveEntityRoleAssociation(data);
 				showMessage("Information saved successfully", "success");
 			},
 			error : function(xhr, error){
@@ -285,6 +287,49 @@ class AddEditDynamicForm {
         }
     }
     
+	
+    
+}
+
+let saveEntityRoleAssociation = function(savedFormId){
+	let roleIds =[];
+	let entityRoles = new Object();
+	entityRoles.entityName = $("#formName").val();
+	entityRoles.moduleId=$("#moduleId").val();
+	entityRoles.entityId= savedFormId;
+	 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+		 roleIds.push(val.id);
+     	
+     });
+	
+	entityRoles.roleIds=roleIds;
+	
+	$.ajax({
+        async : false,
+        type : "POST",
+        contentType : "application/json",
+        url : "/cf/ser", 
+        data : JSON.stringify(entityRoles),
+        success : function(data) {
+	    }
+    });
+}
+let getEntityRoles = function(){
+	$.ajax({
+        async : false,
+        type : "GET",
+        url : "/cf/ler", 
+        data : {
+        	entityId:formId,
+        	moduleId:$("#moduleId").val(),
+        },
+        success : function(data) {
+            $.each(data, function(key,val){
+            	multiselect.setSelectedObject(val);
+            	
+            });
+	    }
+    });
 }
 
 

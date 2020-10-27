@@ -48,6 +48,7 @@ class AddEditAutocomplete{
 			data : serializedForm,
 			success : function(data) {
 				isDataSaved = true;
+				context.saveEntityRoleAssociation(data);
 				showMessage("Information saved successfully", "success");
 	       	},
         	error : function(xhr, error){
@@ -80,6 +81,45 @@ class AddEditAutocomplete{
 	backToListingPage = function() {
 		location.href = contextPath+"/cf/adl";
 	}
-    
+	saveEntityRoleAssociation = function(autoCompleteId){
+		let roleIds =[];
+		let entityRoles = new Object();
+		entityRoles.entityName = autoCompleteId;
+		entityRoles.moduleId=$("#moduleId").val();
+		entityRoles.entityId= autoCompleteId;
+		 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+			 roleIds.push(val.id);
+	     	
+	     });
+		
+		entityRoles.roleIds=roleIds;
+		
+		$.ajax({
+	        async : false,
+	        type : "POST",
+	        contentType : "application/json",
+	        url : "/cf/ser", 
+	        data : JSON.stringify(entityRoles),
+	        success : function(data) {
+		    }
+	    });
+	}
+	getEntityRoles = function(){
+		$.ajax({
+	        async : false,
+	        type : "GET",
+	        url : "/cf/ler", 
+	        data : {
+	        	entityId:$("#autoId").val(),
+	        	moduleId:$("#moduleId").val(),
+	        },
+	        success : function(data) {
+	            $.each(data, function(key,val){
+	            	multiselect.setSelectedObject(val);
+	            	
+	            });
+		    }
+	    });
+	}
     
 }

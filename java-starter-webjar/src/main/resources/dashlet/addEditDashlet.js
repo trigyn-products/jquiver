@@ -16,7 +16,7 @@ AddEditDashlet.prototype.fn = {
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
         dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
-		        	value: $("#sqlContent").val(),
+		        	value: $("#sqlContent").val().trim(),
 		            language: "sql",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,
@@ -28,7 +28,7 @@ AddEditDashlet.prototype.fn = {
     	
     	require(["vs/editor/editor.main"], function() {
         dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
-		        	value: $("#htmlContent").val(),
+		        	value: $("#htmlContent").val().trim(),
 		            language: "html",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,

@@ -23,6 +23,7 @@ class DynamicRest {
 						context.addSaveQueryEditor(null, dynarestDetailsArray[counter].daoDetailsId, dynarestDetailsArray[counter].versionDetails
 							, dynarestDetailsArray[counter].variableName, dynarestDetailsArray[counter].dynarestDaoQuery, dynarestDetailsArray[counter].dynarestQueryType);
 					}
+			    	getEntityRoles()
 				}else{
 					context.populateServiceLogic();
 					context.addSaveQueryEditor();
@@ -266,6 +267,7 @@ class DynamicRest {
 				if(data !== ""){
 					isDataSaved = true;
 					$("#dynarestId").val(data);
+					saveEntityRoleAssociation(data);
 					showMessage("Information saved successfully", "success");
 				}
 			},
@@ -281,8 +283,7 @@ class DynamicRest {
 	hideShowAllowFiles = function(){
 		let dynarestProdTypeId = $("#dynarestProdTypeId").val();
         let dynarestRequestTypeId = $("#dynarestRequestTypeId").val();
-        if((dynarestProdTypeId === "8" || dynarestProdTypeId === "10") && 
-        	(dynarestRequestTypeId === "1" || dynarestRequestTypeId === "4")){
+        if(dynarestRequestTypeId === "1" || dynarestRequestTypeId === "4"){
             $("#allowFilesDiv").show();
         }else{
         	$("#allowFilesCheckbox").prop("checked", false);
@@ -295,8 +296,53 @@ class DynamicRest {
 	backToDynarestListingPage = function() {
     	window.location = "../cf/dynl";
   	}
+	
+	
+	
   	
 }
+
+let saveEntityRoleAssociation = function(dynaRestId){
+	let roleIds =[];
+	let entityRoles = new Object();
+	entityRoles.entityName = $("#dynarestUrl").val();
+	entityRoles.moduleId=$("#moduleId").val();
+	entityRoles.entityId= dynaRestId;
+	 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+		 roleIds.push(val.id);
+     	
+     });
+	
+	entityRoles.roleIds=roleIds;
+	
+	$.ajax({
+        async : false,
+        type : "POST",
+        contentType : "application/json",
+        url : "/cf/ser", 
+        data : JSON.stringify(entityRoles),
+        success : function(data) {
+	    }
+    });
+}
+let getEntityRoles = function(){
+	$.ajax({
+        async : false,
+        type : "GET",
+        url : "/cf/ler", 
+        data : {
+        	entityId:$("#dynarestId").val(),
+        	moduleId:$("#moduleId").val(),
+        },
+        success : function(data) {
+            $.each(data, function(key,val){
+            	multiselect.setSelectedObject(val);
+            	
+            });
+	    }
+    });
+}
+
 
 var removeByAttribute = function(arr, attr, value){
     var i = arr.length;

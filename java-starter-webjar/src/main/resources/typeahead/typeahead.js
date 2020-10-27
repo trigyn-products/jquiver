@@ -169,7 +169,7 @@
             listsElement.append(itemSpan);
             listsElement.append(deleteItemContext);
             
-            $(".ml-selected-items-list").append(listsElement);
+            $("#"+multiselectId+"_selectedOptions_ul").append(listsElement);
             
             var deleteItem = function(event) {
                 var data = $(deleteItemContext).data('selected-item');
@@ -185,6 +185,8 @@
             deleteItemContext.click(deleteItem);
     
             context.selectedObjects.push(itemData);
+        }else{
+        	showMessage("Data already present in the list", "info")
         }
 
         $(context.element).val("");
@@ -195,7 +197,7 @@
 		let selectedText = item.text;
 		let deleleteElement = $('<div id="deleteConfirmation"></div>');
 		$("body").append(deleleteElement);
-		$("#deleteConfirmation").html("Are you sure you want to remove '"+selectedText + "'?");
+		$("#deleteConfirmation").html("Are you sure you want to delete?");
 		$("#deleteConfirmation").dialog({
 			bgiframe		: true,
 			autoOpen		: true, 
@@ -228,7 +230,7 @@
 						});
 						$(this).dialog("destroy");
 						$(this).remove();
-						showMessage(selectedText + " removed successfully.", "success");
+						showMessage("Deleted successfully.", "success");
 				        return item;
 					}
 	           	},

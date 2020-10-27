@@ -239,6 +239,22 @@ const resetForm = function(a_formId){
 	$("#"+formId[0].id).submit();
 }
 
+const enableVersioning = function(formData){
+	$.ajax({
+		type: "POST",
+    	url: contextPath + "/cf/smv",
+    	dataType: "html",
+    	data: formData,
+    	success: function (data) {
+			
+	   	},
+    		
+    	error : function(xhr, error){
+	       	showMessage("Error occurred saving versioning information", "error");
+	    },
+	});
+}
+
 const hideShowActionButtons = function(){
     $(document).on("click", function closeMenu (event){
         if("actionDropdownBtn" !== event.target.id){
