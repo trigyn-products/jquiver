@@ -1,4 +1,4 @@
-package com.trigyn.jws.usermanagement.controller;
+package com.trigyn.jws.webstarter.controller;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -182,7 +182,7 @@ public class JwsResetPasswordController {
 	            
         		JwsUserRoleAssociation adminRoleAssociation = new JwsUserRoleAssociation();
         		adminRoleAssociation.setUserId(user.getUserId());
-        		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE);
+        		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE_ID);
         		userRoleAssociationRepository.save(adminRoleAssociation);
         		
         		resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(),tokenId);

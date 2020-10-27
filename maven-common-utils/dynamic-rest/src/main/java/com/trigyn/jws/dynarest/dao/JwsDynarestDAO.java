@@ -51,7 +51,7 @@ public class JwsDynarestDAO extends DBConnection {
 		 getCurrentSession().flush();
 	}
 
-	public void deleteDAOQueriesById(Integer jwsDynamicRestDetailId, List<Integer> daoDetailsIdList) {
+	public void deleteDAOQueriesById(String jwsDynamicRestDetailId, List<Integer> daoDetailsIdList) {
 		StringBuilder deleteDaoQuery = new StringBuilder("DELETE FROM JwsDynamicRestDaoDetail AS jdrdd WHERE jdrdd.jwsDynamicRestDetailId = :jwsDynamicRestDetailId ");
 		
 		if(!CollectionUtils.isEmpty(daoDetailsIdList)) {

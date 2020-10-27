@@ -1,4 +1,4 @@
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('0d91402d-1062-11eb-a867-f48e38ab8cd7', 'dashlet-common-div', '
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 
@@ -31,9 +31,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             </div>        
       </div>
     </div>
-</div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
   
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('1389accc-1062-11eb-a867-f48e38ab8cd7', 'dashlets', '
 	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -202,9 +202,9 @@ function backToDashboardPage() {
 		</#list>
 </div>
 
-<div id="configurationDialog"></div></div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+<div id="configurationDialog"></div></div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('1f8682c4-1062-11eb-a867-f48e38ab8cd7', 'dashlet-configuration', '
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -231,35 +231,35 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		<input type="button" onclick="closeConfigurationDialog();" value="Ok" class="btn btn-sm btn-primary"/>
 	</#if>
 </div>
-','aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('25e7cb01-1062-11eb-a867-f48e38ab8cd7', 'select', '<script type="text/javascript">
 </script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <select id="" class="select form-control" name=""></select>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2ab671a3-1062-11eb-a867-f48e38ab8cd7', 'text', '<script type="text/javascript"></script>
 <div class="col-lg-9 col-md-9 col-sm-8">
 <input type="text" id="" name="" value="" class="form-control"/>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2ff2b7ea-1062-11eb-a867-f48e38ab8cd7', 'rangeslider', '<div class="col-lg-9 col-md-9 col-sm-8">
 <div class="range-slider">
 <input type="range" id="" class="range-slider__range" name="${property.propertyId}" value="" min="0" max="${property.value}" step="1"/>
 <span id="slider-value_" class="range-slider__value"></span>
 </div>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('369aa97d-1062-11eb-a867-f48e38ab8cd7', 'number', '<script type="text/javascript"></script><div class="col-lg-9 col-md-9 col-sm-8">
 <input type="number" min="0" id="" name="" value="" class="form-control"/>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('3b902ade-1062-11eb-a867-f48e38ab8cd7', 'datepicker', '<script src="${contextPath}/resources/jscore/jquery/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
 <script type="text/javascript">
 jQuery(function() {
@@ -273,9 +273,9 @@ jQuery(function() {
 </script>
 <div class="col-lg-9 col-md-9 col-sm-8 configurepop">
 <input type="text" id="" name="" class="date form-control" value=""/>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('40a58aae-1062-11eb-a867-f48e38ab8cd7', 'checkbox', '<div class="col-lg-9 col-md-9 col-sm-8">
  <div class="control--checkbox">
   <input type="checkbox" class="roles" name="${property.propertyId}" value="true" />
@@ -283,7 +283,86 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   <input type="checkbox" class="roles" name="${property.propertyId}" value="false"/>
   <label for="checkbox1"><span></span>False</label>
  </div>
-</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-('46154204-1062-11eb-a867-f48e38ab8cd7', 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('46154204-1062-11eb-a867-f48e38ab8cd7', 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
+
+
+
+
+SET FOREIGN_KEY_CHECKS=0;
+
+REPLACE INTO dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, dashlet_query, is_active, created_by, created_date, updated_by, updated_date, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header,dashlet_query_checksum,dashlet_body_checksum, dashlet_type_id) VALUES
+('09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', 'Grids', '<div>Total of <#list resultSet as queryOutput>${queryOutput.gridCount}</#list> used in application</div>', 'SELECT COUNT(gd.grid_id) AS gridCount FROM grid_details AS gd', 1, 'admin', NOW(), 'admin', NOW(), 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', 'Notification', '<div> Notifications </div>', 'select 1', 1, 'admin', NOW(), 'admin', NOW(), 0, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', 'Templates', '<div>Total of <#list resultSet as queryOutput>${queryOutput.templateCount}</#list> used in application</div>', 'SELECT COUNT(tm.template_id) AS templateCount FROM template_master AS tm', 1, 'admin', NOW(), 'admin', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', 'DB resource bundles', '<div>Total of <#list resultSet as queryOutput>${queryOutput.resourceBundleCount}</#list> used in application</div>', 'SELECT COUNT(DISTINCT(rb.resource_key)) AS resourceBundleCount FROM resource_bundle AS rb', 1, 'admin', NOW(), 'admin', NOW(), 0, 6, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', 'Dashboards', '<div>Total of <#list resultSet as queryOutput>${queryOutput.dashboardCount}</#list> used in application</div>', 'SELECT COUNT(db.dashboard_id) AS dashboardCount FROM  dashboard AS db', 1, 'admin', NOW(), 'admin', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2),
+('44cb330d-eadf-11ea-a036-e454e805e22f', 'Dashlets', 'Dashlets', '<head>
+
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<script src="/webjars/1.0/gridutils/gridutils.js"></script>
+</head>
+
+<div class="container">
+		
+		<div id="divdDashletMasterGrid"></div>
+
+		<div id="snackbar"></div>
+</div>
+
+
+<form action="${(contextPath)!''''}/cf/aedl" method="POST" id="formDMRedirect">
+	<input type="hidden" id="dashletId" name="dashlet-id">
+</form>
+<script>
+	$(function () {
+		var colM = [
+			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+		];
+	
+		var grid = $("#divdDashletMasterGrid").grid({
+			gridId: "dashletMasterListingGrid",
+			colModel: colM
+		});
+	});
+	function editDashlet(uiObject) {
+		const dashletId = uiObject.rowData.dashletId;
+		return ''<span id="''+dashletId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"  title="${messageSource.getMessage("jws.editDashlet")}"></i></span>''.toString();
+	}
+	
+	function submitForm(element) {
+	  $("#dashletId").val(element.id);
+	  $("#formDMRedirect").submit();
+	}
+	
+	function backToDashboarListing() {
+		location.href = contextPath+"/cf/dbm";
+	}
+</script>', 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(updated_date,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM dashlet', 1, 'admin', NOW(), 'admin', NOW(), 6, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2);
+
+REPLACE into dashboard (dashboard_id, dashboard_name, context_id, dashboard_type, created_by, created_date, last_updated_date, is_deleted, is_draggable, is_exportable) VALUES
+('ab7202bf-eadd-11ea-a036-e454e805e22f', 'Java Stater Usages', (SELECT context_id FROM context_master where context_description='jws'), 2, 'admin', NOW(), NOW(), 0, 1, 0);
+
+
+
+SET FOREIGN_KEY_CHECKS=1;
+
+

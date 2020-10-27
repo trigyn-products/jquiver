@@ -36,6 +36,12 @@ public class MenuService {
 		Map<String, String> childTemplateDetails = new HashMap<>();
 		String innerTemplate = templateEngine.processTemplateContents(templateInnerVO.getTemplate(), templateInnerVO.getTemplateName(), templateDetails);
 		childTemplateDetails.put("template-body", innerTemplate);
+		if(templateDetails.get("entityType") == null) {
+			Map<String, Object> entityDetails = new HashMap<String, Object>();
+			entityDetails.put("entityType", "template");
+			entityDetails.put("entityName", templateName);
+			templateMap.putAll(entityDetails);
+		}
 		return templateEngine.processMultipleTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap, childTemplateDetails);
 
 	}
@@ -61,6 +67,12 @@ public class MenuService {
 		TemplateVO templateVO = templatingService.getTemplateByName("home-page");
 		Map<String, String> childTemplateDetails = new HashMap<>();
 		childTemplateDetails.put("template-body", template);
+		if(templateParamMap.get("entityType") == null) {
+			Map<String, Object> entityDetails = new HashMap<String, Object>();
+			entityDetails.put("entityType", "dashboard");
+			entityDetails.put("entityName", templateParamMap);
+			templateMap.putAll(entityDetails);
+		}
 		return templateEngine.processMultipleTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap, childTemplateDetails);
 	}
 	

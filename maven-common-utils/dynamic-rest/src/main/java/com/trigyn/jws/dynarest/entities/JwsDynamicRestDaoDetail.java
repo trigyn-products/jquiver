@@ -36,7 +36,7 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	private Integer jwsQuerySequence					= null;
 
 	@Column(name="jws_dynamic_rest_details_id")
-	private Integer jwsDynamicRestDetailId 				= null;
+	private String jwsDynamicRestDetailId 				= null;
 	
 	@Column(name = "jws_dao_query_type")
 	private Integer queryType							= null;
@@ -103,11 +103,11 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 		this.queryType = queryType;
 	}
 
-	public Integer getJwsDynamicRestDetailId() {
+	public String getJwsDynamicRestDetailId() {
 		return jwsDynamicRestDetailId;
 	}
 
-	public void setJwsDynamicRestDetailId(Integer jwsDynamicRestDetailId) {
+	public void setJwsDynamicRestDetailId(String jwsDynamicRestDetailId) {
 		this.jwsDynamicRestDetailId = jwsDynamicRestDetailId;
 	}
 

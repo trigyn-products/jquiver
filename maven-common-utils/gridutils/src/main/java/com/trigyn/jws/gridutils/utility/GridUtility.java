@@ -26,18 +26,27 @@ public class GridUtility {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				joiner.add(criteriaParams.getKey());
 			}
-			query.append(joiner.toString());
+			
+			if(gridParams.getCriteriaParams().entrySet().size() == 1) {
+				query.append(joiner.toString() + " = ? ");
+			} else {
+				query.append(joiner.toString());
+			}
 		}
 		if (filterParamsPresent) {
 			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
+				StringJoiner joiner = new StringJoiner(" or ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					stringJoiner.add(sf.getField() + " like ? or ");
+					joiner.add(sf.getField() + " like ? ");
 				}
+				stringJoiner.add(joiner.toString());
 			} else {
+				StringJoiner joiner = new StringJoiner(" and ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					stringJoiner.add(sf.getField() + " like ? and ");
+					stringJoiner.add(sf.getField() + " like ? ");
 				}
+				stringJoiner.add(joiner.toString());
 			}
 			query.append(stringJoiner.toString());
 		}
@@ -80,18 +89,29 @@ public class GridUtility {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				joiner.add(criteriaParams.getKey());
 			}
+			
+			if(gridParams.getCriteriaParams().entrySet().size() == 1) {
+				query.append(joiner.toString() + " = ? ");
+			} else {
+				query.append(joiner.toString());
+			}
 		}
 		if (filterParamsPresent) {
 			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
+				StringJoiner joiner = new StringJoiner(" or ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					stringJoiner.add(sf.getField() + " like ? or ");
+					joiner.add(sf.getField() + " like ? ");
 				}
+				stringJoiner.add(joiner.toString());
 			} else {
+				StringJoiner joiner = new StringJoiner(" and ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-					stringJoiner.add(sf.getField() + " like ? and ");
+					joiner.add(sf.getField() + " like ? ");
 				}
+				stringJoiner.add(joiner.toString());
 			}
+			query.append(stringJoiner.toString());
 		}
 		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty()) && (gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty())) {
 			query.append("order by " + gridParams.getSortIndex() + " " + gridParams.getSortOrder());

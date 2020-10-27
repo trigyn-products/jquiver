@@ -17,6 +17,7 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
+import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
 @Component("template")
@@ -40,17 +41,17 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	@Override
 	public void downloadCodeToLocal(TemplateMaster a_templateMaster) throws Exception {
 		List<TemplateMaster> templates = new ArrayList<>();
+		List<TemplateVO> templateVOs = new ArrayList<>();
 		if(a_templateMaster != null) {
 			templates.add(a_templateMaster);
+			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(),
+	                template.getTemplateName(), template.getTemplate(), template.getChecksum())).collect(Collectors.toList());
 		}else {
-			templates = dbTemplatingService.getAllTemplates();
+			templateVOs = dbTemplatingService.getAllDefaultTemplates();
 		}
 		
-		List<TemplateVO> templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(),
-                template.getTemplateName(), template.getTemplate(), template.getChecksum())).collect(Collectors.toList());
-		
-		String ftlCustomExtension 	= ".tgn";
-		String templateDirectory 	= "Templates";
+		String ftlCustomExtension 	= Constant.CUSTOM_FILE_EXTENSION;
+		String templateDirectory 	= Constant.TEMPLATE_DIRECTORY_NAME;
 		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 				= folderLocation +File.separator+templateDirectory;
 		
@@ -90,8 +91,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user 				="admin";
-		String ftlCustomExtension 	= ".tgn";
-		String templateDirectory 	= "Templates";
+		String ftlCustomExtension 	= Constant.CUSTOM_FILE_EXTENSION;
+		String templateDirectory 	= Constant.TEMPLATE_DIRECTORY_NAME;
 		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 				= folderLocation +File.separator+templateDirectory;
 		File directory 				= new File(folderLocation);

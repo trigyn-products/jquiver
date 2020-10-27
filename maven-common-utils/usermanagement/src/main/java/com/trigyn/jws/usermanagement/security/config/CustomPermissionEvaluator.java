@@ -1,15 +1,23 @@
 package com.trigyn.jws.usermanagement.security.config;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
+
+import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationRepository;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 	
 	private ApplicationSecurityDetails applicationSecurityDetails = null;
+	
+	@Autowired
+	private JwsRoleMasterModulesAssociationRepository roleModuleRepository = null;  
 	
 	public CustomPermissionEvaluator(ApplicationSecurityDetails applicationSecurityDetails) {
 		this.applicationSecurityDetails = applicationSecurityDetails;
@@ -17,18 +25,21 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
 	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-		if(applicationSecurityDetails.getIsAuthenticationEnabled()) {
+		List<String> roleNames = new ArrayList<>();
+		
+		if(applicationSecurityDetails.getIsAuthenticationEnabled() && !(authentication instanceof AnonymousAuthenticationToken)) {
 			UserInformation userDetails = (UserInformation) authentication.getPrincipal();
-			Set<String> authorityString = AuthorityUtils.authorityListToSet(userDetails.getAuthorities());
-			for (String currentAuthority : authorityString) {
-				if (userDetails.getRoleFunctionMap().get(currentAuthority).contains(permission)) {
-					return true;
-				}
-			}
-			return false;
+			roleNames = userDetails.getRoles();
+		
 		} else {
+			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
+		}
+		
+		Long count = roleModuleRepository.checkModulePresentForCurrentRole(roleNames,permission.toString(),Constants.ISACTIVE);
+		if(count > 0) {
 			return true;
 		}
+		return false;
 	}
 
 	@Override

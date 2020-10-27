@@ -1,4 +1,4 @@
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('365e2aa5-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -89,14 +89,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		location.href = contextPath+"/cf/home";
 	}
 </script>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('410deeb3-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -147,19 +147,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 	 
-			<div class="col-3" id="dashboardTypeDiv">
-				<div class="col-inner-form full-form-fields">
-					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardType")}</label>
-					<select id="dashboardTypeId" name="dashboardType" class="form-control">
-						<option value="">SELECT</option>
-							<security:authorize access="hasAnyRole(''''ROLE_ADMIN'''')">
-								<option value="system">${messageSource.getMessage("jws.system")}</option>
-							</security:authorize>
-						<option value="personal">${messageSource.getMessage("jws.personal")}</option>
-					</select>
-				</div>
-			</div>
-							
+		
 			<div class="col-3" id="contextIdDiv" >
 				<div class="col-inner-form full-form-fields">
 					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
@@ -188,7 +176,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<div class="clearfix"></div>
 		    </div>
 	
-			<div class="col-3"> 			
+			<div class="col-3 margin-t-20"> 			
 				<div class="inpugrp pull-left" id="exportableDiv" >
 					<input type="checkbox" id="isExportableId" class="pull-left comman_checkbox form-control"  name="isExportable" value="${(dashboard?api.getIsExportable())!''''}" ${(dashboard?api.getIsExportable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeExportableValue();">
 					<label class="pull-left" for="isExportableId">${messageSource.getMessage("jws.exportableDashboard")}</label>
@@ -199,7 +187,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     		<div class="clearfix"></div>
      	</div>
 	 
-	 
+	 <input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    <@templateWithoutParams "role-autocomplete"/>
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -229,13 +218,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	const contextId ="${(dashboard?api.getContextId())!''''}";
-	const dashboardType = "${(dashboard?api.getDashboardType())!''''}"; 
 	const dashboardId = "${(dashboard?api.getDashboardId())!''''}"; 
 	let addEditDashboardFn;
 	
 	$(function() {
 		  
-	  const addEditDashboard = new AddEditDashboard(contextId, dashboardType, dashboardId);
+	  const addEditDashboard = new AddEditDashboard(contextId, dashboardId);
 	  addEditDashboardFn = addEditDashboard.fn;
 	  addEditDashboardFn.loadDashboardPage();
 	  savedAction("dashboard-manage-details", dashboardId);
@@ -243,10 +231,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 
 </script>
-<script src="/webjars/1.0/dashboard/addEditDashboard.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+<script src="/webjars/1.0/dashboard/addEditDashboard.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('448f4ab0-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -295,20 +283,21 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		sessionStorage.setItem("dashlet-manage-details", formDataJson);
 		
 		let colM = [
-			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 80, dataIndx: "dashletName" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 80, dataIndx: "dashletTitle", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 70, dataIndx: "createdBy" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 30, dataIndx: "createdDate", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", width: 70, dataIndx: "updatedBy" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 30, dataIndx: "updatedDate" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.status'')}", width: 50, dataIndx: "status" , align: "left", halign: "center",render: dashletStatus},
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 40, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
 		];
 	
 		let grid = $("#divdDashletMasterGrid").grid({
@@ -316,6 +305,16 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			colModel: colM
 		});
 	});
+	
+	function dashletType(uiObject){
+		const dashletTypeId = uiObject.rowData.dashletTypeId;
+		if(dashletTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
 	function dashletStatus(uiObject){
 		const status = uiObject.rowData.status;
 		if(status == 1){
@@ -342,10 +341,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	
 </script>
-<script src="/webjars/1.0/dashlet/dashletListing.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+<script src="/webjars/1.0/dashlet/dashletListing.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('49f6cfd9-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -505,7 +504,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 											</td>
           
         									<td>
-				  								<select id="componentType" class="form-control" name="componentType" onchange="addEditDashletFn.defaultValueChange()">
+				  								<select id="componentType_${(dashletProperty.sequence)!''''}" class="form-control" name="componentType" onchange="addEditDashletFn.defaultValueChange(this.id)">
 				    								<#list componentMap as categoryId, categoryDescription>
 														<#if (dashletProperty?api.getType())?? && categoryId == dashletProperty?api.getType()>
 															<option value="${categoryId}" selected = "selected" >${categoryDescription}</option>	
@@ -634,5 +633,5 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 
 </script>
-<script src="/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+<script src="/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
   

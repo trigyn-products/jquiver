@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
@@ -62,9 +63,16 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 	
 	
-	public void deleteAllDashletProperty(String dashletId) throws Exception {
-		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHLET_PROPERTY.toString());
+	public void deleteAllDashletProperty(String dashletId, List<String> propertyIdList) throws Exception {
+		StringBuilder deleteQuery = new StringBuilder().append("DELETE FROM DashletProperties AS dp WHERE dp.dashletId = :dashletId AND dp.propertyId");
+		if(!StringUtils.isEmpty(propertyIdList)) {
+			deleteQuery.append(" NOT IN(:propertyId) ");
+		}
+		Query query = getCurrentSession().createQuery(deleteQuery.toString());
 		query.setParameter("dashletId", dashletId);
+		if(!StringUtils.isEmpty(propertyIdList)) {
+			query.setParameterList("propertyId", propertyIdList);
+		}
 		query.executeUpdate();
     }
 	

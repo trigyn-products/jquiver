@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.UserRoleRepository;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 
@@ -82,6 +84,9 @@ public class DashboardCrudService {
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO 									= null;
 	
+	@Autowired
+	private ModuleVersionService moduleVersionService								= null;
+	
     
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
 		return dashboardCrudDAO.findDashboardByDashboardId(dashboardId);
@@ -113,9 +118,12 @@ public class DashboardCrudService {
 		}
 	}
 	
+	@Transactional(readOnly = false)
 	public String saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);
-		iDashboardRepository.saveAndFlush(dashboardEntity);
+		List<DashboardRoleAssociation> roleAssociations = new ArrayList<>();
+		List<DashboardDashletAssociation> dashletAssociations = new ArrayList<>();
+		dashboardEntity = iDashboardRepository.save(dashboardEntity);
 		if (!CollectionUtils.isEmpty(dashboardVO.getRoleIdList())) {
 			for (String roleId : dashboardVO.getRoleIdList()) {
 				DashboardRoleAssociation dashboardRoleAssociation 		= new DashboardRoleAssociation();
@@ -123,7 +131,8 @@ public class DashboardCrudService {
 				dashboardRoleAssociationPK.setDashboardId(dashboardEntity.getDashboardId());
 				dashboardRoleAssociationPK.setRoleId(roleId);
 				dashboardRoleAssociation.setId(dashboardRoleAssociationPK);
-				iDashboardRoleRepository.saveAndFlush(dashboardRoleAssociation);
+				iDashboardRoleRepository.save(dashboardRoleAssociation);
+				roleAssociations.add(dashboardRoleAssociation);
 			}
 		}
 		if (!CollectionUtils.isEmpty(dashboardVO.getDashletIdList())) {
@@ -134,8 +143,12 @@ public class DashboardCrudService {
 				dashboardDashletAssociationPK.setDashletId(dahsletId);
 				dashboardDashletAssociation.setId(dashboardDashletAssociationPK);
 				iDashboardDashletRepository.save(dashboardDashletAssociation);
+				dashletAssociations.add(dashboardDashletAssociation);
 			}
 		}
+		dashboardEntity.setDashboardRoles(roleAssociations);
+		dashboardEntity.setDashboardDashlets(dashletAssociations);
+		moduleVersionService.saveModuleVersion(dashboardEntity,null, dashboardEntity.getDashboardId(), "dashboard");
 		return dashboardEntity.getDashboardId();
     }
     
@@ -148,7 +161,6 @@ public class DashboardCrudService {
 			dashboardEntity.setDashboardId(dashboardVO.getDashboardId());
 		}
 		dashboardEntity.setDashboardName(dashboardVO.getDashboardName());
-		dashboardEntity.setDashboardType(dashboardVO.getDashboardType());
 		dashboardEntity.setContextId(dashboardVO.getContextId());
 		dashboardEntity.setIsExportable(dashboardVO.getIsExportable());
 		dashboardEntity.setIsDraggable(dashboardVO.getIsDraggable());
@@ -176,8 +188,14 @@ public class DashboardCrudService {
     
 	public void deleteAllDashletProperty(DashletVO dashletVO) throws Exception {
 		String dashletId = dashletVO.getDashletId();
+		List<String> propertyIdList = new ArrayList<>();
 		if(!StringUtils.isBlank(dashletId)) {
-			dashboardCrudDAO.deleteAllDashletProperty(dashletId);
+			if(!CollectionUtils.isEmpty(dashletVO.getDashletPropertVOList())) {
+				for (DashletPropertyVO dashletPropertyVO : dashletVO.getDashletPropertVOList()) {
+					propertyIdList.add(dashletPropertyVO.getPropertyId());
+				}
+			}
+			dashboardCrudDAO.deleteAllDashletProperty(dashletId, propertyIdList);
 		}
 	}
 	
@@ -188,16 +206,18 @@ public class DashboardCrudService {
 		}
 	}
 	
-	
+	@Transactional(readOnly = false)
     public String saveDashlet(String userId, DashletVO dashletVO) throws Exception {
     	Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
-		dashlet 		= iDashletRepository.saveAndFlush(dashlet);
-		
+		dashlet 		= iDashletRepository.save(dashlet);
+		List<DashletProperties> properties = new ArrayList<>();
+		List<DashletRoleAssociation> roleAssociations = new ArrayList<>();
 		try {
 			if(!CollectionUtils.isEmpty(dashletVO.getDashletPropertVOList())) {
 				for (DashletPropertyVO dashletPropertyVO : dashletVO.getDashletPropertVOList()) {
 					DashletProperties dashletProperties = convertDashletPropertyVOtoEntity(dashlet.getDashletId(),dashletPropertyVO);
 					iDashletPropertiesRepository.save(dashletProperties);
+					properties.add(dashletProperties);
 				}
 			}
 			if(!CollectionUtils.isEmpty(dashletVO.getRoleIdList())) {
@@ -207,9 +227,13 @@ public class DashboardCrudService {
 					dashletRoleAssociationPK.setDashletId(dashlet.getDashletId());
 					dashletRoleAssociationPK.setRoleId(roleId);
 					dashletRoleAssociation.setId(dashletRoleAssociationPK);
-					iDashletRoleAssociationRepository.saveAndFlush(dashletRoleAssociation);
+					iDashletRoleAssociationRepository.save(dashletRoleAssociation);
+					roleAssociations.add(dashletRoleAssociation);
 				}
 			}
+			dashlet.setProperties(properties);
+			dashlet.setDashletRoleAssociations(roleAssociations);
+			moduleVersionService.saveModuleVersion(dashlet,null, dashlet.getDashletId(), "dashlet");
 			
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 	        if(environment.equalsIgnoreCase("dev")) {

@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
  
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('561cdf55-09fa-11eb-a894-f48e38ab8cd7', 'resource-bundle-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -126,10 +126,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`) VALUES ('5cbb7388-09fa-11eb-a894-f48e38ab8cd7' ,'resource-bundle-manage-details','<head>
+REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`, template_type_id) VALUES ('5cbb7388-09fa-11eb-a894-f48e38ab8cd7' ,'resource-bundle-manage-details','<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
@@ -227,12 +227,12 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 		savedAction("resource-bundle-manage-details", resourceBundleKey);
 		hideShowActionButtons();
 	});
-</script>','aar.dev@trigyn.com','aar.dev@trigyn.com',NOW());
+</script>','aar.dev@trigyn.com','aar.dev@trigyn.com',NOW(), 2);
 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('70c2153c-09fa-11eb-a894-f48e38ab8cd7', 'notification-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -365,9 +365,9 @@ function editNotification(thisObj){
 	$("#primaryId").val(thisObj.id);
 	$("#addEditNotification").submit();
 }
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+ REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('79d3522a-09fa-11eb-a894-f48e38ab8cd7', 'loadNotifications', '<div>
 	<ul class="notification_list">
 		<#list notifications as currentNotf >
@@ -385,9 +385,9 @@ function editNotification(thisObj){
 		</#list>
 	</ul>
 </div>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW()); 
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2); 
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('e848b04c-f19b-11ea-9304-f48e38ab9348', 'notification', 'notification add/edit', 'select * from generic_user_notification where notification_id="${(primaryId)!''''}"', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -424,6 +424,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 
 <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 <form method="post" name="genericNotificationForm" id="genericNotificationForm">
+	<input type="hidden" id="isEdit" name="isEdit"/>
 	<input type="hidden" id="notificationId" name="notificationId"/>
 		<div class="row">
 			<div class="col-3">
@@ -521,8 +522,16 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			</div>
 		</div>
 	</div>
-</form>                             
-<div class="fileupload col-6 dropzone"></div>
+	
+		<input type="hidden" id="primaryKey" name="primaryKey">
+		<input type="hidden" id="entityName" name="entityName" value="generic_user_notification">
+</form>   
+<!-- <button class="btn btn-primary fileupload start-upload">
+    <i class="glyphicon glyphicon-upload"></i>
+    <span>Upload</span>
+</button>                           -->
+<div class="col-6 fileupload dropzone"></div>
+
 </div>
         
 
@@ -532,13 +541,21 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 <script>
 contextPath = "${(contextPath)!''''}";
 let formId = "${formId}";
+let isEdit = 0;
+let initialFormData;
 let dropzoneElement = $(".fileupload").fileUpload({
     fileUploadId : "dynamic-form",
-    successcallback: showAlert.bind(this)
+    successcallback: showAlert.bind(this),
+    deletecallback: deleteAlert.bind(this)
 },["8a80cb81754175a10175418298b20005"]);
-function showAlert() {
-    alert("Successful");
+function showAlert(fileId) {
+    alert("Successful uploaded file id "+ fileId);
 }
+
+function deleteAlert(fileId) {
+    alert("Deleted file id is "+fileId);
+}
+
 $(function() {
 	
 	Calendar.setup({
@@ -585,22 +602,40 @@ $(function() {
 	</#list>
 </#if>
 
-    let isEdit = 0;
+
       <#if (resultSet)?? && resultSet?has_content>
-      	isEdit = 1;
+      	<#list resultSet as resultSetList>
+      	let notificationId = ''${resultSetList?api.get("notification_id")}'';
+      	if(notificationId != ""){
+      		$("#isEdit").val(1);
+      		isEdit = 1;
+      	}
+      	</#list>
       </#if>
     
+	initialFormData = $("#genericNotificationForm").serialize();
 	savedAction("notification-add-edit", isEdit);
 	hideShowActionButtons();
 });  
 
-function saveFormData (){
+function saveData (){
     let isDataSaved = false;
+	let updatedFormData = $("#genericNotificationForm").serialize();
+	if(updatedFormData === initialFormData){
+		return true;
+	}
+	initialFormData = $("#genericNotificationForm").serialize();
 	if(validateFields() == false){
         $("#errorMessage").show();
         return false;
     }
 	$("#errorMessage").hide();
+	if(isEdit == 0){
+		const generatedNotificationId = uuidv4();
+		$("#notificationId").val(generatedNotificationId);
+	}
+	let primaryKey = $("#notificationId").val();
+    $("#primaryKey").val(primaryKey);
 	const form = $("#genericNotificationForm");
 	let serializedForm = form.serializeArray();
 	for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
@@ -616,6 +651,7 @@ function saveFormData (){
 	  data : formData, 
 	  success : function(data) {
 		isDataSaved = true;
+		enableVersioning(formData);
 		showMessage("Information saved successfully", "success");
 	  },
 	  error : function(xhr, error){
@@ -667,10 +703,10 @@ function validateFields(){
 function backToPreviousPage(){
 	window.location.href=contextPath+"/cf/nl";
 }     
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
-   'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("notificationId"))?has_content>
+   'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("isEdit"))?has_content && (formData?api.getFirst("isEdit")) == "1">
 	UPDATE generic_user_notification SET
   target_platform = ''${formData?api.getFirst("targetPlatform")}''  
   ,message_valid_from = STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
@@ -698,7 +734,7 @@ REPLACE INTO generic_user_notification (
   ,updated_by
   ,updated_date
 ) VALUES (
-   uuid()   
+   ''${formData?api.getFirst("notificationId")}''   
   ,''${formData?api.getFirst("targetPlatform")}'' 
   , STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
   ,STR_TO_DATE( "${formData?api.getFirst("toDate") }","%d-%b-%Y") 

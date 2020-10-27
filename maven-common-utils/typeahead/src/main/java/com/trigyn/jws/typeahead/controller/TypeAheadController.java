@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.trigyn.jws.typeahead.model.AutocompleteParams;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,6 +32,7 @@ public class TypeAheadController {
     
 	@ApiOperation(value = "Get count of autocomplete data by autocomplete id.")
 	@PostMapping(value = "/autocomplete-data", produces = {MediaType.APPLICATION_JSON_VALUE})
+	@Authorized(moduleName = Constants.AUTOCOMPLETE)
 	public List<Map<String, Object>> getAutocompleteData(HttpServletRequest request) {
 		AutocompleteParams autocompleteParams = new AutocompleteParams(request);
 		return typeAheadService.getAutocompleteData(autocompleteParams);
@@ -38,6 +41,7 @@ public class TypeAheadController {
 	
 	@ApiOperation(value = "Get count of autocomplete data by autocomplete id")
 	@GetMapping(value = "/count-data", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
+	@Authorized(moduleName =  Constants.AUTOCOMPLETE)
 	public Integer getCountOfData(@RequestBody AutocompleteParams requestParams) {
 		AutocompleteParams autocompleteParams = requestParams.proccessAutocompleteReqeustObject();
 		return typeAheadService.getCountOfData(autocompleteParams);

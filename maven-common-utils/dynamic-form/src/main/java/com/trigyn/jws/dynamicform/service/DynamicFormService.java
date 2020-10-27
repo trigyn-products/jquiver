@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -44,6 +48,9 @@ public class DynamicFormService {
 	
 	@Autowired
 	private MenuService menuService							= null;
+	
+	@Autowired
+	private ModuleVersionService moduleVersionService		= null;
 	
 	
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam){
@@ -90,7 +97,10 @@ public class DynamicFormService {
 			Boolean includeLayout = requestParam.get("includeLayout") == null ? Boolean.TRUE 
 						: Boolean.parseBoolean(requestParam.get("includeLayout").toString());
 			if(Boolean.TRUE.equals(includeLayout)) {
-				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, new HashMap<>());
+				Map<String, Object> entityDetails = new HashMap<String, Object>();
+				entityDetails.put("entityType", "form");
+				entityDetails.put("entityName", formName);
+				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, entityDetails);
 			} else {
 				return templateHtml;
 			}
@@ -103,7 +113,8 @@ public class DynamicFormService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Boolean saveDynamicForm(MultiValueMap<String, String> formData) throws Exception {
 		String saveTemplateQuery = null;
-		DynamicForm form = dynamicFormDAO.findDynamicFormById(formData.getFirst("formId"));
+		String formId = formData.getFirst("formId");
+		DynamicForm form = dynamicFormDAO.findDynamicFormById(formId);
 		String formName = form.getFormName();
 		Map<String, Object> saveTemplateMap = new HashMap<>();
 		saveTemplateMap.put("formData", formData);

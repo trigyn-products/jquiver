@@ -128,9 +128,10 @@ public class DashletDAO extends DBConnection {
 	}
 	
 
-	public List<Dashlet> getAllDashlets()throws Exception {
-		Query query = getCurrentSession().createQuery("FROM Dashlet WHERE isActive =:isActive");
+	public List<Dashlet> getAllDashlets(Integer dashletTypeId)throws Exception {
+		Query query = getCurrentSession().createQuery("FROM Dashlet WHERE isActive =:isActive AND dashletTypeId = :dashletTypeId ");
 		query.setParameter("isActive",  Constants.DashletStatus.ACTIVE.getDashletStatus());
+		query.setParameter("dashletTypeId", dashletTypeId);
 		List<Dashlet> dashlets = (List<Dashlet>) query.getResultList();
 		return dashlets;
 	}

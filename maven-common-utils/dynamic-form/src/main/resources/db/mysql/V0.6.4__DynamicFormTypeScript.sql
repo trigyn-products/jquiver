@@ -1,0 +1,1 @@
+ALTER TABLE dynamic_form ADD COLUMN form_type_id INT(11) DEFAULT 1;

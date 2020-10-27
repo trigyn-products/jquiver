@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('26f2589f-09fa-11eb-a894-f48e38ab8cd7', 'grid-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -67,6 +67,16 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	  });
 	  
 	});
+	
+	function gridType(uiObject){
+		const gridTypeId = uiObject.rowData.gridTypeId;
+		if(gridTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
 	function editGridDetails(uiObject) {
 		const gridId = uiObject.rowData.gridId;
 		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>''.toString();
@@ -76,9 +86,9 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		$("#primaryId").val(element.id);
 		$("#addEditGridForm").submit();
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('8a80cb8174bebc3c0174bec1892c0000', 'grid-details-form', 'Form to add edit grid details', 'SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName , grid_column_names AS gridColumnName
 , query_type AS queryType FROM grid_details WHERE grid_id="${primaryId}"', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -106,7 +116,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<form method="post" name="addEditForm" id="addEditForm">
 		
-		<!-- You can include any type of form element over here -->
 		<div class="row">
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
@@ -156,9 +165,15 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 				</div>
 			</div>
 		</div>
+		
+		<input type="hidden" id="primaryKey" name="primaryKey">
+		<input type="hidden" id="entityName" name="entityName" value="grid_details">
 		<!-- Your form fields end -->
 		
 	</form>	
+	<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+      <@templateWithoutParams "role-autocomplete"/> 
+	
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
@@ -191,7 +206,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 <script>
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
-	
 	$(function() {
 	    <#if (resultSet)??>
     	    <#list resultSet as resultSetList>
@@ -207,18 +221,24 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         let isEdit = 0;
       	<#if (resultSet)?? && resultSet?has_content>
       		isEdit = 1;
-      	</#if>
-    
+      		getEntityRoles();
+      	<#else>
+      		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+		</#if>      	
+      	
 		savedAction("grid-details-form", isEdit);
 		hideShowActionButtons();
 	});   
 
 	function saveData (){
-		let isDataSaved = false;
-		if(validateFields() == false){
+		let primaryKey = $("#gridId").val();
+        $("#primaryKey").val(primaryKey);
+	    if(validateFields() == false){
 	        $("#errorMessage").show();
 	        return false;
 	    }
+	    let isDataSaved = false;
 		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
 		$.ajax({
 		  type : "POST",
@@ -227,6 +247,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		  data : formData,
           success : function(data) {
           	isDataSaved = true;
+          	saveEntityRoleAssociation($("#gridId").val());
+          	enableVersioning(formData);
 			showMessage("Information saved successfully", "success");
 		  },
 	      error : function(xhr, error){
@@ -250,11 +272,52 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         return true;
     }
     
-	//Code go back to previous page
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/gd";
 	}
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+	
+	let saveEntityRoleAssociation =   function(gridId){
+			let roleIds =[];
+			let entityRoles = new Object();
+			entityRoles.entityName = $("#gridName").val();
+			entityRoles.moduleId=$("#moduleId").val();
+			entityRoles.entityId= gridId;
+			 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+				 roleIds.push(val.id);
+		     	
+		     });
+			
+			entityRoles.roleIds=roleIds;
+			
+			$.ajax({
+		        async : false,
+		        type : "POST",
+		        contentType : "application/json",
+		        url : "/cf/ser", 
+		        data : JSON.stringify(entityRoles),
+		        success : function(data) {
+			    }
+		    });
+		}
+		let getEntityRoles = function(){
+			$.ajax({
+		        async : false,
+		        type : "GET",
+		        url : "/cf/ler", 
+		        data : {
+		        	entityId:$("#gridId").val(),
+		        	moduleId:$("#moduleId").val(),
+		        },
+		        success : function(data) {
+		            $.each(data, function(key,val){
+		            	multiselect.setSelectedObject(val);
+		            	
+		            });
+			    }
+		    });
+		}
+	
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 
 REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
@@ -276,7 +339,7 @@ REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -362,13 +425,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
-('propertyMasterGrid', 'Property master listing', 'Property master listing grid', 'jws_property_master', '*', 1);
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) VALUES
+('propertyMasterGrid', 'Property master listing', 'Property master listing grid', 'jws_property_master', '*', 1, 2);
 
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'select * from jws_property_master where owner_id = "${ownerId}" and owner_type = "${ownerType}" and property_name = "${propertyName}"
 ', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -440,6 +503,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 				</div>
 			</div>
 			
+			<input type="hidden" id="primaryKey" name="primaryKey">
+			<input type="hidden" id="entityName" name="entityName" value="jws_property_master">
 		</div>
 		<!-- Your form fields end -->
 		
@@ -478,11 +543,13 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	let edit = 0;
 	
 	function saveData (){
-		let isDataSaved = false;
+		let primaryKey = $("#ownerId").val() + "-" + $("#ownerType").val() + "-" + $("#propertyName").val();
+        $("#primaryKey").val(primaryKey);
 	    if(validateFields() == false){
 	        $("#errorMessage").show();
 	        return false;
 	    }
+	    let isDataSaved = false;
 		let propertyValue = $(''#propertyValue'').val().replace(/\\\\/g, "\\\\\\\\");
         	$("#propertyValue").val(propertyValue);
 		let formData = $("#addEditForm").serialize() + "&formId="+formId;
@@ -497,6 +564,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
           success : function(data) {
           	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
+			enableVersioning(formData);
 		  },
 	      error : function(xhr, error){
 			showMessage("Error occurred while saving", "error");
@@ -541,11 +609,12 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         <#if (requestDetails?api.get("ownerId")) != "">
             edit = 1;
         </#if>
+        
         savedAction("property-master-form", edit);
         hideShowActionButtons();
 	});
 </script>
-	', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+	', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
   
 REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '<#if  (formData?api.getFirst("edit"))?has_content>
@@ -583,5 +652,8 @@ REPLACE INTO jws_property_master (
   ,''${formData?api.getFirst("comment")}''
 );
 </#if>', 1, NULL);
+
+REPLACE INTO jws_property_master (owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES ('system', 'system', 'max-version-count', '10', 0, NOW(), 'admin', 1.00, 'Maximum limit to persist versioning data');
 
 SET FOREIGN_KEY_CHECKS=1;

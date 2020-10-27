@@ -20,6 +20,8 @@ import com.trigyn.jws.gridutils.utility.CustomGridsResponse;
 import com.trigyn.jws.gridutils.utility.DataGridResponse;
 import com.trigyn.jws.gridutils.utility.GenericGridParams;
 import com.trigyn.jws.gridutils.utility.GridResponse;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -30,7 +32,8 @@ public class GridUtilsController {
     @Autowired
     private GenericUtilsService genericGridService = null;
 
-	@PostMapping(value="/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+	@Authorized(moduleName = Constants.GRIDUTILS)
 	public CustomGridsResponse loadGridData(HttpServletRequest request, HttpServletResponse response) throws Exception{
 		String gridId=request.getParameter("gridId");
 		GenericGridParams gridParams = new GenericGridParams(request);
@@ -42,7 +45,8 @@ public class GridUtilsController {
 	
 
 	
-	@PostMapping(value="/pq-grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="/pq-grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
+	@Authorized(moduleName = Constants.GRIDUTILS)
     public DataGridResponse loadPQGridWithData(HttpServletRequest request, HttpServletResponse response) throws Exception{
         String gridId=request.getParameter("gridId");
         GenericGridParams gridParams = new GenericGridParams();

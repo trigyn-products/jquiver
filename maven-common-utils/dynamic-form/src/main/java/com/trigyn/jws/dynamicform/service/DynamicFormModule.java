@@ -17,6 +17,7 @@ import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.dynamicform.utils.Constant;
 
 @Component("dynamic-form")
 public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
@@ -39,14 +40,14 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		if(a_dynamicForm != null) {
 			formList.add(a_dynamicForm);
 		}else {
-			formList = dynamicFormDAO.getAllDynamicForms();
+			formList = dynamicFormDAO.getAllDynamicForms(Constant.DEFAULT_FORM_TYPE);
 		}
 		
-		String templateDirectory 		= "DynamicForm";
-		String ftlCustomExtension 		= ".tgn";
-		String selectQuery 				= "selectQuery";
-		String htmlBody 				= "htmlContent";
-		String saveQuery 				= "saveQuery-";
+		String templateDirectory 		= Constant.DYNAMIC_FORM_DIRECTORY_NAME;
+		String ftlCustomExtension 		= Constant.CUSTOM_FILE_EXTENSION;
+		String selectQuery 				= Constant.DYNAMIC_FORM_SELECT_FILE_NAME;
+		String htmlBody 				= Constant.DYNAMIC_FORM_HTML_FILE_NAME;
+		String saveQuery 				= Constant.DYNAMIC_FORM_SAVE_FILE_NAME;
 		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
@@ -94,11 +95,12 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user 				="admin";
-		String ftlCustomExtension 	= ".tgn";
-		String templateDirectory 	= "DynamicForm";
-		String selectQuery 			= "selectQuery";
-		String htmlBody 			= "htmlContent";
-		String saveQuery 			= "saveQuery-";
+		String ftlCustomExtension 		= Constant.DYNAMIC_FORM_DIRECTORY_NAME;
+		String templateDirectory 		= Constant.CUSTOM_FILE_EXTENSION;
+		String selectQuery 				= Constant.DYNAMIC_FORM_SELECT_FILE_NAME;
+		String htmlBody 				= Constant.DYNAMIC_FORM_HTML_FILE_NAME;
+		String saveQuery 				= Constant.DYNAMIC_FORM_SAVE_FILE_NAME;
+		
 		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 				= folderLocation +File.separator+templateDirectory;
 		File directory 				= new File(folderLocation);

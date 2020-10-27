@@ -1,5 +1,5 @@
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('76e09b33-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-demo', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -15,7 +15,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container">
 
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.typeAheadAutocompleteDemo'')}</h2> 
+		<h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.typeAheadAutocompleteDemo" "TypeAhead Demo"/></h2> 
 		<div class="float-right">
 			<span onclick="backToListingPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -51,7 +51,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<input class="form-control" id="rbAutocompleteLS" type="text">
  			</div>
 		</div>
-		
+	</div>
+	
+	<div class="row">	
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<div class="multiselectcount_clear_block">
@@ -69,6 +71,26 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<div id="rbMultiselect_selectedOptions"></div>
  			</div>
 		</div>
+		
+		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<div class="multiselectcount_clear_block">
+					<div id="languages_removeAll" class="pull-right disable_cls">
+						<span title="Clear All" class="clearall-cls" onclick="languageSelector.removeAllElements(''languages'')" style="pointer-events:none">Clear All</span>
+					</div>
+					<div id="languages_count" class="multiselectcount pull-right disable_cls">
+						<span title="hide show" onclick="languageSelector.showHideDataDiv(''languages_selectedOptions'')" style="pointer-events:none">0</span>
+					</div>
+				</div>
+				
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.multiselectLocalStorage'')}</label>
+				<input class="form-control" id="languages" type="text">
+			
+				<div id="languages_selectedOptions"></div>
+ 			</div>
+		</div>
+		
 	</div>
 	
 </div>
@@ -181,11 +203,57 @@ $(function () {
 			return "<p>" + item.languageName + "</p><small>" + item.languageId + "</small>";
 		}
 	});
+	
+	languageSelector = $("#languages").multiselect({
+            multiselectItem: $("#languages_selectedOptions"),
+            paging:false,
+            items: [{
+                languageName: "English",
+                languageId: 1
+            }, {
+                languageName: "French",
+                languageId: 2
+            }, {
+                languageName: "Hindi",
+                languageId: 3
+            }],
+
+            render: function(item) {
+                var renderStr ="";
+                if(item.emptyMsg == undefined || item.emptyMsg === ''''){
+                    renderStr = "<p>"+item.languageName+"</p>";
+                }else{
+                    renderStr = item.emptyMsg;    
+                }                                
+                return renderStr;
+            },
+
+            filter: function(items, searchTerm) {
+                return items.filter(function(item) {
+                	return item.languageName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+                });
+            },
+            extractText: function(item) {
+                return item.languageName;
+            },
+
+            selectedItemRender: function(item){
+                return item.languageName;
+            },
+
+            select: function(item) {
+                $("#languages").blur();
+                languageSelector.setSelectedObject(item);
+            }    
+
+        });
+        
+        
 });
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('7e8438bf-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
@@ -245,6 +313,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  });
 	});
 	
+	function autocompleteType(uiObject){
+		const autocompleteTypeId = uiObject.rowData.autocompleteTypeId;
+		if(autocompleteTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
 	function editAutocomplete(uiObject) {
 		const autocompleteId = uiObject.rowData.autocompleteId;
 	  	return ''<span id="''+autocompleteId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
@@ -262,10 +339,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('85f44645-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -328,6 +405,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
    <input type="hidden" name="autoCompleteSelectQuery" id="acSelectQuery">
    
   </form>
+  <input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    <@templateWithoutParams "role-autocomplete"/>
   <div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -364,15 +443,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	    addEditAutocomplete.loadAutocompletDetails();
 	    savedAction("autocomplete-manage-details", acId);
 	    hideShowActionButtons();
+	     if(acId==""){
+            let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+        }else{
+            addEditAutocomplete.getEntityRoles();
+        }
 	});
 </script>
-<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
-CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' select ac_id as autocompleteId, ac_description as autocompleteDescription, ac_select_query as acQuery ';
-  SET @fromString  = ' FROM autocomplete_details ';
+  SET @resultQuery = ' select au.ac_id as autocompleteId, au.ac_description as autocompleteDescription, au.ac_select_query as acQuery ';
+  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId ');
+  SET @fromString  = ' FROM autocomplete_details au ';
   SET @whereString = ' ';
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
   
@@ -393,7 +479,7 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,autocompleteTypeId', 2);
 
-REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query) VALUES
-('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")');
+REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")', 2);

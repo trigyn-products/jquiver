@@ -1,9 +1,9 @@
 SET FOREIGN_KEY_CHECKS=0; 
 
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (1, 'jemployees', 1, 'getEmployeeDetails', 'Method to get employee details', 2, 7, 'Map<String, Object> response = new HashMap<>();
 response.put("response", parameters.get("employees"));
-return response;', 1);
+return response;', 1, 1);
 
 REPLACE INTO jws_dynamic_rest_dao_details(
 	jws_dao_details_id
@@ -47,7 +47,7 @@ REPLACE INTO jws_dynamic_rest_dao_details(
   ,1
 );
 
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (2, '/dyn/api/employees', 1, 'getEmpDetails', 'Method to get employee details', 2, 7, '[
 	<#list employees as employee>
 		{
@@ -61,6 +61,6 @@ REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url
 		}
 		<#if (employee_has_next)>,</#if>
 	</#list>
-]', 2);
+]', 2, 1);
 
 SET FOREIGN_KEY_CHECKS=1;

@@ -2,17 +2,14 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.trigyn.jws.usermanagement.entities.JwsRoleMasterModulesAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
-import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
 public class UserInformation implements UserDetails {
 
@@ -29,10 +26,10 @@ public class UserInformation implements UserDetails {
 	private String userId = null;
 
 	private List<GrantedAuthority> authorities = new ArrayList<>();
+	
+	private List<String> roles = new ArrayList<>();
 
-	private Map<String, List<String>> roleFunctionMap = new HashMap<>();
-
-	public UserInformation(JwsUser user, List<JwsUserRoleAssociation> roleAssociation) {
+	public UserInformation(JwsUser user, List<JwsRoleVO> roleVOs) {
 		
 		this.userId =  user.getUserId();
 		this.userName = user.getEmail();
@@ -40,20 +37,11 @@ public class UserInformation implements UserDetails {
 		this.fullName = user.getFirstName() +" " +user.getLastName(); 
 		this.active = user.getIsActive() == 1? true:false;
 		
-		for (JwsUserRoleAssociation  currentRole : roleAssociation) {
-			String roleName = currentRole.getJwsRole().getRoleName();
-			if(roleFunctionMap.containsKey(roleName)) {
-				continue;
-			}
-			SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleName);
-			List<String> functionNames = new ArrayList<>();	
-			for (JwsRoleMasterModulesAssociation currentModule : currentRole.getJwsRole().getJwsRoleMasterModulesAssociation()) {
-				functionNames.add(currentModule.getModule().getModuleName());
-			}
-			roleFunctionMap.put(roleName,functionNames);
+		for (JwsRoleVO jwsRoleVO : roleVOs) {
+			SimpleGrantedAuthority authority = new SimpleGrantedAuthority(jwsRoleVO.getRoleName());
+			roles.add(jwsRoleVO.getRoleName());
 			authorities.add(authority);
 		}
-
 	}
 
 	@Override
@@ -107,8 +95,8 @@ public class UserInformation implements UserDetails {
 		this.userId = userId;
 	}
 
-	public Map<String, List<String>> getRoleFunctionMap() {
-		return roleFunctionMap;
+	public List<String> getRoles() {
+		return roles;
 	}
 
 }

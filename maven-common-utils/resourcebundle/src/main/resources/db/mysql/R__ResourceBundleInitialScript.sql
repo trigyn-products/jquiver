@@ -157,11 +157,13 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.type
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocomplete', 1, 'Autocomplete'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompletePrefetch', 1, 'Autocomplete(Prefetch)');
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(LocalStorage)'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(Local Storage)'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselect', 1, 'Multiselect');  
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndReturn', 1, 'Save & Return');  
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndCreateNew', 1, 'Save & Create New');  
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndEdit', 1, 'Save & Edit'); 
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addFileConfiguration', 1, 'Add File Configuration'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselectLocalStorage',1,'Multiselect(Local Storage)');
+
 SET FOREIGN_KEY_CHECKS=1;

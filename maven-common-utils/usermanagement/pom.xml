@@ -15,15 +15,10 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.trigyn</groupId>
-			<artifactId>gridutils</artifactId>
-			<version>1.3.10-SNAPSHOT</version>
-		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
-			<artifactId>templating</artifactId>
+			<artifactId>dbutils</artifactId>
 			<version>1.3.10-SNAPSHOT</version>
 		</dependency>
 		

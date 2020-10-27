@@ -3,7 +3,7 @@ package com.trigyn.jws.typeahead.service;
 import java.util.List;
 import java.util.Map;
 
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.typeahead.dao.TypeAheadDAO;
 import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -26,7 +26,7 @@ public class TypeAheadService {
 	private TypeAheadRepository typeAheadRepository 				= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService			= null;
+	private ModuleVersionService moduleVersionService				= null;
 	
 	
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
@@ -55,7 +55,7 @@ public class TypeAheadService {
 		autocomplete.setAutocompleteDesc(autoCompleteDesc);
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
 		typeAheadRepository.saveAndFlush(autocomplete);
-		templateVersionService.saveTemplateVersion(autocomplete,null, autoCompleteId, "autocomplete_details");
+		moduleVersionService.saveModuleVersion(autocomplete,null, autoCompleteId, "autocomplete_details");
 		
 		return autoCompleteId;
 		

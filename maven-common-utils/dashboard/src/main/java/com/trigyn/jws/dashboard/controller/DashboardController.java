@@ -26,6 +26,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -52,7 +53,7 @@ public class DashboardController {
 	@GetMapping(value = "/gdbc", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<DashboardDashletVO> getDashletByContextId(
 			@RequestHeader(value = "context-id", required = true) String contextId,
-			@RequestHeader(value = "dashboard-id", required = false) String dashboardId)
+			@RequestHeader(value = "dashboardId", required = false) String dashboardId)
 			throws NumberFormatException, Exception {
 		return dashboardServiceImpl.getDashletsByContextId(contextId, dashboardId);
 	}
@@ -60,6 +61,7 @@ public class DashboardController {
 	
 	@PostMapping(value = "/dls", produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
+	@Authorized(moduleName = com.trigyn.jws.usermanagement.utils.Constants.DASHBOARD)
 	public String dashlets(@RequestParam(value = "dashboardId") String dashboardId,
 			@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
 		if (userId == null) {

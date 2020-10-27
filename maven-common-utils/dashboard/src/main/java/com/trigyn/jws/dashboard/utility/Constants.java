@@ -35,6 +35,8 @@ public final class Constants {
 	public static final String TARGET_PLATFORM_TSMS 					= "tsms";
 	public static final String DASHLET_CONFIGURATION 					= null;
 	public static final String ANON_USER_STR 							= "anonymousUser";
+	
+	public static final Integer DEFAULT_DASHLET_TYPE_ID					= 1;
 
     public enum RecordStatus {
         DELETED(1), INSERTED(0), UPDATED(0);

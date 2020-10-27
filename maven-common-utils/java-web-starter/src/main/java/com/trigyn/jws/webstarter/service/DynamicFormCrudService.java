@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
@@ -28,6 +28,7 @@ import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Service
 @Transactional
@@ -44,7 +45,7 @@ public class DynamicFormCrudService {
 	private DownloadUploadModule downloadUploadModule 						= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService					= null;
+	private ModuleVersionService moduleVersionService						= null;
 	
 	@Autowired
 	private MenuService menuService 										= null;
@@ -65,7 +66,7 @@ public class DynamicFormCrudService {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 			dynamicForm.setFormBody("<#noparse>" + dynamicForm.getFormBody() + "</#noparse>");
 			dynamicForm.setFormSelectQuery("<#noparse>" + dynamicForm.getFormSelectQuery() + "</#noparse>");
-			Map<Double, String> versionDetailsMap = templateVersionService.getVersionDetails(formId);
+			Map<Double, String> versionDetailsMap = moduleVersionService.getVersionDetails(formId);
 			templateMap.put("versionDetailsMap", versionDetailsMap);
 		} else {
 			List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
@@ -76,7 +77,7 @@ public class DynamicFormCrudService {
 	}
 
 	@Transactional(readOnly = false)
-	public void saveDynamicFormDetails(MultiValueMap<String, String> formData) throws Exception {
+	public String saveDynamicFormDetails(MultiValueMap<String, String> formData) throws Exception {
 		DynamicForm dynamicForm = new DynamicForm();
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = new ArrayList<>();
 		String formId = formData.getFirst("formId").toString();
@@ -106,7 +107,9 @@ public class DynamicFormCrudService {
         	downloadUploadModule.downloadCodeToLocal(dynamicForm);
         }
         
-        templateVersionService.saveTemplateVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form");
+        moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form");
+        
+        return dynamicForm.getFormId();
 	}
 
 	
@@ -136,7 +139,7 @@ public class DynamicFormCrudService {
 		List<DynamicFormSaveQuery> dynamicFormSaveQueryList = dynamicFormDAO.findDynamicFormQueriesById(formId);
 		DynamicForm dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 		for (DynamicFormSaveQuery dynamicFormSaveQuery : dynamicFormSaveQueryList) {
-			Map<Double, String> versionDetailsMap = templateVersionService.getVersionDetails(dynamicFormSaveQuery.getDynamicFormQueryId());
+			Map<Double, String> versionDetailsMap = moduleVersionService.getVersionDetails(dynamicFormSaveQuery.getDynamicFormQueryId());
 			Map<String, Object> formSaveQueryMap = new HashMap<>();
 			formSaveQueryMap.put("formQueryId", dynamicFormSaveQuery.getDynamicFormQueryId());
 			formSaveQueryMap.put("formSaveQuery", dynamicFormSaveQuery.getDynamicFormSaveQuery());

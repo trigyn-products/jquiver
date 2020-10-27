@@ -1,4 +1,4 @@
-package com.trigyn.jws.usermanagement.controller;
+package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,7 +8,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.devtools.restart.Restarter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +20,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.security.config.UserInformation;
-import com.trigyn.jws.usermanagement.service.UserManagementService;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleMasterModulesAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
+import com.trigyn.jws.webstarter.service.UserManagementService;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -45,7 +49,7 @@ public class JwsUserManagementController {
 	}
 	
 	
-	@GetMapping(value="/role")
+	@GetMapping(value="/rl")
 	public String roleListing () throws Exception {
 		Map<String, Object> mapDetails = new HashMap<>();
 		return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
@@ -76,10 +80,10 @@ public class JwsUserManagementController {
 	}
 	
 	@PostMapping(value = "/srm")
-	public String saveRoleModules(@RequestBody List<JwsRoleMasterModulesAssociationVO> roleModulesList
+	public Boolean saveRoleModules(@RequestBody JwsRoleMasterModulesAssociationVO roleModule
 			, HttpServletResponse httpServletResponse) throws IOException {
 		try{
-			return userManagementService.saveRoleModules(roleModulesList);
+			return userManagementService.saveRoleModules(roleModule);
 		} catch (Exception exception) {
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
@@ -87,7 +91,7 @@ public class JwsUserManagementController {
 	}
 	
 	
-	@GetMapping(value="/user")
+	@GetMapping(value="/ul")
 	public String userListing () throws Exception {
 		
 		Map<String, Object> mapDetails = new HashMap<>();
@@ -146,9 +150,9 @@ public class JwsUserManagementController {
 	
 	@PostMapping(value="/suer")
 	public Boolean saveUpdateEntityRole(
-			@RequestBody JwsEntityRoleAssociationVO entityData) throws Exception {
+			@RequestBody List<JwsEntityRoleAssociationVO> entityDataList) throws Exception {
 		
-		userManagementService.saveUpdateEntityRole(entityData);
+		userManagementService.saveUpdateEntityRole(entityDataList);
 		return true;
 	}
 	
@@ -158,4 +162,33 @@ public class JwsUserManagementController {
 		return userManagementService.getModules();
 	}
 	
+	 	@GetMapping(value = "/restart-admin")
+	    public void restart() {    
+	        Restarter.getInstance().restart();
+
+	}
+	 	
+ 	@PostMapping(value="/mp")
+	public String managePermissions() throws Exception {
+		
+ 		Map<String, Object> mapDetails = new HashMap<>();
+		return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
+	} 	
+ 	
+ 	@PostMapping(value="/ser")
+	public Boolean saveEntityRole(
+			@RequestBody JwsEntityRoleVO entityRoles) throws Exception {
+		
+		userManagementService.deleteAndSaveEntityRole(entityRoles);
+		return true;
+	}
+	
+ 	@GetMapping(value="/ler", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<JwsRoleVO> getEntityRole(
+			@RequestParam("entityId") String entityId,
+			@RequestParam("moduleId") String moduleId) throws Exception {
+		
+		return userManagementService.getEntityRoles(entityId,moduleId);
+	}
+ 	
 }

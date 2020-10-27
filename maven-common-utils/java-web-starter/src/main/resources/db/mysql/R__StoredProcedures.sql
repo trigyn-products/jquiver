@@ -1,6 +1,6 @@
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("dashboardMasterListingGrid", 'Dashboard Master Listing', 'Dashboard Master', 'dashboardMasterListing'
-,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedDate');
+,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedDate', 2);
 
 
 DROP PROCEDURE IF EXISTS dashboardMasterListing;
@@ -62,12 +62,13 @@ END;
 
 
 DROP PROCEDURE IF EXISTS  dashletMasterListing;
-CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = CONCAT("select dashlet_id as dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName, "
-  ," date_format(created_date,'%d %b %Y') AS createdDate,date_format(updated_date,'%d %b %Y') AS updatedDate, "
-  ," updated_by as updatedBy, created_by as createdBy,is_active AS status ") ;
-  SET @fromString  = ' from dashlet ';
+  SET @resultQuery = CONCAT("select dl.dashlet_id as dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
+  ," date_format(dl.created_date,'%d %b %Y') AS createdDate,date_format(dl.updated_date,'%d %b %Y') AS updatedDate, "
+  ," dl.updated_by as updatedBy, dl.created_by as createdBy,dl.is_active AS status ") ;
+  SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
+  SET @fromString  = ' from dashlet AS dl';
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
@@ -149,15 +150,17 @@ BEGIN
 END;
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,createdDate,createdBy,updatedDate,updatedBy,status');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
 
 
 DROP PROCEDURE IF EXISTS dynamicFormListing;
-CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = CONCAT("select form_id as formId, form_description AS formDescription,form_name AS formName, "
-  ," date_format(created_date,'%d %b %Y') AS createdDate, created_by as createdBy") ;
-  SET @fromString  = ' from dynamic_form ';
+  SET @resultQuery = CONCAT("select df.form_id as formId, df.form_description AS formDescription,df.form_name AS formName, "
+  ," date_format(df.created_date,'%d %b %Y') AS createdDate, df.created_by as createdBy") ;
+  SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId '); 
+  SET @fromString  = ' from dynamic_form AS df ';
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
@@ -214,14 +217,16 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details  VALUES 
-("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formName,formDescription,createdDate,createdBy', 2);
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
+("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formName,formDescription,formTypeId,createdDate,createdBy', 2);
 
 DROP PROCEDURE IF EXISTS templateListing;
-CREATE PROCEDURE templateListing (templateName varchar(100), createdBy VARCHAR(100),updatedBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE `templateListing`(templateName varchar(100), templateTypeId INT(11), createdBy VARCHAR(100),updatedBy varchar(100)
+, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy, date_format(tm.updated_date, ''%d %b %Y'') as updatedDate ';
-  SET @fromString  = ' FROM template_master AS tm';
+  SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId ');
+  SET @fromString  = ' FROM template_master AS tm ';
   SET @whereString = '';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -232,6 +237,11 @@ BEGIN
   IF NOT templateName IS NULL THEN
     SET @templateName= REPLACE(templateName,"'","''");
     SET @whereString = CONCAT(@whereString,' tm.template_name LIKE ''%',@templateName,'%''');
+  END IF;
+  
+  IF NOT templateTypeId IS NULL THEN
+    SET @templateName= REPLACE(templateTypeId,"'","''");
+    SET @whereString = CONCAT(@whereString,' tm.template_type_id = ',@templateTypeId);
   END IF;
   
   IF NOT createdBy IS NULL THEN
@@ -263,13 +273,13 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
-VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,createdBy,updatedBy');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing',
-'resourceKey,languageName,resourceBundleText');
+'resourceKey,languageName,resourceBundleText', 2);
 
 DROP PROCEDURE IF EXISTS dbResourceListing;
 CREATE PROCEDURE dbResourceListing (resourceKey varchar(100), languageName varchar(100), resourceBundleText text, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
@@ -315,10 +325,13 @@ END;
 
 
 DROP PROCEDURE IF EXISTS gridDetails;
-CREATE PROCEDURE `gridDetails`(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100), gridColumnName varchar(500), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE `gridDetails`(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100)
+, gridColumnName varchar(500),gridTypeId INT(11), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDesc, grid_table_name AS gridTableName, grid_column_names AS gridColumnName ';
-  SET @fromString  = ' FROM grid_details ';
+  SET @resultQuery = ' SELECT gd.grid_id AS gridId, gd.grid_name AS gridName, gd.grid_description AS gridDesc, gd.grid_table_name AS gridTableName, gd.grid_column_names AS gridColumnName ';
+  SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId ');
+  SET @fromString  = ' FROM grid_details AS gd ';
+
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -365,7 +378,8 @@ BEGIN
 END;
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+ VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2);
 
 DROP PROCEDURE IF EXISTS notificationlisting;
 CREATE PROCEDURE notificationlisting(targetPlatform varchar(100), messageType varchar(500), validFrom varchar(500), messageText varchar(500), validTill varchar(100), messageFormat varchar(100), selectionCriteria varchar(500), updatedBy varchar(100), updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
@@ -468,7 +482,7 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
 
 
 DROP PROCEDURE IF EXISTS moduleListing;
@@ -547,23 +561,23 @@ END;
 
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names)
-VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu');
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu', 2);
 
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) 
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
 VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jws_dynamic_rest_details'
-,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id', 1);
+,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) 
-VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1);
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1, 2);
 
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
-,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate');
+,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
 
 
 DROP PROCEDURE IF EXISTS fileUploadConfigListing;

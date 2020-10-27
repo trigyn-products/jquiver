@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
 
 @RestController
 @RequestMapping("/cf")
+@PreAuthorize("hasPermission('module','Form Builder')")
 public class DynamicFormCrudController {
 	
 	private final static Logger logger = LogManager.getLogger(DynamicFormCrudController.class);
@@ -49,7 +51,8 @@ public class DynamicFormCrudController {
 	private MenuService			menuService					= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService	= null;
+	private ModuleVersionService templateVersionService	= null;
+	
 	
 	@PostMapping(value = "/aedf", produces = {MediaType.TEXT_HTML_VALUE})
 	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse) throws IOException {
@@ -69,9 +72,9 @@ public class DynamicFormCrudController {
 	}
 	
 	@PostMapping(value="/sdfd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public void saveDynamicFormDetails(
+	public String saveDynamicFormDetails(
 			@RequestBody MultiValueMap<String, String> formData) throws Exception {
-		dynamicFormCrudService.saveDynamicFormDetails(formData);
+		return dynamicFormCrudService.saveDynamicFormDetails(formData);
 	}
 	
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
@@ -118,7 +121,7 @@ public class DynamicFormCrudController {
 	@ResponseBody
 	public String getTemplateDataByVersion(@RequestHeader(name = "form-id", required = true) String formId
 			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
-		return templateVersionService.getTemplateData(formId, versionId);
+		return templateVersionService.getModuleData(formId, versionId);
 	}
 	
 	@PostMapping(value = "/ddfbi")

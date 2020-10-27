@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -33,6 +35,10 @@ public class JwsEntityRoleAssociation {
 	
 	@Column(name = "role_id")
 	private String roleId = null;
+	
+	@ManyToOne
+	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false )
+	private JwsRole role = null;
 	
 	@Column(name = "last_updated_date")
 	@Temporal(TemporalType.DATE)

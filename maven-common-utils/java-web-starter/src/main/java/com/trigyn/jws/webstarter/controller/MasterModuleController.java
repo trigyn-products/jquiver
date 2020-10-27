@@ -22,6 +22,8 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
@@ -46,6 +48,7 @@ public class MasterModuleController {
 	private DynamicFormService dynamicFormService 			= null;
 
 	@RequestMapping()
+	@Authorized(moduleName = Constants.SITELAYOUT)
 	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException
 			 {
 		try {	

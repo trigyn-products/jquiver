@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
+import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
@@ -21,16 +22,16 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 public class DashletModule implements DownloadUploadModule<Dashlet> {
 
 	@Autowired
-    private DashletDAO dashletDAO = null;
+    private DashletDAO dashletDAO 					= null;
     
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO	= null;
+	private PropertyMasterDAO propertyMasterDAO		= null;
     
 	@Autowired
-	private FileUtilities fileUtilities = null;
+	private FileUtilities fileUtilities 			= null;
 	
 	@Autowired
-    private IDashletRepository iDashletRepository = null;
+    private IDashletRepository iDashletRepository 	= null;
 	
 	
 	@Override
@@ -39,7 +40,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		if(a_dashlet != null) {
 			dashlets.add(a_dashlet);
 		}else {
-			dashlets =  dashletDAO.getAllDashlets();
+			dashlets =  dashletDAO.getAllDashlets(Constants.DEFAULT_DASHLET_TYPE_ID);
 		}
 		
 		String ftlCustomExtension 		= ".tgn";

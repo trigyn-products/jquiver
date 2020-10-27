@@ -1,0 +1,1 @@
+ALTER TABLE template_master ADD COLUMN template_type_id INT(11) DEFAULT 1;

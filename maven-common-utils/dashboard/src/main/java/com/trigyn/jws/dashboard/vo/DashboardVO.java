@@ -19,33 +19,29 @@ public class DashboardVO implements Serializable{
 	@ApiModelProperty(position = 2, name = "dashboardName")
 	private String								dashboardName		= null;
 	
-	@ApiModelProperty(position = 3, name = "dashboardType")
-	private String								dashboardType		= null;
-	
-	@ApiModelProperty(position = 4, name = "roleIdList")
+	@ApiModelProperty(position = 3, name = "roleIdList")
 	private List<String>						roleIdList			= null;
 	
-	@ApiModelProperty(position = 5, name = "contextId")
+	@ApiModelProperty(position = 4, name = "contextId")
 	private String								contextId			= null;
 	
-	@ApiModelProperty(position = 6, name = "dashletIdList")
+	@ApiModelProperty(position = 5, name = "dashletIdList")
 	private List<String>						dashletIdList		= null;
 	
-	@ApiModelProperty(position = 7, name = "isDraggable")
+	@ApiModelProperty(position = 6, name = "isDraggable")
 	private Integer								isDraggable			= null;
 	
-	@ApiModelProperty(position = 8, name = "isExportable")
+	@ApiModelProperty(position = 7, name = "isExportable")
 	private Integer								isExportable		= null;
 
 	public DashboardVO() {
 
 	}
 	
-	public DashboardVO(String dashboardId, String dashboardName, String dashboardType, List<String> roleIdList,
+	public DashboardVO(String dashboardId, String dashboardName, List<String> roleIdList,
 			String contextId, List<String> dashletIdList, Integer isDraggable, Integer isExportable) {
 		this.dashboardId 	= dashboardId;
 		this.dashboardName 	= dashboardName;
-		this.dashboardType 	= dashboardType;
 		this.roleIdList 	= roleIdList;
 		this.contextId 		= contextId;
 		this.dashletIdList 	= dashletIdList;
@@ -73,17 +69,6 @@ public class DashboardVO implements Serializable{
 		this.dashboardName = dashboardName;
 	}
 
-	
-	public String getDashboardType() {
-		return dashboardType;
-	}
-
-	
-	public void setDashboardType(String dashboardType) {
-		this.dashboardType = dashboardType;
-	}
-
-	
 	public List<String> getRoleIdList() {
 		return roleIdList;
 	}
@@ -136,7 +121,7 @@ public class DashboardVO implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, dashboardId, dashboardName, dashboardType, dashletIdList, isDraggable, isExportable,
+		return Objects.hash(contextId, dashboardId, dashboardName, dashletIdList, isDraggable, isExportable,
 				roleIdList);
 	}
 
@@ -154,18 +139,16 @@ public class DashboardVO implements Serializable{
 		DashboardVO other = (DashboardVO) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(dashboardId, other.dashboardId)
 				&& Objects.equals(dashboardName, other.dashboardName)
-				&& Objects.equals(dashboardType, other.dashboardType) && Objects.equals(dashletIdList, other.dashletIdList)
-				&& Objects.equals(isDraggable, other.isDraggable) && Objects.equals(isExportable, other.isExportable)
-				&& Objects.equals(roleIdList, other.roleIdList);
+				&& Objects.equals(dashletIdList, other.dashletIdList)&& Objects.equals(isDraggable, other.isDraggable) 
+				&& Objects.equals(isExportable, other.isExportable)	&& Objects.equals(roleIdList, other.roleIdList);
 	}
 
 	@Override
 	public String toString() {
-		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", dashboardType="
-				+ dashboardType + ", roleIdList=" + roleIdList + ", contextId=" + contextId + ", dashletIdList=" + dashletIdList
-				+ ", isDraggable=" + isDraggable + ", isExportable=" + isExportable + "]";
+		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", roleIdList="
+				+ roleIdList + ", contextId=" + contextId + ", dashletIdList=" + dashletIdList + ", isDraggable="
+				+ isDraggable + ", isExportable=" + isExportable + "]";
 	}
-
 
 
 }

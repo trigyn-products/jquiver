@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import com.trigyn.jws.webstarter.service.DynarestCrudService;
 
 @RestController
 @RequestMapping("/cf")
+@PreAuthorize("hasPermission('module','REST API Builder')")
 public class DynarestCrudController {
 	
 	private final static Logger logger 						= LogManager.getLogger(DynarestCrudController.class);
@@ -51,7 +53,7 @@ public class DynarestCrudController {
 	}
     
 	@PostMapping(value = "/sdq",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public Integer saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
+	public String saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
 		dynarestCrudService.deleteDAOQueries(formData);
 		return dynarestCrudService.saveDAOQueries(formData);
 	}

@@ -18,6 +18,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "dashlet")
 public class Dashlet implements Serializable {
@@ -64,12 +66,14 @@ public class Dashlet implements Serializable {
 	@Column(name = "created_by")
 	private String						createdBy				= null;
 
+	@JsonIgnore
 	@Column(name = "created_date")
 	private Date						createdDate				= null;
 
 	@Column(name = "updated_by")
 	private String						updatedBy				= null;
 
+	@JsonIgnore
 	@Column(name = "updated_date")
 	private Date						updatedDate				= null;
 	
@@ -81,6 +85,9 @@ public class Dashlet implements Serializable {
 	
 	@Column(name = "dashlet_body_checksum")
 	private String				dashletBodyChecksum				= null;
+	
+	@Column(name = "dashlet_type_id")
+	private Integer						dashletTypeId			= 1;
 
 	@OneToMany(mappedBy = "dashlet", fetch = FetchType.EAGER)
 	private List<DashletProperties>				properties				= new ArrayList<>();
@@ -105,7 +112,7 @@ public class Dashlet implements Serializable {
 
 	public Dashlet(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String contextId, Integer showHeader, String dashletQuery, String dashletBody,
 	        String createdBy, Date createdDate, String updatedBy, Date updatedDate, Integer isActive, List<DashletProperties> properties, List<DashletRoleAssociation> roleAssociation, List<DashboardDashletAssociation> dashboardAssociation,
-	        ContextMaster contextMaster,String dashletQueryChecksum,String dashletBodyChecksum) {
+	        ContextMaster contextMaster, String dashletQueryChecksum, String dashletBodyChecksum, Integer dashletTypeId) {
 		this.dashletId 					= dashletId;
 		this.dashletName 				= dashletName;
 		this.dashletTitle 				= dashletTitle;
@@ -128,11 +135,12 @@ public class Dashlet implements Serializable {
 		this.contextMaster 				= contextMaster;
 		this.dashletQueryChecksum       = dashletQueryChecksum;
 		this.dashletBodyChecksum 		= dashletBodyChecksum;
+		this.dashletTypeId 				= dashletTypeId;
 	}
 
 
 	public Dashlet(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String contextId, Integer showHeader, String dashletQuery, String dashletBody,
-	        String createdBy, Date createdDate, String updatedBy, Date updatedDate, Integer isActive) {
+	        String createdBy, Date createdDate, String updatedBy, Date updatedDate, Integer isActive, String dashletQueryChecksum,String dashletBodyChecksum) {
 		this.dashletId 					= dashletId;
 		this.dashletName 				= dashletName;
 		this.dashletTitle 				= dashletTitle;
@@ -426,12 +434,22 @@ public class Dashlet implements Serializable {
 	}
 
 
+	public Integer getDashletTypeId() {
+		return dashletTypeId;
+	}
+
+
+	public void setDashletTypeId(Integer dashletTypeId) {
+		this.dashletTypeId = dashletTypeId;
+	}
+
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(contextId, contextMaster, createdBy, createdDate, dashboardAssociation, dashletBody,
 				dashletBodyChecksum, dashletId, dashletName, dashletQuery, dashletQueryChecksum,
-				dashletRoleAssociations, dashletTitle, height, isActive, properties, roleAssociation, showHeader,
-				updatedBy, updatedDate, width, xCoordinate, yCoordinate);
+				dashletRoleAssociations, dashletTitle, dashletTypeId, height, isActive, properties, roleAssociation,
+				showHeader, updatedBy, updatedDate, width, xCoordinate, yCoordinate);
 	}
 
 
@@ -456,7 +474,8 @@ public class Dashlet implements Serializable {
 				&& Objects.equals(dashletQuery, other.dashletQuery)
 				&& Objects.equals(dashletQueryChecksum, other.dashletQueryChecksum)
 				&& Objects.equals(dashletRoleAssociations, other.dashletRoleAssociations)
-				&& Objects.equals(dashletTitle, other.dashletTitle) && Objects.equals(height, other.height)
+				&& Objects.equals(dashletTitle, other.dashletTitle)
+				&& Objects.equals(dashletTypeId, other.dashletTypeId) && Objects.equals(height, other.height)
 				&& Objects.equals(isActive, other.isActive) && Objects.equals(properties, other.properties)
 				&& Objects.equals(roleAssociation, other.roleAssociation)
 				&& Objects.equals(showHeader, other.showHeader) && Objects.equals(updatedBy, other.updatedBy)
@@ -473,10 +492,11 @@ public class Dashlet implements Serializable {
 				+ ", dashletBody=" + dashletBody + ", createdBy=" + createdBy + ", createdDate=" + createdDate
 				+ ", updatedBy=" + updatedBy + ", updatedDate=" + updatedDate + ", isActive=" + isActive
 				+ ", dashletQueryChecksum=" + dashletQueryChecksum + ", dashletBodyChecksum=" + dashletBodyChecksum
-				+ ", properties=" + properties + ", roleAssociation=" + roleAssociation + ", dashboardAssociation="
-				+ dashboardAssociation + ", dashletRoleAssociations=" + dashletRoleAssociations + ", contextMaster="
-				+ contextMaster + "]";
+				+ ", dashletTypeId=" + dashletTypeId + ", properties=" + properties + ", roleAssociation="
+				+ roleAssociation + ", dashboardAssociation=" + dashboardAssociation + ", dashletRoleAssociations="
+				+ dashletRoleAssociations + ", contextMaster=" + contextMaster + "]";
 	}
+
 
 
 }

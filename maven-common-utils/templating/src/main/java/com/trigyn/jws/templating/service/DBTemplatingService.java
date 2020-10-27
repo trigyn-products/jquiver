@@ -14,13 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.entities.TemplateMaster;
+import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,12 +44,13 @@ public class DBTemplatingService {
 	private FileUtilities fileUtilities  					= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService	= null;
+	private ModuleVersionService moduleVersionService		= null;
 	
 	@Autowired
 	@Qualifier("template")
 	private TemplateModule templateModule 					= null;
 	
+	@Authorized(moduleName =  Constants.TEMPLATING)
 	public TemplateVO getTemplateByName(String templateName) throws Exception {
 	    	
 	        TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
@@ -76,7 +80,7 @@ public class DBTemplatingService {
 	}
 
 	@Transactional(readOnly = false)
-	public void saveTemplateData(HttpServletRequest request) throws Exception {
+	public String saveTemplateData(HttpServletRequest request) throws Exception {
 
         UserDetailsVO detailsVO = userDetailsService.getUserDetails();
         String templateName = request.getParameter("velocityName");
@@ -113,8 +117,9 @@ public class DBTemplatingService {
         }
         
         TemplateMaster templateMaster = dbTemplatingRepository.saveAndFlush(templateDetails);
-        templateVersionService.saveTemplateVersion(templateDetails,null, templateMaster.getTemplateId(), "template_master");
+        moduleVersionService.saveModuleVersion(templateMaster,null, templateMaster.getTemplateId(), "template_master");
         
+        return templateMaster.getTemplateId();
     }
 
 	public List<TemplateMaster> getAllTemplates() {
@@ -122,6 +127,11 @@ public class DBTemplatingService {
 		return templates;
 	}
 
+	public List<TemplateVO> getAllDefaultTemplates() {
+		List<TemplateVO> templateVOs = dbTemplatingRepository.getAllDefaultTemplates(Constant.DEFAULT_TEMPLATE_TYPE);
+		return templateVOs;
+	}
+	
 	public void saveAllTemplates(List<TemplateMaster> templates) {
 		dbTemplatingRepository.saveAll(templates);
 	}

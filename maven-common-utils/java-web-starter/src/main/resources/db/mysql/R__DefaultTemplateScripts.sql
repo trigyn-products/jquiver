@@ -1,5 +1,5 @@
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d5a5102b-09ab-11eb-a027-f48e38ab8cd7', 'default-listing-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -73,10 +73,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('dfdf7c4e-09ab-11eb-a027-f48e38ab8cd7', 'default-form-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -157,12 +157,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToPreviousPage() {
 		
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('e700ac42-09ab-11eb-a027-f48e38ab8cd7', 'default-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -176,11 +176,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     </div>
 
 	
-</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('ec26a648-09ab-11eb-a027-f48e38ab8cd7', 'system-form-html-template', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -311,9 +311,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		location.href = contextPath+"/cf/home";
 	}
 </script>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('f16c057f-09ab-11eb-a027-f48e38ab8cd7', 'system-form-save-query-template', '
   <#noparse>
     <#if (formData?api.getFirst("yourPrimaryKey"))?has_content>
@@ -326,11 +326,11 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
   <#noparse>
     </#if>
   </#noparse>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d3cb061d-0743-11eb-9926-e454e805e22f', 'system-listing-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -409,4 +409,4 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
     }
-</script>', 'admin', 'admin',NOW());
+</script>', 'admin', 'admin',NOW(), 2);

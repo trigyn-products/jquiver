@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('42bf58ce-09fa-11eb-a894-f48e38ab8cd7', 'home', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -176,10 +176,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</a>
 		
-	</div>
-</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+        <a href="../cf/help" class="list-group-item list-group-item-action">
+			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
+			<div class="home_list_content">
+				<div class="d-flex w-100 justify-content-between">
+					<h5 class="mb-1">${messageSource.getMessage(''jws.helpManuals'')}</h5>
+					<small class="text-muted">Today</small>
+				</div>
+				<p class="mb-1">Help Manuals </p>
+				<small class="text-muted">Create help manuals for your application.</small>
+			</div>
+		</a>
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+	</div>
+</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
@@ -254,6 +266,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
       });
     });
     
+	function templateType(uiObject){
+		const templateTypeId = uiObject.rowData.templateTypeId;
+		if(templateTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
     function editTemplate(uiObject) {
         const templateId = uiObject.rowData.templateId;
 		const templateName = uiObject.rowData.templateName;
@@ -339,9 +360,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             });
         }
     </#if>
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('4d91fbd8-09fa-11eb-a894-f48e38ab8cd7', 'template-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -414,6 +435,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 	</div>
+	  <input id="moduleId" value="1b0a2e40-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+      <@templateWithoutParams "role-autocomplete"/> 
                
 		<div class="row margin-t-10">
 			<div class="col-12">
@@ -476,16 +499,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					});
 				}
 			});
+			let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
 		}
 		savedAction("template-manage-details", isEdit);
 		hideShowActionButtons();
 	});
 </script>
-<script src="/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+<script src="/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
 
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('8ba1a465-09fa-11eb-a894-f48e38ab8cd7', 'menu-module-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -583,11 +608,11 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	function configHomePage() {
 		$("#configHomeForm").submit();
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('89ee344b-03f6-11eb-a183-e454e805e22f', 'module-manage-details', '<head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -717,22 +742,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>Roles</label>
-					<div id="roles">
-						<#if userRoleVOs??>
-							<#list userRoleVOs as userRoleVO>
-								<lable for="${(userRoleVO?api.getRoleId())!''''}">
-									${(userRoleVO?api.getRoleName())!''''}
-								</label>
-								<input type="checkbox" id="${(userRoleVO?api.getRoleId())!''''}" name="${(userRoleVO?api.getRoleId())!''''}"/>
-							</#list>
-						</#if>
-					</div>
-					<div class="clearfix"></div>
-				</div>
-			</div>
+			<input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
+        <@templateWithoutParams "role-autocomplete"/> 
 			
 		</div>
 
@@ -808,13 +819,17 @@ $(function() {
     }, selectedTargetDetails);
       addEditModule.getTargeTypeNames(''isAddEdit'');
 	  hideShowActionButtons();
+	<#if (!(moduleDetailsVO?api.getModuleId())??)>
+        let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+    </#if>
 });
 
 </script>
-<script src="/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+<script src="/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('9378ee23-09fa-11eb-a894-f48e38ab8cd7', 'home-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -909,10 +924,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 </script>
-<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('99a707e5-09fa-11eb-a894-f48e38ab8cd7', 'error-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -970,10 +985,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 function showHideErrorInfo(){
   $("#errorDetailsDiv").slideToggle();
 }
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('9ea3cd47-09fa-11eb-a894-f48e38ab8cd7', 'config-home-page', '<head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -1144,6 +1159,6 @@ function saveHomeModule(){
 	});
 }
 
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 SET FOREIGN_KEY_CHECKS=1;

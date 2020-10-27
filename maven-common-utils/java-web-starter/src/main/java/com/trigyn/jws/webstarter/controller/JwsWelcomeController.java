@@ -1,4 +1,4 @@
-package com.trigyn.jws.usermanagement.controller;
+package com.trigyn.jws.webstarter.controller;
 
 import java.util.HashMap;
 import java.util.Map;

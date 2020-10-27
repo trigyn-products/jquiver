@@ -14,7 +14,7 @@ public interface FilesStorageService {
 
 	public void init();
 
-	public String save(MultipartFile file);
+	public String save(MultipartFile file, String fileConfigId);
 
 	public Map<String, Object> load(String filename);
 
@@ -23,5 +23,7 @@ public interface FilesStorageService {
 	public List<FileInfo> loadAll();
 
 	public List<FileInfo> getFileDetailsByIds(List<String> fileIdList);
+
+	public void deleteFileById(String fileId) throws Exception;
 
 }

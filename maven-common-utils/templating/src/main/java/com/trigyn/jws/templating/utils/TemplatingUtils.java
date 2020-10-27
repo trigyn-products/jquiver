@@ -77,7 +77,7 @@ public class TemplatingUtils {
         return writer.toString();
     }
 
-    public String processMultipleTemplateContents(String mainTemplateContent,  String templateName, Map<String, Object> modelMap, Map<String, String> childTemplateDetails)
+    public String processMultipleTemplateContents(String mainTemplateContent, String templateName, Map<String, Object> modelMap, Map<String, String> childTemplateDetails)
             throws Exception {
         addTemplateProperties(modelMap);
         StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();

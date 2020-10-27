@@ -19,4 +19,10 @@ public final class Constant {
             return lookupId;
         }
     }
+    
+    public static final String TEMPLATE_TYPE_LOOKUP				= "TEMPLATE_TYPE";
+    public static final String DYNAMIC_FORM_TYPE_LOOKUP			= "DYNAMIC_FORM_TYPE";
+    public static final Integer DYNAMIC_FORM_DEFAULT_TYPE_ID	= 1;
+    public static final String DASHBOARD_TYPE_LOOKUP			= "DASHBOARD_TYPE";
+    public static final String DASHLET_TYPE_LOOKUP				= "DASHLET_TYPE";
 }
