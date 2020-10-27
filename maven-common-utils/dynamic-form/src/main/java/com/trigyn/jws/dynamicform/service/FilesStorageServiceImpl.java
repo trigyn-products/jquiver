@@ -146,4 +146,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		return null;
 	}
 
+	@Override
+	public List<FileInfo> getFileDetailsByIds(List<String> fileIdList) {
+		List<FileUpload> fileUploads = fileUploadRepository.findAllByIds(fileIdList);
+		List<FileInfo> fileInfos = fileUploads.stream().map(files -> {
+			File file = new File(files.getFilePath());
+			return new FileInfo(files.getFileUploadId(), files.getOriginalFileName(), file.length());
+		}).collect(Collectors.toList());
+		return fileInfos;
+	}
+
 }

@@ -84,8 +84,17 @@ public class DynamicFormService {
 
 			formHtmlTemplateMap.put("formId", formId);
 			formHtmlTemplateMap.put("requestDetails", requestParam);
+			formHtmlTemplateMap.put("entityType", "form");
+			formHtmlTemplateMap.put("entityName", formName);
 			templateHtml = templateEngine.processTemplateContents(formBody, formName, formHtmlTemplateMap);
-			return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, new HashMap<>());
+			Boolean includeLayout = requestParam.get("includeLayout") == null ? Boolean.TRUE 
+						: Boolean.parseBoolean(requestParam.get("includeLayout").toString());
+			if(Boolean.TRUE.equals(includeLayout)) {
+				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, new HashMap<>());
+			} else {
+				return templateHtml;
+			}
+			
 		}  catch (Exception exception) {
 			throw new RuntimeException(exception.getMessage());
 		}

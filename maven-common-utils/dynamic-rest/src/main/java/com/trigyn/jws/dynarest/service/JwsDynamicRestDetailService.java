@@ -1,6 +1,5 @@
 package com.trigyn.jws.dynarest.service;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,8 +28,6 @@ import com.trigyn.jws.dynarest.vo.RestApiDaoQueries;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 
-import freemarker.template.TemplateException;
-
 @Service
 @Transactional
 public class JwsDynamicRestDetailService {
@@ -56,7 +53,7 @@ public class JwsDynamicRestDetailService {
         Map<String, Object> apiDetails = objectMapper.convertValue(restApiDetails, Map.class);
         requestParameterMap.putAll(apiDetails);
         if(restApiDetails.getPlatformId().equals(Constants.Platforms.JAVA.getPlatform())) {
-            return invokeAndExecuteOnJava(httpServletRequest, requestParameterMap, daoResultSets, restApiDetails);
+            return invokeAndExecuteOnJava(httpServletRequest, daoResultSets, restApiDetails);
         } else if(restApiDetails.getPlatformId().equals(Constants.Platforms.FTL.getPlatform())) {
             return invokeAndExecuteFTL(httpServletRequest, requestParameterMap, daoResultSets, restApiDetails);
         } else if(restApiDetails.getPlatformId().equals(Constants.Platforms.JAVASCRIPT.getPlatform())) {
@@ -67,7 +64,7 @@ public class JwsDynamicRestDetailService {
     }
 
 
-    private Object invokeAndExecuteFTL(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws IOException, TemplateException {
+    private Object invokeAndExecuteFTL(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
         if(restApiDetails.getServiceLogic() != null || Boolean.FALSE.equals("".equals(restApiDetails.getServiceLogic()))) {
             requestParameterMap.putAll(daoResultSets);
             return templatingUtils.processTemplateContents(restApiDetails.getServiceLogic(), "service", requestParameterMap);
@@ -75,18 +72,18 @@ public class JwsDynamicRestDetailService {
         return null;
     }
     
-    private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
+    private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
-        Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), HttpServletRequest.class, Map.class, Map.class, UserDetailsVO.class);
-        return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), httpServletRequest, requestParameterMap, daoResultSets, detailsService.getUserDetails());
+        Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), HttpServletRequest.class, Map.class, UserDetailsVO.class);
+        return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), httpServletRequest, daoResultSets, detailsService.getUserDetails());
     }
     
-    public Object invokeAndExecuteOnFileJava(MultipartFile[] files, HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
+    public Object invokeAndExecuteOnFileJava(MultipartFile[] files, HttpServletRequest httpServletRequest, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
     		NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
-		Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), MultipartFile.class, HttpServletRequest.class, Map.class, Map.class, UserDetailsVO.class);
-		return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), files, httpServletRequest, requestParameterMap, daoResultSets, detailsService.getUserDetails());
+		Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), MultipartFile.class, HttpServletRequest.class, Map.class, UserDetailsVO.class);
+		return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), files, httpServletRequest, daoResultSets, detailsService.getUserDetails());
 	}
 
     private Object invokeAndExecuteJavascript(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws ScriptException {
@@ -102,7 +99,7 @@ public class JwsDynamicRestDetailService {
         return dyanmicRestDetailsRepository.findByJwsDynamicRestUrl(requestUri);
     }
     
-    public Map<String, Object> executeDAOQueries(Integer dynarestId, Map<String, Object> parameterMap) throws IOException, TemplateException {
+    public Map<String, Object> executeDAOQueries(Integer dynarestId, Map<String, Object> parameterMap) throws Exception {
         List<RestApiDaoQueries> apiDaoQueries = dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
         Map<String, Object> resultSetMap = new HashMap<>();
         for (RestApiDaoQueries restApiDaoQueries : apiDaoQueries) {

@@ -53,6 +53,9 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Column(name="jws_response_producer_type_id")
 	private Integer jwsResponseProducerTypeId			= null;
 	
+	@Column(name="jws_allow_files")
+	private Integer jwsAllowFiles						= null;
+	
 	@OneToMany(mappedBy="jwsDynamicRestDetail", fetch = FetchType.LAZY)
 	private List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails				= null;
 
@@ -74,7 +77,7 @@ public class JwsDynamicRestDetail implements Serializable {
 	}
 
 	public JwsDynamicRestDetail(Integer jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
-			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,
+			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,Integer jwsAllowFiles,
 			List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails, JwsRequestTypeDetail jwsRequestTypeDetail,
 			JwsResponseProducerDetail jwsResponseProducerDetail,
 			List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
@@ -85,6 +88,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsPlatformId 					= jwsPlatformId;
 		this.jwsRbacId 						= jwsRbacId;
 		this.jwsServiceLogic 				= jwsServiceLogic;
+		this.jwsAllowFiles 					= jwsAllowFiles;
 		this.jwsDynamicRestDaoDetails 		= jwsDynamicRestDaoDetails;
 		this.jwsRequestTypeDetail 			= jwsRequestTypeDetail;
 		this.jwsResponseProducerDetail 		= jwsResponseProducerDetail;
@@ -163,6 +167,14 @@ public class JwsDynamicRestDetail implements Serializable {
 	public void setJwsResponseProducerTypeId(Integer jwsResponseProducerTypeId) {
 		this.jwsResponseProducerTypeId = jwsResponseProducerTypeId;
 	}
+	
+	public Integer getJwsAllowFiles() {
+		return jwsAllowFiles;
+	}
+
+	public void setJwsAllowFiles(Integer jwsAllowFiles) {
+		this.jwsAllowFiles = jwsAllowFiles;
+	}
 
 	public List<JwsDynamicRestDaoDetail> getJwsDynamicRestDaoDetails() {
 		return this.jwsDynamicRestDaoDetails;
@@ -226,7 +238,7 @@ public class JwsDynamicRestDetail implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(JwsDynamicRestRoleAssociation, jwsDynamicRestDaoDetails, jwsDynamicRestId,
+		return Objects.hash(JwsDynamicRestRoleAssociation, jwsAllowFiles, jwsDynamicRestDaoDetails, jwsDynamicRestId,
 				jwsDynamicRestResponseParams, jwsDynamicRestUrl, jwsMethodDescription, jwsMethodName, jwsPlatformId,
 				jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId, jwsResponseProducerDetail, jwsResponseProducerTypeId,
 				jwsServiceLogic);
@@ -245,6 +257,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		}
 		JwsDynamicRestDetail other = (JwsDynamicRestDetail) obj;
 		return Objects.equals(JwsDynamicRestRoleAssociation, other.JwsDynamicRestRoleAssociation)
+				&& Objects.equals(jwsAllowFiles, other.jwsAllowFiles)
 				&& Objects.equals(jwsDynamicRestDaoDetails, other.jwsDynamicRestDaoDetails)
 				&& Objects.equals(jwsDynamicRestId, other.jwsDynamicRestId)
 				&& Objects.equals(jwsDynamicRestResponseParams, other.jwsDynamicRestResponseParams)
@@ -264,13 +277,14 @@ public class JwsDynamicRestDetail implements Serializable {
 		return "JwsDynamicRestDetail [jwsDynamicRestId=" + jwsDynamicRestId + ", jwsDynamicRestUrl=" + jwsDynamicRestUrl
 				+ ", jwsMethodDescription=" + jwsMethodDescription + ", jwsMethodName=" + jwsMethodName
 				+ ", jwsPlatformId=" + jwsPlatformId + ", jwsRbacId=" + jwsRbacId + ", jwsServiceLogic="
-				+ jwsServiceLogic + ", jwsRequestTypeId="
-				+ jwsRequestTypeId + ", jwsResponseProducerTypeId=" + jwsResponseProducerTypeId
-				+ ", jwsDynamicRestDaoDetails=" + jwsDynamicRestDaoDetails + ", jwsRequestTypeDetail="
-				+ jwsRequestTypeDetail + ", jwsResponseProducerDetail=" + jwsResponseProducerDetail
-				+ ", jwsDynamicRestResponseParams=" + jwsDynamicRestResponseParams + ", JwsDynamicRestRoleAssociation="
-				+ JwsDynamicRestRoleAssociation + "]";
+				+ jwsServiceLogic + ", jwsRequestTypeId=" + jwsRequestTypeId + ", jwsResponseProducerTypeId="
+				+ jwsResponseProducerTypeId + ", jwsAllowFiles=" + jwsAllowFiles + ", jwsDynamicRestDaoDetails="
+				+ jwsDynamicRestDaoDetails + ", jwsRequestTypeDetail=" + jwsRequestTypeDetail
+				+ ", jwsResponseProducerDetail=" + jwsResponseProducerDetail + ", jwsDynamicRestResponseParams="
+				+ jwsDynamicRestResponseParams + ", JwsDynamicRestRoleAssociation=" + JwsDynamicRestRoleAssociation
+				+ "]";
 	}
+
 
 
 }

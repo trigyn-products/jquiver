@@ -473,10 +473,11 @@ REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name,
 
 DROP PROCEDURE IF EXISTS moduleListing;
 CREATE PROCEDURE `moduleListing`(moduleId varchar(100), moduleName varchar(500),
-moduleURL varchar(500), parentModuleName varchar(500), sequence varchar(100), forCount INT, 
+moduleURL varchar(500), parentModuleName varchar(500), sequence varchar(100), isInsideMenu INT(1), forCount INT, 
 limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, COALESCE(mli18nParent.module_name, mli18nParent2.module_name) AS parentModuleName , ml.sequence AS sequence ';
+  SET @resultQuery = ' SELECT ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, COALESCE(mli18nParent.module_name, mli18nParent2.module_name) AS parentModuleName'
+    ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu ';
   SET @fromString  = ' FROM module_listing AS ml ';
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing AS mlParent ON ml.parent_id = mlParent.module_id ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 ');
@@ -547,7 +548,7 @@ END;
 
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names)
-VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence');
+VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu');
 
 
 
@@ -562,16 +563,16 @@ VALUES ("propertyMasterListing", 'Property master listing', 'Property master lis
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names) 
 VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
-,'fileUploadConfigId,fileTypeSupported,maxFileSize,allowMultipleFiles,updatedBy,updatedDate');
+,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate');
 
 
 DROP PROCEDURE IF EXISTS fileUploadConfigListing;
 CREATE PROCEDURE `fileUploadConfigListing`(fileUploadConfigId varchar(50), fileTypeSupported varchar(100), maxFileSize varchar(1000)
-,allowMultipleFiles varchar(100), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
+,noOfFiles INT(11), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = CONCAT(" SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported "
-  ," , fuc.max_file_size AS maxFileSize, fuc.allow_multiple_files AS allowMultipleFiles, fuc.updated_by AS updatedBy " 
+  ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy " 
   ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
   SET @fromString  = ' FROM file_upload_config AS fuc ';
   SET @whereString = ' WHERE fuc.is_deleted = 0';
@@ -588,12 +589,12 @@ BEGIN
   
   IF NOT maxFileSize IS NULL THEN
     SET @maxFileSize= REPLACE(maxFileSize,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.file_size like ''%',@maxFileSize,'%''');
+    SET @whereString = CONCAT(@whereString,' AND fuc.max_file_size like ''%',@maxFileSize,'%''');
   END IF;
   
-  IF NOT allowMultipleFiles IS NULL THEN
-    SET @allowMultipleFiles= REPLACE(allowMultipleFiles,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.allow_multiple_files like ''%',@allowMultipleFiles,'%''');
+  IF NOT noOfFiles IS NULL THEN
+    SET @noOfFiles= REPLACE(noOfFiles,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.no_of_files like ''%',@noOfFiles,'%''');
   END IF;
 
   IF NOT updatedBy IS NULL THEN

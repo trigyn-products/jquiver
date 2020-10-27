@@ -22,4 +22,6 @@ public interface FilesStorageService {
 
 	public List<FileInfo> loadAll();
 
+	public List<FileInfo> getFileDetailsByIds(List<String> fileIdList);
+
 }

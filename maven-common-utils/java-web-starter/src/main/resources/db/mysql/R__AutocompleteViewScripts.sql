@@ -1,6 +1,6 @@
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES
-(UUID(), 'autocomplete-demo', '<head>
+('76e09b33-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-demo', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -186,7 +186,7 @@ $(function () {
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'autocomplete-listing', '<head>
+('7e8438bf-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -205,9 +205,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		    <a href="${(contextPath)!''''}/cf/da"> 
 				<input id="demoAutocomplete" class="btn btn-primary" name="demoAutocomplete" value="Demo" type="button">
 			</a>
-			<a href="${(contextPath)!''''}/cf/aea"> 
-				<input id="addAutocompleteDetails" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete Details" type="button">
-			</a>
+			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete Details" type="button">
 			<span onclick="backToWelcomePage();">
   		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
   		 </span>	
@@ -226,41 +224,49 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="acId" name="acId">
 </form>
 <script>
-contextPath = "${(contextPath)!''''}";
-$(function () {
-	let colM = [
-        { title: "Autocomplete Id", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Autocomplete Description", width: 100, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Action", width: 30, align: "center", render: editAutocomplete, dataIndx: "action" }
-	];
-    let grid = $("#divAutocompleteGrid").grid({
-      gridId: "autocompleteListingGrid",
-      colModel: colM
-  });
-});
+	contextPath = "${(contextPath)!''''}";
+	$(function () {
+		let formElement = $("#formACRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("autocomplete-manage-details", formDataJson);
+		
+		let colM = [
+	        { title: "Autocomplete Id", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Autocomplete Description", width: 100, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", align: "left", halign: "center",
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Action", width: 30, align: "center", render: editAutocomplete, dataIndx: "action" }
+		];
+	    let grid = $("#divAutocompleteGrid").grid({
+	      gridId: "autocompleteListingGrid",
+	      colModel: colM
+	  });
+	});
+	
+	function editAutocomplete(uiObject) {
+		const autocompleteId = uiObject.rowData.autocompleteId;
+	  	return ''<span id="''+autocompleteId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	}
 
-function editAutocomplete(uiObject) {
-	const autocompleteId = uiObject.rowData.autocompleteId;
-  	return ''<span id="''+autocompleteId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
-}
-
-function submitForm(element) {
-  $("#acId").val(element.id);
-  $("#formACRedirect").submit();
-}
-
-function backToWelcomePage() {
-	location.href = contextPath+"/cf/home";
-}
+    function submitForm(sourceElement) {
+		let moduleId = "";
+		if(sourceElement !== undefined){
+			moduleId = sourceElement.id
+		}
+      	$("#acId").val(moduleId);
+      	$("#formACRedirect").submit();
+    }
+    
+	function backToWelcomePage() {
+		location.href = contextPath+"/cf/home";
+	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'autocomplete-manage-details', '<head>
+('85f44645-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-manage-details', '<head>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -319,20 +325,30 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 	
 	
-	<div class="row margin-t-b">
-	<div class="col-12">
-		 <div class="float-right">
-		<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="addEditAutocomplete.saveAutocompleteDetail();">
-		<span onclick="addEditAutocomplete.backToListingPage();">
-			<input id="cancelBtn" class="btn btn-secondary" name="cancelBtn" value="Cancel" type="button">
-		</span>	
-		</div>
-	</div>
-	</div>
    <input type="hidden" name="autoCompleteSelectQuery" id="acSelectQuery">
    
   </form>
-  
+  <div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropdown custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''autocomplete-manage-details'', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction(''autocomplete-manage-details'', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction(''autocomplete-manage-details'', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="addEditAutocomplete.backToListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
+				</div>
+			</div>
+	</div>
  	
 <textarea id="sqlContentDiv" style="display: none">
 	${(autocompleteVO.autocompleteQuery)!""}
@@ -346,6 +362,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	$(function() {
 	    addEditAutocomplete = new AddEditAutocomplete();
 	    addEditAutocomplete.loadAutocompletDetails();
+	    savedAction("autocomplete-manage-details", acId);
+	    hideShowActionButtons();
 	});
 </script>
 <script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());

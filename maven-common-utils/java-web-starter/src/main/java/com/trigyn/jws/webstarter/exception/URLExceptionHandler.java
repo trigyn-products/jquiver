@@ -53,6 +53,9 @@ public class URLExceptionHandler implements ErrorController {
     		Integer statusCode = Integer.parseInt(status.toString());
     		parameterMap.put("statusCode", statusCode);
     		String url = httpServletRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString().replace(httpServletRequest.getContextPath(), "");
+    		if(url.contains("webjars")) {
+    			return "";
+    		}
     		if(statusCode == HttpStatus.NOT_FOUND.value()) {
     			if( "/".equals(url) ) {
     				url = HOME_PAGE_MODULE;

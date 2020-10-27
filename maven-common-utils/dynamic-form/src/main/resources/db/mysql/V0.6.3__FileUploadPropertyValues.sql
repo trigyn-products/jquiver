@@ -1,0 +1,2 @@
+REPLACE INTO jws_property_master (owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES ('system', 'system', 'file-upload-location', 'D://commons//documents', 0, NOW(), 'admin', 1.00, 'File upload path');

@@ -198,6 +198,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditForm" id="addEditForm">
+    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
     <#if (columnDetails)??>
     	<div class="row">
@@ -221,16 +222,29 @@ replace into template_master (template_id, template_name, template, updated_by, 
     </#if>
     
   </form>
-  <div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
+   <#noparse>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''${formId}'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''${formId}'', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''${formId}'', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>  
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
 			</div>
 		</div>
+	</div>
+	</#noparse>
 </div>
 <script>
   <#noparse>
@@ -249,24 +263,49 @@ replace into template_master (template_id, template_name, template, updated_by, 
       </#if>
     </#noparse>
     
+    let isEdit = 0;
+     <#noparse>
+      <#if (resultSet)?? && resultSet?has_content>
+      	isEdit = 1;
+      </#if>
+    </#noparse>
+    
+	savedAction(formId, isEdit);
+	hideShowActionButtons();
   });
   
 	//Add logic to save form data
-	function saveData (){
+	function saveData(){
+		let isDataSaved = false;
+		let isDataValid = validateData();	
+		if(isDataValid === false){
+			$("#errorMessage").show();
+			return false;
+		}
+		$("#errorMessage").hide();
 		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
+		
 		$.ajax({
 		  type : "POST",
+		  async: false,
 		  url : contextPath+"/cf/sdf",
 		  data : formData,
           success : function(data) {
+			isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 		  },
 	      error : function(xhr, error){
 			showMessage("Error occurred while saving", "error");
 	      },
 		});
+		return isDataSaved;
 	}
 	
+	//Basic validation for form fields
+    function validateData(){
+		return true;
+    }
+    
 	//Code go back to previous page
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/home";

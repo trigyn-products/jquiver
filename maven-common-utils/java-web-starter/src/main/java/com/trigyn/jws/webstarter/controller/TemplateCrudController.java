@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class TemplateCrudController {
 		try {
 			String templateId 					= request.getParameter("vmMasterId");
 			Map<String, Object> vmTemplateData 	= new HashMap<>();
-			if (templateId != null) {
+			if (!StringUtils.isBlank(templateId)) {
 				TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
 				Map<Double, String> versionDetailsMap = templateVersionService.getVersionDetails(templateId);
 				templateDetails.setTemplate("");

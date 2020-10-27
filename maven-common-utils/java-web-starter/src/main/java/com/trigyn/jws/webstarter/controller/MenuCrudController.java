@@ -33,10 +33,10 @@ import com.trigyn.jws.templating.service.MenuService;
 @RequestMapping("/cf")
 public class MenuCrudController {
 	
-	private final static Logger logger 						= LogManager.getLogger(MenuCrudController.class);
+	private final static Logger logger 					= LogManager.getLogger(MenuCrudController.class);
 
     @Autowired
-    private ModuleService moduleService 					= null;
+    private ModuleService moduleService 				= null;
     
 	@Autowired
 	private MenuService menuService						= null;

@@ -145,7 +145,7 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.temp
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multilingual', 1, 'Multilingual');
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.typeAheadAutocomplete', 1, 'TypeAhead/Autocomplete');
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.fileUploadConfig', 1, 'File Upload Config');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.fileUploadConfig', 1, 'File Upload Manager');
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.formBuilder', 1, 'Form Builder'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.restAPIBuilder', 1, 'REST API Builder'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.siteLayout', 1, 'Site Layout'); 
@@ -159,6 +159,9 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.auto
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompletePrefetch', 1, 'Autocomplete(Prefetch)');
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(LocalStorage)'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselect', 1, 'Multiselect');  
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndReturn', 1, 'Save & Return');  
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndCreateNew', 1, 'Save & Create New');  
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndEdit', 1, 'Save & Edit'); 
 
-
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addFileConfiguration', 1, 'Add File Configuration'); 
 SET FOREIGN_KEY_CHECKS=1;

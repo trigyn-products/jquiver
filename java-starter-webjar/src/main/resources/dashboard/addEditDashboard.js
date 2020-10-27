@@ -1,7 +1,6 @@
 class AddEditDashboard {
-    constructor(contextId, dashboardType, dashboardId) {
+    constructor(contextId, dashboardId) {
         this.contextId = contextId;
-        this.dashboardType = dashboardType;
 		this.dashboardId = dashboardId;
     }
 }
@@ -10,10 +9,13 @@ AddEditDashboard.prototype.fn = {
 	
 	loadDashboardPage: function(){
     	$("#errorMessage").hide();
-    	if(contextId != ""){
-    		$("#dashboardTypeId").val(dashboardType);
-    	}
     	this.populateDashlets();
+    	if(dashboardId!=""){
+    		this.getEntityRoles();
+    	}else{
+    		 let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+    	     multiselect.setSelectedObject(defaultAdminRole);
+    	}
     },
     
     
@@ -26,7 +28,7 @@ AddEditDashboard.prototype.fn = {
     		dataType: "json",
     		headers: {
     			"context-id": selectedContextId,
-    			"dashboard-id":  dashboardId,
+    			"dashboardId":  dashboardId,
     		},
     		success: function (data) {
     			if(data.length > 0){
@@ -57,6 +59,7 @@ AddEditDashboard.prototype.fn = {
     
     saveDashboard: function(){
 		let context = this;
+		let isDataSaved = false;
 		let validData = context.validateDashletDetails();
 		if(validData == false){
 			return false;
@@ -87,12 +90,15 @@ AddEditDashboard.prototype.fn = {
 		if(validData === true){
 			$.ajax({
 				type : "POST",
+				async : false,
 				headers: {"user-id": "admin"},
 				url : contextPath+"/cf/sdb",
 				contentType : "application/json",
 				data : JSON.stringify(dashboardDetails),
 				success : function(data) {
 					$("#dashboardId").val(data);
+					context.saveEntityRoleAssociation(data);
+					isDataSaved = true;
 					showMessage("Information saved successfully", "success");
 		       	},
 	        
@@ -101,8 +107,9 @@ AddEditDashboard.prototype.fn = {
 	        	},
 	        	
 			});
-			}
-		},
+		}
+		return isDataSaved;
+	},
 
 		changeDraggableValue: function(){
 			if($("#isDraggableId").prop('checked')){
@@ -131,14 +138,6 @@ AddEditDashboard.prototype.fn = {
 				$("#errorMessage").html("");
 			}
 				
-			if($("#dashboardTypeId").find(":selected").val()=== undefined){
-				$("#errorMessage").html("Please select at least dashboard type");
-				$("#errorMessage").show();
-				return false;
-			}else{
-				$("#errorMessage").hide();
-				$("#errorMessage").html("");
-			}
 			return true;
 		},
 		
@@ -176,4 +175,44 @@ AddEditDashboard.prototype.fn = {
 			location.href = contextPath+"/cf/dbm";
 		},
 		
+		saveEntityRoleAssociation : function(dashboardId){
+			let roleIds =[];
+			let entityRoles = new Object();
+			entityRoles.entityName = $("#dashboardName").val();
+			entityRoles.moduleId=$("#moduleId").val();
+			entityRoles.entityId= dashboardId;
+			 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+				 roleIds.push(val.id);
+		     	
+		     });
+			
+			entityRoles.roleIds=roleIds;
+			
+			$.ajax({
+		        async : false,
+		        type : "POST",
+		        contentType : "application/json",
+		        url : "/cf/ser", 
+		        data : JSON.stringify(entityRoles),
+		        success : function(data) {
+			    }
+		    });
+		},
+		getEntityRoles : function(){
+			$.ajax({
+		        async : false,
+		        type : "GET",
+		        url : "/cf/ler", 
+		        data : {
+		        	entityId:dashboardId,
+		        	moduleId:$("#moduleId").val(),
+		        },
+		        success : function(data) {
+		            $.each(data, function(key,val){
+		            	multiselect.setSelectedObject(val);
+		            	
+		            });
+			    }
+		    });
+		}
 }

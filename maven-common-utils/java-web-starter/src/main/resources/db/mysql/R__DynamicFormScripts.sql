@@ -41,6 +41,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
+		let formElement = $("#addEditDynamicForm")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dynamic-form-manage-details", formDataJson);
+		
 			let colM = [
 				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center"},
 				{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
@@ -260,26 +264,26 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<h3 class="titlename"><span class="asteriskmark">*</span>Save/Update Script</h3>
 				<div id = "saveScriptContainer"></div>
 			</div>
-		</div>
-
-		<div class="row margin-t-b">
-			<div class="col-12">
-				<div class="float-left"> 
-					<div class="btn-icons nomargin-right-cls pull-right">
-						<input type="button" value="Add" class="btn btn-primary" onclick="addEdit.addSaveQueryEditor();">
-						<input type="button" id="removeTemplate" value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor();">
-                    </div>    
-				</div>
-			</div>
-		</div>          
+		</div>        
   
-		<div class="row margin-t-b">
+		<div class="row margin-t-10">
 			<div class="col-12">
-				<div class="float-right"> 
-					<div class="btn-icons nomargin-right-cls pull-right">
-						<input type="button" value="Save" class="btn btn-primary" onclick="addEdit.saveDynamicForm();">
-						<input type="button" id="cancelDynamicForm" value="Cancel" class="btn btn-secondary" onclick="addEdit.backToDynamicFormListing();">
-					</div>    
+				<div class="float-right">
+					<div class="btn-group dropdown custom-grp-btn">
+						<div id="savedAction">
+							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dynamic-form-manage-details'', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
+						</div>
+						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+						<div class="dropdown-menu action-cls"  id="actionDiv">
+							<ul class="dropdownmenu">
+								<li id="saveAndCreateNew" onclick="typeOfAction(''dynamic-form-manage-details'', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+								<li id="saveAndEdit" onclick="typeOfAction(''dynamic-form-manage-details'', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+							</ul>
+						</div> 
+					</div>
+					<span onclick="addEdit.backToDynamicFormListing();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
 				</div>
 			</div>
 		</div>
@@ -320,6 +324,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let dashletSQLEditors = [];
 	let formQueryIds = [];
 	let formName = "${(dynamicForm?api.getFormName())!''''}";
+	let formId = "${(dynamicForm?api.getFormId())!''''}";
 	formName = $.trim(formName);
 	if(formName !== ""){
 		$("#formName").prop("disabled", true);
@@ -327,6 +332,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	const addEdit = new AddEditDynamicForm();
   $(function () {
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();
+	savedAction("dynamic-form-manage-details", formId);
+    hideShowActionButtons();
   });
 
   function loadTableTemplate(event){

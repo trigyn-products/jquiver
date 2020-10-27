@@ -6,7 +6,17 @@
 /************* Body ***************************/
 
 
-body, html{ min-height: 100%; font-size:13px !important; font-family: 'Roboto', sans-serif !important; background: #fafafa;}
+body, html{ min-height: 100%; font-size:14px !important; font-family: 'Roboto', sans-serif !important; background: #fafafa;}
+
+
+@font-face {
+    font-family: 'raustilaregular';
+    src: url('raustila-regular-webfont.woff2') format('woff2'),
+         url('raustila-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
 
 
 /************* Navigation ***************************/
@@ -772,10 +782,10 @@ display:none;
   width: 0;
   position: fixed;
   z-index: 999;
-  top:38px;
+  top:60px;
   left: 0;
   overflow-x: hidden;
-   transition: 0.5s;
+  transition: 0.5s;
   
 }
 
@@ -865,8 +875,8 @@ margin-top:10px;
  */
  
  .main-container{
-	  transition: 0.5s;
-	      display: block;
+  	transition: 0.5s;
+    display: block;
     width: 100%;
 	padding:20px;
  }
@@ -877,28 +887,29 @@ margin-top:10px;
     cursor: pointer;
     margin: 0 15px;
     height:38px;
-   padding-top:5px;
+    padding-top:10px;
     width: 38px;
     text-align: center;
  }
 
 .hamburger .fa.fa-bars{
-	
-	font-size:30px !important;
+	font-size:26px !important;
 }
 
-.navbar-brand {
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  font-size: 1rem;
-  background-color: rgba(0, 0, 0, .25);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+.navbar-brand  {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 26px;
+    /* background-color: rgba(0, 0, 0, .25); */
+    font-family: 'raustilaregular' !important;
+    line-height: 40px;
+    letter-spacing: 2px;
 }
-
 
 .navbar{
 justify-content: inherit;
 display:block;
+padding:10px 0 !important;
 }
 
 .navbar .navbar-toggler {
@@ -1257,4 +1268,239 @@ box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.5);
 
 .collapsein{
     display: none;
+}
+
+.action-cls{
+	cursor : pointer;
+}
+
+.dropdownmenu{
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+}	
+
+.dropdownmenu li {
+    padding: 12px 10px;
+}
+
+.dropdownmenu li:hover{
+    color: #fff;
+    background-color: #0277bd;
+ }
+ 
+.btn-primary:focus, .btn-primary.focus { 
+    box-shadow:none !important;
+}
+
+.custom-grp-btn #saveAndReturn{
+	border-radius: 3px 0px 0px 3px;
+}
+
+.custom-grp-btn #actionDropdown{
+	border-radius: 0 3px 3px 0 !important;
+}
+
+.role-cls {
+    display: inline-flex;
+    margin-top: 13px;
+}
+
+.rolesblock {
+    float: left;
+    margin-right: 10px;
+}
+
+.rolesblock input[type="checkbox"], .rolesblock label {
+    float: left;
+    margin-top: 3px;
+    margin-right: 5px;
+}
+
+.form-signin-heading{
+    margin-bottom: 25px;
+    color: #005da3;
+    margin-top: 40px;
+}
+
+
+p.divdeform {
+    display: table;
+    margin: 0 0 30px;
+    position: relative;
+    width: 100%;
+}
+
+.divdeform .form-control{
+    padding: 10px 10px 10px 33px;
+    height: 45px;
+}
+
+.form-signin{
+	
+}
+
+.passview {
+    position: absolute;
+    right: 14px;
+    top: 43px;
+    cursor: pointer;
+    color: #666;
+}
+
+.passview:hover {
+	color:#0277bd;
+}
+
+.passview .fa{
+	
+}
+
+.forgotpassword{
+    display: block;
+    text-align: right;
+    margin: 10px 0 0 0;
+    float: right;
+}
+
+.registerlink{
+    display: block;
+    text-align: center;
+    margin: 10px 0 0;
+    font-size: 15px;
+    border: 1px solid #0277bd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.form-signin .btn-primary{
+	padding:10px;
+	font-size:15px;
+}
+
+.formicosn {
+    position: absolute;
+    top: 42px;
+    left: 15px;
+}
+
+.forgotpassword {
+    display: block;
+    text-align: right;
+    margin: 5px 0 0 0;
+}
+
+
+.loginbg.loginbg {
+    width: 510px;
+    margin: 50px auto 0;
+}
+
+.loginbg img{
+	 width:100%;
+	 height:auto;
+	
+}
+
+.remebermeblock {
+    float: left;
+    margin-top: 10px;
+}
+
+.remebermeblock input[type=checkbox]{
+    float: left;
+    margin-top: 3px;
+    margin-right: 5px;
+}
+
+.fileupload-actions {
+	margin-top: 5px !important;
+	font-size: 18px !important;
+}
+
+.profile-tray a{
+	margin-right : 5px;	
+	font-size: 20px !important;
+}
+
+.signout-icon {
+	margin : 10px;
+	font-size: 20px !important;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+  line-height: 3;
+  z-index: 99999;
+}
+
+
+.margin-t-10{
+	margin-top:10px;
+}
+
+.no-of-files-counter {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+}
+
+.addeditmodal{
+	width: 100% !important;
+    height: 25% !important;
+}
+
+.tabs {
+  float: left;
+  border: 1px solid #e5e5e5;
+  background-color: #f1f1f1;
+  width: 20%;
+  height: 100%;
+}
+
+.tabs button {
+  display: block;
+  background-color: inherit;
+  color: black;
+  padding: 22px 16px;
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tabs button:hover {
+  background-color: #e6e6e6;
+}
+
+/* Create an active/current "tab button" class */
+.tabs button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  float: left;
+  width: 100%;
+  height: 100%;
+}
+
+.previews {
+	overflow: scroll;
+    max-height: 550px;
+    max-width: 100%;
 }

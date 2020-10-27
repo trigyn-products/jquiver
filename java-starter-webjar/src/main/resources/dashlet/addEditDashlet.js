@@ -16,7 +16,7 @@ AddEditDashlet.prototype.fn = {
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
         dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
-		        	value: $("#sqlContent").val(),
+		        	value: $("#sqlContent").val().trim(),
 		            language: "sql",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,
@@ -28,7 +28,7 @@ AddEditDashlet.prototype.fn = {
     	
     	require(["vs/editor/editor.main"], function() {
         dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
-		        	value: $("#htmlContent").val(),
+		        	value: $("#htmlContent").val().trim(),
 		            language: "html",
 		            roundedSelection: false,
 					scrollBeyondLastLine: false,
@@ -58,6 +58,7 @@ AddEditDashlet.prototype.fn = {
 	
 	saveDashlet : function() {
 		let context = this;
+		let isDataSaved = false;
  		let dashlet = new Object();
  		let dashletPropertVOList = new Array();
 		let isValid = context.validateDashletMandatoryFields();
@@ -104,6 +105,7 @@ AddEditDashlet.prototype.fn = {
 	
 			$.ajax({
 				type : "POST",
+				async : false,
 				url :  contextPath+"/cf/sdl",
 	        	contentType : "application/json",
 	        	headers: {
@@ -112,6 +114,7 @@ AddEditDashlet.prototype.fn = {
 				data : JSON.stringify(dashlet),
 				success : function(data) {
 					$("#dashletId").val(data);
+					isDataSaved = true;
 					showMessage("Information saved successfully", "success");
 		       	},
 	        
@@ -124,6 +127,7 @@ AddEditDashlet.prototype.fn = {
 			$("#errorMessage").show();
 			window.scrollTo(0, 0);
 		}
+		return isDataSaved;
 	},
 
 	validateDashletMandatoryFields : function(){

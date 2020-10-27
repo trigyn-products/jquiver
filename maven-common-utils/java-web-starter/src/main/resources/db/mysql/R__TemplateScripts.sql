@@ -11,7 +11,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </head>
 <div class="container">
     <div class="page-header">
-        <h2 class="maintitle_name"> Java Web Starter </h2>
+        <h2 class="maintitle_name">JQuiver</h2>
         <p>
             <i>
                 We take an opinionated view of the Spring platform and third-party 
@@ -205,9 +205,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                 <input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="Download Template" type="button">
                 <input id="uploadTemplate" class="btn btn-primary" onclick= "uploadTemplate();" name="uploadTemplate" value="Upload Template" type="button">
             </#if>
-            <a href="${(contextPath)!''''}/cf/aet"> 
-                <input id="addVelocityTemp" class="btn btn-primary" name="addVelocityTemp" value="Add Template" type="button">
-            </a>
+            <input id="addFreemarkerTemplate" onclick="submitForm()" class="btn btn-primary" name="addFreemarkerTemplate" value="Add Template" type="button">
             <span onclick="backToWelcomePage();">
             <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
            </span>    
@@ -225,7 +223,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
  
 
 
-<form action="${(contextPath)!''''}/cf/aet" method="GET" id="formVmRedirect">
+<form action="${(contextPath)!''''}/cf/aet" method="GET" id="formFMRedirect">
     <input type="hidden" id="vmMasterId" name="vmMasterId">
 </form>
 <script>
@@ -234,6 +232,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         location.href = contextPath+"/cf/home";
     }
     $(function () {
+    	let formElement = $("#formFMRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("template-manage-details", formDataJson);
+		
         let colM = [
             { title: "", hidden: true, sortable : false, dataIndx: "templateId" },
             { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
@@ -300,10 +302,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	    });  
   	}
 	
-    function submitForm(element) {
-      $("#vmMasterId").val(element.id);
-      $("#formVmRedirect").submit();
+    function submitForm(sourceElement) {
+		let moduleId = "";
+		if(sourceElement !== undefined){
+			moduleId = sourceElement.id
+		}
+      	$("#vmMasterId").val(moduleId);
+      	$("#formFMRedirect").submit();
     }
+    
     <#if environment == "dev">
         function downloadTemplate(){
             $.ajax({
@@ -390,7 +397,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
       
 		<div id="defaultTemplateDiv" class="col-3" style="display: none;">
 			<div class="col-inner-form full-form-fields">
-				<label for="defaultTemplateId"><span class="asteriskmark">*</span>Default template </label>                                                                                                                                       
+				<label for="defaultTemplateId">Default template </label>                                                                                                                                       
 				<select class="form-control" id="defaultTemplateId" name="defaultTemplateId" title="Default template"> </select>                                                                                                                    
 	        </div>
 		</div>
@@ -408,16 +415,27 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>
 	</div>
                
-       <div class="row margin-t-b">                      
-        <div class="col-12">
-        	<div class="float-right">
-            	<input id="addTemplate" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="templateMaster.validateSaveVelocity();">
-                <span onclick="templateMaster.backToTemplateListingPage();">
-                	<input id="cancelBtn" class="btn btn-secondary" name="cancelBtn" value="Cancel" type="button">
-                </span>              
-            </div>
-            </div>
-        </div>
+		<div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropdown custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''template-manage-details'', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction(''template-manage-details'', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction(''template-manage-details'', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="templateMaster.backToTemplateListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>
 
     <#if versionDetailsMap?? && versionDetailsMap?has_content>
 		<div class="row">                                                                                                
@@ -437,6 +455,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	const ftlTemplateId = "${(templateDetails.templateId)!0}";
+	const isEdit = "${(templateDetails.templateId)!''''}";
 	let templateMaster;
 	let defaultTemplates = new Array();
 	$(function () {
@@ -458,6 +477,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				}
 			});
 		}
+		savedAction("template-manage-details", isEdit);
+		hideShowActionButtons();
 	});
 </script>
 <script src="/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
@@ -487,7 +508,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
   		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Configure Default Page" type="button" onclick="configHomePage(this)">
 		</span>
 		<span>
-  		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="Add Module" type="button" onclick="submitForm(this)">
+  		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="Add Module" type="button" onclick="submitForm();">
 		</span>
 
          <span onclick="backToWelcomePage();">
@@ -515,6 +536,9 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		location.href = contextPath+"/cf/home";
 	}
 	$(function () {
+		let formElement = $("#formMuRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("module-manage-details", formDataJson);
 		let colM = [
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 	        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
@@ -525,6 +549,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Sequence Number", width: 100, align: "center", dataIndx: "sequence", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Inside Menu", width: 100, align: "center", dataIndx: "isInsideMenu", align: "left", halign: "center", render: formatIsInsideMenu},
           { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editModule}
 		];
 		let grid = $("#divModuleListing").grid({
@@ -538,8 +563,20 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		return ''<span id="''+moduleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
 	}
   
-  	function submitForm(element) {
-		$("#moduleId").val(element.id);
+  	function formatIsInsideMenu(uiObject){
+  		const isInsideMenu = uiObject.rowData.isInsideMenu;
+  		if(isInsideMenu == 1){
+  			return "Yes";
+  		}
+  		return "No";
+  	}
+  	
+  	function submitForm(sourceElement) {
+		let moduleId;
+		if(sourceElement !== undefined){
+			moduleId = sourceElement.id
+		}
+		$("#moduleId").val(moduleId);
 		$("#formMuRedirect").submit();
 	}
 	
@@ -548,6 +585,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
  
+
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('89ee344b-03f6-11eb-a183-e454e805e22f', 'module-manage-details', '<head>
@@ -631,6 +669,24 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="contextType">Inside Menu</label>
+					<div class="onoffswitch">
+						<input type="hidden" id="isInsideMenu" name="isInsideMenu" value="${(moduleDetailsVO?api.getIsInsideMenu())!''''}">
+						<#if (moduleDetailsVO?api.getIsInsideMenu())?? && moduleDetailsVO?api.getIsInsideMenu() == 1>
+							<input type="checkbox" id="insideMenuCheckbox" onchange="addEditModule.insideMenuOnChange();" checked name="insideMenuCheckbox" class="onoffswitch-checkbox">
+						<#else>
+							<input type="checkbox" id="insideMenuCheckbox" onchange="addEditModule.insideMenuOnChange();" name="insideMenuCheckbox" class="onoffswitch-checkbox">
+						</#if>
+						<label class="onoffswitch-label" for="insideMenuCheckbox">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>
+			</div>
+			
 			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
@@ -652,7 +708,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="sequence" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.sequence")}</label>
+					<label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
 					<#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
 						<input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''''}" maxlength="100" class="form-control">
 					<#else>
@@ -677,13 +733,25 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					<div class="clearfix"></div>
 				</div>
 			</div>
+			
 		</div>
 
 		<div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">
-					<input id="saveBtn" type="button" class="btn btn-primary" value="${messageSource.getMessage(''jws.save'')}" onclick="addEditModule.saveModule();">
-					<input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModule.backToModuleListingPage();">
+					<div class="btn-group dropdown custom-grp-btn">
+                        <div id="savedAction">
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''module-manage-details'', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction(''module-manage-details'', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction(''module-manage-details'', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+                    <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="addEditModule.backToModuleListingPage();">
 		        </div>
 			</div>
 		</div>
@@ -694,11 +762,16 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 contextPath = "${(contextPath)!''''}";
 let addEditModule;
 let autocomplete;
+let sequence = "${(moduleDetailsVO?api.getSequence())!''''}";
 $(function() {
     let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
     let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
 	let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''''}";
 	let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''''}";
+	let moduleId = "${(moduleDetailsVO?api.getModuleId())!''''}";
+
+	savedAction("module-manage-details", moduleId);
+	hideShowActionButtons();
 	
 	if(targetLookupId === ""){
 		$("#targetLookupType").val(6);
@@ -734,13 +807,14 @@ $(function() {
         }, 	
     }, selectedTargetDetails);
       addEditModule.getTargeTypeNames(''isAddEdit'');
+	  hideShowActionButtons();
 });
 
 </script>
 <script src="/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('9378ee23-09fa-11eb-a894-f48e38ab8cd7', 'home-page', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -754,15 +828,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 </head>
 	<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
-		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/cf/home">Java Web Starter</a>
+		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/cf/home">JQuiver</a>
         <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
 			<i class="fa fa-bars" aria-hidden="true"></i>
 		</span>
         <span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">×</span>
         <ul class="navbar-nav px-3 float-right">
-			<li class="nav-item text-nowrap">
-				<a class="nav-link" href="/logout">Sign out</a>
-            </li>
+            <#if loggedInUserName?? && loggedInUserName != "anonymous">
+                <li class="nav-item text-nowrap">
+                    <div class="row margin-r-5 profile-tray">
+                        <a class="nav-link" href="/cf/profile">${loggedInUserName}</a>
+                        <a class="nav-link signout-icon" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+                    </div>
+                </li>
+            </#if>
         </ul>
 	</nav>
 
@@ -810,7 +889,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	</div>
 </div>
-
+<div class="footer bg-dark">
+    <div class="text-center">
+        <small>Copyright &copy; JQuiver</small>
+        <small class="float-right">Version 1.3.9</small>
+    </div>
+</div>
 
 <script>
 	const contextPathHome = "${contextPath}";
@@ -825,7 +909,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 </script>
-<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW());
+<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
@@ -980,8 +1064,9 @@ $(function() {
         selectedTargetDetails["targetTypeId"] = moduleTypeId;
         selectedTargetDetails["targetTypeName"] = moduleName;
     }
+	let autocompleteIdByType = getTargeTypeNames();
     autocomplete = $(''#targetTypeName'').autocomplete({
-        autocompleteId: "qw",
+        autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -1011,19 +1096,24 @@ function backToModuleListingPage() {
 
 function getTargeTypeNames(){
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
+		let autocompleteId;
 		if(targetLookupId == 1){
     		$("#targetTypeName").prop("disabled",false);
-    		autocomplete.options.autocompleteId = "dashboardListing";
+    		autocompleteId = "dashboardListing";
 		} else if(targetLookupId == 2){
     		$("#targetTypeName").prop("disabled",false); 
-    		autocomplete.options.autocompleteId = "dynamicForms";
+    		autocompleteId = "dynamicForms";
 		} else if(targetLookupId == 3){
     		$("#targetTypeName").prop("disabled",false);
-    		autocomplete.options.autocompleteId = "dynarestListing";
+    		autocompleteId = "dynarestListing";
 		} else if(targetLookupId == 5){
     		$("#targetTypeName").prop("disabled",false);
-    		autocomplete.options.autocompleteId = "templateListing";
+    		autocompleteId = "templateListing";
 		}
+		if(autocomplete !== undefined){
+			autocomplete.options.autocompleteId = autocompleteId;
+		}
+		return autocompleteId;
     }
 
 
@@ -1055,6 +1145,5 @@ function saveHomeModule(){
 }
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
-
 
 SET FOREIGN_KEY_CHECKS=1;

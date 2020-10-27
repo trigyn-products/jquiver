@@ -22,7 +22,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		  <form id="formFileUpload" action="/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="40289d3d750decc701750e3f1e3c0000"/>
                 <input type="hidden" name="fileUploadConfigId" id="fileUploadConfigId" value=""/>
-                <button type="submit" class="btn btn-primary"> Add Property </button>
+                <button type="submit" class="btn btn-primary">${messageSource.getMessage(''jws.addFileConfiguration'')}</button>
             </form>
 			<span onclick="backToWelcomePage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -42,19 +42,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "${(contextPath)!''''}";
 	
 	$(function () {
-	
-	    var colM = [
+		let formElement = $("#formFileUpload")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("file-upload-config", formDataJson);
+		
+	    let colM = [
 	        { title: "File Config Id", width: 130, dataIndx: "fileUploadConfigId", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "File Type Supported", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 	        { title: "Max File Size", width: 160, dataIndx: "maxFileSize", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			{ title: "Allowed Multiple Files", width: 160, dataIndx: "allowMultipleFiles", align: "left", halign: "center", 
+			{ title: "No Of Files", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editFileUploadConfig}
 	    ];
-	    var grid = $("#divFileConfigListingGrid").grid({
+	    let grid = $("#divFileConfigListingGrid").grid({
 	      gridId: "fileUploadConfigGrid",
 	      colModel: colM
 	  	});
@@ -78,7 +81,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
 ('40289d3d750decc701750e3f1e3c0000', 'file-upload-config', 'File Upload Config Form', 'SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported
-, fuc.max_file_size AS maxFileSize, fuc.allow_multiple_files AS allowMultipleFiles, fuc.updated_by AS updatedBy,
+, fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy,
 fuc.updated_date AS updatedDate,fuc.is_deleted AS isDeleted
 FROM file_upload_config AS fuc
 WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', '<head>
@@ -94,9 +97,9 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 <div class="container">
 	<div class="topband">
 		<#if (resultSet)?? && (resultSet)?has_content>
-		    <h2 class="title-cls-name float-left">Edit File Config Details</h2> 
+		    <h2 class="title-cls-name float-left">Edit File Configuration</h2> 
         <#else>
-            <h2 class="title-cls-name float-left">Add File Config Detailsr</h2> 
+            <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.addFileConfiguration'')}</h2> 
         </#if>
 		<div class="float-right">	
 			<span onclick="backToPreviousPage();">
@@ -133,33 +136,38 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 		</div>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-				<label for="allowMultipleFiles" style="white-space:nowrap"><span class="asteriskmark">*</span>
-		            Allow multiple files
-		        </label>
-                <div class="onoffswitch">
-                    <input type="checkbox" name="allowMultipleFiles" class="onoffswitch-checkbox" id="allowMultipleFiles">
-                    <label class="onoffswitch-label" for="allowMultipleFiles">
-                        <span class="onoffswitch-inner"></span>
-                        <span class="onoffswitch-switch"></span>
-                    </label>
-                </div>
-                <input type="hidden" id="isMultipleFiles" name="isMultipleFiles"  value="" >
+				<label for="noOfFiles" style="white-space:nowrap">
+                    <span class="asteriskmark">*</span>No of files (between 1 and 10):
+                </label>
+                <input type="range" id="noOfFiles" name="noOfFiles" min="1" max="10">
 			</div>
 		</div>
 
     	</div>
     
   </form>
-  <div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropdown custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''file-upload-config'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''file-upload-config'', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''file-upload-config'', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
 			</div>
 		</div>
+	</div>
+	
 </div>
 <script>
 	let formId = "${formId}";
@@ -171,22 +179,20 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
       		$("#fileUploadConfigId").val(''${resultSetList?api.get("fileUploadConfigId")}'');
       		$("#fileTypeSupported").val(''${resultSetList?api.get("fileTypeSupported")}'');
             $("#maxFileSize").val(''${resultSetList?api.get("maxFileSize")}'');
-            let isMultipleFileAllowed = ''${resultSetList?api.get("allowMultipleFiles")}'';
-            if(isMultipleFileAllowed){
-                $("#allowMultipleFiles").attr(''checked'', true);
-            }else{
-                $("#allowMultipleFiles").attr(''checked'', false);
-            }
-            
+           	$("#noOfFiles").val(''${resultSetList?api.get("noOfFiles")}'');
       	</#list>
       </#if>
     
 		<#if (requestDetails?api.get("fileUploadConfigId")) != "">
             edit = 1;
         </#if>
+    
+		savedAction("file-upload-config", edit);
+		hideShowActionButtons();
   });
   
 	function saveData (){
+        let isDataSaved = false;
         let isMultipleFiles = $("#allowMultipleFiles").prop("checked");
         $("#isMultipleFiles").val(0);
         if(isMultipleFiles){
@@ -199,14 +205,17 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 		$.ajax({
 		  type : "POST",
 		  url : contextPath+"/cf/sdf",
+		  async: false,
 		  data : formData,
           success : function(data) {
+          	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 		  },
 	      error : function(xhr, error){
 			showMessage("Error occurred while saving", "error");
 	      },
 		});
+		return isDataSaved;
 	}
 	
 	function backToPreviousPage() {
@@ -219,14 +228,28 @@ REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
     UPDATE file_upload_config SET 
     file_type_supported = ''${formData?api.getFirst("fileTypeSupported")}''
     ,max_file_size = ''${formData?api.getFirst("maxFileSize")}''
-    ,allow_multiple_files = ''${formData?api.getFirst("isMultipleFiles")}''
+    ,no_of_files = ''${formData?api.getFirst("noOfFiles")}''
     ,is_deleted = 0
     ,updated_by = ''admin''
     ,updated_date = NOW() 
     WHERE file_upload_config_id = ''${formData?api.getFirst("fileUploadConfigId")}''
 <#else>
-    INSERT INTO file_upload_config (file_upload_config_id,file_type_supported,max_file_size,allow_multiple_files,is_deleted,updated_by,updated_date) VALUES (''${formData?api.getFirst("fileUploadConfigId")}'',''${formData?api.getFirst("fileTypeSupported")}'',''${formData?api.getFirst("maxFileSize")}'',''${formData?api.getFirst("isMultipleFiles")}'',0,''admin'',NOW())
+    INSERT INTO file_upload_config (file_upload_config_id,file_type_supported,max_file_size,no_of_files,is_deleted,updated_by,updated_date) VALUES (''${formData?api.getFirst("fileUploadConfigId")}'',''${formData?api.getFirst("fileTypeSupported")}'',''${formData?api.getFirst("maxFileSize")}'',''${formData?api.getFirst("noOfFiles")}'',0,''admin'',NOW())
 </#if>', 1, NULL);
 
+replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+(1002, 'fileconfig-details', 1, 'getFileConfigDetails', 'Get file config details', 2, 7, 'function getFileConfigDetails(requestDetails, daoResults) {
+    return daoResults["fileConfigs"][0];
+}
+
+getFileConfigDetails(requestDetails, daoResults);', 3);
+
+replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
+(19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "default")
+order by FIELD(file_upload_config_id, :fileUploadId, "default")
+LIMIT 1', 1, 1);
+
+REPLACE INTO file_upload_config (file_upload_config_id, file_type_supported, max_file_size, no_of_files, is_deleted, updated_by, updated_date) VALUES
+('default', '*', 2000000000000, 1, 0, 'admin', NOW());
 
 SET FOREIGN_KEY_CHECKS=1;
