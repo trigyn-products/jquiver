@@ -1,4 +1,4 @@
-package com.trigyn.jws.usermanagement.service;
+package com.trigyn.jws.webstarter.service;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,16 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.entities.PropertyMasterPK;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
@@ -31,8 +35,10 @@ import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
+import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationTypeVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleMasterModulesAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
@@ -72,6 +78,14 @@ public class UserManagementService {
 	@Autowired
 	private JwsEntityRoleAssociationRepository entityRoleAssociationRepository = null;
 	
+    @Autowired
+    private DBTemplatingService templatingService     = null;
+
+	@Autowired
+	private TemplatingUtils templatingUtils = null; 
+	
+	@Autowired
+	private IUserDetailsService userDetailsService = null;
 
 	public String addEditRole(String roleId) throws Exception {
 
@@ -112,20 +126,19 @@ public class UserManagementService {
 		mapDetails.put("roles", roles);
 		mapDetails.put("masterModules", masterModulesVO);
 		mapDetails.put("roleModulesAssociations", roleModulesAssociations);
-
-		return menuService.getTemplateWithSiteLayout("manageRoleModule", mapDetails);
+		
+		TemplateVO templateVO =  templatingService.getTemplateByName("manageRoleModule");
+		return	templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 	}
 
-	public String saveRoleModules(List<JwsRoleMasterModulesAssociationVO> roleModulesList) {
+	public Boolean saveRoleModules(JwsRoleMasterModulesAssociationVO roleModule) {
 
-		for (JwsRoleMasterModulesAssociationVO jwsRoleMasterModulesAssociationVO : roleModulesList) {
-			JwsRoleMasterModulesAssociation masterModuleAssociation = jwsRoleMasterModulesAssociationVO
-					.convertVOToEntity(jwsRoleMasterModulesAssociationVO);
+			JwsRoleMasterModulesAssociation masterModuleAssociation = roleModule
+					.convertVOToEntity(roleModule);
 
 			roleModuleRepository.save(masterModuleAssociation);
-		}
 
-		return null;
+		return true;
 	}
 
 	public void saveUserData(JwsUserVO userData) {
@@ -199,16 +212,20 @@ public class UserManagementService {
 		roles = jwsRoleRepository.findAllRoles();
 		mapDetails.put("roles", roles);
 		
-		return menuService.getTemplateWithSiteLayout("manageEntityRoles", mapDetails);
+		TemplateVO templateVO =  templatingService.getTemplateByName("manageEntityRoles");
+		return	templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 	}
 
-	public void saveUpdateEntityRole(JwsEntityRoleAssociationVO entityRoleAssociation) {
+	public void saveUpdateEntityRole(List<JwsEntityRoleAssociationVO> entityRoleAssociations) {
 		
-		JwsEntityRoleAssociation jwsEntityRoleAssociation = entityRoleAssociation.convertVOtoEntity(entityRoleAssociation);
-		jwsEntityRoleAssociation.setLastUpdatedBy("admin");
-		String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(jwsEntityRoleAssociation.getEntityId(),jwsEntityRoleAssociation.getRoleId());
-		jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
-		entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
+		for (JwsEntityRoleAssociationVO jwsEntityRoleAssociationVO : entityRoleAssociations) {
+			
+			JwsEntityRoleAssociation jwsEntityRoleAssociation = jwsEntityRoleAssociationVO.convertVOtoEntity(jwsEntityRoleAssociationVO);
+			jwsEntityRoleAssociation.setLastUpdatedBy("admin");
+			String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(jwsEntityRoleAssociation.getEntityId(),jwsEntityRoleAssociation.getRoleId());
+			jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
+			entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
+		}
 	}
 
 	public List<JwsMasterModulesVO> getModules() {
@@ -222,6 +239,55 @@ public class UserManagementService {
 		}
 		
 		return masterModulesVO;
+	}
+
+	public void deleteAndSaveEntityRole(JwsEntityRoleVO entityRoles) {
+		
+		
+		if(!entityRoles.getRoleIds().contains(Constants.ADMIN_ROLE_ID)) {
+			entityRoles.getRoleIds().add(Constants.ADMIN_ROLE_ID);
+			entityRoles.setRoleIds(entityRoles.getRoleIds());
+		}
+		
+		List<String> newRoleIds = new ArrayList<>(entityRoles.getRoleIds());
+		
+		List<JwsEntityRoleAssociation> entityRoleAssociations =  entityRoleAssociationRepository.getEntityRoles(entityRoles.getEntityId(),entityRoles.getModuleId());
+		for (JwsEntityRoleAssociation jwsEntityRoleAssociation : entityRoleAssociations) {
+			//inactive
+			if(!entityRoles.getRoleIds().contains(jwsEntityRoleAssociation.getRoleId()))
+			{
+				newRoleIds.remove(jwsEntityRoleAssociation.getRoleId());
+				jwsEntityRoleAssociation.setIsActive(Constants.INACTIVE);
+				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
+				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
+			}else {
+				newRoleIds.remove(jwsEntityRoleAssociation.getRoleId());
+				jwsEntityRoleAssociation.setIsActive(Constants.ISACTIVE);
+				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
+				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
+			}
+		}
+		
+		for (String roleId : newRoleIds) {
+			JwsEntityRoleAssociation entityRoleAssociation = new JwsEntityRoleAssociation();
+			entityRoleAssociation.setRoleId(roleId);
+			entityRoleAssociation.setEntityId(entityRoles.getEntityId());
+			entityRoleAssociation.setEntityName(entityRoles.getEntityName());
+			entityRoleAssociation.setModuleId(entityRoles.getModuleId());
+			entityRoleAssociation.setIsActive(Constants.ISACTIVE);
+			entityRoleAssociation.setLastUpdatedDate(new Date());
+			entityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+			entityRoleAssociationRepository.save(entityRoleAssociation);
+			
+		}
+		
+	}
+
+	public List<JwsRoleVO> getEntityRoles(String entityId, String moduleId) {
+		List<JwsRoleVO> roles =  entityRoleAssociationRepository.getRoles(entityId,moduleId,Constants.ISACTIVE);
+		return roles;
 	}
 
 }

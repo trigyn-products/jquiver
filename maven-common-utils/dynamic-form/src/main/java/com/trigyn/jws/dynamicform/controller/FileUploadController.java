@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,10 +43,11 @@ public class FileUploadController {
 
 	@PostMapping(value = "/upload", produces = {MediaType.APPLICATION_JSON_VALUE})
 	@ResponseBody
-	public String uploadFiles(@RequestParam("file") MultipartFile file) {
+	public String uploadFiles(@RequestParam("file") MultipartFile file, HttpServletRequest httpServletRequest) {
 		String message = "";
+		String fileConfigId = httpServletRequest.getParameter("fileConfigData");
 		try {
-			String fileId = storageService.save(file);
+			String fileId = storageService.save(file, fileConfigId);
 			Map<String, Object> uploadDetails = new HashMap<String, Object>();
 			uploadDetails.put("fileId", fileId);
 			uploadDetails.put("success", "1");
@@ -58,13 +60,14 @@ public class FileUploadController {
 	
 	@PostMapping(value = "/m-upload", produces = {MediaType.APPLICATION_JSON_VALUE})
 	@ResponseBody
-	public String uploadFiles(@RequestParam("files[0]") MultipartFile[] files) {
+	public String uploadFiles(@RequestParam("files[0]") MultipartFile[] files, HttpServletRequest httpServletRequest) {
+		String fileConfigId = httpServletRequest.getParameter("fileConfigData");
 		String message = "";
 		try {
 			List<String> fileNames = new ArrayList<>();
 
 			Arrays.asList(files).stream().forEach(file -> {
-				String fileId = storageService.save(file);
+				String fileId = storageService.save(file, fileConfigId);
 				fileNames.add(fileId);
 			});
 			Map<String, Object> uploadDetails = new HashMap<String, Object>();
@@ -81,6 +84,12 @@ public class FileUploadController {
 	public ResponseEntity<List<FileInfo>> getListFiles() {
 		List<FileInfo> fileInfos = storageService.loadAll();
 		return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
+	}
+	
+	@DeleteMapping("/files/{fileId:.+}")
+	public ResponseEntity<?> deleteFile(@PathVariable String fileId) throws Exception {
+		storageService.deleteFileById(fileId);
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
 	@GetMapping("/fileDetails")

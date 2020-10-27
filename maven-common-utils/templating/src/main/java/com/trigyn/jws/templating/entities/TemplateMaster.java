@@ -8,9 +8,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.entities.JwsLookup;
+import com.trigyn.jws.dbutils.entities.ModuleTargetLookup;
 
 @Entity
 @Table(name = "template_master")
@@ -25,10 +31,13 @@ public class TemplateMaster implements Serializable {
     private String templateId                   = null;
 
     @Column(name = "template_name")
-    private String templateName                  = null;
+    private String templateName                 = null;
 
     @Column(name = "template")
     private String template                     = null;
+    
+    @Column(name = "template_type_id")
+    private Integer templateTypeId				= 1;
 
     @Column(name = "created_by")
     private String createdBy                    = null;
@@ -36,23 +45,24 @@ public class TemplateMaster implements Serializable {
     @Column(name = "updated_by")
     private String updatedBy                    = null;
 
+    @JsonIgnore
     @Column(name = "updated_date")
     private Date updatedDate                    = null;
 
     @Column(name = "checksum")
     private String checksum                     = null;
 
-    
     public TemplateMaster() {
 
     }
 
     
-    public TemplateMaster(String templateId, String templateName, String template, String createdBy, String updatedBy,
-            Date updatedDate) {
+    public TemplateMaster(String templateId, String templateName, String template, Integer templateTypeId
+    		, String createdBy, String updatedBy, Date updatedDate) {
         this.templateId     = templateId;
         this.templateName   = templateName;
         this.template       = template;
+        this.templateTypeId	= templateTypeId;
         this.createdBy      = createdBy;
         this.updatedBy      = updatedBy;
         this.updatedDate    = updatedDate;
@@ -82,7 +92,15 @@ public class TemplateMaster implements Serializable {
         this.template = vmTemplate;
     }
 
-    public String getCreatedBy() {
+	public Integer getTemplateTypeId() {
+		return templateTypeId;
+	}
+
+	public void setTemplateTypeId(Integer templateTypeId) {
+		this.templateTypeId = templateTypeId;
+	}
+
+	public String getCreatedBy() {
         return createdBy;
     }
 
@@ -114,41 +132,44 @@ public class TemplateMaster implements Serializable {
         this.checksum = checksum;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(createdBy, updatedBy, templateId, templateName, template);
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        TemplateMaster other = (TemplateMaster) obj;
-        return Objects.equals(createdBy, other.createdBy) 
-                && Objects.equals(updatedBy, other.updatedBy)
-                && Objects.equals(templateId, other.templateId)
-                && Objects.equals(templateName, other.templateName) 
-                && Objects.equals(template, other.template);
-    }
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(checksum, createdBy, template, templateId, templateName, templateTypeId, updatedBy,
+				updatedDate);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		TemplateMaster other = (TemplateMaster) obj;
+		return Objects.equals(checksum, other.checksum) && Objects.equals(createdBy, other.createdBy)
+				&& Objects.equals(template, other.template) && Objects.equals(templateId, other.templateId)
+				&& Objects.equals(templateName, other.templateName) && Objects.equals(templateTypeId, other.templateTypeId)
+				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate);
+	}
+	
+	
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder().append("{ vmMasterId = ").append(templateId)
 		.append(", vmName = ").append(templateName)
         .append(", vmTemplate = ").append(template)
+        .append(", templateTypeId = ").append(templateTypeId)
         .append(", createdBy = ").append(createdBy)
         .append(", updatedBy = ").append(updatedBy)
         .append(", updatedDate = ").append(updatedDate)
 		.append(" }");
 		return stringBuilder.toString();
     }
-
-    
-
-    
 
 }

@@ -7,14 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 @RestController
 @RequestMapping("/cf")
@@ -24,13 +28,14 @@ public class DynamicFormController {
 	private DynamicFormService dynamicFormService = null;
 	
 	@PostMapping("/df")
+	@Authorized(moduleName = Constants.DYNAMICFORM)
 	public String loadDynamicForm(@RequestParam(value = "formId",required = true) String formId, HttpServletRequest httpServletRequest) throws Exception {
 		return dynamicFormService.loadDynamicForm(formId,processRequestParams(httpServletRequest), null);
 	}
 	
 	@PostMapping(value="/sdf",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public Boolean saveDynamicForm(
-			@RequestBody MultiValueMap<String, String> formData) throws Exception {
+	@Authorized(moduleName = Constants.DYNAMICFORM)
+	public Boolean saveDynamicForm(@RequestBody MultiValueMap<String, String> formData) throws Exception {
 		return dynamicFormService.saveDynamicForm(formData);
 	}
 	

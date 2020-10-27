@@ -59,5 +59,15 @@ public class JwsRoleVO  implements Serializable{
 		jwsRole.setIsActive(jwsRoleVO.getIsActive());
 		return jwsRole;
 	}
+
+	public JwsRoleVO() {
+	}
+
+	public JwsRoleVO(String roleId, String roleName) {
+		super();
+		this.roleId = roleId;
+		this.roleName = roleName;
+	}
+	
 	
 }

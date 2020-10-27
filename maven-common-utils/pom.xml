@@ -64,6 +64,7 @@
 
 	<modules>
 		<module>dbutils</module>
+		<module>usermanagement</module>
 		<module>resourcebundle</module>
 		<module>templating</module>
 		<module>gridutils</module>
@@ -72,7 +73,6 @@
 		<module>typeahead</module>
 		<module>dynamic-form</module>
 		<module>dynamic-rest</module>
-		<module>usermanagement</module>
 		<module>java-web-starter</module>
 	</modules>
 

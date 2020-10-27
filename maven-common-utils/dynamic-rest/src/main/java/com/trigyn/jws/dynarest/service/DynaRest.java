@@ -7,19 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
-public class DynaRest {
-	/**
-	 * 
-	 * Method to get employee details
-	 *
-	 */
-	public Map<String, Object> getEmployeeDetails(HttpServletRequest a_httpServletRequest,
-			 Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
-		Map<String, Object> response = new HashMap<>();
-		response.put("response", dAOparameters.get("employees"));
-		return response;
-	}
 
+public class DynaRest {
+	
+	
 	/**
 	 * 
 	 * Method to get dynamic rest details

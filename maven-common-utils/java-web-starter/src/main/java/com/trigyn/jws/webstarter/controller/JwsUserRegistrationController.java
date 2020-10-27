@@ -1,4 +1,4 @@
-package com.trigyn.jws.usermanagement.controller;
+package com.trigyn.jws.webstarter.controller;
 
 
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -170,7 +169,7 @@ public class JwsUserRegistrationController {
 	            
 	        	JwsUserRoleAssociation adminRoleAssociation = new JwsUserRoleAssociation();
         		adminRoleAssociation.setUserId(user.getUserId());
-        		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE);
+        		adminRoleAssociation.setRoleId(Constants.ADMIN_ROLE_ID);
         		userRoleAssociationRepository.save(adminRoleAssociation);
         		
         		StringBuffer sb = new StringBuffer("First Name :"+user.getFirstName().trim());

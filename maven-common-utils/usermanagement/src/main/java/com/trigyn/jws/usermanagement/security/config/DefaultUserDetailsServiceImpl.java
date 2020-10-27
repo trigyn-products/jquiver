@@ -8,10 +8,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
-import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
@@ -32,8 +32,9 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 		if (user == null ) {
 			throw new UsernameNotFoundException("Not found!");
 		}
-		List<JwsUserRoleAssociation> rolesAssociation = userRoleAssociationRepository.getRoleModuleAssociation(Constants.ISACTIVE, user.getUserId());
-		return new UserInformation(user, rolesAssociation);
+		
+		List<JwsRoleVO> rolesVOs =  userRoleAssociationRepository.getUserRoles(Constants.ISACTIVE, user.getUserId());
+		return new UserInformation(user, rolesVOs);
 	}
 
 }

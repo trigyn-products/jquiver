@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('ba1845fd-09ac-11eb-a027-f48e38ab8cd7', 'dynamic-form-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -64,6 +64,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			});
 	});
 	
+	function formType(uiObject){
+		const formTypeId = uiObject.rowData.formTypeId;
+		if(formTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
 	function editDynamicFormFormatter(uiObject) {	
 		let dynamicFormId = uiObject.rowData.formId;
 		let dynamicFormName = uiObject.rowData.formName;
@@ -151,9 +159,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</#if>
 	
 	
-</script>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now());
+</script>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date)VALUES ('be46dd5b-09ac-11eb-a027-f48e38ab8cd7','dynamic-form-manage-details','<head>
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id)VALUES ('be46dd5b-09ac-11eb-a027-f48e38ab8cd7','dynamic-form-manage-details','<head>
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
 	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -265,7 +273,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<div id = "saveScriptContainer"></div>
 			</div>
 		</div>        
-  
+   		<input id="moduleId" value="30a0ff61-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+     	 <@templateWithoutParams "role-autocomplete"/> 
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -334,6 +343,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();
 	savedAction("dynamic-form-manage-details", formId);
     hideShowActionButtons();
+    
+     <#if !(dynamicForm?api.getFormId())??>
+    	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+        multiselect.setSelectedObject(defaultAdminRole);
+    
+    </#if>
   });
 
   function loadTableTemplate(event){
@@ -351,8 +366,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
           }
         });
     }
+   
+    
     
    </script>
-  ','aar.dev@trigyn.com','aar.dev@trigyn.com',now() );  
+  ','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2 );  
   
  SET FOREIGN_KEY_CHECKS=1; 

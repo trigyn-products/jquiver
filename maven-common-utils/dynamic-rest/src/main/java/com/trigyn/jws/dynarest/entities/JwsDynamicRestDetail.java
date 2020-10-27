@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -16,18 +15,22 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+
 
 
 @Entity
 @Table(name="jws_dynamic_rest_details")
 @NamedQuery(name="JwsDynamicRestDetail.findAll", query="SELECT j FROM JwsDynamicRestDetail j")
 public class JwsDynamicRestDetail implements Serializable {
+	
 	private static final long serialVersionUID 			= 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(generator = "system-uuid")
+	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name="jws_dynamic_rest_id")
-	private Integer jwsDynamicRestId					= null;
+	private String jwsDynamicRestId					= null;
 
 	@Column(name="jws_dynamic_rest_url")
 	private String jwsDynamicRestUrl					= null;
@@ -56,6 +59,9 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Column(name="jws_allow_files")
 	private Integer jwsAllowFiles						= null;
 	
+	@Column(name = "jws_dynamic_rest_type_id")
+	private Integer jwsDynamicRestTypeId				= 1;
+	
 	@OneToMany(mappedBy="jwsDynamicRestDetail", fetch = FetchType.LAZY)
 	private List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails				= null;
 
@@ -76,10 +82,10 @@ public class JwsDynamicRestDetail implements Serializable {
 	public JwsDynamicRestDetail() {
 	}
 
-	public JwsDynamicRestDetail(Integer jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
-			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,Integer jwsAllowFiles,
-			List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails, JwsRequestTypeDetail jwsRequestTypeDetail,
-			JwsResponseProducerDetail jwsResponseProducerDetail,
+	public JwsDynamicRestDetail(String jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
+			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,Integer jwsAllowFiles
+			, Integer jwsDynamicRestTypeId, List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails, 
+			JwsRequestTypeDetail jwsRequestTypeDetail, JwsResponseProducerDetail jwsResponseProducerDetail,
 			List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
 		this.jwsDynamicRestId 				= jwsDynamicRestId;
 		this.jwsDynamicRestUrl 				= jwsDynamicRestUrl;
@@ -89,17 +95,18 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsRbacId 						= jwsRbacId;
 		this.jwsServiceLogic 				= jwsServiceLogic;
 		this.jwsAllowFiles 					= jwsAllowFiles;
+		this.jwsDynamicRestTypeId 			= jwsDynamicRestTypeId;
 		this.jwsDynamicRestDaoDetails 		= jwsDynamicRestDaoDetails;
 		this.jwsRequestTypeDetail 			= jwsRequestTypeDetail;
 		this.jwsResponseProducerDetail 		= jwsResponseProducerDetail;
 		this.jwsDynamicRestResponseParams 	= jwsDynamicRestResponseParams;
 	}
 
-	public Integer getJwsDynamicRestId() {
+	public String getJwsDynamicRestId() {
 		return this.jwsDynamicRestId;
 	}
 
-	public void setJwsDynamicRestId(Integer jwsDynamicRestId) {
+	public void setJwsDynamicRestId(String jwsDynamicRestId) {
 		this.jwsDynamicRestId = jwsDynamicRestId;
 	}
 
@@ -176,6 +183,14 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsAllowFiles = jwsAllowFiles;
 	}
 
+	public Integer getJwsDynamicRestTypeId() {
+		return jwsDynamicRestTypeId;
+	}
+
+	public void setJwsDynamicRestTypeId(Integer jwsDynamicRestTypeId) {
+		this.jwsDynamicRestTypeId = jwsDynamicRestTypeId;
+	}
+	
 	public List<JwsDynamicRestDaoDetail> getJwsDynamicRestDaoDetails() {
 		return this.jwsDynamicRestDaoDetails;
 	}
@@ -239,9 +254,9 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(JwsDynamicRestRoleAssociation, jwsAllowFiles, jwsDynamicRestDaoDetails, jwsDynamicRestId,
-				jwsDynamicRestResponseParams, jwsDynamicRestUrl, jwsMethodDescription, jwsMethodName, jwsPlatformId,
-				jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId, jwsResponseProducerDetail, jwsResponseProducerTypeId,
-				jwsServiceLogic);
+				jwsDynamicRestResponseParams, jwsDynamicRestTypeId, jwsDynamicRestUrl, jwsMethodDescription,
+				jwsMethodName, jwsPlatformId, jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId,
+				jwsResponseProducerDetail, jwsResponseProducerTypeId, jwsServiceLogic);
 	}
 
 	@Override
@@ -261,6 +276,7 @@ public class JwsDynamicRestDetail implements Serializable {
 				&& Objects.equals(jwsDynamicRestDaoDetails, other.jwsDynamicRestDaoDetails)
 				&& Objects.equals(jwsDynamicRestId, other.jwsDynamicRestId)
 				&& Objects.equals(jwsDynamicRestResponseParams, other.jwsDynamicRestResponseParams)
+				&& Objects.equals(jwsDynamicRestTypeId, other.jwsDynamicRestTypeId)
 				&& Objects.equals(jwsDynamicRestUrl, other.jwsDynamicRestUrl)
 				&& Objects.equals(jwsMethodDescription, other.jwsMethodDescription)
 				&& Objects.equals(jwsMethodName, other.jwsMethodName)
@@ -278,12 +294,13 @@ public class JwsDynamicRestDetail implements Serializable {
 				+ ", jwsMethodDescription=" + jwsMethodDescription + ", jwsMethodName=" + jwsMethodName
 				+ ", jwsPlatformId=" + jwsPlatformId + ", jwsRbacId=" + jwsRbacId + ", jwsServiceLogic="
 				+ jwsServiceLogic + ", jwsRequestTypeId=" + jwsRequestTypeId + ", jwsResponseProducerTypeId="
-				+ jwsResponseProducerTypeId + ", jwsAllowFiles=" + jwsAllowFiles + ", jwsDynamicRestDaoDetails="
-				+ jwsDynamicRestDaoDetails + ", jwsRequestTypeDetail=" + jwsRequestTypeDetail
-				+ ", jwsResponseProducerDetail=" + jwsResponseProducerDetail + ", jwsDynamicRestResponseParams="
-				+ jwsDynamicRestResponseParams + ", JwsDynamicRestRoleAssociation=" + JwsDynamicRestRoleAssociation
-				+ "]";
+				+ jwsResponseProducerTypeId + ", jwsAllowFiles=" + jwsAllowFiles + ", jwsDynamicRestTypeId="
+				+ jwsDynamicRestTypeId + ", jwsDynamicRestDaoDetails=" + jwsDynamicRestDaoDetails
+				+ ", jwsRequestTypeDetail=" + jwsRequestTypeDetail + ", jwsResponseProducerDetail="
+				+ jwsResponseProducerDetail + ", jwsDynamicRestResponseParams=" + jwsDynamicRestResponseParams
+				+ ", JwsDynamicRestRoleAssociation=" + JwsDynamicRestRoleAssociation + "]";
 	}
+
 
 
 

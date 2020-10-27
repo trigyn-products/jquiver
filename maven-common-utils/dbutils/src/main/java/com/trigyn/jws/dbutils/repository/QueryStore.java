@@ -77,4 +77,12 @@ public final class QueryStore {
     		+ " FROM ModuleListing AS ml "
     		+ " WHERE ml.moduleUrl = :homeModuleURL ";
     
+    public static final String JPA_QUERY_TO_GET_LOOKUP_DETAILS = "SELECT new com.trigyn.jws.dbutils.vo.LookupDetailsVO "
+    		+ " (jl.lookupName AS lookupName, jl.recordId AS recordId "
+    		+ ", COALESCE(jli18n.languageId, jli18nDef.languageId) AS languageId "
+    		+ ", COALESCE(jli18n.recordDescription, jli18nDef.recordDescription) AS recordDescription) FROM JwsLookup AS jl "
+    		+ " LEFT OUTER JOIN jl.jwsLookupI18ns AS jli18n ON jli18n.languageId = :languageId "
+    		+ " LEFT OUTER JOIN jl.jwsLookupI18ns AS jli18nDef ON jli18nDef.languageId = :defaultLanguageId "
+    		+ " WHERE jl.lookupName = :lookupName AND jl.isDeleted = :isDeleted ORDER BY recordId ASC";
+    
 }

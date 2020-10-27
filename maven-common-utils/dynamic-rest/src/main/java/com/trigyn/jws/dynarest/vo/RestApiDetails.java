@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class RestApiDetails {
 
-    private Integer dynamicId = null;
+    private String dynamicId = null;
 
     private String dynamicRestUrl = null;
 
@@ -25,7 +25,7 @@ public class RestApiDetails {
     public RestApiDetails() {
     }
 
-    public RestApiDetails(Integer dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
+    public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
             String methodDescription, String reponseType, String serviceLogic, Integer platformId, String methodType) {
         this.dynamicId = dynamicId;
         this.dynamicRestUrl = dynamicRestUrl;
@@ -38,11 +38,11 @@ public class RestApiDetails {
         this.methodType = methodType;
     }
 
-    public Integer getDynamicId() {
+    public String getDynamicId() {
         return this.dynamicId;
     }
 
-    public void setDynamicId(Integer dynamicId) {
+    public void setDynamicId(String dynamicId) {
         this.dynamicId = dynamicId;
     }
 
@@ -110,7 +110,7 @@ public class RestApiDetails {
         this.methodType = methodType;
     }
 
-    public RestApiDetails dynamicId(Integer dynamicId) {
+    public RestApiDetails dynamicId(String dynamicId) {
         this.dynamicId = dynamicId;
         return this;
     }

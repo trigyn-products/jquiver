@@ -34,6 +34,9 @@ public class FileUpload {
 
 	@Column(name = "last_update_ts")
 	private Date lastUpdatedBy = null;
+	
+	@Column(name = "file_config_id")
+	private String fileConfigId = "default";
 
 	public String getFileUploadId() {
 		return fileUploadId;
@@ -81,6 +84,14 @@ public class FileUpload {
 
 	public void setLastUpdatedBy(Date lastUpdatedBy) {
 		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public String getFileConfigId() {
+		return fileConfigId;
+	}
+
+	public void setFileConfigId(String fileConfigId) {
+		this.fileConfigId = fileConfigId;
 	}
 	
 }

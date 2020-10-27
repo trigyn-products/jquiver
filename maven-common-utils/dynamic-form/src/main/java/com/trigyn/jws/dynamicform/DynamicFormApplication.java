@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.trigyn.jws.dynamicform.service.FilesStorageService;
 
-
 @SpringBootApplication
 public class DynamicFormApplication {
 

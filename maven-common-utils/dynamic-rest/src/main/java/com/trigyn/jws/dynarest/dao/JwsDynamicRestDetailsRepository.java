@@ -16,7 +16,7 @@ public interface JwsDynamicRestDetailsRepository extends JpaRepositoryImplementa
     RestApiDetails findByJwsDynamicRestUrl(String jwsDynamicRestUrl);
     
     @Query(QueryStore.QUERY_TO_GET_DYNAMIC_REST_ID)
-    Integer findByJwsDynamicRestId(String jwsDynamicRestUrl, String jwsMethodName);
+    String findByJwsDynamicRestId(String jwsDynamicRestUrl, String jwsMethodName);
 
     @Query(QueryStore.QUERY_TO_GET_JAVA_DYNAMIC_REST_DETAILS)
 	List<RestApiDetails> findAllJavaDynarests();

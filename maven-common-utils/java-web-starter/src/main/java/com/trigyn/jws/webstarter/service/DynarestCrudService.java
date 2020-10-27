@@ -14,7 +14,7 @@ import org.springframework.util.MultiValueMap;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
@@ -45,7 +45,7 @@ public class DynarestCrudService {
 	private JwsDynamicRestDetailService dynamicRestDetailService 			= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService					= null;
+	private ModuleVersionService moduleVersionService						= null;
 	
 	public String getContentForDevEnvironment(String formName, String fileName) throws Exception {
 		
@@ -68,7 +68,7 @@ public class DynarestCrudService {
 	
 	
 	@Transactional(readOnly = false)
-	public Integer saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
+	public String saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
 		String dynarestUrl 			= formData.getFirst("dynarestUrl");
 		String dynarestMethodName 	= formData.getFirst("dynarestMethodName");
 		String daoDetailsIds 		= formData.getFirst("daoDetailsIds");
@@ -76,7 +76,7 @@ public class DynarestCrudService {
 		String queryType 			= formData.getFirst("queryType");
 		String daoQueryDetails 		= formData.getFirst("daoQueryDetails");
 		
-		Integer dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
+		String dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		
 		ObjectMapper objectMapper					= new ObjectMapper();
 		TypeReference<List<Integer>> listOfInteger 	= new TypeReference<List<Integer>>() {};
@@ -108,7 +108,7 @@ public class DynarestCrudService {
 			}
 			dynamicRestDaoDetailsList = dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
 			for (JwsDynamicRestDaoDetail dynamicRestDao : dynamicRestDaoDetailsList) {
-				templateVersionService.saveTemplateVersion(dynamicRestDao.getJwsDaoQueryTemplate()
+				moduleVersionService.saveModuleVersion(dynamicRestDao
 						,dynamicRestId, dynamicRestDao.getJwsDaoDetailsId(), "jws_dynamic_rest_dao_details");
 			}
 		}
@@ -129,7 +129,7 @@ public class DynarestCrudService {
 			daoDetailsIdList		= objectMapper.readValue(daoDetailsIds, listOfInteger);
 		}
 		
-		Integer dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
+		String dynamicRestId		= dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		dynarestDAO.deleteDAOQueriesById(dynamicRestId, daoDetailsIdList);
 	}
 	

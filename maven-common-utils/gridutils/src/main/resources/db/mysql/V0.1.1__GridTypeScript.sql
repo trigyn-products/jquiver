@@ -1,0 +1,1 @@
+ALTER TABLE grid_details ADD COLUMN grid_type_id INT(11) DEFAULT 1;

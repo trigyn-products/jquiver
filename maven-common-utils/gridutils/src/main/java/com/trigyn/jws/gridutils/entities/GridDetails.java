@@ -32,6 +32,9 @@ public class GridDetails implements Serializable{
 
     @Column(name = "query_type")
     private Integer queryType                    = null;
+    
+    @Column(name = "grid_type_id")
+    private Integer gridTypeId                   = 1;
 
     
     public GridDetails() {
@@ -107,34 +110,46 @@ public class GridDetails implements Serializable{
         this.queryType = queryType;
     }
 
+	public Integer getGridTypeId() {
+		return gridTypeId;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof GridDetails)) {
-            return false;
-        }
-        GridDetails gridDetails = (GridDetails) o;
-        return Objects.equals(gridId, gridDetails.gridId) && Objects.equals(gridName, gridDetails.gridName) && Objects.equals(gridDescription, gridDetails.gridDescription) && Objects.equals(gridTableName, gridDetails.gridTableName) && Objects.equals(gridColumnNames, gridDetails.gridColumnNames) && Objects.equals(queryType, gridDetails.queryType);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(gridId, gridName, gridDescription, gridTableName, gridColumnNames, queryType);
-    }
+	public void setGridTypeId(Integer gridTypeId) {
+		this.gridTypeId = gridTypeId;
+	}
 
 
-    @Override
-    public String toString() {
-        return "{" +
-            " gridId='" + getGridId() + "'" +
-            ", gridName='" + getGridName() + "'" +
-            ", gridDescription='" + getGridDescription() + "'" +
-            ", gridTableName='" + getGridTableName() + "'" +
-            ", gridColumnNames='" + getGridColumnNames() + "'" +
-            ", queryType='" + getQueryType() + "'" +
-            "}";
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(gridColumnNames, gridDescription, gridId, gridName, gridTableName, gridTypeId, queryType);
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		GridDetails other = (GridDetails) obj;
+		return Objects.equals(gridColumnNames, other.gridColumnNames)
+				&& Objects.equals(gridDescription, other.gridDescription) && Objects.equals(gridId, other.gridId)
+				&& Objects.equals(gridName, other.gridName) && Objects.equals(gridTableName, other.gridTableName)
+				&& Objects.equals(gridTypeId, other.gridTypeId) && Objects.equals(queryType, other.queryType);
+	}
+
+
+	@Override
+	public String toString() {
+		return "GridDetails [gridId=" + gridId + ", gridName=" + gridName + ", gridDescription=" + gridDescription
+				+ ", gridTableName=" + gridTableName + ", gridColumnNames=" + gridColumnNames + ", queryType="
+				+ queryType + ", gridTypeId=" + gridTypeId + "]";
+	}
+
 
 }

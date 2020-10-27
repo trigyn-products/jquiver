@@ -62,7 +62,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	@Override
-	public String save(MultipartFile file) {
+	public String save(MultipartFile file, String fileConfigId) {
 		try {
 			LocalDate localDate = LocalDate.now();
 			Integer year = localDate.getYear();
@@ -75,7 +75,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if(Boolean.FALSE.equals(new File(location.toString()).exists())) {
 				Files.createDirectories(Paths.get(location.toString()));
 			}
-			FileUpload fileUpload = saveFileDetails(location.toString(), file.getOriginalFilename());
+			FileUpload fileUpload = saveFileDetails(location.toString(), file.getOriginalFilename(), fileConfigId);
 			Path root = Paths.get(location.toString());
 			Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
 			CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(), root.resolve(fileUpload.getPhysicalFileName()).toFile());
@@ -86,13 +86,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		}
 	}
 
-	private FileUpload saveFileDetails(String location, String originalFilename) {
+	private FileUpload saveFileDetails(String location, String originalFilename, String fileConfigId) {
 		UserDetailsVO userDetailsVO = userdetailsService.getUserDetails();
 		FileUpload fileUpload = new FileUpload();
 		fileUpload.setFilePath(location);
 		fileUpload.setOriginalFileName(originalFilename);
 		fileUpload.setPhysicalFileName(UUID.randomUUID().toString());
 		fileUpload.setUpdatedBy(userDetailsVO.getUserName());
+		fileUpload.setFileConfigId(fileConfigId);
 		return fileUploadRepository.save(fileUpload);
 	}
 
@@ -123,6 +124,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	@Override
 	public void deleteAll() {
 		try {
+			fileUploadRepository.deleteAll();
 			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
 			Path root = Paths.get(fileUploadDir);
 			FileSystemUtils.deleteRecursively(root.toFile());
@@ -154,6 +156,19 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			return new FileInfo(files.getFileUploadId(), files.getOriginalFileName(), file.length());
 		}).collect(Collectors.toList());
 		return fileInfos;
+	}
+
+	@Override
+	public void deleteFileById(String fileId) throws Exception {
+		FileUpload fileUploadDetails = fileUploadRepository.findById(fileId)
+				.orElseThrow(() -> new Exception("file not found with id : " + fileId));
+		Path root = Paths.get(fileUploadDetails.getFilePath());
+		Path filePath = root.resolve(fileUploadDetails.getPhysicalFileName());
+		Resource resource = new UrlResource(filePath.toUri());
+		if (resource.exists() || resource.isReadable()) {
+			fileUploadRepository.deleteById(fileId);
+			resource.getFile().delete();
+		}
 	}
 
 }

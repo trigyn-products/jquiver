@@ -80,5 +80,16 @@ public class FileUtilities {
 			
 		}
     
+    public String generateChecksum(Object content) throws Exception {
+    	MessageDigest messageDigest = MessageDigest.getInstance(SHA_256);
+    	String stringContent = content.toString();
+    	
+    	messageDigest.update(stringContent.getBytes());
+    	StringBuilder checksum = new StringBuilder();
+    	for (byte bytes : messageDigest.digest()) {
+			checksum.append(String.format("%02x", bytes));
+		}
+    	return checksum.toString();
+    }
 
 }

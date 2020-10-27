@@ -12,7 +12,7 @@ public class JwsDynamicRestRoleAssociationPK implements Serializable {
 	private static final long serialVersionUID 		= 1L;
 
 	@Column(name="jws_dynamic_rest_id", insertable=false, updatable=false, nullable=false)
-	private Integer jwsDynamicRestId				= null;
+	private String jwsDynamicRestId				= null;
 
 	@Column(name="role_id", insertable=false, updatable=false, nullable=false)
 	private String roleId							= null;
@@ -21,18 +21,18 @@ public class JwsDynamicRestRoleAssociationPK implements Serializable {
 		
 	}
 
-	public JwsDynamicRestRoleAssociationPK(Integer jwsDynamicRestId, String roleId) {
+	public JwsDynamicRestRoleAssociationPK(String jwsDynamicRestId, String roleId) {
 		this.jwsDynamicRestId 	= jwsDynamicRestId;
 		this.roleId 			= roleId;
 	}
 
 	
-	public Integer getJwsDynamicRestId() {
+	public String getJwsDynamicRestId() {
 		return jwsDynamicRestId;
 	}
 
 	
-	public void setJwsDynamicRestId(Integer jwsDynamicRestId) {
+	public void setJwsDynamicRestId(String jwsDynamicRestId) {
 		this.jwsDynamicRestId = jwsDynamicRestId;
 	}
 

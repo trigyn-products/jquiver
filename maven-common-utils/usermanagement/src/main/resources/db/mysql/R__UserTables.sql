@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'addEditRole', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('d0328a53-138b-11eb-9b1e-f48e38ab9348', 'addEditRole', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -31,7 +31,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		</div>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-		            <label for="roledescription" style="white-space:nowrap"><span class="asteriskmark">*</span>
+		            <label for="roledescription" style="white-space:nowrap">
 		              Role description
 		            </label>
 				<input type="text" id="roleDescription" name="roleDescription"  value="" maxlength="2000" class="form-control">
@@ -105,12 +105,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	
 	//Code go back to previous page
 	function backToPreviousPage() {
-		location.href = contextPath+"/cf/role";
+		location.href = contextPath+"/cf/rl";
 	}
-</script>','admin','admin',now());
+</script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'role-listing', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('e027d3a3-138b-11eb-9b1e-f48e38ab9348', 'role-listing', '
 <head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -179,11 +179,12 @@ function backToWelcomePage() {
 	location.href = "/cf/um";
 }
 
-</script>','admin','admin',now());
+</script>','admin','admin',now(), 2);
 
 
 
-REPLACE INTO grid_details  VALUES ('roleGrid','role listing','List of roles','jws_role','*',1);
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
+ ('roleGrid','role listing','List of roles','jws_role','*', 1, 2);
 
 REPLACE  INTO  jws_property_master (
    owner_type
@@ -207,8 +208,8 @@ REPLACE  INTO  jws_property_master (
   ,'By default user management will be disabled' 
 );
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'manageRoleModule', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('e604edf6-138b-11eb-9b1e-f48e38ab9348', 'manageRoleModule', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -221,7 +222,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Manage Permissions</h2> 
+		<h2 class="title-cls-name float-left">Manage RoleModule</h2> 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditModule" id="addEditModule">
@@ -246,7 +247,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     <#list roleIds as roleId>
                       <td>
                       		<div class="onoffswitch">
-               					 <input type="checkbox" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
+               					 <input type="checkbox" onchange="saveModuleData(this);" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
                 				<label class="onoffswitch-label" for="${module?api.getModuleId()}_${roleId}">
                     				<span class="onoffswitch-inner"></span>
                     				<span class="onoffswitch-switch"></span>
@@ -264,17 +265,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     	</div>
     
   </form>
-  <div class="row">
-			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
-			</div>
-		</div>
-</div>
+
 <script>
 	contextPath = "${contextPath}";
   
@@ -295,24 +286,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   });
   
 	//Add logic to save form data
-   let roleModulesList = [];
-	function saveData (){
-  $.each($("input:checkbox"),function(key,value){
-  let roleModule = new Object();
-  var roleModuleArray = value.id.split("_")
-  roleModule.roleModuleId = value.getAttribute("roleModuleId");
-  roleModule.moduleId = roleModuleArray[0];
-  roleModule.roleId = roleModuleArray[1];
-  roleModule.isActive = ($(value).is(":checked") ? 1 : 0);
-  roleModulesList.push(roleModule);
-  });
+	function saveModuleData (thisObj){
+
+	  let roleModule = new Object();
+	  var roleModuleArray = thisObj.id.split("_")
+	  roleModule.roleModuleId = thisObj.getAttribute("roleModuleId");
+	  roleModule.moduleId = roleModuleArray[0];
+	  roleModule.roleId = roleModuleArray[1];
+	  roleModule.isActive = ($(thisObj).is(":checked") ? 1 : 0);
+
 		$.ajax({
 		     		type : "POST",
            			contentType : "application/json",
 		     		url : contextPath+"/cf/srm",
-		     		data : JSON.stringify(roleModulesList),
+		     		data : JSON.stringify(roleModule),
 		            success: function(data) {
-		              backToPreviousPage();
 		            }
 		     	});
 	}
@@ -321,10 +309,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/um";
 	}
-</script>','admin','admin',now());
+</script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'addEditJwsUser', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('f1a476f8-138b-11eb-9b1e-f48e38ab9348', 'addEditJwsUser', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -474,12 +462,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	
 	//Code go back to previous page
 	function backToPreviousPage() {
-		location.href = contextPath+"/cf/user";
+		location.href = contextPath+"/cf/ul";
 	}
-</script>','admin','admin',now());
+</script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-user-listing', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('fc1ff685-138b-11eb-9b1e-f48e38ab9348', 'jws-user-listing', '
 <head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -552,29 +540,24 @@ function backToWelcomePage() {
 	location.href = "/cf/um";
 }
 
-</script>','admin','admin',now());
+</script>','admin','admin',now(), 2);
 
 
 
-REPLACE INTO grid_details  VALUES ('jwsUserListingGrid','user listing','List of users','jws_user','*',1);
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
+ ('jwsUserListingGrid','user listing','List of users','jws_user','*', 1, 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '<div class="row">
     <div class="col-12">
-        <form id="manageRoleModule" action="/cf/mrm" method="get" class="margin-r-5 pull-left">
-            <button type="submit" class="btn btn-primary"> Manage Role Modules </button>
+        <form id="manageRoleModule" action="/cf/mp" method="post" class="margin-r-5 pull-left">
+            <button type="submit" class="btn btn-primary"> Manage Permissions </button>
         </form>
 		
-		<form id="manageEntityRoles" action="/cf/mer" method="get" class="margin-r-5 pull-left">
-            <button type="submit" class="btn btn-primary"> Manage Entity Roles </button>
-        </form>
-		
-        <form id="manageRoles" action="/cf/role" method="get" class="margin-r-5 pull-left">
-            <button type="submit" class="btn btn-primary">Manage role </button>
-        </form>
-
-        <form id="manageUsers" action="/cf/user" method="get" class="margin-r-5 pull-left">
-            <button type="submit" class="btn btn-primary"> Manage Users </button>
+        <button type="button" class="btn btn-primary" onclick="openManageRole();"> Manage Roles</button>
+        
+        <button type="button" class="btn btn-primary" onclick="openManageUser();"> Manage Users</button>
+  
         </form>
     </div>
     <div class="col-12 margin-t-25">
@@ -684,8 +667,15 @@ contextPath = "${contextPath}";
 		     	});
     
     }
+    function openManageRole(){
+      location.href="/cf/rl";
+    }
     
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+    function openManageUser(){
+      location.href="/cf/ul";
+    }
+    
+</script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
    REPLACE  INTO  jws_property_master (
@@ -710,8 +700,8 @@ contextPath = "${contextPath}";
   ,'Authentication type - default in memory authentication' 
 );
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-welcome', '<div>
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('02fb1cb5-138c-11eb-9b1e-f48e38ab9348', 'jws-welcome', '<div>
 	<h1>Welcome to TSMS</h1>
 	
 		<#if loggedInUser == true >
@@ -733,11 +723,11 @@ if(loggedInUser == false){
 } 
 </script>
 
-','admin','admin',now());
+','admin','admin',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-login', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('0c7acdf9-138c-11eb-9b1e-f48e38ab9348', 'jws-login', ' 
  
 <!DOCTYPE html>
 <html lang="en">
@@ -803,12 +793,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     </div>   
 </div> 
 
-</body></html>','admin','admin',now());
+</body></html>','admin','admin',now(), 2);
 
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-register', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('11c869d4-138c-11eb-9b1e-f48e38ab9348', 'jws-register', ' 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -863,12 +853,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
      <p> Already Registered User? <a href="login">Click here to sign in</a>
 	</div>	   
 </body>    
-','admin','admin',now());
+','admin','admin',now(), 2);
 	
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-password-reset-mail', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('16e9ddec-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-mail', ' 
  
 <!DOCTYPE html>
 <html lang="en">
@@ -917,13 +907,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
       </form> 
 </div>
 
-</body></html>','admin','admin',now() );
+</body></html>','admin','admin',now(), 2);
 
 
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-password-reset-page', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('1ef38eb1-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-page', ' 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -966,11 +956,11 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	   </form>
 	</div>	   
 </body>    
-','admin','admin',now());
+','admin','admin',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-("UUID()", 'jws-password-reset-mail-success', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('28207b8f-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-mail-success', ' 
  
 <!DOCTYPE html>
 <html lang="en">
@@ -992,10 +982,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
         </p>
  </div>
-</body></html>','admin','admin',now() );
+</body></html>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-successfulRegisteration', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('2d3d1d39-138c-11eb-9b1e-f48e38ab9348', 'jws-successfulRegisteration', ' 
 <head>
      <title>Registration confirmation sent </title>
      <script>
@@ -1008,10 +998,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <body>
             <span>A verification email has been sent to:   ${emailId}</span>
  </body>    
-','admin','admin',now());
+','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'jws-accountVerified', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('348d7075-138c-11eb-9b1e-f48e38ab9348', 'jws-accountVerified', ' 
 	<head>
         <title>Congratulations!</title>
         
@@ -1026,10 +1016,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             <h3>Congratulations! Your account has been activated and email is verified!</h3>
             <a href="/cf/login">Click here to Login</a> 
     </body>    
-','admin','admin',now());
+','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'my-profile', ' 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('3b92295c-138c-11eb-9b1e-f48e38ab9348', 'my-profile', ' 
 <head>
      <title>My Profile </title>
      <script>
@@ -1043,18 +1033,19 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	${userName}
 </body>
             
-','admin','admin',now());
+','admin','admin',now(), 2);
 
 
 
-REPLACE INTO grid_details  VALUES ('manageEntityRoleGrid','manage entity roles listing','Entities and role association','manageEntityRoleListing','entityName,moduleId',2);
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
+ ('manageEntityRoleGrid','manage entity roles listing','Entities and role association','manageEntityRoleListing','entityName,moduleId',2);
 
 DROP PROCEDURE IF EXISTS manageEntityRoleListing;
 CREATE PROCEDURE `manageEntityRoleListing`(entityName varchar(50), moduleId varchar(50),forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 
-  SET @selectRoleQuery  =  (SELECT GROUP_CONCAT(CONCAT ('GROUP_CONCAT(CASE WHEN jr.role_name="',jr.role_name,'" THEN CONCAT(jera.role_id,"@::@",jera.is_active) END)  AS ',jr.role_name)) FROM jws_role jr ORDER BY jr.role_name);
+  SET @selectRoleQuery  =  (SELECT GROUP_CONCAT(CONCAT ('GROUP_CONCAT(CASE WHEN jr.role_name="',jr.role_name,'" THEN CONCAT(jera.role_id,"@::@",jera.is_active) END)  AS `',jr.role_name,'`')) FROM jws_role jr ORDER BY jr.role_name);
 
   SET @resultQuery = CONCAT(" SELECT jera.entity_role_id AS entityRoleId,jera.entity_id AS entityId,jera.entity_name AS entityName,jera.module_id AS moduleId,jmm.module_name AS moduleName, "
   ,@selectRoleQuery ) ;
@@ -1097,8 +1088,8 @@ BEGIN
  
 END;
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
-(UUID(), 'manageEntityRoles', '
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('446e1b24-138c-11eb-9b1e-f48e38ab9348', 'manageEntityRoles', '
 <head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -1114,13 +1105,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.roleMaster'')}</h2> 
-		<div class="float-right">
-    		<span onclick="backToPreviousPage();">
-    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-    	 	</span>	
-		</div>
-		
+		<h2 class="title-cls-name float-left">Manage Entity Role</h2> 
 		<div class="clearfix"></div>		
 	</div>
 		
@@ -1129,16 +1114,15 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	<div id="snackbar"></div>
 </div>
 <script>
-let grid;
-let contextPath= "${contextPath}";
-let moduleType = [{"": "All"}];
+var grid;
+var contextPath= "${contextPath}";
+var moduleType = [{"": "All"}];
 
  $.ajax({
 			type : "GET",
 			url : contextPath+"/cf/modules",
 			async: false,
 			success : function(data) {
-			debugger
 				for(let counter = 0; counter < data.length; ++counter) {
 					let object = data[counter];
 					let details = new Object()
@@ -1158,38 +1142,59 @@ $(function () {
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         <#list roles as role>
               { title: "${role?api.getRoleName()}", width: 100, align: "center",  dataIndx: "${role?api.getRoleName()}", halign: "center",
-        attr:"${role?api.getRoleId()}", render:addCheckBox },
-        
+        attr:"${role?api.getRoleId()}", render:addCheckBox,
+         filter: {type: "<input type=''button'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Select All'' onclick=''checkAllBoxes(this);'' > <input type=''button'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Deselect All'' onclick=''checkAllBoxes(this);'' >"}}
+        	${(role?is_last)?then("", "," )}
         </#list>
-        
-        { title: "Action", width: 30, align: "center",  dataIndx: "action" }
+ 
 	];
      grid = $("#divManageEntityRoleGrid").grid({
       gridId: "manageEntityRoleGrid",
       colModel: colM
   });
 });
-
 function moduleTypes(uiObject){
   let cellValue = uiObject.rowData.moduleId;
   return moduleType.find(el => el[cellValue])[cellValue];
 }
+function checkAllBoxes(uiObject){
+    
+
+    let attrChecked = uiObject.value == "Select All"?1:0 ;
+    let entityDataList = [];
+    let roleId = uiObject.getAttribute("attr");
+    let currentPageRecords = grid.pqGrid( "option","dataModel.data");
+
+  $.each(currentPageRecords,function(key,value){
+    let entityData = new Object();
+    $("#"+value["entityRoleId"]+"_"+roleId).prop("checked",attrChecked);
+    entityData.roleId= roleId;
+    entityData.entityName = value["entityName"];
+    entityData.moduleId = value["moduleId"];
+    entityData.entityId = value["entityId"];
+    entityData.isActive = attrChecked;
+    entityDataList.push(entityData);
+});
+   saveEntity(entityDataList);
+}
 
 function addCheckBox(uiObject) {
+
 	let rowIndxPage = uiObject.rowIndxPage;
   let columnName = uiObject.dataIndx;
   
   let attrChecked = uiObject.rowData[columnName]== null?false:uiObject.rowData[columnName].split("@::@")[1]=="0"?false:true;
   if(attrChecked){
-    return "<input type=''checkbox'' checked onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
+    return "<input type=''checkbox'' id=''"+uiObject.rowData["entityRoleId"]+"_"+uiObject.column.attr+"'' checked onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
   }
   else{
-    return "<input type=''checkbox'' onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
+    return "<input type=''checkbox'' id=''"+uiObject.rowData["entityRoleId"]+"_"+uiObject.column.attr+"'' onchange=''saveEntityRole(this)'' col=''"+columnName+"'' rowIndxPage=''"+rowIndxPage+"'' >";
   }
 	
 }	
 
 function saveEntityRole(thisObj){
+  let entityDataList = [];
   let attrChecked = thisObj.checked == true?1:0 ;
   let columnName = thisObj.getAttribute("col");
   let rowData = grid.pqGrid( "getRowData", {rowIndxPage: thisObj.getAttribute("rowIndxPage")} );
@@ -1201,27 +1206,191 @@ function saveEntityRole(thisObj){
   entityData.moduleId = rowData["moduleId"];
   entityData.entityId = rowData["entityId"];
   entityData.isActive = attrChecked;
+  entityDataList.push(entityData);
+  saveEntity(entityDataList);
+}
 
-  $.ajax({
+function saveEntity(entityDataList){
+
+    $.ajax({
 		     		type : "POST",
             contentType : "application/json",
 		     		url : contextPath+"/cf/suer",
-		     		data : JSON.stringify(entityData),
+		     		data : JSON.stringify(entityDataList),
 		            success: function(data) {
 		              
 		            }
 		     	});
-
-
 }
+</script>','admin','admin',now(), 2);
 
-function backToPreviousPage() {
-	location.href = "/cf/um";
-}
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('47fa56d2-138c-11eb-9b1e-f48e38ab9348', 'manage-permission', '
+<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
 
-</script>','admin','admin',now());
+		<div class="float-right">
+    		<span onclick="backToPreviousPage();">
+    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+    	 	</span>	
+		</div>
+<div class="container">
+	<div class="topband">
+	   <div id="tabs">
+  		<ul>
+  		  <li><a href="#roleModules" data-target="/cf/mrm" >Manage Role Modules</a></li>
+  		  <li><a href="#entityRoles" data-target="/cf/mer">Manage Entity Roles</a></li>
+	 	 </ul>
+		  <div id="roleModules">
+		  </div>
+		  <div id="entityRoles">
+		  </div>
+		</div>
+	 <div>
+</div>    
+<script>
+var contextPath = "${contextPath}";
+  
+  $(function(){
+  $("#tabs").tabs();
+  $("#tabs").on( "tabsactivate", function( event, ui ) {
+    let tabElement = ui.newTab[0].firstElementChild
+    getTabData(tabElement); 
+  });
+ 
+   function getTabData(tabElement){ 
+  	let url = tabElement.getAttribute("data-target");
+  	
+  	  $.ajax({
+      type: "GET",
+      url: url,
+      success: function(data){
+        $(tabElement.getAttribute("href")).html(data);
+      }    
+    });
+  }
+    getTabData($("a[href=''#roleModules'']")[0]);
+  
+  }); 
 
 
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/um";
+	}
+</script>','admin','admin',now(),2);
 
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('bef1d368-13be-11eb-9b1e-f48e38ab9348', 'role-autocomplete', '
+<head>
+<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+</head>
+
+			<div class="col-inner-form full-form-fields">
+				<div class="multiselectcount_clear_block">
+					<div id="rolesMultiselect_removeAll" class="pull-right disable_cls">
+						<span title="Clear All" class="clearall-cls" onclick="multiselect.removeAllElements(''rolesMultiselect'')" style="pointer-events:none">Clear All</span>
+					</div>
+					<div id="rolesMultiselect_count" class="multiselectcount pull-right disable_cls">
+						<span title="hide show" onclick="multiselect.showHideDataDiv(''rolesMultiselect_selectedOptions'')" style="pointer-events:none">0</span>
+					</div>
+				</div>
+				
+				<label for="rolesMultiselect" style="white-space:nowrap">Roles</label>
+				<input class="form-control" id="rolesMultiselect" type="text">
+			
+				<div id="rolesMultiselect_selectedOptions"></div>
+ 			</div>
+		
+
+<script>	
+let multiselect;
+$(function () {	
+	multiselect = $("#rolesMultiselect").multiselect({
+        autocompleteId: "rolesAutocomplete",
+        multiselectItem: $("#rolesMultiselect_selectedOptions"),
+        render: function(item) {
+        	var renderStr ="";
+        	if(item.emptyMsg == undefined || item.emptyMsg === "")
+    		{
+        		renderStr = "<p>"+item.roleName+"</p>";
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.roleName;
+        },
+        selectedItemRender: function(item){
+            return item.roleName;
+        },
+        select: function(item) {
+            $("#rolesMultiselect").blur();
+            multiselect.setSelectedObject(item);
+        },
+       
+    }
+    );
+	
+    multiselect.createElementForMultiselect =  function(context, multiselectId, itemData) {
+        if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+        	context.selectedObject.push(itemData);
+            const element = context.options.selectedItemRender(itemData);
+            let listsElement = $("<li></li>");
+            let itemSpan = $(''<span class="ml-selected-item" id="''+itemData.roleId+''">''+element+''</span>'');
+            listsElement.append(itemSpan);
+            let deleteItemContext = $(''<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>'');
+            if(itemData.roleName != "ADMIN"){
+                    deleteItemContext.data("selected-item", itemData);
+                listsElement.append(deleteItemContext);
+            }
+            $(".ml-selected-items-list").append(listsElement);
+            if(itemData.roleName != "ADMIN"){
+                var deleteItem = function(event) {
+                    var data = $(deleteItemContext).data("selected-item");
+                    context.deleteItem.apply(deleteItemContext, [multiselectId, data, context]);
+                    
+                };
+                deleteItemContext.click(deleteItem);
+            }
+            let noOfElements = parseInt($("#"+multiselectId+"_count > span").text());
+    		$("#"+multiselectId+"_count > span").text(noOfElements+1);
+    		$("#"+multiselectId+"_count").removeClass("disable_cls");
+    		$("#"+multiselectId+"_count > span" ).css("pointer-events","auto");
+            context.selectedObjects.push(itemData);
+        }else{
+        	showMessage("Data already present in the list", "info")
+        }
+
+        $(context.element).val("");
+        
+    }
+
+    multiselect.setSelectedObject = function (item){ 
+        multiselect.createElementForMultiselect(this, this.element[0].id, item);
+        	return this.selectedObject;
+    }
+    
+	});
+    
+</script>
+','admin','admin',now(), 2);
+
+REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jws_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 1);
 
 SET FOREIGN_KEY_CHECKS=1;

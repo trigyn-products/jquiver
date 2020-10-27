@@ -45,7 +45,7 @@ public class ModuleService {
     private UserRoleRepository userRoleRepository						= null; 
     
 	@Autowired
-	private TemplateVersionService templateVersionService				= null;
+	private ModuleVersionService templateVersionService				= null;
     
 	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{

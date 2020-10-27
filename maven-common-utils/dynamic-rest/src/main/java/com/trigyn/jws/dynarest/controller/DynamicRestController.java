@@ -10,23 +10,24 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
+import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 @RestController
 public class DynamicRestController {
-
+	
 	private static final Logger LOGGER = LogManager.getLogger(DynamicRestController.class);
 	
     private static final String METHOD_SIGNATURE_MESSAGE = "Make sure you have the method signature correct. Signature should be similar to : - public T methodName(HttpServletRequest request, Map<String, Object> requestParameters, Map<String, Object> resultSetParameters, UserDetailsVO, details) {}";
@@ -37,6 +38,8 @@ public class DynamicRestController {
     private JwsDynamicRestDetailService jwsService = null;
     
     @RequestMapping("/api/**")
+	@Authorized(moduleName = Constants.DYNAMICREST)
+    @ResponseBody
     public ResponseEntity<?> callDynamicEntity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String requestUri = httpServletRequest.getRequestURI();
         requestUri = requestUri.replaceFirst("/api/", "");
@@ -73,6 +76,9 @@ public class DynamicRestController {
 				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "The class was not found in the mentioned package.");
 			}
             buildResponseEntity(httpServletResponse, restApiDetails);
+            if(response instanceof ResponseEntity<?>) {
+            	return (ResponseEntity<?>) response;
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
             exception.printStackTrace();

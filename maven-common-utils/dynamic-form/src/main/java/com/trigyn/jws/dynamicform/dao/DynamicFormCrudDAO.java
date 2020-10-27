@@ -11,8 +11,9 @@ import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -37,7 +38,9 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public void saveFormData(String saveTemplateQuery) {
-		jdbcTemplate.execute(saveTemplateQuery);
+		KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+		namedParameterJdbcTemplate.update(saveTemplateQuery, null, generatedKeyHolder);
+		System.out.println(generatedKeyHolder.getKeyList());
 	}
 
 	public void saveDynamicFormData(DynamicForm dynamicForm) {
@@ -70,8 +73,9 @@ public class DynamicFormCrudDAO extends DBConnection {
 	     return data;
 	}
 	
-	public List<DynamicForm> getAllDynamicForms(){
-		Query query = getCurrentSession(). createQuery("FROM DynamicForm");
+	public List<DynamicForm> getAllDynamicForms(Integer formTypeId){
+		Query query = getCurrentSession(). createQuery("FROM DynamicForm AS df WHERE df.formTypeId = :formTypeId");
+		query.setParameter("formTypeId", formTypeId);
 		return query.list();
 	}
 	

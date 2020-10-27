@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundlePK;
@@ -35,7 +35,7 @@ public class ResourceBundleService {
     private ILanguageRepository iLanguageRepository						= null;
     
 	@Autowired
-	private TemplateVersionService templateVersionService				= null;
+	private ModuleVersionService moduleVersionService					= null;
 	
 	
 	public Map<Integer, ResourceBundleVO> getResourceBundleVOMap(String resourceBundleKey) throws Exception {
@@ -103,9 +103,9 @@ public class ResourceBundleService {
 					}
 
 				}
+				iResourceBundleRepository.saveAll(resourceBundleList);
+				moduleVersionService.saveModuleVersion(resourceBundleList,null, resourceBundleKey, "resource_bundle");
 			}
-			iResourceBundleRepository.saveAll(resourceBundleList);
-			templateVersionService.saveTemplateVersion(resourceBundleList,null, resourceBundleKey, "resource_bundle");
 		}catch(Exception exception){
 			throw new RuntimeException("Error ocurred while saving resource bundle data");
 		}

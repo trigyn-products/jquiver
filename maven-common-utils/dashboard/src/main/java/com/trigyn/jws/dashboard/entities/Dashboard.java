@@ -18,6 +18,8 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "dashboard")
 public class Dashboard implements Serializable {
@@ -37,14 +39,16 @@ public class Dashboard implements Serializable {
 	private String								contextId				= null;
 
 	@Column(name = "dashboard_type")
-	private String								dashboardType			= null;
+	private Integer								dashboardType			= 1;
 
 	@Column(name = "created_by")
 	private String								createdBy				= null;
-
+	
+	@JsonIgnore
 	@Column(name = "created_date")
 	private Date								createdDate				= null;
 
+	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_updated_date")
 	private Date								lastUpdatedDate			= null;
@@ -72,7 +76,10 @@ public class Dashboard implements Serializable {
 		
 	}
 
-	public Dashboard(String dashboardId, String dashboardName, String contextId, String dashboardType, String createdBy, Date createdDate, Date lastUpdatedDate, Integer isDeleted, Integer isDraggable, Integer isExportable, List<DashboardRoleAssociation> dashboardRoles, List<DashboardDashletAssociation> dashboardDashlets) {
+	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType
+			, String createdBy, Date createdDate, Date lastUpdatedDate, Integer isDeleted
+			, Integer isDraggable, Integer isExportable, List<DashboardRoleAssociation> dashboardRoles
+			, List<DashboardDashletAssociation> dashboardDashlets) {
 		this.dashboardId 		= dashboardId;
 		this.dashboardName 		= dashboardName;
 		this.contextId 			= contextId;
@@ -111,11 +118,11 @@ public class Dashboard implements Serializable {
 		this.contextId = contextId;
 	}
 
-	public String getDashboardType() {
+	public Integer getDashboardType() {
 		return this.dashboardType;
 	}
 
-	public void setDashboardType(String dashboardType) {
+	public void setDashboardType(Integer dashboardType) {
 		this.dashboardType = dashboardType;
 	}
 

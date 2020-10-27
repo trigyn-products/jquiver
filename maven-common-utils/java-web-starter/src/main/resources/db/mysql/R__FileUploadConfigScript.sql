@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date) VALUES 
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('c0a5553a-0a37-11eb-a894-f48e38ab8cd7', 'file-upload-config-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -76,10 +76,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW());
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('40289d3d750decc701750e3f1e3c0000', 'file-upload-config', 'File Upload Config Form', 'SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported
 , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy,
 fuc.updated_date AS updatedDate,fuc.is_deleted AS isDeleted
@@ -124,7 +124,7 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 		            <label for="fileTypeSupported" style="white-space:nowrap"><span class="asteriskmark">*</span>
 		              File type supported
 		            </label>
-				<input type="text" id="fileTypeSupported" name="fileTypeSupported"  value="" class="form-control">
+				<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif" value="" class="form-control">
 			</div>
 		</div>
     		<div class="col-3">
@@ -139,7 +139,8 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 				<label for="noOfFiles" style="white-space:nowrap">
                     <span class="asteriskmark">*</span>No of files (between 1 and 10):
                 </label>
-                <input type="range" id="noOfFiles" name="noOfFiles" min="1" max="10">
+                <input type="range" id="noOfFiles" name="noOfFiles" min="1" max="10" onchange="showSelectedValue(this.value)">
+                <span id="noOfFilesValue" class="no-of-files-counter"></span>
 			</div>
 		</div>
 
@@ -173,6 +174,12 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	let edit = 0;
+
+    function showSelectedValue(value){
+        $("#noOfFilesValue").html(value);
+        $("#noOfFilesValue").show();
+    }
+
   $(function(){
       <#if (resultSet)??>
       	<#list resultSet as resultSetList>
@@ -180,6 +187,7 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
       		$("#fileTypeSupported").val(''${resultSetList?api.get("fileTypeSupported")}'');
             $("#maxFileSize").val(''${resultSetList?api.get("maxFileSize")}'');
            	$("#noOfFiles").val(''${resultSetList?api.get("noOfFiles")}'');
+            $("#noOfFilesValue").html(''${resultSetList?api.get("noOfFiles")}'');
       	</#list>
       </#if>
     
@@ -189,6 +197,9 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
     
 		savedAction("file-upload-config", edit);
 		hideShowActionButtons();
+        if($("#noOfFilesValue").html() == "") {
+            $("#noOfFilesValue").hide();
+        }
   });
   
 	function saveData (){
@@ -221,7 +232,7 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/fucl";
 	}
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('40289d3d750decc701750e3f1e5c0001', '40289d3d750decc701750e3f1e3c0000', '<#if (formData?api.getFirst("edit"))?has_content>
@@ -237,12 +248,12 @@ REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
     INSERT INTO file_upload_config (file_upload_config_id,file_type_supported,max_file_size,no_of_files,is_deleted,updated_by,updated_date) VALUES (''${formData?api.getFirst("fileUploadConfigId")}'',''${formData?api.getFirst("fileTypeSupported")}'',''${formData?api.getFirst("maxFileSize")}'',''${formData?api.getFirst("noOfFiles")}'',0,''admin'',NOW())
 </#if>', 1, NULL);
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (1002, 'fileconfig-details', 1, 'getFileConfigDetails', 'Get file config details', 2, 7, 'function getFileConfigDetails(requestDetails, daoResults) {
     return daoResults["fileConfigs"][0];
 }
 
-getFileConfigDetails(requestDetails, daoResults);', 3);
+getFileConfigDetails(requestDetails, daoResults);', 3, 2);
 
 replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "default")

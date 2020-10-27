@@ -2,6 +2,7 @@ package com.trigyn.jws.dynamicform.entities;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "dynamic_form")
@@ -33,10 +36,14 @@ public class DynamicForm {
 
 	@Column(name = "form_body")
 	private String formBody = null;
+	
+	@Column(name = "form_type_id")
+	private Integer formTypeId = 1;
 
 	@Column(name = "created_by")
 	private String createdBy = null;
 
+	@JsonIgnore
 	@Column(name = "created_date")
 	private Date createdDate = null;
 	
@@ -48,6 +55,26 @@ public class DynamicForm {
 
 	@OneToMany(mappedBy = "dynamicForm")
 	private List<DynamicFormSaveQuery> dynamicFormSaveQueries = null;
+
+	public DynamicForm() {
+		
+	}
+
+	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
+			Integer formTypeId, String createdBy, Date createdDate, String formSelectChecksum, String formBodyChecksum,
+			List<DynamicFormSaveQuery> dynamicFormSaveQueries) {
+		this.formId = formId;
+		this.formName = formName;
+		this.formDescription = formDescription;
+		this.formSelectQuery = formSelectQuery;
+		this.formBody = formBody;
+		this.formTypeId = formTypeId;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.formSelectChecksum = formSelectChecksum;
+		this.formBodyChecksum = formBodyChecksum;
+		this.dynamicFormSaveQueries = dynamicFormSaveQueries;
+	}
 
 	public String getFormId() {
 		return formId;
@@ -89,6 +116,14 @@ public class DynamicForm {
 		this.formBody = formBody;
 	}
 
+	public Integer getFormTypeId() {
+		return formTypeId;
+	}
+
+	public void setFormTypeId(Integer formTypeId) {
+		this.formTypeId = formTypeId;
+	}
+
 	public String getCreatedBy() {
 		return createdBy;
 	}
@@ -127,6 +162,43 @@ public class DynamicForm {
 
 	public void setFormBodyChecksum(String formBodyChecksum) {
 		this.formBodyChecksum = formBodyChecksum;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(createdBy, createdDate, dynamicFormSaveQueries, formBody, formBodyChecksum, formDescription,
+				formId, formName, formSelectChecksum, formSelectQuery, formTypeId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DynamicForm other = (DynamicForm) obj;
+		return Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(dynamicFormSaveQueries, other.dynamicFormSaveQueries)
+				&& Objects.equals(formBody, other.formBody) && Objects.equals(formBodyChecksum, other.formBodyChecksum)
+				&& Objects.equals(formDescription, other.formDescription) && Objects.equals(formId, other.formId)
+				&& Objects.equals(formName, other.formName)
+				&& Objects.equals(formSelectChecksum, other.formSelectChecksum)
+				&& Objects.equals(formSelectQuery, other.formSelectQuery)
+				&& Objects.equals(formTypeId, other.formTypeId);
+	}
+
+	@Override
+	public String toString() {
+		return "DynamicForm [formId=" + formId + ", formName=" + formName + ", formDescription=" + formDescription
+				+ ", formSelectQuery=" + formSelectQuery + ", formBody=" + formBody + ", formTypeId=" + formTypeId
+				+ ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", formSelectChecksum="
+				+ formSelectChecksum + ", formBodyChecksum=" + formBodyChecksum + ", dynamicFormSaveQueries="
+				+ dynamicFormSaveQueries + "]";
 	}
 	
 	

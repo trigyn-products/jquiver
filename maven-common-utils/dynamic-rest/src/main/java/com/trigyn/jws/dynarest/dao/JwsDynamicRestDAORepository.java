@@ -13,5 +13,5 @@ import com.trigyn.jws.dynarest.vo.RestApiDaoQueries;
 public interface JwsDynamicRestDAORepository extends JpaRepositoryImplementation<JwsDynamicRestDaoDetail, Integer>{
     
     @Query(QueryStore.QUERY_TO_ALL_API_QUERIES)
-    List<RestApiDaoQueries> getRestApiDaoQueriesByApiId(Integer dynarestId);
+    List<RestApiDaoQueries> getRestApiDaoQueriesByApiId(String dynarestId);
 }

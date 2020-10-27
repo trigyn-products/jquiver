@@ -12,7 +12,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +34,8 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 @Service
 @Transactional
 public class JwsDynamicRestDetailService {
+	
+	private final static Logger logger = LogManager.getLogger(JwsDynamicRestDetailService.class);
 
     @Autowired
     private TemplatingUtils templatingUtils 								= null;
@@ -46,6 +51,9 @@ public class JwsDynamicRestDetailService {
     
     @Autowired
     private IUserDetailsService detailsService								= null;
+    
+    @Autowired
+    private ApplicationContext applicationContext							= null;
     
 
     public Object createSourceCodeAndInvokeServiceLogic(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
@@ -75,15 +83,45 @@ public class JwsDynamicRestDetailService {
     private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
             NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
+        Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
         Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), HttpServletRequest.class, Map.class, UserDetailsVO.class);
-        return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), httpServletRequest, daoResultSets, detailsService.getUserDetails());
+        try {
+			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext", ApplicationContext.class);
+			applicationContextMethod.invoke(classInstance, applicationContext);
+		} catch (NoSuchMethodException expection) {
+			logger.warn("No method found for setting application context. Create method setApplicationContext to set applicationContext");
+		} catch (SecurityException expection) {
+			logger.error("Security exception occured while invoking setApplication context ", expection);
+		} catch (IllegalAccessException expection) {
+			logger.error("IllegalAccessException occured while invoking setApplication context ", expection);
+		} catch (IllegalArgumentException expection) {
+			logger.error("IllegalArgumentException occured while invoking setApplication context ", expection);
+		} catch (InvocationTargetException expection) {
+			logger.error("InvocationTargetException occured while invoking setApplication context ", expection);
+		}
+        return serviceLogicMethod.invoke(classInstance, httpServletRequest, daoResultSets, detailsService.getUserDetails());
     }
     
     public Object invokeAndExecuteOnFileJava(MultipartFile[] files, HttpServletRequest httpServletRequest, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
     		NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 		Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
+		Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
 		Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), MultipartFile.class, HttpServletRequest.class, Map.class, UserDetailsVO.class);
-		return serviceLogicMethod.invoke(serviceClass.getDeclaredConstructor().newInstance(), files, httpServletRequest, daoResultSets, detailsService.getUserDetails());
+		try {
+			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext", ApplicationContext.class);
+			applicationContextMethod.invoke(classInstance, applicationContext);
+		} catch (NoSuchMethodException expection) {
+			logger.warn("No method found for setting application context. Create method setApplicationContext to set applicationContext");
+		} catch (SecurityException expection) {
+			logger.error("Security exception occured while invoking setApplication context ", expection);
+		} catch (IllegalAccessException expection) {
+			logger.error("IllegalAccessException occured while invoking setApplication context ", expection);
+		} catch (IllegalArgumentException expection) {
+			logger.error("IllegalArgumentException occured while invoking setApplication context ", expection);
+		} catch (InvocationTargetException expection) {
+			logger.error("InvocationTargetException occured while invoking setApplication context ", expection);
+		}
+		return serviceLogicMethod.invoke(classInstance, files, httpServletRequest, daoResultSets, detailsService.getUserDetails());
 	}
 
     private Object invokeAndExecuteJavascript(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws ScriptException {
@@ -99,7 +137,7 @@ public class JwsDynamicRestDetailService {
         return dyanmicRestDetailsRepository.findByJwsDynamicRestUrl(requestUri);
     }
     
-    public Map<String, Object> executeDAOQueries(Integer dynarestId, Map<String, Object> parameterMap) throws Exception {
+    public Map<String, Object> executeDAOQueries(String dynarestId, Map<String, Object> parameterMap) throws Exception {
         List<RestApiDaoQueries> apiDaoQueries = dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
         Map<String, Object> resultSetMap = new HashMap<>();
         for (RestApiDaoQueries restApiDaoQueries : apiDaoQueries) {

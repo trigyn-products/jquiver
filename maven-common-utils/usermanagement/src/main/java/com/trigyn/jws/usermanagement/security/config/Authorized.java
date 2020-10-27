@@ -1,4 +1,4 @@
-package com.trigyn.jws.dbutils.spi;
+package com.trigyn.jws.usermanagement.security.config;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -14,4 +14,5 @@ import org.springframework.web.bind.annotation.Mapping;
 @Mapping
 public @interface Authorized {
 	
+	String moduleName();
 }

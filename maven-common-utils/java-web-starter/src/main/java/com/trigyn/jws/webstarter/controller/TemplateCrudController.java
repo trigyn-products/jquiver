@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.TemplateVersionService;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -30,6 +31,7 @@ import com.trigyn.jws.webstarter.service.TemplateCrudService;
 
 @RestController
 @RequestMapping("/cf")
+@PreAuthorize("hasPermission('module','Templating')")
 public class TemplateCrudController {
 	
 	private final static Logger logger 						= LogManager.getLogger(TemplateCrudController.class);
@@ -47,7 +49,7 @@ public class TemplateCrudController {
 	private MenuService 				menuService			= null;
 	
 	@Autowired
-	private TemplateVersionService templateVersionService	= null;
+	private ModuleVersionService templateVersionService	= null;
 
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
     public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
@@ -105,8 +107,8 @@ public class TemplateCrudController {
 	}
 	
 	@PostMapping(value = "/std")
-	public void saveTemplateData(HttpSession session, HttpServletRequest request) throws Exception {
-		dbTemplatingService.saveTemplateData(request);
+	public String saveTemplateData(HttpSession session, HttpServletRequest request) throws Exception {
+		return dbTemplatingService.saveTemplateData(request);
 	}
 	
 	@PostMapping(value = "/dtl")
@@ -123,7 +125,7 @@ public class TemplateCrudController {
 	@ResponseBody
 	public String getTemplateDatabByVersion(@RequestHeader(name = "template-id", required = true) String templateId
 			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
-		return templateVersionService.getTemplateData(templateId, versionId);
+		return templateVersionService.getModuleData(templateId, versionId);
 	}
 	
 	

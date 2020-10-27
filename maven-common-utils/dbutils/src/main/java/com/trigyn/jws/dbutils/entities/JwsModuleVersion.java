@@ -17,17 +17,17 @@ import org.hibernate.annotations.GenericGenerator;
 
 
 @Entity
-@Table(name="jws_template_version")
-@NamedQuery(name="JwsTemplateVersion.findAll", query="SELECT j FROM JwsTemplateVersion j")
-public class JwsTemplateVersion implements Serializable {
+@Table(name="jws_module_version")
+@NamedQuery(name="JwsModuleVersion.findAll", query="SELECT j FROM JwsModuleVersion j")
+public class JwsModuleVersion implements Serializable {
 	
 	private static final long serialVersionUID 		= 1L;
 
 	@Id
     @GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="template_version_id", unique=true, nullable=false)
-	private String templateVersionId				= null;
+	@Column(name="module_version_id", unique=true, nullable=false)
+	private String moduleVersionId					= null;
 
 	@Column(name="entity_id", nullable=false)
 	private String entityId							= null;
@@ -38,8 +38,8 @@ public class JwsTemplateVersion implements Serializable {
 	@Column(name="parent_entity_id")
 	private String parentEntityId					= null;
 
-	@Column(name="template_json")
-	private String templateJson						= null;
+	@Column(name="module_json")
+	private String moduleJson						= null;
 
 	@Column(name="updated_by", nullable=false)
 	private String updatedBy						= null;
@@ -50,34 +50,38 @@ public class JwsTemplateVersion implements Serializable {
 
 	@Column(name="version_id", nullable=false)
 	private Double versionId						= null;	
+	
+	@Column(name="module_json_checksum", nullable=false)
+	private String moduleJsonChecksum				= null;	
 
-	public JwsTemplateVersion() {
+	public JwsModuleVersion() {
 	}
 
-	public JwsTemplateVersion(String templateVersionId, String entityId, String entityName, String parentEntityId,
-			String templateJson, String updatedBy, Date updatedDate, Double versionId) {
-		this.templateVersionId 		= templateVersionId;
+	public JwsModuleVersion(String moduleVersionId, String entityId, String entityName, String parentEntityId,
+			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum) {
+		this.moduleVersionId 		= moduleVersionId;
 		this.entityId			 	= entityId;
 		this.entityName 			= entityName;
 		this.parentEntityId 		= parentEntityId;
-		this.templateJson 			= templateJson;
+		this.moduleJson 			= moduleJson;
 		this.updatedBy 				= updatedBy;
 		this.updatedDate 			= updatedDate;
 		this.versionId 				= versionId;
+		this.moduleJsonChecksum 	= moduleJsonChecksum;
 	}
 
 	/**
-	 * @return the templateVersionId
+	 * @return the moduleVersionId
 	 */
-	public String getTemplateVersionId() {
-		return templateVersionId;
+	public String getModuleVersionId() {
+		return moduleVersionId;
 	}
 
 	/**
-	 * @param templateVersionId the templateVersionId to set
+	 * @param moduleVersionId the moduleVersionId to set
 	 */
-	public void setTemplateVersionId(String templateVersionId) {
-		this.templateVersionId = templateVersionId;
+	public void setModuleVersionId(String moduleVersionId) {
+		this.moduleVersionId = moduleVersionId;
 	}
 
 	/**
@@ -123,17 +127,17 @@ public class JwsTemplateVersion implements Serializable {
 	}
 
 	/**
-	 * @return the templateJson
+	 * @return the moduleJson
 	 */
-	public String getTemplateJson() {
-		return templateJson;
+	public String getModuleJson() {
+		return moduleJson;
 	}
 
 	/**
-	 * @param templateJson the templateJson to set
+	 * @param moduleJson the moduleJson to set
 	 */
-	public void setTemplateJson(String templateJson) {
-		this.templateJson = templateJson;
+	public void setModuleJson(String moduleJson) {
+		this.moduleJson = moduleJson;
 	}
 
 	/**
@@ -178,10 +182,24 @@ public class JwsTemplateVersion implements Serializable {
 		this.versionId = versionId;
 	}
 
+	/**
+	 * @return the moduleJsonChecksum
+	 */
+	public String getModuleJsonChecksum() {
+		return moduleJsonChecksum;
+	}
+
+	/**
+	 * @param moduleJsonChecksum the moduleJsonChecksum to set
+	 */
+	public void setModuleJsonChecksum(String moduleJsonChecksum) {
+		this.moduleJsonChecksum = moduleJsonChecksum;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(entityId, entityName, parentEntityId, templateJson, templateVersionId, updatedBy,
-				updatedDate, versionId);
+		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId,
+				updatedBy, versionId);
 	}
 
 	@Override
@@ -195,25 +213,27 @@ public class JwsTemplateVersion implements Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		JwsTemplateVersion other = (JwsTemplateVersion) obj;
+		JwsModuleVersion other = (JwsModuleVersion) obj;
 		return Objects.equals(entityId, other.entityId) && Objects.equals(entityName, other.entityName)
-				&& Objects.equals(parentEntityId, other.parentEntityId)
-				&& Objects.equals(templateJson, other.templateJson)
-				&& Objects.equals(templateVersionId, other.templateVersionId)
-				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate)
+				&& Objects.equals(moduleJson, other.moduleJson)
+				&& Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
+				&& Objects.equals(moduleVersionId, other.moduleVersionId)
+				&& Objects.equals(parentEntityId, other.parentEntityId) && Objects.equals(updatedBy, other.updatedBy)
 				&& Objects.equals(versionId, other.versionId);
 	}
 
 	@Override
 	public String toString() {
-		return "JwsTemplateVersion [templateVersionId=" + templateVersionId + ", entityId=" + entityId + ", entityName="
-				+ entityName + ", parentEntityId=" + parentEntityId + ", templateJson=" + templateJson + ", updatedBy="
-				+ updatedBy + ", updatedDate=" + updatedDate + ", versionId=" + versionId + ", getTemplateVersionId()="
-				+ getTemplateVersionId() + ", getEntityId()=" + getEntityId() + ", getEntityName()=" + getEntityName()
-				+ ", getParentEntityId()=" + getParentEntityId() + ", getTemplateJson()=" + getTemplateJson()
-				+ ", getUpdatedBy()=" + getUpdatedBy() + ", getUpdatedDate()=" + getUpdatedDate() + ", getVersionId()="
-				+ getVersionId() + ", hashCode()=" + hashCode() + "]";
+		return "JwsModuleVersion [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName="
+				+ entityName + ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", updatedBy="
+				+ updatedBy + ", updatedDate=" + updatedDate + ", versionId=" + versionId + ", moduleJsonChecksum="
+				+ moduleJsonChecksum + ", getTemplateVersionId()=" + getModuleVersionId() + ", getEntityId()="
+				+ getEntityId() + ", getEntityName()=" + getEntityName() + ", getParentEntityId()="
+				+ getParentEntityId() + ", getModuleJson()=" + getModuleJson() + ", getUpdatedBy()=" + getUpdatedBy()
+				+ ", getUpdatedDate()=" + getUpdatedDate() + ", getVersionId()=" + getVersionId()
+				+ ", getJsonChecksum()=" + getModuleJsonChecksum() + ", hashCode()=" + hashCode() + "]";
 	}
+
 
 	
 

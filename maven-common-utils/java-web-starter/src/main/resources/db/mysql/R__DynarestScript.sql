@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+ REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb81749b028401749b062c540002', 'dynarest-details-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
@@ -77,6 +77,15 @@ $(function () {
   });
 });
 
+function dynarestType(uiObject){
+	const dynarestTypeId = uiObject.rowData.dynarestTypeId;
+	if(dynarestTypeId === 1){
+		return "Default";
+	}else{
+		return "System";
+	}
+}
+	
 function requestTypes(uiObject){
   let cellValue = uiObject.rowData.jws_request_type_id;
   return requestType.find(el => el[cellValue])[cellValue];
@@ -104,9 +113,9 @@ function backToWelcomePage() {
 	location.href = contextPath+"/cf/home";
 }
 
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum) VALUES
+replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
 jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
 jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId, jdrd.jws_allow_files AS allowFiles 
@@ -247,7 +256,8 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<input type="hidden" name="serviceLogic" id="serviceLogic">
 	<input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">
     </form>
-    
+    <input id="moduleId" value="47030ee1-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    <@templateWithoutParams "role-autocomplete"/>
     <div class="row">
 		<div class="col-12">
 			<div class="float-right">
@@ -341,6 +351,8 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 			</#if>
 		</#list>
 	<#else>
+		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+        multiselect.setSelectedObject(defaultAdminRole);
 	    dynarest.populateDetails();
 	</#if>
 	
@@ -357,7 +369,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	savedAction("dynamic-rest-form", isEdit);
 	hideShowActionButtons();
   });
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
 ('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
@@ -373,7 +385,8 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
         ,jws_allow_files = ''${formData?api.getFirst("allowFiles")}''
     WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
 <#else>
-    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files) VALUES (
+    INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files) VALUES (
+    UUID(),
          ''${formData?api.getFirst("dynarestUrl")}''
          , ''${formData?api.getFirst("dynarestMethodName")}''
          , ''${formData?api.getFirst("dynarestMethodDescription")}''
@@ -386,12 +399,12 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
     );
 </#if>', 1);
 
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (3, 'dynarestDetails', 1, 'getDynamicRestDetails', 'Method to get dynamic rest details', 2, 7, 'Map<String, Object> response = new HashMap<>();
 response.put("methodTypes", dAOparameters.get("dynarestMethodType"));
 response.put("producerDetails", dAOparameters.get("dynarestProducerDetails"));
 response.put("dynarestDetails", dAOparameters.get("dynarestDetails"));
-return response;', 1);
+return response;', 1, 2);
 
 REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
 (4, 3, 'dynarestMethodType', 'select jws_request_type_details_id as value, jws_request_type as name from jws_request_type_details', 1), 
@@ -406,22 +419,22 @@ FROM jws_dynamic_rest_details AS jdrd
 LEFT OUTER JOIN jws_dynamic_rest_dao_details AS jdrdd ON jdrdd.jws_dynamic_rest_details_id = jdrd.jws_dynamic_rest_id
 WHERE jdrd.jws_dynamic_rest_url = "${(url)!''''}" ORDER BY dynarestQuerySequence ASC', 3);
 
-REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+REPLACE INTO jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (4, 'defaultTemplates', 1, 'defaultTemplates', 'Method to get dynamic rest details', 2, 7, 'Map<String, Object> response = new HashMap<>();
 response.put("defaultTemplates", dAOparameters.get("defaultTemplates"));
-return response;', 1);
+return response;', 1, 2);
 
 REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
 (7,4, 'defaultTemplates', 'select template_name as name, template as template from template_master where template_name like ("default-%")', 1);
 
 update jws_dynamic_rest_details SET jws_service_logic = "com.trigyn.jws.dynarest.service.DynaRest" where jws_platform_id = 1;
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
+replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (1001, 'js-demo', 1, 'jsdemo', 'JS', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults;
 }
 
-myFunction(requestDetails, daoResults);', 3);
+myFunction(requestDetails, daoResults);', 3, 2);
 
 replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (15, 1001, 'values', 'select * from jws_property_master', 1, 1);

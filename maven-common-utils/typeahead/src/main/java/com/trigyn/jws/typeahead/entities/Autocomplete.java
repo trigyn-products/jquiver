@@ -13,22 +13,25 @@ public class Autocomplete {
 
     @Id
     @Column(name = "ac_id")
-    private String autocompleteId = null;
+    private String autocompleteId 					= null;
 
     @Column(name = "ac_description")
-    private String autocompleteDesc = null;
+    private String autocompleteDesc 				= null;
     
     @Column(name = "ac_select_query")
-    private String autocompleteSelectQuery = null;
+    private String autocompleteSelectQuery 			= null;
+    
+    @Column(name = "ac_type_id")
+    private Integer acTypeId						= 1;
     
 
     public Autocomplete() {
     }
 
     public Autocomplete(String autocompleteId, String autocompleteDesc, String autocompleteSelectQuery) {
-        this.autocompleteId = autocompleteId;
-        this.autocompleteDesc = autocompleteDesc;
-        this.autocompleteSelectQuery = autocompleteSelectQuery;
+        this.autocompleteId 			= autocompleteId;
+        this.autocompleteDesc 			= autocompleteDesc;
+        this.autocompleteSelectQuery 	= autocompleteSelectQuery;
     }
 
     public String getAutocompleteId() {
@@ -55,30 +58,44 @@ public class Autocomplete {
         this.autocompleteSelectQuery = autocompleteSelectQuery;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Autocomplete)) {
-            return false;
-        }
-        Autocomplete autocomplete = (Autocomplete) o;
-        return Objects.equals(autocompleteId, autocomplete.autocompleteId) && Objects.equals(autocompleteDesc, autocomplete.autocompleteDesc) && Objects.equals(autocompleteSelectQuery, autocomplete.autocompleteSelectQuery);
-    }
+	public Integer getAcTypeId() {
+		return acTypeId;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(autocompleteId, autocompleteDesc, autocompleteSelectQuery);
-    }
+	public void setAcTypeId(Integer acTypeId) {
+		this.acTypeId = acTypeId;
+	}
 
-    @Override
-    public String toString() {
-        return "{" +
-            " autocompleteId='" + getAutocompleteId() + "'" +
-            ", autocompleteDesc='" + getAutocompleteDesc() + "'" +
-            ", autocompleteSelectQuery='" + getAutocompleteSelectQuery() + "'" +
-            "}";
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(acTypeId, autocompleteDesc, autocompleteId, autocompleteSelectQuery);
+	}
 
-    
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Autocomplete other = (Autocomplete) obj;
+		return Objects.equals(acTypeId, other.acTypeId) && Objects.equals(autocompleteDesc, other.autocompleteDesc)
+				&& Objects.equals(autocompleteId, other.autocompleteId)
+				&& Objects.equals(autocompleteSelectQuery, other.autocompleteSelectQuery);
+	}
+
+	@Override
+	public String toString() {
+		return "Autocomplete [autocompleteId=" + autocompleteId + ", autocompleteDesc=" + autocompleteDesc
+				+ ", autocompleteSelectQuery=" + autocompleteSelectQuery + ", acTypeId=" + acTypeId
+				+ ", getAutocompleteId()=" + getAutocompleteId() + ", getAutocompleteDesc()=" + getAutocompleteDesc()
+				+ ", getAutocompleteSelectQuery()=" + getAutocompleteSelectQuery() + ", getAcTypeId()=" + getAcTypeId()
+				+ ", hashCode()=" + hashCode() + "]";
+	}
+	
+
 }

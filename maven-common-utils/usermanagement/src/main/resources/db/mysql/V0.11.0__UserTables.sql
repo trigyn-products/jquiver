@@ -87,7 +87,7 @@ REPLACE INTO jws_master_modules (
    ,null  
 ),(
    '91a81b68-0ece-11eb-94b2-f48e38ab9348'
-  ,'TypeAhead/Autocomplete' 
+  ,'TypeAhead Autocomplete' 
   ,1
    ,null  
 ),(
@@ -102,7 +102,7 @@ REPLACE INTO jws_master_modules (
    ,null  
 ),(
    '47030ee1-0ecf-11eb-94b2-f48e38ab9348'
-  ,'REST API  Builder' 
+  ,'REST API Builder' 
   ,1
    ,null  
 ),(

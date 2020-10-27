@@ -26,6 +26,15 @@ public final class MessageSourceUtils {
 		return messageSource.getMessage(a_strKey, args, locale);
 	}
 
+	public String getMessageWithDefault(String a_strKey, String defaultMessage) {
+		String message = messageSource.getMessage(a_strKey, null, locale);
+		StringBuilder keyNotFound = new StringBuilder().append("???").append(a_strKey).append("???");
+		if(message != null && message.equals(keyNotFound.toString())) {
+			return defaultMessage;
+		}
+		return message;
+	}
+	
 	public String getMessages(Object... args) {
 		if (args == null) {
 			return "???null???";
