@@ -1,6 +1,6 @@
 class AddEditDynamicForm {
     constructor() {
-    	
+
     }
     
     loadAddEditDynamicForm() {
@@ -64,6 +64,7 @@ class AddEditDynamicForm {
 	}
 	
 	addSaveQueryEditor(element, data){
+		let context = this;
 		let formQueryId;
 		let formBody;
 		let formSaveQuery;
@@ -130,6 +131,8 @@ class AddEditDynamicForm {
 	        editorObj["editor"] = dashletSAVESQLEditor;
 	        dashletSQLEditors.push(editorObj);
 	        $("#removeTemplate_0").remove();
+	        
+	        initialFormData = context.getFormData();
     	});
     	
 	}
@@ -147,25 +150,12 @@ class AddEditDynamicForm {
     	let isDataSaved = false;
     	let formValid = context.validateDynamicForm();
     	if(formValid){
-			$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
-			$("#formBody").val(dashletHTMLEditor.getValue().toString());
-			let queries = new Array();	
-			for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-				let index = $("[id^=daoContainer_]")[iCounter].id.split("_")[1];
-				let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
-				let queryContent = (editorObject["editor"].getValue().toString().trim());
-				if(queryContent !== ""){
-					queries.push(queryContent);
-				}
+			let serializedForm = context.getFormData();
+			if(initialFormData === serializedForm){
+				showMessage("Information saved successfully", "success");
+				return true;
 			}
-			$("#formSaveQuery").val(JSON.stringify(queries));
-			
-			const form = $("#dynamicform");
-			let serializedForm = form.serializeArray();
-			for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
-	  			serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
-			}
-			serializedForm = $.param(serializedForm);
+			initialFormData = serializedForm;
 			
 			 $.ajax({
 	             async : false,
@@ -190,6 +180,29 @@ class AddEditDynamicForm {
 		}
 		return isDataSaved;
 	}
+    
+    getFormData(){
+		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
+		$("#formBody").val(dashletHTMLEditor.getValue().toString());
+		let queries = new Array();	
+		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
+			let index = $("[id^=daoContainer_]")[iCounter].id.split("_")[1];
+			let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
+			let queryContent = (editorObject["editor"].getValue().toString().trim());
+			if(queryContent !== ""){
+				queries.push(queryContent);
+			}
+		}
+		$("#formSaveQuery").val(JSON.stringify(queries));
+		
+		const form = $("#dynamicform");
+		let serializedForm = form.serializeArray();
+		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+	  		serializedForm[iCounter].value = $.trim(serializedForm[iCounter].value);
+		}
+		serializedForm = $.param(serializedForm);
+		return serializedForm;	
+    }
     
     saveFormData(formData){
     	const context = this;
@@ -250,42 +263,6 @@ class AddEditDynamicForm {
     	return true;
     }
     
-    getSelectTemplateData = function(formQueryId) {
-        const context = this;
-		let versionId = $('#'+formQueryId).find(":selected").val();
-        
-        $('#diffEditor').html("");
-        if(versionId != ""){
-	       	const diffEditor = monaco.editor.createDiffEditor(document.getElementById("diffEditor"),{
-				originalEditable: false,
-	    		readOnly: false,
-	       	});
-	        $.ajax({
-	            async : false,
-	            type : "GET",
-	            cache : false,
-	            url : "/cf/vdfd", 
-	            headers : {
-	                "form-id" : formQueryId,
-	                "version-id" : versionId,
-	            },
-	            success : function(data) {
-					let modifiedContent = dashletHTMLEditor.getValue();
-					let originalModel = monaco.editor.createModel(data, "text/plain");
-					let modifiedModel = monaco.editor.createModel(modifiedContent, "text/plain");
-					
-					diffEditor.setModel({
-						original: originalModel,
-						modified: modifiedModel
-					});
-					
-	            },
-				error : function(xhr, error){
-					showMessage("Error occurred while saving", "error");
-	        	},
-	        });
-        }
-    }
     
 	
     

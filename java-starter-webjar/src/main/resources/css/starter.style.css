@@ -10,9 +10,9 @@ body, html{ min-height: 100%; font-size:14px !important; font-family: 'Roboto', 
 
 
 @font-face {
-    font-family: 'raustilaregular';
-    src: url('raustila-regular-webfont.woff2') format('woff2'),
-         url('raustila-regular-webfont.woff') format('woff');
+    font-family: 'holidaytimesjfregular';
+    src: url('design.jasonwalcott.holiday_times_jf-webfont.woff2') format('woff2'),
+         url('design.jasonwalcott.holiday_times_jf-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 
@@ -566,28 +566,36 @@ color:#555454;
 }
 
 .home_list_icon {
-    float: left;
-    width: 30px;
+    width: 50px;
     display: block;
-    margin-right: 20px;
-    height: 30px;
+    margin:15px auto 0;
+    height: 50px;
 }
 
 .home_list_icon img{
-	 width: 30px;
+	 width:40px;
 	
 }
 
 
+.list-group{
+	    display: block !important;
+	        flex-direction: inherit  !important; 
+}
+
 .home_list_content {
-    float: left;
-    width: 95%;
+       float: none;
+    width: 100%;
 }
 
 
 .home_list_icon.m_icon img{
-	 width: 40px;
+	 width: 47px;
 	
+}
+
+.homepageheader{
+	    margin: 0 15px;
 }
 
 .notification_list{
@@ -901,7 +909,7 @@ margin-top:10px;
     padding-bottom: 0;
     font-size: 26px;
     /* background-color: rgba(0, 0, 0, .25); */
-    font-family: 'raustilaregular' !important;
+    font-family: 'holidaytimesjfregular' !important;
     line-height: 40px;
     letter-spacing: 2px;
 }
@@ -1504,3 +1512,293 @@ p.divdeform {
     max-height: 550px;
     max-width: 100%;
 }
+
+.http-content {
+	overflow-y: scroll;
+    max-height: 550px;
+    max-width: 100%;
+}
+
+.ui-tabs{
+	border:none !important;
+}
+
+.ui-tabs-panel{
+	border:1px solid #ccc !important;
+}
+
+.ui-tabs-nav{
+	    border: none !important;
+    background: none !important;
+        margin: 0px !important;
+    padding: 0px !important;
+}
+
+.default-table-cls{
+	font-size:13px;	
+}
+
+
+ .default-table-cls{
+	font-size:13px;	
+}
+
+
+.default-table-cls th{
+    font-size: 13px;
+    background: #0277bd !important;
+    padding: 10px;
+    border: 1px solid #ccc;
+    color: #fff;
+}
+
+ .default-table-cls td{
+	font-size:13px;	
+}
+
+.modal a.close-modal{
+	top: 7px !important;
+    right: 30px !important;
+}
+
+.home_block.col-12 {
+    width: 25%;
+    display: flex;
+    text-align: center;
+    min-height: 270px;    
+    position: relative;
+    margin-bottom: 26px;
+    float: left;
+}
+
+.home_block .w-100 {
+    width: 100% !important;
+    text-align: center;
+    margin-top:15px;
+    display: block !important;
+}
+
+.versioning-label{
+	white-space: nowrap;
+    float: left;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-left: -25px;
+}
+/* css-issue */
+
+/* css-issue */
+
+.cm-logotext{
+	    font-family: 'holidaytimesjfregular' !important;
+}
+.form-signin {
+	padding:20px 25px;
+}
+.form-resetpassword {
+    padding: 20px 25px;
+}
+.form-password-reset {
+    padding: 20px 25px;
+}
+.form-resetpassword-heading{
+	margin-bottom: 25px;
+    color: #005da3;
+    margin-top: 40px;
+}
+
+.loginbg.loginbg {
+    width:100%;
+    margin: 80px auto 0;
+    max-width: 550px;
+}
+
+p.divdeform{
+	    margin: 0 0 15px;
+	
+}
+
+#imgCaptcha{
+	border-radius: 5px;
+    margin-bottom: 10px;
+    max-height:50px;
+}
+#reloadCaptcha i{margin-left:3px;}
+.cm-mb10{
+	margin-bottom:1rem;
+}
+.addeditmodal {
+    width: 100% !important;
+    height: 35% !important;
+    overflow:auto;
+}
+
+div.pq-grid-footer {
+   
+    overflow: hidden; 
+    position: relative; 
+    padding: .75rem 1.25rem;
+    background-color: rgba(0,0,0,.03);
+    border-top: 0 solid rgba(0,0,0,.125);
+}
+div.pq-grid{
+	    background: #ffffff;
+}
+
+
+span.grid_action_icons{ background: #ffffff;}
+div.pq-grid tr:hover{
+background:#c4e2ff;
+}
+.form-resetpassword-heading,.form-password-reset-heading,.form-password-reset-heading{
+	margin-bottom: 25px;
+    color: #005da3;
+    margin-top: 40px;
+}
+
+
+
+.cm-success-box{max-width:400px;margin:0 auto; }
+.cm-success-box .box > .icon { text-align: center; position: relative; }
+.cm-success-box .box > .icon > .image { position: relative; z-index: 2; margin: auto; width: 88px; height: 88px; border: 8px solid white; line-height: 88px; border-radius: 50%; background: #0277bd; vertical-align: middle; }
+.cm-success-box .box > .icon:hover > .image { background: #005da3; }
+.cm-success-box .box > .icon > .image > i { font-size: 36px !important; color: #fff;margin-top:16px; }
+.cm-success-box > .icon:hover > .image > i { color: white !important; }
+.cm-success-box .box > .icon > .info { margin-top: -24px; background: rgba(0, 0, 0, 0.04); border: 1px solid #e0e0e0; padding: 20px 0 10px 0; border-radius:5px;}
+.cm-success-box .box > .icon:hover > .info { background: rgba(0, 0, 0, 0.04); border-color: #e0e0e0; color: white; }
+.cm-success-box .box > .icon > .info > h3.title {    margin-bottom: 15px;color: #005da3;margin-top: 10px;font-size: 2rem; }
+.cm-success-box .box > .icon > .info > p {     font-weight: 400;font-size:16px;line-height: 1.5;color: #212529;margin: 20px;}
+.cm-success-box .box > .icon:hover > .info > h3.title,.cm-success-box .box > .icon:hover > .info > .more > a { color:#005da3; }
+
+
+/*custom search with icon*/
+
+.cm-searchwithicon{position:relative;z-index:1;}
+.cm-searchwithicon .has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.cm-searchwithicon .has-search .form-control-feedback {
+    position: absolute;
+    top:10px;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+
+
+
+ 
+
+#reloadCaptcha i:hover{
+		-webkit-animation: rotation 1.5s infinite linear;
+		cursor:pointer;
+}
+
+@-webkit-keyframes rotation {
+		from {
+				-webkit-transform: rotate(0deg);
+		}
+		to {
+				-webkit-transform: rotate(180deg);
+		}
+}
+
+
+.pg-manual-display .topband{padding: 0 15px 10px;margin-bottom:0px;}
+.pg-manual-display .previews{
+    background-color:#f8f9fa;padding:20px 15px;}
+.pg-manual-display .cm-rightbar {padding:15px;background-color:#f1f1f1;}
+.pg-manual-display .cm-rightbar .cm-bottom-border{border-bottom:2px solid #005da3;}
+
+.pg-manual-display .cm-rightbar .preview {padding:15px 15px 0;background-color:#005da31f;    min-height: 200px;
+    overflow: auto;
+    max-height: 300px;}
+.pg-manual-display .cm-rightbar .preview i{margin-right:10px;}
+.pg-manual-display .tabs button{padding: 10px 15px;background-color: #2f71a2;
+    color: #ffffff;border-bottom:1px solid #ffffff; text-transform:capitalize;}
+.pg-manual-display .tabs button:hover{background-color: #005da3;}  
+.pg-manual-display .tabs button.active  {background-color: #005da3;}  
+   
+.pg-manual-display .tabs{padding:0px;border:none;}
+.homepageheader .maintitle_name{font-family: 'holidaytimesjfregular' !important;}
+
+.cm-icon-btn-box{position:relative;max-width:200px;border:1px solid #005da3;z-index:11;display:inline-block;}
+.cm-import-btn{border:#005da3;border-width: 200px 200px 0 0;width: 0;
+height: 0;
+border-style: solid;
+border-width: 200px 200px 0 0;
+border-color: #005da3 transparent transparent transparent;}
+.cm-import-btn:hover{color:#0277bd;}
+.cm-export-btn:hover{color:#0277bd;}
+
+
+.cm-export-btn{border:#005da3;border-width: 0 0 200px 200px;width: 0;
+height: 0;
+border-style: solid;
+border-width: 200px 200px 0 0;
+border-color: #005da3 transparent transparent transparent;    margin-top: -200px;
+    z-index: -11;color:#005da3;}
+    
+.cm-exp-btn{color:#005da3;}
+.cm-imp-btn{color:#ffffff;}
+
+.cm-imp-btn{position: absolute;
+    top: 15px;left:5px}
+.cm-exp-btn{position: absolute;
+    bottom: 15px;
+    right:5px;}
+    .cm-exp-btn i{margin-left:6px;}
+
+.cm-card-footer{
+	    padding: .75rem 1.25rem;
+    background-color: rgba(0,0,0,.03);
+    border-top: 0 solid rgba(0,0,0,.125);
+    
+}
+.cm-card-header{
+	background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: .75rem 1.25rem;
+    position: relative;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+}
+
+.cm-card{    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    margin-bottom: 1rem;}
+
+.cm.card-body{flex: 1 1 auto;
+    padding: 1.25rem;}
+.cm-select-btn{    display: inline-block;
+
+    padding: .15em .4em !important;
+    font-size: 75% !important;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 5px;
+    border:1.5px solid gray;
+    
+}
+.cm-select-btn:hover{background-color:gray;color:#ffffff;}
+.cm-select-btn:active{background-color:gray;color:#ffffff;outline:none;}

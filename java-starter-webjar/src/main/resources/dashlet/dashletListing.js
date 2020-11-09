@@ -72,6 +72,14 @@ class DashletListing {
 	    });  
   	}
   	
+  	submitRevisionForm = function(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+    
    	submitForm = function(element) {
 		$("#dashletId").val(element.id);
 		$("#formDMRedirect").submit();

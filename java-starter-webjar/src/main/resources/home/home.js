@@ -131,7 +131,7 @@ const showMessage = function(a_messageText, a_messageType){
 
 const typeOfAction = function(formId, selectedButton, saveFunction, backFunction){
 	let selectedButtonId = $(selectedButton).prop("id");
-	localStorage.setItem(formId, selectedButtonId);
+	localStorage.setItem("jwsModuleAction", selectedButtonId);
 	    
 	if(saveFunction !== undefined || backFunction !== undefined){
 	  	executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction);
@@ -185,7 +185,7 @@ const executeCommonFunc = function(formId, selectedButtonId){
  
 const savedAction = function(formId, isEdit){ 	
 	
-	let actionSaved = localStorage.getItem(formId);
+	let actionSaved = localStorage.getItem("jwsModuleAction");
 	
 	if((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit"){
 		$("#actionDiv").find("#saveAndEdit").remove();
@@ -237,6 +237,20 @@ const resetForm = function(a_formId){
     $(document.body).append(form);
 	let formId = $(form);
 	$("#"+formId[0].id).submit();
+}
+
+const openForm = function(formId, formDetails, formUrl){
+	$("#addEditDynForm").remove();
+	var url = contextPath + (formUrl != undefined ? formUrl : "/cf/df");
+	var form = $("<form id='addEditDynForm' method='post' action='"+url+"'></form>");
+	$('body').append(form);
+	$("#addEditDynForm").append("<input type='hidden' name='formId' value='"+formId+"'>");
+	for(var counter = 0; counter < Object.keys(formDetails).length; ++counter) {
+	  	let fieldName = Object.keys(formDetails)[counter];
+	    let fieldValue = formDetails[fieldName];
+	    $("#addEditDynForm").append("<input type='hidden' name='"+fieldName+"' value='"+fieldValue+"'>");
+	}
+	$("#addEditDynForm").submit();
 }
 
 const enableVersioning = function(formData){

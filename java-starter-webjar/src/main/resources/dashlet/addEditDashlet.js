@@ -395,8 +395,11 @@ AddEditDashlet.prototype.fn = {
 		$("#dashletProps").find("tbody tr:last span[id^=downArrow]").addClass("disable_cls");
 	},
 	
+	
+   
 	backToDashletListing : function() {
 		location.href = contextPath+"/cf/dlm";
 	},
 
 }
+

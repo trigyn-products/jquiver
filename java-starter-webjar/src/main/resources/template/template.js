@@ -124,43 +124,6 @@ class TemplateEngine {
     }
     
     
-	getTemplateData = function() {
-        const context = this;
-        const versionId = $("#versionId").find(":selected").val();
-        $('#diffEditor').html("");
-        if(versionId != ""){
-	       	const diffEditor = monaco.editor.createDiffEditor(document.getElementById("diffEditor"),{
-				originalEditable: false,
-	    		readOnly: false,
-	       	});
-	        $.ajax({
-	            async : false,
-	            type : "POST",
-	            cache : false,
-	            url : "/cf/vtd", 
-	            headers : {
-	                "template-id" : context.templateId,
-	                "version-id" : versionId,
-	            },
-	            success : function(data) {
-					let modifiedContent = context.editor.getValue();
-					let originalModel = monaco.editor.createModel(data, "text/plain");
-					let modifiedModel = monaco.editor.createModel(modifiedContent, "text/plain");
-					
-					diffEditor.setModel({
-						original: originalModel,
-						modified: modifiedModel
-					});
-					
-					
-					
-	            },
-	       		error : function(xhr, error){
-					showMessage("Error occurred while fetching template data", "error");
-	        	},
-	        });
-        }
-    }
 	saveEntityRoleAssociation = function (templateId){
 		let roleIds =[];
 		let entityRoles = new Object();

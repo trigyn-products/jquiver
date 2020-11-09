@@ -37,6 +37,10 @@
             if(Object.keys(options.dataModel).length === 0) {
                 options.dataModel = dataModelOption
             }
+            
+            if(options.loadCallback == undefined) {
+            	options.loadCallback = function(event, ui) {return {event: event, ui: ui}};
+            }
 
             const pqGridObject = {
                 flexHeight: true,
@@ -51,6 +55,7 @@
                 resizable: false,
                 showTop : false,
                 dragColumns: {enabled: options.draggableColumns},
+                load: function(event, ui) {options.loadCallback(event, ui)}
             }
             
          

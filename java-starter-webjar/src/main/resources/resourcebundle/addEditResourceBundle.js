@@ -2,10 +2,9 @@ class AddEditResourceBundle {
     constructor(resourceBundleFormData) {
 		this.resourceBundleFormData = resourceBundleFormData;
     }
-}
-AddEditResourceBundle.prototype.fn = {
 
-	loadAddEditResourceBundlePage : function() {
+
+	loadAddEditResourceBundlePage = function() {
 		let data = $("#resourceBundleKey").val();
 		if(data==""){
 			$("#resourceBundleKey").prop("disabled",false);
@@ -13,16 +12,14 @@ AddEditResourceBundle.prototype.fn = {
 		else{
 			$("#resourceBundleKey").prop("disabled",true);
 		}
-		this.updateResourceBundleData();
-	},
+	}
 
-	updateResourceBundleData : function(){
-		resourceBundleFormData = [];
-		let iCounter = resourceBundleFormData.length;
-		let dataPresent = false;
-		let presentAtIndex=0;
-		$("textarea").change(function() {
-			let resourceFormDataObject   = new Object();
+	updateResourceBundleData = function(){
+		let context = this;
+		let iCounter = context.resourceBundleFormData.length;
+		$("textarea").each(function(){
+			let resourceBundleKey = $("#resourceBundleKey").val();
+			let resourceFormDataObject  = new Object();
 	    	let languageIdStr = this.id;
 			var languageId = languageIdStr.split("_")[1];
 			let languageTextData = $(this).val().trim();
@@ -35,32 +32,20 @@ AddEditResourceBundle.prototype.fn = {
 	    			if(parsedDesc.indexOf("<br>") != -1){
 	    				parsedDesc = parsedDesc.replace(/<br>/g, "<br></br>");
 	    			}
+	          		resourceFormDataObject.resourceKey = resourceBundleKey;
 	          		resourceFormDataObject.languageId = languageId;
 	    			resourceFormDataObject.text = parsedDesc;
 	    		}
 			}
 			
-			if(resourceBundleFormData.length > 0){
-				$.each(resourceBundleFormData, function(key, value) {
-				      if(value[languageId]){
-				    	  dataPresent = true;
-				    	  presentAtIndex = key;
-				    	  return false;
-				      }
-				});
-			}
-			if(dataPresent){
-				resourceBundleFormData[presentAtIndex] = resourceFormDataObject;
-			}else{
-				resourceBundleFormData[iCounter] = resourceFormDataObject;
-			}  
+			context.resourceBundleFormData[iCounter] = resourceFormDataObject;
 			
 			iCounter++;
 		});
-	},
+	}
 	
 	
-	saveResourceBundle : function(addEditFlag){
+	saveResourceBundle = function(addEditFlag){
 		let context = this;
 		let isDataSaved = false;
 		let validData = context.validateKey(addEditFlag);
@@ -73,29 +58,28 @@ AddEditResourceBundle.prototype.fn = {
 			return false;
 		} 
 	  	
-		let allTextAreaValues = JSON.stringify(resourceBundleFormData);
-		let resourceBundleKey = $("#resourceBundleKey").val();
-		
-	
+	  	context.updateResourceBundleData();
 		$.ajax({
 			type : "POST",
 			async: false,
 			contentType : "application/json",
-			url : contextPath+"/cf/srb?resourceBundleKey="+resourceBundleKey,
-			data :  JSON.stringify(resourceBundleFormData),
+			url : contextPath+"/cf/srb",
+			data :  JSON.stringify(context.resourceBundleFormData),
 			dataType : "json",				
 			success : function(data) {
 				isDataSaved = true;
+				context.resourceBundleFormData = new Array();
 				showMessage("Information saved successfully", "success");
 	        },
 	       	error : function(xhr, error){
+	       		context.resourceBundleFormData = new Array();
 				showMessage("Error occurred while saving", "error");
 	        },
 		});
 		return isDataSaved;
-	},
+	}
 	
-	validateKey : function(addEditFlag){
+	validateKey = function(addEditFlag){
 		
 		let resourceKey = $("#resourceBundleKey").val().trim();
 		if(resourceKey === ""){
@@ -127,9 +111,9 @@ AddEditResourceBundle.prototype.fn = {
 		}else{
 			return true;
 		}
-	},
+	}
 	
-	validateEng : function(){
+	validateEng = function(){
 	
 		let eng = $("#textBx_1").val().trim();
 		if(eng === ""){
@@ -142,10 +126,10 @@ AddEditResourceBundle.prototype.fn = {
 			$("#errorMessage").hide();
 			return true;
 		}
-	},
+	}
 	
-	backToResourceBundleListing : function() {
+	backToResourceBundleListing = function() {
 	  location.href = contextPath+"/cf/rb"
-	},
+	}
 	
 }

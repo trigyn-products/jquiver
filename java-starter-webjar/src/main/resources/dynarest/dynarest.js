@@ -263,13 +263,15 @@ class DynamicRest {
 		    url : contextPath+"/cf/sdq",
 		    data : formData,
 			success : function(data){
-				$("#saveUpdateQueryForm").remove();
 				if(data !== ""){
 					isDataSaved = true;
 					$("#dynarestId").val(data);
+					let versioningData =  $("#dynamicRestForm, #saveUpdateQueryForm").serialize();
+					enableVersioning(versioningData);
 					saveEntityRoleAssociation(data);
 					showMessage("Information saved successfully", "success");
 				}
+				$("#saveUpdateQueryForm").remove();
 			},
 	        error : function(xhr, error){
 				showMessage("Error occurred while saving", "error");
