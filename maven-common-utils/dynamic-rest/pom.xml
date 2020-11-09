@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.12-SNAPSHOT</version>
+		<version>1.3.12</version>
 	</parent>
 	<artifactId>dynamic-rest</artifactId>
-	<version>1.3.12-SNAPSHOT</version>
+	<version>1.3.12</version>
 	<name>dynamic-rest</name>
 	<description>Dynamic rest api.</description>
 
@@ -20,19 +20,19 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.3.12-SNAPSHOT</version>
+			<version>1.3.12</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.3.12-SNAPSHOT</version>
+			<version>1.3.12</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>usermanagement</artifactId>
-			<version>1.3.12-SNAPSHOT</version>
+			<version>1.3.12</version>
 		</dependency>
 		
 		<dependency>
