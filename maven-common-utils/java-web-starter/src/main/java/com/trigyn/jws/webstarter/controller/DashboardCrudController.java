@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.service.DashletService;
@@ -38,6 +39,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
+import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping("/cf")
@@ -118,12 +120,21 @@ public class DashboardCrudController {
 	@PostMapping(value = "/sdb")
 	@ResponseBody
 	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
-			@RequestHeader(value = "user-id", required = true) String userId) throws Exception{
+			@RequestHeader(value = "user-id", required = false) String userId) throws Exception{
 		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
 		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
-		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId);
+		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId, Constant.MASTER_SOURCE_VERSION_TYPE);
     }
     
+	@PostMapping(value="/sdbv")
+	public void saveDashboardByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper		= new ObjectMapper();
+		DashboardVO dashboardVO			= objectMapper.readValue(modifiedContent, DashboardVO.class);
+		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
+		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
+		dashboardCrudService.saveDashboardDetails(dashboardVO, null, Constant.REVISION_SOURCE_VERSION_TYPE);
+	}
     
 	@PostMapping(value = "/aedl", produces = {MediaType.TEXT_HTML_VALUE})
 	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId, HttpServletResponse httpServletResponse) throws IOException {
@@ -151,9 +162,19 @@ public class DashboardCrudController {
 			, @RequestBody DashletVO dashletVO) throws Exception {
 		dashboardCrudService.deleteAllDashletProperty(dashletVO);
 		dashboardCrudService.deleteAllDashletRoles(dashletVO);
-		return dashboardCrudService.saveDashlet(userId, dashletVO);
+		return dashboardCrudService.saveDashlet(userId, dashletVO,  Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
     
+	@PostMapping(value="/sdlv")
+	public void saveDashletByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper		= new ObjectMapper();
+		DashletVO dashletVO				= objectMapper.readValue(modifiedContent, DashletVO.class);
+		dashboardCrudService.deleteAllDashletProperty(dashletVO);
+		dashboardCrudService.deleteAllDashletRoles(dashletVO);
+		dashboardCrudService.saveDashlet(null, dashletVO, Constant.REVISION_SOURCE_VERSION_TYPE);
+	}
+	
 	@PostMapping(value = "/ddl")
 	public void downloadAllDashletsToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		dashboardCrudService.downloadDashlets(null);

@@ -35,6 +35,14 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		
 		<div id="divGridDetailsListing"></div>
 
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="grid">
+	<input type="hidden" id="formId" name="formId" value="8a80cb8174bebc3c0174bec1892c0000">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/gd">
+</form>
+
 </div>
 
 
@@ -79,13 +87,31 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	
 	function editGridDetails(uiObject) {
 		const gridId = uiObject.rowData.gridId;
-		return ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>''.toString();
+		const gridName = uiObject.rowData.gridName;
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = ''<span id="''+gridId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+gridId+''_entity" name="''+gridName+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
 	}
 	
 	function submitForm(element) {
 		$("#primaryId").val(element.id);
 		$("#addEditGridForm").submit();
 	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
@@ -339,6 +365,46 @@ REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
 
 
 
+DROP PROCEDURE IF EXISTS propertyMasterListing;
+CREATE PROCEDURE propertyMasterListing(ownerType VARCHAR(100), ownerId VARCHAR(150)
+, propertyName VARCHAR(150), propertyValue VARCHAR(250), modifiedBy VARCHAR(50), appVersion DECIMAL(7,4), comments TEXT
+,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT jpm.owner_type AS ownerType, jpm.owner_id AS ownerId, jpm.property_name AS propertyName '; 
+  SET @resultQuery = CONCAT(@resultQuery, ', jpm.property_value AS propertyValue, jpm.last_modified_date AS lastModifiedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
+
+  SET @fromString  = ' FROM jws_property_master AS jpm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jpm.property_master_id ");
+  SET @whereString = ' WHERE jpm.is_deleted = 0 ';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  SET @groupByString = ' GROUP BY propertyMasterId ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY lastModifiedDate DESC');
+  END IF;
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("propertyMasterListingGrid", 'Property Master Listing', 'Property Master Listing', 'propertyMasterListing'
+,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2);
+
+
+
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -359,10 +425,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="float-right">
 			<form id="addEditProperty" action="/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
+                <input type="hidden" name="propertyMasterId" id="propertyMasterId" value=""/>
+                <button type="submit" class="btn btn-primary"> Add Property </button>
+            </form>
+            <form id="addEditMailConfiguration" action="/cf/df" method="post" class="margin-r-5 pull-left">
+                <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
                 <input type="hidden" name="ownerId" id="ownerId" value=""/>
                 <input type="hidden" name="ownerType" id="ownerType" value=""/>
                 <input type="hidden" name="propertyName" id="propertyName" value=""/>
-                <button type="submit" class="btn btn-primary"> Add Property </button>
+                <button type="submit" class="btn btn-primary"> Mail Configuration</button>
             </form>
 			<span onclick="backToWelcomePage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -376,6 +447,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 </div>
 
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="propertyMaster">
+	<input type="hidden" id="formId" name="formId" value="8a80cb8174bf3b360174bfae9ac80006">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/pml">
+</form>
 
 
 <script>
@@ -387,15 +465,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		sessionStorage.setItem("property-master-form", formDataJson);
 		
 		let colM = [
-			{ title: "Owner Id", width: 130, dataIndx: "owner_id", align: "left", align: "left", halign: "center",
+			{ title: "Owner Id", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Owner Type", width: 130, dataIndx: "owner_type", align: "left", align: "left", halign: "center",
+			{ title: "Owner Type", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Property Name", width: 130, dataIndx: "property_name", align: "left", align: "left", halign: "center",
+			{ title: "Property Name", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Property Value", width: 130, dataIndx: "property_value", align: "left", align: "left", halign: "center",
+			{ title: "Property Value", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Modified By", width: 130, dataIndx: "modified_by", align: "left", align: "left", halign: "center",
+			{ title: "Modified By", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -403,36 +481,48 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		];
 	
 		grid = $("#propertyMasterListingGrid").grid({
-	      gridId: "propertyMasterGrid",
+	      gridId: "propertyMasterListingGrid",
 	      colModel: colM
 	  	});
 	
 	});
 	
 	function manageRecord(uiObject) {
-        let rowIndx = uiObject.rowIndx;
-		return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+        let propertyMasterId = uiObject.rowData.propertyMasterId;
+		const propertyName = uiObject.rowData.propertyName;		
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement = ''<span id="''+propertyMasterId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" ></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+propertyMasterId+''_entity" name="''+propertyName+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
 	}
 	
-	function createNew(element) {
-		let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
-		$("#ownerId").val(rowData.owner_id);
-		$("#ownerType").val(rowData.owner_type);
-		$("#propertyName").val(rowData.property_name);
+	function submitForm(element) {
+		$("#propertyMasterId").val(element.id);
 		$("#addEditProperty").submit();
 	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
 
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) VALUES
-('propertyMasterGrid', 'Property master listing', 'Property master listing grid', 'jws_property_master', '*', 1, 2);
 
 
 REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
-('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'select * from jws_property_master where owner_id = "${ownerId}" and owner_type = "${ownerType}" and property_name = "${propertyName}"
+('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'SELECT * FROM jws_property_master WHERE property_master_id = "${propertyMasterId}" 
 ', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -459,10 +549,10 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>	
 	<form method="post" name="addEditForm" id="addEditForm">
 		
-		<!-- You can include any type of form element over here -->
 		<div class="row">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
+					<input type="hidden" id="propertyMasterId" name="propertyMasterId" value="">
 					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Id</label>
 					<input type="text" id="ownerId" name="ownerId" value="" required maxlength="100" class="form-control">
 				</div>
@@ -496,17 +586,16 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
-					<label for="comment" style="white-space:nowrap"><span class="asteriskmark">*</span>Comments</label>
-					<input type="text" id="comment" name="comment" value="" maxlength="100" required class="form-control">
+					<label for="comment" style="white-space:nowrap">Comments</label>
+					<textarea id="comment" name="comment" value="" maxlength="100" class="form-control"></textarea>
 				</div>
 			</div>
 			
 			<input type="hidden" id="primaryKey" name="primaryKey">
 			<input type="hidden" id="entityName" name="entityName" value="jws_property_master">
 		</div>
-		<!-- Your form fields end -->
 		
 		
 	</form>
@@ -543,19 +632,14 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	let edit = 0;
 	
 	function saveData (){
-		let primaryKey = $("#ownerId").val() + "-" + $("#ownerType").val() + "-" + $("#propertyName").val();
-        $("#primaryKey").val(primaryKey);
 	    if(validateFields() == false){
 	        $("#errorMessage").show();
 	        return false;
 	    }
 	    let isDataSaved = false;
 		let propertyValue = $(''#propertyValue'').val().replace(/\\\\/g, "\\\\\\\\");
-        	$("#propertyValue").val(propertyValue);
+        $("#propertyValue").val(propertyValue);
 		let formData = $("#addEditForm").serialize() + "&formId="+formId;
-		if(edit === 1) {
-		    formData = formData + "&edit="+edit;
-		}
 		$.ajax({
 		  type : "POST",
 		  async: false,
@@ -581,8 +665,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         const appVersion = $("#appVersion").val().trim();
         const comment = $("#comment").val().trim();
         if(ownerId == "" || ownerType == "" || propertyName == "" 
-                || propertyValue == "" || appVersion == "" || comment == ""){
-            $("#errorMessage").html("All fields are mandatory");
+                || propertyValue == "" || appVersion == "" ){
+            $("#errorMessage").html("Fields marked with an * are required");
     		return false;
         }
         return true;
@@ -593,8 +677,11 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	}
 	
 	$(function() {
-	    <#if (resultSet)??>
+	    <#if (resultSet)?? && resultSet?has_content>
         	<#list resultSet as resultSetList>
+				edit = 1;
+				$("#propertyMasterId").val(''${resultSetList?api.get("property_master_id")}'');
+				$("#primaryKey").val(''${resultSetList?api.get("property_master_id")}'');
         		$("#ownerId").val(''${resultSetList?api.get("owner_id")}'');
         		$("#ownerType").val(''${resultSetList?api.get("owner_type")}'');
         		$("#propertyName").val(''${resultSetList?api.get("property_name")}'');
@@ -604,34 +691,23 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
         		$("#comment").val(''${resultSetList?api.get("comments")}'');
         		$("#appVersion").val(''${resultSetList?api.get("app_version")}'');
         	</#list>
+        <#else>
+			const generatedPrimaryKey = uuidv4();
+			$("#propertyMasterId").val(generatedPrimaryKey);
+			$("#primaryKey").val(generatedPrimaryKey);
         </#if>
         
-        <#if (requestDetails?api.get("ownerId")) != "">
-            edit = 1;
-        </#if>
-        
-        savedAction("property-master-form", edit);
+		savedAction("property-master-form", edit);
         hideShowActionButtons();
 	});
 </script>
 	', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
   
 REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '<#if  (formData?api.getFirst("edit"))?has_content>
-	update jws_property_master SET
-   owner_id = ''${formData?api.getFirst("ownerId")}''  
-  ,owner_type = ''${formData?api.getFirst("ownerType")}'' 
-  ,property_name = ''${formData?api.getFirst("propertyName")}'' 
-  ,property_value = ''${formData?api.getFirst("propertyValue")}'' 
-  ,last_modified_date = NOW()
-  ,modified_by = ''admin''
-  ,app_version = ${formData?api.getFirst("appVersion")} 
-  ,comments = ''${formData?api.getFirst("comment")}'' 
-WHERE owner_id = ''${formData?api.getFirst("ownerId")}'' and owner_type = ''${formData?api.getFirst("ownerType")}'' and property_name = ''${formData?api.getFirst("propertyName")}'';
-
-<#else>
+('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '
 REPLACE INTO jws_property_master (
-   owner_type
+   property_master_id
+  ,owner_type
   ,owner_id
   ,property_name
   ,property_value
@@ -641,7 +717,8 @@ REPLACE INTO jws_property_master (
   ,app_version
   ,comments
 ) VALUES (
-   ''${formData?api.getFirst("ownerId")}'' 
+  ''${formData?api.getFirst("propertyMasterId")}'' 
+  ,''${formData?api.getFirst("ownerId")}'' 
   ,''${formData?api.getFirst("ownerType")}''
   ,''${formData?api.getFirst("propertyName")}''
   ,''${formData?api.getFirst("propertyValue")}''
@@ -650,10 +727,6 @@ REPLACE INTO jws_property_master (
   ,''admin''
   ,${formData?api.getFirst("appVersion")}
   ,''${formData?api.getFirst("comment")}''
-);
-</#if>', 1, NULL);
-
-REPLACE INTO jws_property_master (owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('system', 'system', 'max-version-count', '10', 0, NOW(), 'admin', 1.00, 'Maximum limit to persist versioning data');
+);', 1, NULL);
 
 SET FOREIGN_KEY_CHECKS=1;

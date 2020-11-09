@@ -5,14 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,9 +23,7 @@ import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
-import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.templating.service.MenuService;
-import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Service
 @Transactional
@@ -41,8 +36,7 @@ public class DynamicFormCrudService {
 	private IDynamicFormQueriesRepository dynamicFormQueriesRepository 		= null;
 	
 	@Autowired
-	@Qualifier("dynamic-form")
-	private DownloadUploadModule downloadUploadModule 						= null;
+	private DownloadUploadModule<DynamicForm> downloadUploadModule 			= null;
 	
 	@Autowired
 	private ModuleVersionService moduleVersionService						= null;
@@ -66,8 +60,6 @@ public class DynamicFormCrudService {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 			dynamicForm.setFormBody("<#noparse>" + dynamicForm.getFormBody() + "</#noparse>");
 			dynamicForm.setFormSelectQuery("<#noparse>" + dynamicForm.getFormSelectQuery() + "</#noparse>");
-			Map<Double, String> versionDetailsMap = moduleVersionService.getVersionDetails(formId);
-			templateMap.put("versionDetailsMap", versionDetailsMap);
 		} else {
 			List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
 			templateMap.put("tables", tables);
@@ -77,7 +69,7 @@ public class DynamicFormCrudService {
 	}
 
 	@Transactional(readOnly = false)
-	public String saveDynamicFormDetails(MultiValueMap<String, String> formData) throws Exception {
+	public String saveDynamicFormDetails(MultiValueMap<String, String> formData, Integer sourceTypeId) throws Exception {
 		DynamicForm dynamicForm = new DynamicForm();
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = new ArrayList<>();
 		String formId = formData.getFirst("formId").toString();
@@ -104,10 +96,11 @@ public class DynamicFormCrudService {
 		
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
         if(environment.equalsIgnoreCase("dev")) {
-        	downloadUploadModule.downloadCodeToLocal(dynamicForm);
+			String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+        	downloadUploadModule.downloadCodeToLocal(dynamicForm, downloadFolderLocation);
         }
         
-        moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form");
+        moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form", sourceTypeId);
         
         return dynamicForm.getFormId();
 	}
@@ -139,12 +132,10 @@ public class DynamicFormCrudService {
 		List<DynamicFormSaveQuery> dynamicFormSaveQueryList = dynamicFormDAO.findDynamicFormQueriesById(formId);
 		DynamicForm dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 		for (DynamicFormSaveQuery dynamicFormSaveQuery : dynamicFormSaveQueryList) {
-			Map<Double, String> versionDetailsMap = moduleVersionService.getVersionDetails(dynamicFormSaveQuery.getDynamicFormQueryId());
 			Map<String, Object> formSaveQueryMap = new HashMap<>();
 			formSaveQueryMap.put("formQueryId", dynamicFormSaveQuery.getDynamicFormQueryId());
 			formSaveQueryMap.put("formSaveQuery", dynamicFormSaveQuery.getDynamicFormSaveQuery());
 			formSaveQueryMap.put("sequence", dynamicFormSaveQuery.getSequence());
-			formSaveQueryMap.put("versionDetailsMap", versionDetailsMap);
 			formSaveQueryMap.put("formBody", dynamicForm.getFormBody());
 			dynamicFormList.add(formSaveQueryMap);
 		}
@@ -157,11 +148,12 @@ public class DynamicFormCrudService {
 	}
 
 	public void downloadDynamicFormsTemplate(String formId) throws Exception {
-		if(!StringUtils.isBlank(formId)) {
+		String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+    	if(!StringUtils.isBlank(formId)) {
 			DynamicForm dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
-			downloadUploadModule.downloadCodeToLocal(dynamicForm);
+			downloadUploadModule.downloadCodeToLocal(dynamicForm, downloadFolderLocation);
 		}else {
-			downloadUploadModule.downloadCodeToLocal(null);
+			downloadUploadModule.downloadCodeToLocal(null, downloadFolderLocation);
 		}
 	}
 
@@ -169,5 +161,5 @@ public class DynamicFormCrudService {
 	public void uploadFormsToDB(String formName) throws Exception {
 		downloadUploadModule.uploadCodeToDB(formName);
 	}
-	
+
 }

@@ -17,13 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -48,9 +48,6 @@ public class TemplateCrudController {
 	@Autowired
 	private MenuService 				menuService			= null;
 	
-	@Autowired
-	private ModuleVersionService templateVersionService	= null;
-
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
     public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
 		try {
@@ -72,10 +69,8 @@ public class TemplateCrudController {
 			Map<String, Object> vmTemplateData 	= new HashMap<>();
 			if (!StringUtils.isBlank(templateId)) {
 				TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
-				Map<Double, String> versionDetailsMap = templateVersionService.getVersionDetails(templateId);
 				templateDetails.setTemplate("");
 				vmTemplateData.put("templateDetails", templateDetails);
-				vmTemplateData.put("versionDetailsMap", versionDetailsMap);
 			}
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 		} catch (Exception exception) {
@@ -111,6 +106,15 @@ public class TemplateCrudController {
 		return dbTemplatingService.saveTemplateData(request);
 	}
 	
+	@PostMapping(value="/stdv")
+	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper		= new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		TemplateVO templateVO 			= objectMapper.readValue(modifiedContent, TemplateVO.class);
+		dbTemplatingService.saveTemplate(templateVO);
+	}
+	
 	@PostMapping(value = "/dtl")
 	public void downloadAllTemplatesToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		templateCrudService.downloadTemplates(null);
@@ -120,14 +124,6 @@ public class TemplateCrudController {
 	public void uploadAllTemplatesToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		templateCrudService.uploadTemplates(null);
 	}
-	
-	@GetMapping(value = "/vtd")
-	@ResponseBody
-	public String getTemplateDatabByVersion(@RequestHeader(name = "template-id", required = true) String templateId
-			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
-		return templateVersionService.getModuleData(templateId, versionId);
-	}
-	
 	
 	@PostMapping(value = "/dtbi")
 	public void downloadTemplateByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {

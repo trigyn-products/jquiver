@@ -17,6 +17,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	@Autowired
 	private PermissionEvaluator customPermissionEvalutor = null;
 	
+	
 	@Bean
 	@ConditionalOnMissingBean
 	public PermissionEvaluator permissionEvaluator(ApplicationSecurityDetails applicationSecurityDetails) {

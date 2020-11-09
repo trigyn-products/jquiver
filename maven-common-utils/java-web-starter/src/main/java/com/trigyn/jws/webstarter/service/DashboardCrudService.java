@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,6 +39,7 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.UserRoleRepository;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 
@@ -73,13 +73,14 @@ public class DashboardCrudService {
     @Autowired
 	private IDashletRoleAssociationRepository iDashletRoleAssociationRepository		= null;
     
-	
     @Autowired
     private UserRoleRepository userRoleRepository									= null; 
+    
+	@Autowired
+	private IUserDetailsService userDetailsService 									= null;
 
     @Autowired
-	@Qualifier("dashlet")
-	private DownloadUploadModule downloadUploadModule 								= null;
+	private DownloadUploadModule<Dashlet> downloadUploadModule						= null;
     
 	@Autowired
 	private PropertyMasterDAO propertyMasterDAO 									= null;
@@ -119,7 +120,10 @@ public class DashboardCrudService {
 	}
 	
 	@Transactional(readOnly = false)
-	public String saveDashboardDetails(DashboardVO dashboardVO, String userId) throws Exception {
+	public String saveDashboardDetails(DashboardVO dashboardVO, String userId, Integer sourceTypeId) throws Exception {
+		if(StringUtils.isBlank(userId)) {
+			userId = userDetailsService.getUserDetails().getUserId();
+		}
 		Dashboard dashboardEntity = convertDashboarVOToEntity(dashboardVO, userId);
 		List<DashboardRoleAssociation> roleAssociations = new ArrayList<>();
 		List<DashboardDashletAssociation> dashletAssociations = new ArrayList<>();
@@ -148,7 +152,7 @@ public class DashboardCrudService {
 		}
 		dashboardEntity.setDashboardRoles(roleAssociations);
 		dashboardEntity.setDashboardDashlets(dashletAssociations);
-		moduleVersionService.saveModuleVersion(dashboardEntity,null, dashboardEntity.getDashboardId(), "dashboard");
+		moduleVersionService.saveModuleVersion(dashboardVO,null, dashboardEntity.getDashboardId(), "dashboard", sourceTypeId);
 		return dashboardEntity.getDashboardId();
     }
     
@@ -207,8 +211,11 @@ public class DashboardCrudService {
 	}
 	
 	@Transactional(readOnly = false)
-    public String saveDashlet(String userId, DashletVO dashletVO) throws Exception {
-    	Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
+    public String saveDashlet(String userId, DashletVO dashletVO, Integer sourceTypeId) throws Exception {
+		if(StringUtils.isBlank(userId)) {
+			userId = userDetailsService.getUserDetails().getUserId();
+		}
+		Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
 		dashlet 		= iDashletRepository.save(dashlet);
 		List<DashletProperties> properties = new ArrayList<>();
 		List<DashletRoleAssociation> roleAssociations = new ArrayList<>();
@@ -233,11 +240,12 @@ public class DashboardCrudService {
 			}
 			dashlet.setProperties(properties);
 			dashlet.setDashletRoleAssociations(roleAssociations);
-			moduleVersionService.saveModuleVersion(dashlet,null, dashlet.getDashletId(), "dashlet");
+			moduleVersionService.saveModuleVersion(dashletVO,null, dashlet.getDashletId(), "dashlet", sourceTypeId);
 			
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 	        if(environment.equalsIgnoreCase("dev")) {
-	        	downloadUploadModule.downloadCodeToLocal(dashlet);
+	        	String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+	        	downloadUploadModule.downloadCodeToLocal(dashlet, downloadFolderLocation);
 	        }
 			
 		} catch (Exception exception) {
@@ -301,11 +309,12 @@ public class DashboardCrudService {
     }
 
 	public void downloadDashlets(String dashletId) throws Exception {
-		if(!StringUtils.isBlank(dashletId)) {
+		String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+    	if(!StringUtils.isBlank(dashletId)) {
 			Dashlet dashlet = dashboardCrudDAO.findDashletByDashletId(dashletId);
-			downloadUploadModule.downloadCodeToLocal(dashlet);
+			downloadUploadModule.downloadCodeToLocal(dashlet, downloadFolderLocation);
 		}else {
-			downloadUploadModule.downloadCodeToLocal(null);
+			downloadUploadModule.downloadCodeToLocal(null, downloadFolderLocation);
 		}
 	}
 

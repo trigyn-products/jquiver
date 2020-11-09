@@ -2,7 +2,9 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,11 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.trigyn.jws.dashboard.service.DashletService;
 import com.trigyn.jws.dbutils.service.ModuleService;
@@ -46,6 +50,12 @@ public class MasterModuleController {
 	
 	@Autowired
 	private DynamicFormService dynamicFormService 			= null;
+	
+	@Autowired
+	private RequestMappingHandlerMapping handlerMapping 	= null;
+	
+	@Autowired
+	private ApplicationContext applicationContext 			= null;
 
 	@RequestMapping()
 	@Authorized(moduleName = Constants.SITELAYOUT)
@@ -87,6 +97,12 @@ public class MasterModuleController {
 				Map<String, Object> templateMap = new HashMap<>();
 				templateMap.put("formId", targetTypeId);
 				return menuService.getDashletTemplateWithLayout(template, templateMap);
+			}else if(targetLookupId.equals(Constant.TargetLookupId.MODELANDVIEW.getTargetLookupId())){
+				List<?> systemUrls = handlerMapping.getHandlerMethods().keySet()
+						.stream()
+						.map(requestMappingInfo -> requestMappingInfo.getPatternsCondition())
+						.collect(Collectors.toList());
+				return null;
 			}
 		} else {
 			return null;

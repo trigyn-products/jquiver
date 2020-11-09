@@ -37,7 +37,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/dls" method="POST" id="formDLSRedirect" target="_blank">
 	<input type="hidden" id="dashboardIdView" name="dashboardId">
 </form>
-
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/sdbv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dbm">
+</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
@@ -68,18 +74,37 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	});
 	
 	function editDashboard(uiObject) {
+		let actionElement;
 		const dashboardId = uiObject.rowData.dashboardId;
-		return ''<span id="''+dashboardId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage("jws.editDashboard")}"></i></span>&nbsp;&nbsp;<span id="''+dashboardId+''" onclick="viewDashlets(this)" class= "grid_action_icons"><i class="fa fa-eye"  title="${messageSource.getMessage("jws.viewDashboard")}"></i></span>''.toString();
+		const dashboardName = uiObject.rowData.dashboardName;		
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		actionElement = ''<span id="''+dashboardId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage("jws.editDashboard")}"></i></span><span id="''+dashboardId+''" onclick="viewDashlets(this)" class= "grid_action_icons"><i class="fa fa-eye"  title="${messageSource.getMessage("jws.viewDashboard")}"></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+dashboardId+''_entity" name="''+dashboardName+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
 	}
 	
 	function submitForm(element) {
 		$("#dashboardId").val(element.id);
 		$("#formDBRedirect").submit();
 	}
+	
 	function viewDashlets(element){
 		$("#dashboardIdView").val(element.id);
 		$("#formDLSRedirect").submit();
 	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
 	
 	function openDashlets(element) {
 		location.href = contextPath+"/cf/dlm";
@@ -132,14 +157,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	 
 	 	<div class="row">
 			<input type="hidden" id = "dashboardId" name = "dashboardId" value = "${(dashboard?api.getDashboardId())!''''}">
-			<div class="col-12">
-	     		<div class="col-inner-form full-form-fields"> 
-		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashlets")}</label>
-		  			<div id = "associatedDashlets"></div>
-		  			<div class="clearfix"></div>
-				</div>
-			</div>	
-
+			
 			<div class="col-3" id="dashboardTypeDiv">
 				<div class="col-inner-form full-form-fields">
 					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
@@ -183,7 +201,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
       			</div>
 				<div class="clearfix"></div>
     		</div>
-		 
+		 	
+			<div class="col-12">
+	     		<div class="col-inner-form full-form-fields"> 
+		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashlets")}</label>
+		  			<div id = "associatedDashlets"></div>
+		  			<div class="clearfix"></div>
+				</div>
+			</div>
+			
     		<div class="clearfix"></div>
      	</div>
 	 
@@ -274,6 +300,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/aedl" method="POST" id="formDMRedirect">
 	<input type="hidden" id="dashletId" name="dashlet-id">
 </form>
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/sdlv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dlm">
+</form>
 <script>
 	let dashletListing;
 	$(function () {
@@ -327,15 +360,24 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function editDashlet(uiObject) {
 		const dashletId = uiObject.rowData.dashletId;
 		const dashletName = uiObject.rowData.dashletName;
-		let element;
+		const revisionCount = uiObject.rowData.revisionCount;
+					
+		let actionElement;
 		<#if environment == "dev">
-			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil'' title=''${messageSource.getMessage("jws.editDashlet")}''></i></span>";
-      		element = element + "<span id=''"+dashletId+"'' class= ''grid_action_icons'' onclick=''dashletListing.downloadDashletById(this)''><i class=''fa fa-download''></i></span>";
-          element = element + "<span id=''"+dashletId+"_upload'' name=''"+dashletName+"'' class= ''grid_action_icons'' onclick=''dashletListing.uploadDashletById(this)''><i class=''fa fa-upload''></i></span>";
+			actionElement = "<span id=''"+dashletId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil'' title=''${messageSource.getMessage("jws.editDashlet")}''></i></span>";
+      		actionElement = actionElement + "<span id=''"+dashletId+"'' class= ''grid_action_icons'' onclick=''dashletListing.downloadDashletById(this)''><i class=''fa fa-download''></i></span>";
+          	actionElement = actionElement + "<span id=''"+dashletId+"_upload'' name=''"+dashletName+"'' class= ''grid_action_icons'' onclick=''dashletListing.uploadDashletById(this)''><i class=''fa fa-upload''></i></span>";
 		<#else>
-			element = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";		
+			actionElement = "<span id=''"+dashletId+"'' class= ''grid_action_icons''  onclick=''dashletListing.submitForm(this)'' title=''${messageSource.getMessage("jws.editDashlet")}''><i class=''fa fa-pencil''></i></span>";	
+			if(revisionCount > 1){
+				actionElement = actionElement + ''<span id="''+dashletId+''_entity" name="''+dashletName+''" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+			}else{
+				actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+			}
+			return actionElement;		
+			
 		</#if>
-		return element;
+		return actionElement;
 	}
 	
 

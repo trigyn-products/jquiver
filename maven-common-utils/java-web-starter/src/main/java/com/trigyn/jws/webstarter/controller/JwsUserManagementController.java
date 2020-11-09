@@ -1,11 +1,15 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.awt.Dimension;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.Restarter;
@@ -20,7 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.templating.service.MenuService;
-import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
 import com.trigyn.jws.usermanagement.security.config.UserInformation;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
@@ -109,7 +114,8 @@ public class JwsUserManagementController {
 	@PostMapping(value = "/aedu")
 	public String addEditUser(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse) throws IOException {
 		try{
-			return userManagementService.addEditUser(userId);
+			boolean isProfilePage = false;
+			return userManagementService.addEditUser(userId,isProfilePage);
 		} catch (Exception exception) {
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
@@ -128,18 +134,8 @@ public class JwsUserManagementController {
 	
 	@GetMapping(value="/profile")
 	public String profilePage() throws Exception {
-		Map<String, Object> mapDetails = new HashMap<>();
-		String  name = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(name!=null && !name.equalsIgnoreCase("anonymousUser")) {
-			UserInformation userDetails = (UserInformation) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			mapDetails.put("loggedInUser", Boolean.TRUE);
-			mapDetails.put("userName", userDetails.getFullName());
-			
-		}else {
-			mapDetails.put("loggedInUser", Boolean.FALSE);
-		}
-		return menuService.getTemplateWithSiteLayout("my-profile", mapDetails);
 		
+		return	userManagementService.getProfilePage();
 	}
 	
 	@GetMapping(value="/mer")
@@ -162,7 +158,7 @@ public class JwsUserManagementController {
 		return userManagementService.getModules();
 	}
 	
-	 	@GetMapping(value = "/restart-admin")
+	 	@GetMapping(value = "/restart")
 	    public void restart() {    
 	        Restarter.getInstance().restart();
 
@@ -191,4 +187,16 @@ public class JwsUserManagementController {
 		return userManagementService.getEntityRoles(entityId,moduleId);
 	}
  	
+ 	@GetMapping(value="/cee")
+	public boolean checkEmailExist(HttpServletRequest request,HttpServletResponse response) throws Throwable {
+ 		
+ 		boolean emailExist = true; 
+ 		
+		String email = request.getParameter("email");
+		JwsUser existingUser = userManagementService.findByEmailIgnoreCase(email);
+		if(existingUser == null) {
+			emailExist = false;
+		}	
+		return emailExist;
+	}
 }

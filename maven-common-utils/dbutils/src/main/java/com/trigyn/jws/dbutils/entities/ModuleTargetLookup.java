@@ -97,4 +97,11 @@ public class ModuleTargetLookup implements Serializable {
 				+ moduleListings + "]";
 	}
 
+	public ModuleTargetLookup getObject() {
+		ModuleTargetLookup moduleTargetLookup = new ModuleTargetLookup();
+		moduleTargetLookup.setDescription(description);
+		moduleTargetLookup.setLookupId(lookupId);
+		return moduleTargetLookup;
+	}
+
 }

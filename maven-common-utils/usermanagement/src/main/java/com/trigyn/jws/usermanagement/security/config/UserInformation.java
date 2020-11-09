@@ -24,6 +24,8 @@ public class UserInformation implements UserDetails {
 	private String fullName = null;
 
 	private String userId = null;
+	
+	private boolean isDefaultPassword = Boolean.FALSE;
 
 	private List<GrantedAuthority> authorities = new ArrayList<>();
 	
@@ -36,6 +38,7 @@ public class UserInformation implements UserDetails {
 		this.password = user.getPassword();
 		this.fullName = user.getFirstName() +" " +user.getLastName(); 
 		this.active = user.getIsActive() == 1? true:false;
+		this.isDefaultPassword = user.getForcePasswordChange() == 1? true:false;
 		
 		for (JwsRoleVO jwsRoleVO : roleVOs) {
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority(jwsRoleVO.getRoleName());
@@ -99,4 +102,13 @@ public class UserInformation implements UserDetails {
 		return roles;
 	}
 
+	public boolean isDefaultPassword() {
+		return isDefaultPassword;
+	}
+
+	public void setDefaultPassword(boolean isDefaultPassword) {
+		this.isDefaultPassword = isDefaultPassword;
+	}
+
+	
 }

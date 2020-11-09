@@ -1,7 +1,10 @@
 package com.trigyn.jws.usermanagement.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
+
+import javax.persistence.Column;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,12 +22,18 @@ public class JwsUserVO implements Serializable{
 	
 	private String email = null;
 	
-	private Integer password = null;
+	private String password = null;
 	
 	private Integer isActive = null;
 	
 	private List<String> roleIds = null;
-
+	
+	private String captcha = null;
+	
+	private Integer forcePasswordChange = null;
+	
+	private Boolean isProfilePage = null;
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -57,11 +66,11 @@ public class JwsUserVO implements Serializable{
 		this.email = email;
 	}
 
-	public Integer getPassword() {
+	public String getPassword() {
 		return password;
 	}
 
-	public void setPassword(Integer password) {
+	public void setPassword(String password) {
 		this.password = password;
 	}
 
@@ -78,9 +87,10 @@ public class JwsUserVO implements Serializable{
 		JwsUser jwsUser = new JwsUser();
 		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId())?userData.getUserId():null);
 		jwsUser.setFirstName(userData.getFirstName());
-		jwsUser.setLastName(userData.getFirstName());
+		jwsUser.setLastName(userData.getLastName());
 		jwsUser.setEmail(userData.getEmail());
 		jwsUser.setIsActive(userData.getIsActive());
+		jwsUser.setPassword(userData.getPassword());
 		return jwsUser;
 	}
 
@@ -91,6 +101,32 @@ public class JwsUserVO implements Serializable{
 	public void setRoleIds(List<String> roleIds) {
 		this.roleIds = roleIds;
 	}
+
+	public String getCaptcha() {
+		return captcha;
+	}
+
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
+	}
+
+	public Integer getForcePasswordChange() {
+		return forcePasswordChange;
+	}
+
+	public void setForcePasswordChange(Integer forcePasswordChange) {
+		this.forcePasswordChange = forcePasswordChange;
+	}
+
+	public Boolean getIsProfilePage() {
+		return isProfilePage;
+	}
+
+	public void setIsProfilePage(Boolean isProfilePage) {
+		this.isProfilePage = isProfilePage;
+	}
+	
+	
 
 	
 	

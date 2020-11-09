@@ -92,6 +92,10 @@ public class JwsDynamicRestRoleAssociation implements Serializable {
 				+ ", userRole=" + userRole + "]";
 	}
 
-
+	public JwsDynamicRestRoleAssociation getObject() {
+		JwsDynamicRestRoleAssociation dynaRest = new JwsDynamicRestRoleAssociation();
+		dynaRest.setId(id.getObject());
+		return dynaRest;
+	}
 	
 }

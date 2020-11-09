@@ -45,17 +45,18 @@ public class TypeAheadService {
         return autocompleteVO;
 	}
 	
-	public String saveAutocompleteDetails(MultiValueMap<String, String> formDataMap) throws Exception {
-		String autoCompleteId				= formDataMap.getFirst("autoCompleteId");
-		String autoCompleteDesc				= formDataMap.getFirst("autoCompleteDescription");
-		String autoCompleteSelectQuery 		= formDataMap.getFirst("autoCompleteSelectQuery");
+	@Transactional(readOnly = false)
+	public String saveAutocompleteDetails(MultiValueMap<String, String> formDataMap, Integer sourceTypeId) throws Exception {
+		String autoCompleteId				= formDataMap.getFirst("autocompleteId");
+		String autoCompleteDesc				= formDataMap.getFirst("autocompleteDesc");
+		String autoCompleteSelectQuery 		= formDataMap.getFirst("autocompleteSelectQuery");
 		
 		Autocomplete autocomplete	= new Autocomplete();
 		autocomplete.setAutocompleteId(autoCompleteId);
 		autocomplete.setAutocompleteDesc(autoCompleteDesc);
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
-		typeAheadRepository.saveAndFlush(autocomplete);
-		moduleVersionService.saveModuleVersion(autocomplete,null, autoCompleteId, "autocomplete_details");
+		typeAheadRepository.save(autocomplete);
+		moduleVersionService.saveModuleVersion(autocomplete,null, autoCompleteId, "autocomplete_details", sourceTypeId);
 		
 		return autoCompleteId;
 		

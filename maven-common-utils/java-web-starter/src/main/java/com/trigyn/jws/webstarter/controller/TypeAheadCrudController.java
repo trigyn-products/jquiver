@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
+import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping("/cf")
@@ -78,7 +79,7 @@ public class TypeAheadCrudController {
 	@ResponseBody
     public String saveAutocompleteDetails(
     		@RequestBody MultiValueMap<String, String> formDataMap) throws Exception {
-		return typeAheadService.saveAutocompleteDetails(formDataMap);
+		return typeAheadService.saveAutocompleteDetails(formDataMap, Constant.MASTER_SOURCE_VERSION_TYPE);
     }
     
 }

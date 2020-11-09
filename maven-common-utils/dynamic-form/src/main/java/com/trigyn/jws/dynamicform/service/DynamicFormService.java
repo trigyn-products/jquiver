@@ -1,14 +1,17 @@
 package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,7 +24,6 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
-import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -30,6 +32,18 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 @Service
 @Transactional
 public class DynamicFormService {
+
+	private static final String DATE = "date";
+
+	private static final String TIMESTAMP = "timestamp";
+
+	private static final String DECIMAL = "decimal";
+
+	private static final String TEXT = "text";
+
+	private static final String INT = "int";
+
+	private static final String VARCHAR = "varchar";
 
 	@Autowired
 	private TemplatingUtils templateEngine 					= null;
@@ -51,6 +65,8 @@ public class DynamicFormService {
 	
 	@Autowired
 	private ModuleVersionService moduleVersionService		= null;
+	
+	private final static Logger logger = LogManager.getLogger(DynamicFormService.class);
 	
 	
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam, Map<String, Object> additionalParam){
@@ -88,6 +104,11 @@ public class DynamicFormService {
 				selectResultSet = dynamicFormDAO.getFormData(selectTemplateQuery.toString());
 			}
 			formHtmlTemplateMap.put("resultSet", selectResultSet);
+			if(selectResultSet != null && selectResultSet.size() > 0) {
+				formHtmlTemplateMap.put("resultSetObject", selectResultSet.get(0));
+			} else {
+				formHtmlTemplateMap.put("resultSetObject", new HashMap<>());
+			}
 
 			formHtmlTemplateMap.put("formId", formId);
 			formHtmlTemplateMap.put("requestDetails", requestParam);
@@ -97,10 +118,7 @@ public class DynamicFormService {
 			Boolean includeLayout = requestParam.get("includeLayout") == null ? Boolean.TRUE 
 						: Boolean.parseBoolean(requestParam.get("includeLayout").toString());
 			if(Boolean.TRUE.equals(includeLayout)) {
-				Map<String, Object> entityDetails = new HashMap<String, Object>();
-				entityDetails.put("entityType", "form");
-				entityDetails.put("entityName", formName);
-				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, entityDetails);
+				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, formHtmlTemplateMap);
 			} else {
 				return templateHtml;
 			}
@@ -120,7 +138,7 @@ public class DynamicFormService {
 		saveTemplateMap.put("formData", formData);
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		String saveQuery = "saveQuery-";
-		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicFormDAO.findDynamicFormQueriesById(formData.getFirst("formId"));
+		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicFormDAO.findDynamicFormQueriesById(formId);
 		for (DynamicFormSaveQuery dynamicFormSaveQuery : dynamicFormSaveQueries) {
 			String formSaveQuery = null;
 			if(environment.equalsIgnoreCase("dev") ) {
@@ -129,7 +147,30 @@ public class DynamicFormService {
 			  formSaveQuery = dynamicFormSaveQuery.getDynamicFormSaveQuery();
 			}
 			saveTemplateQuery = templateEngine.processTemplateContents(formSaveQuery, formName, saveTemplateMap);
-			dynamicFormDAO.saveFormData(saveTemplateQuery);
+			dynamicFormDAO.saveFormData(saveTemplateQuery, new HashMap<>());
+		}
+		return true;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Boolean saveDynamicForm(List<Map<String, String>> formData) throws Exception {
+		String saveTemplateQuery = null;
+		Map<String, Object> formDetails = createParamterMap(formData);
+		String formId = formDetails.get("formId").toString();
+		DynamicForm form = dynamicFormDAO.findDynamicFormById(formId);
+		String formName = form.getFormName();
+		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+		String saveQuery = "saveQuery-";
+		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicFormDAO.findDynamicFormQueriesById(formId);
+		for (DynamicFormSaveQuery dynamicFormSaveQuery : dynamicFormSaveQueries) {
+			String formSaveQuery = null;
+			if(environment.equalsIgnoreCase("dev") ) {
+			  formSaveQuery = getContentForDevEnvironment(form, dynamicFormSaveQuery.getDynamicFormSaveQuery(), saveQuery+dynamicFormSaveQuery.getSequence());
+			}else {
+			  formSaveQuery = dynamicFormSaveQuery.getDynamicFormSaveQuery();
+			}
+			saveTemplateQuery = templateEngine.processTemplateContents(formSaveQuery, formName, formDetails);
+			dynamicFormDAO.saveFormData(saveTemplateQuery, formDetails);
 		}
 		return true;
 	}
@@ -187,7 +228,7 @@ public class DynamicFormService {
 			String dataType = info.get("dataType").toString();
 			String columnKey = info.get("columnKey").toString();
 			insertJoiner.add(columnName);
-			joinQueryBuilder(insertValuesJoiner, columnName, dataType);
+			joinQueryBuilder(insertValuesJoiner, columnName, dataType, false);
 			
 		}
 		StringBuilder queryBuilder = new StringBuilder(insertJoiner.toString());
@@ -203,9 +244,9 @@ public class DynamicFormService {
 			String dataType = info.get("dataType").toString();
 			String columnKey = info.get("columnKey").toString();
 			if("PRI".equals(columnKey)) {
-				joinQueryBuilder(updateWhereQuery, columnName, dataType);
+				joinQueryBuilder(updateWhereQuery, columnName, dataType, true);
 			} else {
-				joinQueryBuilder(updateQuery, columnName, dataType);
+				joinQueryBuilder(updateQuery, columnName, dataType, true);
 			}
 		}
 		StringBuilder updateQueryBuilder = new StringBuilder(updateQuery.toString());
@@ -221,15 +262,44 @@ public class DynamicFormService {
 		}
 	}
 
-	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType) {
-		if(dataType.contains("varchar") || dataType.contains("text")) {
-			String value = "'${formData?api.getFirst(\\\"" + columnName.replaceAll("_", "") + "\\\")}'";
+	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType, boolean showColumnName) {
+		String formFieldName = columnName.replace("_", "");
+		if(dataType.contains(VARCHAR) || dataType.contains(TEXT)) {
+			String value = showColumnName ? columnName + " = :" + formFieldName : ":"+ formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
-		} else if (dataType.contains("int") || dataType.contains("decimal")) {
-			String value = "${formData?api.getFirst(\\\"" + columnName.replaceAll("_", "") + "\\\")}";
+		} else if (dataType.contains(INT) || dataType.contains(DECIMAL)) {
+			String value = showColumnName ? columnName + " = :" + formFieldName : ":"+ formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
-		} else if (dataType.contains("date") || dataType.contains("timestamp")) {
-			insertValuesJoiner.add("NOW()");
+		} else if (dataType.contains(DATE) || dataType.contains(TIMESTAMP)) {
+			insertValuesJoiner.add(showColumnName ? columnName + " = NOW()" : "" + "NOW()");
 		}
+	}
+	
+	
+	private Map<String, Object> createParamterMap(List<Map<String, String>> formData) {
+		Map<String, Object> formParameters = new HashMap<String, Object>();
+		for (Map<String, String> data : formData) {
+			String valueType = data.getOrDefault("type", VARCHAR);
+			Object value = getDataInTypeFormat(data.get("value"), valueType);
+			formParameters.put(data.get("name"), value);
+		}
+		return formParameters;
+	}
+
+	private Object getDataInTypeFormat(String value, String valueType) {
+		if (valueType.equals(INT)) {
+			return Integer.parseInt(value);
+		} else if (valueType.equals(DECIMAL)) {
+			return Double.parseDouble(value);
+		} else if (valueType.equals(DATE) || valueType.equals(TIMESTAMP)) {
+			Date dateData = new Date();
+			try {
+				dateData = DateFormat.getInstance().parse(value);
+			} catch (ParseException e) {
+				logger.warn("Error paring the date : ", e);
+			}
+			return dateData;
+		}
+		return value;
 	}
 }

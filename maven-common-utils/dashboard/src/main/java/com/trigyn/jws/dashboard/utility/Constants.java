@@ -37,6 +37,14 @@ public final class Constants {
 	public static final String ANON_USER_STR 							= "anonymousUser";
 	
 	public static final Integer DEFAULT_DASHLET_TYPE_ID					= 1;
+	
+    public static final String CUSTOM_FILE_EXTENSION 					= ".tgn";
+    public static final String DASHLET_DIRECTORY_NAME 					= "Dashlets";
+    public static final String DASHLET_QUERY_FILE_NAME 					= "selectQuery";
+    public static final String DASHLET_HTML_FILE_NAME 					= "htmlContent";
+    public static final String TEMPORARY_STORAGE_PATH 					= "template-storage-path";
+    
+    public static final Integer UPLOAD_SOURCE_VERSION_TYPE				= 4;
 
     public enum RecordStatus {
         DELETED(1), INSERTED(0), UPDATED(0);

@@ -1,6 +1,7 @@
 package com.trigyn.jws.dynarest.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 
@@ -236,7 +238,15 @@ public class JwsDynamicRestDetail implements Serializable {
 	public void setJwsDynamicRestResponseParams(List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
 		this.jwsDynamicRestResponseParams = jwsDynamicRestResponseParams;
 	}
-	
+
+	public List<JwsDynamicRestRoleAssociation> getJwsDynamicRestRoleAssociation() {
+		return JwsDynamicRestRoleAssociation;
+	}
+
+	public void setJwsDynamicRestRoleAssociation(List<JwsDynamicRestRoleAssociation> jwsDynamicRestRoleAssociation) {
+		JwsDynamicRestRoleAssociation = jwsDynamicRestRoleAssociation;
+	}
+
 	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().add(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsDynamicRestDetail(this);
@@ -301,7 +311,41 @@ public class JwsDynamicRestDetail implements Serializable {
 				+ ", JwsDynamicRestRoleAssociation=" + JwsDynamicRestRoleAssociation + "]";
 	}
 
+	public JwsDynamicRestDetail getObject() {
+		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
+		dynaRest.setJwsDynamicRestId(jwsDynamicRestId);
+		dynaRest.setJwsDynamicRestUrl(jwsDynamicRestUrl);
+		dynaRest.setJwsMethodDescription(jwsMethodDescription);
+		dynaRest.setJwsMethodName(jwsMethodName);
+		dynaRest.setJwsPlatformId(jwsPlatformId);
+		dynaRest.setJwsRbacId(jwsRbacId);
+		dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic +"]]>"));
+		dynaRest.setJwsRequestTypeId(jwsRequestTypeId);
+		dynaRest.setJwsResponseProducerTypeId(jwsResponseProducerTypeId);
+		dynaRest.setJwsDynamicRestTypeId(jwsDynamicRestTypeId);
+		dynaRest.setJwsAllowFiles(jwsAllowFiles);
+		
+		List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetailsOthr = new ArrayList<>();
+		for(JwsDynamicRestDaoDetail jdrdd : jwsDynamicRestDaoDetails) {
+			jwsDynamicRestDaoDetailsOthr.add(jdrdd.getObject());
+		}
+		dynaRest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetailsOthr);
+		
+		dynaRest.setJwsRequestTypeDetail(jwsRequestTypeDetail.getObject());
 
+		List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParamsOthr = new ArrayList<>();
+		for(JwsDynamicRestResponseParam jdrrp : jwsDynamicRestResponseParams) {
+			jwsDynamicRestResponseParamsOthr.add(jdrrp.getObject());
+		}
+		dynaRest.setJwsDynamicRestResponseParams(jwsDynamicRestResponseParamsOthr);
 
+		List<JwsDynamicRestRoleAssociation> jwsDynamicRestRoleAssociationOthr = new ArrayList<>();
+		for(JwsDynamicRestRoleAssociation jdrra : JwsDynamicRestRoleAssociation) {
+			jwsDynamicRestRoleAssociationOthr.add(jdrra.getObject());
+		}
+		dynaRest.setJwsDynamicRestRoleAssociation(jwsDynamicRestRoleAssociationOthr);
+		
+		return dynaRest;
+	}
 
 }

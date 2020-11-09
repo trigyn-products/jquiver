@@ -21,6 +21,12 @@ public final class Constant {
 	
 	public static final Integer NO_OF_RECORDS_TO_BE_DELETED	= 1;
 	
+	public static final String REPLY_TO_DIFFERENT_EMAIL_ID  = "Different";
+	public static final String SSL                          = "SSL";
+	public static final String TLS                          = "TLS";
+	public static final String MAIL_TEMPLATE_NAME           = "mailTemplate";
+	public static final String TEST_MAIL_SUBJECT            = "Test Mail";
+	
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);
 		
@@ -35,4 +41,5 @@ public final class Constant {
 		}
 		
 	}
+
 }

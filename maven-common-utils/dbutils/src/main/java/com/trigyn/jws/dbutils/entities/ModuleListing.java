@@ -1,12 +1,21 @@
 package com.trigyn.jws.dbutils.entities;
 
 import java.io.Serializable;
-import javax.persistence.*;
-
-import org.hibernate.annotations.GenericGenerator;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 
 
@@ -238,7 +247,31 @@ public class ModuleListing implements Serializable {
 				+ "]";
 	}
 
+	public ModuleListing getObject() {
+		ModuleListing moduleListing = new ModuleListing();
+		moduleListing.setIsInsideMenu(isInsideMenu);
+		moduleListing.setModuleId(moduleId);
+		moduleListing.setModuleUrl(moduleUrl);
+		moduleListing.setParentId(parentId);
+		moduleListing.setSequence(sequence);
+		moduleListing.setTargetLookupId(targetLookupId);
+		moduleListing.setTargetTypeId(targetTypeId);
+		
+		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
+		for(ModuleListingI18n otr : moduleListingI18ns) {
+			moduleListingI18nsOtr.add(otr.getObject());
+		}
+		moduleListing.setModuleListingI18ns(moduleListingI18nsOtr);
+		
 
-
+		List<ModuleRoleAssociation> moduleRoleAssociationsOtr = new ArrayList<>();
+		for(ModuleRoleAssociation otr : moduleRoleAssociations) {
+			moduleRoleAssociationsOtr.add(otr.getObject());
+		}
+		moduleListing.setModuleRoleAssociations(moduleRoleAssociationsOtr);
+		
+		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		return moduleListing;
+	}
 
 }

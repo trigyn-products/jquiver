@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface DownloadUploadModule<T> {
 
-	void downloadCodeToLocal(T object) throws Exception;
+	void downloadCodeToLocal(T object, String folderLocation) throws Exception;
 	
 	void uploadCodeToDB(String uploadFileName) throws Exception;
 	

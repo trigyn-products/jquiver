@@ -117,7 +117,9 @@ public class DBTemplatingService {
         }
         
         TemplateMaster templateMaster = dbTemplatingRepository.saveAndFlush(templateDetails);
-        moduleVersionService.saveModuleVersion(templateMaster,null, templateMaster.getTemplateId(), "template_master");
+        TemplateVO templateVO = new TemplateVO(templateMaster.getTemplateId(),
+        		templateMaster.getTemplateName(), templateMaster.getTemplate());
+        moduleVersionService.saveModuleVersion(templateVO,null, templateMaster.getTemplateId(), "template_master", Constant.MASTER_SOURCE_VERSION_TYPE);
         
         return templateMaster.getTemplateId();
     }
@@ -140,7 +142,14 @@ public class DBTemplatingService {
 		return dbTemplatingRepository.save(templateMaster);
 	}
 	
-
+	@Transactional(readOnly = false)
+	public void saveTemplate(TemplateVO templateVO) throws Exception{
+		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateVO.getTemplateId()).orElse(new TemplateMaster());
+		templateMaster.setTemplate(templateVO.getTemplate());
+		dbTemplatingRepository.save(templateMaster);
+		moduleVersionService.saveModuleVersion(templateVO,null, templateMaster.getTemplateId(), "template_master", Constant.REVISION_SOURCE_VERSION_TYPE);
+	}
+	
 	private void getTemplateContentsForDevEnvironment(String templateName, TemplateVO templateVO) throws Exception {
 		String ftlCustomExtension = ".tgn";
 		String templateDirectory = "Templates";
@@ -149,7 +158,8 @@ public class DBTemplatingService {
 		
 		if(!new File(folderLocation).exists()) {
 			logger.warn("Templates not downloaded on system, downloading templates to system.");
-			templateModule.downloadCodeToLocal(null);
+			String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+			templateModule.downloadCodeToLocal(null, downloadFolderLocation);
 			logger.info("Templates downloaded to local machine");
 		}
 		File file = new File(folderLocation+ File.separator+templateVO.getTemplateName()+ftlCustomExtension);

@@ -51,4 +51,12 @@ public class ModuleRoleAssociationPK implements Serializable {
 		
 		return hash;
 	}
+
+	public ModuleRoleAssociationPK getObject() {
+		ModuleRoleAssociationPK moduleRoleAssociationPK = new ModuleRoleAssociationPK();
+		moduleRoleAssociationPK.setModuleId(moduleId);
+		moduleRoleAssociationPK.setRoleId(roleId);
+		return moduleRoleAssociationPK;
+	}
+
 }

@@ -84,7 +84,17 @@ public class JwsRoleMasterModulesAssociation {
 	public void setModules(JwsMasterModules module) {
 		this.module = module;
 	}
-	
-	
-	
+
+	public JwsRoleMasterModulesAssociation getObject() {
+		JwsRoleMasterModulesAssociation obj = new JwsRoleMasterModulesAssociation();
+		obj.setIsActive(isActive);
+		obj.setModuleId(moduleId);
+		obj.setModules(module.getObject());
+		obj.setRoleId(roleId);
+		obj.setRoleModuleId(roleModuleId);
+		return obj;
+	}
+	public void setModule(JwsMasterModules module) {
+		this.module = module;
+	}
 }

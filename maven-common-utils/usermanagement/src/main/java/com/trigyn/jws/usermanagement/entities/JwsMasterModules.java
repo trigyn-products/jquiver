@@ -26,6 +26,9 @@ public class JwsMasterModules {
 	
 	@Column(name="auxiliary_data")
 	private String auxiliaryData = null;
+	
+	@Column(name="module_type_id")
+	private Integer moduleTypeId = null;
 
 	public String getModuleId() {
 		return moduleId;
@@ -58,9 +61,21 @@ public class JwsMasterModules {
 	public void setAuxiliaryData(String auxiliaryData) {
 		this.auxiliaryData = auxiliaryData;
 	}
-	
-	
-	
-	
-	
+
+	public JwsMasterModules getObject() {
+		JwsMasterModules obj = new JwsMasterModules();
+		obj.setAuxiliaryData(auxiliaryData);
+		obj.setIsSystemModule(isSystemModule);
+		obj.setModuleId(moduleId);
+		obj.setModuleName(moduleName);
+		return obj;
+	}
+
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setModuleTypeId(Integer moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
 }

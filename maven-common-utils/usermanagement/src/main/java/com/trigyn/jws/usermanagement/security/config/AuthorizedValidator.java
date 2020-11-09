@@ -64,8 +64,8 @@ public class AuthorizedValidator {
 		EntityValidator entityValidator =  entityValidatorFactory.createEntityValidator(moduleName);
 		boolean hasAccess  = entityValidator.hasAccessToEntity(requestObject, roleNames, a_joinPoint);
 		
-		if(!hasAccess) {
-			responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access this entity");
+		if(hasAccess == Boolean.FALSE) {
+			responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access " + moduleName);
 			//throw new AccessDeniedException("You dont have rights to access this entity");
 		}
 		

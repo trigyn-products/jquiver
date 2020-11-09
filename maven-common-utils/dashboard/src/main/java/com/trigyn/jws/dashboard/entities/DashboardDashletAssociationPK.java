@@ -72,5 +72,12 @@ public class DashboardDashletAssociationPK implements Serializable{
 		return "DashboardDashletAssociationPK [dashboardId=" + dashboardId + ", dashletId=" + dashletId + "]";
 	}
 
-	
+	public DashboardDashletAssociationPK getObject() {
+		DashboardDashletAssociationPK dashboardDashletAssociationPK = new DashboardDashletAssociationPK();
+		dashboardDashletAssociationPK.setDashboardId(dashboardId);
+		dashboardDashletAssociationPK.setDashletId(dashletId);
+		
+		return dashboardDashletAssociationPK;
+	}
+
 }

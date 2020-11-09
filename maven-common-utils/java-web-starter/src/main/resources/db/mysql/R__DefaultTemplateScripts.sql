@@ -147,7 +147,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <script>
 	contextPath = "${contextPath}";
-	
 	//Add logic to save form data
 	function saveData (){
 		let formData = $("#addEditForm").serialize();
@@ -181,8 +180,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
-('ec26a648-09ab-11eb-a027-f48e38ab8cd7', 'system-form-html-template', '
-<head>
+('ec26a648-09ab-11eb-a027-f48e38ab8cd7', 'system-form-html-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -205,15 +203,22 @@ replace into template_master (template_id, template_name, template, updated_by, 
     	<#list columnDetails as columnDetailsList>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-			<#if columnDetailsList?api.get(''columnType'') != "textarea">
+			<#if columnDetailsList?api.get(''columnType'') != "textarea" && columnDetailsList?api.get(''columnType'') != "datetime">
 		            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
 		              ${columnDetailsList?api.get("fieldName")!""}
 		            </label>
-				<input type="${columnDetailsList?api.get(''columnType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="" maxlength="${columnDetailsList?api.get(''columnSize'')}" class="form-control">
+				<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>" maxlength="${columnDetailsList?api.get(''columnSize'')!""}" class="form-control">
+            <#elseif columnDetailsList?api.get(''columnType'') == "datetime">
+                    <span class="asteriskmark">*</span>
+                    <label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
+                    <span>
+						<input id="${columnDetailsList?api.get("columnName")!""}" name="${columnDetailsList?api.get("columnName")!""}" class="form-control" placeholder="${columnDetailsList?api.get("fieldName")!""}" />
+                        <button id="${columnDetailsList?api.get("columnName")!""}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+					</span>
 			<#else>
 				<span class="asteriskmark">*</span>
 				<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-				<textarea class="form-control" rows="15" cols="90" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"></textarea>
+				<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"></textarea>
 			</#if>
 			</div>
 		</div>
@@ -254,11 +259,30 @@ replace into template_master (template_id, template_name, template, updated_by, 
   
   $(function(){
     // setting value on edit.
+    <#if (columnDetails)??>
+        <#list columnDetails as columnDetailsList>
+        <#if columnDetailsList?api.get(''columnType'') == "datetime">
+        Calendar.setup({
+			trigger    : "${columnDetailsList?api.get("columnName")!""}-trigger",
+			inputField : "${columnDetailsList?api.get("columnName")!""}",
+			dateFormat : "%d-%b-%Y",
+			weekNumbers: true,
+            showTime: 12,
+			onSelect   : function() { 
+				let selectedDate = this.selection.get();
+				let date = Calendar.intToDate(selectedDate);
+				date = Calendar.printDate(date, "%d-%b-%Y");
+				$("#"+this.inputField.id).val(date);
+				this.hide(); 
+			}
+		});
+        </#if>
+        </#list>
+    </#if>
     <#noparse>
       <#if (resultSet)??>
       	<#list resultSet as resultSetList>
-      		$("#fieldId option[value=''${resultSetList?api.get("aliasFromSelectQuery")}'']").attr("selected", "selected");
-      		$("#fieldId").val(''${resultSetList?api.get("aliasFromSelectQuery")}'');
+      		
       	</#list>
       </#if>
     </#noparse>
@@ -283,13 +307,20 @@ replace into template_master (template_id, template_name, template, updated_by, 
 			return false;
 		}
 		$("#errorMessage").hide();
-		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
+		let formData = $("#addEditForm").serializeArray();
+		let formIdObj = new Object();
+		formIdObj["name"] = "formId";
+		formIdObj["value"] = formId;
+		formIdObj["valueType"] = "varchar";
+		formData.push(formIdObj);
 		
 		$.ajax({
 		  type : "POST",
 		  async: false,
-		  url : contextPath+"/cf/sdf",
-		  data : formData,
+		  url : contextPath+"/cf/psdf",
+		  data : {
+		  	formData: JSON.stringify(formData)
+		  },
           success : function(data) {
 			isDataSaved = true;
 			showMessage("Information saved successfully", "success");
@@ -310,8 +341,8 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+</script>', 'admin', 'admin', NOW(), NULL, 2);
+
 
 REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('f16c057f-09ab-11eb-a027-f48e38ab8cd7', 'system-form-save-query-template', '
@@ -348,15 +379,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <div class="topband">
         <h2 class="title-cls-name float-left">Your page title here</h2> 
         <div class="float-right">
-            <form id="addEditRecords" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
-                <input type="hidden" name="formId" value="${formId}"/>
-                <#list primaryKeysIds as primaryKey>
-                <input type="hidden" name="${primaryKey}" id="${primaryKey}" value=""/>
-                </#list>
-                <button type="submit" class="btn btn-primary"> Create New </button>
-            </form>
-
-
+             <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> Create New </button>
             <span onclick="backToWelcomePage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
             </span> 
@@ -372,6 +395,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <script>
     contextPath = "${contextPath}";
+    let primaryKeyDetails = ${primaryKeyObject};
     $(function () {
     //Add all columns that needs to be displayed in the grid
         let colM = [
@@ -398,11 +422,16 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     
     //Add logic to navigate to create new record
     function createNew(element) {
-        let rowData = $( "#propertyMasterListingGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
-        <#list primaryKeys as primaryKey>
-        $("#${primaryKey?replace("_", "")}").val(rowData["${primaryKey}"]);
+        let rowData = $( "#${gridId}" ).pqGrid("getRowData", {rowIndxPage: element.id});
+        <#list primaryKeysIds as primaryKey>
+        primaryKeyDetails["${primaryKey}"] = rowData["${primaryKey}"];
         </#list>
-        $("#addEditRecords").submit();
+        openAddEditScreen();
+    }
+
+    function openAddEditScreen() {
+    	  let formId = "${formId}";
+    	  openForm(formId, primaryKeyDetails);
     }
 
     //Code go back to previous page

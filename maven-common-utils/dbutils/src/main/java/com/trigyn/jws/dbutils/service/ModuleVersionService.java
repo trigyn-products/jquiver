@@ -1,25 +1,22 @@
 package com.trigyn.jws.dbutils.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
+import com.trigyn.jws.dbutils.repository.JwsTemplateVersionRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dbutils.vo.ModuleVersionVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 @Service
@@ -27,25 +24,29 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 public class ModuleVersionService {
 
 	@Autowired
-	private ModuleVersionDAO moduleVersionDAO 		= null;
+	private ModuleVersionDAO moduleVersionDAO 				= null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService 	= null;
+	private IUserDetailsService userDetailsService 			= null;
 	
 	@Autowired
-	private FileUtilities fileUtilities  			= null;
+	private FileUtilities fileUtilities  					= null;
 	
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO		= null;
-
+	private PropertyMasterDAO propertyMasterDAO				= null;
+	
+	@Autowired
+	private JwsTemplateVersionRepository versionRepository 	= null;
+	
 	@Transactional(readOnly = false)
-	public void saveModuleVersion(Object entityData, Object parentEntityIdObj, Object entityTypeIdObj, String entityTypeName) throws Exception{
-		ObjectMapper objectMapper 				= new ObjectMapper();
+	public void saveModuleVersion(Object entityData, Object parentEntityIdObj
+			, Object entityTypeIdObj, String entityTypeName, Integer sourceTypeId) throws Exception{
+		Gson gson 								= new Gson();
 		String parentEntityId 					= parentEntityIdObj == null ? null : parentEntityIdObj.toString();
 		String entityTypeId 					= entityTypeIdObj.toString();
 		JwsModuleVersion moduleVersion 			= new JwsModuleVersion();
 		
-		String moduleJson 						= objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(entityData);
+		String moduleJson 						= gson.toJson(entityData);
 		UserDetailsVO userDetailsVO 			= userDetailsService.getUserDetails();
 		String moduleJsonChecksum				= generateJsonChecksum(moduleJson);
 		Boolean isDataUpdated					= compareChecksum(entityTypeId, moduleJsonChecksum);
@@ -58,6 +59,7 @@ public class ModuleVersionService {
 	        moduleVersion.setModuleJson(moduleJson);
 		    moduleVersion.setVersionId(versionId);
 		    moduleVersion.setModuleJsonChecksum(moduleJsonChecksum);
+		    moduleVersion.setSourceTypeId(sourceTypeId);
 	        moduleVersion.setUpdatedDate(new Date());
 	        moduleVersion.setUpdatedBy(userDetailsVO.getUserId());
 			moduleVersionDAO.save(moduleVersion);
@@ -117,25 +119,17 @@ public class ModuleVersionService {
 		
 	}
 	
-	public Map<Double, String> getVersionDetails(String entityId) throws Exception{
-	   Map<Double, String> versionDetailsMap = new LinkedHashMap<>();
-	   List<JwsModuleVersion> jwsModuleVersions = moduleVersionDAO.getModuleVersionByEntityId(entityId);
-	   String dateFormatPattern = "dd/MM/yyyy HH:mm:ss";
-	   DateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
-	   if(!CollectionUtils.isEmpty(jwsModuleVersions)) {
-		   for (JwsModuleVersion jwsModuleVersion : jwsModuleVersions) {
-			   String updatedDateString = dateFormat.format(jwsModuleVersion.getUpdatedDate());
-			   versionDetailsMap.put(jwsModuleVersion.getVersionId(), updatedDateString);
-		   }
-	   }
-	   return versionDetailsMap;
+	public String getModuleJsonById(String moduleVersionId) throws Exception{
+		return moduleVersionDAO.getModuleJsonById(moduleVersionId);
+	}
+
+
+	public List<ModuleVersionVO> fetchModuleVersionDetails(String entityId) {
+		return versionRepository.getModuleVersionById(entityId);
 	}
 	
-	public String getModuleData(String entityId, Double versionId) throws Exception{
-	   String moduleJson = moduleVersionDAO.getModuleData(entityId, versionId);
-	   ObjectMapper objectMapper = new ObjectMapper();
-	   String templateData = objectMapper.readValue(moduleJson, String.class);
-	   return templateData;
+	public String getLastUpdatedJsonData(String entityId) throws Exception {
+		return moduleVersionDAO.getLastUpdatedJsonData(entityId);
 	}
 
 	

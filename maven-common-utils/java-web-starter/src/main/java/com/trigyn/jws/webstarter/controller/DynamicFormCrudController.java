@@ -19,17 +19,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
+import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping("/cf")
@@ -49,10 +48,6 @@ public class DynamicFormCrudController {
 	
 	@Autowired
 	private MenuService			menuService					= null;
-	
-	@Autowired
-	private ModuleVersionService templateVersionService	= null;
-	
 	
 	@PostMapping(value = "/aedf", produces = {MediaType.TEXT_HTML_VALUE})
 	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse) throws IOException {
@@ -74,7 +69,7 @@ public class DynamicFormCrudController {
 	@PostMapping(value="/sdfd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public String saveDynamicFormDetails(
 			@RequestBody MultiValueMap<String, String> formData) throws Exception {
-		return dynamicFormCrudService.saveDynamicFormDetails(formData);
+		return dynamicFormCrudService.saveDynamicFormDetails(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
 	
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
@@ -117,13 +112,6 @@ public class DynamicFormCrudController {
 		dynamicFormCrudService.uploadFormsToDB(null);
 	}
 	
-	@GetMapping(value = "/vdfd")
-	@ResponseBody
-	public String getTemplateDataByVersion(@RequestHeader(name = "form-id", required = true) String formId
-			,@RequestHeader(name = "version-id", required = true) Double versionId) throws Exception{
-		return templateVersionService.getModuleData(formId, versionId);
-	}
-	
 	@PostMapping(value = "/ddfbi")
 	public void downloadFormByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		String formId = request.getParameter("formId");
@@ -135,5 +123,5 @@ public class DynamicFormCrudController {
 		String formName = request.getParameter("formName");
 		dynamicFormCrudService.uploadFormsToDB(formName);
 	}
-
+	
 }

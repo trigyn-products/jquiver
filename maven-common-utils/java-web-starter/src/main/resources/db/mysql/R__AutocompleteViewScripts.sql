@@ -291,6 +291,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/aea" method="GET" id="formACRedirect">
 	<input type="hidden" id="acId" name="acId">
 </form>
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="autocomplete">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/adl">
+</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
@@ -324,7 +330,17 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	function editAutocomplete(uiObject) {
 		const autocompleteId = uiObject.rowData.autocompleteId;
-	  	return ''<span id="''+autocompleteId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = ''<span id="''+autocompleteId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+autocompleteId+''_entity" name="''+autocompleteId+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
+		
 	}
 
     function submitForm(sourceElement) {
@@ -336,6 +352,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
       	$("#formACRedirect").submit();
     }
     
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+	
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
@@ -377,13 +401,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>Autocomplete Id </label>
-	        <input id="autoId" name="autoCompleteId" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
+	        <input id="autoId" name="autocompleteId" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
 			</div>
 	    </div>
 	    <div class="col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoDesc">Autocomplete Description </label>
-	        <input name="autoCompleteDescription" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
+	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
 			</div>
 	    </div>
 	</div>
@@ -402,7 +426,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 	
 	
-   <input type="hidden" name="autoCompleteSelectQuery" id="acSelectQuery">
+   <input type="hidden" name="autocompleteSelectQuery" id="acSelectQuery">
    
   </form>
   <input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
@@ -456,11 +480,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 DROP PROCEDURE IF EXISTS autocompleteListing;
 CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' select au.ac_id as autocompleteId, au.ac_description as autocompleteDescription, au.ac_select_query as acQuery ';
-  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId ');
+  SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
+  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
   SET @fromString  = ' FROM autocomplete_details au ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id ");
   SET @whereString = ' ';
-  SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  SET @groupByString = ' GROUP BY au.ac_id ';
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
@@ -469,15 +496,16 @@ BEGIN
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) as cnt');
+  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
 END;
+
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,autocompleteTypeId', 2);
 

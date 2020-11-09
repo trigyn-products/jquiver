@@ -97,9 +97,12 @@ public class ResourceBundle implements Serializable {
 				&& Objects.equals(text, other.text);
 	}
 
-    
-	
-
-    
-    
+	public ResourceBundle getObject() {
+		ResourceBundlePK rpk = new ResourceBundlePK(id.getResourceKey(), id.getLanguageId());
+		ResourceBundle resourceBundle = new ResourceBundle(rpk, text);
+		Language lang = new Language(language.getLanguageId(), language.getLanguageName(), language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());
+		resourceBundle.setLanguage(lang);
+		return resourceBundle;
+	}
+  
 }

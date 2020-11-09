@@ -49,7 +49,14 @@ public class JwsEntityRoleAssociation {
 	
 	@Column(name = "is_active")
 	private Integer isActive = null;
+	
+	@Column(name="module_type_id")
+	private Integer moduleTypeId = null;
 
+	@ManyToOne
+	@JoinColumn(name="role_id" , referencedColumnName = "role_id",insertable = false, updatable = false)
+	private JwsRole jwsRole =  null;
+	
 	public String getEntityRoleId() {
 		return entityRoleId;
 	}
@@ -114,9 +121,30 @@ public class JwsEntityRoleAssociation {
 		this.isActive = isActive;
 	}
 
-	
-	
-	
-	
-	
+	public JwsRole getJwsRole() {
+		return jwsRole;
+	}
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setJwsRole(JwsRole jwsRole) {
+		this.jwsRole = jwsRole;
+	}
+	public void setModuleTypeId(Integer moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
+
+	public JwsEntityRoleAssociation getObject() {
+		JwsEntityRoleAssociation role = new JwsEntityRoleAssociation();
+		role.setEntityRoleId(entityRoleId);
+		role.setEntityId(entityId);
+		role.setModuleId(moduleId);
+		role.setRoleId(roleId);
+		role.setLastUpdatedDate(lastUpdatedDate);
+		role.setLastUpdatedBy(lastUpdatedBy);
+		role.setIsActive(isActive);
+		role.setJwsRole(jwsRole.getObject());
+		return role;
+	}
 }

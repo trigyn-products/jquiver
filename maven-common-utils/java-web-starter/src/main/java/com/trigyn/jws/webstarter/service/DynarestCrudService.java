@@ -106,11 +106,7 @@ public class DynarestCrudService {
 				dynamicRestDaoDetailsList.add(dynamicRestDaoDetail);
 				
 			}
-			dynamicRestDaoDetailsList = dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
-			for (JwsDynamicRestDaoDetail dynamicRestDao : dynamicRestDaoDetailsList) {
-				moduleVersionService.saveModuleVersion(dynamicRestDao
-						,dynamicRestId, dynamicRestDao.getJwsDaoDetailsId(), "jws_dynamic_rest_dao_details");
-			}
+			dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
 		}
 		
 		return dynamicRestId;

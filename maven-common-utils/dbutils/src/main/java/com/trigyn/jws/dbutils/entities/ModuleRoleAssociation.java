@@ -33,4 +33,10 @@ public class ModuleRoleAssociation implements Serializable {
 		this.moduleListing = moduleListing;
 	}
 
+	public ModuleRoleAssociation getObject() {
+		ModuleRoleAssociation moduleRoleAssociation = new ModuleRoleAssociation();
+		moduleRoleAssociation.setId(id.getObject());
+		return moduleRoleAssociation;
+	}
+
 }

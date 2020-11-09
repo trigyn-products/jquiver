@@ -165,5 +165,11 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.save
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addFileConfiguration', 1, 'Add File Configuration'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselectLocalStorage',1,'Multiselect(Local Storage)');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.revisionTime',1,'Revision Time');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.history',1,'History');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.currentContent',1,'Current Content');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageRoleModules',1,'Manage Role Modules');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageEntityRoles',1,'Manage Entity Roles');
 
 SET FOREIGN_KEY_CHECKS=1;

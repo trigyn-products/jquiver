@@ -151,5 +151,9 @@ public class GridDetails implements Serializable{
 				+ queryType + ", gridTypeId=" + gridTypeId + "]";
 	}
 
+	public GridDetails getObject() {
+		return this;
+	}
+	
 
 }

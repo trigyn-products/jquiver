@@ -18,8 +18,8 @@ public class PropertyMasterDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	private final static String QUERY_TO_GET_PROPERTY_MASTER_DETAILS = " SELECT pm.propertyValue FROM PropertyMaster pm WHERE pm.id.ownerType=:ownerType"
-			+ " AND pm.id.ownerId=:ownerId AND pm.id.propertyName=:propertyName";
+	private final static String QUERY_TO_GET_PROPERTY_MASTER_DETAILS = " SELECT pm.propertyValue FROM PropertyMaster pm WHERE pm.ownerType=:ownerType"
+			+ " AND pm.ownerId=:ownerId AND pm.propertyName=:propertyName";
 
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {
 		String propertyValue = null;

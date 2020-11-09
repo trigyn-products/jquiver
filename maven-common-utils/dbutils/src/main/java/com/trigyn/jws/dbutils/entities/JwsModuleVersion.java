@@ -52,13 +52,17 @@ public class JwsModuleVersion implements Serializable {
 	private Double versionId						= null;	
 	
 	@Column(name="module_json_checksum", nullable=false)
-	private String moduleJsonChecksum				= null;	
+	private String moduleJsonChecksum				= null;
+	
+	@Column(name="source_type_id")
+	private Integer sourceTypeId			= null;
 
 	public JwsModuleVersion() {
 	}
 
 	public JwsModuleVersion(String moduleVersionId, String entityId, String entityName, String parentEntityId,
-			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum) {
+			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum
+			, Integer sourceTypeId) {
 		this.moduleVersionId 		= moduleVersionId;
 		this.entityId			 	= entityId;
 		this.entityName 			= entityName;
@@ -68,6 +72,7 @@ public class JwsModuleVersion implements Serializable {
 		this.updatedDate 			= updatedDate;
 		this.versionId 				= versionId;
 		this.moduleJsonChecksum 	= moduleJsonChecksum;
+		this.sourceTypeId 			= sourceTypeId;
 	}
 
 	/**
@@ -196,10 +201,24 @@ public class JwsModuleVersion implements Serializable {
 		this.moduleJsonChecksum = moduleJsonChecksum;
 	}
 
+	/**
+	 * @return the sourceTypeId
+	 */
+	public Integer getSourceTypeId() {
+		return sourceTypeId;
+	}
+
+	/**
+	 * @param sourceTypeId the sourceTypeId to set
+	 */
+	public void setSourceTypeId(Integer sourceTypeId) {
+		this.sourceTypeId = sourceTypeId;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId,
-				updatedBy, versionId);
+				sourceTypeId, updatedBy, updatedDate, versionId);
 	}
 
 	@Override
@@ -218,8 +237,9 @@ public class JwsModuleVersion implements Serializable {
 				&& Objects.equals(moduleJson, other.moduleJson)
 				&& Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
 				&& Objects.equals(moduleVersionId, other.moduleVersionId)
-				&& Objects.equals(parentEntityId, other.parentEntityId) && Objects.equals(updatedBy, other.updatedBy)
-				&& Objects.equals(versionId, other.versionId);
+				&& Objects.equals(parentEntityId, other.parentEntityId)
+				&& Objects.equals(sourceTypeId, other.sourceTypeId) && Objects.equals(updatedBy, other.updatedBy)
+				&& Objects.equals(updatedDate, other.updatedDate) && Objects.equals(versionId, other.versionId);
 	}
 
 	@Override
@@ -227,14 +247,8 @@ public class JwsModuleVersion implements Serializable {
 		return "JwsModuleVersion [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName="
 				+ entityName + ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", updatedBy="
 				+ updatedBy + ", updatedDate=" + updatedDate + ", versionId=" + versionId + ", moduleJsonChecksum="
-				+ moduleJsonChecksum + ", getTemplateVersionId()=" + getModuleVersionId() + ", getEntityId()="
-				+ getEntityId() + ", getEntityName()=" + getEntityName() + ", getParentEntityId()="
-				+ getParentEntityId() + ", getModuleJson()=" + getModuleJson() + ", getUpdatedBy()=" + getUpdatedBy()
-				+ ", getUpdatedDate()=" + getUpdatedDate() + ", getVersionId()=" + getVersionId()
-				+ ", getJsonChecksum()=" + getModuleJsonChecksum() + ", hashCode()=" + hashCode() + "]";
+				+ moduleJsonChecksum + ", sourceTypeId=" + sourceTypeId + "]";
 	}
 
-
-	
 
 }

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,28 +16,36 @@ import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
 import com.trigyn.jws.dashboard.utility.Constants;
+import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.templating.utils.Constant;
 
 @Component("dashlet")
 public class DashletModule implements DownloadUploadModule<Dashlet> {
 
 	@Autowired
-    private DashletDAO dashletDAO 					= null;
+    private DashletDAO dashletDAO 						= null;
     
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO		= null;
+	private PropertyMasterDAO propertyMasterDAO			= null;
     
 	@Autowired
-	private FileUtilities fileUtilities 			= null;
+	private FileUtilities fileUtilities 				= null;
 	
 	@Autowired
-    private IDashletRepository iDashletRepository 	= null;
-	
+    private IDashletRepository iDashletRepository 		= null;
+    
+	@Autowired
+	private ModuleVersionService moduleVersionService	= null;
+
+	private Map<String, String> moduleDetailsMap 		= new HashMap<>();
 	
 	@Override
-	public void downloadCodeToLocal(Dashlet a_dashlet) throws Exception {
+	public void downloadCodeToLocal(Dashlet a_dashlet, String folderLocation) throws Exception {
+		
 		List<Dashlet> dashlets = new ArrayList<>();
 		if(a_dashlet != null) {
 			dashlets.add(a_dashlet);
@@ -44,10 +54,10 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		}
 		
 		String ftlCustomExtension 		= ".tgn";
-		String templateDirectory 		= "Dashlets";
+		String templateDirectory 		= Constants.DASHLET_DIRECTORY_NAME;
 		String selectQuery 				= "selectQuery";
 		String htmlBody 				= "htmlContent";
-		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+//		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
 		for (Dashlet dashlet : dashlets) {
@@ -76,6 +86,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			if(isCheckSumChanged) {
 				iDashletRepository.save(dashlet);
 			}	
+			moduleDetailsMap.put(dashlet.getDashletId(), dashletName);
 		}
 		
 	}
@@ -84,11 +95,11 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user 				= "admin";
-		String ftlCustomExtension 	= ".tgn";
-		String templateDirectory 	= "Dashlets";
-		String selectQuery 			= "selectQuery";
-		String htmlBody 			= "htmlContent";
-		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		String ftlCustomExtension 	= Constants.CUSTOM_FILE_EXTENSION;
+		String templateDirectory 	= Constants.DASHLET_DIRECTORY_NAME;
+		String selectQuery 			= Constants.DASHLET_QUERY_FILE_NAME;
+		String htmlBody 			= Constants.DASHLET_HTML_FILE_NAME;
+		String folderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", Constants.TEMPORARY_STORAGE_PATH);
 		folderLocation 				= folderLocation +File.separator+templateDirectory;
 		File directory 				= new File(folderLocation);
 		if(!directory.exists()) {
@@ -151,6 +162,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 							dashlet.setDashletBodyChecksum(htmlCheckSum);
 						}
 						iDashletRepository.save(dashlet);
+						saveDashletVersioning(dashlet);
 					}	// saveQuery
 				}else {
 					throw new Exception("Invalid count of files for saving dashlet"+currentDirectoryName);
@@ -160,4 +172,29 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		
 	}
 
+	public Map<String, String> getModuleDetailsMap() {
+		return moduleDetailsMap;
+	}
+
+	public void setModuleDetailsMap(Map<String, String> moduleDetailsMap) {
+		this.moduleDetailsMap = moduleDetailsMap;
+	}
+	
+	public void saveDashletVersioning(Dashlet dashlet) throws Exception {
+		DashletVO dashletVO = new DashletVO();
+		dashletVO.setDashletId(dashletVO.getDashletId());
+		dashletVO.setDashletName(dashlet.getDashletName());
+		dashletVO.setDashletTitle(dashlet.getDashletTitle());
+		dashletVO.setXCoordinate(dashlet.getXCoordinate());
+		dashletVO.setYCoordinate(dashlet.getYCoordinate());
+		dashletVO.setWidth(dashlet.getWidth());
+		dashletVO.setHeight(dashlet.getHeight());
+		dashletVO.setHeight(dashlet.getHeight());
+		dashletVO.setDashletQuery(dashlet.getDashletQuery());
+		dashletVO.setDashletBody(dashlet.getDashletBody());
+		dashletVO.setShowHeader(dashlet.getShowHeader());
+		dashletVO.setContextId(dashlet.getContextId());
+		dashletVO.setIsActive(dashletVO.getIsActive());
+		moduleVersionService.saveModuleVersion(dashletVO,null, dashlet.getDashletId(), "dashlet", Constants.UPLOAD_SOURCE_VERSION_TYPE);
+	}
 }

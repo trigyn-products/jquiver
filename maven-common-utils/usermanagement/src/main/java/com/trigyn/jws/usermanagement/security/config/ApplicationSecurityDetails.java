@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
-import com.trigyn.jws.dbutils.entities.PropertyMasterPK;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 
 @Component
@@ -20,11 +19,9 @@ public class ApplicationSecurityDetails {
 
 	public ApplicationSecurityDetails(PropertyMasterRepository propertyMasterRepository) throws Exception {
 		super();
-		PropertyMasterPK id = new PropertyMasterPK("system", "system", "enable-user-management");
-		PropertyMaster propertyMaster = propertyMasterRepository.findById(id).orElse(new PropertyMaster());
+		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "enable-user-management");
 		this.isAuthenticationEnabled = Boolean.parseBoolean(propertyMaster.getPropertyValue());
-		PropertyMasterPK idAuthType = new PropertyMasterPK("system", "system", "authentication-type");
-		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findById(idAuthType).orElse(new PropertyMaster());
+		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
 		this.authenticationType = propertyMasterAuthType.getPropertyValue();
 	}
 

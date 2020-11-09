@@ -1,5 +1,6 @@
 package com.trigyn.jws.usermanagement.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -72,6 +73,19 @@ public class JwsRole {
 	public void setJwsRoleMasterModulesAssociation(List<JwsRoleMasterModulesAssociation> jwsRoleMasterModulesAssociation) {
 		this.jwsRoleMasterModulesAssociation = jwsRoleMasterModulesAssociation;
 	}
-	
-	
+
+	public JwsRole getObject() {
+		JwsRole role = new JwsRole();
+		role.setRoleId(roleId);
+		role.setRoleName(roleName);
+		role.setRoleDescription(roleDescription);
+		role.setIsActive(isActive);
+		
+		List<JwsRoleMasterModulesAssociation> jrmmaOthr = new ArrayList<>();
+		for(JwsRoleMasterModulesAssociation jrmma : jwsRoleMasterModulesAssociation) {
+			jrmmaOthr.add(jrmma.getObject());
+		}
+		role.setJwsRoleMasterModulesAssociation(jrmmaOthr);
+		return role;
+	}
 }

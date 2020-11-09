@@ -10,8 +10,9 @@ CREATE PROCEDURE `dashboardMasterListing`(dashboardName varchar(50), dashboardTy
 BEGIN
   SET @resultQuery = CONCAT(" SELECT db.dashboard_id AS dashboardId, db.dashboard_name AS dashboardName, db.dashboard_type AS dashboardType "
   ," , db.created_by AS createdBy, date_format(db.created_date, '%d %b %Y') AS createdDate,date_format(db.last_updated_date, '%d %b %Y') AS lastUpdatedDate "
-  ," ,cm.context_description AS contextDescription ") ;
+  ," ,cm.context_description AS contextDescription, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @fromString  = ' FROM dashboard AS db INNER JOIN context_master cm ON db.context_id = cm.context_id ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = db.dashboard_id ");
   SET @whereString = ' WHERE db.is_deleted = 0';
   
   IF NOT dashboardName IS NULL THEN
@@ -42,6 +43,8 @@ BEGIN
   
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
+  SET @groupByString = ' GROUP BY db.dashboard_id ';
+  
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
@@ -49,9 +52,9 @@ BEGIN
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
@@ -64,11 +67,12 @@ END;
 DROP PROCEDURE IF EXISTS  dashletMasterListing;
 CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = CONCAT("select dl.dashlet_id as dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
+  SET @resultQuery = CONCAT("SELECT dl.dashlet_id AS dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
   ," date_format(dl.created_date,'%d %b %Y') AS createdDate,date_format(dl.updated_date,'%d %b %Y') AS updatedDate, "
-  ," dl.updated_by as updatedBy, dl.created_by as createdBy,dl.is_active AS status ") ;
+  ," dl.updated_by AS updatedBy, dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
-  SET @fromString  = ' from dashlet AS dl';
+  SET @fromString  = ' FROM dashlet AS dl';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = dl.dashlet_id ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
@@ -76,72 +80,73 @@ BEGIN
   
   IF NOT dashletName IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND dashlet_name LIKE ''%',dashletName,'%''');
+      SET @whereString = CONCAT(@whereString,' AND dl.dashlet_name LIKE ''%',dashletName,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE dashlet_name LIKE ''%',dashletName,'%''');
+      SET @whereString = CONCAT('WHERE dl.dashlet_name LIKE ''%',dashletName,'%''');
     END IF;  
   END IF;
   
   IF NOT dashletTitle IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND dashlet_title LIKE ''%',dashletTitle,'%''');
+      SET @whereString = CONCAT(@whereString,' AND dl.dashlet_title LIKE ''%',dashletTitle,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE dashlet_title LIKE ''%',dashletTitle,'%''');
+      SET @whereString = CONCAT('WHERE dl.dashlet_title LIKE ''%',dashletTitle,'%''');
     END IF;  
   END IF;
   
   IF NOT createdDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(dl.created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
+      SET @whereString = CONCAT('WHERE date_format(dl.created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
     END IF;  
   END IF;
   
   IF NOT createdBy IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND created_by LIKE ''%',createdBy,'%''');
+      SET @whereString = CONCAT(@whereString,' AND dl.created_by LIKE ''%',createdBy,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE created_by LIKE ''%',createdBy,'%''');
+      SET @whereString = CONCAT('WHERE dl.created_by LIKE ''%',createdBy,'%''');
     END IF;  
   END IF;
   
     IF NOT updatedDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(dl.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT('WHERE date_format(dl.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
     END IF;  
   END IF;
   
   IF NOT updatedBy IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND updated_by LIKE ''%',updatedBy,'%''');
+      SET @whereString = CONCAT(@whereString,' AND dl.updated_by LIKE ''%',updatedBy,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE updated_by LIKE ''%',updatedBy,'%''');
+      SET @whereString = CONCAT('WHERE dl.updated_by LIKE ''%',updatedBy,'%''');
     END IF;  
   END IF;
   
   
   IF NOT status IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND is_active LIKE ''%',status,'%''');
+      SET @whereString = CONCAT(@whereString,' AND dl.is_active LIKE ''%',status,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE is_active LIKE ''%',status,'%''');
+      SET @whereString = CONCAT('WHERE dl.is_active LIKE ''%',status,'%''');
     END IF;  
   END IF; 
   
+  SET @groupByString = ' GROUP BY dl.dashlet_id ';
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY updated_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY dl.updated_date DESC');
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) as cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
@@ -157,59 +162,60 @@ VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 
 DROP PROCEDURE IF EXISTS dynamicFormListing;
 CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = CONCAT("select df.form_id as formId, df.form_description AS formDescription,df.form_name AS formName, "
-  ," date_format(df.created_date,'%d %b %Y') AS createdDate, df.created_by as createdBy") ;
-  SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId '); 
+  SET @resultQuery = CONCAT("SELECT df.form_id AS formId, df.form_description AS formDescription,df.form_name AS formName, "
+  ," date_format(df.created_date,'%d %b %Y') AS createdDate, df.created_by AS createdBy ") ;
+  SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId, COUNT(jmv.version_id) AS revisionCount  '); 
   SET @fromString  = ' from dynamic_form AS df ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version  jmv ON jmv.entity_id = df.form_id ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
-  SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   
   IF NOT formName IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND form_name LIKE ''%',formName,'%''');
+      SET @whereString = CONCAT(@whereString,' AND df.form_name LIKE ''%',formName,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE form_name LIKE ''%',formName,'%''');
+      SET @whereString = CONCAT('WHERE df.form_name LIKE ''%',formName,'%''');
     END IF;  
   END IF;
   
   IF NOT formDescription IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND form_description LIKE ''%',formDescription,'%''');
+      SET @whereString = CONCAT(@whereString,' AND df.form_description LIKE ''%',formDescription,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE form_description LIKE ''%',formDescription,'%''');
+      SET @whereString = CONCAT('WHERE df.form_description LIKE ''%',formDescription,'%''');
     END IF;  
   END IF;
   
   IF NOT createdDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(df.created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
+      SET @whereString = CONCAT('WHERE date_format(df.created_date,''',@dateFormat,''') LIKE ''%',createdDate,'%''');
     END IF;  
   END IF;
   
   IF NOT createdBy IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND created_by LIKE ''%',createdBy,'%''');
+      SET @whereString = CONCAT(@whereString,' AND df.created_by LIKE ''%',createdBy,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE created_by LIKE ''%',createdBy,'%''');
+      SET @whereString = CONCAT('WHERE df.created_by LIKE ''%',createdBy,'%''');
     END IF;  
   END IF;
   
-  
+  SET @groupByString = ' GROUP BY df.form_id ';
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY created_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY df.created_date DESC');
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) as cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
@@ -225,8 +231,9 @@ CREATE PROCEDURE `templateListing`(templateName varchar(100), templateTypeId INT
 , forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy, date_format(tm.updated_date, ''%d %b %Y'') as updatedDate ';
-  SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId ');
+  SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @fromString  = ' FROM template_master AS tm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = tm.template_id ");
   SET @whereString = '';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -255,6 +262,8 @@ BEGIN
   END IF;
 
   
+  SET @groupByString = ' GROUP BY tm.template_id ';
+  
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
@@ -262,9 +271,9 @@ BEGIN
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
 
@@ -284,8 +293,9 @@ VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource 
 DROP PROCEDURE IF EXISTS dbResourceListing;
 CREATE PROCEDURE dbResourceListing (resourceKey varchar(100), languageName varchar(100), resourceBundleText text, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText ';
+  SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
   SET @fromString  = ' FROM resource_bundle AS rb INNER JOIN language AS lang ON lang.language_id = rb.language_id ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = rb.resource_key ");
   
   IF languageName IS NULL THEN  
     SET @whereString = ' WHERE lang.language_id = 1 ';
@@ -304,6 +314,8 @@ BEGIN
     SET @whereString = CONCAT(@whereString,' AND rb.text LIKE ''%',@resourceBundleText,'%''');
   END IF;
   
+  SET @groupByString = ' GROUP BY rb.resource_key ';
+  
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
@@ -313,9 +325,9 @@ BEGIN
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@selectQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@selectQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@selectQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@selectQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
@@ -329,8 +341,9 @@ CREATE PROCEDURE `gridDetails`(gridId varchar(100), gridName varchar(500), gridD
 , gridColumnName varchar(500),gridTypeId INT(11), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT gd.grid_id AS gridId, gd.grid_name AS gridName, gd.grid_description AS gridDesc, gd.grid_table_name AS gridTableName, gd.grid_column_names AS gridColumnName ';
-  SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId ');
+  SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @fromString  = ' FROM grid_details AS gd ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gd.grid_id ");
 
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -360,16 +373,18 @@ BEGIN
     SET @whereString = CONCAT(@whereString,' WHERE grid_column_names LIKE ''%',@gridColumnName,'%''');
   END IF;
   
+  SET @groupByString = ' GROUP BY gd.grid_id ';
+    
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
       SET @orderBy = CONCAT(' ORDER BY grid_id ASC');
   END IF;
   
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
  PREPARE stmt FROM @queryString;
@@ -384,95 +399,98 @@ REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name,
 DROP PROCEDURE IF EXISTS notificationlisting;
 CREATE PROCEDURE notificationlisting(targetPlatform varchar(100), messageType varchar(500), validFrom varchar(500), messageText varchar(500), validTill varchar(100), messageFormat varchar(100), selectionCriteria varchar(500), updatedBy varchar(100), updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' select notification_id as notificationId, target_platform as targetPlatform, date_format(message_valid_from, ''%d %b %Y'') as validFrom, date_format(message_valid_till, ''%d %b %Y'') as validTill, message_text as messageText,  ';
-  SET @resultQuery = CONCAT(@resultQuery, ' message_type as messageType, message_format as messageFormat, selection_criteria as selectionCriteria, updated_by as updatedBy, date_format(updated_date, ''%d %b %Y'') as updatedDate  ');
-  SET @fromString  = ' from generic_user_notification ';
+  SET @resultQuery = ' SELECT gun.notification_id AS notificationId, gun.target_platform AS targetPlatform, date_format(gun.message_valid_from, ''%d %b %Y'') AS validFrom, date_format(gun.message_valid_till, ''%d %b %Y'') AS validTill, message_text AS messageText,  ';
+  SET @resultQuery = CONCAT(@resultQuery, ' gun.message_type AS messageType, gun.message_format AS messageFormat, gun.selection_criteria AS selectionCriteria, gun.updated_by AS updatedBy, date_format(gun.updated_date, ''%d %b %Y'') AS updatedDate, COUNT(jmv.version_id) AS revisionCount ');
+  SET @fromString  = ' FROM generic_user_notification AS gun';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gun.notification_id ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
-  SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   IF NOT targetPlatform IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND target_platform LIKE ''%',targetPlatform,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.target_platform LIKE ''%',targetPlatform,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE target_platform LIKE ''%',targetPlatform,'%''');
+      SET @whereString = CONCAT('WHERE gun.target_platform LIKE ''%',targetPlatform,'%''');
     END IF;  
   END IF;
   
   IF NOT messageType IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND message_type LIKE ''%',messageType,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.message_type LIKE ''%',messageType,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE message_type LIKE ''%',messageType,'%''');
+      SET @whereString = CONCAT('WHERE gun.message_type LIKE ''%',messageType,'%''');
     END IF;  
   END IF;
   
   IF NOT validFrom IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(message_valid_from,''',@dateFormat,''') LIKE ''%',validFrom,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(gun.message_valid_from,''',@dateFormat,''') LIKE ''%',validFrom,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(message_valid_from,''',@dateFormat,''') LIKE ''%',validFrom,'%''');
+      SET @whereString = CONCAT('WHERE date_format(gun.message_valid_from,''',@dateFormat,''') LIKE ''%',validFrom,'%''');
     END IF;  
   END IF;
   
   IF NOT messageText IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND message_text LIKE ''%',messageText,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.message_text LIKE ''%',messageText,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE message_text LIKE ''%',messageText,'%''');
+      SET @whereString = CONCAT('WHERE gun.message_text LIKE ''%',messageText,'%''');
     END IF;  
   END IF;
   
   IF NOT validTill IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(message_valid_till,''',@dateFormat,''') LIKE ''%',validTill,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(gun.message_valid_till,''',@dateFormat,''') LIKE ''%',validTill,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(message_valid_till,''',@dateFormat,''') LIKE ''%',validTill,'%''');
+      SET @whereString = CONCAT('WHERE date_format(gun.message_valid_till,''',@dateFormat,''') LIKE ''%',validTill,'%''');
     END IF;  
   END IF;
   
   IF NOT messageFormat IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND message_format LIKE ''%',messageFormat,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.message_format LIKE ''%',messageFormat,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE message_format LIKE ''%',messageFormat,'%''');
+      SET @whereString = CONCAT('WHERE gun.message_format LIKE ''%',messageFormat,'%''');
     END IF;  
   END IF;
   
   IF NOT selectionCriteria IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND selection_criteria LIKE ''%',selectionCriteria,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.selection_criteria LIKE ''%',selectionCriteria,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE selection_criteria LIKE ''%',selectionCriteria,'%''');
+      SET @whereString = CONCAT('WHERE gun.selection_criteria LIKE ''%',selectionCriteria,'%''');
     END IF;  
   END IF;
   
   IF NOT updatedBy IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND updated_by LIKE ''%',updatedBy,'%''');
+      SET @whereString = CONCAT(@whereString,' AND gun.updated_by LIKE ''%',updatedBy,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE updated_by LIKE ''%',updatedBy,'%''');
+      SET @whereString = CONCAT('WHERE gun.updated_by LIKE ''%',updatedBy,'%''');
     END IF;  
   END IF;
   
   IF NOT updatedDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(gun.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT('WHERE date_format(gun.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
     END IF;  
   END IF;
+  
+  SET @groupByString = ' GROUP BY gun.notification_id ';
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY updated_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY gun.updated_date DESC');
   END IF;
   
 	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) as cnt');
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
   ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
   
   

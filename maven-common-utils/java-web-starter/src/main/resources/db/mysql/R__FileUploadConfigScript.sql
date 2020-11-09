@@ -127,11 +127,25 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 				<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif" value="" class="form-control">
 			</div>
 		</div>
-    		<div class="col-3">
+    		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<span class="asteriskmark">*</span>
-				<label for="maxFileSize">Max file size(In Bytes)</label>
-                <input type="number" id="maxFileSize" name="maxFileSize"  value="" maxlength="10" class="form-control">
+				<label for="maxFileSize">Max file size</label>
+                <div class="row">
+                    <div class="col-9">
+                        <input type="number" id="maxFileSizeUi" name="maxFileSizeUi" value="" maxlength="10" class="form-control">
+                        <input type="hidden" id="maxFileSize" name="maxFileSize" value="" maxlength="10" class="form-control">
+                    </div>
+                    <div class="col-3">
+                        <span class="float-right">
+                            <select id="size" class="form-control">
+                                <option value="1">Bytes</option>
+                                <option value="1000">KiloBytes</option>
+                                <option value="1000000">MegaBytes</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
 			</div>
 		</div>
     		<div class="col-3">
@@ -186,6 +200,7 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
       		$("#fileUploadConfigId").val(''${resultSetList?api.get("fileUploadConfigId")}'');
       		$("#fileTypeSupported").val(''${resultSetList?api.get("fileTypeSupported")}'');
             $("#maxFileSize").val(''${resultSetList?api.get("maxFileSize")}'');
+            $("#maxFileSizeUi").val(''${resultSetList?api.get("maxFileSize")}'');
            	$("#noOfFiles").val(''${resultSetList?api.get("noOfFiles")}'');
             $("#noOfFilesValue").html(''${resultSetList?api.get("noOfFiles")}'');
       	</#list>
@@ -209,6 +224,8 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
         if(isMultipleFiles){
             $("#isMultipleFiles").val(1);
         }
+        let maxSize = $("#maxFileSizeUi").val() * Number.parseInt($("#size").val());
+        $("#maxFileSize").val(maxSize);
 		let formData = $("#addEditForm").serialize()+ "&formId="+formId;
 		if(edit === 1) {
 		    formData = formData + "&edit="+edit;

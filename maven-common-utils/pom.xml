@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.trigyn</groupId>
 	<artifactId>commonutils</artifactId>
-	<version>1.3.11-SNAPSHOT</version>
+	<version>1.3.12-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>Common utils</description>
 	<url>https://github.com/trigyn-products/java-web-starter</url>
@@ -73,6 +73,7 @@
 		<module>typeahead</module>
 		<module>dynamic-form</module>
 		<module>dynamic-rest</module>
+		<module>application-metrics</module>
 		<module>java-web-starter</module>
 	</modules>
 

@@ -11,8 +11,6 @@ import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
@@ -37,10 +35,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return data;
 	}
 
-	public void saveFormData(String saveTemplateQuery) {
-		KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		namedParameterJdbcTemplate.update(saveTemplateQuery, null, generatedKeyHolder);
-		System.out.println(generatedKeyHolder.getKeyList());
+	public void saveFormData(String saveTemplateQuery, Map<String, Object> parameters) {
+		namedParameterJdbcTemplate.update(saveTemplateQuery, parameters);
 	}
 
 	public void saveDynamicFormData(DynamicForm dynamicForm) {
@@ -89,7 +85,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
 		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, COLUMN_NAME as tableColumnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, " + 
 				"REPLACE(CONCAT(UPPER(SUBSTRING(COLUMN_NAME,1,1)),LOWER(SUBSTRING(COLUMN_NAME,2))), '_', ' ') as fieldName, " + 
-				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" ELSE \"textarea\" END as columnType, " + 
+				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" WHEN DATA_TYPE LIKE (\"date%\") THEN \"datetime\" WHEN DATA_TYPE LIKE (\"time%\") THEN \"datetime\" ELSE \"textarea\" END as columnType, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN CHARACTER_MAXIMUM_LENGTH WHEN DATA_TYPE = \"int\" THEN NUMERIC_PRECISION ELSE CHARACTER_MAXIMUM_LENGTH END as columnSize " + 
 				"from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
 				"and TABLE_SCHEMA = :schemaName " + 
@@ -136,7 +132,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> getTableInformationByName(String tableName) {
-		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
+		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType,"
+				+ "CHARACTER_MAXIMUM_LENGTH as characterMaximumLength from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
 				"and TABLE_SCHEMA = :schemaName ORDER BY ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();){

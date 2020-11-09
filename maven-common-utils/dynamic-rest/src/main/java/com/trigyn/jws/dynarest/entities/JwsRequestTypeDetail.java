@@ -100,4 +100,11 @@ public class JwsRequestTypeDetail implements Serializable {
 				+ jwsRequestType + ", jwsDynamicRestDetails=" + jwsDynamicRestDetails + "]";
 	}
 
+	public JwsRequestTypeDetail getObject() {
+		JwsRequestTypeDetail dynaRest = new JwsRequestTypeDetail();
+		dynaRest.setJwsRequestType(jwsRequestType);
+		dynaRest.setJwsRequestTypeDetailsId(jwsRequestTypeDetailsId);
+		
+		return dynaRest;
+	}
 }

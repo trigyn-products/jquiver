@@ -4,10 +4,10 @@ package com.trigyn.jws.webstarter.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
@@ -18,17 +18,20 @@ public class TemplateCrudService {
 
 	@Autowired
 	private TemplateDAO templateDAO 					= null;
+
+	@Autowired
+	private PropertyMasterDAO propertyMasterDAO 		= null;
 	
 	@Autowired
-	@Qualifier("template")
-	private DownloadUploadModule downloadUploadModule 	= null;
+	private DownloadUploadModule<TemplateMaster> downloadUploadModule 	= null;
 	
 	public void downloadTemplates(String templateId) throws Exception {
-		if(!StringUtils.isBlank(templateId)) {
+		String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+    	if(!StringUtils.isBlank(templateId)) {
 			TemplateMaster templateMaster = templateDAO.findTemplateById(templateId);
-			downloadUploadModule.downloadCodeToLocal(templateMaster);
+			downloadUploadModule.downloadCodeToLocal(templateMaster, downloadFolderLocation);
 		}else {
-			downloadUploadModule.downloadCodeToLocal(null);
+			downloadUploadModule.downloadCodeToLocal(null, downloadFolderLocation);
 		}
 	}
 	

@@ -1,10 +1,14 @@
 package com.trigyn.jws.usermanagement.entities;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -26,6 +30,10 @@ public class JwsUser {
 	
 	@Column(name="email")
 	private String email = null;
+	
+	@Column(name="force_password_change")
+	private Integer forcePasswordChange = null;
+	// system generated password
 	
 	@Column(name="password")
 	private String password = null;
@@ -81,6 +89,14 @@ public class JwsUser {
 		this.isActive = isActive;
 	}
 
+	public Integer getForcePasswordChange() {
+		return forcePasswordChange;
+	}
 
+	public void setForcePasswordChange(Integer forcePasswordChange) {
+		this.forcePasswordChange = forcePasswordChange;
+	}
+
+	
 	
 }

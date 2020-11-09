@@ -166,9 +166,9 @@ $(function () {
 function editRole(uiObject) {
 	let roleId = uiObject.rowData.role_id;
 	if(rolesArray.includes(roleId)){ 
-		return ''<span id="''+roleId+''" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
+		return ''<span id="''+roleId+''" onclick="showErrorMessage();" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
 	}else{ 
-	  	return ''<span id="''+roleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+	  	return ''<span id="''+roleId+''" onclick="submitForm(this);" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
 	}
 }	
 function submitForm(element) {
@@ -177,6 +177,9 @@ function submitForm(element) {
 }
 function backToWelcomePage() {
 	location.href = "/cf/um";
+}
+function showErrorMessage(){ 
+	showMessage("You cant edit system roles","error");
 }
 
 </script>','admin','admin',now(), 2);
@@ -187,7 +190,8 @@ REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name
  ('roleGrid','role listing','List of roles','jws_role','*', 1, 2);
 
 REPLACE  INTO  jws_property_master (
-   owner_type
+property_master_id
+  ,owner_type
   ,owner_id
   ,property_name
   ,property_value
@@ -197,7 +201,8 @@ REPLACE  INTO  jws_property_master (
   ,app_version
   ,comments
 ) VALUES (
-   'system'
+	'51849604-1a8f-11eb-98d3-f48e38ab8cd7'
+  ,'system'
   ,'system'
   ,'enable-user-management'
   ,'false'
@@ -220,21 +225,17 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 </head>
 
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Manage RoleModule</h2> 
-		<div class="clearfix"></div>		
-	</div>
+<div class="box-block">
+ 
   <form method="post" name="addEditModule" id="addEditModule">
     
-        	<div class="row">
-          
+           
           <#if roles ??>
              <#assign roleIds = roles?map(role -> role?api.getRoleId())>
-           <table>
+           <table class="default-table-cls">
               <tr> 
                 <th>Modules</th>
-      		      <#list roles as role>
+                  <#list roles as role>
                   <th>  ${role?api.getRoleName()} </th>
                 </#list>
               </tr>
@@ -246,13 +247,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     <td>${module?api.getModuleName()}</td>
                     <#list roleIds as roleId>
                       <td>
-                      		<div class="onoffswitch">
-               					 <input type="checkbox" onchange="saveModuleData(this);" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
-                				<label class="onoffswitch-label" for="${module?api.getModuleId()}_${roleId}">
-                    				<span class="onoffswitch-inner"></span>
-                    				<span class="onoffswitch-switch"></span>
-               					 </label>
-           					 </div>	
+                            <div class="onoffswitch">
+                                 <input type="checkbox" onchange="saveModuleData(this);" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
+                                <label class="onoffswitch-label" for="${module?api.getModuleId()}_${roleId}">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                 </label>
+                             </div> 
                        
                        </td>
                     </#list>
@@ -262,11 +263,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
               
             </table> 
           </#if>  
-    	</div>
+         
     
   </form>
 
 <script>
+
 	contextPath = "${contextPath}";
   
   $(function(){
@@ -357,12 +359,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 				<input type="email" id="email" name="email"  value="" maxlength="2000" class="form-control">
 			</div>
 		</div>
+		<#if !isProfilePage >
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+				<label for="allowPasswordChange"><span class="asteriskmark">*</span>Force User to Change Password</label>
 	            <div class="onoffswitch">
-	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" />
-	                <label class="onoffswitch-label" for="isActive">
+	                <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" />
+	                <label class="onoffswitch-label" for="forcePasswordChange">
 	                    <span class="onoffswitch-inner"></span>
 	                    <span class="onoffswitch-switch"></span>
 	                </label>
@@ -371,6 +374,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
     	</div>
+    	<div class="row">
         <#list roles as role>
            	<div class="col-3">
          			<div class="col-inner-form full-form-fields">
@@ -389,8 +393,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         
                       
         </#list>
-      
-    
+      </div>
+      <#else>
+            </div>
+    </#if>
   </form>
   <div class="row">
 			<div class="col-12">
@@ -405,12 +411,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>
 <script>
 
+	let isProfilePage = ${isProfilePage?c};
 	contextPath = "${contextPath}";
   
   $(function(){
-     // disable admin and anonymous role
-         $("#ae6465b3-097f-11eb-9a16-f48e38ab9348").attr("disabled",false);
-     	$("#b4a0dda1-097f-11eb-9a16-f48e38ab9348").attr("disabled",false);
+     // disable authenticated role
+        $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+     	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
      
      
     // setting value on edit.
@@ -420,8 +427,8 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         $("#lastName").val("${jwsUser?api.getLastName()}");
         $("#email").val("${jwsUser?api.getEmail()}"); 
          $("#email").attr("disabled",true);
-         if(${jwsUser?api.getIsActive()} == 1){ 
-            	 $("#isActive").attr("checked",true);
+         if(${jwsUser?api.getForcePasswordChange()} == 1){ 
+            	 $("#forcePasswordChange").prop("checked",true);
             }
             
         <#if userRoleIds??>    
@@ -442,8 +449,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     userData.firstName =  $("#firstName").val();
      userData.lastName =  $("#lastName").val();
     userData.email = $("#email").val();
-    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
     userData.roleIds = [];
+    userData.isProfilePage = isProfilePage;
+    userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
     $.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
       userData.roleIds.push(value.id);
     });
@@ -509,13 +517,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 var userArray = ["111415ae-0980-11eb-9a16-f48e38ab9348"];
 $(function () {
 	let colM = [
-        { title: "First Name", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
+        { title: "${messageSource.getMessage(''jws.firstName'')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Last Name", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",
+        { title: "${messageSource.getMessage(''jws.lastName'')}", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Email", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
+        { title: "${messageSource.getMessage(''jws.email'')}", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Is Active", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
+        { title: "${messageSource.getMessage(''jws.isActive'')}", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "Action", width: 30, align: "center", render: editUser, dataIndx: "action" }
 	];
@@ -527,9 +535,9 @@ $(function () {
 function editUser(uiObject) {
 	let userId = uiObject.rowData.user_id;
 	if(userArray.includes(userId)){ 
-		return ''<span id="''+userId+''" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
+		return ''<span id="''+userId+''" onclick="showErrorMessage();" class= "grid_action_icons disable_cls"><i class="fa fa-pencil"></i></span>''.toString();
 	}else{ 
-  		return ''<span id="''+userId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+  		return ''<span id="''+userId+''" onclick="submitForm(this);" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
 	}
 }	
 function submitForm(element) {
@@ -539,7 +547,9 @@ function submitForm(element) {
 function backToWelcomePage() {
 	location.href = "/cf/um";
 }
-
+function showErrorMessage(){ 
+	showMessage("You cant edit admin user","error");
+}
 </script>','admin','admin',now(), 2);
 
 
@@ -548,20 +558,32 @@ REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name
  ('jwsUserListingGrid','user listing','List of users','jws_user','*', 1, 2);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
-('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '<div class="row">
-    <div class="col-12">
-        <form id="manageRoleModule" action="/cf/mp" method="post" class="margin-r-5 pull-left">
+('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '<div class="container">
+
+	
+<div class="cm-card">
+<div class="topband cm-card-header">
+        <h2 class="title-cls-name float-left">User Management</h2> 
+        <div class="float-right">
+             <form id="manageRoleModule" action="/cf/mp" method="post" class="margin-r-5 pull-left">
             <button type="submit" class="btn btn-primary"> Manage Permissions </button>
         </form>
-		
+        
         <button type="button" class="btn btn-primary" onclick="openManageRole();"> Manage Roles</button>
         
         <button type="button" class="btn btn-primary" onclick="openManageUser();"> Manage Users</button>
-  
-        </form>
-    </div>
+        
+        <button type="button" id="restartServer" style="display:none" class="btn btn-primary" onclick="restartServer();">Restart Server</button>
+        </div>
+        
+        <div class="clearfix"></div>        
+        </div>
+
+	<div class="cm-card-body">
+<div class="row">
+   
     <div class="col-12 margin-t-25">
-        <div class="col-4 float-left col-inner-form full-form-fields">
+        <div class="col-3 float-left col-inner-form full-form-fields">
             <label for="isActiveCheckbox"><span class="asteriskmark">*</span>Enable Authentication</label>
             <div class="onoffswitch">
                 <input type="hidden" id="isActive" name="isActive" value=""/>
@@ -572,9 +594,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                 </label>
             </div>
         </div>
-      
-        
-        <div id="authTypeDiv" class="col-4 float-left col-inner-form full-form-fields">
+        <div id="authTypeDiv" class="col-3 float-left col-inner-form full-form-fields">
         <label for="authType"><span class="asteriskmark">*</span>Authentication Types</label>
          <select id="authType" class="form-control" onchange="changeAuthentication();">
         <#list authenticationTypesVO as authenticationType>
@@ -590,16 +610,27 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         <div id="props">
           
         </div>
-
+        
     </div>
 </div>
-<div id="note" class="margin-t-25">
-    <i>Kindly restart your server to get your configuration working.</i>
+
+	
 </div>
-<div class="btn-icons nomargin-right-cls pull-right">
-						<input type="button" value="Save" class="btn btn-primary" onclick="saveAuthDetails();">
-					</div>
+<div class="cm-card-footer">
+<div id="note" class="margin-t-10 clearfix">
+    <span class="pull-left"><i>Kindly restart your server to get your configuration working.</i></span>
+    
+    <div class="btn-icons nomargin-right-cls pull-right">
+     <input type="button" value="Save" class="btn btn-primary" onclick="saveAuthDetails();">
+    </div>
+</div>
+	</div>
+</div>
+                    
+                    
+</div>                  
 <script>
+
 contextPath = "${contextPath}";
 	// set data
 	$("#isActiveCheckbox").attr("checked",${authEnabled?c});
@@ -611,8 +642,10 @@ contextPath = "${contextPath}";
     function showAuthTypeDropDown(element) {
         if(element.checked) {
             $("#authTypeDiv").show();
+            $("#restartServer").show();
         } else {
             $("#authTypeDiv").hide();
+            $("#restartServer").hide();
             $("#props").html("");
             $("#authType").val(1);
            
@@ -628,7 +661,7 @@ contextPath = "${contextPath}";
         $("#props").html("");
         $.each(parsedProperties, function(key,val){
            if(val.type=="boolean"){
-              $("#props").append(''<div class="col-4 float-left col-inner-form full-form-fields"><label for="isActiveCheckbox"><span class="asteriskmark">*</span>''+val.name
+              $("#props").append(''<div class="col-12 float-left col-inner-form full-form-fields"><label for="isActiveCheckbox"><span class="asteriskmark">*</span>''+val.name
               +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''"  /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div>'');
               $("#"+val.name).prop("checked",val.value);
            }
@@ -639,7 +672,7 @@ contextPath = "${contextPath}";
     function saveAuthDetails(){ 
     		let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
     		let authenticationTypeId= $("#authType").val();
-    		
+    	
         let parsedProperties = null;
         let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
         if(properties!= undefined && properties != ""){
@@ -675,11 +708,16 @@ contextPath = "${contextPath}";
       location.href="/cf/ul";
     }
     
+    function restartServer(){
+      location.href="/cf/restart";
+    }
+    
 </script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
    REPLACE  INTO  jws_property_master (
-   owner_type
+  property_master_id
+  ,owner_type
   ,owner_id
   ,property_name
   ,property_value
@@ -689,7 +727,8 @@ contextPath = "${contextPath}";
   ,app_version
   ,comments
 ) VALUES (
-   'system'
+   '3b2838cc-1a8f-11eb-98d3-f48e38ab8cd7'
+  ,'system'
   ,'system'
   ,'authentication-type'
   ,'1'
@@ -716,12 +755,6 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	
 	
 </div>
-<script>
-var loggedInUser = ${loggedInUser?c};
-if(loggedInUser == false){ 
-	$(".nav-link").hide();
-} 
-</script>
 
 ','admin','admin',now(), 2);
 
@@ -738,10 +771,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="author" content="">
     <title>Please sign in</title>
    
+   	<@templateWithoutParams "jws-common-css-js"/>
         <script>
-            var loggedInUser = ${loggedInUser?c};
-            if(loggedInUser == false){ 
-                $(".nav-link").hide();
+           
+            function showHidePassword(thisObj){
+                var element = $(thisObj).parent().find("input[name=''password'']");
+                if (element.prop("type") === "password") {
+                    element.prop("type","text");
+                    $(thisObj).find("i").removeClass("fa-eye");
+                     $(thisObj).find("i").addClass("fa-eye-slash");
+                } else {
+                     element.prop("type","password");
+                     $(thisObj).find("i").removeClass("fa-eye-slash");
+                     $(thisObj).find("i").addClass("fa-eye");
+                }
+
             }
         </script>
   </head>
@@ -755,7 +799,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
         <div class="col-5">
             <form class="form-signin" method="post" action="/cf/login">
-                <h2 class="form-signin-heading text-center">Welcome To JQuiver
+                <h2 class="form-signin-heading text-center">Welcome To <span class="cm-logotext">JQuiver</span>
                 </h2>
                 <#if queryString?? && queryString == "error">
                     <div class="alert alert-danger" role="alert">Bad Credentials</div>
@@ -774,20 +818,22 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     <label for="password" class="formlablename">Password</label>
                     <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>
-                    <span class="passview"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                    <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>
                     <span class="remebermeblock">
-                        <input type="checkbox">   <label>Remeber Me</label>
+                        <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>
                     </span>    
                     <span class="forgotpassword">
                         <a href="/cf/resetPasswordPage">Forgot password?</a> 
                     </span>
                 </p>
        
-
+				
                 <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-                <p class="registerlink">New User?
-                    <a href="/cf/register"> Click here to register</a>
-                </p>
+                <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >
+	                <p class="registerlink">New User?
+	                    <a href="/cf/register"> Click here to register</a>
+	                </p>
+                </#if>
             </form>
         </div>
     </div>   
@@ -805,11 +851,8 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Register</title>
+    <@templateWithoutParams "jws-common-css-js"/>
     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
 			<#if error??>
 				$("#email").focus();
 			</#if>
@@ -817,15 +860,26 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 			<#if errorPassword??>
 				$("#password").focus();
 			</#if>
+			 $(function(){
+                $("#reloadCaptcha").click(function(event){
+                	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+           		});
+          	});
+			
 		</script>
 </head>
 
 
 <body>
-	<div class="container">    
+	<div class="container"> 
+	<div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+	 <div class="col-5">   
         <form class="form-signin" action="/cf/register"  method="post">
         
-        <h2 class="form-signin-heading">Please register</h2>
+        <h2 class="form-signin-heading">Please Register</h2>
         	<#if error??>
         		<div class="alert alert-danger" role="alert">${error} </div>
         	</#if>
@@ -848,11 +902,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
           		<label for="password" class="sr-only">Password</label>
          	 	<input type="password" id="password" name="password" class="form-control" placeholder="Password" required autofocus >
         	</p>
-        	 <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+        	<#if enableCaptcha?string("yes", "no") == "yes" >
+				<p>
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+					<label for="captcha" class="sr-only">Enter Captcha</label>
+					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
+				</p>
+			</#if> 
+        	 <button class="btn btn-lg btn-primary btn-block cm-mb10" type="submit">Register</button>
+			 <p> Already Registered User? <a href="login">Click here to sign in</a></p>
 	   </form>
-     <p> Already Registered User? <a href="login">Click here to sign in</a>
-	</div>	   
-</body>    
+     
+	</div>	 
+ </div>  </div> 	
+</body>
 ','admin','admin',now(), 2);
 	
 
@@ -868,25 +932,30 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Forgot password? - TSMS</title>
-   
+   <@templateWithoutParams "jws-common-css-js"/>
     	<script>
       
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-			
 			<#if nonRegisteredUser??>
 				$("#email").focus();
 			</#if>
 			<#if inValidLink??>
 				$("#email").focus();
 			</#if>
+			 $(function(){
+                $("#reloadCaptcha").click(function(event){
+                	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+           		});
+          	});
 			
 		</script>
   </head>
   <body>
      <div class="container">
+     	<div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+ 		<div class="col-5">
       <form class="form-resetpassword" method="post" action="/cf/sendResetPasswordMail">
         <h2 class="form-resetpassword-heading">Reset your password</h2>
 		<#if nonRegisteredUser??>
@@ -895,6 +964,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		<#if inValidLink??>
         		<div class="alert alert-danger" role="alert">${inValidLink} </div>
         </#if>
+        <#if invalidCaptcha??>
+        		<div class="alert alert-danger" role="alert">${invalidCaptcha} </div>
+        	</#if>
         <p>
 		Enter your user account verified email address and we will send you a password reset link.
 		</p>
@@ -902,11 +974,24 @@ Replace into template_master (template_id, template_name, template, updated_by, 
           <label for="username" class="sr-only">Email</label>
           <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
         </p>
+        <#if enableCaptcha?string("yes", "no") == "yes" >
+				<p>
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+					<label for="captcha" class="sr-only">Enter Captcha</label>
+					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
+				</p>
+			</#if> 
         <button class="btn btn-lg btn-primary btn-block" type="submit">Send password reset email</button>
-        
+        	   <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >
+	                <p class="registerlink">New User?
+	                    <a href="/cf/register"> Click here to register</a>
+	                </p>
+                </#if>
       </form> 
 </div>
-
+ </div> 
+  </div> 
 </body></html>','admin','admin',now(), 2);
 
 
@@ -920,28 +1005,38 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Change your password - TSMS</title>
+    <@templateWithoutParams "jws-common-css-js"/>
     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
       <#if nonValidPassword??>
 				$("#password").focus();
 			</#if>
-			
+			 $(function(){
+                $("#reloadCaptcha").click(function(event){
+                	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+           		});
+          	});
 			
 		</script>
 </head>
 
 
 <body>
-	<div class="container">    
+	<div class="container">
+	   <div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+    	<div class="col-5">    
         <form class="form-password-reset" action="/cf/createPassword"  method="post">
         
         <h2 class="form-password-reset-heading">Change your password </h2>
         <#if nonValidPassword??>
         		<div class="alert alert-danger" role="alert">${nonValidPassword} </div>
         	</#if>
+        	  <#if invalidCaptcha??>
+        		<div class="alert alert-danger" role="alert">${invalidCaptcha} </div>
+        	</#if>
+        	
         	<p>
           		<label for="password" class="sr-only">Create new password</label>
          	 	<input type="password" id="password" name="password" class="form-control" placeholder="Password" required autofocus>
@@ -950,18 +1045,27 @@ Replace into template_master (template_id, template_name, template, updated_by, 
           		<label for="confirmpassword" class="sr-only">Confirm Password</label>
          	 	<input type="password" id="confirmpassword" name="confirmpassword" class="form-control" placeholder="Confirm password" required autofocus >
         	</p>
+        	<#if enableCaptcha?string("yes", "no") == "yes" >
+				<p>
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+					<label for="captcha" class="sr-only">Enter Captcha</label>
+					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
+				</p>
+			</#if> 
         	 <button class="btn btn-lg btn-primary btn-block" type="submit">Change password</button>
 			 <input type="hidden" id="resetEmailId" name ="resetEmailId" value="${resetEmailId}">
        <input type="hidden" id="tokenId" name="token" value="${token}">
 	   </form>
-	</div>	   
+	</div>	
+	  </div> 
+    </div>   
 </body>    
 ','admin','admin',now(), 2);
 
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('28207b8f-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-mail-success', ' 
- 
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -969,52 +1073,116 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Reset password mail sent  - TSMS</title>
-   
+    <title>Reset password mail sent </title>
+   <@templateWithoutParams "jws-common-css-js"/>
   </head>
   <body>
      
- <div class="container">
-         <p>
-		  <div class="alert alert-success" role="alert">${successResetPasswordMsg} </div>
-         <a class="btn btn-lg btn-primary btn-block" href="/cf/login">  Return to sign in </a>
+ 
+ 
+ 
+  <div class="container">
+        <div class="cm-success-box">
+        <div class="row">
+            <div class="col-md-12">
 
+                	<div class="box">							
+				<div class="icon">
+					<div class="image"><i class="fa fa-thumbs-o-up"></i></div>
+					<div class="info">
+						<h3 class="title">Successful</h3>
+						<p>
+                             ${successResetPasswordMsg}
+							
+						</p>
+						
+						<a class="btn btn-lg btn-primary " href="/cf/login">  Return to sign in </a>
+						
+					</div>
+				</div>
+			
+			</div> 
 
-        </p>
- </div>
-</body></html>','admin','admin',now(), 2);
+            </div>
+        </div>
+    </div>
+    </div>
+</body></html>
+ ','admin','admin',now(), 2);
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2d3d1d39-138c-11eb-9b1e-f48e38ab9348', 'jws-successfulRegisteration', ' 
 <head>
      <title>Registration confirmation sent </title>
-     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-		</script>
+     <@templateWithoutParams "jws-common-css-js"/>
 </head>
 <body>
-            <span>A verification email has been sent to:   ${emailId}</span>
- </body>    
+
+    <div class="container">
+        <div class="cm-success-box">
+        <div class="row">
+            <div class="col-md-12">
+
+                	<div class="box">							
+				<div class="icon">
+					<div class="image"><i class="fa fa-thumbs-o-up"></i></div>
+					<div class="info">
+						<h3 class="title">Successful</h3>
+						<p>
+                             A verification email has been sent to: <a href="${emailId}">  ${emailId} </a>
+							
+						</p>
+						
+					</div>
+				</div>
+			
+			</div> 
+
+            </div>
+        </div>
+    </div>
+    </div>
+           
+ </body>  
 ','admin','admin',now(), 2);
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
-('348d7075-138c-11eb-9b1e-f48e38ab9348', 'jws-accountVerified', ' 
+('348d7075-138c-11eb-9b1e-f48e38ab9348', 'jws-accountVerified', '
 	<head>
         <title>Congratulations!</title>
-        
-     <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
-		</script>   
+         <@templateWithoutParams "jws-common-css-js"/>
     </head>
     <body>
-            <h3>Congratulations! Your account has been activated and email is verified!</h3>
-            <a href="/cf/login">Click here to Login</a> 
+
+
+        <div class="container">
+        <div class="cm-success-box">
+        <div class="row">
+            <div class="col-md-12">
+
+                	<div class="box">							
+				<div class="icon">
+					<div class="image"><i class="fa fa-check"></i></div>
+					<div class="info">
+						<h3 class="title">Congratulations!</h3>
+						<p>
+                            Your account has been activated and email is verified!
+							
+						</p>
+						
+						<a class="btn btn-lg btn-primary " href="/cf/login">  Click here to Login</a>
+						
+					</div>
+				</div>
+			
+			</div> 
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+
     </body>    
 ','admin','admin',now(), 2);
 
@@ -1023,10 +1191,6 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <head>
      <title>My Profile </title>
      <script>
-			var loggedInUser = ${loggedInUser?c};
-			if(loggedInUser == false){ 
-				$(".nav-link").hide();
-			}
 		</script>
 </head>
 <body>
@@ -1050,7 +1214,7 @@ BEGIN
   SET @resultQuery = CONCAT(" SELECT jera.entity_role_id AS entityRoleId,jera.entity_id AS entityId,jera.entity_name AS entityName,jera.module_id AS moduleId,jmm.module_name AS moduleName, "
   ,@selectRoleQuery ) ;
   SET @fromString  = ' FROM  jws_role jr RIGHT OUTER JOIN jws_entity_role_association jera ON jera.role_id = jr.role_id INNER JOIN jws_master_modules jmm ON jmm.module_id = jera.module_id ';
-  SET @whereString = ' WHERE jr.is_active=1 ';
+  SET @whereString = ' WHERE jr.is_active=1  AND jera.module_type_id=0 ';
   
   IF NOT moduleId IS NULL THEN
     SET @moduleId= REPLACE(moduleId,"'","''");
@@ -1091,27 +1255,24 @@ END;
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('446e1b24-138c-11eb-9b1e-f48e38ab9348', 'manageEntityRoles', '
 <head>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-	<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-	<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+    <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+    <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+    <script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+    <script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+    <link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+    <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 </head>
 
-<div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Manage Entity Role</h2> 
-		<div class="clearfix"></div>		
-	</div>
-		
-	<div id="divManageEntityRoleGrid"></div>
+<div class="box-block">
+     
+        
+    <div id="divManageEntityRoleGrid"></div>
 
-	<div id="snackbar"></div>
+    <div id="snackbar"></div>
 </div>
 <script>
 var grid;
@@ -1143,7 +1304,7 @@ $(function () {
         <#list roles as role>
               { title: "${role?api.getRoleName()}", width: 100, align: "center",  dataIndx: "${role?api.getRoleName()}", halign: "center",
         attr:"${role?api.getRoleId()}", render:addCheckBox,
-         filter: {type: "<input type=''button'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Select All'' onclick=''checkAllBoxes(this);'' > <input type=''button'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Deselect All'' onclick=''checkAllBoxes(this);'' >"}}
+         filter: {type: "<input type=''button'' class=''cm-select-btn'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Select All'' onclick=''checkAllBoxes(this);'' > <input type=''button'' class=''cm-select-btn'' name=''${role?api.getRoleName()}'' attr=''${role?api.getRoleId()}''  value=''Deselect All'' onclick=''checkAllBoxes(this);'' >"}}
         	${(role?is_last)?then("", "," )}
         </#list>
  
@@ -1237,26 +1398,39 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
 </head>
 
-		<div class="float-right">
-    		<span onclick="backToPreviousPage();">
-    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-    	 	</span>	
-		</div>
+        
 <div class="container">
-	<div class="topband">
-	   <div id="tabs">
-  		<ul>
-  		  <li><a href="#roleModules" data-target="/cf/mrm" >Manage Role Modules</a></li>
-  		  <li><a href="#entityRoles" data-target="/cf/mer">Manage Entity Roles</a></li>
-	 	 </ul>
-		  <div id="roleModules">
-		  </div>
-		  <div id="entityRoles">
-		  </div>
-		</div>
-	 <div>
+
+    
+
+    <div class="topband">
+        <h2 class="title-cls-name float-left"> Manage Permissions </h2> 
+         <div class="float-right">
+            <span onclick="backToPreviousPage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+        </div>
+     
+     
+     <div id="tabs">
+        <ul>
+          <li><a href="#roleModules" data-target="/cf/mrm">${messageSource.getMessage("jws.manageRoleModules")}</a></li>
+          <li><a href="#entityRoles" data-target="/cf/mer">${messageSource.getMessage("jws.manageEntityRoles")}</a></li>
+         </ul>
+          <div id="roleModules">
+          </div>
+          <div id="entityRoles">
+          </div>
+        </div>  
+     
+     
 </div>    
 <script>
+
+
 var contextPath = "${contextPath}";
   
   $(function(){
@@ -1273,7 +1447,9 @@ var contextPath = "${contextPath}";
       type: "GET",
       url: url,
       success: function(data){
-        $(tabElement.getAttribute("href")).html(data);
+         if($(tabElement.getAttribute("href")).html().trim()==""){
+              $(tabElement.getAttribute("href")).html(data);
+          }
       }    
     });
   }
@@ -1384,6 +1560,15 @@ $(function () {
         multiselect.createElementForMultiselect(this, this.element[0].id, item);
         	return this.selectedObject;
     }
+    multiselect.options.duplicateCheckRule = function(list, obj) {
+        var iCounter;
+        for (iCounter = 0; iCounter < list.length; iCounter++) {
+            if (list[iCounter].roleId === obj.roleId) {
+                return true;
+            }
+        }
+        return false;
+       }
     
 	});
     
@@ -1392,5 +1577,83 @@ $(function () {
 
 REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
 ('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jws_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 1);
+
+REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'regexPattern', '{"regexValue":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=])[A-Za-z\\\\d@#$%^&+=]{6,}$","regexExample":"Ex: John@123"}', 0, NOW(), 'admin', 1.00, 'Regex Pattern to validate password');
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('edcafd25-19b9-11eb-9631-f48e38ab9348', 'jws-change-password', ' 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Change your password - TSMS</title>
+    <@templateWithoutParams "jws-common-css-js"/>
+    <script>
+	 $(function(){
+                $("#reloadCaptcha").click(function(event){
+                	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+           		});
+          	});
+			
+			
+		</script>
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+		<div class="col-5">    
+        <form class="form-password-reset" action="/cf/updatePassword"  method="post">
+        
+        <h2 class="form-password-reset-heading">Change your password </h2>
+        <#if errorMessage??>
+        		<div class="alert alert-danger" role="alert">${errorMessage} </div>
+        	</#if>
+        	<#if invalidCaptcha??>
+        		<div class="alert alert-danger" role="alert">${invalidCaptcha} </div>
+        	</#if>
+        	<p>
+          		<label for="password" class="sr-only">Enter System generated Password</label>
+         	 	<input type="password" id="password" name="password" class="form-control" placeholder="Enter System generated Password" required autofocus>
+        	</p>
+        	<p>
+          		<label for="newPassword" class="sr-only">Enter New Password</label>
+         	 	<input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New password" required autofocus >
+        	</p>
+        	<#if enableCaptcha?string("yes", "no") == "yes" >
+				<p>
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+					<label for="captcha" class="sr-only">Enter Captcha</label>
+					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
+				</p>
+			</#if>
+        	
+        	 <button class="btn btn-lg btn-primary btn-block" type="submit">Change password</button>
+			 <input type="hidden" id="tokenId" name ="tokenId" value="${tokenId}">
+	   </form>
+	</div>
+	</div>	</div>		   
+</body>    
+','admin','admin',now(), 2);
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('16918f98-19f6-11eb-9631-f48e38ab9348', 'jws-common-css-js', ' 
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />  
+','admin','admin',now(), 2);
 
 SET FOREIGN_KEY_CHECKS=1;

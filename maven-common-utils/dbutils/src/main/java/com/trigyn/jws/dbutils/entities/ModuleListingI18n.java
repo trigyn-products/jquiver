@@ -82,4 +82,11 @@ public class ModuleListingI18n implements Serializable {
 		return "ModuleListingI18n [id=" + id + ", moduleName=" + moduleName + ", moduleListing=" + moduleListing + "]";
 	}
 
+	public ModuleListingI18n getObject() {
+		ModuleListingI18n moduleListingI18n = new ModuleListingI18n();
+		moduleListingI18n.setId(id.getObject());
+		moduleListingI18n.setModuleName(moduleName);
+		return moduleListingI18n;
+	}
+
 }

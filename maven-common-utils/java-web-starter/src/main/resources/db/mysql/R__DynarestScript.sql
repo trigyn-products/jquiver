@@ -1,5 +1,65 @@
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP PROCEDURE IF EXISTS dynarestListing;
+CREATE PROCEDURE `dynarestListing`(dynarestUrl varchar(256), rbacId INT(11), methodName VARCHAR(512)
+, methodDescription TEXT , requestTypeId INT(11), producerTypeId INT(11), serviceLogic MEDIUMTEXT,
+ platformId INT(11), allowFiles TINYINT(11), dynarestTypeId INT(11),forCount INT, limitFrom INT,
+ limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT jdrd.jws_dynamic_rest_id AS dynarestId, jdrd.jws_dynamic_rest_url AS dynarestUrl ';
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_rbac_id AS rbacId, jdrd.jws_method_name AS methodName ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_method_description AS methodDescription, jdrd.jws_request_type_id AS requestTypeId '); 
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_response_producer_type_id AS producerTypeId, jdrd.jws_service_logic AS serviceLogic ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_platform_id AS platformId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_dynamic_rest_type_id AS dynarestTypeId ');
+  SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount ');
+  SET @fromString  = ' FROM jws_dynamic_rest_details AS jdrd ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
+  SET @whereString = ' ';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT requestTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_request_type_id = ',requestTypeId);
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_request_type_id = ',requestTypeId);
+    END IF;  
+  END IF;
+  
+  
+  IF NOT platformId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_platform_id = ',platformId);
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_platform_id = ',platformId);
+    END IF;  
+  END IF;
+
+  SET @groupByString = ' GROUP BY dynarestId ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY methodName ASC');
+  END IF;
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("dynarestListingGrid", 'Dynamic REST API Listing', 'Dynamic REST API Listing', 'dynarestListing'
+,'dynarestUrl,rbacId,methodName,methodDescription,requestTypeId,producerTypeId,serviceLogic,platformId,allowFiles,dynarestTypeId', 2);
+
+
+
+
  REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb81749b028401749b062c540002', 'dynarest-details-listing', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -35,7 +95,16 @@ SET FOREIGN_KEY_CHECKS=0;
 		
 		<div id="divDynarestGrid"></table>
 
+
 </div>
+
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dynarest">
+	<input type="hidden" id="formId" name="formId" value="8a80cb81749ab40401749ac2e7360000">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dynl">
+</form>
 <script>
 contextPath = "${(contextPath)!''''}";
 let requestType = [{"": "All"}];
@@ -59,20 +128,20 @@ $(function () {
 		});
     
 	let colM = [
-        { title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
+        { title: "Dynamic API Url", width: 130, align: "center", dataIndx: "dynarestUrl", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Name", width: 100, align: "center",  dataIndx: "jws_method_name", align: "left", halign: "center",
+        { title: "Method Name", width: 100, align: "center",  dataIndx: "methodName", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Description", width: 160, align: "center", dataIndx: "jws_method_description", align: "left", halign: "center",
+        { title: "Method Description", width: 160, align: "center", dataIndx: "methodDescription", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Type", width: 160, align: "center", dataIndx: "jws_request_type_id", align: "left", halign: "center", render: requestTypes,
+        { title: "Method Type", width: 160, align: "center", dataIndx: "requestTypeId", align: "left", halign: "center", render: requestTypes,
         filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
-        { title: "Platform", width: 160, align: "center", dataIndx: "jws_platform_id", align: "left", halign: "center", render: platforms,
+        { title: "Platform", width: 160, align: "center", dataIndx: "platformId", align: "left", halign: "center", render: platforms,
         filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
         { title: "Action", width: 30, align: "center", render: editDynarest, dataIndx: "action" }
 	];
     let grid = $("#divDynarestGrid").grid({
-      gridId: "dynarestGrid",
+      gridId: "dynarestListingGrid",
       colModel: colM
   });
 });
@@ -87,28 +156,44 @@ function dynarestType(uiObject){
 }
 	
 function requestTypes(uiObject){
-  let cellValue = uiObject.rowData.jws_request_type_id;
+  let cellValue = uiObject.rowData.requestTypeId;
   return requestType.find(el => el[cellValue])[cellValue];
 }
 
 function platforms(uiObject){
-  let cellValue = uiObject.rowData.jws_platform_id;
+  let cellValue = uiObject.rowData.platformId;
   return platformValues.find(el => el[cellValue])[cellValue];
 }
 
 function editDynarest(uiObject) {
-	let dynarestUrl = uiObject.rowData.jws_dynamic_rest_url;
-	let methodName = uiObject.rowData.jws_method_name;
-	let dynarestId = uiObject.rowData.jws_dynamic_rest_id;
-	let element = "<span id=''"+dynarestUrl+"'' onclick=''submitForm(this)'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-	return element;
+	let dynarestUrl = uiObject.rowData.dynarestUrl;
+	let methodName = uiObject.rowData.methodName;
+	let dynarestId = uiObject.rowData.dynarestId;
+	const revisionCount = uiObject.rowData.revisionCount;
+		
+	let actionElement;
+	actionElement = ''<span id="''+dynarestUrl+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+	if(revisionCount > 1){
+		actionElement = actionElement + ''<span id="''+dynarestId+''_entity" name="''+dynarestUrl+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+	}else{
+		actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+	}
+	return actionElement;	
 }
 
 function submitForm(element) {
   $("#primaryId").val(element.id);
   $("#addEditDynarest").submit();
 }
-	
+
+function submitRevisionForm(sourceElement) {
+	let selectedId = sourceElement.id.split("_")[0];
+	let moduleName = $("#"+sourceElement.id).attr("name")
+  	$("#entityId").val(selectedId);
+	$("#moduleName").val(moduleName);
+   	$("#revisionForm").submit();
+}	
+
 function backToWelcomePage() {
 	location.href = contextPath+"/cf/home";
 }
@@ -151,6 +236,8 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 
 	<form method="post" name="dynamicRestForm" id="dynamicRestForm">
+		<input type="hidden" id="formId" name="formId" value="${(formId)!''''}"/>
+		<input type="hidden" id="isEdit" name="isEdit"/>
 		<input type="hidden" id="dynarestId" name="dynarestId"/>
 		<div class="row">
 			<div class="col-6">
@@ -255,6 +342,8 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 
 	<input type="hidden" name="serviceLogic" id="serviceLogic">
 	<input type="hidden" name="saveUpdateQuery" id="saveUpdateQuery">
+	<input type="hidden" id="primaryKey" name="primaryKey">
+	<input type="hidden" id="entityName" name="entityName" value="jws_dynamic_rest_details">
     </form>
     <input id="moduleId" value="47030ee1-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
     <@templateWithoutParams "role-autocomplete"/>
@@ -341,6 +430,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 		<#list resultSet as resultSetList>
 			<#if resultSetList?is_first>
 				$("#dynarestId").val(''${(resultSetList?api.get("dynarestId"))!''''}'');
+				$("#primaryKey").val(''${(resultSetList?api.get("dynarestId"))!''''}'');
 				$("#dynarestUrl").val(''${(resultSetList?api.get("dynarestUrl"))!''''}'');
 				$("#dynarestMethodName").val(''${(resultSetList?api.get("dynarestMethodName"))!''''}'');
 				$("#dynarestMethodDescription").val(''${(resultSetList?api.get("dynarestMethodDescription"))!''''}'');
@@ -348,9 +438,14 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 				$("#allowFiles").val(''${(resultSetList?api.get("allowFiles"))!''''}'');
                 dynarest.populateDetails(''${(resultSetList?api.get("dynarestRequestTypeId"))!''''}'',
                 ''${(resultSetList?api.get("dynarestProdTypeId"))!''''}'',''${(resultSetList?api.get("dynarestUrl"))!''''}'');
+				$("#isEdit").val(1);
 			</#if>
 		</#list>
 	<#else>
+		const generatedDynarestId = uuidv4();
+		$("#dynarestId").val(generatedDynarestId);
+		$("#primaryKey").val(generatedDynarestId);
+		$("#isEdit").val(0);
 		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         multiselect.setSelectedObject(defaultAdminRole);
 	    dynarest.populateDetails();
@@ -362,17 +457,16 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	}else{
 		$("#allowFilesCheckbox").prop("checked", false);
 	}
-	let isEdit = 0;
-    <#if (resultSet)?? && resultSet?has_content>
-    	isEdit = 1;
-    </#if>
-	savedAction("dynamic-rest-form", isEdit);
+	
+	
+	savedAction("dynamic-rest-form", Number.parseInt($("#isEdit").val()));
 	hideShowActionButtons();
   });
 </script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
-('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("dynarestId"))?has_content>
+('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("isEdit"))?has_content &&
+(formData?api.getFirst("isEdit")) == "1">
     UPDATE jws_dynamic_rest_details SET 
         jws_dynamic_rest_url = ''${formData?api.getFirst("dynarestUrl")}''
         ,jws_method_name = ''${formData?api.getFirst("dynarestMethodName")}''
@@ -386,7 +480,7 @@ REPLACE into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, 
     WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
 <#else>
     INSERT INTO jws_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files) VALUES (
-    UUID(),
+		 ''${formData?api.getFirst("dynarestId")}'',
          ''${formData?api.getFirst("dynarestUrl")}''
          , ''${formData?api.getFirst("dynarestMethodName")}''
          , ''${formData?api.getFirst("dynarestMethodDescription")}''

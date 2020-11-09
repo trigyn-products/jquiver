@@ -17,6 +17,8 @@ public class JwsRoleMasterModulesAssociationVO  implements Serializable{
 	private String moduleId = null;
 	
 	private Integer isActive = null;
+	
+	private Integer moduleTypeId = null;
 
 	public String getRoleModuleId() {
 		return roleModuleId;
@@ -63,6 +65,15 @@ public class JwsRoleMasterModulesAssociationVO  implements Serializable{
 		
 		return masterModuleAssociation;
 	}
+
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setModuleTypeId(Integer moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
+	
 	
 	
 	

@@ -190,6 +190,14 @@ public class Dashboard implements Serializable {
 		this.dashboardDashlets = dashboardDashlets;
 	}
 
+	public List<DashboardRoleAssociation> getDashboardRoleAssociations() {
+		return dashboardRoleAssociations;
+	}
+
+	public void setDashboardRoleAssociations(List<DashboardRoleAssociation> dashboardRoleAssociations) {
+		this.dashboardRoleAssociations = dashboardRoleAssociations;
+	}
+
 	public Dashboard dashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 		return this;
@@ -251,6 +259,40 @@ public class Dashboard implements Serializable {
 			", dashboardRoleAssociations='" + getDashboardRoles() + "'" +
 			"}";
 	}
-	
+
+	public Dashboard getObject() {
+		Dashboard dashboard = new Dashboard();
+		dashboard.setContextId(contextId);
+		dashboard.setCreatedBy(createdBy);
+		dashboard.setCreatedDate(createdDate);
+		dashboard.setDashboardId(dashboardId);
+		dashboard.setDashboardName(dashboardName);
+		dashboard.setDashboardType(dashboardType);
+		dashboard.setIsDeleted(isDeleted);
+		dashboard.setIsDraggable(isDraggable);
+		dashboard.setIsExportable(isExportable);
+		dashboard.setLastUpdatedDate(lastUpdatedDate);
+		
+		List<DashboardDashletAssociation>	dashboardDashletsOtr		= new ArrayList<>();
+		for(DashboardDashletAssociation obj : dashboardDashlets) {
+			dashboardDashletsOtr.add(obj.getObject());
+		}
+		dashboard.setDashboardDashlets(dashboardDashletsOtr);
+		
+		List<DashboardRoleAssociation>	dashboardRoleAssociationsOtr		= new ArrayList<>();
+		for(DashboardRoleAssociation obj : dashboardRoleAssociations) {
+			dashboardRoleAssociationsOtr.add(obj.getObject());
+		}
+		dashboard.setDashboardRoleAssociations(dashboardRoleAssociationsOtr);
+
+		List<DashboardRoleAssociation>	dashboardRolesOtr		= new ArrayList<>();
+		for(DashboardRoleAssociation obj : dashboardRoles) {
+			dashboardRolesOtr.add(obj.getObject());
+		}
+		dashboard.setDashboardRoles(dashboardRolesOtr);
+		
+		return dashboard;
+	}
+
 
 }

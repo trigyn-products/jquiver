@@ -1,5 +1,7 @@
 package com.trigyn.jws.usermanagement.security.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
@@ -31,6 +35,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder = null;
+	
+	 @Autowired
+	 private DataSource dataSource = null;
 	
 	@Bean
 	@ConditionalOnMissingBean
@@ -69,11 +76,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			http.authorizeRequests().antMatchers("/webjars/**").permitAll()
 					.antMatchers("/").permitAll()
 					.antMatchers("/cf/createPassword","/cf/sendResetPasswordMail","/cf/resetPasswordPage","/cf/sendResetPasswordMail","/cf/resetPassword").permitAll()
-					.antMatchers("/cf/register","/cf/confirm-account").permitAll()
+					.antMatchers("/cf/register","/cf/confirm-account","/cf/captcha","/cf/changePassword","/cf/updatePassword").permitAll()
 					.antMatchers("/**").authenticated()
 					.and()
 					.csrf().disable()
 					.formLogin().loginPage("/cf/login").usernameParameter("email").permitAll().successHandler(customAuthSuccessHandler)
+					.and()
+					.rememberMe().rememberMeParameter("remember-me").tokenRepository(tokenRepository())
 					.and()
 					.logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
 		} else {
@@ -82,6 +91,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public PersistentTokenRepository tokenRepository() {
+	    JdbcTokenRepositoryImpl jdbcTokenRepositoryImpl=new JdbcTokenRepositoryImpl();
+	    jdbcTokenRepositoryImpl.setDataSource(dataSource);
+	    return jdbcTokenRepositoryImpl;
+	  }
+	
 	public UserDetailsService getUserDetailsService() {
 		return userDetailsService;
 	}

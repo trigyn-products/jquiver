@@ -92,13 +92,11 @@ public class DashboardDashletAssociation implements Serializable{
 		return "DashboardDashletAssociation [id=" + id + ", dashboard=" + dashboard + ", dashlet=" + dashlet + "]";
 	}
 
+	public DashboardDashletAssociation getObject() {
+		DashboardDashletAssociation dashboardDashletAssociation = new DashboardDashletAssociation();
+		dashboardDashletAssociation.setId(id.getObject());
+		
+		return dashboardDashletAssociation;
+	}
 
-
-
-
-	
-
-
-
-	
 }

@@ -1,12 +1,12 @@
-REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query) VALUES
 ('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM dashboard 
-WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")', 2), 
-('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")', 2), 
+WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")'), 
+('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")'), 
 ('dynarestListing', 'Autocomplete for dynamic rest', 'SELECT jws_dynamic_rest_id AS targetTypeId, jws_method_name AS targetTypeName 
-FROM jws_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")', 2), 
-('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")', 2);
+FROM jws_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")'), 
+('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")');
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('55c2db62-0480-11eb-9926-e454e805e22f', 'master-creator', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -62,10 +62,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             <div class="col-12 margin-t-b">
                 <table id="listingDetailsTable">
                     <tr>
-                        <th>Display</th>
+                        <th>Included</th>
                         <th>Hidden</th>
                         <th>Column Name</th>
                         <th>Display Name</th>
+                        <th>I18N Resource Key</th>
                     </tr>
                 </table>
             </div>
@@ -91,8 +92,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                         Show In Menu
                     </label>
 					<div class="onoffswitch">
-                        <input type="hidden" id="isActive" name="isActive" value=""/>
-                        <input type="checkbox" name="showInMenu" class="onoffswitch-checkbox" id="showInMenu" onchange="" />
+                        <input type="hidden" id="isMenuAddActive" name="isMenuAddActive" value=""/>
+                        <input type="checkbox" name="showInMenu" class="onoffswitch-checkbox" id="showInMenu" onchange="enableDisableMenuAdd()" />
                         <label class="onoffswitch-label" for="showInMenu">
                             <span class="onoffswitch-inner"></span>
                             <span class="onoffswitch-switch"></span>
@@ -100,7 +101,37 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                     </div>
 				</div>
 			</div>
+            
 		</div>
+        <div class="row">
+            <div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="menuDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.displayName")}</label>
+					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
+				</div>
+			</div>
+
+            <div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="moduleURL" style="white-space:nowrap">URL</label>
+					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
+					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
+				</div>
+			</div>
+            <div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+					<select id="parentModuleName" name="parentModuleName" class="form-control">
+						<option value="">Root</option>
+						<#if (moduleListingVOList)??>
+							<#list moduleListingVOList as moduleListingVO>
+										<option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''''}</option>
+							</#list>
+						</#if>
+					</select>
+				</div>
+			</div>
+        </div>
 
         <div class="row">
             <div class="col-12">
@@ -109,15 +140,17 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             <div class="col-12">
                 <table id="formDetailsTable">
                     <tr>
-                        <th>Display</th>
+                        <th>Included</th>
                         <th>Hidden</th>
                         <th>Column Name</th>
                         <th>Display Name</th>
+                        <th>I18N Resource Key</th>
                     </tr>
                 </table>
             </div>
         </div>
-
+	
+	<@templateWithoutParams "role-autocomplete"/> 
 		<div class="row margin-t-b">
 			<div class="col-12">
 				<div class="float-right">
@@ -142,4 +175,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     let gridDetails = new Array();
     let formDetails = new Array();
     let menuDetails = new Object();
-</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+    $("#showInMenu").prop("checked",false);
+	$("#showInMenu").trigger("change");
+	$(function() {
+	        let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+	});
+</script>
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);

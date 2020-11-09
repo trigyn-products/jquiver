@@ -13,4 +13,6 @@ public final class Constant {
     public static final String DYNAMIC_FORM_HTML_FILE_NAME		= "htmlContent";
     public static final String DYNAMIC_FORM_SAVE_FILE_NAME		= "saveQuery-";
     public static final String DYNAMIC_FORM_ENTITY_NAME			= "dynamic_form_add_edit";
+    
+    public static final Integer UPLOAD_SOURCE_VERSION_TYPE		= 4; 
 }

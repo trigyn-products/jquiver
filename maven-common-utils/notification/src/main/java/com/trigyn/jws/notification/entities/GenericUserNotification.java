@@ -264,4 +264,22 @@ public class GenericUserNotification {
 				+ ", updatedBy=" + updatedBy + ", updatedDate=" + updatedDate + "]";
 	}
 
+	public GenericUserNotification getObject() {
+		GenericUserNotification notification = new GenericUserNotification();
+		notification.setCreatedBy(createdBy);
+		notification.setCreationDate(creationDate);
+		notification.setMessageFormat(messageFormat);
+		notification.setMessageText(messageText);
+		notification.setMessageType(messageType);
+		notification.setMessageValidFrom(messageValidFrom);
+		notification.setMessageValidTill(messageValidTill);
+		notification.setNotificationId(notificationId);
+		notification.setSelectionCriteria(selectionCriteria);
+		notification.setTargetPlatform(targetPlatform);
+		notification.setUpdatedBy(updatedBy);
+		notification.setUpdatedDate(updatedDate);
+		
+		return notification;
+	}
+
 }

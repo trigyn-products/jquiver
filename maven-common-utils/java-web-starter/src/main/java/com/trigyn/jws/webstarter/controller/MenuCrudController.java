@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -172,4 +173,11 @@ public class MenuCrudController {
 		String targetTypeId 		= a_httHttpServletRequest.getParameter("targetTypeId");
 		return moduleService.saveConfigHomePage(moduleId, targetLookupTypeId, targetTypeId);
     }
+	
+	@GetMapping(value = "/gprm")
+	public List<?> getMappings() {
+		return handlerMapping.getHandlerMethods().keySet()
+				.stream()
+				.collect(Collectors.toList());
+	}
 }

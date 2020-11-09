@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
@@ -44,10 +44,6 @@ public class ModuleService {
     @Autowired
     private UserRoleRepository userRoleRepository						= null; 
     
-	@Autowired
-	private ModuleVersionService templateVersionService				= null;
-    
-	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{
 		if(!StringUtils.isBlank(moduleId)) {
 			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
@@ -102,7 +98,7 @@ public class ModuleService {
 	public String saveModuleDetails(ModuleDetailsVO moduleDetailsVO) throws Exception {
 		ModuleListing moduleListing = convertModuleVOToEntitity(moduleDetailsVO);
 		ModuleListingI18n moduleListingI18n = convertModuleVOToI18nEntitity(moduleDetailsVO);
-		iModuleListingRepository.saveAndFlush(moduleListing);
+		moduleListing=iModuleListingRepository.save(moduleListing);
 		ModuleListingI18nPK moduleListingI18nPK = moduleListingI18n.getId();
 		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());
 		iModuleListingI18nRepository.save(moduleListingI18n);

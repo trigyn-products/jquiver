@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 
 
 @Entity
@@ -139,6 +141,17 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 		return "JwsDynamicRestDaoDetail [jwsDaoDetailsId=" + jwsDaoDetailsId + ", jwsDaoQueryTemplate="
 				+ jwsDaoQueryTemplate + ", jwsResultVariableName=" + jwsResultVariableName + ", jwsDynamicRestDetail="
 				+ jwsDynamicRestDetail + "]";
+	}
+
+	public JwsDynamicRestDaoDetail getObject() {
+		JwsDynamicRestDaoDetail dynaRest = new JwsDynamicRestDaoDetail();
+		dynaRest.setJwsDaoDetailsId(jwsDaoDetailsId);
+		dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA["+jwsDaoQueryTemplate +"]]>"));
+		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId);
+		dynaRest.setJwsQuerySequence(jwsQuerySequence);
+		dynaRest.setJwsResultVariableName(jwsResultVariableName);
+		dynaRest.setQueryType(queryType);
+		return dynaRest;
 	}
 
 }

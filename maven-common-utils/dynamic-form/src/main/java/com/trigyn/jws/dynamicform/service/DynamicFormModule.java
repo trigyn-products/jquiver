@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
@@ -33,9 +36,14 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	
 	@Autowired
 	private DynamicFormCrudDAO dynamicFormDAO 							= null;
+
+	@Autowired
+	private ModuleVersionService moduleVersionService					= null;
+	
+	private Map<String, String> moduleDetailsMap = new HashMap<>();
 	
 	@Override
-	public void downloadCodeToLocal(DynamicForm a_dynamicForm) throws Exception {
+	public void downloadCodeToLocal(DynamicForm a_dynamicForm, String folderLocation) throws Exception {
 		List<DynamicForm>  formList = new ArrayList<>();
 		if(a_dynamicForm != null) {
 			formList.add(a_dynamicForm);
@@ -48,7 +56,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		String selectQuery 				= Constant.DYNAMIC_FORM_SELECT_FILE_NAME;
 		String htmlBody 				= Constant.DYNAMIC_FORM_HTML_FILE_NAME;
 		String saveQuery 				= Constant.DYNAMIC_FORM_SAVE_FILE_NAME;
-		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+//		String folderLocation 			= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation 					= folderLocation +File.separator+templateDirectory;
 		
 		for (DynamicForm dynamicForm : formList) {
@@ -88,6 +96,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			if(isCheckSumChanged) {
 				dynamicFormDAO.saveDynamicFormData(dynamicForm);
 			}	
+			moduleDetailsMap.put(dynamicForm.getFormId(), formName);
 		}
 		
 	}
@@ -95,8 +104,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String user 				="admin";
-		String ftlCustomExtension 		= Constant.DYNAMIC_FORM_DIRECTORY_NAME;
-		String templateDirectory 		= Constant.CUSTOM_FILE_EXTENSION;
+		String ftlCustomExtension 		= Constant.CUSTOM_FILE_EXTENSION;
+		String templateDirectory 		= Constant.DYNAMIC_FORM_DIRECTORY_NAME;
 		String selectQuery 				= Constant.DYNAMIC_FORM_SELECT_FILE_NAME;
 		String htmlBody 				= Constant.DYNAMIC_FORM_HTML_FILE_NAME;
 		String saveQuery 				= Constant.DYNAMIC_FORM_SAVE_FILE_NAME;
@@ -193,7 +202,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 						
 						}
 						dynamicFormQueriesRepository.saveAll(dynamicFormSaveQueries);
-						
+						dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
+						moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form", Constant.UPLOAD_SOURCE_VERSION_TYPE);
 					}
 							
 				}else {
@@ -202,5 +212,12 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		}
 
 	}
-	
+
+	public Map<String, String> getModuleDetailsMap() {
+		return moduleDetailsMap;
+	}
+
+	public void setModuleDetailsMap(Map<String, String> moduleDetailsMap) {
+		this.moduleDetailsMap = moduleDetailsMap;
+	}
 }

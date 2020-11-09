@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
-import com.trigyn.jws.dbutils.utils.Constant;
 
 @Repository
 public class ModuleVersionDAO extends DBConnection{
@@ -22,10 +21,8 @@ public class ModuleVersionDAO extends DBConnection{
 	
 	private final static String HQL_QUERY_TO_GET_VERSION_ID_BY_ENTITY_ID = " SELECT MAX(versionId) FROM JwsModuleVersion jmv WHERE jmv.entityId=:entityId";
 	
-	private final static String HQL_QUERY_TO_GET_ALL_VERSIONS_BY_ENTITY_ID = " FROM JwsModuleVersion jmv WHERE jmv.entityId=:entityId ORDER BY jmv.versionId ASC ";
-	
-	private final static String HQL_QUERY_TO_GET_MODULE_JSON_BY_ENTITY_ID_AND_VERSION
-		= "SELECT jmv.moduleJson AS templateJson FROM JwsModuleVersion jmv WHERE jmv.entityId=:entityId AND jmv.versionId = :versionId ";
+	private final static String HQL_QUERY_TO_GET_MODULE_JSON_BY_ID
+		= "SELECT jmv.moduleJson AS templateJson FROM JwsModuleVersion jmv WHERE jmv.moduleVersionId =:moduleVersionId ";
 	
 	private final static String HQL_QUERY_TO_GET_CHECKSUM_BY_ENTITY_ID
 	= "SELECT jmv.moduleJsonChecksum AS moduleJsonChecksum FROM JwsModuleVersion jmv WHERE jmv.entityId=:entityId ORDER BY jmv.versionId DESC ";
@@ -35,6 +32,9 @@ public class ModuleVersionDAO extends DBConnection{
 
 	private final static String HQL_QUERY_TO_GET_VERSION_ID_COUNT = "SELECT COUNT(jmv.moduleVersionId) FROM JwsModuleVersion AS jmv "
 			+ " WHERE jmv.entityId=:entityId "; 
+	
+	private static final String HQL_QUERY_TO_GET_JSON_BY_ID = "SELECT jmv.moduleJson AS moduleJson  FROM JwsModuleVersion AS jmv "
+			+ " WHERE jmv.entityId = :entityId ORDER BY jmv.versionId DESC ";
 	
 	public Double getVersionIdByEntityId(String entityId) throws Exception{
 		Double versiondId = null;
@@ -53,19 +53,9 @@ public class ModuleVersionDAO extends DBConnection{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
-	public List<JwsModuleVersion> getModuleVersionByEntityId(String entityId) throws Exception{
-		List<JwsModuleVersion> jwsTemplateVersions = new ArrayList<>(); 
-		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_ALL_VERSIONS_BY_ENTITY_ID);
-		query.setParameter("entityId", entityId);
-		jwsTemplateVersions = (List<JwsModuleVersion>) query.list();
-		return jwsTemplateVersions;
-	}
-	
-	public String getModuleData(String entityId, Double versionId) throws Exception{
-		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_MODULE_JSON_BY_ENTITY_ID_AND_VERSION);
-		query.setParameter("entityId", entityId);
-		query.setParameter("versionId", versionId);
+	public String getModuleJsonById(String moduleVersionId) throws Exception{
+		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_MODULE_JSON_BY_ID);
+		query.setParameter("moduleVersionId", moduleVersionId);
 		Object versionIdObj = query.uniqueResult();
 		if (versionIdObj != null) {
 			return versionIdObj.toString();
@@ -73,6 +63,16 @@ public class ModuleVersionDAO extends DBConnection{
 		return null;
 	}
 	
+	public String getLastUpdatedJsonData(String entityId) throws Exception{
+		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_JSON_BY_ID);
+		query.setParameter("entityId", entityId);
+		query.setMaxResults(1);
+		Object versionIdObj = query.uniqueResult();
+		if (versionIdObj != null) {
+			return versionIdObj.toString();
+		}
+		return null;
+	}
 	
 	public String getModuleJsonChecksum(String entityId) throws Exception{
 		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_CHECKSUM_BY_ENTITY_ID);
@@ -102,5 +102,5 @@ public class ModuleVersionDAO extends DBConnection{
 		query.setParameter("entityId", entityId);
 		query.executeUpdate();
 	}
-
+	
 }

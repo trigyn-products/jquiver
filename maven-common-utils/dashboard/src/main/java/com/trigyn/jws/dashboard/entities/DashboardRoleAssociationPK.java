@@ -71,5 +71,12 @@ public class DashboardRoleAssociationPK implements Serializable {
 		return "DashboardRoleAssociationPK [dashboardId=" + dashboardId + ", roleId=" + roleId + "]";
 	}
 
+	public DashboardRoleAssociationPK getObject() {
+		DashboardRoleAssociationPK pk = new DashboardRoleAssociationPK();
+		pk.setDashboardId(dashboardId);
+		pk.setRoleId(roleId);
+		
+		return pk;
+	}
 
 }

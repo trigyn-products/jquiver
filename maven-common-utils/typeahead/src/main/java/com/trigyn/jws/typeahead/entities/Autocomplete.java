@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 @Entity
 @Table(name = "autocomplete_details")
 public class Autocomplete {
@@ -96,6 +98,16 @@ public class Autocomplete {
 				+ ", getAutocompleteSelectQuery()=" + getAutocompleteSelectQuery() + ", getAcTypeId()=" + getAcTypeId()
 				+ ", hashCode()=" + hashCode() + "]";
 	}
-	
+
+	public Autocomplete getObject() {
+		Autocomplete autocomplete = new Autocomplete();
+		
+		autocomplete.setAcTypeId(acTypeId);
+		autocomplete.setAutocompleteDesc(autocompleteDesc);
+		autocomplete.setAutocompleteId(autocompleteId);
+		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery.trim() +"]]>"));
+		autocomplete.setAcTypeId(this.acTypeId);
+		return autocomplete;
+	}
 
 }

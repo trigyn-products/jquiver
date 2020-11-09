@@ -47,6 +47,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/aerb" method="POST" id="formRbRedirect">
 	<input type="hidden" id="resource-key" name="resource-key">
 </form>
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="resourceBundle">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/srbv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/rb">
+</form>
+
 <script>
 	contextPath = "${(contextPath)!''''}";
 	
@@ -71,13 +79,30 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
   	});
 	function editDBResource(uiObject) {
 		const resourceKey = uiObject.rowData.resourceKey;
-		return ''<span id="''+resourceKey+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage(''jws.editResourceBundle'')}"></i></span>''.toString();
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = ''<span id="''+resourceKey+''" onclick="submitForm(this)" class= "grid_action_icons" title="${messageSource.getMessage(''jws.editResourceBundle'')}"><i class="fa fa-pencil" title=""></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+resourceKey+''_entity" name="''+resourceKey+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
 	}
 	
 	function submitForm(element) {
 	  $("#resource-key").val(element.id);
 	  $("#formRbRedirect").submit();
 	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
 	
 	function getCookie(cname) {
 	    let name = cname + "=";
@@ -152,7 +177,7 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
             <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addResourceBundle")}</h2> 
         </#if> 
 		<div class="float-right">
-			<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
+			<span onclick="addEditResourceBundle.backToResourceBundleListing();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
 			</span> 	
 		</div>
@@ -161,52 +186,52 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 		</div>
 		
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-		
-		<div class="row">
-			<div class="col-12">
-				<div class="col-inner-form full-form-fields">
-					<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>									 
-					<input type="text" id="resourceBundleKey" class="form-control" maxlength="100" value="${(resourceBundleKey)!''''}" disabled="true"  name="resourceKey" style="width:100%"/>
-								 
-					</div>
-				</div>
-		</div>
-				
-				
-				
-		<div class="row">
-			<#list languageVOList as languages>
-				<div class="col-4">
+		<form id="resourceBundleForm" method="post">
+			<div class="row">
+				<div class="col-12">
 					<div class="col-inner-form full-form-fields">
-						<#if (languages.languageId) == 1>
-							<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resource")} </label>
-							<label>${languages.languageName}</label>
-						<#else>
-							<label for="targetPlatform">${messageSource.getMessage("jws.resource")} </label>
-							<label>${languages.languageName}</label>
-						</#if>
-						<textarea id="textBx_${languages.languageId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''''}</textarea>
-					</div>							  
-				</div>
-			</#list>
-		</div>
+						<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>
+						<input type="text" id="resourceBundleKey" name="resourceBundleKey" class="form-control" maxlength="100" value="${(resourceBundleKey)!''''}" disabled="true" style="width:100%"/>
+						</div>
+					</div>
+			</div>
+					
+					
+					
+			<div class="row">
+				<#list languageVOList as languages>
+					<div class="col-4">
+						<div class="col-inner-form full-form-fields">
+							<#if (languages.languageId) == 1>
+								<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resource")} </label>
+								<label>${languages.languageName}</label>
+							<#else>
+								<label for="targetPlatform">${messageSource.getMessage("jws.resource")} </label>
+								<label>${languages.languageName}</label>
+							</#if>
+							<textarea id="textBx_${languages.languageId}" name="${languages.localeId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''''}</textarea>
+						</div>							  
+					</div>
+				</#list>
+			</div>
+		</form>
 				
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
 				<div class="btn-group dropdown custom-grp-btn">
                     <div id="savedAction">
-                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
                     <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundleFn.saveResourceBundle.bind(addEditResourceBundleFn), addEditResourceBundleFn.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            <li id="saveAndCreateNew" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                         </ul>
                     </div> 
                 </div>
-				<span onclick="addEditResourceBundleFn.backToResourceBundleListing();">
+				<span onclick="addEditResourceBundle.backToResourceBundleListing();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
 				</span> 
 			</div>
@@ -219,11 +244,10 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 	contextPath = "${(contextPath)!''''}";
 	let resourceBundleKey = "${(resourceBundleKey)!''''}";
 	var resourceBundleFormData = new Array();
-	let addEditResourceBundleFn;
+	let addEditResourceBundle;
 	$(function() {
-	 	const addEditResourceBundle = new AddEditResourceBundle(resourceBundleFormData);
-		addEditResourceBundleFn = addEditResourceBundle.fn;
-		addEditResourceBundleFn.loadAddEditResourceBundlePage();
+	 	addEditResourceBundle = new AddEditResourceBundle(resourceBundleFormData);
+		addEditResourceBundle.loadAddEditResourceBundlePage();
 		savedAction("resource-bundle-manage-details", resourceBundleKey);
 		hideShowActionButtons();
 	});
@@ -298,6 +322,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/aen" method="GET" id="formNFRedirect">
 	<input type="hidden" id="notificationId" name="notificationId">
 </form>
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="notification">
+	<input type="hidden" id="formId" name="formId" value="e848b04c-f19b-11ea-9304-f48e38ab9348">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/nl">
+</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
 	function backToWelcomePage() {
@@ -309,7 +340,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		sessionStorage.setItem("notification-add-edit", formDataJson);
 		
 		let colM = [
-	    	{ title: "",hidden: true, width: 130, dataIndx: "notificationId" },
+	    	{ title: "",hidden: true, dataIndx: "notificationId" },
 	        { title: "Target Platform", width: 100,  dataIndx: "targetPlatform", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 	        { title: "Message Type", width: 160, dataIndx: "messageType", align: "left", halign: "center", 
@@ -326,7 +357,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 	        { title: "Updated Date", width: 100, dataIndx: "updatedData", align: "left", halign: "center",
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Action", width: 50, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
+	        { title: "Action", width: 100, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
 		];
 
 	  let grid = $("#divNotificationListing").grid({
@@ -335,11 +366,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  });
 });
 
-function editNotificationFormatter(uiObject) {
-	const notificationId = uiObject.rowData.notificationId;
-	let element = "<span id=''"+notificationId+"'' class= ''grid_action_icons''  onclick=''editNotification(this)''><i class=''fa fa-pencil''></i></span>";
-	return element;
-}
+	function editNotificationFormatter(uiObject) {
+		const notificationId = uiObject.rowData.notificationId;
+		const targetPlatform = uiObject.rowData.targetPlatform;
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = ''<span id="''+notificationId+''" onclick="editNotification(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+notificationId+''_entity" name="''+targetPlatform+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;
+	}
 
 
 function loadNotifications() {
@@ -365,6 +405,14 @@ function editNotification(thisObj){
 	$("#primaryId").val(thisObj.id);
 	$("#addEditNotification").submit();
 }
+
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
  REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
@@ -424,7 +472,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 
 <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 <form method="post" name="genericNotificationForm" id="genericNotificationForm">
-	<input type="hidden" id="isEdit" name="isEdit"/>
 	<input type="hidden" id="notificationId" name="notificationId"/>
 		<div class="row">
 			<div class="col-3">
@@ -526,11 +573,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		<input type="hidden" id="primaryKey" name="primaryKey">
 		<input type="hidden" id="entityName" name="entityName" value="generic_user_notification">
 </form>   
-<!-- <button class="btn btn-primary fileupload start-upload">
-    <i class="glyphicon glyphicon-upload"></i>
-    <span>Upload</span>
-</button>                           -->
-<div class="col-6 fileupload dropzone"></div>
 
 </div>
         
@@ -542,19 +584,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 contextPath = "${(contextPath)!''''}";
 let formId = "${formId}";
 let isEdit = 0;
-let initialFormData;
-let dropzoneElement = $(".fileupload").fileUpload({
-    fileUploadId : "dynamic-form",
-    successcallback: showAlert.bind(this),
-    deletecallback: deleteAlert.bind(this)
-},["8a80cb81754175a10175418298b20005"]);
-function showAlert(fileId) {
-    alert("Successful uploaded file id "+ fileId);
-}
-
-function deleteAlert(fileId) {
-    alert("Deleted file id is "+fileId);
-}
 
 $(function() {
 	
@@ -589,53 +618,37 @@ $(function() {
 
 
 
-<#if (resultSet)??>
-	<#list resultSet as resultSetList>
-		$("#targetPlatform option[value=''${resultSetList?api.get("target_platform")}'']").attr("selected", "selected");
-		$("#messageFormat option[value=''${resultSetList?api.get("message_format")}'']").attr("selected", "selected");		
-		$("#messageType option[value=''${resultSetList?api.get("message_type")}'']").attr("selected", "selected");
-		$("#fromDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_from")}'',false),"%d-%b-%Y"));
-		$("#toDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_till")}'',false),"%d-%b-%Y"));
-		$("#messageText").val(''${resultSetList?api.get("message_text")}'');
-		$("#selectionCriteria").val(''${resultSetList?api.get("selection_criteria")}''); 
-		$("#notificationId").val(''${resultSetList?api.get("notification_id")}'');
-	</#list>
-</#if>
+	<#if (resultSet)?? && resultSet?has_content>
+		<#list resultSet as resultSetList>
+			isEdit = 1;
+			$("#targetPlatform option[value=''${resultSetList?api.get("target_platform")}'']").attr("selected", "selected");
+			$("#messageFormat option[value=''${resultSetList?api.get("message_format")}'']").attr("selected", "selected");		
+			$("#messageType option[value=''${resultSetList?api.get("message_type")}'']").attr("selected", "selected");
+			$("#fromDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_from")}'',false),"%d-%b-%Y"));
+			$("#toDate").val(Calendar.printDate(Calendar.parseDate(''${resultSetList?api.get("message_valid_till")}'',false),"%d-%b-%Y"));
+			$("#messageText").val(''${resultSetList?api.get("message_text")}'');
+			$("#selectionCriteria").val(''${resultSetList?api.get("selection_criteria")}''); 
+			$("#notificationId").val(''${resultSetList?api.get("notification_id")}'');
+			$("#primaryKey").val(''${resultSetList?api.get("notification_id")}'');
+		</#list>
+	<#else>
+		const generatedNotificationId = uuidv4();
+		$("#notificationId").val(generatedNotificationId);
+		$("#primaryKey").val(generatedNotificationId);
+	</#if>
 
-
-      <#if (resultSet)?? && resultSet?has_content>
-      	<#list resultSet as resultSetList>
-      	let notificationId = ''${resultSetList?api.get("notification_id")}'';
-      	if(notificationId != ""){
-      		$("#isEdit").val(1);
-      		isEdit = 1;
-      	}
-      	</#list>
-      </#if>
     
-	initialFormData = $("#genericNotificationForm").serialize();
 	savedAction("notification-add-edit", isEdit);
 	hideShowActionButtons();
 });  
 
 function saveData (){
     let isDataSaved = false;
-	let updatedFormData = $("#genericNotificationForm").serialize();
-	if(updatedFormData === initialFormData){
-		return true;
-	}
-	initialFormData = $("#genericNotificationForm").serialize();
 	if(validateFields() == false){
         $("#errorMessage").show();
         return false;
     }
 	$("#errorMessage").hide();
-	if(isEdit == 0){
-		const generatedNotificationId = uuidv4();
-		$("#notificationId").val(generatedNotificationId);
-	}
-	let primaryKey = $("#notificationId").val();
-    $("#primaryKey").val(primaryKey);
 	const form = $("#genericNotificationForm");
 	let serializedForm = form.serializeArray();
 	for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
@@ -706,20 +719,7 @@ function backToPreviousPage(){
 </script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
-   'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'<#if  (formData?api.getFirst("isEdit"))?has_content && (formData?api.getFirst("isEdit")) == "1">
-	UPDATE generic_user_notification SET
-  target_platform = ''${formData?api.getFirst("targetPlatform")}''  
-  ,message_valid_from = STR_TO_DATE( "${formData?api.getFirst("fromDate") }","%d-%b-%Y") 
-  ,message_valid_till = STR_TO_DATE( "${formData?api.getFirst("toDate") }","%d-%b-%Y") 
-  ,message_text = ''${formData?api.getFirst("messageText")}'' 
-  ,message_type = ''${formData?api.getFirst("messageType")}''
-  ,message_format =''${formData?api.getFirst("messageFormat")}''
-  ,selection_criteria = ''${formData?api.getFirst("selectionCriteria")}'' 
-  ,updated_by = ''admin'' 
-  ,updated_date = now()
-WHERE notification_id = ''${formData?api.getFirst("notificationId")}''   ;
-
-<#else>
+   'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'
 REPLACE INTO generic_user_notification (
    notification_id
   ,target_platform
@@ -746,9 +746,6 @@ REPLACE INTO generic_user_notification (
   ,now()  
   ,''admin''  
   ,now()  
-);
-</#if>'
-  ,1,null
-);
+);',1,null);
 
 SET FOREIGN_KEY_CHECKS=1;

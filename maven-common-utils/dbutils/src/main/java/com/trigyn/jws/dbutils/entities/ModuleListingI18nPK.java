@@ -62,5 +62,11 @@ public class ModuleListingI18nPK implements Serializable {
 		return "ModuleListingI18nPK [moduleId=" + moduleId + ", languageId=" + languageId + "]";
 	}
 
-	
+	public ModuleListingI18nPK getObject() {
+		ModuleListingI18nPK moduleListingI18nPK = new ModuleListingI18nPK();
+		moduleListingI18nPK.setLanguageId(languageId);
+		moduleListingI18nPK.setModuleId(moduleId);
+		return moduleListingI18nPK;
+	}
+
 }

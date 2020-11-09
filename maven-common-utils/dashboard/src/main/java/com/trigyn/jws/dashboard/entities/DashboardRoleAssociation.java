@@ -81,5 +81,10 @@ public class DashboardRoleAssociation implements Serializable {
 		return "DashboardRoleAssociation [id=" + id + ", dashboard=" + dashboard + ", userRole=" + userRole + "]";
 	}
 
+	public DashboardRoleAssociation getObject() {
+		DashboardRoleAssociation dashboardRoleAssociation = new DashboardRoleAssociation();
+		dashboardRoleAssociation.setId(id.getObject());
+		return dashboardRoleAssociation;
+	}
 
 }

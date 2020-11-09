@@ -35,7 +35,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<form action="/cf/aedf" method="POST" id="addEditDynamicForm">	
 			<input type="hidden" id="formId" name="form-id">	
 		</form>
-		
+		<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+			<input type="hidden" id="entityId" name="entityId">
+			<input type="hidden" id="moduleName" name="moduleName">
+			<input type="hidden" id="moduleType" name="moduleType" value="dynamicForm">
+			<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dfl">
+		</form>
 </div>
 
 <script>
@@ -75,15 +80,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	function editDynamicFormFormatter(uiObject) {	
 		let dynamicFormId = uiObject.rowData.formId;
 		let dynamicFormName = uiObject.rowData.formName;
-		let element;
+		const revisionCount = uiObject.rowData.revisionCount;
+		let actionElement;
 		<#if environment == "dev">
-			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
-      		element = element + "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons'' onclick=''downloadFormById(this)''><i class=''fa fa-download''></i></span>";
-          element = element + "<span id=''"+dynamicFormId+"_upload'' name=''"+dynamicFormName+"'' class= ''grid_action_icons'' onclick=''uploadFormById(this)''><i class=''fa fa-upload''></i></span>";
+			actionElement = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
+      		actionElement = actionElement + "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons'' onclick=''downloadFormById(this)''><i class=''fa fa-download''></i></span>";
+			actionElement = actionElement + "<span id=''"+dynamicFormId+"_upload'' name=''"+dynamicFormName+"'' class= ''grid_action_icons'' onclick=''uploadFormById(this)''><i class=''fa fa-upload''></i></span>";
 		<#else>
-			element = "<span id=''"+dynamicFormId+"'' class= ''grid_action_icons''  onclick=''submitForm(this)''><i class=''fa fa-pencil''></i></span>";		
+			actionElement = ''<span id="''+dynamicFormId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+			if(revisionCount > 1){
+				actionElement = actionElement + ''<span id="''+dynamicFormId+''_entity" name="''+dynamicFormName+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+			}else{
+				actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+			}
+	
 		</#if>	
-		return element;	
+		return actionElement;
 	}
 		
 	function submitForm(thisObj){	
@@ -91,6 +103,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		$("#addEditDynamicForm").submit();	
 	}
   
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+		$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+		$("#revisionForm").submit();
+	}
+
   	function downloadFormById(thisObj){
 	  	let formId = thisObj.id;
 	  	$.ajax({
@@ -239,20 +259,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>                  
                               
         <div class="row margin-t-b">
-			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content
-				&& versionDetailsMap?? && versionDetailsMap?has_content>
-				<div class="col-3">
-					<div class="col-inner-form full-form-fields">
-						<label for="vmName">Compare with </label>
-						<select class="form-control" id="${(dynamicForm?api.getFormId())!''''}" onchange="addEdit.getSelectTemplateData(''${(dynamicForm?api.getFormId())!}'');" name="versionId" title="Template Versions">
-							<option value="" selected>Select</option>
-							<#list versionDetailsMap as versionId, updatedDate>
-								<option value="${versionId}">${updatedDate}</option>
-							</#list>
-						</select> 
-					</div>
-				</div>
-			</#if>		
 			<div class="col-12">
 				<h3 class="titlename"><span class="asteriskmark">*</span>HTML Script</h3>
 				<div class="html_script">
@@ -297,19 +303,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 
-		<#if versionDetailsMap?? && versionDetailsMap?has_content>
-			<div class="row">                                                                                                
-				<div class="col-12">
-					<div class="html_script">
-						<div class="grp_lblinp">
-							<div id="diffContainer" class="ace-editor-container">
-								<div id="diffEditor" class="ace-editor"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</#if>
             <input type="hidden" name="formSelectQuery" id="formSelectQuery">
             <input type="hidden" name="formBody" id="formBody">
             <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
@@ -334,6 +327,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let formQueryIds = [];
 	let formName = "${(dynamicForm?api.getFormName())!''''}";
 	let formId = "${(dynamicForm?api.getFormId())!''''}";
+	let initialFormData;
 	formName = $.trim(formName);
 	if(formName !== ""){
 		$("#formName").prop("disabled", true);

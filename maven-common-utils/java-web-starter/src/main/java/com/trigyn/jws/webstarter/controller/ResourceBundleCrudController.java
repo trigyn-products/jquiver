@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -89,19 +93,29 @@ public class ResourceBundleCrudController {
 	
 	
 	@PostMapping(value = "/srb", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Boolean> saveResourceDetails(@RequestParam("resourceBundleKey") String resourceBundleKey,
-			@RequestBody List<ResourceBundleVO> dbResourceList) throws Exception {
+	public ResponseEntity<Boolean> saveResourceDetails(@RequestBody List<ResourceBundleVO> dbResourceList) throws Exception {
 		
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		try {
-			resourceBundleService.saveResourceBundleDetails(resourceBundleKey, dbResourceList);
+			resourceBundleService.saveResourceBundleDetails(dbResourceList, Constant.MASTER_SOURCE_VERSION_TYPE);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
 		} catch (Exception e) {
 			logger.error("Error ", e);
 			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+	
+	
+	@PostMapping(value = "/srbv", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public void saveResourceDetailsByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		TypeReference<List<ResourceBundleVO>> resourceBundleType 
+										= new TypeReference<List<ResourceBundleVO>>() {};
+		String modifiedContent 					  = a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper				  = new ObjectMapper();
+		List<ResourceBundleVO> resourceBundleList = objectMapper.readValue(modifiedContent, resourceBundleType);
+		resourceBundleService.saveResourceBundleDetails(resourceBundleList, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
 
 	

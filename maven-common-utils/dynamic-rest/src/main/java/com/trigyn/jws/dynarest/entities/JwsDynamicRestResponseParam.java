@@ -108,4 +108,12 @@ public class JwsDynamicRestResponseParam implements Serializable {
 				+ jwsResponseCodeDetail + "]";
 	}
 
+	public JwsDynamicRestResponseParam getObject() {
+		JwsDynamicRestResponseParam dynaRest = new JwsDynamicRestResponseParam();
+		dynaRest.setJwsResponseCodeDetail(jwsResponseCodeDetail.getObject());
+		dynaRest.setJwsResponseCodeMessage(jwsResponseCodeMessage);
+		dynaRest.setJwsResponseParamId(jwsResponseParamId);
+		
+		return dynaRest;
+	}
 }

@@ -1,5 +1,10 @@
 package com.trigyn.jws.usermanagement.utils;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public final class Constants {
 
 	private Constants() {
@@ -12,7 +17,11 @@ public final class Constants {
 	
 	public  final static String ADMIN_ROLE_ID  = "ae6465b3-097f-11eb-9a16-f48e38ab9348";
 	
+	public  final static String AUTHENTICATED_ROLE_ID  = "2ace542e-0c63-11eb-9cf5-f48e38ab9348";
+	
 	public  final static String ANONYMOUS_ROLE_NAME = "ANONYMOUS";
+	
+	public  final static String AUTHENTICATED_ROLE_NAME = "AUTHENTICATED";
 	
 	public enum AuthType {
         INMEMORY(1), DAO(2), OAUTH(3), LDAP(4);
@@ -56,4 +65,8 @@ public final class Constants {
 	public  final static String AUTOCOMPLETE = "TypeAhead Autocomplete";
 	public  final static String DASHBOARD = "Dashboard";
 	public  final static String SITELAYOUT = "Site Layout";
+	
+	public  final static Integer COMMON_MODULE_TYPE_ID = 1; 
+	public  final static Integer DEFAULT_MODULE_TYPE_ID = 0; 
+	
 }

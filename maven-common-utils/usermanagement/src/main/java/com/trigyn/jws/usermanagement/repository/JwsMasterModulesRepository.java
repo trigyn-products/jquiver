@@ -8,4 +8,5 @@ import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 @Repository
 public interface JwsMasterModulesRepository extends JpaRepository<JwsMasterModules, String> {
 
+	JwsMasterModules findBymoduleName(String moduleName);
 }

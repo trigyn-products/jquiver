@@ -19,15 +19,18 @@ public class MasterModule {
 	@Column(name = "master_module_name",unique = true)
 	private String masterModuleName = null;
 	
-	@Column(name = "module_template_id")
-	private String moduleTemplateId = null;
-	
 	@Column(name = "grid_details_id")
 	private String gridDetailsId = null;
 	
 	@Column(name = "auxiliary_data")
 	private String auxiliaryData = null;
 
+	@Column(name="is_system_module")
+	private Integer isSystemModule = null;
+
+	@Column(name="module_type")
+	private String moduleType = null;
+	
 	public String getMasterModuleId() {
 		return masterModuleId;
 	}
@@ -42,14 +45,6 @@ public class MasterModule {
 
 	public void setMasterModuleName(String masterModuleName) {
 		this.masterModuleName = masterModuleName;
-	}
-
-	public String getModuleTemplateId() {
-		return moduleTemplateId;
-	}
-
-	public void setModuleTemplateId(String moduleTemplateId) {
-		this.moduleTemplateId = moduleTemplateId;
 	}
 
 	public String getGridDetailsId() {
@@ -67,8 +62,20 @@ public class MasterModule {
 	public void setAuxiliaryData(String auxiliaryData) {
 		this.auxiliaryData = auxiliaryData;
 	}
-	
-	
-	
-	
+
+	public Integer getIsSystemModule() {
+		return isSystemModule;
+	}
+
+	public void setIsSystemModule(Integer isSystemModule) {
+		this.isSystemModule = isSystemModule;
+	}
+
+	public String getModuleType() {
+		return moduleType;
+	}
+
+	public void setModuleType(String moduleType) {
+		this.moduleType = moduleType;
+	}
 }

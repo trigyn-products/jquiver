@@ -10,7 +10,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <div class="container">
-    <div class="page-header">
+    <div class="page-header homepageheader">
         <h2 class="maintitle_name">JQuiver</h2>
         <p>
             <i>
@@ -20,175 +20,216 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </p>
     </div>
 
-	<div class="list-group custom-list-home">
-		<a href="../cf/mg" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.masterGenerator'')}</span></h5>
-					<small>Today</small>
-				</div>
-				<p class="mb-1">Built using freemarker, supports pq-grid </p>
-				<small>Now any master modules will be created without much efforts</small>
-			</div>
-		</a>
-		<a href="../cf/gd" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.gridUtils'')}</span></h5>
-					<small>Today</small>
-				</div>
-				<p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
-				<small>Now any master listing page will be created without much efforts</small>
-			</div>
-		</a>
-
-		<a href="../cf/te" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
-				<small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
-			</div>
-		</a>
-		
-		<a href="../cf/rb" class="list-group-item list-group-item-action">
-			<div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
-				<small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
-			</div>
-		</a>
-		
-		<a href="../cf/adl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
-				<small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
-			</div>
-		</a>
+    <div class="list-group custom-list-home">
+    
+        <div class="home_block col-12">
+        <a href="../cf/mg" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.masterGenerator'')}</span></h5>                   
+                </div>
+                <p class="mb-1">Built using freemarker, supports pq-grid </p>
+                <small>Now any master modules will be created without much efforts</small>
+            </div>
+        </a>
         
-		<a href="../cf/fucl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1"> <span>${messageSource.getMessage(''jws.fileUploadConfig'')}</span></h5>
-					<small>Today</small>
-				</div>
-				<p class="mb-1">Built using freemarker, supports pq-grid </p>
-				<small>Configure file upload</small>
-			</div>
-		</a>
-		
-		<a href="../cf/dfl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.formBuilder'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine </p>
-				<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-			</div>
-		</a>
-		
-		<a href="../cf/dynl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.restAPIBuilder'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine </p>
-				<small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
-			</div>
-		</a>
+        </div>
         
-		<a href="../cf/mul" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.siteLayout'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine </p>
-				<small class="text-muted">Create menu for your application.</small>
-			</div>
-		</a>
-				        
-		<a href="../cf/dbm" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.dashboard'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
-				<small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
-			</div>
-		</a>
-		
-		<a href="../cf/nl" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.notification'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine.</p>
-				<small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
-			</div>
-		</a>
-		
-		<a href="../cf/um" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.userManagement'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine,supports pq-grid </p>
-				<small class="text-muted">Manage users for your application.</small>
-			</div>
-		</a>
-		
-		<a href="../cf/pml" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.applicationConfiguration'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Built using Freemarker templating engine </p>
-				<small class="text-muted">Create menu for your application.</small>
-			</div>
-		</a>
-		
+        <div class="home_block col-12">
+        <a href="../cf/gd" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.gridUtils'')}</span></h5>
+                     
+                </div>
+                <p class="mb-1"> Built using pq-grid, and supporting it with generic queries to get data for grid based on the target databases. </p>
+                <small>Now any master listing page will be created without much efforts</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/te" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
+                 
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
+                <small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/rb" class="list-group-item list-group-item-action">
+            <div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
+                <small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/adl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Jquery plugin, rich-autocomplete to get data lazily</p>
+                <small class="text-muted">Now any autocomplete component which handles dynamic creation of query will be created without much efforts</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/fucl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.fileUploadConfig'')}</span></h5>
+                     
+                </div>
+                <p class="mb-1">Built using freemarker, supports pq-grid </p>
+                <small>Configure file upload</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/dfl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.formBuilder'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/dynl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.restAPIBuilder'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Now create the dynamic forms for your web application, without writing any java code just by using freemarker</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/mul" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.siteLayout'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Create menu for your application.</small>
+            </div>
+        </a>
+        </div>
+                        
+        
+        <div class="home_block col-12">
+        <a href="../cf/dbm" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.dashboard'')}</h5>
+                 
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine and spring resource bundles</p>
+                <small class="text-muted">Now create the daily reporting, application usage, trends dashboard for your web application and control it with our dashboard admin panel.</small>
+            </div>
+        </a>
+        </div>
+        
+        <div class="home_block col-12">
+        <a href="../cf/nl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.notification'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine.</p>
+                <small class="text-muted">Create your application notification with ease and control the duration and context where to show it, (cross platform.)</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/um" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/user_management.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.userManagement'')}</h5>
+                 
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine,supports pq-grid </p>
+                <small class="text-muted">Manage users for your application.</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="../cf/pml" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/application_configuration.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.applicationConfiguration'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Create menu for your application.</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
         <a href="../cf/help" class="list-group-item list-group-item-action">
-			<div class="home_list_icon"><img src="/webjars/1.0/images/Property_master_icon.svg"></div> 
-			<div class="home_list_content">
-				<div class="d-flex w-100 justify-content-between">
-					<h5 class="mb-1">${messageSource.getMessage(''jws.helpManuals'')}</h5>
-					<small class="text-muted">Today</small>
-				</div>
-				<p class="mb-1">Help Manuals </p>
-				<small class="text-muted">Create help manuals for your application.</small>
-			</div>
-		</a>
+            <div class="home_list_icon"><img src="/webjars/1.0/images/user_help.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.helpManuals'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Help Manuals </p>
+                <small class="text-muted">Create help manuals for your application.</small>
+            </div>
+        </a>
+        </div>
 
-	</div>
+    </div>
 </div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
@@ -238,6 +279,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <form action="${(contextPath)!''''}/cf/aet" method="GET" id="formFMRedirect">
     <input type="hidden" id="vmMasterId" name="vmMasterId">
 </form>
+<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="template">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/stdv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/te">
+</form>
 <script>
     contextPath = "${(contextPath)!''''}";
     function backToWelcomePage() {
@@ -278,13 +326,21 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     function editTemplate(uiObject) {
         const templateId = uiObject.rowData.templateId;
 		const templateName = uiObject.rowData.templateName;
+		const revisionCount = uiObject.rowData.revisionCount;
             <#if environment == "dev">
                  let element = "<span id=''"+templateId+"''  class= ''grid_action_icons''><i class=''fa fa-pencil''></i></span>";
                  element = element + "<span id=''"+templateId+"'' class= ''grid_action_icons'' onclick=''downloadTemplateById(this)''><i class=''fa fa-download''></i></span>";
 				 element = element + "<span id=''"+templateId+"_upload'' name=''"+templateName+"'' class= ''grid_action_icons'' onclick=''uploadTemplateById(this)''><i class=''fa fa-upload''></i></span>";
                  return element;
             <#else>
-                 return ''<span id="''+templateId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+                let actionElement;
+				actionElement = ''<span id="''+templateId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>'';
+				if(revisionCount > 1){
+					actionElement = actionElement + ''<span id="''+templateId+''_entity" name="''+templateName+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+				}else{
+					actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+				}
+				return actionElement;
             </#if>
     }
     
@@ -330,6 +386,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		}
       	$("#vmMasterId").val(moduleId);
       	$("#formFMRedirect").submit();
+    }
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
     }
     
     <#if environment == "dev">
@@ -401,21 +465,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 			
-		<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content
-			&& versionDetailsMap?? && versionDetailsMap?has_content>
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="vmName">Compare with </label>
-					<select class="form-control" id="versionId" onchange="templateMaster.getTemplateData();" name="versionId" title="Template Versions">
-						<option value="" selected>Select</option>
-						<#list versionDetailsMap as versionId, updatedDate>
-								<option value="${versionId}">${updatedDate}</option>
-						</#list>
-					</select> 
-				</div>
-			</div>
-		</#if>
-      
 		<div id="defaultTemplateDiv" class="col-3" style="display: none;">
 			<div class="col-inner-form full-form-fields">
 				<label for="defaultTemplateId">Default template </label>                                                                                                                                       
@@ -920,11 +969,26 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  const homePage = new HomePage();
 	  homePageFn = homePage.fn;
 	  homePageFn.collapsableMenu();
+	  let noOfModules = $("#menuUL li").length;
+	  if(noOfModules == 0){
+		$("#openbtni").hide();
+	  }
 	});
 
 
 </script>
-<script src="/webjars/1.0/home/home.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+<script src="/webjars/1.0/home/home.js"></script>
+
+
+<#assign gaAttributes = {
+"enableGoogleAnalytics": enableGoogleAnalytics,
+"googleAnalyticsKey": googleAnalyticsKey,
+"entityType": entityType,
+"entityName": entityName
+}>
+<@templateWithParams "google-analytics-template" gaAttributes />
+
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
@@ -1161,4 +1225,487 @@ function saveHomeModule(){
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
+
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+('9edd802d-1851-11eb-a842-f48e38ab8cd7', 'revision-details','<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="/webjars/1.0/monaco/require.js"></script>
+<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
+</head>
+<div class="container" style="padding-top: 40px">
+     
+	 <div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.history")} ${(moduleName)!''''}</h2> 
+		<div class="float-right">
+			<span onclick="backToPreviousPage();">
+  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+  		 	</span>
+		</div>
+
+		<div class="clearfix"></div>
+	</div>
+	
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	<div class="row">
+		
+		<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
+		<input type="hidden" id="saveUrl" name="saveUrl" value="${(saveUrl)!''''}">
+		<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="${(previousPageUrl)!''''}">
+		<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
+		<input type="hidden" id="formId" name="formId" value="${(formId)!''''}">
+		<input type="hidden" id="dateFormat" name="dateFormat" value="${(dateFormat)!''''}">
+		
+		<input type="hidden" id="moduleVersionId" value="" name="targetTypeNameId" class="form-control">
+		<input type="hidden" id="selectedDateTime" value="" name="selectedDateTime" class="form-control">
+		
+
+	</div>
+
+
+	<div class="row margin-t-b">
+
+			<div class="col-6">
+				<h3 id="diffEditorHeader" class="titlename">${messageSource.getMessage("jws.currentContent")}</h3>
+			</div>
+			<div class="col-6">
+				<label for="revisionAutocomplete" class="versioning-label" >Revision History: </label>
+				<div class="col-inner-form full-form-fields">
+					<div class="search-cover pull-left">
+						<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
+						<i class="fa fa-search" aria-hidden="true"></i>
+					</div>
+					<span onclick="copyJsonData()"  class="grid_action_icons pull-left"><i class="fa fa-files-o"></i></span>
+				</div>
+			</div>
+			
+			<div class="col-12" id="diffEditor_0">
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="jsonContainer_0" class="ace-editor-container">
+							<div id="jsonEditor_0" class="ace-editor"></div>
+						</div>
+					</div>
+				</div>	
+			</div>
+	</div>
+
+	<div class="col-12">
+		<div class="float-right">
+			<div class="btn-group dropdown custom-grp-btn">
+				<div id="savedAction">
+	    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
+	            </div> 
+			</div>
+			<span onclick="backToPreviousPage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+			</span> 
+		</div>
+	</div>	
+
+	
+</div>
+<script>
+contextPath = "${(contextPath)!''''}";
+const entityId = "${(entityId)!''''}";
+let updatedJson;
+let compareJsonEditor;
+let diffEditorArray = new Array();
+let autocomplete;
+$(function(){
+	setJsonEditorContent();
+	getUpdatedData();
+        autocomplete = $(''#revisionAutocomplete'').autocomplete({
+        autocompleteId: ''revisionAutocomplete'',
+        prefetch : true,
+        render: function(item) {
+        	var renderStr ='''';
+        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+    		{
+        		renderStr = ''<p>''+item.updatedDate+''</p>'';
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {
+			 entityId: entityId
+			,dateFormat: $("#dateFormat").val()
+		},
+        extractText: function(item) {
+            return item.updatedDate;
+        },
+        select: function(item) {
+            $("#revisionAutocomplete").blur();
+			$("#errorMessage").hide();
+			$("#selectedDateTime").val(item.updatedDate);
+			$("#moduleVersionId").val(item.moduleVersionId);
+			$("#diffEditor_0").nextAll("div").remove();
+			diffEditorArray = new Array();
+			getUpdatedData();
+			getJsonData(item.moduleVersionId);
+        }, 	
+    });
+
+})
+
+function setJsonEditorContent(){
+	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+        compareJsonEditor = monaco.editor.createDiffEditor(document.getElementById("jsonEditor_0"), {
+	       	originalEditable: true,
+	   		readOnly: true,
+			language: "text/plain",
+		    roundedSelection: false,
+			scrollBeyondLastLine: false,
+			theme: "vs-dark",
+			wordWrap: ''on'',
+	    });
+    });
+	
+}
+
+function getUpdatedData(){
+	$.ajax({
+		type : "POST",
+		url : contextPath+"/cf/uj",
+		async: false,
+		data : {
+			entityId : entityId,
+		},
+		success : function(data) {
+			updatedJson = data;
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
+}
+
+function getJsonData(selectedElementId){
+	$.ajax({
+		type : "POST",
+		url : contextPath+"/cf/mj",
+		async: false,
+		data : {
+			moduleVersionId : selectedElementId,
+		},
+		success : function(selectedVersionData) {
+			processJSONData(selectedVersionData);
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
+}
+
+function processJSONData(selectedVersionData){
+	let selectedVersionObj = JSON.parse(selectedVersionData);
+	let updatedObj = JSON.parse(updatedJson);
+	for (let prop in selectedVersionObj) {
+		if (Object.prototype.hasOwnProperty.call(selectedVersionObj, prop)) {
+			if(prop === "daoQueryDetails"){
+				dynarestDiff(selectedVersionObj, updatedObj);
+			}else if(prop === "dynamicFormSaveQueries"){
+				formBuilderDiff(selectedVersionObj, updatedObj);
+			}else if(prop === "dashletBody"){
+				dashletDiff(selectedVersionObj, updatedObj);
+			}else if(prop === "template"){
+				templateDiff(selectedVersionObj, updatedObj);
+			}else if(prop === "autocompleteSelectQuery"){
+				autocompleteDiff(selectedVersionObj, updatedObj);
+			}
+		}
+	}
+
+	selectedVersionData = JSON.stringify(selectedVersionObj, null, ''\t'');
+	updatedJson = JSON.stringify(updatedObj, null, ''\t'');
+
+	let originalModel = monaco.editor.createModel(updatedJson, "json");
+	let modifiedModel = monaco.editor.createModel(selectedVersionData, "json");
+					
+	compareJsonEditor.setModel({
+		original: originalModel,
+		modified: modifiedModel
+	});
+}
+
+function templateDiff(selectedVersionObj, updatedObj){
+	let saveTemplate = selectedVersionObj["template"];
+	let updatedTemplate = updatedObj["template"];
+	
+	createDiffEditor(saveTemplate, updatedTemplate, "template", "html");
+	
+	delete selectedVersionObj["template"];
+	delete updatedObj["template"];
+}
+
+function autocompleteDiff(selectedVersionObj, updatedObj){
+	let saveTemplate = selectedVersionObj["autocompleteSelectQuery"];
+	let updatedTemplate = updatedObj["autocompleteSelectQuery"];
+	
+	createDiffEditor(saveTemplate, updatedTemplate, "autocompleteSelectQuery");
+	
+	delete selectedVersionObj["autocompleteSelectQuery"];
+	delete updatedObj["autocompleteSelectQuery"];
+}
+
+
+function dynarestDiff(selectedVersionObj, updatedObj){
+	let daoQueryDetailsArray = JSON.parse(selectedVersionObj["daoQueryDetails"]);
+	let updatedDaoQueryDetailsArray = JSON.parse(updatedObj["daoQueryDetails"]);
+	
+	if(daoQueryDetailsArray.length > updatedDaoQueryDetailsArray.length){
+		$.each(daoQueryDetailsArray, function(index, value){
+			let saveQueryObj = value;
+			let updatedSaveQueryObj = "";
+			
+			if(updatedDaoQueryDetailsArray[index] !== undefined){
+				updatedSaveQueryObj = updatedDaoQueryDetailsArray[index];
+			}
+			
+			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "daoQueryDetails");
+		});
+	}else{
+		$.each(updatedDaoQueryDetailsArray, function(index, value){
+			let saveQueryObj = "";
+			let updatedSaveQueryObj = value;
+			
+			if(daoQueryDetailsArray[index] !== undefined){
+				saveQueryObj = daoQueryDetailsArray[index];
+			}
+			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "daoQueryDetails");
+		});
+	}
+	
+	delete selectedVersionObj["daoQueryDetails"];
+	delete updatedObj["daoQueryDetails"];
+
+}
+
+
+function formBuilderDiff(selectedVersionObj, updatedObj){
+	let saveFormHtml = selectedVersionObj["formBody"];
+	let updatedFormHtml = updatedObj["formBody"];
+	let saveFormSelectQuery = selectedVersionObj["formSelectQuery"];
+	let updatedFormSelectQuery = updatedObj["formSelectQuery"];
+	let saveQueries = selectedVersionObj["dynamicFormSaveQueries"];
+	let updatedSaveQueries = updatedObj["dynamicFormSaveQueries"];
+	
+	createDiffEditor(saveFormSelectQuery, updatedFormSelectQuery, "formSelectQuery");
+	createDiffEditor(saveFormHtml, updatedFormHtml, "formBody", "html");
+	
+	if(saveQueries.length > updatedSaveQueries.length){
+		$.each(saveQueries, function(index, value){
+			let saveQueryObj = value.dynamicFormSaveQuery;
+			let updatedSaveQueryObj = "";
+			
+			if(updatedSaveQueries[index] !== undefined){
+				updatedSaveQueryObj = updatedSaveQueries[index].dynamicFormSaveQuery;
+			}
+			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "formSaveQuery");
+		});
+	}else{
+		$.each(updatedSaveQueries, function(index, value){
+			let saveQueryObj = "";
+			let updatedSaveQueryObj = value.dynamicFormSaveQuery;
+			
+			if(saveQueries[index] !== undefined){
+				saveQueryObj = saveQueries[index].dynamicFormSaveQuery;
+			}
+			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "formSaveQuery");
+		});
+	}
+	
+	delete selectedVersionObj["formBody"];
+	delete updatedObj["formBody"];
+	delete selectedVersionObj["formSelectQuery"];
+	delete updatedObj["formSelectQuery"];
+	delete selectedVersionObj["dynamicFormSaveQueries"];
+	delete updatedObj["dynamicFormSaveQueries"];
+}
+
+
+function dashletDiff(selectedVersionObj, updatedObj){
+	let htmlContent = selectedVersionObj["dashletBody"];
+	let updatedHtmlContent = updatedObj["dashletBody"];
+	
+	createDiffEditor(htmlContent, updatedHtmlContent, "dashletBody", "html");
+		
+	delete selectedVersionObj["dashletBody"];
+	delete updatedObj["dashletBody"];
+	
+	let sqlQuery = selectedVersionObj["dashletQuery"];
+	let updatedSqlQuery = updatedObj["dashletQuery"];
+	
+	createDiffEditor(sqlQuery, updatedSqlQuery, "dashletQuery");
+		
+	delete selectedVersionObj["dashletQuery"];
+	delete updatedObj["dashletQuery"];
+}
+
+function createDiffEditor(selectedObj, currentObj, fieldName, a_languageName){
+	
+	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+	require(["vs/editor/editor.main"], function() {
+			
+			let diffEditorObj = new Object();
+			let diffEditor;
+			let index = diffEditorArray.length + 1;
+			let diffEditorDiv = $(''<div class="col-12 margin-t-b" id="diffEditor_''+index+''"><div class="html_script"><div class="grp_lblinp"><div id="jsonContainer_''+index+''" class="ace-editor-container"><div id="jsonEditor_''+index+''" class="ace-editor"></div></div></div></div></div>'');
+			diffEditorDiv.insertAfter($("#diffEditor_"+(index -1)));
+
+			let languageName = "sql";
+			if(a_languageName){
+				languageName = a_languageName;
+			}
+			
+			diffEditor = monaco.editor.createDiffEditor(document.getElementById("jsonEditor_"+index), {
+				originalEditable: true,
+				readOnly: true,
+				language: languageName,
+				roundedSelection: false,
+				scrollBeyondLastLine: false,
+				theme: "vs-dark",
+				wordWrap: ''on'',
+			});
+			
+			
+			let originalModel = monaco.editor.createModel(currentObj, languageName);
+			let modifiedModel = monaco.editor.createModel(selectedObj, languageName);
+							
+			diffEditor.setModel({
+				original: originalModel,
+				modified: modifiedModel
+			});
+			
+			diffEditorObj.fieldName = fieldName;
+			diffEditorObj.editor = diffEditor;
+			diffEditorArray.push(diffEditorObj);
+	});
+
+}
+
+
+
+function copyJsonData(){
+	let selectedElementId = $("#moduleVersionId").val().trim();
+	if(selectedElementId == ""){
+		$("#errorMessage").html("Please select revision time");
+		$("#errorMessage").show();
+		return false;
+	}
+	let modifiedContent = compareJsonEditor.getModifiedEditor().getValue();
+	compareJsonEditor.getOriginalEditor().setValue(modifiedContent);
+
+	$.each(diffEditorArray, function(index, value){
+		let modifiedContent = diffEditorArray[index].editor.getModifiedEditor().getValue();
+		diffEditorArray[index].editor.getOriginalEditor().setValue(modifiedContent);
+	})
+	showMessage("Content copied successfully", "Success");
+	
+}
+
+function saveUpdatedJson(){
+	let content = compareJsonEditor.getOriginalEditor().getValue();
+	let contentJson = JSON.parse(content);
+	let isParsable = false;
+	$.each(diffEditorArray, function(index, diffEditor){
+		let fieldName = diffEditor.fieldName;
+		if(contentJson[fieldName] !== undefined){
+			let previousValue;
+			let propertyArray;
+			if(isParsable){
+				previousValue = JSON.parse(contentJson[fieldName]);
+				propertyArray = previousValue.slice();
+			}else{
+				previousValue = contentJson[fieldName];
+				propertyArray = new Array();
+				propertyArray.push(previousValue);
+			}
+			let currentEditorValue = diffEditor.editor.getOriginalEditor().getValue().trim();
+			if(currentEditorValue !== ""){
+				propertyArray.push(currentEditorValue);
+			}
+			contentJson[fieldName] = JSON.stringify(propertyArray);
+			isParsable = true;
+		}else{
+			isParsable = false;
+			let fieldVal = diffEditor.editor.getOriginalEditor().getValue().trim();
+			if(fieldName === "formSaveQuery" || fieldName === "daoQueryDetails"){
+				isParsable = true;
+				let propertyArray = new Array();
+				propertyArray.push(fieldVal);
+				contentJson[fieldName] = JSON.stringify(propertyArray);
+			}else{
+				contentJson[fieldName] = fieldVal;
+			}
+		}
+	});
+	let modifiedContent = JSON.stringify(contentJson);
+	let moduleType = $("#moduleType").val();
+	let formId = $("#formId").val();
+	let saveUrl = $("#saveUrl").val().trim();
+	if(saveUrl == ""){
+		saveUrl = "/cf/suj";
+	}
+	
+	$.ajax({
+		type : "POST",
+		url : contextPath+saveUrl,
+		async: false,
+		data : {
+			formId : formId,
+			moduleType : moduleType,
+			modifiedContent : modifiedContent,
+		},
+		success : function(data) {
+			showMessage("Information saved successfully", "success");
+		},
+				
+		error : function(xhr, error){
+			showMessage("Error occurred while fetching data", "error");
+		},
+	        	
+	});
+
+}
+
+function backToPreviousPage(){
+	let previousPageUrl = $("#previousPageUrl").val();
+	location.href = contextPath+previousPageUrl;
+}
+
+</script>', 'admin', 'admin', NOW(), 2);
+
+REPLACE INTO autocomplete_details(
+   ac_id
+  ,ac_description
+  ,ac_select_query
+  ,ac_type_id
+) VALUES (
+   'revisionAutocomplete'
+  ,'List module version detail by entity id'
+  ,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
+  FROM jws_module_version AS jmv WHERE jmv.entity_id LIKE CONCAT("%",:entityId,"%") AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
+    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jws_module_version AS jmv WHERE jmv.entity_id LIKE CONCAT("%",:entityId,"%")) ORDER BY jmv.updated_date ASC'
+  ,2
+);
+
+
+
 SET FOREIGN_KEY_CHECKS=1;
+

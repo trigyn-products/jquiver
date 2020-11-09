@@ -175,6 +175,8 @@ group by me.manual_entry_id', '<head>
     let isEdit = 0;
     <#if (resultSet)?? && resultSet?has_content>
         isEdit = 1;
+    <#else>
+        $("#sortindex").val(''${requestDetails?api.get("sequence")}'');
     </#if>
     
      files = files.split(",");
@@ -266,6 +268,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 <input type="hidden" name="formId" value="8a80cb81754acbf701754ae3d1c2000c"/>
                 <input type="hidden" name="manualentryid" id="manualentryid" value=""/>
                 <input type="hidden" name="manualType" id="manualType" value="${mt}"/>
+                <input type="hidden" name="sequence" id="sequence" value=""/>
                 <button type="submit" class="btn btn-primary"> Create Entry </button>
             </form>
 
@@ -295,11 +298,11 @@ replace into template_master (template_id, template_name, template, updated_by, 
         let colM = [
             { title: "Entry name", width: 130, dataIndx: "entry_name", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-            { title: "Entry content", width: 130, dataIndx: "entry_content", align: "left", align: "left", halign: "center",
-                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Sort index", width: 130, dataIndx: "sort_index", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Last updated by", width: 130, dataIndx: "last_updated_by", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            { title: "Last Updated Timestamp", width: 130, dataIndx: "last_modified_on", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
@@ -308,9 +311,11 @@ replace into template_master (template_id, template_name, template, updated_by, 
         let grid = $("#manual-entryGrid").grid({
           gridId: "manual-entryGrid",
           colModel: colM,
-          additionalParameters: {"manual_type" : manualType}
+          additionalParameters: {"manual_type" : manualType},
+          loadCallback: function(event, ui) {
+              $("#sequence").val(ui.dataModel.data.length + 1);
+          }
         });
-    
     });
     
     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
@@ -378,7 +383,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
         <div class="clearfix"></div>        
     </div>
     <div class="row">
-        <div class="col-9">
+        <div class="col-12">
             <input type="hidden" id="fmanualid" name="fmanualid"  value="" maxlength="10" class="form-control">
             <div class="col-inner-form full-form-fields">
                 <label for="name" style="white-space:nowrap"><span class="asteriskmark">*</span>
@@ -400,6 +405,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 </form>
 
 <script>
+
     contextPath = "";
     $(function () {
     //Add all columns that needs to be displayed in the grid
@@ -478,68 +484,105 @@ replace into template_master (template_id, template_name, template, updated_by, 
 
 replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175513bc80175514206ef0000', 'manual-display', '<script src="/webjars/1.0/manuals/helpmanual.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/markdown/highlight/github.min.css"/>
+<link rel="stylesheet" href="/webjars/1.0/markdown/highlight/github.min.css" />
 <script src="/webjars/1.0/markdown/highlight/highlight.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-<div class="topband">
-    <h2 id="title" class="title-cls-name float-left"></h2> 
-    <div class="float-right">
-        <span onclick="back();">
-            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-        </span>    
-    </div>
-    
-    <div class="clearfix"></div>        
-</div>
-<div class="row margin-t-b">
-    <div class="col-12">
-        <input type="text" id="searchText" class="form-control" placeholder="Search ...." onkeypress="search(event, this.value)">
-    </div>
-</div>
-<div class="preview row">
-    <div id="tabs" class="col-3 tabs"></div>
-    <div id="previews" class="col-9 previews"></div>
-</div>
-<div id="previewDiv" style="display:none;">
-<textarea id="previewContent" style="display:none;"></textarea>
-</div>
-<script>
-    contextPath = "${contextPath}";
-    let manual = new HelpManual();
-    let manualTypes = manual.getManualDetails();
-    $("#title").html(manualTypes.find(manual => {return manual["manual_id"] == "${mt}"})["name"]);
-    manual.getManualEntities("${mt}");
-    for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
-        let data = manual.helpManualDetails[counter];
-        $("#tabs").append("<button id=''"+data["manual_entry_id"]+"'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>"+data["entry_name"]+"</button>");  
-        let simplemde = new SimpleMDE({
-        initialValue : manual.helpManualDetails[counter]["entry_content"],
-        renderingConfig: {
-            codeSyntaxHighlighting: true,
-        }
-      }); 
-      manual.helpManualDetails[counter]["divContent"] = $(simplemde.options.previewRender(simplemde.value())).text();
-    }
-    
-    $("#tabs button")[0].click();
-    function back() {
-        location.href = contextPath + "/cf/help"
-    }
 
-    function search(event, value) {
-        if(event.which == 13) {
-            let manuals = manual.helpManualDetails.filter(details => {return details["divContent"].match(value) != null});
-            $("#tabs").html("");
-            $("#previews").html("");
-            for(let counter = 0; counter < manuals.length; counter++) {
-                let data = manuals[counter];
-                $("#tabs").append("<button id=''"+data["manual_entry_id"]+"'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>"+data["entry_name"]+"</button>"); 
-            }
-            $("#tabs button")[0].click();
-        }
-    }
-</script>', 'admin', 'admin', NOW(), NULL, 1);
+
+	
+
+
+<div class="container ">
+	<div class="pg-manual-display">
+		<div class="row">
+			<div class="topband">
+				<h2 id="title" class="title-cls-name float-left"></h2>
+				<div class="float-right"> <span onclick="back();">
+                        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+                    </span> </div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		    <div class="cm-rightbar">
+                <div class="row cm-bottom-border">
+			    <div class="col-md-3">
+				    <div class="cm-searchwithicon">
+                        <div class="form-group has-search"> <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" class="form-control" placeholder="Search ...." onkeyup="search(event, this.value)"> 
+                        </div>
+					</div>
+				</div>
+                </div>
+
+                <div class="preview row">
+                    
+					<div id="tabs" class="col-md-3 tabs"></div>
+					<div id="previews" class="col-md-9 previews"></div>
+				</div>
+
+                <div class="row">
+                <div class="col-md-3">
+                    <div id="previewDiv" style="display:none;">
+                        <textarea id="previewContent" style="display:none;"></textarea>
+                    </div>
+                </div>
+            </div>
+			</div>
+            
+				
+			
+            
+
+		</div>
+	</div>
+
+	
+			
+	<script>
+		contextPath = "${contextPath}";
+let manual = new HelpManual();
+let manualTypes = manual.getManualDetails();
+$("#title").html(manualTypes.find(manual => {
+	return manual["manual_id"] == "${mt}"
+})["name"]);
+manual.getManualEntities("${mt}");
+for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
+	let data = manual.helpManualDetails[counter];
+	$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<i class=''fa fa-table''></i>" + data["entry_name"]  + "</button>"); 
+	let simplemde = new SimpleMDE({
+		initialValue: manual.helpManualDetails[counter]["entry_content"],
+		renderingConfig: {
+			codeSyntaxHighlighting: true,
+		}
+	});
+	manual.helpManualDetails[counter]["divContent"] = $(simplemde.options.previewRender(simplemde.value())).text();
+}
+$("#tabs button")[0].click();
+
+function back() {
+	location.href = contextPath + "/cf/help"
+}
+
+function search(event, value) {
+	let searchText = value.toLowerCase();
+		let manuals = manual.helpManualDetails.filter(details => {
+			let divContent = details["divContent"].toLowerCase();
+			return divContent.indexOf(searchText) != -1
+		});
+		$("#tabs").html("");
+		$("#previews").html("");
+		if(manuals.length > 0){
+			for(let counter = 0; counter < manuals.length; counter++) {
+				let data = manuals[counter];
+				$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + data["entry_name"] + "</button>");
+			}
+			$("#tabs button")[0].click();
+		}else{
+			$("#tabs").text("Sorry no data found");
+		}
+}
+	</script>', 'admin', 'admin', NOW(), NULL, 1);
 
 replace into grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
 ('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1), 
