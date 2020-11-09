@@ -9,24 +9,17 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-
-/**
- * @author: aNIRUDDHA
- * @since: 21-Oct-2020
- */
 
 public final class CaptchaUtil {
 	public static final String			FILE_TYPE	= "png";
