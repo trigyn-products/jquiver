@@ -16,6 +16,8 @@ import com.trigyn.jws.resourcebundle.utils.ResourceBundleUtils;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,8 @@ public class ResourceBundleService {
 
 	@Autowired
 	private ModuleVersionService moduleVersionService = null;
+	
+	private final static Logger logger = LogManager.getLogger(ResourceBundleService.class);
 
 	public Map<Integer, ResourceBundleVO> getResourceBundleVOMap(String resourceBundleKey) throws Exception {
 		try {
@@ -96,6 +100,7 @@ public class ResourceBundleService {
 						sourceTypeId);
 			}
 		} catch (Exception exception) {
+			logger.error("Error occurred while saving resource bundle data ", exception);
 			throw new RuntimeException("Error ocurred while saving resource bundle data");
 		}
 	}

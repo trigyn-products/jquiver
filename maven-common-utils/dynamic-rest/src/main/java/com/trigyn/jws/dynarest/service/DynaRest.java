@@ -30,8 +30,7 @@ public class DynaRest {
 	 * Method to get dynamic rest details
 	 *
 	 */
-	public Map<String, Object> defaultTemplates(HttpServletRequest a_httpServletRequest, 
-			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
+	public Map<String, Object> defaultTemplates(HttpServletRequest a_httpServletRequest, Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		Map<String, Object> response = new HashMap<>();
 		response.put("defaultTemplates", dAOparameters.get("defaultTemplates"));
 		return response;

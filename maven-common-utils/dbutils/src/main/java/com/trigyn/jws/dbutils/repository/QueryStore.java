@@ -38,7 +38,7 @@ public final class QueryStore {
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nP ON mlI18nP.id.languageId = :languageId "
     		+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nPDef ON mlI18nPDef.id.languageId = :defaultLanguageId "
-    		+ " WHERE ml.moduleUrl != :homeModuleURL AND ml.sequence IS NOT NULL "
+    		+ " WHERE ml.moduleUrl != :homeModuleURL AND ml.sequence IS NOT NULL AND ml.isInsideMenu = 1 "
     		+ " GROUP BY ml.moduleId ORDER BY ml.sequence ASC ";
     
     public static final String JPA_QUERY_TO_GET_MODULE_ID_BY_NAME = "SELECT ml.moduleId AS moduleId"

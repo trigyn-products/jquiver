@@ -76,7 +76,7 @@ group by me.manual_entry_id', '<head>
                 <div class="col-3">
                     <div class="col-inner-form full-form-fields">
                         <label for="sortindex" style="white-space:nowrap"><span class="asteriskmark">*</span>
-                        Sort index
+                        ${messageSource.getMessage("jws.displayIndex")}
                     </label>
                         <input type="number" id="sortindex" name="sortindex"  value="" maxlength="10" class="form-control">
             </div>
@@ -264,6 +264,10 @@ replace into template_master (template_id, template_name, template, updated_by, 
     <div class="topband">
         <h2 id="title" class="title-cls-name float-left"></h2> 
         <div class="float-right">
+            <form id="viewManualForm" action="/cf/manual" method="get" target="_blank" class="margin-r-5 pull-left">
+  				<input id="manualTypeView" name="mt" type="hidden" value="${mt}">
+  				<button type="submit" class="btn btn-primary"> View Manual </button>
+			</form>
             <form id="addEditRecords" action="/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb81754acbf701754ae3d1c2000c"/>
                 <input type="hidden" name="manualentryid" id="manualentryid" value=""/>
@@ -271,7 +275,6 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 <input type="hidden" name="sequence" id="sequence" value=""/>
                 <button type="submit" class="btn btn-primary"> Create Entry </button>
             </form>
-
 
             <span onclick="backToWelcomePage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -303,7 +306,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
             { title: "Last updated by", width: 130, dataIndx: "last_updated_by", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Last Updated Timestamp", width: 130, dataIndx: "last_modified_on", align: "left", align: "left", halign: "center",
-                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]} , render: lastUpdatedDate },
             { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
     
@@ -322,6 +325,12 @@ replace into template_master (template_id, template_name, template, updated_by, 
     function manageRecord(uiObject) {
         let rowIndx = uiObject.rowIndx;
         return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span><span id="''+rowIndx+''" onclick="deleteEntry(this)" class= "grid_action_icons"><i class="fa fa-trash"></i></span>''.toString();
+    }
+    
+    function lastUpdatedDate(uiObject) {
+        let lastUpdateDate = uiObject.rowData.last_modified_on;
+
+        
     }
     
     //Add logic to navigate to create new record
@@ -404,13 +413,17 @@ replace into template_master (template_id, template_name, template, updated_by, 
     </div>
 </form>
 
+<form id="viewManualForm" action="/cf/manual" method="get" target="_blank">
+  <input id="manualType" name="mt" type="hidden">
+</form>
+
 <script>
 
     contextPath = "";
     $(function () {
     //Add all columns that needs to be displayed in the grid
         let colM = [
-            { title: "Name", dataIndx: "name", align: "left", align: "left", halign: "center",
+            { title: "Name", dataIndx: "name", width: 800, align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Action", dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
@@ -448,7 +461,8 @@ replace into template_master (template_id, template_name, template, updated_by, 
     function viewManual(element) {
         const id = Number.parseInt(element.id);
         let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndxPage: id});
-        location.href = contextPath + "/cf/manual?mt="+rowData["manual_id"];
+        $("#manualType").val(rowData["manual_id"]);
+        $("#viewManualForm").submit();
     }
 
     function saveData() {
@@ -506,19 +520,27 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		</div>
 		    <div class="cm-rightbar">
                 <div class="row cm-bottom-border">
+                    <span> <i class="icon icon-s-information"></i></span>
 			    <div class="col-md-3">
 				    <div class="cm-searchwithicon">
-                        <div class="form-group has-search"> <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control" placeholder="Search ...." onkeyup="search(event, this.value)"> 
+                        <div class="form-group has-search clearfix"> <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
+                           <div class="cm-errormsg" id="cm-errormsg"></div> 
+
+                           
+                             
                         </div>
+                         
+                        
+                       
 					</div>
 				</div>
                 </div>
 
-                <div class="preview row">
+                <div class="preview row cm-scrollbar">
                     
 					<div id="tabs" class="col-md-3 tabs"></div>
-					<div id="previews" class="col-md-9 previews"></div>
+					<div id="previews" class="col-md-9 previews cm-scrollbar"></div>
 				</div>
 
                 <div class="row">
@@ -549,7 +571,7 @@ $("#title").html(manualTypes.find(manual => {
 manual.getManualEntities("${mt}");
 for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
 	let data = manual.helpManualDetails[counter];
-	$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<i class=''fa fa-table''></i>" + data["entry_name"]  + "</button>"); 
+	$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<i class=''fa fa-table''></i>" + data["entry_name"]  + "</button>");
 	let simplemde = new SimpleMDE({
 		initialValue: manual.helpManualDetails[counter]["entry_content"],
 		renderingConfig: {
@@ -572,6 +594,7 @@ function search(event, value) {
 		});
 		$("#tabs").html("");
 		$("#previews").html("");
+    	$("#cm-errormsg").hide();
 		if(manuals.length > 0){
 			for(let counter = 0; counter < manuals.length; counter++) {
 				let data = manuals[counter];
@@ -579,7 +602,8 @@ function search(event, value) {
 			}
 			$("#tabs button")[0].click();
 		}else{
-			$("#tabs").text("Sorry no data found");
+			$("#cm-errormsg").show();
+			$("#cm-errormsg").text("Sorry no data found");
 		}
 }
 	</script>', 'admin', 'admin', NOW(), NULL, 1);

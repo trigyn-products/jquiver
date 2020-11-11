@@ -136,9 +136,11 @@ public class DynamicFormCrudService {
 			formSaveQueryMap.put("formQueryId", dynamicFormSaveQuery.getDynamicFormQueryId());
 			formSaveQueryMap.put("formSaveQuery", dynamicFormSaveQuery.getDynamicFormSaveQuery());
 			formSaveQueryMap.put("sequence", dynamicFormSaveQuery.getSequence());
-			formSaveQueryMap.put("formBody", dynamicForm.getFormBody());
 			dynamicFormList.add(formSaveQueryMap);
 		}
+		Map<String, Object> formSaveQueryMap = new HashMap<>();
+		formSaveQueryMap.put("formBody", dynamicForm.getFormBody());
+		dynamicFormList.add(formSaveQueryMap);
 		return dynamicFormList;
 	}
 	

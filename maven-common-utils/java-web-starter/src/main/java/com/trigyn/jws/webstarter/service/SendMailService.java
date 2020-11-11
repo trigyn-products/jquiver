@@ -354,11 +354,6 @@ public class SendMailService {
 			bccList = mail.getInternetAddressBCCArray();
 		}
 
-		TemplateVO templateDetails = dbTemplatingService.getTemplateByName(Constant.MAIL_TEMPLATE_NAME);
-		if (templateDetails != null && templateDetails.getTemplate() != null) {
-			mail.setBody(templateDetails.getTemplate());
-		}
-
 		Boolean isMailFooterRequired;
 
 		String footerExists = mailMap.get("isMailFooterEnabled");

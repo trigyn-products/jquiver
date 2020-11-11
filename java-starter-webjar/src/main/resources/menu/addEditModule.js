@@ -75,7 +75,7 @@ class AddEditModule {
    		}
    		
    		let sequence = $("#sequence").val().trim();
-   		if(sequence === "" && ($("#insideMenuCheckbox").prop("checked")) === false){
+   		if(sequence === "" && ($("#insideMenuCheckbox").prop("checked")) === true){
    			$("#sequence").focus();
    			$('#errorMessage').html("Please enter sequence number");
    			return false;
@@ -153,8 +153,6 @@ class AddEditModule {
 	    	$("#targetTypeName").attr('disabled','disabled');
 	    	$("#moduleURL").attr('disabled','disabled');
 	    	$("#parentModuleName").attr('disabled','disabled');
-	    	$("#insideMenuCheckbox").prop('checked',false);
-	    	$("#insideMenuCheckbox").attr('disabled','disabled');
 	    	if(isEditFlag === undefined){
 	    		context.getSequenceByGroup();
 	    	}
@@ -162,7 +160,6 @@ class AddEditModule {
     		$("#parentModuleName").val(context.parentModuleId);
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
-	    	$("#insideMenuCheckbox").prop('disabled',false);
 	    	if(isEditFlag === undefined){
 	    		$("#moduleURL").val("");
 	    		$("#targetTypeName").val("");
@@ -247,22 +244,20 @@ class AddEditModule {
    		let targetLookupId = $("#targetLookupType").find(":selected").val();
    		if(isInsideMenu){
    			$("#isInsideMenu").val(1);
-   			$("#parentModuleName").val("");
-   			$("#sequence").val("");
-   			$("#sequence").prop('disabled',true);
-   			$("#parentModuleName").prop('disabled',true);
-   		}
-   		else{
-   			$("#isInsideMenu").val(0);
    			$("#sequence").prop('disabled',false);
-   			if(targetLookupId !== "6") {
-	   			$("#parentModuleName").prop('disabled',false);
-	   		}
+   			$("#parentModuleName").prop('disabled',false);
    			if(sequence !== undefined && sequence !== ""){
    				$("#sequence").val(sequence);
    				return true;
    			}
    			context.getSequenceByParent();
+   		}
+   		else{
+			$("#isInsideMenu").val(0);
+   			$("#parentModuleName").val("");
+   			$("#sequence").val("");
+   			$("#sequence").prop('disabled',true);
+   			$("#parentModuleName").prop('disabled',true);
    		}
    		
    	}

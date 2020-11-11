@@ -20,4 +20,4 @@ VALUES ('6966efd5-1a8f-11eb-98d3-f48e38ab8cd7','system', 'system', 'max-version-
 
 
 REPLACE INTO jws_property_master (property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('e21f365f-1ce3-11eb-953d-f48e38ab8cd7','system', 'system', 'jws-date-format', '{​​​​ js:"%d-%m-%y %r", java:"%d/%m/%y %r", db:"%d/%m/%y %r" }​​​​', 0, NOW(), 'admin', 1.00, 'Date Format');
+VALUES ('e21f365f-1ce3-11eb-953d-f48e38ab8cd7','system', 'system', 'jws-date-format', '{​​​​ js:"%d-%m-%Y %r", java:"%d-%m-%Y %r", db:"%d-%m-%Y %r" }​​​​', 0, NOW(), 'admin', 1.00, 'Date Format');

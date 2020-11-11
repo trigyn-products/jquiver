@@ -51,7 +51,7 @@ public class JwsEntityRoleAssociation {
 	private Integer isActive = null;
 	
 	@Column(name="module_type_id")
-	private Integer moduleTypeId = null;
+	private Integer moduleTypeId = 0;
 
 	@ManyToOne
 	@JoinColumn(name="role_id" , referencedColumnName = "role_id",insertable = false, updatable = false)

@@ -260,9 +260,7 @@ const enableVersioning = function(formData){
     	dataType: "html",
     	data: formData,
     	success: function (data) {
-			
 	   	},
-    		
     	error : function(xhr, error){
 	       	showMessage("Error occurred saving versioning information", "error");
 	    },
@@ -275,4 +273,13 @@ const hideShowActionButtons = function(){
             actionOptions(event.target.id);
         }
     });
+}
+
+Array.prototype.formatSerializedArray = function() {
+	for(let counter = 0; counter < this.length; ++counter) {
+		if(this[counter]["valueType"] == undefined){
+			this[counter]["valueType"] = $("#"+this[counter].name).attr('data-type');
+		}
+	}
+	return this;
 }

@@ -2,13 +2,20 @@ package com.trigyn.jws.dbutils.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
 import com.trigyn.jws.dbutils.repository.JwsTemplateVersionRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
@@ -42,11 +49,18 @@ public class ModuleVersionService {
 	public void saveModuleVersion(Object entityData, Object parentEntityIdObj
 			, Object entityTypeIdObj, String entityTypeName, Integer sourceTypeId) throws Exception{
 		Gson gson 								= new Gson();
+		ObjectMapper objectMapper				= new ObjectMapper();
+		String moduleJson 						= null;
+		try {
+			Map<String, Object> objectMap 			= objectMapper.convertValue(entityData, TreeMap.class);
+			moduleJson = gson.toJson(objectMap);
+		} catch (IllegalArgumentException e) {
+			moduleJson = entityData.toString();
+		}
 		String parentEntityId 					= parentEntityIdObj == null ? null : parentEntityIdObj.toString();
 		String entityTypeId 					= entityTypeIdObj.toString();
 		JwsModuleVersion moduleVersion 			= new JwsModuleVersion();
-		
-		String moduleJson 						= gson.toJson(entityData);
+
 		UserDetailsVO userDetailsVO 			= userDetailsService.getUserDetails();
 		String moduleJsonChecksum				= generateJsonChecksum(moduleJson);
 		Boolean isDataUpdated					= compareChecksum(entityTypeId, moduleJsonChecksum);

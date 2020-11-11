@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,7 +44,7 @@ public class ModuleRevisionService {
 	
 	
 	public void saveModuleVersioning( MultiValueMap<String, String> formData, Integer sourceTypeId) throws Exception{
-		Map<String, Object> versioningData = new TreeMap<>();
+		Map<String, Object> versioningData = new HashMap<>();
 		String primaryKey = null;
 		String entityName = null;
 		for (Entry<String, List<String>> formDataMap : formData.entrySet())  {

@@ -56,7 +56,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
 			Files.createDirectory(Paths.get(fileUploadDir));
 		} catch (Exception execption) {
-			logger.error("Error while init of file stoarage ", execption.getMessage());
+			logger.warn("Error while init of file storage ", execption.getMessage());
 		}
 
 	}

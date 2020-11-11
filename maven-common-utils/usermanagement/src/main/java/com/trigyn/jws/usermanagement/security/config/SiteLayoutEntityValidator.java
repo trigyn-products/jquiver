@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ public class SiteLayoutEntityValidator  implements EntityValidator{
 		boolean hasAccess = false;
 		String moduleUrl = reqObject.getRequestURI();
 		moduleUrl = moduleUrl.replaceFirst("/view/", "");
+		if(StringUtils.isNotBlank(reqObject.getQueryString())) {
+			moduleUrl += "?"+reqObject.getQueryString();
+		}
 		Long count = authorizedValidatorDAO.hasAccessToSiteLayout(moduleUrl, roleNames);
 		if (count > 0) {
 			hasAccess = true;

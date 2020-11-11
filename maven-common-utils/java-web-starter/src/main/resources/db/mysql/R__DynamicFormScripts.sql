@@ -275,7 +275,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
              
         <div class="row margin-t-b">  
 			<div class="col-12">
-				<h3 class="titlename"><span class="asteriskmark">*</span>Save/Update Script</h3>
+				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>Save/Update Script</h3>
 				<div id = "saveScriptContainer"></div>
 			</div>
 		</div>        
@@ -328,6 +328,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let formName = "${(dynamicForm?api.getFormName())!''''}";
 	let formId = "${(dynamicForm?api.getFormId())!''''}";
 	let initialFormData;
+	let htmlVal;
 	formName = $.trim(formName);
 	if(formName !== ""){
 		$("#formName").prop("disabled", true);

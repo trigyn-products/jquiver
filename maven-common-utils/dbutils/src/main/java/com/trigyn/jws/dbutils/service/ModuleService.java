@@ -71,7 +71,7 @@ public class ModuleService {
 		List<ModuleDetailsVO> parentModulesList  	= new ArrayList<>();
 		List<ModuleDetailsVO> parentModuleVOs	  	= new ArrayList<>();
 		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.HOME_PAGE_MODULE_URL
-				, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID, Constant.IS_NOT_INSIDE_MENU);
+				, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID, Constant.IS_INSIDE_MENU);
 		if(!StringUtils.isBlank(moduleId)) {
 			for (ModuleDetailsVO moduleDetailsVO : parentModulesList) {
 				if(!moduleDetailsVO.getModuleId().equals(moduleId)) {
@@ -157,10 +157,9 @@ public class ModuleService {
 		if(moduleDetailsVO.getIsInsideMenu().equals(Constant.IS_INSIDE_MENU)) {
 			moduleListing.setIsInsideMenu(moduleDetailsVO.getIsInsideMenu());
 		}else {
-			moduleListing.setSequence(moduleDetailsVO.getSequence());
 			moduleListing.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
 		}
-		
+		moduleListing.setSequence(moduleDetailsVO.getSequence());
 		moduleListing.setModuleUrl(moduleDetailsVO.getModuleURL());
 		
 		moduleListing.setTargetLookupId(moduleDetailsVO.getTargetLookupId());

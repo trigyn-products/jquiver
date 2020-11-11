@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
@@ -59,9 +58,6 @@ public class JwsUserRegistrationController {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder =  null;
-	
-	@Autowired 
-	private MenuService  menuService = null;
 	
 	@Autowired
 	private JwsUserRoleAssociationRepository   userRoleAssociationRepository = null;
@@ -103,8 +99,6 @@ public class JwsUserRegistrationController {
 		TemplateVO templateVO =  templatingService.getTemplateByName("jws-login");
 		return	templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 		
-		//return menuService.getTemplateWithSiteLayout("jws-login",mapDetails);
-		
 	}
 
 	
@@ -132,7 +126,6 @@ public class JwsUserRegistrationController {
 		TemplateVO templateVO =  templatingService.getTemplateByName("jws-register");
 		return	templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 		
-		//return menuService.getTemplateWithSiteLayout("jws-register",mapDetails);
 	}
 	
 	@PostMapping(value="/register")
@@ -188,7 +181,7 @@ public class JwsUserRegistrationController {
          		Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));  
 				email.setSubject("Complete Registration!");  
-				email.setMailFrom("admin@trigyn.com");
+				email.setMailFrom("admin@jquiver.com");
 				email.setBody("To confirm your account, please click here : "
         				+"http://localhost:8080/cf/confirm-account?token="+confirmationToken.getConfirmationToken());
          
@@ -276,7 +269,6 @@ public class JwsUserRegistrationController {
 				return null;
 			}
 		
-	        //return  menuService.getTemplateWithSiteLayout(viewName,mapDetails);
 	    }
 	
 	

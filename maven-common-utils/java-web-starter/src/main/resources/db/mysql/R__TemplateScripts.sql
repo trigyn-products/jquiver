@@ -745,7 +745,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="contextType">Inside Menu</label>
+					<label for="contextType">${messageSource.getMessage("jws.includeInMenu")}</label>
 					<div class="onoffswitch">
 						<input type="hidden" id="isInsideMenu" name="isInsideMenu" value="${(moduleDetailsVO?api.getIsInsideMenu())!''''}">
 						<#if (moduleDetailsVO?api.getIsInsideMenu())?? && moduleDetailsVO?api.getIsInsideMenu() == 1>
@@ -791,9 +791,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 
+		<div class="col-3">
 			<input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
-        <@templateWithoutParams "role-autocomplete"/> 
-			
+        	<@templateWithoutParams "role-autocomplete"/> 
+        </div>
+		
 		</div>
 
 		<div class="row">

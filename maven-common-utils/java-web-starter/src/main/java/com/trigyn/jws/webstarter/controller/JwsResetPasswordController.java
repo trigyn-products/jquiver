@@ -119,7 +119,7 @@ public class JwsResetPasswordController {
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
 				email.setSubject("Please reset your password");
-				email.setMailFrom("admin@trigyn.com");
+				email.setMailFrom("admin@jquiver.com");
 				email.setBody("To reset your TSMS user account password, please click here : "
 						+ "http://localhost:8080/cf/resetPassword?token=" + tokenId);
 

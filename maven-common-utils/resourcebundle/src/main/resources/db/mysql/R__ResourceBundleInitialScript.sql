@@ -171,5 +171,10 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.curr
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageRoleModules',1,'Manage Role Modules');
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageEntityRoles',1,'Manage Entity Roles');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.includeInMenu',1,'Include In Menu');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.displayIndex',1,'Display Index');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.sendTestMail', 1, 'Send Test Mail'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveMailConfiguration', 1, 'Save Configuration'); 
 
 SET FOREIGN_KEY_CHECKS=1;

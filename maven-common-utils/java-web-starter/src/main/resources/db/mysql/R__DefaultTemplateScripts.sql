@@ -218,7 +218,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 			<#else>
 				<span class="asteriskmark">*</span>
 				<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-				<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"></textarea>
+				<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"><#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse></textarea>
 			</#if>
 			</div>
 		</div>
@@ -307,7 +307,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 			return false;
 		}
 		$("#errorMessage").hide();
-		let formData = $("#addEditForm").serializeArray();
+		let formData = $("#addEditForm").serializeArray().formatSerializedArray();
 		let formIdObj = new Object();
 		formIdObj["name"] = "formId";
 		formIdObj["value"] = formId;
@@ -423,8 +423,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     //Add logic to navigate to create new record
     function createNew(element) {
         let rowData = $( "#${gridId}" ).pqGrid("getRowData", {rowIndxPage: element.id});
-        <#list primaryKeysIds as primaryKey>
-        primaryKeyDetails["${primaryKey}"] = rowData["${primaryKey}"];
+        <#list primaryKeys as primaryKey>
+        primaryKeyDetails["${primaryKey?replace("_", "")}"] = rowData["${primaryKey}"];
         </#list>
         openAddEditScreen();
     }

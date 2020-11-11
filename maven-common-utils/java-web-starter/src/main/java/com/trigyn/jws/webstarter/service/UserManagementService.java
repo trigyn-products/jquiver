@@ -6,12 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.lang3.StringUtils;
@@ -215,7 +213,14 @@ public class UserManagementService {
 				jwsUser.setEmail(userData.getEmail());
 				password = UUID.randomUUID().toString();
 				jwsUser.setPassword(passwordEncoder.encode(password));
-				System.out.println("Your account password is  "+ password) ; 
+				System.out.println("Your account password is  "+ password) ;
+				Email email = new Email();
+				email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
+				email.setSubject("Account Password");  
+				email.setMailFrom("admin@jquiver.com");
+				email.setBody("Your account password is  "+ password+" You can login through these url : http://localhost:8080/cf/login");
+		  		
+				sendMailService.sendTestMail(email);
 			}
 			jwsUser.setIsActive(userData.getForcePasswordChange()==1?Constants.INACTIVE:Constants.ISACTIVE);
 			jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
@@ -234,7 +239,7 @@ public class UserManagementService {
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
 				email.setSubject("Account Password");  
-				email.setMailFrom("admin@trigyn.com");
+				email.setMailFrom("admin@jquiver.com");
 				email.setBody(messageText.toString());
 		  		
 				sendMailService.sendTestMail(email);
@@ -296,12 +301,15 @@ public class UserManagementService {
 	}
 
 	public void updatePropertyMasterValuesAndAuthProperties(String authenticationEnabled, String authenticationTypeId,
-			String propertyJson) {
+			String propertyJson,String regexObj) {
 		
 		propertyMasterRepository.updatePropertyValueByName(authenticationEnabled, "enable-user-management");
 		propertyMasterRepository.updatePropertyValueByName(authenticationTypeId, "authentication-type");
 		
 		authenticationTypeRepository.updatePropertyById(Integer.parseInt(authenticationTypeId),propertyJson);
+		if(StringUtils.isNotBlank(regexObj)) {
+			propertyMasterRepository.updatePropertyValueByName(regexObj, "regexPattern");
+		}
 	}
 
 	public String manageEntityRoles() throws Exception {
@@ -486,6 +494,11 @@ public class UserManagementService {
 			String userId = userDetails.getUserId();
 			return addEditUser(userId,isProfilePage);
 			
+		}
+
+		public String getInputFieldsByProperty(String propertyName) throws Exception {
+			String propertyMasterRegex =  propertyMasterService.findPropertyMasterValue("system", "system", propertyName);
+			return propertyMasterRegex;
 		}
 	 
 }

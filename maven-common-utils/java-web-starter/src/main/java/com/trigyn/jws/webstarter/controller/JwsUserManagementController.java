@@ -1,21 +1,17 @@
 package com.trigyn.jws.webstarter.controller;
 
-import java.awt.Dimension;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.Restarter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
-import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
-import com.trigyn.jws.usermanagement.security.config.UserInformation;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
@@ -126,9 +120,10 @@ public class JwsUserManagementController {
 	public Boolean saveAuthenticationType(
 			@RequestParam("authenticationEnabled") String authenticationEnabled,
 			@RequestParam("authenticationTypeId") String authenticationTypeId,
-			@RequestParam("propertyJson") String propertyJson) throws Exception {
+			@RequestParam("propertyJson") String propertyJson,
+			@RequestParam("regexObj") String regexObj) throws Exception {
 		
-		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled,authenticationTypeId,propertyJson);
+		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled,authenticationTypeId,propertyJson,regexObj);
 		return true;
 	}
 	
@@ -199,4 +194,13 @@ public class JwsUserManagementController {
 		}	
 		return emailExist;
 	}
+ 	
+ 	
+	@GetMapping(value="/gif", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getInputFieldsByProperty(HttpServletRequest request) throws Exception {
+		
+		String propertyName = request.getParameter("inputId");
+		return userManagementService.getInputFieldsByProperty(propertyName);
+	}
+ 	
 }

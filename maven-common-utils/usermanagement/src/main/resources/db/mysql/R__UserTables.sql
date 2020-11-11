@@ -14,7 +14,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Add Edit Role</h2> 
+		<h2 class="title-cls-name float-left">
+			<#if (jwsRole?api.getRoleId())??>
+                Edit Role
+             <#else>
+                Add Role
+             </#if>
+		</h2> 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditForm" id="addEditForm">
@@ -56,20 +62,32 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   </form>
   <div class="row">
 			<div class="col-12">
-				<div class="float-right">
-					<input id="formId" class="btn btn-primary" name="addTemplate" value="Save" type="button" onclick="saveData();">
-					<span onclick="backToPreviousPage();">
-						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-					</span> 
-				</div>
+				<div id="buttons" class="pull-right">
+					<div class="btn-group dropdown custom-grp-btn">
+                        <div id="savedAction">
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''add-edit-role'', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction(''add-edit-role'', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction(''add-edit-role'', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+                    <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="backToPreviousPage();">
+		        </div>
 			</div>
 		</div>
 </div>
 <script>
 
 	contextPath = "${contextPath}";
-  
+  let isEdit = "${jwsRole?api.getRoleId()!''''}";
   $(function(){
+  
+   	savedAction("add-edit-role", isEdit);
+	hideShowActionButtons();
     // setting value on edit.
       <#if (jwsRole?api.getRoleId()??)>
       	
@@ -98,9 +116,10 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		     		url : contextPath+"/cf/srd",
 		     		data : JSON.stringify(roleData),
 		            success: function(data) {
-		              backToPreviousPage();
+		              showMessage("Information saved successfully", "success");
 		            }
 		     	});
+		     	return true;
 	}
 	
 	//Code go back to previous page
@@ -149,6 +168,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <script>
 var rolesArray = ["2ace542e-0c63-11eb-9cf5-f48e38ab9348","ae6465b3-097f-11eb-9a16-f48e38ab9348","b4a0dda1-097f-11eb-9a16-f48e38ab9348"];
 $(function () {
+	let formElement = $("#addEditRole")[0].outerHTML;
+	let formDataJson = JSON.stringify(formElement);
+	sessionStorage.setItem("add-edit-role", formDataJson);
 	let colM = [
         { title: "Role Name", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -327,7 +349,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">Add Edit User</h2> 
+		<h2 class="title-cls-name float-left">
+		<#if (jwsUser?api.getUserId())??>
+                Edit User
+             <#else>
+                Add User
+             </#if>
+		</h2> 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditUser" id="addEditUser">
@@ -394,11 +422,28 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                       
         </#list>
       </div>
+      <div class="row">
+			<div class="col-12">
+				<div id="buttons" class="pull-right">
+					<div class="btn-group dropdown custom-grp-btn">
+                        <div id="savedAction">
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''add-edit-user'', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction(''add-edit-user'', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction(''add-edit-user'', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+                    <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage(''jws.cancel'')}" onclick="backToPreviousPage();">
+		        </div>
+			</div>
+		</div>
       <#else>
             </div>
-    </#if>
-  </form>
-  <div class="row">
+              <div class="row">
 			<div class="col-12">
 				<div class="float-right">
 					<input  class="btn btn-primary" value="Save" type="button" onclick="saveData();">
@@ -408,13 +453,20 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 		</div>
+    </#if>
+  </form>
+	
 </div>
 <script>
 
 	let isProfilePage = ${isProfilePage?c};
+	let isEdit = "${jwsUser?api.getUserId()!''''}";
 	contextPath = "${contextPath}";
   
   $(function(){
+  
+  	savedAction("add-edit-user", isEdit);
+	hideShowActionButtons();
      // disable authenticated role
         $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
      	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
@@ -463,14 +515,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		     		url : contextPath+"/cf/sud",
 		     		data : JSON.stringify(userData),
 		            success: function(data) {
-		              backToPreviousPage();
+		              showMessage("Information saved successfully", "success");
 		            }
 		     	});
+		     	return true;
 	}
 	
 	//Code go back to previous page
 	function backToPreviousPage() {
-		location.href = contextPath+"/cf/ul";
+		<#if !isProfilePage >
+			location.href = contextPath+"/cf/ul";
+		<#else>
+			location.href = contextPath+"/";
+		</#if>
+		
+			
 	}
 </script>','admin','admin',now(), 2);
 
@@ -516,6 +575,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <script>
 var userArray = ["111415ae-0980-11eb-9a16-f48e38ab9348"];
 $(function () {
+ 	let formElement = $("#addEditUser")[0].outerHTML;
+	let formDataJson = JSON.stringify(formElement);
+	sessionStorage.setItem("add-edit-user", formDataJson);
 	let colM = [
         { title: "${messageSource.getMessage(''jws.firstName'')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -607,13 +669,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </#list>
         </select>
         </div>
-        <div id="props">
-          
-        </div>
-        
+      </div>
     </div>
-</div>
-
+     <div id="props" class="col-12 margin-t-25">
+	</div>
 	
 </div>
 <div class="cm-card-footer">
@@ -636,6 +695,8 @@ contextPath = "${contextPath}";
 	$("#isActiveCheckbox").attr("checked",${authEnabled?c});
 	if(!${authEnabled?c}){
 		 $("#authTypeDiv").hide();
+	}else{ 
+		   $("#restartServer").show();
 	}
 	$("#authType").val("${authTypeId}").trigger("change");
 
@@ -661,17 +722,25 @@ contextPath = "${contextPath}";
         $("#props").html("");
         $.each(parsedProperties, function(key,val){
            if(val.type=="boolean"){
-              $("#props").append(''<div class="col-12 float-left col-inner-form full-form-fields"><label for="isActiveCheckbox"><span class="asteriskmark">*</span>''+val.name
-              +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''"  /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div>'');
-              $("#"+val.name).prop("checked",val.value);
+              $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.name
+              +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'');
+              $("#"+val.name).prop("checked",val.value).trigger("change");
            }
         });
       }
     }
     
     function saveAuthDetails(){ 
-    		let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
-    		let authenticationTypeId= $("#authType").val();
+    	let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
+    	let authenticationTypeId= $("#authType").val();
+    	let regexObj = new Object(); 
+    	if($("#enableRegex").is(":checked")){ 
+	    	regexObj.regexValue  = $("#regexValue").val();
+    		regexObj.regexExample  = $("#regexExample").val();
+    	 	regexObj = JSON.stringify(regexObj);
+    	}else{
+    		regexObj = null;
+    	}
     	
         let parsedProperties = null;
         let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
@@ -692,7 +761,8 @@ contextPath = "${contextPath}";
 		     		data : { 
 			     		authenticationTypeId:authenticationTypeId,
 			     		authenticationEnabled:authenticationEnabled,
-              propertyJson:JSON.stringify(parsedProperties)
+             			propertyJson:JSON.stringify(parsedProperties),
+             			regexObj:regexObj
 		     		},
 		            success: function(data) {
                 showMessage("Information saved successfully", "success");
@@ -710,6 +780,41 @@ contextPath = "${contextPath}";
     
     function restartServer(){
       location.href="/cf/restart";
+    }
+    
+  function addInputFields(thisObj){ 
+        let inputId;
+        if(thisObj.id=="enableRegex" ){
+            if($(thisObj).is(":checked")){
+                $(".childElement").show();
+                if($("#enableRegex").closest("div.row").children().length == 1){
+                    inputId = "regexPattern";
+                }else{
+                    return false;
+                }
+                
+            }else{
+                $(".childElement").hide();
+                return false;
+            }
+             
+        }else{
+            return false;
+        }
+    	$.ajax({
+		     		type : "GET",
+		     		url : contextPath+"/cf/gif",
+		     		data : { 
+			     		inputId:inputId,
+		     		},
+		            success: function(data) {
+                    $.each(data, function (key, value) {
+	 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for=="''+key+''">''+key+''<label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
+					});
+
+		            }
+		     	});
+    
     }
     
 </script>', 'admin', 'admin', NOW(), NULL, 2);
@@ -780,10 +885,12 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     element.prop("type","text");
                     $(thisObj).find("i").removeClass("fa-eye");
                      $(thisObj).find("i").addClass("fa-eye-slash");
+                     $("#password").focus();
                 } else {
                      element.prop("type","password");
                      $(thisObj).find("i").removeClass("fa-eye-slash");
                      $(thisObj).find("i").addClass("fa-eye");
+                     $("#password").focus();
                 }
 
             }
@@ -798,7 +905,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         </div> 
 
         <div class="col-5">
-            <form class="form-signin" method="post" action="/cf/login">
+            <form class="form-signin" method="post" action="/cf/login" autocomplete="off">
                 <h2 class="form-signin-heading text-center">Welcome To <span class="cm-logotext">JQuiver</span>
                 </h2>
                 <#if queryString?? && queryString == "error">
@@ -877,7 +984,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
         </div> 
 	 <div class="col-5">   
-        <form class="form-signin" action="/cf/register"  method="post">
+        <form class="form-signin" action="/cf/register"  method="post" autocomplete="off">
         
         <h2 class="form-signin-heading">Please Register</h2>
         	<#if error??>
@@ -956,7 +1063,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
         </div> 
  		<div class="col-5">
-      <form class="form-resetpassword" method="post" action="/cf/sendResetPasswordMail">
+      <form class="form-resetpassword" method="post" action="/cf/sendResetPasswordMail" autocomplete="off">
         <h2 class="form-resetpassword-heading">Reset your password</h2>
 		<#if nonRegisteredUser??>
         		<div class="alert alert-danger" role="alert">${nonRegisteredUser} </div>
@@ -983,11 +1090,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 				</p>
 			</#if> 
         <button class="btn btn-lg btn-primary btn-block" type="submit">Send password reset email</button>
-        	   <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >
-	                <p class="registerlink">New User?
-	                    <a href="/cf/register"> Click here to register</a>
-	                </p>
-                </#if>
+        	   <p> <a href="login">Click here to sign in</a></p>
       </form> 
 </div>
  </div> 
@@ -1027,7 +1130,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
         </div> 
     	<div class="col-5">    
-        <form class="form-password-reset" action="/cf/createPassword"  method="post">
+        <form class="form-password-reset" action="/cf/createPassword"  method="post" autocomplete="off">
         
         <h2 class="form-password-reset-heading">Change your password </h2>
         <#if nonValidPassword??>

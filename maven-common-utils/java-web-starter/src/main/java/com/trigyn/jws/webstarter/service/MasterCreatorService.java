@@ -185,7 +185,7 @@ public class MasterCreatorService {
 		JsonParser parser = new JsonParser();
 		JsonObject object = (JsonObject) parser.parse(menuDetails);// response will be the json String
 		ModuleDetailsVO moduleDetailsVO = gson.fromJson(object, ModuleDetailsVO.class); 
-		moduleDetailsVO.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
+		moduleDetailsVO.setIsInsideMenu(Constant.IS_INSIDE_MENU);
 		
 		return moduleDetailsVO;
 	}

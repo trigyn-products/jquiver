@@ -82,7 +82,7 @@ class DynamicRest {
 	    		$("#versionSelect_"+index).append("<option value='' selected>Select</option>");
 	    	}
 	    	
-	    	let inputElement = "<div class='col-4'><label for='inputcontainer_"+index+"' style='white-space:nowrap'>Variable Name </label><input id='inputcontainer_"+index+"' type ='text' class='form-control' /></div>";
+	    	let inputElement = "<div class='col-4'><label for='inputcontainer_"+index+"' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_"+index+"' type ='text' class='form-control' /></div>";
 	    	let selectElement = "<div class='col-4'><label for='selectcontainer_"+index+"' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_"+index+"' class='form-control'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option></select></div>";
 	    	let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_"+index+"' value='Add' class='margin-r-5 btn btn-primary' onclick='dynarest.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_"+index+"' value='Remove' class='btn btn-secondary' onclick='dynarest.removeSaveQueryEditor(this);'></div>";
 	    	
@@ -129,10 +129,12 @@ class DynamicRest {
 	        		context.daoDetailsIds.push(daoDetailsObject);
 	        	}
 	        	$("#removeTemplate_0").remove();
+	        	context.updateVariableSeq();
     	});
 	}
 	
 	removeSaveQueryEditor = function(element){
+		let context = this;
 		let index = element.id.split("_")[1];
 		if(index != 0){
 			$("#daoContainerDiv_"+index).remove();
@@ -144,6 +146,7 @@ class DynamicRest {
 				removeByAttribute(this.daoDetailsIds, "index", index);
 			}
 		}
+		context.updateVariableSeq();
 	}
 	
 	saveDynarest = function(){
@@ -293,6 +296,14 @@ class DynamicRest {
         	$("#allowFilesDiv").hide();
         }
         showMethodSignature($("#dynarestPlatformId").val());
+	}
+	
+	updateVariableSeq = function(){
+		let sequenceNumber = 1;
+		$("*[id*=inputcontainer_]").each(function(index, elem){
+    		$(elem).prev().text(sequenceNumber + "] variable");
+    		sequenceNumber++;
+		});
 	}
 	
 	backToDynarestListingPage = function() {

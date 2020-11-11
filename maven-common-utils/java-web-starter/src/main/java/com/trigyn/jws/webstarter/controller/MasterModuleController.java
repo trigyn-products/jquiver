@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,9 @@ public class MasterModuleController {
 		try {	
 			String moduleUrl = httpServletRequest.getRequestURI();
 			moduleUrl = moduleUrl.replaceFirst("/view/", "");
+			if(StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
+				moduleUrl += "?"+httpServletRequest.getQueryString();
+			}
 			return loadTemplate(httpServletRequest, moduleUrl);
 		}catch (NullPointerException exception) {
 			logger.error("Error ", exception);
