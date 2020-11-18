@@ -24,22 +24,20 @@ class AddEditDynamicForm {
     	});
     	
     	require(["vs/editor/editor.main"], function() {
-	    	dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
-		        value: htmlVal,
-		        language: "html",
-		        roundedSelection: false,
-				scrollBeyondLastLine: false,
-				readOnly: false,
-				theme: "vs-dark",
-				wordWrap: 'wordWrapColumn',
-				wordWrapColumn: 250,
-				wordWrapMinified: true,
-				wrappingIndent: "indent"
-		   	});
-	    	$("#htmlContent").remove();
-	    	initialFormData = context.getFormData();
+        dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
+		            language: "html",
+		            roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+					wordWrap: 'wordWrapColumn',
+					wordWrapColumn: 250,
+					wordWrapMinified: true,
+					wrappingIndent: "indent"
+	        	});
+	        	$("#htmlContent").remove();
     	});
-    	
+
 		let formId = $("#formId").val();
 		
 		if(formId != "") {
@@ -72,55 +70,52 @@ class AddEditDynamicForm {
 		let formSaveQuery;
 		
 		if(data != undefined){
-			if(data.formBody != undefined){
-				htmlVal = data.formBody.trim();
-    		}
-    		if(data.formSaveQuery != undefined){
-				formSaveQuery = data.formSaveQuery.trim();
-			}
+			formBody = data.formBody.trim();
+			formSaveQuery = data.formSaveQuery.trim();
 		}
+    		
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+    	require(["vs/editor/editor.main"], function() {
+    		
+    		let index = dashletSQLEditors.length;
+    		let parentElement;
+			if(element != null) {
+				parentElement = $(element).parent().parent().parent().parent();
+			}
+			
+    		if(formBody != undefined){
+    			dashletHTMLEditor.setValue(formBody);
+    		}
+    		let daoContainer = $('<div id="daoContainer_'+index+'"><div class="row"><div id="actionButtonDiv_'+index+'"class="col-12 margin-t-25 float-right"><div class="btn-icons float-right"><input type="button" id="addEditor_'+index+'" value="Add" class="margin-r-5 btn btn-primary" onclick="addEdit.addSaveQueryEditor(this);"><input type="button" id="removeTemplate_'+index+'"  value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor(this);"></div></div></div><div id="container_'+index+'" class="html_script" style="margin-top: 10px;"><div class="grp_lblinp"><div id="saveSqlContainer_'+index+'" class="ace-editor-container"><div id="saveSqlEditor_'+index+'" class="ace-editor"></div></div></div></div></div>');
+
+			if(parentElement != undefined) {
+	    		daoContainer.insertAfter(parentElement);
+	    	} else {
+	    		$("#saveScriptContainer").append(daoContainer);	
+		    }
+		    	
+        	dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
+	        	value: formSaveQuery,
+	            language: "sql",
+	            roundedSelection: false,
+				scrollBeyondLastLine: false,
+				readOnly: false,
+				theme: "vs-dark",
+				wordWrap: 'wordWrapColumn',
+				wordWrapColumn: 100,
+				wordWrapMinified: true,
+				wrappingIndent: "indent"
+        	});
+        	
+        	let editorObj = new Object();
+	        editorObj["index"] = index;
+	        editorObj["editor"] = dashletSAVESQLEditor;
+	        dashletSQLEditors.push(editorObj);
+	        $("#removeTemplate_0").remove();
+	        
+	        initialFormData = context.getFormData();
+    	});
     	
-    	if(data == undefined || data.formSaveQuery != undefined){	
-    		$("#saveQueryDiv").show();
-			require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
-	    	require(["vs/editor/editor.main"], function() {
-	    		
-	    		let index = dashletSQLEditors.length;
-	    		let parentElement;
-				if(element != null) {
-					parentElement = $(element).parent().parent().parent().parent();
-				}
-				
-	    		let daoContainer = $('<div id="daoContainer_'+index+'"><div class="row"><div id="actionButtonDiv_'+index+'"class="col-12 margin-t-25 float-right"><div class="btn-icons float-right"><input type="button" id="addEditor_'+index+'" value="Add" class="margin-r-5 btn btn-primary" onclick="addEdit.addSaveQueryEditor(this);"><input type="button" id="removeTemplate_'+index+'"  value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor(this);"></div></div></div><div id="container_'+index+'" class="html_script" style="margin-top: 10px;"><div class="grp_lblinp"><div id="saveSqlContainer_'+index+'" class="ace-editor-container"><div id="saveSqlEditor_'+index+'" class="ace-editor"></div></div></div></div></div>');
-	
-				if(parentElement != undefined) {
-		    		daoContainer.insertAfter(parentElement);
-		    	} else {
-		    		$("#saveScriptContainer").append(daoContainer);	
-			    }
-			    	
-	        	dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_"+index), {
-		        	value: formSaveQuery,
-		            language: "sql",
-		            roundedSelection: false,
-					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark",
-					wordWrap: 'wordWrapColumn',
-					wordWrapColumn: 100,
-					wordWrapMinified: true,
-					wrappingIndent: "indent"
-	        	});
-	        	
-	        	let editorObj = new Object();
-		        editorObj["index"] = index;
-		        editorObj["editor"] = dashletSAVESQLEditor;
-		        dashletSQLEditors.push(editorObj);
-		        $("#removeTemplate_0").remove();
-		        
-		        initialFormData = context.getFormData();
-	    	});
-    	}
 	}
 	
 	removeSaveQueryEditor(element){
