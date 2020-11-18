@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 @Service
@@ -27,12 +30,15 @@ public class PropertyMasterService {
 	@Autowired
 	private PropertyMasterRepository propertyMasterRepository = null;
 	
+	@Autowired
+    private PropertyMasterDetails propertyMasterDetails = null;
+	
 	public String findPropertyMasterValue(String propertyName) throws Exception {
-		return propertyMasterDAO.findPropertyMasterValue("system", "system", propertyName);
+		return propertyMasterDetails.getSystemPropertyValue(propertyName);
 	}
 	
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {
-		return propertyMasterDAO.findPropertyMasterValue(ownerType, ownerId, propertyName);
+		return propertyMasterDetails.getPropertyValueFromPropertyMaster(ownerId, ownerType, propertyName);
 	}
 	
 	private void savePropertyMasterDetails(Map<String, Object> parameterMap) {
@@ -65,9 +71,10 @@ public class PropertyMasterService {
 	
 	
 	public String getDateFormatByName(String ownerType, String ownerId, String propertyName, String formatName) throws Exception {
+		Gson gson = new Gson();
 		String jwsDateFormat = propertyMasterDAO.findPropertyMasterValue(ownerType, ownerId, propertyName);
-		JSONObject jsonObj = new JSONObject(jwsDateFormat);
-		String dbDateFormat = (String) jsonObj.get(formatName);
+		Map<Object,Object> dateFormatMap = gson.fromJson(jwsDateFormat,Map.class);
+		String dbDateFormat = (String) dateFormatMap.get(formatName);
 		return dbDateFormat;
 	}
 	

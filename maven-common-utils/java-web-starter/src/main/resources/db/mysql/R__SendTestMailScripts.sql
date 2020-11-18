@@ -583,6 +583,12 @@ saveMailConfigDetailsJson=JSON.stringify(jsonobject);
 </script>
 	', 'admin', now(), NULL, NULL);
   
+  
+REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+('a209c7b9-242d-11eb-9c67-f48e38ab8cd7', '193d770c-1217-11eb-980f-802bf9ae2eda', '
+UPDATE jws_property_master SET
+last_modified_date = NOW()
+WHERE property_master_id = "mail-configuration";', 1, NULL);
 
 replace into jws_dynamic_rest_details
 (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES

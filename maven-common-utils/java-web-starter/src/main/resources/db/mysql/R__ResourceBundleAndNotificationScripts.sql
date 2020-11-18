@@ -48,6 +48,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="resource-key" name="resource-key">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="resource_bundle">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="resourceBundle">
@@ -323,6 +324,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="notificationId" name="notificationId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="generic_user_notification">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="notification">

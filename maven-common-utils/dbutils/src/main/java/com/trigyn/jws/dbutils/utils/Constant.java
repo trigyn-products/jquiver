@@ -27,6 +27,11 @@ public final class Constant {
 	public static final String MAIL_TEMPLATE_NAME           = "mailTemplate";
 	public static final String TEST_MAIL_SUBJECT            = "Test Mail";
 	
+    public static final String PROPERTY_MASTER_OWNER_TYPE			= "system";
+    public static final String PROPERTY_MASTER_OWNER_ID				= "system";
+    public static final String JWS_DATE_FORMAT_PROPERTY_NAME		= "jws-date-format";
+    public static final String JWS_JAVA_DATE_FORMAT_PROPERTY_NAME	= "java";
+	
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);
 		

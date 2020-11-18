@@ -16,7 +16,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 
@@ -313,13 +313,13 @@ public class JwsDynamicRestDetail implements Serializable {
 
 	public JwsDynamicRestDetail getObject() {
 		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
-		dynaRest.setJwsDynamicRestId(jwsDynamicRestId);
-		dynaRest.setJwsDynamicRestUrl(jwsDynamicRestUrl);
-		dynaRest.setJwsMethodDescription(jwsMethodDescription);
-		dynaRest.setJwsMethodName(jwsMethodName);
+		dynaRest.setJwsDynamicRestId(jwsDynamicRestId!=null?jwsDynamicRestId.trim():jwsDynamicRestId);
+		dynaRest.setJwsDynamicRestUrl(jwsDynamicRestUrl!=null?jwsDynamicRestUrl.trim():jwsDynamicRestUrl);
+		dynaRest.setJwsMethodDescription(jwsMethodDescription!=null?jwsMethodDescription.trim():jwsMethodDescription);
+		dynaRest.setJwsMethodName(jwsMethodName!=null?jwsMethodName.trim():jwsMethodName);
 		dynaRest.setJwsPlatformId(jwsPlatformId);
 		dynaRest.setJwsRbacId(jwsRbacId);
-		dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic +"]]>"));
+		dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic!=null?jwsServiceLogic.trim():jwsServiceLogic +"]]>"));
 		dynaRest.setJwsRequestTypeId(jwsRequestTypeId);
 		dynaRest.setJwsResponseProducerTypeId(jwsResponseProducerTypeId);
 		dynaRest.setJwsDynamicRestTypeId(jwsDynamicRestTypeId);

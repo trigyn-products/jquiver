@@ -74,8 +74,8 @@ public class DashboardDashletAssociationPK implements Serializable{
 
 	public DashboardDashletAssociationPK getObject() {
 		DashboardDashletAssociationPK dashboardDashletAssociationPK = new DashboardDashletAssociationPK();
-		dashboardDashletAssociationPK.setDashboardId(dashboardId);
-		dashboardDashletAssociationPK.setDashletId(dashletId);
+		dashboardDashletAssociationPK.setDashboardId(dashboardId!=null?dashboardId.trim():dashboardId);
+		dashboardDashletAssociationPK.setDashletId(dashletId!=null?dashletId.trim():dashletId);
 		
 		return dashboardDashletAssociationPK;
 	}

@@ -250,12 +250,12 @@ public class ModuleListing implements Serializable {
 	public ModuleListing getObject() {
 		ModuleListing moduleListing = new ModuleListing();
 		moduleListing.setIsInsideMenu(isInsideMenu);
-		moduleListing.setModuleId(moduleId);
-		moduleListing.setModuleUrl(moduleUrl);
-		moduleListing.setParentId(parentId);
+		moduleListing.setModuleId(moduleId!=null?moduleId.trim():moduleId);
+		moduleListing.setModuleUrl(moduleUrl!=null?moduleUrl.trim():moduleUrl);
+		moduleListing.setParentId(parentId!=null?parentId.trim():parentId);
 		moduleListing.setSequence(sequence);
 		moduleListing.setTargetLookupId(targetLookupId);
-		moduleListing.setTargetTypeId(targetTypeId);
+		moduleListing.setTargetTypeId(targetTypeId!=null?targetTypeId.trim():targetTypeId);
 		
 		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
 		for(ModuleListingI18n otr : moduleListingI18ns) {

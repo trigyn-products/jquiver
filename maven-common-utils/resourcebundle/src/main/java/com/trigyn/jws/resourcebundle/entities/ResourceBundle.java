@@ -10,6 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 @Entity
 @Table(name = "resource_bundle")
 public class ResourceBundle implements Serializable {
@@ -98,9 +100,11 @@ public class ResourceBundle implements Serializable {
 	}
 
 	public ResourceBundle getObject() {
+		String textStr = StringEscapeUtils.unescapeXml("<![CDATA["+ text!=null?text.trim():text +"]]>");
+		String langNameStr = StringEscapeUtils.unescapeXml("<![CDATA["+ language.getLanguageName()!=null?language.getLanguageName().trim():language.getLanguageName() +"]]>");
 		ResourceBundlePK rpk = new ResourceBundlePK(id.getResourceKey(), id.getLanguageId());
-		ResourceBundle resourceBundle = new ResourceBundle(rpk, text);
-		Language lang = new Language(language.getLanguageId(), language.getLanguageName(), language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());
+		ResourceBundle resourceBundle = new ResourceBundle(rpk, textStr);
+		Language lang = new Language(language.getLanguageId(), langNameStr, language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());
 		resourceBundle.setLanguage(lang);
 		return resourceBundle;
 	}

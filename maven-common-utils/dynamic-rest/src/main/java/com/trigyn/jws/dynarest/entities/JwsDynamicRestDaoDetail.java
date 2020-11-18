@@ -146,10 +146,10 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	public JwsDynamicRestDaoDetail getObject() {
 		JwsDynamicRestDaoDetail dynaRest = new JwsDynamicRestDaoDetail();
 		dynaRest.setJwsDaoDetailsId(jwsDaoDetailsId);
-		dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA["+jwsDaoQueryTemplate +"]]>"));
-		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId);
+		dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA["+jwsDaoQueryTemplate!=null?jwsDaoQueryTemplate.trim():jwsDaoQueryTemplate +"]]>"));
+		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId!=null?jwsDynamicRestDetailId.trim():jwsDynamicRestDetailId);
 		dynaRest.setJwsQuerySequence(jwsQuerySequence);
-		dynaRest.setJwsResultVariableName(jwsResultVariableName);
+		dynaRest.setJwsResultVariableName(jwsResultVariableName!=null?jwsResultVariableName.trim():jwsResultVariableName);
 		dynaRest.setQueryType(queryType);
 		return dynaRest;
 	}

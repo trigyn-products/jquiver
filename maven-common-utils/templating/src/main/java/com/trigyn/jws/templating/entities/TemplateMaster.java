@@ -8,15 +8,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.trigyn.jws.dbutils.entities.JwsLookup;
-import com.trigyn.jws.dbutils.entities.ModuleTargetLookup;
 
 @Entity
 @Table(name = "template_master")
@@ -171,5 +167,18 @@ public class TemplateMaster implements Serializable {
 		.append(" }");
 		return stringBuilder.toString();
     }
+    
+    public TemplateMaster getObject() {
+    	TemplateMaster obj = new TemplateMaster();
+    	obj.setChecksum(checksum!=null?checksum.trim():checksum);
+    	obj.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
+    	obj.setTemplate(template!=null?template.trim():template);
+    	obj.setTemplateId(templateId!=null?templateId.trim():templateId);
+    	obj.setTemplateName(templateName!=null?templateName.trim():templateName);
+    	obj.setTemplateTypeId(templateTypeId);
+    	obj.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
+    	obj.setUpdatedDate(updatedDate);
+		return obj;
+	}
 
 }

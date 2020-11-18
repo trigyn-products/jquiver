@@ -28,7 +28,7 @@ public class GridDetails implements Serializable{
     private String gridTableName                 = null;
 
     @Column(name = "grid_column_names")
-    private String gridColumnNames               = null;
+    private String gridColumnName               = null;
 
     @Column(name = "query_type")
     private Integer queryType                    = null;
@@ -48,7 +48,7 @@ public class GridDetails implements Serializable{
         this.gridName           = gridName;
         this.gridDescription    = gridDescription;
         this.gridTableName      = gridTableName;
-        this.gridColumnNames    = gridColumnNames;
+        this.gridColumnName    = gridColumnNames;
         this.queryType          = queryType;
     }
 
@@ -92,17 +92,17 @@ public class GridDetails implements Serializable{
         this.gridTableName = gridTableName;
     }
 
-    
-    public String getGridColumnNames() {
-        return gridColumnNames;
-    }
+    public String getGridColumnName() {
+		return gridColumnName;
+	}
 
-    
-    public void setGridColumnNames(String gridColumnNames) {
-        this.gridColumnNames = gridColumnNames;
-    }
 
-    public Integer getQueryType() {
+	public void setGridColumnName(String gridColumnName) {
+		this.gridColumnName = gridColumnName;
+	}
+
+
+	public Integer getQueryType() {
         return this.queryType;
     }
 
@@ -121,7 +121,7 @@ public class GridDetails implements Serializable{
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(gridColumnNames, gridDescription, gridId, gridName, gridTableName, gridTypeId, queryType);
+		return Objects.hash(gridColumnName, gridDescription, gridId, gridName, gridTableName, gridTypeId, queryType);
 	}
 
 
@@ -137,7 +137,7 @@ public class GridDetails implements Serializable{
 			return false;
 		}
 		GridDetails other = (GridDetails) obj;
-		return Objects.equals(gridColumnNames, other.gridColumnNames)
+		return Objects.equals(gridColumnName, other.gridColumnName)
 				&& Objects.equals(gridDescription, other.gridDescription) && Objects.equals(gridId, other.gridId)
 				&& Objects.equals(gridName, other.gridName) && Objects.equals(gridTableName, other.gridTableName)
 				&& Objects.equals(gridTypeId, other.gridTypeId) && Objects.equals(queryType, other.queryType);
@@ -147,7 +147,7 @@ public class GridDetails implements Serializable{
 	@Override
 	public String toString() {
 		return "GridDetails [gridId=" + gridId + ", gridName=" + gridName + ", gridDescription=" + gridDescription
-				+ ", gridTableName=" + gridTableName + ", gridColumnNames=" + gridColumnNames + ", queryType="
+				+ ", gridTableName=" + gridTableName + ", gridColumnNames=" + gridColumnName + ", queryType="
 				+ queryType + ", gridTypeId=" + gridTypeId + "]";
 	}
 

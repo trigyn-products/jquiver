@@ -620,7 +620,14 @@ REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name
  ('jwsUserListingGrid','user listing','List of users','jws_user','*', 1, 2);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
-('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '<div class="container">
+('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '
+<head>
+    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+<div class="container">
 
 	
 <div class="cm-card">
@@ -692,6 +699,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 contextPath = "${contextPath}";
 	// set data
+	let autocomplete;
 	$("#isActiveCheckbox").attr("checked",${authEnabled?c});
 	if(!${authEnabled?c}){
 		 $("#authTypeDiv").hide();
@@ -734,6 +742,7 @@ contextPath = "${contextPath}";
     	let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
     	let authenticationTypeId= $("#authType").val();
     	let regexObj = new Object(); 
+    	let formObj = new Object(); 
     	if($("#enableRegex").is(":checked")){ 
 	    	regexObj.regexValue  = $("#regexValue").val();
     		regexObj.regexExample  = $("#regexExample").val();
@@ -754,6 +763,11 @@ contextPath = "${contextPath}";
           }  
         });
         
+        if($("#enableDynamicForm").is(":checked")){
+        	formObj.formId = $("#formId").val();
+        	formObj.formName = $("#formName").val();
+        }
+        
         
     		$.ajax({
 		     		type : "POST",
@@ -762,7 +776,8 @@ contextPath = "${contextPath}";
 			     		authenticationTypeId:authenticationTypeId,
 			     		authenticationEnabled:authenticationEnabled,
              			propertyJson:JSON.stringify(parsedProperties),
-             			regexObj:regexObj
+             			regexObj:regexObj,
+             			userProfileFormId:JSON.stringify(formObj) 
 		     		},
 		            success: function(data) {
                 showMessage("Information saved successfully", "success");
@@ -773,7 +788,7 @@ contextPath = "${contextPath}";
     function openManageRole(){
       location.href="/cf/rl";
     }
-    
+    	
     function openManageUser(){
       location.href="/cf/ul";
     }
@@ -798,22 +813,74 @@ contextPath = "${contextPath}";
                 return false;
             }
              
+        }else if(thisObj.id=="enableDynamicForm" ){
+			$("#dynamicFormDiv").remove();
+			inputId = "user-profile-form-name";
         }else{
-            return false;
-        }
+			return false;
+		}
     	$.ajax({
-		     		type : "GET",
-		     		url : contextPath+"/cf/gif",
-		     		data : { 
-			     		inputId:inputId,
-		     		},
-		            success: function(data) {
-                    $.each(data, function (key, value) {
+		    type : "GET",
+		    url : contextPath+"/cf/gif",
+			data : { 
+				inputId:inputId,
+		    },
+			success: function(data) {
+             	if(thisObj.id=="enableRegex" ){
+             		$.each(data, function (key, value) {
 	 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for=="''+key+''">''+key+''<label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
 					});
-
-		            }
-		     	});
+				}
+				if(thisObj.id=="enableDynamicForm"){
+					$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap">Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" name="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
+					if(data.formId !== undefined){
+						$("#formId").val(data.formId);
+						$("#formName").val(data.formName);
+						$("#dynamicFormName").val(data.formName);
+					}
+		           	initFormAutocomplete(data);
+		           	if($(thisObj).is(":checked")){
+						$("#dynamicFormDiv").show();
+					}else{
+						$("#dynamicFormDiv").hide();
+					}
+				}
+			}, error: function(xhr, data){
+				
+			},
+		});
+    
+    }
+    
+    function initFormAutocomplete(formDetails){
+    	let savedForm = new Object();
+    	savedForm.targetTypeId = formDetails.formId;
+    	savedForm.targetTypeName = formDetails.formName;
+    	autocomplete = $(''#dynamicFormName'').autocomplete({
+	        autocompleteId: "dynamicForms",
+	        prefetch : true,
+	        render: function(item) {
+	        	var renderStr ='''';
+	        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+	    		{
+	        		renderStr = ''<p>''+item.targetTypeName+''</p>'';
+	    		}
+	        	else
+	    		{
+	        		renderStr = item.emptyMsg;	
+	    		}	    				        
+	            return renderStr;
+	        },
+	        additionalParamaters: {languageId: 1},
+	        extractText: function(item) {
+	            return item.targetTypeName;
+	        },
+	        select: function(item) {
+	            $("#dynamicFormName").blur();
+	            $("#formId").val(item.targetTypeId);
+	            $("#formName").val(item.targetTypeName);
+	        }, 	
+   		}, savedForm);
     
     }
     
@@ -1683,6 +1750,10 @@ REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_ty
 
 REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'regexPattern', '{"regexValue":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=])[A-Za-z\\\\d@#$%^&+=]{6,}$","regexExample":"Ex: John@123"}', 0, NOW(), 'admin', 1.00, 'Regex Pattern to validate password');
+
+
+REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'user-profile-form-name', '', 0, NOW(), 'admin', 1.00, 'Dynamic Form for user profile');
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('edcafd25-19b9-11eb-9631-f48e38ab9348', 'jws-change-password', ' 

@@ -255,5 +255,21 @@ public class DashletProperties implements Serializable {
 				+ isDeleted + ", toDisplay=" + toDisplay + ", sequence=" + sequence + ", dashlet=" + dashlet + "]";
 	}
 
-
+	public DashletProperties getObject() {
+		DashletProperties obj = new DashletProperties();
+		
+		obj.setConfigurationScript(configurationScript!=null?configurationScript.trim():configurationScript);
+		obj.setDashletId(dashletId!=null?dashletId.trim():dashletId);
+		obj.setDefaultValue(defaultValue!=null?defaultValue.trim():defaultValue);
+		obj.setDisplayName(displayName!=null?displayName.trim():displayName);
+		obj.setIsDeleted(isDeleted);
+		obj.setPlaceholderName(placeholderName!=null?placeholderName.trim():placeholderName);
+		obj.setPropertyId(propertyId!=null?propertyId.trim():propertyId);
+		obj.setSequence(sequence);
+		obj.setToDisplay(toDisplay);
+		obj.setType(type!=null?type.trim():type);
+		obj.setValue(defaultValue!=null?defaultValue.trim():defaultValue);
+		
+		return obj;
+	}
 }

@@ -143,8 +143,15 @@ public class ContextMaster implements Serializable{
 	}
 
 
-
-
-
-	
+	public ContextMaster getObject() {
+		ContextMaster obj = new ContextMaster();
+		
+		obj.setAllowDashboardAddition(allowDashboardAddition);
+		obj.setContextDescription(contextDescription!=null?contextDescription.trim():contextDescription);
+		obj.setContextId(contextId!=null?contextId.trim():contextId);
+		obj.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
+		obj.setCreatedDate(createdDate);
+		
+		return obj;
+	}
 }

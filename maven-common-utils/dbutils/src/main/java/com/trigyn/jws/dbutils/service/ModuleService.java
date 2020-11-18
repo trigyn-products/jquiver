@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18nPK;
@@ -260,5 +262,23 @@ public class ModuleService {
 		
 		return moduleListing.getModuleId();
     }
-	
+
+	public ModuleListing getModuleListing(String moduleId) throws Exception{
+		return iModuleListingRepository.findById(moduleId)
+				.orElseThrow(() -> new Exception("data not found with id : " + moduleId));
+	}
+
+	public void saveModuleListing(ModuleListing moduleListing) throws Exception {
+		iModuleListingRepository.save(moduleListing);
+	}
+
+	public String getModuleListingJson(String entityId) throws Exception {
+		ModuleListing module = getModuleListing(entityId);
+		module = module.getObject();
+		Gson gson = new Gson();
+		TreeMap<String, String> treeMap = gson.fromJson(gson.toJson(module), TreeMap.class);
+	    String jsonString = gson.toJson(treeMap);
+		
+		return jsonString;
+	}
 }

@@ -89,7 +89,7 @@ public class GridUtilsDAO extends DBConnection {
 	}
 	
 	public GridDetails saveGridDetails(GridDetails gridDetails) {
-		getCurrentSession().save(gridDetails);
+		getCurrentSession().saveOrUpdate(gridDetails);
 		return gridDetails;
 	}
 

@@ -313,7 +313,11 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		formIdObj["value"] = formId;
 		formIdObj["valueType"] = "varchar";
 		formData.push(formIdObj);
-		
+		formIdObj = new Object();
+		formIdObj["name"] = "isEdit";
+		formIdObj["value"] = isEdit;
+		formIdObj["valueType"] = "int";
+		formData.push(formIdObj);
 		$.ajax({
 		  type : "POST",
 		  async: false,
@@ -347,7 +351,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('f16c057f-09ab-11eb-a027-f48e38ab8cd7', 'system-form-save-query-template', '
   <#noparse>
-    <#if (formData?api.getFirst("yourPrimaryKey"))?has_content>
+    <#if (formData?api.get("isEdit") == 1)>
   </#noparse>
     ${updateQuery}
   <#noparse>

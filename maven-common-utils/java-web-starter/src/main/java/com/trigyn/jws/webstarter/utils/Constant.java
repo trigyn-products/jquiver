@@ -44,6 +44,23 @@ public final class Constant {
             return moduleType;
         }
     }
+
+    public enum MasterModuleType {
+        TEMPLATE("Templates"), AUTOCOMPLETE("Autocomplete"),RESOURCEBUNDLE("ResourceBundle")
+        , DASHBOARD("Dashboard"), DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm") 
+        , GRID("Grid"), NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission")
+        , SITE_LAYOUT("SiteLayout");
+
+        final String moduleType;
+
+        MasterModuleType(String i) {
+        	moduleType = i;
+        }
+
+        public String getModuleType() {
+            return moduleType;
+        }
+    }
     
     public static final String PROPERTY_MASTER_OWNER_TYPE			= "system";
     public static final String PROPERTY_MASTER_OWNER_ID				= "system";

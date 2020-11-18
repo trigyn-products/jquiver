@@ -90,24 +90,22 @@ public class Autocomplete {
 				&& Objects.equals(autocompleteSelectQuery, other.autocompleteSelectQuery);
 	}
 
-	@Override
-	public String toString() {
-		return "Autocomplete [autocompleteId=" + autocompleteId + ", autocompleteDesc=" + autocompleteDesc
-				+ ", autocompleteSelectQuery=" + autocompleteSelectQuery + ", acTypeId=" + acTypeId
-				+ ", getAutocompleteId()=" + getAutocompleteId() + ", getAutocompleteDesc()=" + getAutocompleteDesc()
-				+ ", getAutocompleteSelectQuery()=" + getAutocompleteSelectQuery() + ", getAcTypeId()=" + getAcTypeId()
-				+ ", hashCode()=" + hashCode() + "]";
-	}
 
 	public Autocomplete getObject() {
 		Autocomplete autocomplete = new Autocomplete();
 		
 		autocomplete.setAcTypeId(acTypeId);
-		autocomplete.setAutocompleteDesc(autocompleteDesc);
+		autocomplete.setAutocompleteDesc(autocompleteDesc!=null?autocompleteDesc.trim():autocompleteDesc);
 		autocomplete.setAutocompleteId(autocompleteId);
-		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery.trim() +"]]>"));
+		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery!=null?autocompleteSelectQuery.trim():autocompleteSelectQuery +"]]>"));
 		autocomplete.setAcTypeId(this.acTypeId);
 		return autocomplete;
+	}
+
+	@Override
+	public String toString() {
+		return "Autocomplete [autocompleteId=" + autocompleteId + ", autocompleteDesc=" + autocompleteDesc
+				+ ", autocompleteSelectQuery=" + autocompleteSelectQuery + ", acTypeId=" + acTypeId + "]";
 	}
 
 }

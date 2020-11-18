@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.ModuleService;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
@@ -19,23 +21,29 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 public class MenuService {
 
 	@Autowired
-	private DBTemplatingService templatingService 	= null;
+	private DBTemplatingService templatingService 			= null;
 
 	@Autowired
-	private ModuleService moduleService 			= null;
+	private ModuleService moduleService 					= null;
 
 	@Autowired
-	private TemplatingUtils templateEngine 			= null;
+	private TemplatingUtils templateEngine 					= null;
 	
     
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO	= null;
+	private PropertyMasterDAO propertyMasterDAO				= null;
+	
+	@Autowired
+	private PropertyMasterService propertyMasterService		= null;
 	
 
 	public String getTemplateWithSiteLayout(String templateName, Map<String,Object> templateDetails) throws Exception {
+		String jquiverVersion = propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE
+				, Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object> templateMap = new HashMap<>();
 		List<ModuleDetailsVO> moduleDetailsVOList = moduleService.getAllMenuModules();
 		templateMap.put("moduleDetailsVOList", moduleDetailsVOList);
+		templateMap.put("jquiverVersion", jquiverVersion);
 		templateMap.putAll(templateDetails);
 		TemplateVO templateVO = templatingService.getTemplateByName("home-page");
 		TemplateVO templateInnerVO = templatingService.getTemplateByName(templateName);
@@ -61,9 +69,12 @@ public class MenuService {
 	}
 	
 	public String getTemplateWithSiteLayoutWithoutProcess(String templateContent, Map<String,Object> templateDetails) throws Exception {
+		String jquiverVersion = propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE
+				, Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object> templateMap = new HashMap<>();
 		List<ModuleDetailsVO> moduleDetailsVOList = moduleService.getAllMenuModules();
 		templateMap.put("moduleDetailsVOList", moduleDetailsVOList);
+		templateMap.put("jquiverVersion", jquiverVersion);
 		TemplateVO templateVO = templatingService.getTemplateByName("home-page");
 		Map<String, String> childTemplateDetails = new HashMap<>();
 		childTemplateDetails.put("template-body", templateContent);
@@ -86,12 +97,15 @@ public class MenuService {
 	}
 	
 	public String getDashletTemplateWithLayout(String template, Map<String, Object> templateParamMap) throws Exception{
+		String jquiverVersion = propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE
+				, Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object> templateMap = new HashMap<>();
 		if(templateParamMap != null) {
 			templateMap.putAll(templateParamMap);
 		}
 		List<ModuleDetailsVO> moduleDetailsVOList = moduleService.getAllMenuModules();
 		templateMap.put("moduleDetailsVOList", moduleDetailsVOList);
+		templateMap.put("jquiverVersion", jquiverVersion);
 		TemplateVO templateVO = templatingService.getTemplateByName("home-page");
 		Map<String, String> childTemplateDetails = new HashMap<>();
 		childTemplateDetails.put("template-body", template);

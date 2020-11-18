@@ -13,7 +13,7 @@ BEGIN
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_platform_id AS platformId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_dynamic_rest_type_id AS dynarestTypeId ');
   SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount ');
   SET @fromString  = ' FROM jws_dynamic_rest_details AS jdrd ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id AND jmv.entity_name = 'jws_dynamic_rest_details' ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -99,6 +99,7 @@ VALUES ("dynarestListingGrid", 'Dynamic REST API Listing', 'Dynamic REST API Lis
 </div>
 
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="jws_dynamic_rest_details">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="dynarest">

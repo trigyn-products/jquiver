@@ -10,7 +10,7 @@ import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 
 @Repository
-public interface IModuleListingRepository extends JpaRepositoryImplementation<ModuleListing, Integer>{
+public interface IModuleListingRepository extends JpaRepositoryImplementation<ModuleListing, String>{
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_MODULE_BY_MODULE_ID)
 	ModuleDetailsVO getModuleDetails(String moduleId, Integer languageId, Integer defaultLanguageId);

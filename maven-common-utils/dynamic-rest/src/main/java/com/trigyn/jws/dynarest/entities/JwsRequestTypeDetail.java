@@ -102,7 +102,7 @@ public class JwsRequestTypeDetail implements Serializable {
 
 	public JwsRequestTypeDetail getObject() {
 		JwsRequestTypeDetail dynaRest = new JwsRequestTypeDetail();
-		dynaRest.setJwsRequestType(jwsRequestType);
+		dynaRest.setJwsRequestType(jwsRequestType!=null?jwsRequestType.trim():jwsRequestType);
 		dynaRest.setJwsRequestTypeDetailsId(jwsRequestTypeDetailsId);
 		
 		return dynaRest;

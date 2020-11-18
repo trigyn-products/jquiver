@@ -11,7 +11,7 @@ public final class QueryStore {
     		+ ", jmv.moduleJson AS moduleJson , jmv.versionId AS versionId"
     		+ ", jmv.updatedDate AS updatedDate, jmv.moduleJsonChecksum AS moduleJsonChecksum"
     		+ ", jmv.sourceTypeId AS sourceTypeId) FROM JwsModuleVersion AS jmv "
-    		+ " WHERE jmv.entityId = :entityId ORDER BY jmv.versionId ASC ";
+    		+ " WHERE jmv.entityId = :entityId AND jmv.entityName = :entityName ORDER BY jmv.versionId ASC ";
 
     
 }

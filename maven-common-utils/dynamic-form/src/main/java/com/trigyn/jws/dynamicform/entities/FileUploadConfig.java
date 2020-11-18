@@ -97,13 +97,13 @@ public class FileUploadConfig {
 
 	public FileUploadConfig getObject() {
 		FileUploadConfig file = new FileUploadConfig();
-		file.setFileTypSupported(fileTypSupported);
-		file.setFileUploadConfigId(fileUploadConfigId);
+		file.setFileTypSupported(fileTypSupported!=null?fileTypSupported.trim():fileTypSupported);
+		file.setFileUploadConfigId(fileUploadConfigId!=null?fileUploadConfigId.trim():fileUploadConfigId);
 		file.setIsDeleted(isDeleted);
 		file.setLastUpdatedBy(lastUpdatedBy);
 		file.setMaxFileSize(maxFileSize);
 		file.setNoOfFiles(noOfFiles);
-		file.setUpdatedBy(updatedBy);
+		file.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
 		return file;
 	}
 }

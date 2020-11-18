@@ -111,7 +111,7 @@ public class JwsDynamicRestResponseParam implements Serializable {
 	public JwsDynamicRestResponseParam getObject() {
 		JwsDynamicRestResponseParam dynaRest = new JwsDynamicRestResponseParam();
 		dynaRest.setJwsResponseCodeDetail(jwsResponseCodeDetail.getObject());
-		dynaRest.setJwsResponseCodeMessage(jwsResponseCodeMessage);
+		dynaRest.setJwsResponseCodeMessage(jwsResponseCodeMessage!=null?jwsResponseCodeMessage.trim():jwsResponseCodeMessage);
 		dynaRest.setJwsResponseParamId(jwsResponseParamId);
 		
 		return dynaRest;

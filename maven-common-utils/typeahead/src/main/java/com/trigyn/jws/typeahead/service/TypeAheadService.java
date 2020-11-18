@@ -49,17 +49,31 @@ public class TypeAheadService {
 	public String saveAutocompleteDetails(MultiValueMap<String, String> formDataMap, Integer sourceTypeId) throws Exception {
 		String autoCompleteId				= formDataMap.getFirst("autocompleteId");
 		String autoCompleteDesc				= formDataMap.getFirst("autocompleteDesc");
-		String autoCompleteSelectQuery 		= formDataMap.getFirst("autocompleteSelectQuery");
+		String autoCompleteSelectQuery 		= formDataMap.getFirst("autocompleteQuery");
 		
 		Autocomplete autocomplete	= new Autocomplete();
 		autocomplete.setAutocompleteId(autoCompleteId);
 		autocomplete.setAutocompleteDesc(autoCompleteDesc);
 		autocomplete.setAutocompleteSelectQuery(autoCompleteSelectQuery);
+		
+		AutocompleteVO autocompleteVO = convertEntityToVO(autoCompleteId, autoCompleteDesc, autoCompleteSelectQuery);
+		
 		typeAheadRepository.save(autocomplete);
-		moduleVersionService.saveModuleVersion(autocomplete,null, autoCompleteId, "autocomplete_details", sourceTypeId);
+		moduleVersionService.saveModuleVersion(autocompleteVO,null, autoCompleteId, "autocomplete_details", sourceTypeId);
 		
 		return autoCompleteId;
 		
-	}	
+	}
+
+
+	public AutocompleteVO convertEntityToVO(String autoCompleteId, String autoCompleteDesc, String autoCompleteSelectQuery) {
+		AutocompleteVO autocompleteVO = new AutocompleteVO();
+		autocompleteVO.setAutocompleteId(autoCompleteId);
+		autocompleteVO.setAutocompleteDesc(autoCompleteDesc);
+		autocompleteVO.setAutocompleteQuery(autoCompleteSelectQuery);
+		return autocompleteVO;
+	}
+	
+	
     
 }

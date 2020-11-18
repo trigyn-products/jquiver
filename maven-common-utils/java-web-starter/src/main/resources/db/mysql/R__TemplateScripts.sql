@@ -280,6 +280,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <input type="hidden" id="vmMasterId" name="vmMasterId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="template_master">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="template">
@@ -509,19 +510,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 
-    <#if versionDetailsMap?? && versionDetailsMap?has_content>
-		<div class="row">                                                                                                
-			<div class="col-12">
-				<div class="html_script">
-					<div class="grp_lblinp">
-						<div id="diffContainer" class="ace-editor-container">
-							<div id="diffEditor" class="ace-editor"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-    </#if>
 </div>
 
 <script>
@@ -958,7 +946,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="footer bg-dark">
     <div class="text-center">
         <small>Copyright &copy; JQuiver</small>
-        <small class="float-right">Version 1.3.9</small>
+        <small class="float-right">${(jquiverVersion)!''1.0.0''}</small>
     </div>
 </div>
 
@@ -1227,6 +1215,24 @@ function saveHomeModule(){
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
+REPLACE INTO autocomplete_details(
+   ac_id
+  ,ac_description
+  ,ac_select_query
+  ,ac_type_id
+) VALUES (
+   'revisionAutocomplete'
+  ,'List module version detail by entity id'
+  ,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
+  FROM jws_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
+    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jws_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName) ORDER BY jmv.updated_date ASC'
+  ,2
+);
+
+
+
+SET FOREIGN_KEY_CHECKS=1;
+
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('9edd802d-1851-11eb-a842-f48e38ab8cd7', 'revision-details','<head>
@@ -1245,7 +1251,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container" style="padding-top: 40px">
      
 	 <div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.history")} ${(moduleName)!''''}</h2> 
+		<h2 class="title-cls-name float-left history-label">${messageSource.getMessage("jws.history")} ${(moduleName)!''''}</h2> 
 		<div class="float-right">
 			<span onclick="backToPreviousPage();">
   				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
@@ -1278,13 +1284,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<h3 id="diffEditorHeader" class="titlename">${messageSource.getMessage("jws.currentContent")}</h3>
 			</div>
 			<div class="col-6">
-				<label for="revisionAutocomplete" class="versioning-label" >Revision History: </label>
+				<#if isImport == "true"> 
+					<label class="versioning-label" >Import Data </label>
+				<#else>
+					<label for="revisionAutocomplete" class="versioning-label" >Revision History: </label>
+				</#if>
 				<div class="col-inner-form full-form-fields">
-					<div class="search-cover pull-left">
-						<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
-						<i class="fa fa-search" aria-hidden="true"></i>
-					</div>
-					<span onclick="copyJsonData()"  class="grid_action_icons pull-left"><i class="fa fa-files-o"></i></span>
+					<#if isImport == "false"> 
+						<div class="search-cover pull-left">
+							<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
+							<i class="fa fa-search" aria-hidden="true"></i>
+						</div>
+					</#if>
+					<span onclick="copyJsonData()"  class="grid_action_icons pull-left">
+
+                        <span class="cm-iconsvg"><img src="/webjars/1.0/images/text-push-right-1.svg"></span>
+                    </span>
 				</div>
 			</div>
 			
@@ -1300,7 +1315,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 
 	<div class="col-12">
-		<div class="float-right">
+		<div class="float-right margin-b-25">
 			<div class="btn-group dropdown custom-grp-btn">
 				<div id="savedAction">
 	    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
@@ -1317,13 +1332,33 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 contextPath = "${(contextPath)!''''}";
 const entityId = "${(entityId)!''''}";
+const entityName = "${(entityName)!''''}";
 let updatedJson;
 let compareJsonEditor;
 let diffEditorArray = new Array();
 let autocomplete;
+let isImport;
+let importJson;
+let isNonVersioningModule;
+let nonVersioningFetchURL;
 $(function(){
-	setJsonEditorContent();
-	getUpdatedData();
+	isImport = "${(isImport)!''''}";
+	isNonVersioningModule = "${(isNonVersioningModule)!''''}";
+	
+	if(isNonVersioningModule == "false") {
+		getUpdatedData();
+	} else {
+		nonVersioningFetchURL = "${(nonVersioningFetchURL)!''''}";
+		getNonVersioningModuleLatestData();
+	}
+	
+	if(isImport == "true") {
+		importJson = JSON.parse(localStorage.getItem("importJson"));
+		localStorage.removeItem("importJson");
+		setJsonEditorContent();
+	} else {
+	  setJsonEditorContent();
+	  getUpdatedData();
         autocomplete = $(''#revisionAutocomplete'').autocomplete({
         autocompleteId: ''revisionAutocomplete'',
         prefetch : true,
@@ -1341,6 +1376,7 @@ $(function(){
         },
         additionalParamaters: {
 			 entityId: entityId
+			,entityName: entityName
 			,dateFormat: $("#dateFormat").val()
 		},
         extractText: function(item) {
@@ -1357,8 +1393,9 @@ $(function(){
 			getJsonData(item.moduleVersionId);
         }, 	
     });
+	}
 
-})
+});
 
 function setJsonEditorContent(){
 	require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
@@ -1372,8 +1409,31 @@ function setJsonEditorContent(){
 			theme: "vs-dark",
 			wordWrap: ''on'',
 	    });
+
+	    if(isImport == "true") {
+	    	processJSONData(importJson);
+	    }
     });
 	
+}
+
+function getNonVersioningModuleLatestData(){
+	$.ajax({
+		type : "POST",
+		url : contextPath + nonVersioningFetchURL,
+		async: false,
+		data : {
+			entityId : entityId,
+		},
+		success : function(data) {
+			updatedJson = data;
+		},
+	        
+	    error : function(xhr, error){
+	    	showMessage("Error occurred while fetching data", "error");
+	    },
+	        	
+	});
 }
 
 function getUpdatedData(){
@@ -1382,6 +1442,7 @@ function getUpdatedData(){
 		url : contextPath+"/cf/uj",
 		async: false,
 		data : {
+			entityName : entityName,
 			entityId : entityId,
 		},
 		success : function(data) {
@@ -1415,7 +1476,12 @@ function getJsonData(selectedElementId){
 }
 
 function processJSONData(selectedVersionData){
-	let selectedVersionObj = JSON.parse(selectedVersionData);
+	let selectedVersionObj;
+	if(isImport == "true") {
+		selectedVersionObj = selectedVersionData;
+	} else {
+		selectedVersionObj = JSON.parse(selectedVersionData);
+	}
 	let updatedObj = JSON.parse(updatedJson);
 	for (let prop in selectedVersionObj) {
 		if (Object.prototype.hasOwnProperty.call(selectedVersionObj, prop)) {
@@ -1427,7 +1493,7 @@ function processJSONData(selectedVersionData){
 				dashletDiff(selectedVersionObj, updatedObj);
 			}else if(prop === "template"){
 				templateDiff(selectedVersionObj, updatedObj);
-			}else if(prop === "autocompleteSelectQuery"){
+			}else if(prop === "autocompleteQuery"){
 				autocompleteDiff(selectedVersionObj, updatedObj);
 			}
 		}
@@ -1456,13 +1522,13 @@ function templateDiff(selectedVersionObj, updatedObj){
 }
 
 function autocompleteDiff(selectedVersionObj, updatedObj){
-	let saveTemplate = selectedVersionObj["autocompleteSelectQuery"];
-	let updatedTemplate = updatedObj["autocompleteSelectQuery"];
+	let saveTemplate = selectedVersionObj["autocompleteQuery"];
+	let updatedTemplate = updatedObj["autocompleteQuery"];
 	
-	createDiffEditor(saveTemplate, updatedTemplate, "autocompleteSelectQuery");
+	createDiffEditor(saveTemplate, updatedTemplate, "autocompleteQuery");
 	
-	delete selectedVersionObj["autocompleteSelectQuery"];
-	delete updatedObj["autocompleteSelectQuery"];
+	delete selectedVersionObj["autocompleteQuery"];
+	delete updatedObj["autocompleteQuery"];
 }
 
 
@@ -1512,21 +1578,21 @@ function formBuilderDiff(selectedVersionObj, updatedObj){
 	
 	if(saveQueries.length > updatedSaveQueries.length){
 		$.each(saveQueries, function(index, value){
-			let saveQueryObj = value.dynamicFormSaveQuery;
+			let saveQueryObj = value.formSaveQuery;
 			let updatedSaveQueryObj = "";
 			
 			if(updatedSaveQueries[index] !== undefined){
-				updatedSaveQueryObj = updatedSaveQueries[index].dynamicFormSaveQuery;
+				updatedSaveQueryObj = updatedSaveQueries[index].formSaveQuery;
 			}
 			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "formSaveQuery");
 		});
 	}else{
 		$.each(updatedSaveQueries, function(index, value){
 			let saveQueryObj = "";
-			let updatedSaveQueryObj = value.dynamicFormSaveQuery;
+			let updatedSaveQueryObj = value.formSaveQuery;
 			
 			if(saveQueries[index] !== undefined){
-				saveQueryObj = saveQueries[index].dynamicFormSaveQuery;
+				saveQueryObj = saveQueries[index].formSaveQuery;
 			}
 			createDiffEditor(saveQueryObj, updatedSaveQueryObj, "formSaveQuery");
 		});
@@ -1604,12 +1670,14 @@ function createDiffEditor(selectedObj, currentObj, fieldName, a_languageName){
 
 
 function copyJsonData(){
-	let selectedElementId = $("#moduleVersionId").val().trim();
-	if(selectedElementId == ""){
-		$("#errorMessage").html("Please select revision time");
-		$("#errorMessage").show();
-		return false;
-	}
+	if(isImport == "false") {
+		let selectedElementId = $("#moduleVersionId").val().trim();
+		if(selectedElementId == ""){
+			$("#errorMessage").html("Please select revision time");
+			$("#errorMessage").show();
+			return false;
+		}
+	 }
 	let modifiedContent = compareJsonEditor.getModifiedEditor().getValue();
 	compareJsonEditor.getOriginalEditor().setValue(modifiedContent);
 
@@ -1624,6 +1692,11 @@ function copyJsonData(){
 function saveUpdatedJson(){
 	let content = compareJsonEditor.getOriginalEditor().getValue();
 	let contentJson = JSON.parse(content);
+	$.each(contentJson, function(key, value){
+	  if(typeof value === "string"){
+		 contentJson[key] = value.trim();
+	  }
+	});
 	let isParsable = false;
 	$.each(diffEditorArray, function(index, diffEditor){
 		let fieldName = diffEditor.fieldName;
@@ -1675,6 +1748,15 @@ function saveUpdatedJson(){
 			modifiedContent : modifiedContent,
 		},
 		success : function(data) {
+			if(isImport == "true") {
+				let idList = new Array();
+				let importedIdList = localStorage.getItem("importedIdList");
+		    	if(importedIdList != null) {
+					idList = JSON.parse(importedIdList);
+				}
+				idList.push(entityId);
+				localStorage.setItem("importedIdList", JSON.stringify(idList));
+			}
 			showMessage("Information saved successfully", "success");
 		},
 				
@@ -1692,22 +1774,4 @@ function backToPreviousPage(){
 }
 
 </script>', 'admin', 'admin', NOW(), 2);
-
-REPLACE INTO autocomplete_details(
-   ac_id
-  ,ac_description
-  ,ac_select_query
-  ,ac_type_id
-) VALUES (
-   'revisionAutocomplete'
-  ,'List module version detail by entity id'
-  ,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
-  FROM jws_module_version AS jmv WHERE jmv.entity_id LIKE CONCAT("%",:entityId,"%") AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
-    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jws_module_version AS jmv WHERE jmv.entity_id LIKE CONCAT("%",:entityId,"%")) ORDER BY jmv.updated_date ASC'
-  ,2
-);
-
-
-
-SET FOREIGN_KEY_CHECKS=1;
 

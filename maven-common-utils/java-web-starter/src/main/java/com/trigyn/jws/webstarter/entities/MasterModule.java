@@ -21,12 +21,6 @@ public class MasterModule {
 	
 	@Column(name = "grid_details_id")
 	private String gridDetailsId = null;
-	
-	@Column(name = "auxiliary_data")
-	private String auxiliaryData = null;
-
-	@Column(name="is_system_module")
-	private Integer isSystemModule = null;
 
 	@Column(name="module_type")
 	private String moduleType = null;
@@ -53,22 +47,6 @@ public class MasterModule {
 
 	public void setGridDetailsId(String gridDetailsId) {
 		this.gridDetailsId = gridDetailsId;
-	}
-
-	public String getAuxiliaryData() {
-		return auxiliaryData;
-	}
-
-	public void setAuxiliaryData(String auxiliaryData) {
-		this.auxiliaryData = auxiliaryData;
-	}
-
-	public Integer getIsSystemModule() {
-		return isSystemModule;
-	}
-
-	public void setIsSystemModule(Integer isSystemModule) {
-		this.isSystemModule = isSystemModule;
 	}
 
 	public String getModuleType() {

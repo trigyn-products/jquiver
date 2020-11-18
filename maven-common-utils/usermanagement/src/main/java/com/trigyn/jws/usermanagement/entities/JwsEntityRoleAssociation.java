@@ -137,12 +137,12 @@ public class JwsEntityRoleAssociation {
 
 	public JwsEntityRoleAssociation getObject() {
 		JwsEntityRoleAssociation role = new JwsEntityRoleAssociation();
-		role.setEntityRoleId(entityRoleId);
-		role.setEntityId(entityId);
-		role.setModuleId(moduleId);
-		role.setRoleId(roleId);
+		role.setEntityRoleId(entityRoleId!=null?entityRoleId.trim():entityRoleId);
+		role.setEntityId(entityId!=null?entityId.trim():entityId);
+		role.setModuleId(moduleId!=null?moduleId.trim():moduleId);
+		role.setRoleId(roleId!=null?roleId.trim():roleId);
 		role.setLastUpdatedDate(lastUpdatedDate);
-		role.setLastUpdatedBy(lastUpdatedBy);
+		role.setLastUpdatedBy(lastUpdatedBy!=null?lastUpdatedBy.trim():lastUpdatedBy);
 		role.setIsActive(isActive);
 		role.setJwsRole(jwsRole.getObject());
 		return role;

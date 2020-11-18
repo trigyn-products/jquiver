@@ -83,7 +83,7 @@ public class GridUtility {
 		boolean       filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true
 				: false;
 		StringBuilder query                  = new StringBuilder("select ");
-		query.append(gridDetails.getGridColumnNames() + " from " + gridDetails.getGridTableName() + " ");
+		query.append(gridDetails.getGridColumnName() + " from " + gridDetails.getGridTableName() + " ");
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? and ", " where ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
@@ -148,7 +148,7 @@ public class GridUtility {
 				? true
 				: false;
 		Map<String, Object> inParamMap             = new HashMap<String, Object>();
-		String[]            columnNames            = gridDetails.getGridColumnNames().split(",");
+		String[]            columnNames            = gridDetails.getGridColumnName().split(",");
 		List<String>        columns                = new ArrayList<String>(Arrays.asList(columnNames));
 		if (criteriaParamsPressent) {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {

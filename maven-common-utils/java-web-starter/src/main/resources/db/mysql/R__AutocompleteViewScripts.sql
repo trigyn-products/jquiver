@@ -292,6 +292,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="acId" name="acId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityName" name="entityName" value="autocomplete_details">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="autocomplete">
@@ -426,7 +427,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 	
 	
-   <input type="hidden" name="autocompleteSelectQuery" id="acSelectQuery">
+   <input type="hidden" name="autocompleteQuery" id="acSelectQuery">
    
   </form>
   <input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">

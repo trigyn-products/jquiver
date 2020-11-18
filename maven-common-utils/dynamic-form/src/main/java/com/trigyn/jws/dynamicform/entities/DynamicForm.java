@@ -1,5 +1,6 @@
 package com.trigyn.jws.dynamicform.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -200,6 +201,29 @@ public class DynamicForm {
 				+ formSelectChecksum + ", formBodyChecksum=" + formBodyChecksum + ", dynamicFormSaveQueries="
 				+ dynamicFormSaveQueries + "]";
 	}
-	
+	  
+    public DynamicForm getObject() {
+    	DynamicForm obj = new DynamicForm();
+    	obj.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
+    	obj.setCreatedDate(createdDate);
+    	obj.setFormBody(formBody!=null?formBody.trim():formBody);
+    	obj.setFormBodyChecksum(formBodyChecksum!=null?formBodyChecksum.trim():formBodyChecksum);
+    	obj.setFormDescription(formDescription!=null?formDescription.trim():formDescription);
+    	obj.setFormId(formId!=null?formId.trim():formId);
+    	obj.setFormName(formName!=null?formName.trim():formName);
+    	obj.setFormSelectChecksum(formSelectChecksum!=null?formSelectChecksum.trim():formSelectChecksum);
+    	obj.setFormSelectQuery(formSelectQuery!=null?formSelectQuery.trim():formSelectQuery);
+    	obj.setFormTypeId(formTypeId);
+    	
+
+		List<DynamicFormSaveQuery>	dfsOtr		= new ArrayList<>();
+		for(DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
+			dfsOtr.add(dfs.getObject());
+		}
+		obj.setDynamicFormSaveQueries(dynamicFormSaveQueries);
+		
+		return obj;
+	}
+
 	
 }

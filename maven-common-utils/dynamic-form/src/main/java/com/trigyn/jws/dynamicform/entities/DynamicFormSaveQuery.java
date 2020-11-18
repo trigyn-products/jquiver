@@ -28,7 +28,7 @@ public class DynamicFormSaveQuery implements Serializable {
 	private String dynamicFormQueryId = null;
 
 	@Column(name = "dynamic_form_save_query")
-	private String dynamicFormSaveQuery = null;
+	private String formSaveQuery = null;
 
 	@Column(name = "dynamic_form_id")
 	private String dynamicFormId = null;
@@ -55,11 +55,11 @@ public class DynamicFormSaveQuery implements Serializable {
 	}
 
 	public String getDynamicFormSaveQuery() {
-		return this.dynamicFormSaveQuery;
+		return this.formSaveQuery;
 	}
 
 	public void setDynamicFormSaveQuery(String dynamicFormSaveQuery) {
-		this.dynamicFormSaveQuery = dynamicFormSaveQuery;
+		this.formSaveQuery = dynamicFormSaveQuery;
 	}
 
 	public String getDynamicFormId() {
@@ -94,5 +94,15 @@ public class DynamicFormSaveQuery implements Serializable {
 		this.checksum = checksum;
 	}
 
-	
+    public DynamicFormSaveQuery getObject() {
+    	DynamicFormSaveQuery obj = new DynamicFormSaveQuery();
+    	obj.setChecksum(checksum!=null?checksum.trim():checksum);
+    	obj.setDynamicFormId(dynamicFormId!=null?dynamicFormId.trim():dynamicFormId);
+    	obj.setDynamicFormQueryId(dynamicFormQueryId!=null?dynamicFormQueryId.trim():dynamicFormQueryId);
+    	obj.setDynamicFormSaveQuery(formSaveQuery!=null?formSaveQuery.trim():formSaveQuery);
+    	obj.setSequence(sequence);
+		
+		return obj;
+	}
+
 }

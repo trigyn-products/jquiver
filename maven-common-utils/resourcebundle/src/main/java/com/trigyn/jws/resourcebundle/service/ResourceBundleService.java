@@ -90,7 +90,7 @@ public class ResourceBundleService {
 				for (ResourceBundleVO resourceBundleVO : resourceBundleVOList) {
 					if (resourceBundleVO.getText() != null && !resourceBundleVO.getText().equals("")) {
 						ResourceBundle resourceBundle = new ResourceBundle();
-						resourceBundle = convertResourceBundleEntityToVO(resourceBundleKey, resourceBundleVO);
+						resourceBundle = convertResourceBundleVOToEntity(resourceBundleKey, resourceBundleVO);
 						resourceBundleList.add(resourceBundle);
 					}
 
@@ -105,7 +105,7 @@ public class ResourceBundleService {
 		}
 	}
 
-	private ResourceBundle convertResourceBundleEntityToVO(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
+	private ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
 			throws Exception {
 		ResourceBundle resourceBundle = new ResourceBundle();
 		ResourceBundlePK resourceBundlePK = new ResourceBundlePK();
@@ -119,6 +119,15 @@ public class ResourceBundleService {
 		}
 		return resourceBundle;
 	}
+
+	public ResourceBundleVO convertResourceBundleEntityToVO(ResourceBundle resourceBundle) throws Exception{
+		ResourceBundleVO resourceBundleVO 		= new ResourceBundleVO();
+		resourceBundleVO.setLanguageId(resourceBundle.getId().getLanguageId());
+		resourceBundleVO.setResourceKey(resourceBundle.getId().getResourceKey());
+		resourceBundleVO.setText(resourceBundle.getText());
+		return resourceBundleVO;
+	}
+	
 
 	@Transactional(readOnly = false)
 	public void deleteDbResourceEntry(ResourceBundleVO dbresource) throws Exception {

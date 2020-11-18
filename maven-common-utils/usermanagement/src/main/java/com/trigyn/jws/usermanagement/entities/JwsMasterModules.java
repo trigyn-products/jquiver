@@ -64,10 +64,10 @@ public class JwsMasterModules {
 
 	public JwsMasterModules getObject() {
 		JwsMasterModules obj = new JwsMasterModules();
-		obj.setAuxiliaryData(auxiliaryData);
+		obj.setAuxiliaryData(auxiliaryData!=null?auxiliaryData.trim():auxiliaryData);
 		obj.setIsSystemModule(isSystemModule);
-		obj.setModuleId(moduleId);
-		obj.setModuleName(moduleName);
+		obj.setModuleId(moduleId!=null?moduleId.trim():moduleId);
+		obj.setModuleName(moduleName!=null?moduleName.trim():moduleName);
 		return obj;
 	}
 

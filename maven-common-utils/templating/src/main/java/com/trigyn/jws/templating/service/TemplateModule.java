@@ -150,6 +150,56 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 	}
 
+	@Override
+	public Object importData(String folderLocation, String uploadFileName, String uploadID) throws Exception {
+		String user 				="admin";
+		String ftlCustomExtension 	= Constant.CUSTOM_FILE_EXTENSION;
+		
+		TemplateMaster template		= null;
+		File directory 				= new File(folderLocation);
+		if(!directory.exists()) {
+			throw new Exception("No such directory present");
+		}
+		
+		FilenameFilter textFilter = new FilenameFilter() {
+	            public boolean accept(File dir, String name) {
+	            	if(!StringUtils.isBlank(uploadFileName)) {
+	            		return name.toLowerCase().equalsIgnoreCase(uploadFileName + ftlCustomExtension);
+	            	}else {
+	            		return name.toLowerCase().endsWith(ftlCustomExtension);
+	            	}
+	            }
+	        };
+        File[] files = directory.listFiles(textFilter);
+        for (File file : files) {
+        	if(file.isFile()) {
+				String fileName = file.getName().replace(ftlCustomExtension,"");
+				
+				if(fileName.equals(uploadFileName)) {
+					template = templateDAO.findTemplateById(uploadID);
+					String content = fileUtilities.readContentsOfFile(file.getAbsolutePath());
+					String generateFileCheckSum = fileUtilities.generateFileChecksum(file);
+					if(template == null) {
+						template = new TemplateMaster();
+						template.setTemplate(content);
+						template.setChecksum(generateFileCheckSum);
+						template.setTemplateName(fileName);
+						template.setUpdatedDate(new Date());
+						template.setUpdatedBy(user);
+						template.setCreatedBy(user);
+					}else{
+							template.setTemplate(content);
+							template.setChecksum(generateFileCheckSum);
+							template.setUpdatedBy(user);
+							template.setUpdatedDate(new Date());
+					}	
+					
+				}
+        	}
+        }
+        return template;
+	}
+
 	public Map<String, String> getModuleDetailsMap() {
 		return moduleDetailsMap;
 	}

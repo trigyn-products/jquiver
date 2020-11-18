@@ -2,17 +2,128 @@ REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name,
 VALUES ("dashboardMasterListingGrid", 'Dashboard Master Listing', 'Dashboard Master', 'dashboardMasterListing'
 ,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedDate', 2);
 
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
+
+REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
+("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formName,formDescription,formTypeId,createdDate,createdBy', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing',
+'resourceKey,languageName,resourceBundleText', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+ VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu', 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jws_dynamic_rest_details'
+,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1, 2);
+
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
+,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
+
+
+DROP PROCEDURE IF EXISTS autocompleteListing;
+CREATE PROCEDURE autocompleteListing(autocompleteId varchar(100), autocompleteDescription varchar(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
+  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @fromString  = ' FROM autocomplete_details au ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id AND jmv.entity_name = 'autocomplete_details' ");
+  SET @whereString = ' ';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  SET @groupByString = ' GROUP BY au.ac_id ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY ac_id DESC');
+  END IF;
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+
+DROP PROCEDURE IF EXISTS dbResourceListing;
+CREATE PROCEDURE dbResourceListing(resourceKey VARCHAR(100), languageName VARCHAR(100), resourceBundleText TEXT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
+  SET @selectQuery = CONCAT(@selectQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @fromString  = ' FROM resource_bundle AS rb INNER JOIN language AS lang ON lang.language_id = rb.language_id ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'resource_bundle' ");
+  
+  IF languageName IS NULL THEN  
+    SET @whereString = ' WHERE lang.language_id = 1 ';
+  ELSEIF NOT languageName IS NULL THEN  
+    SET @languageName= REPLACE(languageName,"'","''");
+    SET @whereString = CONCAT(' WHERE lang.language_name LIKE ''%',@languageName,'%''');
+  END IF;
+  
+  IF NOT resourceKey IS NULL THEN
+    SET @resourceKey= REPLACE(resourceKey,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND rb.resource_key LIKE ''%',@resourceKey,'%''');
+  END IF;
+  
+  IF NOT resourceBundleText IS NULL THEN
+    SET @resourceBundleText= REPLACE(resourceBundleText,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND rb.text LIKE ''%',@resourceBundleText,'%''');
+  END IF;
+  
+  SET @groupByString = ' GROUP BY rb.resource_key ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY resourceKey ASC');
+  END IF;
+  
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@selectQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@selectQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
 
 DROP PROCEDURE IF EXISTS dashboardMasterListing;
-CREATE PROCEDURE `dashboardMasterListing`(dashboardName varchar(50), dashboardType varchar(100), contextDescription varchar(1000)
+CREATE PROCEDURE dashboardMasterListing(dashboardName varchar(50), dashboardType varchar(100), contextDescription varchar(1000)
 ,createdDate varchar(100), createdBy varchar(100),lastUpdatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = CONCAT(" SELECT db.dashboard_id AS dashboardId, db.dashboard_name AS dashboardName, db.dashboard_type AS dashboardType "
   ," , db.created_by AS createdBy, date_format(db.created_date, '%d %b %Y') AS createdDate,date_format(db.last_updated_date, '%d %b %Y') AS lastUpdatedDate "
   ," ,cm.context_description AS contextDescription, COUNT(jmv.version_id) AS revisionCount ") ;
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM dashboard AS db INNER JOIN context_master cm ON db.context_id = cm.context_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = db.dashboard_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'dashboard' ");
   SET @whereString = ' WHERE db.is_deleted = 0';
   
   IF NOT dashboardName IS NULL THEN
@@ -63,16 +174,16 @@ BEGIN
  
 END;
 
-
-DROP PROCEDURE IF EXISTS  dashletMasterListing;
+DROP PROCEDURE IF EXISTS dashletMasterListing;
 CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = CONCAT("SELECT dl.dashlet_id AS dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
   ," date_format(dl.created_date,'%d %b %Y') AS createdDate,date_format(dl.updated_date,'%d %b %Y') AS updatedDate, "
   ," dl.updated_by AS updatedBy, dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM dashlet AS dl';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = dl.dashlet_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'dashlet' ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
@@ -154,19 +265,15 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
-
-
 DROP PROCEDURE IF EXISTS dynamicFormListing;
 CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = CONCAT("SELECT df.form_id AS formId, df.form_description AS formDescription,df.form_name AS formName, "
   ," date_format(df.created_date,'%d %b %Y') AS createdDate, df.created_by AS createdBy ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId, COUNT(jmv.version_id) AS revisionCount  '); 
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' from dynamic_form AS df ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version  jmv ON jmv.entity_id = df.form_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version  jmv ON jmv.entity_id = df.form_id AND jmv.entity_name = 'dynamic_form' ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -223,51 +330,47 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
-("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formName,formDescription,formTypeId,createdDate,createdBy', 2);
-
-DROP PROCEDURE IF EXISTS templateListing;
-CREATE PROCEDURE `templateListing`(templateName varchar(100), templateTypeId INT(11), createdBy VARCHAR(100),updatedBy varchar(100)
-, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+DROP PROCEDURE IF EXISTS dynarestListing;
+CREATE PROCEDURE dynarestListing(dynarestUrl varchar(256), rbacId INT(11), methodName VARCHAR(512)
+, methodDescription TEXT , requestTypeId INT(11), producerTypeId INT(11), serviceLogic MEDIUMTEXT,
+ platformId INT(11), allowFiles TINYINT(11), dynarestTypeId INT(11),forCount INT, limitFrom INT,
+ limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy, date_format(tm.updated_date, ''%d %b %Y'') as updatedDate ';
-  SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
-  SET @fromString  = ' FROM template_master AS tm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = tm.template_id ");
-  SET @whereString = '';
+  SET @resultQuery = ' SELECT jdrd.jws_dynamic_rest_id AS dynarestId, jdrd.jws_dynamic_rest_url AS dynarestUrl ';
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_rbac_id AS rbacId, jdrd.jws_method_name AS methodName ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_method_description AS methodDescription, jdrd.jws_request_type_id AS requestTypeId '); 
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_response_producer_type_id AS producerTypeId, jdrd.jws_service_logic AS serviceLogic ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_platform_id AS platformId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_dynamic_rest_type_id AS dynarestTypeId ');
+  SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @fromString  = ' FROM jws_dynamic_rest_details AS jdrd ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
+  SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
-  IF NOT templateName IS NULL OR NOT createdBy IS NULL OR NOT updatedBy IS NULL THEN
-    SET @whereString = CONCAT(@whereString, " WHERE ");
+  IF NOT requestTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_request_type_id = ',requestTypeId);
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_request_type_id = ',requestTypeId);
+    END IF;  
   END IF;
   
-  IF NOT templateName IS NULL THEN
-    SET @templateName= REPLACE(templateName,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.template_name LIKE ''%',@templateName,'%''');
-  END IF;
   
-  IF NOT templateTypeId IS NULL THEN
-    SET @templateName= REPLACE(templateTypeId,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.template_type_id = ',@templateTypeId);
-  END IF;
-  
-  IF NOT createdBy IS NULL THEN
-    SET @createdBy= REPLACE(createdBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.created_by LIKE ''%',@createdBy,'%''');
-  END IF;
-  
-  IF NOT updatedBy IS NULL THEN
-    SET @updatedBy= REPLACE(updatedBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.updated_by LIKE ''%',@updatedBy,'%''');
+  IF NOT platformId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_platform_id = ',platformId);
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_platform_id = ',platformId);
+    END IF;  
   END IF;
 
-  
-  SET @groupByString = ' GROUP BY tm.template_id ';
+  SET @groupByString = ' GROUP BY dynarestId ';
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY tm.updated_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY methodName ASC');
   END IF;
   
 	IF forCount=1 THEN
@@ -276,74 +379,20 @@ BEGIN
   	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
   END IF;
 
-
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
 END;
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
-
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing',
-'resourceKey,languageName,resourceBundleText', 2);
-
-DROP PROCEDURE IF EXISTS dbResourceListing;
-CREATE PROCEDURE dbResourceListing (resourceKey varchar(100), languageName varchar(100), resourceBundleText text, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
-  SET @fromString  = ' FROM resource_bundle AS rb INNER JOIN language AS lang ON lang.language_id = rb.language_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = rb.resource_key ");
-  
-  IF languageName IS NULL THEN  
-    SET @whereString = ' WHERE lang.language_id = 1 ';
-  ELSEIF NOT languageName IS NULL THEN  
-    SET @languageName= REPLACE(languageName,"'","''");
-    SET @whereString = CONCAT(' WHERE lang.language_name LIKE ''%',@languageName,'%''');
-  END IF;
-  
-  IF NOT resourceKey IS NULL THEN
-    SET @resourceKey= REPLACE(resourceKey,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND rb.resource_key LIKE ''%',@resourceKey,'%''');
-  END IF;
-  
-  IF NOT resourceBundleText IS NULL THEN
-    SET @resourceBundleText= REPLACE(resourceBundleText,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND rb.text LIKE ''%',@resourceBundleText,'%''');
-  END IF;
-  
-  SET @groupByString = ' GROUP BY rb.resource_key ';
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY resourceKey ASC');
-  END IF;
-  
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@selectQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@selectQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
-
 
 DROP PROCEDURE IF EXISTS gridDetails;
-CREATE PROCEDURE `gridDetails`(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100)
+CREATE PROCEDURE gridDetails(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100)
 , gridColumnName varchar(500),gridTypeId INT(11), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT gd.grid_id AS gridId, gd.grid_name AS gridName, gd.grid_description AS gridDesc, gd.grid_table_name AS gridTableName, gd.grid_column_names AS gridColumnName ';
   SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId , COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM grid_details AS gd ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gd.grid_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gd.grid_id AND jmv.entity_name = 'grid_details' ");
 
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -392,17 +441,14 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
- VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2);
-
 DROP PROCEDURE IF EXISTS notificationlisting;
 CREATE PROCEDURE notificationlisting(targetPlatform varchar(100), messageType varchar(500), validFrom varchar(500), messageText varchar(500), validTill varchar(100), messageFormat varchar(100), selectionCriteria varchar(500), updatedBy varchar(100), updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT gun.notification_id AS notificationId, gun.target_platform AS targetPlatform, date_format(gun.message_valid_from, ''%d %b %Y'') AS validFrom, date_format(gun.message_valid_till, ''%d %b %Y'') AS validTill, message_text AS messageText,  ';
   SET @resultQuery = CONCAT(@resultQuery, ' gun.message_type AS messageType, gun.message_format AS messageFormat, gun.selection_criteria AS selectionCriteria, gun.updated_by AS updatedBy, date_format(gun.updated_date, ''%d %b %Y'') AS updatedDate, COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM generic_user_notification AS gun';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gun.notification_id ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'generic_user_notification' ");
   SET @whereString = '';
   SET @dateFormat = '%d %b %Y';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -500,7 +546,159 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
+DROP PROCEDURE IF EXISTS propertyMasterListing;
+CREATE PROCEDURE propertyMasterListing(ownerType VARCHAR(100), ownerId VARCHAR(150)
+, propertyName VARCHAR(150), propertyValue VARCHAR(250), modifiedBy VARCHAR(50), appVersion DECIMAL(7,4), comments TEXT
+,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT jpm.owner_type AS ownerType, jpm.owner_id AS ownerId, jpm.property_name AS propertyName '; 
+  SET @resultQuery = CONCAT(@resultQuery, ', jpm.property_value AS propertyValue, jpm.last_modified_date AS lastModifiedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  
+  SET @fromString  = ' FROM jws_property_master AS jpm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jpm.property_master_id AND jmv.entity_name = 'jws_property_master' ");
+  SET @whereString = ' WHERE jpm.is_deleted = 0 ';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  SET @groupByString = ' GROUP BY propertyMasterId ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY lastModifiedDate DESC');
+  END IF;
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+DROP PROCEDURE IF EXISTS templateListing;
+CREATE PROCEDURE templateListing(templateName varchar(100), templateTypeId INT(11), createdBy VARCHAR(100),updatedBy varchar(100)
+, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy, date_format(tm.updated_date, ''%d %b %Y'') as updatedDate ';
+  SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @fromString  = ' FROM template_master AS tm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = tm.template_id AND jmv.entity_name = 'template_master' ");
+  SET @whereString = '';
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT templateName IS NULL OR NOT createdBy IS NULL OR NOT updatedBy IS NULL THEN
+    SET @whereString = CONCAT(@whereString, " WHERE ");
+  END IF;
+  
+  IF NOT templateName IS NULL THEN
+    SET @templateName= REPLACE(templateName,"'","''");
+    SET @whereString = CONCAT(@whereString,' tm.template_name LIKE ''%',@templateName,'%''');
+  END IF;
+  
+  IF NOT templateTypeId IS NULL THEN
+    SET @templateName= REPLACE(templateTypeId,"'","''");
+    SET @whereString = CONCAT(@whereString,' tm.template_type_id = ',@templateTypeId);
+  END IF;
+  
+  IF NOT createdBy IS NULL THEN
+    SET @createdBy= REPLACE(createdBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' tm.created_by LIKE ''%',@createdBy,'%''');
+  END IF;
+  
+  IF NOT updatedBy IS NULL THEN
+    SET @updatedBy= REPLACE(updatedBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' tm.updated_by LIKE ''%',@updatedBy,'%''');
+  END IF;
+
+  
+  SET @groupByString = ' GROUP BY tm.template_id ';
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY tm.updated_date DESC');
+  END IF;
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
+  END IF;
+
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+
+DROP PROCEDURE IF EXISTS fileUploadConfigListing;
+CREATE PROCEDURE `fileUploadConfigListing`(fileUploadConfigId varchar(50), fileTypeSupported varchar(100), maxFileSize varchar(1000)
+,noOfFiles INT(11), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
+,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = CONCAT(" SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported "
+  ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy " 
+  ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
+  SET @fromString  = ' FROM file_upload_config AS fuc ';
+  SET @whereString = ' WHERE fuc.is_deleted = 0';
+  
+  IF NOT fileUploadConfigId IS NULL THEN
+    SET @fileUploadConfigId= REPLACE(fileUploadConfigId,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_upload_config_id like ''%',@fileUploadConfigId,'%''');
+  END IF;
+  
+  IF NOT fileTypeSupported IS NULL THEN
+    SET @fileTypeSupported= REPLACE(fileTypeSupported,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_type_supported like ''%',@fileTypeSupported,'%''');
+  END IF;
+  
+  IF NOT maxFileSize IS NULL THEN
+    SET @maxFileSize= REPLACE(maxFileSize,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.max_file_size like ''%',@maxFileSize,'%''');
+  END IF;
+  
+  IF NOT noOfFiles IS NULL THEN
+    SET @noOfFiles= REPLACE(noOfFiles,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.no_of_files like ''%',@noOfFiles,'%''');
+  END IF;
+
+  IF NOT updatedBy IS NULL THEN
+    SET @updatedBy= REPLACE(updatedBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.updated_by like ''%',@updatedBy,'%''');
+  END IF;
+
+  IF NOT updatedDate IS NULL THEN
+    SET @updatedDate= REPLACE(updatedDate,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.updated_date like ''%',@updatedDate,'%''');
+  END IF;
+  
+  
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY updatedDate DESC');
+  END IF;
+  
+  IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+ 
+END;
 
 
 DROP PROCEDURE IF EXISTS moduleListing;
@@ -577,85 +775,3 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
-
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
-VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu', 2);
-
-
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
-VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jws_dynamic_rest_details'
-,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2);
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
-VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1, 2);
-
-
-
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
-,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
-
-
-DROP PROCEDURE IF EXISTS fileUploadConfigListing;
-CREATE PROCEDURE `fileUploadConfigListing`(fileUploadConfigId varchar(50), fileTypeSupported varchar(100), maxFileSize varchar(1000)
-,noOfFiles INT(11), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
-,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @resultQuery = CONCAT(" SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported "
-  ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy " 
-  ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
-  SET @fromString  = ' FROM file_upload_config AS fuc ';
-  SET @whereString = ' WHERE fuc.is_deleted = 0';
-  
-  IF NOT fileUploadConfigId IS NULL THEN
-    SET @fileUploadConfigId= REPLACE(fileUploadConfigId,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.file_upload_config_id like ''%',@fileUploadConfigId,'%''');
-  END IF;
-  
-  IF NOT fileTypeSupported IS NULL THEN
-    SET @fileTypeSupported= REPLACE(fileTypeSupported,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.file_type_supported like ''%',@fileTypeSupported,'%''');
-  END IF;
-  
-  IF NOT maxFileSize IS NULL THEN
-    SET @maxFileSize= REPLACE(maxFileSize,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.max_file_size like ''%',@maxFileSize,'%''');
-  END IF;
-  
-  IF NOT noOfFiles IS NULL THEN
-    SET @noOfFiles= REPLACE(noOfFiles,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.no_of_files like ''%',@noOfFiles,'%''');
-  END IF;
-
-  IF NOT updatedBy IS NULL THEN
-    SET @updatedBy= REPLACE(updatedBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.updated_by like ''%',@updatedBy,'%''');
-  END IF;
-
-  IF NOT updatedDate IS NULL THEN
-    SET @updatedDate= REPLACE(updatedDate,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.updated_date like ''%',@updatedDate,'%''');
-  END IF;
-  
-  
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY updatedDate DESC');
-  END IF;
-  
-  IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
- 
-END;

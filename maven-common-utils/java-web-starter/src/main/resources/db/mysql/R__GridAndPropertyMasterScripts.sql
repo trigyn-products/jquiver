@@ -36,7 +36,8 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		<div id="divGridDetailsListing"></div>
 
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityId" name="entityId">
+    <input type="hidden" id="entityName" name="entityName" value="grid_details">
+	<input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="grid">
 	<input type="hidden" id="formId" name="formId" value="8a80cb8174bebc3c0174bec1892c0000">
@@ -428,6 +429,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                 <input type="hidden" name="propertyMasterId" id="propertyMasterId" value=""/>
                 <button type="submit" class="btn btn-primary"> Add Property </button>
             </form>
+
             <form id="addEditMailConfiguration" action="/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
                 <input type="hidden" name="ownerId" id="ownerId" value=""/>
@@ -448,7 +450,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </div>
 
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityId" name="entityId">
+    <input type="hidden" id="entityName" name="entityName" value="jws_property_master">
+	<input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="propertyMaster">
 	<input type="hidden" id="formId" name="formId" value="8a80cb8174bf3b360174bfae9ac80006">
@@ -460,6 +463,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "";
 	let grid;
 	$(function () {
+	    localStorage.removeItem("imporatableData");
+	    localStorage.removeItem("importedIdList");
 	    let formElement = $("#addEditProperty")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("property-master-form", formDataJson);
@@ -646,6 +651,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		  url : contextPath+"/cf/sdf",
 		  data : formData,
           success : function(data) {
+			updatePropertyMaster();
           	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 			enableVersioning(formData);
@@ -655,6 +661,19 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	      },
      	});
      	return isDataSaved;
+	}
+	
+	function updatePropertyMaster(){
+		$.ajax({
+        	type : "GET",
+            async: false,
+            url : contextPath+"/cf/upml",
+            success : function(data) {
+            
+            },error : function(xhr, error){
+				showMessage("Error occurred while updating property master details", "error");
+	      	},
+        });  
 	}
 	
     function validateFields(){

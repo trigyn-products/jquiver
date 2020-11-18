@@ -498,5 +498,58 @@ public class Dashlet implements Serializable {
 	}
 
 
+	public Dashlet getObject() {
+		Dashlet dashlet = new Dashlet();
+		
+		dashlet.setContextId(contextId!=null?contextId.trim():contextId);
+		dashlet.setContextMaster(contextMaster.getObject());
+		dashlet.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
+		dashlet.setCreatedDate(createdDate);
+		
+		List<DashboardDashletAssociation>	ddaOtr		= new ArrayList<>();
+		for(DashboardDashletAssociation obj : dashboardAssociation) {
+			ddaOtr.add(obj.getObject());
+		}
+		dashlet.setDashboardAssociation(ddaOtr);
+		
+		dashlet.setDashletBody(dashletBody!=null?dashletBody.trim():dashletBody);
+		dashlet.setDashletBodyChecksum(dashletBodyChecksum!=null?dashletBodyChecksum.trim():dashletBodyChecksum);
+		dashlet.setDashletId(dashletId!=null?dashletId.trim():dashletId);
+		dashlet.setDashletName(dashletName!=null?dashletName.trim():dashletName);
+		dashlet.setDashletQuery(dashletQuery!=null?dashletQuery.trim():dashletQuery);
+		dashlet.setDashletQueryChecksum(dashletQueryChecksum!=null?dashletQueryChecksum.trim():dashletQueryChecksum);
+
+		List<DashletRoleAssociation>	draOtr		= new ArrayList<>();
+		for(DashletRoleAssociation obj : dashletRoleAssociations) {
+			draOtr.add(obj.getObject());
+		}
+		dashlet.setDashletRoleAssociations(draOtr);
+		
+		dashlet.setDashletTitle(dashletTitle!=null?dashletTitle.trim():dashletTitle);
+		dashlet.setDashletTypeId(dashletTypeId);
+		dashlet.setHeight(height);
+		dashlet.setIsActive(isActive);
+
+		List<DashletProperties>	dpOtr		= new ArrayList<>();
+		for(DashletProperties obj : properties) {
+			dpOtr.add(obj.getObject());
+		}
+		dashlet.setProperties(dpOtr);
+
+		List<DashletRoleAssociation>	draOtr1		= new ArrayList<>();
+		for(DashletRoleAssociation obj : roleAssociation) {
+			draOtr1.add(obj.getObject());
+		}
+		dashlet.setRoleAssociation(draOtr1);
+		
+		
+		dashlet.setShowHeader(showHeader);
+		dashlet.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
+		dashlet.setUpdatedDate(updatedDate);
+		dashlet.setWidth(width);
+		dashlet.setXCoordinate(xCoordinate);
+		dashlet.setYCoordinate(yCoordinate);
+		return dashlet;
+	}
 
 }

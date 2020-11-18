@@ -33,8 +33,8 @@ public class ModuleVersionDAO extends DBConnection{
 	private final static String HQL_QUERY_TO_GET_VERSION_ID_COUNT = "SELECT COUNT(jmv.moduleVersionId) FROM JwsModuleVersion AS jmv "
 			+ " WHERE jmv.entityId=:entityId "; 
 	
-	private static final String HQL_QUERY_TO_GET_JSON_BY_ID = "SELECT jmv.moduleJson AS moduleJson  FROM JwsModuleVersion AS jmv "
-			+ " WHERE jmv.entityId = :entityId ORDER BY jmv.versionId DESC ";
+	private static final String HQL_QUERY_TO_GET_JSON_BY_ENTITY_ID_AND_NAME = "SELECT jmv.moduleJson AS moduleJson  FROM JwsModuleVersion AS jmv "
+			+ " WHERE jmv.entityId = :entityId AND jmv.entityName = :entityName ORDER BY jmv.versionId DESC ";
 	
 	public Double getVersionIdByEntityId(String entityId) throws Exception{
 		Double versiondId = null;
@@ -63,9 +63,10 @@ public class ModuleVersionDAO extends DBConnection{
 		return null;
 	}
 	
-	public String getLastUpdatedJsonData(String entityId) throws Exception{
-		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_JSON_BY_ID);
+	public String getLastUpdatedJsonData(String entityId, String entityName) throws Exception{
+		Query query = getCurrentSession().createQuery(HQL_QUERY_TO_GET_JSON_BY_ENTITY_ID_AND_NAME);
 		query.setParameter("entityId", entityId);
+		query.setParameter("entityName", entityName);
 		query.setMaxResults(1);
 		Object versionIdObj = query.uniqueResult();
 		if (versionIdObj != null) {

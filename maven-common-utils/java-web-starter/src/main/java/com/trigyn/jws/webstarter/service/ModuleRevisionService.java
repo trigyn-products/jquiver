@@ -14,6 +14,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.ModuleVersionVO;
@@ -73,6 +75,11 @@ public class ModuleRevisionService {
 				Object formValue = formDataMap.getValue();
 				multiValueString.add(formValue.toString());
 				multivalueMap.put(formDataMap.getKey(), multiValueString);
+				if(formDataMap.getKey().equalsIgnoreCase("isEdit")) {
+					multiValueString = new ArrayList<>();
+					multiValueString.add(Constant.DYNAMIC_FORM_IS_EDIT);
+					multivalueMap.put(formDataMap.getKey(), multiValueString);
+				}
 			}
 		}
 		if(moduleType.equals(Constant.ModuleType.AUTOCOMPLETE.getModuleType())) {
@@ -93,17 +100,19 @@ public class ModuleRevisionService {
 	public Map<String , Object> getModuleVersioningData(HttpServletRequest a_httpServletRequest) throws Exception {
 		String moduleType			= a_httpServletRequest.getParameter("moduleType");
 		String entityId 			= a_httpServletRequest.getParameter("entityId");
+		String entityName 			= a_httpServletRequest.getParameter("entityName");
 		String saveUrl		 		= a_httpServletRequest.getParameter("saveUrl");
 		String previousPageUrl 		= a_httpServletRequest.getParameter("previousPageUrl");
 		String formId 				= a_httpServletRequest.getParameter("formId");
 		String dateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
 				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, Constant.JWS_DB_DATE_FORMAT_PROPERTY_NAME);
 	
-		List<ModuleVersionVO> versionVOs = moduleVersionService.fetchModuleVersionDetails(entityId);
+		List<ModuleVersionVO> versionVOs = moduleVersionService.fetchModuleVersionDetails(entityId, entityName);
 		String moduleName = a_httpServletRequest.getParameter("moduleName");
 		
 		Map<String , Object> templateMap = new HashMap<>();
 		templateMap.put("moduleType", moduleType);
+		templateMap.put("entityName", entityName);
 		templateMap.put("entityId", entityId);
 		templateMap.put("revesionDetailsVOs", versionVOs);
 		templateMap.put("moduleName", moduleName);
@@ -111,6 +120,20 @@ public class ModuleRevisionService {
 		templateMap.put("saveUrl", saveUrl);
 		templateMap.put("dateFormat", dateFormat);
 		templateMap.put("previousPageUrl", previousPageUrl);
+		
+		String isImport = a_httpServletRequest.getParameter("isImport");
+		if("true".equals(isImport)) {
+			String importJson = a_httpServletRequest.getParameter("importJson");
+			Gson gson = new GsonBuilder().create();
+			templateMap.put("importJson", gson.toJson(importJson));
+			templateMap.put("isImport", isImport);
+			templateMap.put("isNonVersioningModule", a_httpServletRequest.getParameter("isNonVersioningModule"));
+			templateMap.put("nonVersioningFetchURL", a_httpServletRequest.getParameter("nonVersioningFetchURL"));
+			
+		} else {
+			templateMap.put("isImport", "false");
+		}
+		
 		return templateMap;
 	}
 	

@@ -49,7 +49,7 @@ public class XMLUtil {
 			
 			metaDataXMLVO.setSettings(settings);
 			metaDataXMLVO.setExportModules(exportModule);
-			marshaling(metaDataXMLVO, "medataData", downloadLocation);
+			marshaling(metaDataXMLVO, "metadata", downloadLocation);
 			
 		} else if(moduleListMap != null && !moduleListMap.isEmpty()) {
 			List<Modules> exportModuleList = new ArrayList<>();
@@ -68,7 +68,7 @@ public class XMLUtil {
 			metaDataXMLVO.setSettings(settings);
 			metaDataXMLVO.setExportModules(exportModule);
 			metaDataXMLVO.setInfo(htmlTableJSON);
-			marshaling(metaDataXMLVO, "medataData", downloadLocation);
+			marshaling(metaDataXMLVO, "metadata", downloadLocation);
 			
 		}
 	}
@@ -83,11 +83,11 @@ public class XMLUtil {
 	    jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase()+".xml"));
 	}
 
-	public static XMLVO unMarshaling(XMLVO xmlVO, String xmlFilePath) throws JAXBException {
+	public static XMLVO unMarshaling(Class xmlVOClass, String xmlFilePath) throws JAXBException {
 
         File xmlFile = new File(xmlFilePath);
          
-	    JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());;
+	    JAXBContext jaxbContext = JAXBContext.newInstance(xmlVOClass);;
 	    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 	    XMLVO outputXMLVO = (XMLVO) jaxbUnmarshaller.unmarshal(xmlFile);
         

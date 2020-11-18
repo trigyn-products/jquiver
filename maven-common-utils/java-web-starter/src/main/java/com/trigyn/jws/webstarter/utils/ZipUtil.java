@@ -16,11 +16,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-
 public class ZipUtil {
 
 	public static String zipDirectory(String zipSourceFolder, String zipDestinationFolder) {
@@ -87,14 +82,12 @@ public class ZipUtil {
 		return source.toString() + File.separator + zipFileName;
 	}
 
-	public static void unzip(String zipFilePath, String destDir) {
+	public static void unzip(InputStream fis, String destDir) {
         File dir = new File(destDir);
         if(!dir.exists()) 
         	dir.mkdirs();
-        FileInputStream fis;
         byte[] buffer = new byte[1024];
         try {
-            fis = new FileInputStream(zipFilePath);
             ZipInputStream zis = new ZipInputStream(fis);
             ZipEntry ze = zis.getNextEntry();
 			while (ze != null) {

@@ -128,6 +128,7 @@ public class DashboardCrudService {
 		List<DashboardRoleAssociation> roleAssociations = new ArrayList<>();
 		List<DashboardDashletAssociation> dashletAssociations = new ArrayList<>();
 		dashboardEntity = iDashboardRepository.save(dashboardEntity);
+		dashboardVO.setDashboardId(dashboardEntity.getDashboardId());
 		if (!CollectionUtils.isEmpty(dashboardVO.getRoleIdList())) {
 			for (String roleId : dashboardVO.getRoleIdList()) {
 				DashboardRoleAssociation dashboardRoleAssociation 		= new DashboardRoleAssociation();
@@ -174,6 +175,30 @@ public class DashboardCrudService {
 		dashboardEntity.setLastUpdatedDate(date);
 		return dashboardEntity;
     }
+
+	public DashboardVO convertDashboarEntityToVO(Dashboard dashboard) {
+		DashboardVO dashboardVO = new DashboardVO();
+		dashboardVO.setContextId(dashboard.getContextId());
+		dashboardVO.setDashboardId(dashboard.getDashboardId());
+		dashboardVO.setDashboardName(dashboard.getDashboardName());
+		
+		List<DashboardDashletAssociation>  listDDA = dashboard.getDashboardDashlets();
+		List<String> dashletIDList = new ArrayList<>();
+		for(DashboardDashletAssociation dda : listDDA) {
+			dashletIDList.add(dda.getId().getDashletId());
+		}
+		dashboardVO.setDashletIdList(dashletIDList);
+		dashboardVO.setIsDraggable(dashboard.getIsDraggable());
+		dashboardVO.setIsExportable(dashboard.getIsExportable());
+
+		List<DashboardRoleAssociation>  listDRA = dashboard.getDashboardRoleAssociations();
+		List<String> roleIdList = new ArrayList<>();
+		for(DashboardRoleAssociation dra : listDRA) {
+			roleIdList.add(dra.getId().getRoleId());
+		}
+		dashboardVO.setRoleIdList(roleIdList);
+		return dashboardVO;
+    }
     
     
 	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
@@ -217,6 +242,7 @@ public class DashboardCrudService {
 		}
 		Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
 		dashlet 		= iDashletRepository.save(dashlet);
+		dashletVO.setDashletId(dashlet.getDashletId());
 		List<DashletProperties> properties = new ArrayList<>();
 		List<DashletRoleAssociation> roleAssociations = new ArrayList<>();
 		try {

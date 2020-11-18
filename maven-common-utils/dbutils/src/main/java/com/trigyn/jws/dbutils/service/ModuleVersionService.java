@@ -1,9 +1,10 @@
 package com.trigyn.jws.dbutils.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,9 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
 import com.trigyn.jws.dbutils.repository.JwsTemplateVersionRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
@@ -45,17 +43,24 @@ public class ModuleVersionService {
 	@Autowired
 	private JwsTemplateVersionRepository versionRepository 	= null;
 	
+	@Autowired
+	private PropertyMasterService propertyMasterService 	= null;
+	
 	@Transactional(readOnly = false)
 	public void saveModuleVersion(Object entityData, Object parentEntityIdObj
 			, Object entityTypeIdObj, String entityTypeName, Integer sourceTypeId) throws Exception{
 		Gson gson 								= new Gson();
 		ObjectMapper objectMapper				= new ObjectMapper();
 		String moduleJson 						= null;
+		String dbDateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat dateFormat					= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
 		try {
 			Map<String, Object> objectMap 			= objectMapper.convertValue(entityData, TreeMap.class);
 			moduleJson = gson.toJson(objectMap);
 		} catch (IllegalArgumentException e) {
-			moduleJson = entityData.toString();
+			moduleJson = gson.toJson(entityData);
 		}
 		String parentEntityId 					= parentEntityIdObj == null ? null : parentEntityIdObj.toString();
 		String entityTypeId 					= entityTypeIdObj.toString();
@@ -81,8 +86,7 @@ public class ModuleVersionService {
 		}
 	}
 
-
-	private Boolean compareChecksum(String entityTypeId, String generatedChecksum) throws Exception {
+	public Boolean compareChecksum(String entityTypeId, String generatedChecksum) throws Exception {
 		Boolean isChecksumChanged = true;
 		String previousChecksum = getJsonChecksum(entityTypeId);
 		if(previousChecksum != null && previousChecksum.equals(generatedChecksum)) {
@@ -138,12 +142,12 @@ public class ModuleVersionService {
 	}
 
 
-	public List<ModuleVersionVO> fetchModuleVersionDetails(String entityId) {
-		return versionRepository.getModuleVersionById(entityId);
+	public List<ModuleVersionVO> fetchModuleVersionDetails(String entityId, String entityName) {
+		return versionRepository.getModuleVersionById(entityId, entityName);
 	}
 	
-	public String getLastUpdatedJsonData(String entityId) throws Exception {
-		return moduleVersionDAO.getLastUpdatedJsonData(entityId);
+	public String getLastUpdatedJsonData(String entityId, String entityName) throws Exception {
+		return moduleVersionDAO.getLastUpdatedJsonData(entityId, entityName);
 	}
 
 	

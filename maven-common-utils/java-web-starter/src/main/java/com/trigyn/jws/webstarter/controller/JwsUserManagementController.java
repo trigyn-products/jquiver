@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.Restarter;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
@@ -121,9 +124,11 @@ public class JwsUserManagementController {
 			@RequestParam("authenticationEnabled") String authenticationEnabled,
 			@RequestParam("authenticationTypeId") String authenticationTypeId,
 			@RequestParam("propertyJson") String propertyJson,
-			@RequestParam("regexObj") String regexObj) throws Exception {
+			@RequestParam("regexObj") String regexObj,
+			@RequestParam("userProfileFormId") String userProfileFormId) throws Exception {
 		
-		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled,authenticationTypeId,propertyJson,regexObj);
+		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled,authenticationTypeId
+				,propertyJson,regexObj, userProfileFormId);
 		return true;
 	}
 	
@@ -200,7 +205,24 @@ public class JwsUserManagementController {
 	public String getInputFieldsByProperty(HttpServletRequest request) throws Exception {
 		
 		String propertyName = request.getParameter("inputId");
-		return userManagementService.getInputFieldsByProperty(propertyName);
+		String propertyValue =  userManagementService.getInputFieldsByProperty(propertyName);
+		if(StringUtils.isBlank(propertyValue)) {
+			propertyValue = "{}";
+		}
+		return propertyValue;
 	}
- 	
+
+	@PostMapping(value = "/puj")
+	public String getLastUpdatedPermissionJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String entityId = a_httpServletRequest.getParameter("entityId");
+		return userManagementService.getJwsEntityRoleAssociationJson(entityId);
+	}
+
+	@PostMapping(value = "/sjra")
+	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper			= new ObjectMapper();
+		JwsEntityRoleAssociation jwsRoleAssoc		= objectMapper.readValue(modifiedContent, JwsEntityRoleAssociation.class);
+		userManagementService.saveJwsEntityRoleAssociation(jwsRoleAssoc);
+	}
 }

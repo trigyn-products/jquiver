@@ -73,8 +73,8 @@ public class JwsDynamicRestRoleAssociationPK implements Serializable {
 
 	public JwsDynamicRestRoleAssociationPK getObject() {
 		JwsDynamicRestRoleAssociationPK pk = new JwsDynamicRestRoleAssociationPK();
-		pk.setJwsDynamicRestId(jwsDynamicRestId);
-		pk.setRoleId(roleId);
+		pk.setJwsDynamicRestId(jwsDynamicRestId!=null?jwsDynamicRestId.trim():jwsDynamicRestId);
+		pk.setRoleId(roleId!=null?roleId.trim():roleId);
 		return pk;
 	}
 }

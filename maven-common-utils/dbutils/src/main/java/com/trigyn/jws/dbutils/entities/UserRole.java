@@ -113,5 +113,16 @@ public class UserRole implements Serializable {
 				+ ", roleName=" + roleName + "]";
 	}
 
+	public UserRole getObject() {
+		UserRole obj = new UserRole();
+		
+		obj.setIsDeleted(isDeleted);
+		obj.setRoleDescription(roleDescription!=null?roleDescription.trim():roleDescription);
+		obj.setRoleId(roleId!=null?roleId.trim():roleId);
+		obj.setRoleName(roleName!=null?roleName.trim():roleName);
+		
+		return obj;
+	}
+
 
 }

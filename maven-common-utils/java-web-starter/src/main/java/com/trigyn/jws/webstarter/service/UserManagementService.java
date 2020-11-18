@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,10 +23,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -111,6 +114,9 @@ public class UserManagementService {
 	
 	@Autowired
 	private SendMailService sendMailService = null;
+	
+	@Autowired
+	private DynamicFormService dynamicFormService = null;
 	
 
 	public String addEditRole(String roleId) throws Exception {
@@ -301,7 +307,7 @@ public class UserManagementService {
 	}
 
 	public void updatePropertyMasterValuesAndAuthProperties(String authenticationEnabled, String authenticationTypeId,
-			String propertyJson,String regexObj) {
+			String propertyJson,String regexObj, String userProfileFormId) {
 		
 		propertyMasterRepository.updatePropertyValueByName(authenticationEnabled, "enable-user-management");
 		propertyMasterRepository.updatePropertyValueByName(authenticationTypeId, "authentication-type");
@@ -310,6 +316,7 @@ public class UserManagementService {
 		if(StringUtils.isNotBlank(regexObj)) {
 			propertyMasterRepository.updatePropertyValueByName(regexObj, "regexPattern");
 		}
+		propertyMasterRepository.updatePropertyValueByName(userProfileFormId, "user-profile-form-name");
 	}
 
 	public String manageEntityRoles() throws Exception {
@@ -492,6 +499,33 @@ public class UserManagementService {
 			boolean isProfilePage = true;
 			UserInformation userDetails = (UserInformation) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			String userId = userDetails.getUserId();
+			String userName = userDetails.getUsername();
+			String authTypeStr = applicationSecurityDetails.getAuthenticationType();
+			if(!StringUtils.isBlank(authTypeStr)) {
+				Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
+		 		if(Constants.AuthType.DAO.getAuthType() == authType) {
+					JwsAuthenticationType authenticationType =authenticationTypeRepository.findById(authType)
+								.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
+					JSONObject jsonObject = null ;
+					JSONArray jsonArray = new JSONArray(authenticationType.getAuthenticationProperties());
+					String propertyName = "enableDynamicForm";
+					jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, propertyName);
+					
+					if(jsonObject!= null && jsonObject.getString("value").equalsIgnoreCase("true")){
+							
+						String userProfileForm =  propertyMasterService.findPropertyMasterValue("system", "system", "user-profile-form-name"); 
+						JSONObject jsonObjectRegex = new JSONObject(userProfileForm);
+						String formId = jsonObjectRegex.getString("formId");
+						if(!StringUtils.isBlank(formId)) {
+							Map<String, Object> requestParam = new HashMap<>();
+							requestParam.put("userId", userId);
+							requestParam.put("userName", userName);
+							return dynamicFormService.loadDynamicForm(formId, requestParam, null);
+						}
+					}
+		 		}
+			}
+			
 			return addEditUser(userId,isProfilePage);
 			
 		}
@@ -500,5 +534,25 @@ public class UserManagementService {
 			String propertyMasterRegex =  propertyMasterService.findPropertyMasterValue("system", "system", propertyName);
 			return propertyMasterRegex;
 		}
-	 
+
+		public JwsEntityRoleAssociation findByEntityRoleID(String entityRoleId) throws Exception {
+			return entityRoleAssociationRepository.findById(entityRoleId)
+					.orElseThrow(() -> new Exception("data not found with id : " + entityRoleId));
+		}
+
+		public void saveJwsEntityRoleAssociation(JwsEntityRoleAssociation jwsRoleAssoc) throws Exception {
+			entityRoleAssociationRepository.save(jwsRoleAssoc);
+		}
+		
+
+		public String getJwsEntityRoleAssociationJson(String entityId) throws Exception {
+
+			JwsEntityRoleAssociation role = findByEntityRoleID(entityId);
+			role = role.getObject();
+			Gson gson = new Gson();
+			TreeMap<String, String> treeMap = gson.fromJson(gson.toJson(role), TreeMap.class);
+		    String jsonString = gson.toJson(treeMap);
+			
+			return jsonString;
+		}
 }

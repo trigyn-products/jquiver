@@ -54,8 +54,8 @@ public class ModuleRoleAssociationPK implements Serializable {
 
 	public ModuleRoleAssociationPK getObject() {
 		ModuleRoleAssociationPK moduleRoleAssociationPK = new ModuleRoleAssociationPK();
-		moduleRoleAssociationPK.setModuleId(moduleId);
-		moduleRoleAssociationPK.setRoleId(roleId);
+		moduleRoleAssociationPK.setModuleId(moduleId!=null?moduleId.trim():moduleId);
+		moduleRoleAssociationPK.setRoleId(roleId!=null?roleId.trim():roleId);
 		return moduleRoleAssociationPK;
 	}
 

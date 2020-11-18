@@ -23,6 +23,8 @@ import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
+import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.templating.service.MenuService;
 
 @Service
@@ -100,7 +102,8 @@ public class DynamicFormCrudService {
         	downloadUploadModule.downloadCodeToLocal(dynamicForm, downloadFolderLocation);
         }
         
-        moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form", sourceTypeId);
+        DynamicFormVO dynamicFormVO = convertEntityToVO(dynamicForm);
+        moduleVersionService.saveModuleVersion(dynamicFormVO,null, dynamicForm.getFormId(), "dynamic_form", sourceTypeId);
         
         return dynamicForm.getFormId();
 	}
@@ -136,11 +139,9 @@ public class DynamicFormCrudService {
 			formSaveQueryMap.put("formQueryId", dynamicFormSaveQuery.getDynamicFormQueryId());
 			formSaveQueryMap.put("formSaveQuery", dynamicFormSaveQuery.getDynamicFormSaveQuery());
 			formSaveQueryMap.put("sequence", dynamicFormSaveQuery.getSequence());
+			formSaveQueryMap.put("formBody", dynamicForm.getFormBody());
 			dynamicFormList.add(formSaveQueryMap);
 		}
-		Map<String, Object> formSaveQueryMap = new HashMap<>();
-		formSaveQueryMap.put("formBody", dynamicForm.getFormBody());
-		dynamicFormList.add(formSaveQueryMap);
 		return dynamicFormList;
 	}
 	
@@ -162,6 +163,36 @@ public class DynamicFormCrudService {
 
 	public void uploadFormsToDB(String formName) throws Exception {
 		downloadUploadModule.uploadCodeToDB(formName);
+	}
+	
+	public DynamicFormVO convertEntityToVO(DynamicForm dynamicForm) throws Exception{
+		DynamicFormVO dynamicFormVO = new DynamicFormVO();
+		dynamicFormVO.setFormId(dynamicForm.getFormId());
+		dynamicFormVO.setFormName(dynamicForm.getFormName());
+		dynamicFormVO.setFormDescription(dynamicForm.getFormDescription());
+		dynamicFormVO.setFormBody(dynamicForm.getFormBody());
+		dynamicFormVO.setFormSelectQuery(dynamicForm.getFormSelectQuery());
+		dynamicFormVO.setFormTypeId(dynamicForm.getFormTypeId());
+		dynamicFormVO.setCreatedBy(dynamicForm.getCreatedBy());
+		dynamicFormVO.setCreatedDate(dynamicForm.getCreatedDate());
+		
+		List<DynamicFormSaveQuery> formSaveQueries = dynamicForm.getDynamicFormSaveQueries();
+		List<DynamicFormSaveQueryVO> formSaveQueryVOs = new ArrayList<>();
+		for (DynamicFormSaveQuery formSaveQuery : formSaveQueries) {
+			DynamicFormSaveQueryVO formSaveQueryVO = convertEntityToVO(formSaveQuery);
+			formSaveQueryVOs.add(formSaveQueryVO);
+		}
+		dynamicFormVO.setDynamicFormSaveQueries(formSaveQueryVOs);
+		return dynamicFormVO;
+	}
+	
+	public DynamicFormSaveQueryVO convertEntityToVO(DynamicFormSaveQuery dynamicFormSaveQuery) throws Exception{
+		DynamicFormSaveQueryVO formSaveQueryVO = new DynamicFormSaveQueryVO();
+		formSaveQueryVO.setDynamicFormQueryId(dynamicFormSaveQuery.getDynamicFormQueryId());
+		formSaveQueryVO.setDynamicFormId(dynamicFormSaveQuery.getDynamicFormId());
+		formSaveQueryVO.setFormSaveQuery(dynamicFormSaveQuery.getDynamicFormSaveQuery());
+		formSaveQueryVO.setSequence(dynamicFormSaveQuery.getSequence());
+		return formSaveQueryVO;
 	}
 
 }

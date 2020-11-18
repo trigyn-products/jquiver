@@ -70,6 +70,15 @@ public class DashletRoleAssociationPK implements Serializable {
 	public String toString() {
 		return "DashletRoleAssociationPK [dashletId=" + dashletId + ", roleId=" + roleId + "]";
 	}
-	
+
+	public DashletRoleAssociationPK getObject() {
+		DashletRoleAssociationPK obj = new DashletRoleAssociationPK();
+		
+		obj.setDashletId(dashletId!=null?dashletId.trim():dashletId);
+		obj.setRoleId(roleId!=null?roleId.trim():roleId);
+		
+		return obj;
+	}
+
 	
 }

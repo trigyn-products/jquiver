@@ -76,9 +76,9 @@ public class JwsRole {
 
 	public JwsRole getObject() {
 		JwsRole role = new JwsRole();
-		role.setRoleId(roleId);
-		role.setRoleName(roleName);
-		role.setRoleDescription(roleDescription);
+		role.setRoleId(roleId!=null?roleId.trim():roleId);
+		role.setRoleName(roleName!=null?roleName.trim():roleName);
+		role.setRoleDescription(roleDescription!=null?roleDescription.trim():roleDescription);
 		role.setIsActive(isActive);
 		
 		List<JwsRoleMasterModulesAssociation> jrmmaOthr = new ArrayList<>();

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,16 +18,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.service.DashletService;
+import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.utils.Constant;
@@ -113,7 +118,7 @@ public class MasterModuleController {
 		}
 		return null;
 	}
-	
+
 	 private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {
 	        Map<String, Object> requestParams = new HashMap<>();
 	        for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {

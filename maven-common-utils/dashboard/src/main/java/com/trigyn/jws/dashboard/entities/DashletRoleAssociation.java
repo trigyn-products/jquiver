@@ -91,6 +91,13 @@ public class DashletRoleAssociation implements Serializable {
 		return "DashletRoleAssociation [id=" + id + ", dashlet=" + dashlet + ", userRole=" + userRole + "]";
 	}
 
+	public DashletRoleAssociation getObject() {
+		DashletRoleAssociation obj = new DashletRoleAssociation();
+		
+		obj.setId(id.getObject());
+		obj.setUserRole(userRole.getObject());
+		
+		return obj;
+	}
 
-	
 }

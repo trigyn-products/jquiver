@@ -117,7 +117,7 @@ public class JwsResponseCodeDetail implements Serializable {
 
 	public JwsResponseCodeDetail getObject() {
 		JwsResponseCodeDetail dynaRest = new JwsResponseCodeDetail();
-		dynaRest.setJwsResponseCodeDescription(jwsResponseCodeDescription);
+		dynaRest.setJwsResponseCodeDescription(jwsResponseCodeDescription!=null?jwsResponseCodeDescription.trim():jwsResponseCodeDescription);
 		dynaRest.setJwsResponseCodeId(jwsResponseCodeId);
 		dynaRest.setJwsResponseStatusCode(jwsResponseStatusCode);
 		return dynaRest;

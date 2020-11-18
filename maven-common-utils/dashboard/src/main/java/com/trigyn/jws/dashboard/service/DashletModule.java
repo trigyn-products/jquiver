@@ -21,7 +21,6 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
-import com.trigyn.jws.templating.utils.Constant;
 
 @Component("dashlet")
 public class DashletModule implements DownloadUploadModule<Dashlet> {
@@ -172,6 +171,84 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		
 	}
 
+	@Override
+	public Object importData(String folderLocation, String uploadFileName, String uploadID) throws Exception {
+		String user 				= "admin";
+		String ftlCustomExtension 	= Constants.CUSTOM_FILE_EXTENSION;
+		String selectQuery 			= Constants.DASHLET_QUERY_FILE_NAME;
+		String htmlBody 			= Constants.DASHLET_HTML_FILE_NAME;
+		
+		Dashlet dashlet  		 	= null;
+		File directory 				= new File(folderLocation);
+		if(!directory.exists()) {
+			throw new Exception("No such directory present");
+		}
+		FilenameFilter textFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+            	return name.toLowerCase().endsWith(ftlCustomExtension);
+            }
+        };
+        
+        File[] directories = directory.listFiles((new FilenameFilter() {
+        	  @Override
+        	  public boolean accept(File current, String name) {
+        		  if(!StringUtils.isBlank(uploadFileName)) {
+        			  if(name.equalsIgnoreCase(uploadFileName)) {
+        				  return new File(current, name).isDirectory();  
+        			  }
+        		  }else {
+        			  return new File(current, name).isDirectory();
+        		  }
+				return false;
+        	  }
+        	}));
+        
+        for (File currentDirectory : directories) {
+        	String selectCheckSum = null;
+        	String htmlCheckSum = null;
+        	String currentDirectoryName = currentDirectory.getName();
+        	
+        	if(currentDirectoryName.equals(uploadFileName)) {
+	        	dashlet = dashletDAO.findById(uploadID);
+	        	
+	        	if(dashlet ==  null) {
+	        		dashlet = new Dashlet();
+	        		dashlet.setCreatedBy(user);
+	        		dashlet.setCreatedDate(new Date());
+	        		dashlet.setDashletName(currentDirectoryName);
+	        		dashlet.setDashletTitle("Uploaded from Local Directory");
+	        	}
+				File[] directoryFiles = currentDirectory.listFiles(textFilter);
+				Integer filesPresent = directoryFiles.length;
+				if(filesPresent == 2) {
+					File selectFile = new File(currentDirectory.getAbsolutePath()+File.separator+selectQuery+ftlCustomExtension);
+					File hmtlBodyFile = new File(currentDirectory.getAbsolutePath()+File.separator+htmlBody+ftlCustomExtension);
+					if(!selectFile.exists() || !hmtlBodyFile.exists()) {
+						throw new Exception("selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet"+currentDirectoryName);
+					}else {
+						// set select
+						selectCheckSum = fileUtilities.generateFileChecksum(selectFile);
+
+						dashlet.setDashletQuery(fileUtilities.readContentsOfFile(selectFile.getAbsolutePath()));
+						dashlet.setDashletQueryChecksum(selectCheckSum);
+						
+						// set html
+						htmlCheckSum = fileUtilities.generateFileChecksum(hmtlBodyFile);
+
+						dashlet.setDashletBody(fileUtilities.readContentsOfFile(hmtlBodyFile.getAbsolutePath()));
+						dashlet.setDashletBodyChecksum(htmlCheckSum);
+					}	// saveQuery
+				}else {
+					throw new Exception("Invalid count of files for saving dashlet"+currentDirectoryName);
+				}
+        	} else {
+        		throw new Exception(currentDirectoryName + " directory not found.");
+        	}
+        }
+        return dashlet;
+		
+	}
+
 	public Map<String, String> getModuleDetailsMap() {
 		return moduleDetailsMap;
 	}
@@ -181,8 +258,13 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	}
 	
 	public void saveDashletVersioning(Dashlet dashlet) throws Exception {
+		DashletVO dashletVO = convertDashletEntityToVO(dashlet);
+		moduleVersionService.saveModuleVersion(dashletVO,null, dashlet.getDashletId(), "dashlet", Constants.UPLOAD_SOURCE_VERSION_TYPE);
+	}
+	
+	public DashletVO convertDashletEntityToVO(Dashlet dashlet) {
 		DashletVO dashletVO = new DashletVO();
-		dashletVO.setDashletId(dashletVO.getDashletId());
+		dashletVO.setDashletId(dashlet.getDashletId());
 		dashletVO.setDashletName(dashlet.getDashletName());
 		dashletVO.setDashletTitle(dashlet.getDashletTitle());
 		dashletVO.setXCoordinate(dashlet.getXCoordinate());
@@ -194,7 +276,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		dashletVO.setDashletBody(dashlet.getDashletBody());
 		dashletVO.setShowHeader(dashlet.getShowHeader());
 		dashletVO.setContextId(dashlet.getContextId());
-		dashletVO.setIsActive(dashletVO.getIsActive());
-		moduleVersionService.saveModuleVersion(dashletVO,null, dashlet.getDashletId(), "dashlet", Constants.UPLOAD_SOURCE_VERSION_TYPE);
+		dashletVO.setIsActive(dashlet.getIsActive());
+		return dashletVO;
 	}
 }

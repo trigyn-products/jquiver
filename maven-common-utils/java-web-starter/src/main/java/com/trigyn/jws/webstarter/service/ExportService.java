@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
@@ -88,6 +89,10 @@ public class ExportService {
 	
 	private String 					userName							= null;
 	
+	public List<Map<String, Object>> getAllCustomEntity() {
+		return importExportCrudDAO.getAllCustomEntity();
+	}
+	
 	public String exportConfigData(HttpServletRequest request, HttpServletResponse response, Map<String, String> out) throws Exception {
 
 		version 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
@@ -105,11 +110,10 @@ public class ExportService {
 			String moduleType = obj.getKey();
 			String exportData = obj.getValue();
 			
-			JSONObject jsonObject = new JSONObject(exportData);
-			
 			if("htmlTableJSON".equals(moduleType)) {
-				htmlTableJSON = exportData;
+				htmlTableJSON = StringEscapeUtils.unescapeXml("<![CDATA["+ exportData +"]]>");
 			} else {
+				JSONObject jsonObject = new JSONObject(exportData);
 				xmlVO =retrieveDBData(moduleType, jsonObject, tempDownloadPath);
 			}
 			
@@ -131,60 +135,42 @@ public class ExportService {
 		List<String> systemConfigIncludeList = new ArrayList<String>();
 		List<String> customConfigExcludeList = new ArrayList<String>();
 		
-		List<Integer> systemConfigIncludeListInt = new ArrayList<Integer>();
-		List<Integer> customConfigExcludeListInt = new ArrayList<Integer>();
-		
-		if(moduleType.equals("DYNA_REST")) {
-			JSONArray jsonArray = (JSONArray) jsonObject.get("systemConfigIncludeList");
-		    for(int i=0; i < jsonArray.length(); i++) {
-		    	systemConfigIncludeListInt.add(jsonArray.getInt(i));
-		    }
-	
-			jsonArray = (JSONArray) jsonObject.get("customConfigExcludeList");
-		    for(int i=0; i < jsonArray.length(); i++) {
-		    	customConfigExcludeListInt.add(jsonArray.getInt(i));
-		    }
-		    if(customConfigExcludeList.size() == 0) {
-		    	customConfigExcludeListInt.add(0);
-		    }
-		} else {
-			JSONArray jsonArray = (JSONArray) jsonObject.get("systemConfigIncludeList");
-		    for(int i=0; i < jsonArray.length(); i++) {
-		    	systemConfigIncludeList.add(jsonArray.getString(i));
-		    }
-	
-			jsonArray = (JSONArray) jsonObject.get("customConfigExcludeList");
-		    for(int i=0; i < jsonArray.length(); i++) {
-		    	customConfigExcludeList.add(jsonArray.getString(i));
-		    }
-		    if(customConfigExcludeList.size() == 0) {
-		    	customConfigExcludeList.add("");
-		    }
-		}
+		JSONArray jsonArray = (JSONArray) jsonObject.get("systemConfigIncludeList");
+	    for(int i=0; i < jsonArray.length(); i++) {
+	    	systemConfigIncludeList.add(jsonArray.getString(i));
+	    }
+
+		jsonArray = (JSONArray) jsonObject.get("customConfigExcludeList");
+	    for(int i=0; i < jsonArray.length(); i++) {
+	    	customConfigExcludeList.add(jsonArray.getString(i));
+	    }
+	    if(customConfigExcludeList.size() == 0) {
+	    	customConfigExcludeList.add("");
+	    }
 	    
-		if (moduleType.equals("Grid")) {
+		if (moduleType.equals(Constant.MasterModuleType.GRID.getModuleType())) {
 			return retrieveGridExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("ResourceBundle")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType())) {
 			return retrieveRBExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("Autocomplete")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType())) {
 			return retrieveAutocompleteExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("Notification")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.NOTIFICATION.getModuleType())) {
 			return retrieveNotificationExportData(customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("Dashboard")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.DASHBOARD.getModuleType())) {
 			return downloadDashboardExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("FileManager")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.FILEMANAGER.getModuleType())) {
 			return retrieveFileManagerExportData(customConfigExcludeList, moduleType);
-		} else if (moduleType.equals("DynaRest")) {
-			return downloadDashletExportData(systemConfigIncludeListInt, customConfigExcludeListInt, moduleType);
-		} else if (moduleType.equals("Permission")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.DYNAREST.getModuleType())) {
+			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+		} else if (moduleType.equals(Constant.MasterModuleType.PERMISSION.getModuleType())) {
 			return retrievePermissionExportData(systemConfigIncludeList, moduleType);
-		} else if (moduleType.equals("SiteLayout")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.SITE_LAYOUT.getModuleType())) {
 			return retrieveSiteLayoutExportData(systemConfigIncludeList, moduleType);
-		} else if (moduleType.equals("Templates")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.TEMPLATE.getModuleType())) {
 			return downloadTemplateExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
-		} else if (moduleType.equals("Dashlets")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.DASHLET.getModuleType())) {
 			return downloadDashletExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
-		} else if (moduleType.equals("DynamicForm")) {
+		} else if (moduleType.equals(Constant.MasterModuleType.DYNAMICFORM.getModuleType())) {
 			return downloadDynamicFormExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
 		} else {
 			return null;
@@ -202,7 +188,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				gridXMLVO.getGridDetails().add(((GridDetails)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return gridXMLVO;
 	}
@@ -218,7 +204,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				resourceBundleXMLVO.getResourceBundleDetails().add(((ResourceBundle)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return resourceBundleXMLVO;
 	}
@@ -234,7 +220,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				autocompleteXMLVO.getAutocompleteDetails().add(((Autocomplete)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return autocompleteXMLVO;
 	}
@@ -250,7 +236,7 @@ public class ExportService {
 				genericUserNotificationXMLVO.getGenericUserNotificationDetails()
 					.add(((GenericUserNotification)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return genericUserNotificationXMLVO;
 	}
@@ -266,7 +252,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				dashboardXMLVO.getDashboardDetails().add(((Dashboard)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return dashboardXMLVO;
 	}
@@ -281,22 +267,22 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				fileManagerXMLVO.getFileUploadDetails().add(((FileUploadConfig)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return fileManagerXMLVO;
 	}
 
-	private XMLVO downloadDashletExportData(List<Integer> systemConfigIncludeListInt,
-			List<Integer> customConfigExcludeListInt, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getExportableDataWithIntegerList(CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT, 
-				systemConfigIncludeListInt, 2, customConfigExcludeListInt, 1);
+	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String moduleType) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT, 
+				systemConfigIncludeList, 2, customConfigExcludeList, 1);
 		DynaRestXMLVO dynaRestXMLVO = null;
 		if(exportableList != null && !exportableList.isEmpty()) {
 			dynaRestXMLVO = new DynaRestXMLVO();
 			for(Object obj : exportableList) {
 				dynaRestXMLVO.getDynaRestDetails().add(((JwsDynamicRestDetail)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return dynaRestXMLVO;
 	}
@@ -311,7 +297,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				permissionXMLVO.getJwsRoleDetails().add(((JwsEntityRoleAssociation)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return permissionXMLVO;
 	}
@@ -327,7 +313,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				siteLayoutXMLVO.getModuleListingDetails().add(((ModuleListing)obj).getObject());
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return siteLayoutXMLVO;
 	}
@@ -340,7 +326,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				templateDownloadUploadModule.downloadCodeToLocal(((TemplateMaster)obj), downloadFolderLocation);
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.FOLDER_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			
 			XMLUtil.generateMetadataXML(null, templateDownloadUploadModule.getModuleDetailsMap(), downloadFolderLocation+File.separator+
 					com.trigyn.jws.templating.utils.Constant.TEMPLATE_DIRECTORY_NAME, version, userName,"");
@@ -356,7 +342,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				dashletDownloadUploadModule.downloadCodeToLocal(((Dashlet)obj), downloadFolderLocation);
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.FOLDER_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, dashletDownloadUploadModule.getModuleDetailsMap(), 
 					downloadFolderLocation+File.separator+Constants.DASHLET_DIRECTORY_NAME, version, userName,"");
 		}
@@ -371,7 +357,7 @@ public class ExportService {
 			for(Object obj : exportableList) {
 				dynamicFormDownloadUploadModule.downloadCodeToLocal(((DynamicForm)obj), downloadFolderLocation);
 			}
-			moduleListMap.put(moduleType.toLowerCase(), Constant.FOLDER_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, dynamicFormDownloadUploadModule.getModuleDetailsMap(), downloadFolderLocation+File.separator+
 						com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME, version, userName,"");
 		}

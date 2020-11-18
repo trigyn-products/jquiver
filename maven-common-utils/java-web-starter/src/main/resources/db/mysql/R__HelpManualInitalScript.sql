@@ -295,6 +295,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
     let manualObject = new HelpManual();
     let manualdata;
     $(function () {
+        let formElement = $("#addEditRecords")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("8a80cb81754acbf701754ae3d1c2000c", formDataJson);
         manualdata = manualObject.getManualDetails();
         $("#title").html(manualdata.find(manual => {return manual["manual_id"] == manualType})["name"]);
         //Add all columns that needs to be displayed in the grid
@@ -503,45 +506,47 @@ replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
-
-	
-
-
 <div class="container ">
-	<div class="pg-manual-display">
-		<div class="row">
-			<div class="topband">
-				<h2 id="title" class="title-cls-name float-left"></h2>
-				<div class="float-right"> <span onclick="back();">
-                        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-                    </span> </div>
-				<div class="clearfix"></div>
-			</div>
-		</div>
-		    <div class="cm-rightbar">
-                <div class="row cm-bottom-border">
-                    <span> <i class="icon icon-s-information"></i></span>
-			    <div class="col-md-3">
-				    <div class="cm-searchwithicon">
+    <div class="pg-manual-display">
+        <div class="row">
+            <div class="topband">
+                <h2 id="title" class="title-cls-name float-left"></h2>
+                <div class="cm-searchwithicon">
                         <div class="form-group has-search clearfix"> <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
-                           <div class="cm-errormsg" id="cm-errormsg"></div> 
-
-                           
-                             
+                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">   
                         </div>
                          
                         
                        
-					</div>
-				</div>
+                    </div>
+                <div class="float-right"> <span onclick="back();">
+                        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+                    </span> </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+            <div id="manual-container" class="cm-rightbar">
+                <div class="row cm-bottom-border">
+                    <span> <i class="icon icon-s-information"></i></span>
                 </div>
 
-                <div class="preview row cm-scrollbar">
+                <div class="cm-main-wrapper preview cm-scrollbar clearfix">
                     
-					<div id="tabs" class="col-md-3 tabs"></div>
-					<div id="previews" class="col-md-9 previews cm-scrollbar"></div>
-				</div>
+                    <div class="cm-left-wrapper cm-scrollbar">
+                        <div id="tabs" class=" tabs  "></div>
+
+                    </div>
+                    <div id="contentDiv" class="cm-right-wrapper ">
+                        
+                        <div id="previews" class="previews  cm-scrollbar"></div>
+                    </div>
+                    
+                </div>
+
+
+                
+
+                
 
                 <div class="row">
                 <div class="col-md-3">
@@ -550,63 +555,72 @@ replace into template_master (template_id, template_name, template, updated_by, 
                     </div>
                 </div>
             </div>
-			</div>
-            
-				
-			
-            
+            </div>
+            <div id="cm-errormsg-div" class="row margin-t-25 margin-b-25" style="display: none;">
+                <div class="cm-errormsg" id="cm-errormsg"></div>
+            </div>
+        </div>
+    </div>
 
-		</div>
-	</div>
-
-	
-			
-	<script>
-		contextPath = "${contextPath}";
+    
+            
+    <script>
+        contextPath = "${contextPath}";
 let manual = new HelpManual();
 let manualTypes = manual.getManualDetails();
 $("#title").html(manualTypes.find(manual => {
-	return manual["manual_id"] == "${mt}"
+    return manual["manual_id"] == "${mt}"
 })["name"]);
 manual.getManualEntities("${mt}");
 for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
-	let data = manual.helpManualDetails[counter];
-	$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<i class=''fa fa-table''></i>" + data["entry_name"]  + "</button>");
-	let simplemde = new SimpleMDE({
-		initialValue: manual.helpManualDetails[counter]["entry_content"],
-		renderingConfig: {
-			codeSyntaxHighlighting: true,
-		}
-	});
-	manual.helpManualDetails[counter]["divContent"] = $(simplemde.options.previewRender(simplemde.value())).text();
+    let data = manual.helpManualDetails[counter];
+    $("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<img src=''/webjars/1.0/images/s-information1.svg'' >" + data["entry_name"]  + "</button>");
+    let simplemde = new SimpleMDE({
+        initialValue: manual.helpManualDetails[counter]["entry_content"],
+        renderingConfig: {
+            codeSyntaxHighlighting: true,
+        }
+    });
+    manual.helpManualDetails[counter]["divContent"] = $(simplemde.options.previewRender(simplemde.value())).text();
 }
 $("#tabs button")[0].click();
 
 function back() {
-	location.href = contextPath + "/cf/help"
+    location.href = contextPath + "/cf/help"
 }
 
 function search(event, value) {
-	let searchText = value.toLowerCase();
-		let manuals = manual.helpManualDetails.filter(details => {
-			let divContent = details["divContent"].toLowerCase();
-			return divContent.indexOf(searchText) != -1
-		});
-		$("#tabs").html("");
-		$("#previews").html("");
-    	$("#cm-errormsg").hide();
-		if(manuals.length > 0){
-			for(let counter = 0; counter < manuals.length; counter++) {
-				let data = manuals[counter];
-				$("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + data["entry_name"] + "</button>");
-			}
-			$("#tabs button")[0].click();
-		}else{
-			$("#cm-errormsg").show();
-			$("#cm-errormsg").text("Sorry no data found");
-		}
+    let searchText = value.toLowerCase();
+        let noOfManualVisible = 0;
+        let firstManual;
+        $.each( manual.helpManualDetails, function(index, manual){
+            let divContent = manual.divContent.toLowerCase();
+            if(divContent.indexOf(searchText) !== -1){
+                if(firstManual === undefined){
+                    firstManual = index;
+                }
+                $("#"+manual.manual_entry_id).show();
+                noOfManualVisible++;
+            }else{
+                $("#"+manual.manual_entry_id).hide();
+            }
+        });
+        
+        if(noOfManualVisible > 0){
+            $("#manual-container").show();
+            $("#contentDiv").show();
+            $("#cm-errormsg").hide();
+            $("#cm-errormsg-div").hide();
+            $("#tabs button")[firstManual].click();
+        }else{
+            $("#cm-errormsg").show();
+            $("#cm-errormsg-div").show();
+            $("#contentDiv").hide();
+            $("#cm-errormsg").text("Your search - "+$("#searchInputField").val().trim()+" - did not match any manual documents.");
+            $("#manual-container").hide();
+        }
 }
-	</script>', 'admin', 'admin', NOW(), NULL, 1);
+    </script>', 'admin', 'admin', NOW(), NULL, 1);
 
 replace into grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
 ('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1), 

@@ -16,6 +16,11 @@ public class FileUtil {
 
 		String systemPath = System.getProperty("user.dir");
 		String tempFilePath= systemPath + File.separator + tempFolderName;
+		
+		File f = new File(tempFilePath);
+		if (f.exists() && f.isDirectory()) {
+			f.delete();
+		}
 		new File(tempFilePath).mkdir();
 		
 		return tempFilePath;

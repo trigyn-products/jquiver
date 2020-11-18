@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -62,9 +61,6 @@ public class DynamicFormService {
 	
 	@Autowired
 	private MenuService menuService							= null;
-	
-	@Autowired
-	private ModuleVersionService moduleVersionService		= null;
 	
 	private final static Logger logger = LogManager.getLogger(DynamicFormService.class);
 	

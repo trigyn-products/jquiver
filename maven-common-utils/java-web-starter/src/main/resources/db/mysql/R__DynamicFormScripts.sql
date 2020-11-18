@@ -36,6 +36,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			<input type="hidden" id="formId" name="form-id">	
 		</form>
 		<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
+			<input type="hidden" id="entityName" name="entityName" value="dynamic_form">
 			<input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
 			<input type="hidden" id="moduleType" name="moduleType" value="dynamicForm">
@@ -328,7 +329,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let formName = "${(dynamicForm?api.getFormName())!''''}";
 	let formId = "${(dynamicForm?api.getFormId())!''''}";
 	let initialFormData;
-	let htmlVal;
 	formName = $.trim(formName);
 	if(formName !== ""){
 		$("#formName").prop("disabled", true);

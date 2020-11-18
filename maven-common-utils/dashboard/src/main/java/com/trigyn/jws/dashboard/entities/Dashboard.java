@@ -262,11 +262,11 @@ public class Dashboard implements Serializable {
 
 	public Dashboard getObject() {
 		Dashboard dashboard = new Dashboard();
-		dashboard.setContextId(contextId);
-		dashboard.setCreatedBy(createdBy);
+		dashboard.setContextId(contextId!=null?contextId.trim():contextId);
+		dashboard.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
 		dashboard.setCreatedDate(createdDate);
-		dashboard.setDashboardId(dashboardId);
-		dashboard.setDashboardName(dashboardName);
+		dashboard.setDashboardId(dashboardId!=null?dashboardId.trim():dashboardId);
+		dashboard.setDashboardName(dashboardName!=null?dashboardName.trim():dashboardName);
 		dashboard.setDashboardType(dashboardType);
 		dashboard.setIsDeleted(isDeleted);
 		dashboard.setIsDraggable(isDraggable);

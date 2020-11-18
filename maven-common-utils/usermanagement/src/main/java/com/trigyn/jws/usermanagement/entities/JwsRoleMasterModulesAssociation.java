@@ -85,16 +85,17 @@ public class JwsRoleMasterModulesAssociation {
 		this.module = module;
 	}
 
+	public void setModule(JwsMasterModules module) {
+		this.module = module;
+	}
+	
 	public JwsRoleMasterModulesAssociation getObject() {
 		JwsRoleMasterModulesAssociation obj = new JwsRoleMasterModulesAssociation();
 		obj.setIsActive(isActive);
-		obj.setModuleId(moduleId);
+		obj.setModuleId(moduleId!=null?moduleId.trim():moduleId);
 		obj.setModules(module.getObject());
-		obj.setRoleId(roleId);
-		obj.setRoleModuleId(roleModuleId);
+		obj.setRoleId(roleId!=null?roleId.trim():roleId);
+		obj.setRoleModuleId(roleModuleId!=null?roleModuleId.trim():roleModuleId);
 		return obj;
-	}
-	public void setModule(JwsMasterModules module) {
-		this.module = module;
 	}
 }

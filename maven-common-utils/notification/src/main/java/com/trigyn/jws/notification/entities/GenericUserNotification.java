@@ -266,17 +266,17 @@ public class GenericUserNotification {
 
 	public GenericUserNotification getObject() {
 		GenericUserNotification notification = new GenericUserNotification();
-		notification.setCreatedBy(createdBy);
+		notification.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
 		notification.setCreationDate(creationDate);
-		notification.setMessageFormat(messageFormat);
-		notification.setMessageText(messageText);
-		notification.setMessageType(messageType);
+		notification.setMessageFormat(messageFormat!=null?messageFormat.trim():messageFormat);
+		notification.setMessageText(messageText!=null?messageText.trim():messageText);
+		notification.setMessageType(messageType!=null?messageType.trim():messageType);
 		notification.setMessageValidFrom(messageValidFrom);
 		notification.setMessageValidTill(messageValidTill);
-		notification.setNotificationId(notificationId);
-		notification.setSelectionCriteria(selectionCriteria);
-		notification.setTargetPlatform(targetPlatform);
-		notification.setUpdatedBy(updatedBy);
+		notification.setNotificationId(notificationId!=null?notificationId.trim():notificationId);
+		notification.setSelectionCriteria(selectionCriteria!=null?selectionCriteria.trim():selectionCriteria);
+		notification.setTargetPlatform(targetPlatform!=null?targetPlatform.trim():targetPlatform);
+		notification.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
 		notification.setUpdatedDate(updatedDate);
 		
 		return notification;
