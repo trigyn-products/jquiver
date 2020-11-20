@@ -26,15 +26,6 @@ public class AuthorizedValidatorService {
 		
 	}
 
-	public boolean hasAccessToGridUtils(String gridId, List<String> roleNames) {
-		boolean hasAccess = false;
-		Long count = authorizedValidatorDAO.hasAccessToGridUtils(gridId,roleNames);
-		if(count > 0) {
-			hasAccess = true;
-		}
-		return hasAccess;
-	}
-	
 	
 	
 }

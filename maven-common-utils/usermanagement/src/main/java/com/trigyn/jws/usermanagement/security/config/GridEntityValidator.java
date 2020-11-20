@@ -19,10 +19,12 @@ public class GridEntityValidator  implements EntityValidator{
 	
 	private String primaryKeyName = "gridId";
 	
+	private String moduleId = "07067149-098d-11eb-9a16-f48e38ab9348";
+	
 	@Override
 	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
 		boolean hasAccess = false;
-		Long count = authorizedValidatorDAO.hasAccessToGridUtils(reqObject.getParameter(primaryKeyName), roleNames);
+		Long count = authorizedValidatorDAO.hasAccessToGridUtils(reqObject.getParameter(primaryKeyName), roleNames, moduleId);
 		if (count > 0) {
 			hasAccess = true;
 		}

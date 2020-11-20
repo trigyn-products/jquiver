@@ -1,8 +1,14 @@
 package com.trigyn.jws.webstarter.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class GenericUserNotificationJsonVO {
+public class GenericUserNotificationJsonVO  implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String entityName = null;
 	

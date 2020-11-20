@@ -1,5 +1,9 @@
 package com.trigyn.jws.webstarter.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,11 +29,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -49,7 +58,9 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
 import com.trigyn.jws.usermanagement.security.config.UserInformation;
+import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationTypeVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
@@ -116,7 +127,13 @@ public class UserManagementService {
 	private SendMailService sendMailService = null;
 	
 	@Autowired
+	private UserConfigService userConfigService = null;
+
+	@Autowired
 	private DynamicFormService dynamicFormService = null;
+	
+	@Autowired
+	private PropertyMasterDetails propertyMasterDetails 	=	null;
 	
 
 	public String addEditRole(String roleId) throws Exception {
@@ -200,6 +217,9 @@ public class UserManagementService {
 	public void saveUserData(JwsUserVO userData) throws Exception {
 		String password = null;
 		JwsUser jwsUser = new JwsUser();
+		Map<String, Object> mapDetails = new HashMap<>();
+		
+		userConfigService.getConfigurableDetails(mapDetails);
 		
 		if(userData.getIsProfilePage()) {
 			jwsUser = jwsUserRepository.findByUserId(userData.getUserId());
@@ -213,44 +233,71 @@ public class UserManagementService {
 				jwsUser.setFirstName(userData.getFirstName());
 				jwsUser.setLastName(userData.getLastName());
 				userManagementDAO.deleteUserRoleAssociation(jwsUser.getUserId());
+				jwsUser.setIsActive(userData.getForcePasswordChange()==1?Constants.INACTIVE:Constants.ISACTIVE);
+				jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+				jwsUserRepository.save(jwsUser);
+				if(userData.getForcePasswordChange()==1) {
+					Email email = new Email();
+		    		forcePasswordAndMail(userData, jwsUser, email);
+		    		sendMailService.sendTestMail(email);
+		    	}
 			}else {
 				jwsUser.setFirstName(userData.getFirstName());
 				jwsUser.setLastName(userData.getLastName());
 				jwsUser.setEmail(userData.getEmail());
-				password = UUID.randomUUID().toString();
-				jwsUser.setPassword(passwordEncoder.encode(password));
-				System.out.println("Your account password is  "+ password) ;
+				//jwsUser.setUserId(UUID.randomUUID().toString()); // new user uuid
+				jwsUser.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey()); // generating secret key 
 				Email email = new Email();
-				email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
-				email.setSubject("Account Password");  
-				email.setMailFrom("admin@jquiver.com");
-				email.setBody("Your account password is  "+ password+" You can login through these url : http://localhost:8080/cf/login");
-		  		
-				sendMailService.sendTestMail(email);
+				
+			    if(mapDetails.get("enableGoogleAuthenticator").toString().equalsIgnoreCase("false")){
+			    	if(userData.getForcePasswordChange()==1) {
+			    		forcePasswordAndMail(userData, jwsUser, email);
+			    	}else {
+				    	password = UUID.randomUUID().toString();
+						jwsUser.setPassword(passwordEncoder.encode(password));
+						jwsUser.setIsActive(userData.getForcePasswordChange()==1?Constants.INACTIVE:Constants.ISACTIVE);
+						jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+						jwsUserRepository.save(jwsUser);
+						email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
+						email.setSubject("Account Password");  
+						email.setMailFrom("admin@jquiver.com");
+						email.setBody("Your account password is  "+ password+" You can login through these url : http://localhost:8080/cf/login");
+			    	}
+			    }else {
+			    	jwsUser.setPassword(null);
+			    	jwsUser.setIsActive(userData.getForcePasswordChange()==1?Constants.INACTIVE:Constants.ISACTIVE);
+					jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+					jwsUserRepository.save(jwsUser);
+			    	TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
+					int width = 300;
+					int height = 300;
+					String filePath = System.getProperty("java.io.tmpdir") + File.separator + jwsUser.getUserId()  +".png";
+					File file = new File(filePath);
+					FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+					String barcodeData = twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver",jwsUser.getSecretKey());
+					twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
+					
+					
+					email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
+					email.setSubject("TOTP Login");
+					email.setMailFrom("admin@jquiver.com");
+					Map<String, Object> mailDetails = new HashMap<>();
+					TemplateVO templateVO = templatingService.getTemplateByName("totp-qr-mail");
+					String mailBody =  templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+							mailDetails);
+					email.setBody(mailBody);
+					System.out.println(mailBody);
+					List<File> attachedFiles = new ArrayList<>();
+					attachedFiles.add(file);
+					email.setAttachementsArray(attachedFiles);
+			    }
+			    
+			    CompletableFuture<Boolean> mailSuccess =  sendMailService.sendTestMail(email);
+				if(mailSuccess.isDone()) {
+					email.getAttachementsArray().stream().forEach(f-> f.delete());
+				}
 			}
-			jwsUser.setIsActive(userData.getForcePasswordChange()==1?Constants.INACTIVE:Constants.ISACTIVE);
-			jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
-			jwsUserRepository.save(jwsUser);
-			if(userData.getForcePasswordChange()==1) {
-				password = UUID.randomUUID().toString();
-				System.out.println("Password is :" +  password);
-				jwsUser.setPassword(passwordEncoder.encode(password));
-		  		StringBuilder messageText = new StringBuilder("Your account password is  "+ password) ; 
-		  		if(userData.getForcePasswordChange()==1) {
-		  			messageText.append(" Please change your password through these url : http://localhost:8080/cf/changePassword?token=" +jwsUser.getUserId());
-		  		}else {
-		  			messageText.append(" You can login through these url : http://localhost:8080/cf/login");
-		  		}
-		  		System.out.println(messageText.toString());
-				Email email = new Email();
-				email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
-				email.setSubject("Account Password");  
-				email.setMailFrom("admin@jquiver.com");
-				email.setBody(messageText.toString());
-		  		
-				sendMailService.sendTestMail(email);
-			}
-			
+		
 			for (String roleId : userData.getRoleIds()) {
 				Date currentDate = new Date();
 				JwsUserRoleAssociation userRoleAssociation = new JwsUserRoleAssociation();
@@ -261,12 +308,104 @@ public class UserManagementService {
 			}
 		}	
 	}
+	
+	public void saveUserRolesAndPolicies(Integer isEdit, JwsUserVO userData) throws Exception {
+		String password = null;
+		JwsUser jwsUser = new JwsUser();
+		if(isEdit != null && isEdit.equals(Constants.IS_NEW_USER)) {
+			jwsUser.setUserId(userData.getUserId());
+			jwsUser.setFirstName(userData.getFirstName());
+			jwsUser.setLastName(userData.getLastName());
+			jwsUserRepository.save(jwsUser);
+		}
+		jwsUser = jwsUserRepository.findByUserId(userData.getUserId());
+		Integer forcePasswordChange = userData.getForcePasswordChange();
+		Integer isActive = userData.getIsActive();
+		if(forcePasswordChange == 1) {
+			isActive = Constants.INACTIVE;
+		}
+		jwsUser.setForcePasswordChange(forcePasswordChange);
+		jwsUser.setIsActive(isActive);
+		jwsUserRepository.save(jwsUser);
+		
+		if(userData.getForcePasswordChange() == 1) {
+			Email email = new Email();
+			userData.setEmail(jwsUser.getEmail());
+			forcePasswordAndMail(userData, jwsUser, email);
+			sendMailService.sendTestMail(email);
+		}
+		
+		userManagementDAO.deleteUserRoleAssociation(jwsUser.getUserId());
+		for (String roleId : userData.getRoleIds()) {
+			Date currentDate = new Date();
+			JwsUserRoleAssociation userRoleAssociation = new JwsUserRoleAssociation();
+			userRoleAssociation.setRoleId(roleId);
+			userRoleAssociation.setUserId(jwsUser.getUserId());
+			userRoleAssociation.setUpdatedDate(currentDate);
+			userRoleRepository.save(userRoleAssociation);
+		}
+	}
+
+	private void forcePasswordAndMail(JwsUserVO userData, JwsUser jwsUser, Email email) throws Exception {
+		String password;
+		password = UUID.randomUUID().toString();
+		jwsUser.setPassword(passwordEncoder.encode(password));
+		jwsUser.setIsActive(userData.getIsActive());
+		jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+		jwsUserRepository.save(jwsUser);
+		
+		Map<String, Object> mailDetails = new HashMap<>();
+		mailDetails.put("password", password);
+		mailDetails.put("forcePasswordChange", userData.getForcePasswordChange());
+		mailDetails.put("userId", jwsUser.getUserId());
+		
+		email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));  
+		email.setSubject("Account Password");  
+		email.setMailFrom("admin@jquiver.com");
+		TemplateVO templateVO = templatingService.getTemplateByName("force-password-mail");
+		String mailBody =  templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+				mailDetails);
+		email.setBody(mailBody);
+		System.out.println(mailBody);
+	}
 
 	public String addEditUser(String userId, boolean isProfilePage) throws Exception {
-
 		Map<String, Object> templateMap = new HashMap<>();
+		String formId = getPropertyValueByAuthName("user-profile-form-details", "formId");
+		userConfigService.getConfigurableDetails(templateMap);
 		JwsUser jwsUser = new JwsUser();
 		List<String> userRoleIds = new ArrayList<>();
+		templateMap.put("userId", userId);
+		templateMap.put("formId", formId);
+		if (StringUtils.isNotEmpty(userId) && StringUtils.isBlank(formId)) {
+
+			jwsUser = jwsUserRepository.findById(userId).get();
+		}
+		if (StringUtils.isNotEmpty(userId)){
+			userRoleIds = userManagementDAO.getRoleIdsByUserId(userId);
+		}
+		JwsRole authenticatedRole = jwsRoleRepository.findByRoleName(Constants.ANONYMOUS_ROLE_NAME);
+		userRoleIds.add(authenticatedRole.getRoleId());
+		templateMap.put("userRoleIds", userRoleIds);
+
+		List<JwsRole> roles = new ArrayList<>();
+		roles = jwsRoleRepository.findAllRoles().stream()
+				.filter(role -> !(role.getRoleName().equalsIgnoreCase(Constants.ANONYMOUS_ROLE_NAME)))
+				.collect(Collectors.toList());
+		templateMap.put("roles", roles);
+		templateMap.put("jwsUser", jwsUser);
+		templateMap.put("isProfilePage", isProfilePage);
+		if(StringUtils.isNotEmpty(formId)) {
+			return menuService.getTemplateWithSiteLayout("jws-user-manage-details", templateMap);
+		}
+		return menuService.getTemplateWithSiteLayout("addEditJwsUser", templateMap);
+	}
+
+	public String manageUserRoleAndPermission(String userId)  throws Exception{
+		Map<String, Object> templateMap = new HashMap<>();
+		userConfigService.getConfigurableDetails(templateMap);
+		List<String> userRoleIds = new ArrayList<>();
+		JwsUser jwsUser = new JwsUser();
 		if (StringUtils.isNotEmpty(userId)) {
 
 			jwsUser = jwsUserRepository.findById(userId).get();
@@ -282,11 +421,9 @@ public class UserManagementService {
 				.collect(Collectors.toList());
 		templateMap.put("roles", roles);
 		templateMap.put("jwsUser", jwsUser);
-		templateMap.put("isProfilePage", isProfilePage);
-		return menuService.getTemplateWithSiteLayout("addEditJwsUser", templateMap);
+		return menuService.getTemplateWithoutLayout("manage-user-roles-policy", templateMap);
 	}
-
-
+	
 	public String loadUserManagement() throws Exception {
 		Map<String, Object> mapDetails = new HashMap<>();
 		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "enable-user-management");
@@ -307,16 +444,57 @@ public class UserManagementService {
 	}
 
 	public void updatePropertyMasterValuesAndAuthProperties(String authenticationEnabled, String authenticationTypeId,
-			String propertyJson,String regexObj, String userProfileFormId) {
+			String propertyJson,String regexObj, String userProfileFormId, String userProfileTemplate) throws Exception {
 		
 		propertyMasterRepository.updatePropertyValueByName(authenticationEnabled, "enable-user-management");
 		propertyMasterRepository.updatePropertyValueByName(authenticationTypeId, "authentication-type");
 		
 		authenticationTypeRepository.updatePropertyById(Integer.parseInt(authenticationTypeId),propertyJson);
+		
 		if(StringUtils.isNotBlank(regexObj)) {
 			propertyMasterRepository.updatePropertyValueByName(regexObj, "regexPattern");
 		}
-		propertyMasterRepository.updatePropertyValueByName(userProfileFormId, "user-profile-form-name");
+		propertyMasterRepository.updatePropertyValueByName(userProfileFormId, "user-profile-form-details");
+		propertyMasterRepository.updatePropertyValueByName(userProfileTemplate, "user-profile-template-details");
+		
+		
+		
+//		if(authenticationEnabled.equals("true") && authenticationTypeId.equals("2")) {
+//			JSONArray jsonArray = new JSONArray(propertyJson);
+//			JSONObject jsonObject = null;
+//			Map<String, Object> mapDetails = new HashMap<>();
+//			String verificationStepPropertyName = "enableVerificationStep";
+//			jsonObject =  userConfigService.getJsonObjectFromPropertyValue(jsonObject,jsonArray,verificationStepPropertyName);
+//			userConfigService.getConfigurableDetails(mapDetails);
+//			List<JwsUser> jwsUsers = jwsUserRepository.findAll();
+//			if (jsonObject.getInt("selectedValue") !=2 
+//					 && mapDetails.get("enableGoogleAuthenticator").toString().equals("true")) {
+//				for (JwsUser jwsUser : jwsUsers) {
+//					
+//					if((jwsUser.getIsActive()==Constants.ISACTIVE && jwsUser.getUserId()!= Constants.ADMIN_ROLE_ID)) {
+//						
+//						Email email = new Email();
+//						String password = UUID.randomUUID().toString();
+//						jwsUser.setPassword(passwordEncoder.encode(password));
+//						jwsUser.setForcePasswordChange(Constants.ISACTIVE);
+//						jwsUser.setIsActive(Constants.INACTIVE);
+//						jwsUserRepository.save(jwsUser);
+//						StringBuilder messageText = new StringBuilder("Your account password is  "+ password) ; 
+//						messageText.append(" Please change your password through these url : http://localhost:8080/cf/changePassword?token=" +jwsUser.getUserId());
+//						email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));  
+//						email.setSubject("Account Password");  
+//						email.setMailFrom("admin@jquiver.com");
+//						email.setBody(messageText.toString());
+//						sendMailService.sendTestMail(email);
+//						
+//						
+//					}
+//				}
+//			
+//			}
+//		}
+		
+		
 	}
 
 	public String manageEntityRoles() throws Exception {
@@ -426,7 +604,7 @@ public class UserManagementService {
 		 					
 		 					String regex =  propertyMasterService.findPropertyMasterValue("system", "system", "regexPattern"); 
 		 					JSONObject jsonObjectRegex = new JSONObject(regex);
-		 					Pattern pattern = Pattern.compile(jsonObjectRegex.getString("regexValue")); 
+		 					Pattern pattern = Pattern.compile(jsonObjectRegex.getString("expression")); 
 		 					Matcher isMatches = pattern.matcher(password); 
 		 					return isMatches.matches();
 		 				}
@@ -450,45 +628,6 @@ public class UserManagementService {
 		}
 	 
 
-		public void getConfigurableDetails(Map<String, Object> mapDetails) throws Exception, JSONException {
-			JSONObject jsonObjectCaptcha = null ;
-			JSONObject jsonObjectRegex = null ;
-			Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
-			JwsAuthenticationType authenticationType = authenticationTypeRepository.findById(authType)
-					.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
-			JSONArray jsonArray = new JSONArray(authenticationType.getAuthenticationProperties());
-			String captchaPropertyName = "enableCaptcha";
-			jsonObjectCaptcha = getJsonObjectFromPropertyValue(jsonObjectCaptcha, jsonArray, captchaPropertyName);
-			if (jsonObjectCaptcha != null && jsonObjectCaptcha.getString("value").equalsIgnoreCase("true")) {
-				mapDetails.put(captchaPropertyName,Boolean.TRUE);
-			}else {
-				mapDetails.put(captchaPropertyName,Boolean.FALSE);
-			}
-			String regexPropertyName = "enableRegex";
-			jsonObjectRegex = getJsonObjectFromPropertyValue(jsonObjectCaptcha, jsonArray, regexPropertyName);
-			if(jsonObjectRegex!= null && jsonObjectRegex.getString("value").equalsIgnoreCase("true")){
-				mapDetails.put(regexPropertyName,Boolean.TRUE);
-				String propertyMasterRegex =  propertyMasterService.findPropertyMasterValue("system", "system", "regexPattern"); 
-				JSONObject jsonPropertyMasterRegex = new JSONObject(propertyMasterRegex);
-				mapDetails.put("regexExample",jsonPropertyMasterRegex.getString("regexExample"));
-			}else {
-				mapDetails.put(regexPropertyName,Boolean.FALSE);
-			}
-			
-			String enableRegistrationPropertyName = "enableRegistration";
-			
-			if(applicationSecurityDetails.getAuthenticationType()!=null){
-			
-			JSONObject jsonObject = null ;
-			jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, enableRegistrationPropertyName);
-			if(jsonObject!= null && jsonObject.getString("value").equalsIgnoreCase("true")){
-				mapDetails.put(enableRegistrationPropertyName,Boolean.TRUE);
-			}else {
-				mapDetails.put(enableRegistrationPropertyName,Boolean.FALSE);
-			}
-			
-			}
-		}
 
 		public JwsUser findByEmailIgnoreCase(String email) {
 			return jwsUserRepository.findByEmailIgnoreCase(email);
@@ -500,6 +639,18 @@ public class UserManagementService {
 			UserInformation userDetails = (UserInformation) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			String userId = userDetails.getUserId();
 			String userName = userDetails.getUsername();
+			String formId = getPropertyValueByAuthName("user-profile-form-details", "formId");
+			if(!StringUtils.isBlank(formId)) {
+				Map<String, Object> requestParam = new HashMap<>();
+				requestParam.put("userId", userId);
+				requestParam.put("userName", userName);
+				return dynamicFormService.loadDynamicForm(formId, requestParam, null);
+			}
+			return addEditUser(userId,isProfilePage);
+			
+		}
+
+		public String getPropertyValueByAuthName(String propertyName, String jsonKey) throws Exception{
 			String authTypeStr = applicationSecurityDetails.getAuthenticationType();
 			if(!StringUtils.isBlank(authTypeStr)) {
 				Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
@@ -508,36 +659,30 @@ public class UserManagementService {
 								.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
 					JSONObject jsonObject = null ;
 					JSONArray jsonArray = new JSONArray(authenticationType.getAuthenticationProperties());
-					String propertyName = "enableDynamicForm";
-					jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, propertyName);
+					String authPropertyName = "enableDynamicForm";
+					jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, authPropertyName);
 					
 					if(jsonObject!= null && jsonObject.getString("value").equalsIgnoreCase("true")){
 							
-						String userProfileForm =  propertyMasterService.findPropertyMasterValue("system", "system", "user-profile-form-name"); 
+						String userProfileForm =  propertyMasterService.findPropertyMasterValue("system", "system", propertyName); 
 						JSONObject jsonObjectRegex = new JSONObject(userProfileForm);
-						String formId = jsonObjectRegex.getString("formId");
-						if(!StringUtils.isBlank(formId)) {
-							Map<String, Object> requestParam = new HashMap<>();
-							requestParam.put("userId", userId);
-							requestParam.put("userName", userName);
-							return dynamicFormService.loadDynamicForm(formId, requestParam, null);
+						if(jsonObjectRegex.has(jsonKey) == true) {
+							String jsonValue = jsonObjectRegex.getString(jsonKey);
+							return jsonValue;
 						}
 					}
 		 		}
 			}
-			
-			return addEditUser(userId,isProfilePage);
-			
+			return null;
 		}
-
+		
 		public String getInputFieldsByProperty(String propertyName) throws Exception {
 			String propertyMasterRegex =  propertyMasterService.findPropertyMasterValue("system", "system", propertyName);
 			return propertyMasterRegex;
 		}
 
 		public JwsEntityRoleAssociation findByEntityRoleID(String entityRoleId) throws Exception {
-			return entityRoleAssociationRepository.findById(entityRoleId)
-					.orElseThrow(() -> new Exception("data not found with id : " + entityRoleId));
+			return entityRoleAssociationRepository.getJwsEntityRoleAssociation(entityRoleId);
 		}
 
 		public void saveJwsEntityRoleAssociation(JwsEntityRoleAssociation jwsRoleAssoc) throws Exception {
@@ -548,11 +693,29 @@ public class UserManagementService {
 		public String getJwsEntityRoleAssociationJson(String entityId) throws Exception {
 
 			JwsEntityRoleAssociation role = findByEntityRoleID(entityId);
-			role = role.getObject();
-			Gson gson = new Gson();
-			TreeMap<String, String> treeMap = gson.fromJson(gson.toJson(role), TreeMap.class);
-		    String jsonString = gson.toJson(treeMap);
+			String jsonString = "";
+			if(role != null) {
+				role = role.getObject();
+				JwsEntityRoleAssociationVO vo = new JwsEntityRoleAssociationVO();
+				vo = vo.convertEntityToVO(role);
+				Gson gson = new Gson();
+
+				ObjectMapper objectMapper				= new ObjectMapper();
+				String dbDateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+						Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+				DateFormat dateFormat					= new SimpleDateFormat(dbDateFormat);
+				objectMapper.setDateFormat(dateFormat);
+				Map<String, Object> objectMap 			= objectMapper.convertValue(vo, TreeMap.class);
+				jsonString = gson.toJson(objectMap);
+			}
 			
 			return jsonString;
+		}
+
+		public boolean checkAuthenticationEnabled() throws Exception {
+			String propertyName = "enable-user-management";
+			propertyMasterDetails.resetPropertyMasterDetails();
+			String propertyValue=  propertyMasterService.findPropertyMasterValue("system", "system",propertyName);
+			return Boolean.valueOf(propertyValue);
 		}
 }

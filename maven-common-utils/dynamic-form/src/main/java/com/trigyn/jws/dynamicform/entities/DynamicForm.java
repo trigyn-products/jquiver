@@ -217,10 +217,12 @@ public class DynamicForm {
     	
 
 		List<DynamicFormSaveQuery>	dfsOtr		= new ArrayList<>();
-		for(DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
-			dfsOtr.add(dfs.getObject());
-		}
-		obj.setDynamicFormSaveQueries(dynamicFormSaveQueries);
+		if(dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {
+			for(DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
+				dfsOtr.add(dfs.getObject());
+			}
+			obj.setDynamicFormSaveQueries(dynamicFormSaveQueries);
+		} else obj.setDynamicFormSaveQueries(null);
 		
 		return obj;
 	}

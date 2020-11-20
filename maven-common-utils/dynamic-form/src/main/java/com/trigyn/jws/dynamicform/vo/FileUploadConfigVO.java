@@ -19,13 +19,12 @@ public class FileUploadConfigVO {
 	public FileUploadConfigVO() {}
 	
 	public FileUploadConfigVO(String fileUploadConfigId, String fileTypSupported, BigDecimal maxFileSize,
-			Integer noOfFiles, Integer isDeleted, String updatedBy) {
+			Integer noOfFiles, Integer isDeleted) {
 		this.fileUploadConfigId = fileUploadConfigId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
 		this.noOfFiles = noOfFiles;
 		this.isDeleted = isDeleted;
-		this.updatedBy = updatedBy;
 	}
 	
 	public String getFileUploadConfigId() {

@@ -1,6 +1,13 @@
 package com.trigyn.jws.webstarter.vo;
 
-public class GridDetailsJsonVO {
+import java.io.Serializable;
+
+public class GridDetailsJsonVO  implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private String entityName					= null;
 

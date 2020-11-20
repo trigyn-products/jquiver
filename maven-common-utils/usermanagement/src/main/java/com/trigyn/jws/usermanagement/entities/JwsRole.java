@@ -82,10 +82,12 @@ public class JwsRole {
 		role.setIsActive(isActive);
 		
 		List<JwsRoleMasterModulesAssociation> jrmmaOthr = new ArrayList<>();
-		for(JwsRoleMasterModulesAssociation jrmma : jwsRoleMasterModulesAssociation) {
-			jrmmaOthr.add(jrmma.getObject());
-		}
-		role.setJwsRoleMasterModulesAssociation(jrmmaOthr);
+		if(jwsRoleMasterModulesAssociation != null && !jwsRoleMasterModulesAssociation.isEmpty()) {
+			for(JwsRoleMasterModulesAssociation jrmma : jwsRoleMasterModulesAssociation) {
+				jrmmaOthr.add(jrmma.getObject());
+			}
+			role.setJwsRoleMasterModulesAssociation(jrmmaOthr);
+		} else role.setJwsRoleMasterModulesAssociation(null);
 		return role;
 	}
 }

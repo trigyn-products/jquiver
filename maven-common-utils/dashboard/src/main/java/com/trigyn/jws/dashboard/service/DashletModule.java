@@ -16,6 +16,7 @@ import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
 import com.trigyn.jws.dashboard.utility.Constants;
+import com.trigyn.jws.dashboard.vo.DashletExportVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
@@ -40,7 +41,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	@Autowired
 	private ModuleVersionService moduleVersionService	= null;
 
-	private Map<String, String> moduleDetailsMap 		= new HashMap<>();
+	private Map<String, Map<String, Object>> moduleDetailsMap 		= new HashMap<>();
 	
 	@Override
 	public void downloadCodeToLocal(Dashlet a_dashlet, String folderLocation) throws Exception {
@@ -85,7 +86,15 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			if(isCheckSumChanged) {
 				iDashletRepository.save(dashlet);
 			}	
-			moduleDetailsMap.put(dashlet.getDashletId(), dashletName);
+			
+			DashletExportVO dashletExportVO = new DashletExportVO(dashlet.getDashletId(), dashlet.getDashletName(), dashlet.getDashletTitle(),
+					dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(), dashlet.getHeight(), dashlet.getContextId(), 
+					dashlet.getShowHeader(), dashlet.getIsActive(), dashlet.getDashletTypeId(), selectQuery+ftlCustomExtension, htmlBody+ftlCustomExtension);
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("moduleName", dashletName);
+			map.put("moduleObject", dashletExportVO);
+			moduleDetailsMap.put(dashlet.getDashletId(), map);
 		}
 		
 	}
@@ -172,11 +181,13 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	}
 
 	@Override
-	public Object importData(String folderLocation, String uploadFileName, String uploadID) throws Exception {
+	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
 		String user 				= "admin";
-		String ftlCustomExtension 	= Constants.CUSTOM_FILE_EXTENSION;
-		String selectQuery 			= Constants.DASHLET_QUERY_FILE_NAME;
-		String htmlBody 			= Constants.DASHLET_HTML_FILE_NAME;
+		DashletExportVO dashletExportVO = (DashletExportVO) importObject;
+
+		String selectQuery 			= dashletExportVO.getSelectQueryFileName();
+		String htmlBody 			= dashletExportVO.getHtmlBodyFileName();
+		String ftlCustomExtension	= "." + dashletExportVO.getHtmlBodyFileName().split("\\.")[1];
 		
 		Dashlet dashlet  		 	= null;
 		File directory 				= new File(folderLocation);
@@ -209,20 +220,30 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
         	String currentDirectoryName = currentDirectory.getName();
         	
         	if(currentDirectoryName.equals(uploadFileName)) {
-	        	dashlet = dashletDAO.findById(uploadID);
-	        	
-	        	if(dashlet ==  null) {
-	        		dashlet = new Dashlet();
+        		Dashlet dashletEntity = dashletDAO.findById(uploadID);
+        		dashlet = new Dashlet();
+	        	if(dashletEntity !=  null) {
+	        		dashlet = dashletEntity.getObject();
+	        	} else {
 	        		dashlet.setCreatedBy(user);
 	        		dashlet.setCreatedDate(new Date());
-	        		dashlet.setDashletName(currentDirectoryName);
-	        		dashlet.setDashletTitle("Uploaded from Local Directory");
 	        	}
+        		dashlet.setDashletName(currentDirectoryName);
+        		dashlet.setDashletTitle(dashletExportVO.getDashletTitle());
+	        	dashlet.setContextId(dashletExportVO.getContextId());
+	        	dashlet.setDashletTypeId(dashletExportVO.getDashletTypeId());
+	        	dashlet.setHeight(dashletExportVO.getHeight());
+	        	dashlet.setIsActive(dashletExportVO.getIsActive());
+	        	dashlet.setShowHeader(dashletExportVO.getShowHeader());
+	        	dashlet.setWidth(dashletExportVO.getWidth());
+	        	dashlet.setXCoordinate(dashletExportVO.getxCoordinate());
+	        	dashlet.setYCoordinate(dashletExportVO.getyCoordinate());
+	        	
 				File[] directoryFiles = currentDirectory.listFiles(textFilter);
 				Integer filesPresent = directoryFiles.length;
 				if(filesPresent == 2) {
-					File selectFile = new File(currentDirectory.getAbsolutePath()+File.separator+selectQuery+ftlCustomExtension);
-					File hmtlBodyFile = new File(currentDirectory.getAbsolutePath()+File.separator+htmlBody+ftlCustomExtension);
+					File selectFile = new File(currentDirectory.getAbsolutePath()+File.separator+selectQuery);
+					File hmtlBodyFile = new File(currentDirectory.getAbsolutePath()+File.separator+htmlBody);
 					if(!selectFile.exists() || !hmtlBodyFile.exists()) {
 						throw new Exception("selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet"+currentDirectoryName);
 					}else {
@@ -249,11 +270,11 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		
 	}
 
-	public Map<String, String> getModuleDetailsMap() {
+	public Map<String, Map<String, Object>> getModuleDetailsMap() {
 		return moduleDetailsMap;
 	}
 
-	public void setModuleDetailsMap(Map<String, String> moduleDetailsMap) {
+	public void setModuleDetailsMap(Map<String, Map<String, Object>> moduleDetailsMap) {
 		this.moduleDetailsMap = moduleDetailsMap;
 	}
 	
@@ -277,6 +298,9 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		dashletVO.setShowHeader(dashlet.getShowHeader());
 		dashletVO.setContextId(dashlet.getContextId());
 		dashletVO.setIsActive(dashlet.getIsActive());
+		if(dashlet.getProperties() == null) {
+			dashletVO.setDashletPropertVOList(new ArrayList<>());
+		}
 		return dashletVO;
 	}
 }

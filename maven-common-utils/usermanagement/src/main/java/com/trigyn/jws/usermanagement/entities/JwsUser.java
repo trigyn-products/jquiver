@@ -41,6 +41,9 @@ public class JwsUser {
 	@Column(name="is_active")
 	private Integer isActive = null;
 	
+	@Column(name="secret_key")
+	private String secretKey = null;
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -95,6 +98,14 @@ public class JwsUser {
 
 	public void setForcePasswordChange(Integer forcePasswordChange) {
 		this.forcePasswordChange = forcePasswordChange;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 
 	

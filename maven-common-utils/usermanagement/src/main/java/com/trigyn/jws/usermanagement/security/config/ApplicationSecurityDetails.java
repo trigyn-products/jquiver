@@ -3,6 +3,7 @@ package com.trigyn.jws.usermanagement.security.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
@@ -16,6 +17,9 @@ public class ApplicationSecurityDetails {
 	private String authenticationType		= null;
 	
 	private Map<String, Object> authenticationDetails = new HashMap<>();
+	
+	@Autowired
+	private PropertyMasterRepository propertyMasterRepository = null;
 
 	public ApplicationSecurityDetails(PropertyMasterRepository propertyMasterRepository) throws Exception {
 		super();
@@ -38,6 +42,13 @@ public class ApplicationSecurityDetails {
 
 	public Map<String, Object> getAuthenticationDetails() {
 		return authenticationDetails;
+	}
+	
+	public void resetApplicationSecurityDetails() {
+		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "enable-user-management");
+		this.isAuthenticationEnabled = Boolean.parseBoolean(propertyMaster.getPropertyValue());
+		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
+		this.authenticationType = propertyMasterAuthType.getPropertyValue();
 	}
 	
 }

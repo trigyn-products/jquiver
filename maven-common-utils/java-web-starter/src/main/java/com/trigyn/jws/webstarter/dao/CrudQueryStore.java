@@ -33,8 +33,8 @@ public final class CrudQueryStore {
     		+ "fu.fileUploadConfigId NOT IN :excludeCustomConfigList";
 
     public static final String HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT = "FROM JwsDynamicRestDetail AS dr WHERE "
-    		+ "(dr.jwsDynamicRestId NOT IN :excludeCustomConfigList AND dr.jwsRequestTypeId = :customConfigType) OR "
-    		+ "(dr.jwsDynamicRestId IN :includeSystemConfigList AND dr.jwsRequestTypeId = :systemConfigType)";
+    		+ "(dr.jwsDynamicRestId NOT IN :excludeCustomConfigList AND dr.jwsDynamicRestTypeId = :customConfigType) OR "
+    		+ "(dr.jwsDynamicRestId IN :includeSystemConfigList AND dr.jwsDynamicRestTypeId = :systemConfigType)";
 
     public static final String HQL_QUERY_TO_FETCH_PERMISSION_FOR_EXPORT = "FROM JwsEntityRoleAssociation AS jr WHERE "
     		+ "jr.entityRoleId IN :includeSystemConfigList";

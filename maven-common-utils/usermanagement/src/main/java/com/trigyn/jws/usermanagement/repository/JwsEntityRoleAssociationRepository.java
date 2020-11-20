@@ -29,4 +29,8 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 
 	@Query(" FROM JwsEntityRoleAssociation WHERE moduleTypeId=:commonModuleTypeId  GROUP BY entityId ")
 	List<JwsEntityRoleAssociation> findEntityByModuleTypeId(Integer commonModuleTypeId);
+
+	@Query(" FROM JwsEntityRoleAssociation WHERE entityRoleId=:entityRoleID")
+	JwsEntityRoleAssociation getJwsEntityRoleAssociation(String entityRoleID);
+	
 }

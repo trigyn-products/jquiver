@@ -1,15 +1,12 @@
 package com.trigyn.jws.usermanagement.utils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public final class Constants {
 
 	private Constants() {
 
     }
+	
+	public  final static Integer IS_NEW_USER = 0;
 	
 	public  final static Integer ISACTIVE = 1; 
 	
@@ -66,7 +63,7 @@ public final class Constants {
 	public  final static String DASHBOARD = "Dashboard";
 	public  final static String SITELAYOUT = "Site Layout";
 	
-	public  final static Integer COMMON_MODULE_TYPE_ID = 1; 
-	public  final static Integer DEFAULT_MODULE_TYPE_ID = 0; 
+	public  final static Integer COMMON_MODULE_TYPE_ID = 1; // included templates or  anonymous templates
+	public  final static Integer DEFAULT_MODULE_TYPE_ID = 0; // rest all templates shown in entityrole listing
 	
 }

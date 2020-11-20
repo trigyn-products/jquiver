@@ -1,6 +1,7 @@
 package com.trigyn.jws.dashboard.vo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public class DashletVO implements Serializable{
 	
 	private List<String>				roleIdList				= null;
 	
-	private List<DashletPropertyVO>		dashletPropertVOList	= null;
+	private List<DashletPropertyVO>		dashletPropertVOList	= new ArrayList<>();
 	
 	public DashletVO() {
 		

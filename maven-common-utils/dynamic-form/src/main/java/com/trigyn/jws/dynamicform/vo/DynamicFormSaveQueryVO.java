@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class DynamicFormSaveQueryVO {
 
-	private String dynamicFormQueryId					= null;
 	private String dynamicFormId						= null;
 	private String formSaveQuery 						= null;
 	private Integer sequence 							= null;
@@ -16,28 +15,10 @@ public class DynamicFormSaveQueryVO {
 	}
 
 
-	public DynamicFormSaveQueryVO(String dynamicFormQueryId, String dynamicFormId, String formSaveQuery,
-			Integer sequence) {
-		this.dynamicFormQueryId 	= dynamicFormQueryId;
+	public DynamicFormSaveQueryVO(String dynamicFormId, String formSaveQuery, Integer sequence) {
 		this.dynamicFormId	 		= dynamicFormId;
 		this.formSaveQuery 			= formSaveQuery;
 		this.sequence 				= sequence;
-	}
-
-
-	/**
-	 * @return the dynamicFormQueryId
-	 */
-	public String getDynamicFormQueryId() {
-		return dynamicFormQueryId;
-	}
-
-
-	/**
-	 * @param dynamicFormQueryId the dynamicFormQueryId to set
-	 */
-	public void setDynamicFormQueryId(String dynamicFormQueryId) {
-		this.dynamicFormQueryId = dynamicFormQueryId;
 	}
 
 
@@ -91,7 +72,7 @@ public class DynamicFormSaveQueryVO {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dynamicFormId, dynamicFormQueryId, formSaveQuery, sequence);
+		return Objects.hash(dynamicFormId, formSaveQuery, sequence);
 	}
 
 
@@ -107,16 +88,15 @@ public class DynamicFormSaveQueryVO {
 			return false;
 		}
 		DynamicFormSaveQueryVO other = (DynamicFormSaveQueryVO) obj;
-		return Objects.equals(dynamicFormId, other.dynamicFormId)
-				&& Objects.equals(dynamicFormQueryId, other.dynamicFormQueryId)
-				&& Objects.equals(formSaveQuery, other.formSaveQuery) && Objects.equals(sequence, other.sequence);
+		return Objects.equals(dynamicFormId, other.dynamicFormId) && Objects.equals(formSaveQuery, other.formSaveQuery)
+				&& Objects.equals(sequence, other.sequence);
 	}
 
 
 	@Override
 	public String toString() {
-		return "DynamicFormSaveQueryVO [dynamicFormQueryId=" + dynamicFormQueryId + ", dynamicFormId=" + dynamicFormId
-				+ ", formSaveQuery=" + formSaveQuery + ", sequence=" + sequence + "]";
+		return "DynamicFormSaveQueryVO [dynamicFormId=" + dynamicFormId + ", formSaveQuery=" + formSaveQuery
+				+ ", sequence=" + sequence + "]";
 	}
 
 

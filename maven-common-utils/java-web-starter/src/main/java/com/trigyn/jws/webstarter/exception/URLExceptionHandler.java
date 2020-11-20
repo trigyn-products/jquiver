@@ -57,11 +57,13 @@ public class URLExceptionHandler implements ErrorController {
     			return "";
     		}
     		if(statusCode == HttpStatus.NOT_FOUND.value()) {
+    			String fallbackTemplate = null;
     			if( "/".equals(url) ) {
-    				url = HOME_PAGE_MODULE;
+    				fallbackTemplate = masterModuleController.loadTemplate(httpServletRequest, HOME_PAGE_MODULE);
         		}
-    			String fallbackTemplate = masterModuleController.loadTemplate(httpServletRequest, url);
-    			if(fallbackTemplate == null) {
+    			if("/".equals(url) && fallbackTemplate == null) {
+    				return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+    			} else if(fallbackTemplate == null) {
     				return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
     			} else {
     				return fallbackTemplate;

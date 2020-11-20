@@ -31,7 +31,9 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 			UserInformation userDetails = (UserInformation) authentication.getPrincipal();
 			roleNames = userDetails.getRoles();
 		
-		} else {
+		} else if(!applicationSecurityDetails.getIsAuthenticationEnabled()) {
+			return true;
+		}else {
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
 		}
 		

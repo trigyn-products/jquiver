@@ -10,24 +10,15 @@ import com.trigyn.jws.webstarter.entities.MailHistory;
 
 @Repository
 public class SendMailDAO extends DBConnection {
-	
 
-    @Autowired
-    public SendMailDAO(DataSource dataSource) {
-        super(dataSource);
-    }
-
-   
-
-
-
+	@Autowired
+	public SendMailDAO(DataSource dataSource) {
+		super(dataSource);
+	}
 
 	public void saveFailedMails(MailHistory mailHistory) {
 		getCurrentSession().saveOrUpdate(mailHistory);
-		
+
 	}
-	
-	
-	
-	
+
 }

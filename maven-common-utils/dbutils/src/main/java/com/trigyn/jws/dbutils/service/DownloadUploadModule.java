@@ -9,5 +9,5 @@ public interface DownloadUploadModule<T> {
 	
 	void uploadCodeToDB(String uploadFileName) throws Exception;
 
-	Object importData(String folderLocation, String uploadFileName, String uploadID) throws Exception;
+	Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception;
 }

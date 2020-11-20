@@ -1,5 +1,9 @@
 package com.trigyn.jws.webstarter.vo;
 
+import com.trigyn.jws.dashboard.vo.DashletExportVO;
+import com.trigyn.jws.dynamicform.vo.DynamicFormExportVO;
+import com.trigyn.jws.templating.vo.TemplateExportVO;
+
 public class Modules {
 
 	private String moduleID;
@@ -7,7 +11,13 @@ public class Modules {
 	private String moduleName;
 	
 	private String moduleType;
+	
+	private TemplateExportVO template;
 
+	private DashletExportVO dashlet;
+	
+	private DynamicFormExportVO dynamicForm;
+	
 	public String getModuleID() {
 		return moduleID;
 	}
@@ -30,6 +40,30 @@ public class Modules {
 
 	public void setModuleType(String moduleType) {
 		this.moduleType = moduleType;
+	}
+
+	public TemplateExportVO getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(TemplateExportVO template) {
+		this.template = template;
+	}
+
+	public DashletExportVO getDashlet() {
+		return dashlet;
+	}
+
+	public void setDashlet(DashletExportVO dashlet) {
+		this.dashlet = dashlet;
+	}
+
+	public DynamicFormExportVO getDynamicForm() {
+		return dynamicForm;
+	}
+
+	public void setDynamicForm(DynamicFormExportVO dynamicForm) {
+		this.dynamicForm = dynamicForm;
 	}
 	
 }

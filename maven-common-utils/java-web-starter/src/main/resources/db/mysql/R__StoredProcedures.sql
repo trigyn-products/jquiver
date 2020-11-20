@@ -118,10 +118,20 @@ CREATE PROCEDURE dashboardMasterListing(dashboardName varchar(50), dashboardType
 ,createdDate varchar(100), createdBy varchar(100),lastUpdatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+DECLARE db_format VARCHAR(20);
+
+DECLARE curP CURSOR FOR 
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+
+OPEN curP;
+FETCH curP INTO db_format;
+
   SET @resultQuery = CONCAT(" SELECT db.dashboard_id AS dashboardId, db.dashboard_name AS dashboardName, db.dashboard_type AS dashboardType "
-  ," , db.created_by AS createdBy, date_format(db.created_date, '%d %b %Y') AS createdDate,date_format(db.last_updated_date, '%d %b %Y') AS lastUpdatedDate "
+  ," , db.created_by AS createdBy "
   ," ,cm.context_description AS contextDescription, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.created_date,''', db_format,''') as createdDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.last_updated_date,''', db_format,''') as lastUpdatedDate ');
   SET @fromString  = ' FROM dashboard AS db INNER JOIN context_master cm ON db.context_id = cm.context_id ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'dashboard' ");
   SET @whereString = ' WHERE db.is_deleted = 0';
@@ -171,21 +181,31 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+CLOSE curP;
  
 END;
 
 DROP PROCEDURE IF EXISTS dashletMasterListing;
 CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+DECLARE db_format VARCHAR(20);
+
+DECLARE curP CURSOR FOR 
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+
+OPEN curP;
+FETCH curP INTO db_format;
+
   SET @resultQuery = CONCAT("SELECT dl.dashlet_id AS dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
-  ," date_format(dl.created_date,'%d %b %Y') AS createdDate,date_format(dl.updated_date,'%d %b %Y') AS updatedDate, "
   ," dl.updated_by AS updatedBy, dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.created_date,''', db_format,''') as createdDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.updated_date,''', db_format,''') as updatedDate ');
   SET @fromString  = ' FROM dashlet AS dl';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'dashlet' ");
   SET @whereString = '';
-  SET @dateFormat = '%d %b %Y';
+  SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
   
   
@@ -263,19 +283,29 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+CLOSE curP;
 END;
 
 DROP PROCEDURE IF EXISTS dynamicFormListing;
 CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+DECLARE db_format VARCHAR(20);
+
+DECLARE curP CURSOR FOR 
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+
+OPEN curP;
+FETCH curP INTO db_format;
+
   SET @resultQuery = CONCAT("SELECT df.form_id AS formId, df.form_description AS formDescription,df.form_name AS formName, "
-  ," date_format(df.created_date,'%d %b %Y') AS createdDate, df.created_by AS createdBy ") ;
+  ," df.created_by AS createdBy ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId, COUNT(jmv.version_id) AS revisionCount  '); 
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(df.created_date,''', db_format,''') as createdDate ');
   SET @fromString  = ' from dynamic_form AS df ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version  jmv ON jmv.entity_id = df.form_id AND jmv.entity_name = 'dynamic_form' ");
   SET @whereString = '';
-  SET @dateFormat = '%d %b %Y';
+  SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   
@@ -328,6 +358,7 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+CLOSE curP;
 END;
 
 DROP PROCEDURE IF EXISTS dynarestListing;
@@ -444,13 +475,24 @@ END;
 DROP PROCEDURE IF EXISTS notificationlisting;
 CREATE PROCEDURE notificationlisting(targetPlatform varchar(100), messageType varchar(500), validFrom varchar(500), messageText varchar(500), validTill varchar(100), messageFormat varchar(100), selectionCriteria varchar(500), updatedBy varchar(100), updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT gun.notification_id AS notificationId, gun.target_platform AS targetPlatform, date_format(gun.message_valid_from, ''%d %b %Y'') AS validFrom, date_format(gun.message_valid_till, ''%d %b %Y'') AS validTill, message_text AS messageText,  ';
-  SET @resultQuery = CONCAT(@resultQuery, ' gun.message_type AS messageType, gun.message_format AS messageFormat, gun.selection_criteria AS selectionCriteria, gun.updated_by AS updatedBy, date_format(gun.updated_date, ''%d %b %Y'') AS updatedDate, COUNT(jmv.version_id) AS revisionCount ');
+DECLARE db_format VARCHAR(20);
+
+DECLARE curP CURSOR FOR 
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+
+OPEN curP;
+FETCH curP INTO db_format;
+
+  SET @resultQuery = ' SELECT gun.notification_id AS notificationId, gun.target_platform AS targetPlatform, message_text AS messageText,  ';
+  SET @resultQuery = CONCAT(@resultQuery, ' gun.message_type AS messageType, gun.message_format AS messageFormat, gun.selection_criteria AS selectionCriteria, gun.updated_by AS updatedBy, COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_from,''', db_format,''') as validFrom ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_till,''', db_format,''') as validTill ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.updated_date,''', db_format,''') as updatedDate ');
   SET @fromString  = ' FROM generic_user_notification AS gun';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'generic_user_notification' ");
   SET @whereString = '';
-  SET @dateFormat = '%d %b %Y';
+  SET @dateFormat = CONCAT(''', db_format,''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   IF NOT targetPlatform IS NULL THEN
@@ -544,6 +586,8 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+CLOSE curP;
+ 
 END;
 
 DROP PROCEDURE IF EXISTS propertyMasterListing;
@@ -584,9 +628,18 @@ DROP PROCEDURE IF EXISTS templateListing;
 CREATE PROCEDURE templateListing(templateName varchar(100), templateTypeId INT(11), createdBy VARCHAR(100),updatedBy varchar(100)
 , forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy, date_format(tm.updated_date, ''%d %b %Y'') as updatedDate ';
+
+DECLARE db_format VARCHAR(20);
+
+DECLARE curP CURSOR FOR 
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+
+OPEN curP;
+FETCH curP INTO db_format;
+  SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy ';
   SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(tm.updated_date,''', db_format,''') as updatedDate ');
   SET @fromString  = ' FROM template_master AS tm ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = tm.template_id AND jmv.entity_name = 'template_master' ");
   SET @whereString = '';
@@ -635,6 +688,7 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+CLOSE curP;
 END;
 
 

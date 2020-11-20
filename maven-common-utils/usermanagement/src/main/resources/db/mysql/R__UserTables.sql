@@ -359,7 +359,6 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		<div class="clearfix"></div>		
 	</div>
   <form method="post" name="addEditUser" id="addEditUser">
-    
         	<div class="row">
     		<input type="hidden" id="userId" name="userId"/>
     		<div class="col-3">
@@ -387,12 +386,14 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 				<input type="email" id="email" name="email"  value="" maxlength="2000" class="form-control">
 			</div>
 		</div>
+		
 		<#if !isProfilePage >
+		<#if !enableGoogleAuthenticator>
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
 				<label for="allowPasswordChange"><span class="asteriskmark">*</span>Force User to Change Password</label>
 	            <div class="onoffswitch">
-	                <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" />
+	                <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" onchange="disableIsActive();"/>
 	                <label class="onoffswitch-label" for="forcePasswordChange">
 	                    <span class="onoffswitch-inner"></span>
 	                    <span class="onoffswitch-switch"></span>
@@ -401,8 +402,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 				
 			</div>
 		</div>
-    	</div>
-    	<div class="row">
+		  </#if>
+		  <div class="col-3">
+    		<div class="col-inner-form full-form-fields">
+				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+	            <div class="onoffswitch">
+	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0">
+	                <label class="onoffswitch-label" for="isActive">
+	                    <span class="onoffswitch-inner"></span>
+	                    <span class="onoffswitch-switch"></span>
+	                </label>
+	            </div>
+			</div>
+		</div>
+
+
         <#list roles as role>
            	<div class="col-3">
          			<div class="col-inner-form full-form-fields">
@@ -421,7 +435,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         
                       
         </#list>
-      </div>
+    	</div>
       <div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">
@@ -483,6 +497,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
             	 $("#forcePasswordChange").prop("checked",true);
             }
             
+         if(${jwsUser?api.getIsActive()} == 1){ 
+         	 $("#isActive").prop("checked",true);
+         }
         <#if userRoleIds??>    
           <#list userRoleIds as roleId>
               $("#${roleId}").attr("checked",true);
@@ -490,9 +507,19 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		    </#if>
         
       </#if> 
-    
   });
   
+  
+  function disableIsActive(){ 
+	if($("#forcePasswordChange").prop("checked")){
+		$("#isActive").prop("disabled",true);
+		$("#isActive").prop("checked",false);
+	}else{ 
+		$("#isActive").prop("disabled",false);
+		$("#isActive").prop("checked",true);
+	}
+}
+
 	//Add logic to save form data
 	function saveData (){
 
@@ -504,6 +531,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     userData.roleIds = [];
     userData.isProfilePage = isProfilePage;
     userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
     $.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
       userData.roleIds.push(value.id);
     });
@@ -634,10 +662,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="topband cm-card-header">
         <h2 class="title-cls-name float-left">User Management</h2> 
         <div class="float-right">
-             <form id="manageRoleModule" action="/cf/mp" method="post" class="margin-r-5 pull-left">
-            <button type="submit" class="btn btn-primary"> Manage Permissions </button>
-        </form>
-        
+         
+         	
+        <button type="button" class="btn btn-primary" onclick="openManagePermission();"> Manage Permissions</button>
+         
         <button type="button" class="btn btn-primary" onclick="openManageRole();"> Manage Roles</button>
         
         <button type="button" class="btn btn-primary" onclick="openManageUser();"> Manage Users</button>
@@ -653,7 +681,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
    
     <div class="col-12 margin-t-25">
         <div class="col-3 float-left col-inner-form full-form-fields">
-            <label for="isActiveCheckbox"><span class="asteriskmark">*</span>Enable Authentication</label>
+            <label for="isActiveCheckbox"><span class="asteriskmark">*</span>Authentication</label>
             <div class="onoffswitch">
                 <input type="hidden" id="isActive" name="isActive" value=""/>
                 <input type="checkbox" name="isActiveCheckbox" class="onoffswitch-checkbox" id="isActiveCheckbox" onchange="showAuthTypeDropDown(this)" />
@@ -730,10 +758,15 @@ contextPath = "${contextPath}";
         $("#props").html("");
         $.each(parsedProperties, function(key,val){
            if(val.type=="boolean"){
-              $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.name
+              $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.textValue
               +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'');
               $("#"+val.name).prop("checked",val.value).trigger("change");
            }
+            setTimeout(function () {
+            	if(val.name=="enableVerificationStep"){
+                   	$("#verificationStep").val(val.selectedValue);
+                }
+            }, 100);
         });
       }
     }
@@ -742,10 +775,11 @@ contextPath = "${contextPath}";
     	let authenticationEnabled= $("#isActiveCheckbox").is(":checked");
     	let authenticationTypeId= $("#authType").val();
     	let regexObj = new Object(); 
-    	let formObj = new Object(); 
+    	let formObj = new Object();
+    	let templateObj = new Object(); 
     	if($("#enableRegex").is(":checked")){ 
-	    	regexObj.regexValue  = $("#regexValue").val();
-    		regexObj.regexExample  = $("#regexExample").val();
+	    	regexObj.expression  = $("#expression").val();
+    		regexObj.message  = $("#message").val();
     	 	regexObj = JSON.stringify(regexObj);
     	}else{
     		regexObj = null;
@@ -761,11 +795,19 @@ contextPath = "${contextPath}";
           if(val.type=="boolean"){
             val.value = $("#"+val.name).is(":checked");
           }  
+          if(val.name=="enableVerificationStep"){
+            val.selectedValue = $("#verificationStep").val();
+          }
         });
         
         if($("#enableDynamicForm").is(":checked")){
         	formObj.formId = $("#formId").val();
         	formObj.formName = $("#formName").val();
+        }
+        
+        if($("#enableDynamicForm").is(":checked")){
+        	templateObj.templateId = $("#templateId").val();
+        	templateObj.templateName = $("#templateName").val();
         }
         
         
@@ -777,7 +819,8 @@ contextPath = "${contextPath}";
 			     		authenticationEnabled:authenticationEnabled,
              			propertyJson:JSON.stringify(parsedProperties),
              			regexObj:regexObj,
-             			userProfileFormId:JSON.stringify(formObj) 
+             			userProfileForm:JSON.stringify(formObj), 
+             			userProfileTemplate:JSON.stringify(templateObj)
 		     		},
 		            success: function(data) {
                 showMessage("Information saved successfully", "success");
@@ -785,19 +828,59 @@ contextPath = "${contextPath}";
 		     	});
     
     }
-    function openManageRole(){
-      location.href="/cf/rl";
-    }
+     function openManagePermission(){	
+           let enabled = checkAuthenticatedEnabled();	
+         if(enabled){	
+            location.href="/cf/mp";	
+        }else{	
+            showMessage("Not Authorized ", "error");	
+        }	
+    }	
+    function openManageRole(){	
+          let enabled = checkAuthenticatedEnabled();	
+         if(enabled){	
+            location.href="/cf/rl";	
+        }else{	
+            showMessage("Not Authorized ", "error");	
+        }	
+    }	
+    		
+    function openManageUser(){	
+         let enabled = checkAuthenticatedEnabled();	
+         if(enabled){	
+            location.href="/cf/ul";	
+        }else{	
+            showMessage("Not Authorized ", "error");	
+        }	
+    }	
     	
-    function openManageUser(){
-      location.href="/cf/ul";
+    function checkAuthenticatedEnabled(){	
+        let enabled = false;	
+        $.ajax({	
+		     		type : "GET",	
+		     		url : contextPath+"/cf/cae",	
+                     async: false,	
+		     		data : { 	
+			     			
+		     		},	
+		            success: function(data) {	
+                        enabled = data;	
+                       	
+		            }	
+		     	});	
+             return enabled;  	
     }
-    
+    function verificationChange(){ 
+    	if($("#verificationStep").val() == 2){ 
+    		$("#enableRegex").prop("checked",false).trigger("change");
+    	}else{
+    		$("#enableRegex").prop("checked",true).trigger("change"); 
+    	}
+    }
     function restartServer(){
       location.href="/cf/restart";
     }
-    
-  function addInputFields(thisObj){ 
+    function addInputFields(thisObj){ 
         let inputId;
         if(thisObj.id=="enableRegex" ){
             if($(thisObj).is(":checked")){
@@ -813,42 +896,77 @@ contextPath = "${contextPath}";
                 return false;
             }
              
+        }else if(thisObj.id=="enableVerificationStep"){
+            if($(thisObj).is(":checked")){
+                $("#verificationStep").show();
+                if($("#enableVerificationStep").closest("div.row").children().length == 1){
+                    inputId = "verification-mode"
+                }else{
+                    return false;
+                }
+            }else{
+                 $("#verificationStep").closest("div").hide();
+                return false;
+            }    
+          
         }else if(thisObj.id=="enableDynamicForm" ){
 			$("#dynamicFormDiv").remove();
-			inputId = "user-profile-form-name";
+			$("#templateDiv").remove();
+			inputId = "user-profile-form-details";
         }else{
 			return false;
 		}
     	$.ajax({
-		    type : "GET",
-		    url : contextPath+"/cf/gif",
-			data : { 
-				inputId:inputId,
-		    },
-			success: function(data) {
-             	if(thisObj.id=="enableRegex" ){
-             		$.each(data, function (key, value) {
-	 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for=="''+key+''">''+key+''<label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
-					});
-				}
-				if(thisObj.id=="enableDynamicForm"){
-					$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap">Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" name="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
-					if(data.formId !== undefined){
-						$("#formId").val(data.formId);
-						$("#formName").val(data.formName);
-						$("#dynamicFormName").val(data.formName);
-					}
-		           	initFormAutocomplete(data);
-		           	if($(thisObj).is(":checked")){
-						$("#dynamicFormDiv").show();
-					}else{
-						$("#dynamicFormDiv").hide();
-					}
-				}
-			}, error: function(xhr, data){
+		     	
+		     		type : "GET",
+		     		url : contextPath+"/cf/gif",
+		     		data : { 
+			     		inputId:inputId,
+		     		},
+		            success: function(data) {
+			            if(inputId == "regexPattern"){ 
+		                    $.each(data, function (key, value) {
+			 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for="''+key+''">''+key+''<label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
+							});
+						}else if(inputId == "verification-mode"){
+							 $("#enableVerificationStep").closest("div.row").append(''<div class="col-3 col-inner-form full-form-fields"><label for="verificationStep">Verification Type<label><select id="verificationStep" onchange="verificationChange();" class="form-control"></select></div>'');
+							 $.each(data, function (key, value) {
+                                 $("#enableVerificationStep").closest("div.row").find("#verificationStep").append(''<option value="''+value.value+''">''+value.name+''</option>'')
+                               }); 
+                             $("#enableVerificationStep").prop("disabled",true);	  
+						} else if(thisObj.id=="enableDynamicForm"){
+							$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap">Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
+							$("#enableDynamicForm").closest("div.row").append(''<div id="templateDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="templateNameAC" style="white-space:nowrap">Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName"><input type="hidden" id="templateId" value= "" name="templateId" ></div></div>'');
+							if(data.formId !== undefined){
+								$("#formId").val(data.formId);
+								$("#formName").val(data.formName);
+								$("#dynamicFormName").val(data.formName);
+							}
+				           	initFormAutocomplete(data);
+				           	inputId = "user-profile-template-details";
+				           	$.ajax({
+							    type : "GET",
+							    url : contextPath+"/cf/gif",
+								data : { 
+									inputId:inputId,
+							    },
+							    success: function(templateData) {
+							    	initTemplateAutocomplete(templateData);
+							    }
+							});
+				           	if($(thisObj).is(":checked")){
+								$("#dynamicFormDiv").show();
+								$("#templateDiv").show();
+							}else{
+								$("#dynamicFormDiv").hide();
+								$("#templateDiv").hide();
+							}
+						}
+		            }, error: function(xhr, data){
 				
-			},
-		});
+					},
+		     	});
+	
     
     }
     
@@ -858,7 +976,6 @@ contextPath = "${contextPath}";
     	savedForm.targetTypeName = formDetails.formName;
     	autocomplete = $(''#dynamicFormName'').autocomplete({
 	        autocompleteId: "dynamicForms",
-	        prefetch : true,
 	        render: function(item) {
 	        	var renderStr ='''';
 	        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -884,6 +1001,37 @@ contextPath = "${contextPath}";
     
     }
     
+    
+    function initTemplateAutocomplete(templateDetails){
+    	let savedTemplate = new Object();
+    	savedTemplate.targetTypeId = templateDetails.templateId;
+    	savedTemplate.targetTypeName = templateDetails.templateName;
+    	autocomplete = $(''#templateNameAC'').autocomplete({
+	        autocompleteId: "templateListing",
+	        render: function(item) {
+	        	var renderStr ='''';
+	        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
+	    		{
+	        		renderStr = ''<p>''+item.targetTypeName+''</p>'';
+	    		}
+	        	else
+	    		{
+	        		renderStr = item.emptyMsg;	
+	    		}	    				        
+	            return renderStr;
+	        },
+	        additionalParamaters: {languageId: 1},
+	        extractText: function(item) {
+	            return item.targetTypeName;
+	        },
+	        select: function(item) {
+	            $("#templateNameAC").blur();
+	            $("#templateId").val(item.targetTypeId);
+	            $("#templateName").val(item.targetTypeName);
+	        }, 	
+   		}, savedTemplate);
+    
+    }
 </script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
@@ -961,6 +1109,11 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                 }
 
             }
+             $(function(){
+                $("#reloadCaptcha").click(function(event){
+                	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+           		});
+          	});
         </script>
   </head>
 <body>
@@ -976,7 +1129,11 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                 <h2 class="form-signin-heading text-center">Welcome To <span class="cm-logotext">JQuiver</span>
                 </h2>
                 <#if queryString?? && queryString == "error">
-                    <div class="alert alert-danger" role="alert">Bad Credentials</div>
+                	<#if exceptionMessage?? >
+                		<div class="alert alert-danger" role="alert">${exceptionMessage}</div>
+                	<#else>
+                    	<div class="alert alert-danger" role="alert">Bad Credentials</div>
+                	</#if>
                 <#elseif queryString?? &&  queryString == "logout">
                     <div class="alert alert-success" role="alert">You have been signed out</div> 
                 </#if>
@@ -988,21 +1145,43 @@ Replace into template_master (template_id, template_name, template, updated_by, 
                     <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>
                     <input type="email" id="email" name="email" class="form-control" placeholder="Enter Your Email" required autofocus>
                 </p>
-                <p class="divdeform"> 
-                    <label for="password" class="formlablename">Password</label>
-                    <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>
-                    <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                    <#if !enableGoogleAuthenticator >
+	                <p class="divdeform"> 
+	                    <label for="password" class="formlablename">Password</label>
+	                    <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
+	                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>
+	                    <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>
+	                </p>
+	                 <#if enableCaptcha >
+	                    <p>
+	                        <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/loginCaptcha">
+	                        <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+	                        <label for="captcha" class="sr-only">Enter Captcha</label>
+	                        <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
+	                    </p>
+                	</#if> 
                     <span class="remebermeblock">
                         <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>
                     </span>    
                     <span class="forgotpassword">
                         <a href="/cf/resetPasswordPage">Forgot password?</a> 
                     </span>
-                </p>
-       
-				
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                <#else>
+                	  <p class="divdeform">
+                        <label for="password" class="formlablename">Enter TOTP</label>
+                        <input type="text" id="password" name="password" class="form-control" placeholder="Enter TOTP" required autofocus >
+	                   
+                    </p>
+                    <span class="remebermeblock">
+                        <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>
+                    </span>    
+                    <span class="forgotpassword">
+                        <a href="/cf/configureTOTP">Not Configured? Click here</a> 
+                    </span>
+                	
+                </#if>   
+              
+               <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
                 <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >
 	                <p class="registerlink">New User?
 	                    <a href="/cf/register"> Click here to register</a>
@@ -1072,18 +1251,20 @@ Replace into template_master (template_id, template_name, template, updated_by, 
           		<label for="email" class="sr-only">Email</label>
          	 	<input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
         	</p>
+        	<#if !enableGoogleAuthenticator>
         	<p>
           		<label for="password" class="sr-only">Password</label>
          	 	<input type="password" id="password" name="password" class="form-control" placeholder="Password" required autofocus >
         	</p>
-        	<#if enableCaptcha?string("yes", "no") == "yes" >
+        	<#if enableCaptcha >
 				<p>
-					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/registerCaptcha">
 					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
 					<label for="captcha" class="sr-only">Enter Captcha</label>
 					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
 				</p>
 			</#if> 
+			</#if>	
         	 <button class="btn btn-lg btn-primary btn-block cm-mb10" type="submit">Register</button>
 			 <p> Already Registered User? <a href="login">Click here to sign in</a></p>
 	   </form>
@@ -1142,15 +1323,20 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         		<div class="alert alert-danger" role="alert">${invalidCaptcha} </div>
         	</#if>
         <p>
-		Enter your user account verified email address and we will send you a password reset link.
+		Enter your user account verified email address and we will send you a 
+		<#if enableGoogleAuthenticator >	
+            QR code for google authenitcation	
+        <#else>	
+            password reset link.	
+        </#if>
 		</p>
         <p>
           <label for="username" class="sr-only">Email</label>
           <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
         </p>
-        <#if enableCaptcha?string("yes", "no") == "yes" >
+        <#if enableCaptcha >
 				<p>
-					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/resetCaptcha">
 					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
 					<label for="captcha" class="sr-only">Enter Captcha</label>
 					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
@@ -1215,9 +1401,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
           		<label for="confirmpassword" class="sr-only">Confirm Password</label>
          	 	<input type="password" id="confirmpassword" name="confirmpassword" class="form-control" placeholder="Confirm password" required autofocus >
         	</p>
-        	<#if enableCaptcha?string("yes", "no") == "yes" >
+        	<#if enableCaptcha >
 				<p>
-					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/createCaptcha">
 					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
 					<label for="captcha" class="sr-only">Enter Captcha</label>
 					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
@@ -1749,11 +1935,14 @@ REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_ty
 ('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jws_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 1);
 
 REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES (UUID(), 'system', 'system', 'regexPattern', '{"regexValue":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=])[A-Za-z\\\\d@#$%^&+=]{6,}$","regexExample":"Ex: John@123"}', 0, NOW(), 'admin', 1.00, 'Regex Pattern to validate password');
+VALUES (UUID(), 'system', 'system', 'regexPattern', '{"expression":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=])[A-Za-z\\\\d@#$%^&+=]{6,20}$","message":"Password length 6-20"}', 0, NOW(), 'admin', 1.00, 'Regex Pattern to validate password');
 
 
 REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES (UUID(), 'system', 'system', 'user-profile-form-name', '', 0, NOW(), 'admin', 1.00, 'Dynamic Form for user profile');
+VALUES (UUID(), 'system', 'system', 'user-profile-form-details', '{}', 0, NOW(), 'admin', 1.00, 'Dynamic Form for add edit user details');
+
+REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'user-profile-template-details', '{}', 0, NOW(), 'admin', 1.00, 'Custom template for user profile listing page');
 
 Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('edcafd25-19b9-11eb-9631-f48e38ab9348', 'jws-change-password', ' 
@@ -1771,7 +1960,21 @@ Replace into template_master (template_id, template_name, template, updated_by, 
            		});
           	});
 			
-			
+		 function showHidePassword(thisObj){
+                var element = $(thisObj).parent().find("input[name=''newPassword'']");
+                if (element.prop("type") === "password") {
+                    element.prop("type","text");
+                    $(thisObj).find("i").removeClass("fa-eye");
+                     $(thisObj).find("i").addClass("fa-eye-slash");
+                     $("#newPassword").focus();
+                } else {
+                     element.prop("type","password");
+                     $(thisObj).find("i").removeClass("fa-eye-slash");
+                     $(thisObj).find("i").addClass("fa-eye");
+                     $("#newPassword").focus();
+                }
+
+            }	
 		</script>
 </head>
 
@@ -1794,15 +1997,16 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         	</#if>
         	<p>
           		<label for="password" class="sr-only">Enter System generated Password</label>
-         	 	<input type="password" id="password" name="password" class="form-control" placeholder="Enter System generated Password" required autofocus>
+         	 	<input type="text" id="password" name="password" class="form-control" placeholder="Enter System generated Password" required autofocus>
         	</p>
         	<p>
           		<label for="newPassword" class="sr-only">Enter New Password</label>
          	 	<input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Enter New password" required autofocus >
+         	 	<span class="passview cp" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>
         	</p>
-        	<#if enableCaptcha?string("yes", "no") == "yes" >
+        	<#if enableCaptcha >
 				<p>
-					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha">
+					 <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/updateCaptcha">
 					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
 					<label for="captcha" class="sr-only">Enter Captcha</label>
 					<input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
@@ -1829,5 +2033,376 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />  
 ','admin','admin',now(), 2);
+
+REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'verification-mode', '[{"name":"password","type":"select","value":0},{"name":"password + captcha","type":"select","value":1},{"name":"TOTP","type":"select","value":2}]', 0, NOW(), 'admin', 1.00, 'Which verification mode to be used');
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('9b4b9988-25bd-11eb-9388-f48e38ab9348', 'jws-configure-totp', ' 
+ 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Forgot password? - TSMS</title>
+   <@templateWithoutParams "jws-common-css-js"/>
+    	<script>
+      
+			<#if nonRegisteredUser??>
+				$("#email").focus();
+			</#if>
+			<#if inValidLink??>
+				$("#email").focus();
+			</#if>
+			 $(function(){
+          
+          	});
+			
+		</script>
+  </head>
+  <body>
+     <div class="container">
+     	<div class="row">
+        <div class="col-7">
+            <div class="loginbg"><img src="/webjars/1.0/images/LoginBg.jpg"></div> 
+        </div> 
+ 		<div class="col-5">
+      <form class="form-resetpassword" method="post" action="/cf/sendConfigureTOTPMail" autocomplete="off">
+        <h2 class="form-resetpassword-heading">Reset your password</h2>
+		<#if nonRegisteredUser??>
+        		<div class="alert alert-danger" role="alert">${nonRegisteredUser} </div>
+        </#if>
+		<#if inValidLink??>
+        		<div class="alert alert-danger" role="alert">${inValidLink} </div>
+        </#if>
+   
+        <p>
+		Enter your user account verified email address and we will send you a TOTP configuration mail
+		</p>
+        <p>
+          <label for="username" class="sr-only">Email</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autofocus>
+        </p> 
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Send TOTP configuration email</button>
+        	   <p> <a href="login">Click here to sign in</a></p>
+      </form> 
+</div>
+ </div> 
+  </div> 
+</body></html>','admin','admin',now(), 2);
+
+
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '
+<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+        
+<div class="container">
+
+    <div id="tabs">
+        <ul>
+          <li><a href="#abd" data-target="/cf/df">${messageSource.getMessage("jws.manageUserDetails")}</a></li>
+          <li><a href="#mrap" data-target="/cf/mpar">${messageSource.getMessage("jws.manageRolesAndPolicy")}</a></li>
+         </ul>
+          <div id="abd">
+          </div>
+          <div id="mrap">
+          </div>
+        </div>  
+     
+     
+</div>    
+<script>
+
+let contextPath = "${contextPath}";
+const dynamicFormId = "${formId!''''}";
+const userId = "${userId!''''}";
+  
+  $(function(){
+  $("#tabs").tabs();
+  $("#tabs").on( "tabsactivate", function( event, ui ) {
+    let tabElement = ui.newTab[0].firstElementChild
+    getTabData(tabElement); 
+  });
+ 
+   function getTabData(tabElement){ 
+  	let url = tabElement.getAttribute("data-target");
+  	
+  	  $.ajax({
+      type: "POST",
+      url: url,
+      data : { 
+      	formId : dynamicFormId,
+      	userId : userId,
+      	includeLayout : false,
+      },
+      success: function(data){
+         if($(tabElement.getAttribute("href")).html().trim()==""){
+              $(tabElement.getAttribute("href")).html(data);
+          }
+          $("#abd").find(".container").css("border","none");
+          $("#abd").find(".topband").css("display","none");
+          $("#saveAndReturn").attr("onclick", "typeOfAction(''40289d3d75e4e6850175e4e7e9400000'', this, saveUserDetails, backToUserListing);")
+          $("#saveAndCreateNew").attr("onclick", "typeOfAction(''40289d3d75e4e6850175e4e7e9400000'', this, saveUserDetails, backToUserListing);")
+          $("#saveAndEdit").attr("onclick", "typeOfAction(''40289d3d75e4e6850175e4e7e9400000'', this, saveUserDetails, backToUserListing);")
+          $("#backBtn").parent().attr("onclick","backToUserListing()");
+      }    
+    });
+  }
+    getTabData($("a[href=''#abd'']")[0]);
+  
+  }); 
+
+	function saveUserDetails(){ 
+		let userData = new Object();
+		userData.firstName = $("#firstName").val();
+		userData.lastName = $("#lastName").val();
+		userData.email = $("#email").val();
+	    userData.userId = $("#userId").val();
+	    userData.roleIds = [];
+	    userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+	    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+	    $.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
+	      userData.roleIds.push(value.id);
+	    });
+	    
+		saveData();
+		
+		$.ajax({
+	      type: "POST",
+	      url: contextPath + "/cf/surap",
+	      data : {
+		     userData : JSON.stringify(userData),
+		     isEdit : isEdit
+		   },
+	      success: function(data) {
+		  	showMessage("Information saved successfully", "success");
+		  }
+	    });
+	}
+	
+	function backToUserListing() {
+		location.href = contextPath+"/cf/ul";
+	}
+</script>','admin','admin',now(),2);
+
+
+REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '
+   <head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+		
+		<div id="errorMessageUser" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+		<div class="row">
+		<#if !enableGoogleAuthenticator>
+	    	<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="forcePasswordChange"><span class="asteriskmark">*</span>Force User to Change Password</label>
+		            <div class="onoffswitch">
+		                <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" onchange="disableIsActive();"/>
+		                <label class="onoffswitch-label" for="forcePasswordChange">
+		                    <span class="onoffswitch-inner"></span>
+		                    <span class="onoffswitch-switch"></span>
+		                </label>
+		            </div>
+					
+				</div>
+			</div>
+		</#if>
+		<div class="col-3">
+    	<div class="col-inner-form full-form-fields">
+				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+	            <div class="onoffswitch">
+	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" onchange="saveRolesAndPolicy();">
+	                <label class="onoffswitch-label" for="isActive">
+	                    <span class="onoffswitch-inner"></span>
+	                    <span class="onoffswitch-switch"></span>
+	                </label>
+	            </div>
+				
+			</div>
+		</div>
+        <#list roles as role>
+           	<div class="col-3">
+         			<div class="col-inner-form full-form-fields">
+         		            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
+         		              ${role?api.getRoleName()}
+         		            </label>
+         		           <div class="onoffswitch">
+				                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox" id="${role?api.getRoleId()}" value="0" onchange="saveRolesAndPolicy();"/>
+				                <label class="onoffswitch-label" for="${role?api.getRoleId()}">
+				                    <span class="onoffswitch-inner"></span>
+				                    <span class="onoffswitch-switch"></span>
+				                </label>
+	           				</div>
+         			</div>
+ 		        </div>
+        
+                      
+        </#list>
+      </div>
+	</div>
+<script>
+
+function disableIsActive(){ 
+	if($("#forcePasswordChange").prop("checked")){
+		$("#isActive").prop("disabled",true);
+		$("#isActive").prop("checked",false);
+	}else{ 
+		$("#isActive").prop("disabled",false);
+		$("#isActive").prop("checked",true);
+	}
+	saveRolesAndPolicy();
+}
+
+function saveRolesAndPolicy(){ 
+	if($("#userId").val().trim() !== ""){ 
+		let userData = new Object();
+		userData.firstName = $("#firstName").val();
+		userData.lastName = $("#lastName").val();
+		userData.email = $("#email").val();
+		userData.userId = $("#userId").val();
+		userData.roleIds = [];
+		userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+		userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+		$.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
+		   userData.roleIds.push(value.id);
+		});
+		    
+			
+			$.ajax({
+		      type: "POST",
+		      url: contextPath + "/cf/surap",
+		      data : {
+		      	userData : JSON.stringify(userData),
+		      	isEdit : isEdit
+		      },
+		      success: function(data) {
+			  	showMessage("Roles and policies saved successfully", "success");
+			  }
+		    });
+		}else{
+			$("#errorMessageUser").show();
+			$("#errorMessageUser").html("Please save user details first");		
+		}
+	}
+  
+
+  $(function(){
+  	$("#errorMessageUser").hide();
+	<#if (jwsUser?api.getUserId())??>
+        if(${jwsUser?api.getForcePasswordChange()} == 1){ 
+         	 $("#forcePasswordChange").prop("checked",true);
+        }
+        
+        if(${jwsUser?api.getIsActive()} == 1){ 
+         	 $("#isActive").prop("checked",true);
+        }
+            
+        <#if userRoleIds??>    
+        	<#list userRoleIds as roleId>
+            	$("#${roleId}").attr("checked",true);
+          	</#list>    
+		</#if>
+	<#else>
+		 $("#isActive").prop("checked",true);
+	</#if>
+	});
+
+  
+</script>
+
+','admin','admin',now(),2);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('922b2eca-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0); 
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('961b6d9d-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('995997ab-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('bdd6589a-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0); 
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('c1ce084a-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('c87b189d-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', ' To reset your TSMS user account password, please click here : http://localhost:8080/cf/resetPassword?token=${tokenId}',
+'admin','admin',now(), 2);
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', 'Scan the attached QR code via google authenticator app for login process',
+'admin','admin',now(), 2);
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', ' To confirm your account, please click here : http://localhost:8080/cf/confirm-account?token=${tokenId}',
+'admin','admin',now(), 2);
+
+Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', 'Your account password is : ${password} 
+<#if forcePasswordChange == 1 >
+    Please change your password through these url : http://localhost:8080/cf/changePassword?token=${userId}
+<#else>
+  You can login through these url : http://localhost:8080/cf/login
+</#if>
+',
+'admin','admin',now(), 2);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('a27c7972-2b53-11eb-96fd-f48e38ab9348', '257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('a801e666-2b53-11eb-96fd-f48e38ab9348', '8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('ac0a9088-2b53-11eb-96fd-f48e38ab9348', 'b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('b0bff2f7-2b53-11eb-96fd-f48e38ab9348', '0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+REPLACE INTO jws_entity_role_association (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id)
+ VALUES ('36e5a3a8-2b54-11eb-96fd-f48e38ab9348','9b4b9988-25bd-11eb-9388-f48e38ab9348','jws-configure-totp','1b0a2e40-098d-11eb-9a16-f48e38ab9348','ae6465b3-097f-11eb-9a16-f48e38ab9348',now(),'admin',1,1);
+
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.roleMaster', 1, 'Role Master'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addRole', 1, 'Add Role'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.userMaster', 1, 'User Master'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.firstName', 1, 'First Name'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.lastName', 1, 'Last Name'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.email', 1, 'Email'); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.isActive', 1, 'Active '); 
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addUser', 1, 'Add User'); 
 
 SET FOREIGN_KEY_CHECKS=1;

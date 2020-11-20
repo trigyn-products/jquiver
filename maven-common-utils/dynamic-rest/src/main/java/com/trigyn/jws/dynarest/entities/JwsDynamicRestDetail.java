@@ -326,24 +326,30 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setJwsAllowFiles(jwsAllowFiles);
 		
 		List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetailsOthr = new ArrayList<>();
-		for(JwsDynamicRestDaoDetail jdrdd : jwsDynamicRestDaoDetails) {
-			jwsDynamicRestDaoDetailsOthr.add(jdrdd.getObject());
-		}
-		dynaRest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetailsOthr);
+		if(jwsDynamicRestDaoDetails != null && !jwsDynamicRestDaoDetails.isEmpty()) {
+			for(JwsDynamicRestDaoDetail jdrdd : jwsDynamicRestDaoDetails) {
+				jwsDynamicRestDaoDetailsOthr.add(jdrdd.getObject());
+			}
+			dynaRest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetailsOthr);
+		} else dynaRest.setJwsDynamicRestDaoDetails(null);
 		
 		dynaRest.setJwsRequestTypeDetail(jwsRequestTypeDetail.getObject());
 
 		List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParamsOthr = new ArrayList<>();
-		for(JwsDynamicRestResponseParam jdrrp : jwsDynamicRestResponseParams) {
-			jwsDynamicRestResponseParamsOthr.add(jdrrp.getObject());
-		}
-		dynaRest.setJwsDynamicRestResponseParams(jwsDynamicRestResponseParamsOthr);
+		if(jwsDynamicRestResponseParams != null && !jwsDynamicRestResponseParams.isEmpty()) {
+			for(JwsDynamicRestResponseParam jdrrp : jwsDynamicRestResponseParams) {
+				jwsDynamicRestResponseParamsOthr.add(jdrrp.getObject());
+			}
+			dynaRest.setJwsDynamicRestResponseParams(jwsDynamicRestResponseParamsOthr);
+		} else dynaRest.setJwsDynamicRestResponseParams(null);
 
 		List<JwsDynamicRestRoleAssociation> jwsDynamicRestRoleAssociationOthr = new ArrayList<>();
-		for(JwsDynamicRestRoleAssociation jdrra : JwsDynamicRestRoleAssociation) {
-			jwsDynamicRestRoleAssociationOthr.add(jdrra.getObject());
-		}
-		dynaRest.setJwsDynamicRestRoleAssociation(jwsDynamicRestRoleAssociationOthr);
+		if(JwsDynamicRestRoleAssociation != null && !JwsDynamicRestRoleAssociation.isEmpty()) {
+			for(JwsDynamicRestRoleAssociation jdrra : JwsDynamicRestRoleAssociation) {
+				jwsDynamicRestRoleAssociationOthr.add(jdrra.getObject());
+			}
+			dynaRest.setJwsDynamicRestRoleAssociation(jwsDynamicRestRoleAssociationOthr);
+		} else dynaRest.setJwsDynamicRestRoleAssociation(null);
 		
 		return dynaRest;
 	}

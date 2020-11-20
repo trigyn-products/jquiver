@@ -258,17 +258,21 @@ public class ModuleListing implements Serializable {
 		moduleListing.setTargetTypeId(targetTypeId!=null?targetTypeId.trim():targetTypeId);
 		
 		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
-		for(ModuleListingI18n otr : moduleListingI18ns) {
-			moduleListingI18nsOtr.add(otr.getObject());
-		}
-		moduleListing.setModuleListingI18ns(moduleListingI18nsOtr);
+		if(moduleListingI18ns != null && !moduleListingI18ns.isEmpty()) {
+			for(ModuleListingI18n otr : moduleListingI18ns) {
+				moduleListingI18nsOtr.add(otr.getObject());
+			}
+			moduleListing.setModuleListingI18ns(moduleListingI18nsOtr);
+		} else moduleListing.setModuleListingI18ns(null);
 		
 
 		List<ModuleRoleAssociation> moduleRoleAssociationsOtr = new ArrayList<>();
-		for(ModuleRoleAssociation otr : moduleRoleAssociations) {
-			moduleRoleAssociationsOtr.add(otr.getObject());
-		}
-		moduleListing.setModuleRoleAssociations(moduleRoleAssociationsOtr);
+		if(moduleRoleAssociations != null && !moduleRoleAssociations.isEmpty()) {
+			for(ModuleRoleAssociation otr : moduleRoleAssociations) {
+				moduleRoleAssociationsOtr.add(otr.getObject());
+			}
+			 moduleListing.setModuleRoleAssociations(moduleRoleAssociationsOtr);
+		} else moduleListing.setModuleRoleAssociations(null);
 		
 		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
 		return moduleListing;

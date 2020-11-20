@@ -32,6 +32,9 @@ public class AuthorizedValidator {
 	@Autowired
 	private EntityValidatorFactory entityValidatorFactory = null;
 	
+	@Autowired
+	private ApplicationSecurityDetails applicationSecurityDetails = null;
+	
 	
 	@Pointcut("@annotation(com.trigyn.jws.usermanagement.security.config.Authorized)")
 	private void customHasPermission() {
@@ -40,6 +43,11 @@ public class AuthorizedValidator {
 	
 	@Around("com.trigyn.jws.usermanagement.security.config.AuthorizedValidator.customHasPermission()")
 	public Object validateEntityPermission(ProceedingJoinPoint a_joinPoint) throws Throwable {
+		
+		if(!applicationSecurityDetails.getIsAuthenticationEnabled()) {
+			return a_joinPoint.proceed();
+		}
+		
 		
 		MethodSignature signature = (MethodSignature) a_joinPoint.getSignature();
 		Method method = signature.getMethod();

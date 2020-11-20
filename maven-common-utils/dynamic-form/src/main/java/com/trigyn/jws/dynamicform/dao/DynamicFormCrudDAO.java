@@ -148,4 +148,10 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return resultSet;
 	}
 
+	public Long getDynamicFormCount(String formId) {
+		StringBuilder stringBuilder = new StringBuilder("SELECT count(*) FROM DynamicForm AS d WHERE d.formId = :formId");
+		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		query.setParameter("formId", formId);
+		return (Long) query.uniqueResult();
+	}
 }

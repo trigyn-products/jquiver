@@ -188,7 +188,6 @@ public class DynamicFormCrudService {
 	
 	public DynamicFormSaveQueryVO convertEntityToVO(DynamicFormSaveQuery dynamicFormSaveQuery) throws Exception{
 		DynamicFormSaveQueryVO formSaveQueryVO = new DynamicFormSaveQueryVO();
-		formSaveQueryVO.setDynamicFormQueryId(dynamicFormSaveQuery.getDynamicFormQueryId());
 		formSaveQueryVO.setDynamicFormId(dynamicFormSaveQuery.getDynamicFormId());
 		formSaveQueryVO.setFormSaveQuery(dynamicFormSaveQuery.getDynamicFormSaveQuery());
 		formSaveQueryVO.setSequence(dynamicFormSaveQuery.getSequence());

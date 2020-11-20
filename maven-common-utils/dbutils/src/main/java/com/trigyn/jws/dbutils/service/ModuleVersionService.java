@@ -48,7 +48,7 @@ public class ModuleVersionService {
 	
 	@Transactional(readOnly = false)
 	public void saveModuleVersion(Object entityData, Object parentEntityIdObj
-			, Object entityTypeIdObj, String entityTypeName, Integer sourceTypeId) throws Exception{
+			, Object entityIdObj, String entityName, Integer sourceTypeId) throws Exception{
 		Gson gson 								= new Gson();
 		ObjectMapper objectMapper				= new ObjectMapper();
 		String moduleJson 						= null;
@@ -63,18 +63,18 @@ public class ModuleVersionService {
 			moduleJson = gson.toJson(entityData);
 		}
 		String parentEntityId 					= parentEntityIdObj == null ? null : parentEntityIdObj.toString();
-		String entityTypeId 					= entityTypeIdObj.toString();
+		String entityId 						= entityIdObj.toString();
 		JwsModuleVersion moduleVersion 			= new JwsModuleVersion();
 
 		UserDetailsVO userDetailsVO 			= userDetailsService.getUserDetails();
 		String moduleJsonChecksum				= generateJsonChecksum(moduleJson);
-		Boolean isDataUpdated					= compareChecksum(entityTypeId, moduleJsonChecksum);
+		Boolean isDataUpdated					= compareChecksum(entityId, entityName, moduleJsonChecksum);
 		
 		if(isDataUpdated != null && isDataUpdated == true) {
-			Double versionId = getVersionNumber(entityTypeId);
+			Double versionId = getVersionNumber(entityId, entityName);
 			moduleVersion.setParentEntityId(parentEntityId);
-	        moduleVersion.setEntityId(entityTypeId);
-	        moduleVersion.setEntityName(entityTypeName);
+	        moduleVersion.setEntityId(entityId);
+	        moduleVersion.setEntityName(entityName);
 	        moduleVersion.setModuleJson(moduleJson);
 		    moduleVersion.setVersionId(versionId);
 		    moduleVersion.setModuleJsonChecksum(moduleJsonChecksum);
@@ -82,13 +82,13 @@ public class ModuleVersionService {
 	        moduleVersion.setUpdatedDate(new Date());
 	        moduleVersion.setUpdatedBy(userDetailsVO.getUserId());
 			moduleVersionDAO.save(moduleVersion);
-			deleteOldRecords(entityTypeId);
+			deleteOldRecords(entityId, entityName);
 		}
 	}
 
-	public Boolean compareChecksum(String entityTypeId, String generatedChecksum) throws Exception {
+	public Boolean compareChecksum(String entityTypeId, String entityName, String generatedChecksum) throws Exception {
 		Boolean isChecksumChanged = true;
-		String previousChecksum = getJsonChecksum(entityTypeId);
+		String previousChecksum = getJsonChecksum(entityTypeId, entityName);
 		if(previousChecksum != null && previousChecksum.equals(generatedChecksum)) {
 			isChecksumChanged = false;
 		}
@@ -96,8 +96,8 @@ public class ModuleVersionService {
 	}
 
 
-	private Double getVersionNumber(String entityTypeId) throws Exception {
-		Double versionId = moduleVersionDAO.getVersionIdByEntityId(entityTypeId);
+	private Double getVersionNumber(String entityId, String entityName) throws Exception {
+		Double versionId = moduleVersionDAO.getVersionIdByEntityIdAndName(entityId, entityName);
         if(versionId != null) {
 			String versionIdStr = versionId.toString();
 			Integer versionIdInt = Integer.parseInt(versionIdStr.split("\\.")[0]);
@@ -119,19 +119,19 @@ public class ModuleVersionService {
 		return fileUtilities.generateChecksum(jsonContent);
 	}
 	
-	public String getJsonChecksum(String entityId) throws Exception{
-		return moduleVersionDAO.getModuleJsonChecksum(entityId);
+	public String getJsonChecksum(String entityId, String entityName) throws Exception{
+		return moduleVersionDAO.getModuleJsonChecksum(entityId, entityName);
 	}
 	
 	
-	public void deleteOldRecords(String entityId) throws Exception{
+	public void deleteOldRecords(String entityId, String entityName) throws Exception{
 		String maxVersionId = propertyMasterDAO.findPropertyMasterValue(Constant.MODULE_VERSION_OWNER_TYPE,
 				Constant.MODULE_VERSION_OWNER_ID, Constant.MODULE_VERSION_PROERTY_NAME);
 		if(!StringUtils.isBlank(maxVersionId)) {
 			Integer maxVersionIdInt = Integer.parseInt(maxVersionId);
-			Integer versionIdCount = moduleVersionDAO.getVersionIdCount(entityId);
+			Integer versionIdCount = moduleVersionDAO.getVersionIdCount(entityId, entityName);
 			if(versionIdCount != null && versionIdCount > maxVersionIdInt) {
-				moduleVersionDAO.deleteOldRecords(entityId);
+				moduleVersionDAO.deleteOldRecords(entityId, entityName);
 			}
 		}
 		

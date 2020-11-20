@@ -1,10 +1,15 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.InternetAddress;
@@ -33,6 +38,8 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsResetPasswordTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
+import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.SendMailService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
@@ -65,6 +72,9 @@ public class JwsResetPasswordController {
 
 	@Autowired
 	private SendMailService sendMailService = null;
+	
+	@Autowired
+	private UserConfigService userConfigService = null;
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
@@ -72,7 +82,7 @@ public class JwsResetPasswordController {
 		Map<String, Object> mapDetails = new HashMap<>();
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			TemplateVO templateVO = templatingService.getTemplateByName("jws-password-reset-mail");
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 					mapDetails);
 		} else {
@@ -91,13 +101,13 @@ public class JwsResetPasswordController {
 		String viewName = null;
 
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
 			if (existingUser != null) {
 
 				if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-						&& session.getAttribute("captcha") != null && !(request.getParameter("captcha").toString()
-								.equals(session.getAttribute("captcha").toString()))) {
+						&& session.getAttribute("resetCaptcha") != null && !(request.getParameter("captcha").toString()
+								.equals(session.getAttribute("resetCaptcha").toString()))) {
 					mapDetails.put("invalidCaptcha", "Please verify captcha!");
 					viewName = "jws-password-reset-mail";
 					TemplateVO templateVO = templatingService.getTemplateByName(viewName);
@@ -120,10 +130,13 @@ public class JwsResetPasswordController {
 				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
 				email.setSubject("Please reset your password");
 				email.setMailFrom("admin@jquiver.com");
-				email.setBody("To reset your TSMS user account password, please click here : "
-						+ "http://localhost:8080/cf/resetPassword?token=" + tokenId);
-
-				System.out.println(email.getBody());
+				Map<String, Object> mailDetails = new HashMap<>();
+				mailDetails.put("tokenId", tokenId);
+				TemplateVO templateVO = templatingService.getTemplateByName("reset-password-mail");
+				String mailBody =  templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mailDetails);
+				email.setBody(mailBody);
+				System.out.println(mailBody);
 				sendMailService.sendTestMail(email);
 
 				mapDetails.put("successResetPasswordMsg",
@@ -150,7 +163,7 @@ public class JwsResetPasswordController {
 		Map<String, Object> mapDetails = new HashMap<>();
 		String viewName = null;
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			JwsResetPasswordToken tokenDetails = resetPasswordTokenRepository.findByTokenId(tokenId);
 			Boolean isInvalidLink = false;
 			if (tokenDetails != null && tokenDetails.getPasswordResetTime() != null
@@ -203,7 +216,7 @@ public class JwsResetPasswordController {
 		String tokenId = request.getParameter("token");
 		mapDetails.put("token", tokenId);
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			if (password == null || (password != null && password.trim().isEmpty()) || confirmpassword == null
 					|| (confirmpassword != null && confirmpassword.trim().isEmpty())) {
 				mapDetails.put("nonValidPassword", "Enter valid password and confirm password");
@@ -214,8 +227,8 @@ public class JwsResetPasswordController {
 			} else if (password.equals(confirmpassword)) {
 				if (userManagementService.validatePassword(password)) {
 					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-							&& session.getAttribute("captcha") != null && !(request.getParameter("captcha").toString()
-									.equals(session.getAttribute("captcha").toString()))) {
+							&& session.getAttribute("createCaptcha") != null && !(request.getParameter("captcha").toString()
+									.equals(session.getAttribute("createCaptcha").toString()))) {
 						mapDetails.put("invalidCaptcha", "Please verify captcha!");
 						viewName = "jws-password-reset-page";
 					} else {
@@ -256,7 +269,7 @@ public class JwsResetPasswordController {
 
 		Map<String, Object> mapDetails = new HashMap<>();
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			if (StringUtils.isNotBlank(tokenId)) {
 
 				JwsUser jwsUser = userRepository.findByUserId(tokenId);
@@ -290,7 +303,7 @@ public class JwsResetPasswordController {
 		String viewName = null;
 
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userManagementService.getConfigurableDetails(mapDetails);
+			userConfigService.getConfigurableDetails(mapDetails);
 			String tokenId = request.getParameter("tokenId");
 			String oldPassword = request.getParameter("password");
 			String newPassword = request.getParameter("newPassword");
@@ -302,8 +315,8 @@ public class JwsResetPasswordController {
 					if (userManagementService.validatePassword(newPassword)) {
 
 						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-								&& session.getAttribute("captcha") != null && !(request.getParameter("captcha")
-										.toString().equals(session.getAttribute("captcha").toString()))) {
+								&& session.getAttribute("updateCaptcha") != null && !(request.getParameter("captcha")
+										.toString().equals(session.getAttribute("updateCaptcha").toString()))) {
 							mapDetails.put("invalidCaptcha", "Please verify captcha!");
 							viewName = "jws-change-password";
 						} else {
@@ -340,4 +353,79 @@ public class JwsResetPasswordController {
 		}
 
 	}
+	
+	@GetMapping(value = "/configureTOTP")
+	@ResponseBody
+	public String configureTOTPPage(ModelAndView modelAndView, HttpServletResponse response) throws Exception {
+		Map<String, Object> mapDetails = new HashMap<>();
+		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+			TemplateVO templateVO = templatingService.getTemplateByName("jws-configure-totp");
+			userConfigService.getConfigurableDetails(mapDetails);
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} else {
+			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			return null;
+		}
+	}
+	
+	@PostMapping(value = "/sendConfigureTOTPMail")
+	@ResponseBody
+	public String sendConfigureTOTPMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
+			throws Exception {
+
+		String emailTo = request.getParameter("email");
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+
+		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+			userConfigService.getConfigurableDetails(mapDetails);
+			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
+			if (existingUser != null) {
+
+				TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
+				int width = 300;
+				int height = 300;
+				String filePath = System.getProperty("java.io.tmpdir") + File.separator + existingUser.getUserId()  +".png";
+				File file = new File(filePath);
+				FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+				String barcodeData = twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(existingUser.getEmail(), "Jquiver",existingUser.getSecretKey());
+				twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
+				
+				
+				Email email = new Email();
+				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
+				email.setSubject("TOTP Login");
+				email.setMailFrom("admin@jquiver.com");
+				Map<String, Object> mailDetails = new HashMap<>();
+				TemplateVO templateVO = templatingService.getTemplateByName("totp-qr-mail");
+				String mailBody =  templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mailDetails);
+				email.setBody(mailBody);
+				System.out.println(mailBody);
+				List<File> attachedFiles = new ArrayList<>();
+				attachedFiles.add(file);
+				email.setAttachementsArray(attachedFiles);
+				
+				CompletableFuture<Boolean> mailSuccess =  sendMailService.sendTestMail(email);
+				if(mailSuccess.isDone()) {
+					email.getAttachementsArray().stream().forEach(f-> f.delete());
+				}
+
+				mapDetails.put("successResetPasswordMsg",
+						"Check your email for a instructions to login through Google AUtheticator. If it doesn’t appear within a few minutes, check your spam folder.");
+				viewName = "jws-password-reset-mail-success";
+			} else {
+				mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");
+				viewName = "jws-configure-totp";
+			}
+			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} else {
+			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			return null;
+		}
+	}
+	
 }

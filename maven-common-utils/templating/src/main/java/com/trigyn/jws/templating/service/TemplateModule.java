@@ -21,6 +21,7 @@ import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.utils.Constant;
+import com.trigyn.jws.templating.vo.TemplateExportVO;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
 @Component("template")
@@ -44,7 +45,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	@Autowired
 	private ModuleVersionService moduleVersionService			= null;
 
-	private Map<String, String> moduleDetailsMap = new HashMap<>();
+	private Map<String, Map<String, Object>> moduleDetailsMap = new HashMap<>();
 	
 	@Override
 	public void downloadCodeToLocal(TemplateMaster a_templateMaster, String folderLocation) throws Exception {
@@ -53,7 +54,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		if(a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(),
-	                template.getTemplateName(), template.getTemplate(), template.getChecksum())).collect(Collectors.toList());
+	                template.getTemplateName(), template.getTemplate(), 
+	                template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy())).collect(Collectors.toList());
 		}else {
 			templateVOs = dbTemplatingService.getAllDefaultTemplates();
 		}
@@ -87,7 +89,13 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				newFileCheckSum = fileUtilities.writeFileContents(templateVO.getTemplate(), file);
 				templateVO.setChecksum(newFileCheckSum);
 			}
-			moduleDetailsMap.put(templateVO.getTemplateId(), templateVO.getTemplateName());
+			TemplateExportVO temMaster = new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(), 
+					templateVO.getTemplateType(), templateVO.getTemplateName()+ftlCustomExtension);
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("moduleName", templateVO.getTemplateName());
+			map.put("moduleObject", temMaster);
+			moduleDetailsMap.put(templateVO.getTemplateId(), map);
 		}
 		for (TemplateVO templateVO : templateVOs) {
 			if(templateVO.isChecksumChanged()) {
@@ -151,9 +159,11 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	}
 
 	@Override
-	public Object importData(String folderLocation, String uploadFileName, String uploadID) throws Exception {
+	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
 		String user 				="admin";
-		String ftlCustomExtension 	= Constant.CUSTOM_FILE_EXTENSION;
+		TemplateExportVO templateExportVO = (TemplateExportVO) importObject;
+
+		String ftlCustomExtension 	= "." + templateExportVO.getTemplateFileName().split("\\.")[1];
 		
 		TemplateMaster template		= null;
 		File directory 				= new File(folderLocation);
@@ -173,38 +183,42 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
         File[] files = directory.listFiles(textFilter);
         for (File file : files) {
         	if(file.isFile()) {
-				String fileName = file.getName().replace(ftlCustomExtension,"");
+				String fileName = file.getName();
 				
-				if(fileName.equals(uploadFileName)) {
-					template = templateDAO.findTemplateById(uploadID);
+				if(fileName.equals(templateExportVO.getTemplateFileName())) {
+					TemplateMaster templateEntity = templateDAO.findTemplateById(uploadID);
 					String content = fileUtilities.readContentsOfFile(file.getAbsolutePath());
 					String generateFileCheckSum = fileUtilities.generateFileChecksum(file);
-					if(template == null) {
+					if(templateEntity == null) {
 						template = new TemplateMaster();
 						template.setTemplate(content);
 						template.setChecksum(generateFileCheckSum);
-						template.setTemplateName(fileName);
+						template.setTemplateName(templateExportVO.getTemplateName());
 						template.setUpdatedDate(new Date());
 						template.setUpdatedBy(user);
 						template.setCreatedBy(user);
-					}else{
-							template.setTemplate(content);
-							template.setChecksum(generateFileCheckSum);
-							template.setUpdatedBy(user);
-							template.setUpdatedDate(new Date());
+					} else {
+						template = new TemplateMaster();
+						template.setCreatedBy(templateEntity.getCreatedBy());
+						template.setTemplateId(templateEntity.getTemplateId());
+						template.setTemplateName(templateExportVO.getTemplateName());
+						template.setTemplateTypeId(templateExportVO.getTemplateTypeId());
+						template.setTemplate(content);
+						template.setChecksum(generateFileCheckSum);
+						template.setUpdatedBy(user);
+						template.setUpdatedDate(new Date());
 					}	
-					
 				}
         	}
         }
         return template;
 	}
 
-	public Map<String, String> getModuleDetailsMap() {
+	public Map<String, Map<String, Object>> getModuleDetailsMap() {
 		return moduleDetailsMap;
 	}
 
-	public void setModuleDetailsMap(Map<String, String> moduleDetailsMap) {
+	public void setModuleDetailsMap(Map<String, Map<String, Object>> moduleDetailsMap) {
 		this.moduleDetailsMap = moduleDetailsMap;
 	}
 	

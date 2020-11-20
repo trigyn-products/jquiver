@@ -2,7 +2,6 @@ package com.trigyn.jws.webstarter.service;
 
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,15 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.trigyn.jws.dbutils.service.ModuleService;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
@@ -78,16 +74,26 @@ public class MasterCreatorService {
 	private TemplatingUtils		templatingUtils					= null;
 	
 	@Autowired
-	private ModuleService 		moduleService 			= null;
+	private ModuleService 		moduleService 					= null;
 	
 	@Autowired
-	private ResourceBundleService resourceBundleService 	= null;
+	private ResourceBundleService resourceBundleService 		= null;
 	
 	@Autowired
-	private JwsMasterModulesRepository jwsMasterModulesRepository = null;
+	private JwsMasterModulesRepository jwsMasterModulesRepository 			= null;
 	
 	@Autowired 
 	private UserManagementService  userManagementService = null;
+	
+	@Autowired
+	private TemplateCrudService templateCrudService		= null;
+	
+	@Autowired
+	private PropertyMasterService propertyMasterService		= null;
+	
+	@Autowired
+	private DynamicFormCrudService  dynamicFormCrudService  = null;
+	
 	
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception{
 		Map<String, Object> templateMap 			= new HashMap<>();
@@ -115,22 +121,35 @@ public class MasterCreatorService {
 	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Map<String, Object> initMasterCreationScript(MultiValueMap<String, String> inputDetails) throws Exception {
+		String environment = propertyMasterService.findPropertyMasterValue("system", "system", "profile");
 		Map<String, Object> createdMasterDetails = new HashMap<>();
 		Map<String, Object> formData = processFormData(inputDetails.getFirst("formData"));
 		ModuleDetailsVO menuData=processMenu(inputDetails.getFirst("menuDetails"));
 		DynamicForm dynamicForm = createDynamicFormDetails(inputDetails, formData);
 		GridDetails gridDetails = createGridDetailsInfo(formData);
 		TemplateMaster templateMaster = saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(), dynamicForm.getFormId(), formData);
-		menuData.setTargetTypeId(templateMaster.getTemplateId());
-		menuData.setTargetLookupId(5);
-		menuData.setSequence(moduleService.getMaxSequenceByParent(menuData.getTargetTypeId()));
-		String menuId = moduleService.saveModuleDetails(menuData);
-		menuData.setModuleId(menuId);
+		insertIntoMenu(menuData, templateMaster);
 		createdMasterDetails.put("dynamicForm", dynamicForm);
 		createdMasterDetails.put("gridDetails", gridDetails);
 		createdMasterDetails.put("templateMaster", templateMaster);
 		createdMasterDetails.put("menuData", menuData);
+		if("dev".equalsIgnoreCase(environment)) {
+			templateCrudService.downloadTemplates(templateMaster.getTemplateId());
+			dynamicFormCrudService.downloadDynamicFormsTemplate(dynamicForm.getFormId());
+		}
 		return createdMasterDetails;
+	}
+
+	private void insertIntoMenu(ModuleDetailsVO menuData, TemplateMaster templateMaster) throws Exception {
+		menuData.setTargetTypeId(templateMaster.getTemplateId());
+		menuData.setTargetLookupId(5);
+		if(StringUtils.isNotBlank(menuData.getParentModuleId())) {
+			menuData.setSequence(moduleService.getMaxSequenceByParent(menuData.getParentModuleId()));
+		}else {
+			menuData.setSequence(moduleService.getModuleMaxSequence());
+		}
+		String menuId = moduleService.saveModuleDetails(menuData);
+		menuData.setModuleId(menuId);
 	}
 	
 	@Transactional(readOnly = false)
@@ -270,6 +289,17 @@ public class MasterCreatorService {
 			String columnName = columnDetails.get("tableColumnName").toString();
 			if(Boolean.FALSE.equals(matchedColumns.contains(columnName))) {
 				itr.remove();
+			}else {
+				for (Map<String, Object> formDetailsMap : formDetails) {
+					String colName = (String) formDetailsMap.get("column");
+					if(StringUtils.isNotBlank(colName) && colName.equals(columnName)) {
+						Boolean hiddenValue = (Boolean) formDetailsMap.get("hidden");
+						if(hiddenValue != null && hiddenValue.equals(true)) {
+							columnDetails.put("columnType", "hidden");
+						}
+					}
+					
+				}
 			}
 		}
 		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails);
@@ -294,7 +324,7 @@ public class MasterCreatorService {
 		return selectQuery.toString();
 	}
 
-	private GridDetails createGridDetailsInfo(Map<String, Object> formData) {
+	private GridDetails createGridDetailsInfo(Map<String, Object> formData) throws Exception {
 		String moduleName = formData.get("moduleName")+"Grid".replaceAll("-", "");
 		String description = formData.get("moduleName") + " Listing";
 		String tableName = formData.get("selectTable").toString();
@@ -324,6 +354,7 @@ public class MasterCreatorService {
 		templateMap.put("primaryKeys", primaryKeys);
 		templateMap.put("gridDetails", gridDetails);
 		templateMap.put("primaryKeyObject", new ObjectMapper().writeValueAsString(details));
+		templateMap.put("pageTitle", formData.getOrDefault("menuDisplayName", "Page Title"));
 		TemplateVO templateVO = dbTemplatingService.getTemplateByName("system-listing-template");
 		String template = templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
 		TemplateMaster templateMaster = new TemplateMaster();

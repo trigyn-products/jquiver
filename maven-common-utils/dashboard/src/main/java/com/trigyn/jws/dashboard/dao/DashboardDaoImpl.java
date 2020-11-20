@@ -90,4 +90,18 @@ public class DashboardDaoImpl extends DBConnection {
 		query.setParameter("contextId", contextId);
 		return (DashboardDashletVO) query.uniqueResult();
 	}
+
+	public Long getDashboardCount(String dashboardId) {
+		StringBuilder stringBuilder = new StringBuilder("SELECT count(*) FROM Dashboard AS d WHERE d.dashboardId = :dashboardId");
+		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		query.setParameter("dashboardId", dashboardId);
+		return (Long) query.uniqueResult();
+	}
+	
+	public Long getDashletsCount(String dashletId) {
+		StringBuilder stringBuilder = new StringBuilder("SELECT count(*) FROM Dashlet AS d WHERE d.dashletId = :dashletId");
+		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		query.setParameter("dashletId", dashletId);
+		return (Long) query.uniqueResult();
+	}
 }

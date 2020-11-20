@@ -228,9 +228,31 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             </div>
         </a>
         </div>
-
+		
+	    <div class="home_block col-12">
+			<div class="cm-iconboxwrap">
+	            <a href="../cf/vimp">
+		            <div class="cm-importicon">
+		                <div class="btn cm-impobtn outline"><i class="fa fa-download"></i> Import</div>
+		            </div>
+	            </a>
+	            <a href="../cf/vexp">
+		            <div class="cm-exporticon">
+		                <div class="btn cm-expobtn outline">Export<i class="fa fa-upload"></i></div>
+		            </div>
+	             </a>
+			</div>
+        </div>
     </div>
-</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+</div>
+<script>
+	
+	$(function() {
+		localStorage.removeItem("imporatableData");
+		localStorage.removeItem("importedIdList");
+	});
+
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
@@ -943,13 +965,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	</div>
 </div>
-<div class="footer bg-dark">
-    <div class="text-center">
-        <small>Copyright &copy; JQuiver</small>
-        <small class="float-right">${(jquiverVersion)!''1.0.0''}</small>
+<div class="clearfix"></div>
+<footer class="page-footer font-small blue pt-4">
+    <div class="footer bg-dark">
+        <div class="text-center">
+            <small>Copyright &copy; JQuiver</small>
+            <small class="float-right">${(jquiverVersion)!''1.0.0''}</small>
+        </div>
     </div>
-</div>
-
+</footer>
 <script>
 	const contextPathHome = "${contextPath}";
 	let homePageFn;
@@ -1754,7 +1778,9 @@ function saveUpdatedJson(){
 		    	if(importedIdList != null) {
 					idList = JSON.parse(importedIdList);
 				}
-				idList.push(entityId);
+				if(!idList.includes(moduleType.toLowerCase()+entityId)) {
+			    		idList.push(moduleType.toLowerCase()+entityId);
+				}
 				localStorage.setItem("importedIdList", JSON.stringify(idList));
 			}
 			showMessage("Information saved successfully", "success");

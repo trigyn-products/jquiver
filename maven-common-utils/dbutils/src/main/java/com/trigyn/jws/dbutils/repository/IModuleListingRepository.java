@@ -38,5 +38,8 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_HOME_PAGE_MODULE_ID)
 	String getHomeModuleId(String homeModuleURL);
+
+	@Query(" FROM ModuleListing WHERE moduleId=:moduleId")
+	ModuleListing getModuleListing(String moduleId);
 	
 }

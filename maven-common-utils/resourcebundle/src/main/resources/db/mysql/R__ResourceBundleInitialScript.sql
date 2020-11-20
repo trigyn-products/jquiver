@@ -177,4 +177,9 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.disp
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.sendTestMail', 1, 'Send Test Mail'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveMailConfiguration', 1, 'Save Configuration'); 
 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.createNewUser', 1, 'Create New User');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.editUserDetails', 1, 'Edit User Details'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageUserDetails', 1, 'Manage User Details');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageRolesAndPolicy', 1, 'Manage User Roles And Policy'); 
+
 SET FOREIGN_KEY_CHECKS=1;

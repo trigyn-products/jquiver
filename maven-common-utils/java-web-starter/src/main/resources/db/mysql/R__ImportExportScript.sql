@@ -12,10 +12,11 @@ replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />       
 <script src="/webjars/1.0/importExport/import.js"></script> 
 </head>
-
+<div class="pg-import-config">
 <div class="container">
-	<div class="topband">
-		<h2 class="title-cls-name float-left">Import Config</h2>
+    <div class="cm-card">
+	<div class="topband cm-card-header">
+		<h2 class="title-cls-name float-left">Import Configuration</h2>
 		<span onclick="backToPreviousPage();" class="float-right">
 			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
 		</span>	
@@ -24,10 +25,23 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	</div>
 	
 
-    <form id="importForm">
-        <input class="fileuploaddoc" type="file" id="inputFile" name="inputFile">
-		<button id="btnUpload" type="button" class="btn btn-primary">Import</button>
-     </form>
+    <div class="cm-card-body">
+    
+     <div class="cm-customimport" id="parentUploadBox">
+
+     <div class="upload" id="parentUpload">
+    	<div class="upload-box" id="uploadBox">
+            <form id="importForm" id="formUploadBox">
+            	<i class="fa fa-download fa-4x"></i>
+        	<input class="fileuploaddoc" type="file" id="inputFile" name="inputFile">
+        	<div class="edit">
+        		<span><div id="file-upload-filename" style="display: inline-block;"></div></span>
+        		<button id="btnUpload" type="button" class="btn btn-primary">Import</button>
+      		</div>
+     	     </form>      
+    	</div>
+     </div>
+     </div>
      
 		<div id="divHtmlTable">
 			<table class="table table-striped" id="htmlTable">
@@ -41,15 +55,17 @@ replace into template_master (template_id, template_name, template, updated_by, 
 						<th>Action</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody class="cm-scrollbar">
 				</tbody>
 			</table>
 		</div>
-		<br> 
+    </div>
+    <div class="cm-card-footer">
 		<input id="importAllBtn" class="btn btn-primary" style="float: right;" name="importAllBtn"
-			value="Import All" type="button">
+			value="Import All" type="button" onclick="importAll()">
 
 		<form action="/cf/cmv" method="POST" id="revisionForm">
+		    <input type="hidden" id="entityName" name="entityName">
 		    <input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
 			<input type="hidden" id="moduleType" name="moduleType">
@@ -61,8 +77,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
 			<input type="hidden" id="nonVersioningFetchURL" name="nonVersioningFetchURL">
 			<input type="hidden" id="previousPageUrl" name="previousPageUrl">
 		</form>
-
 </div>
+   </div>
+   </div>
 <script>
 	var accepted_file_endings = ["zip"];
 
@@ -71,6 +88,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	let idList = new Array();
 	
 	$(function(){
+		var input = document.getElementById(''inputFile'');
+		input.addEventListener( ''change'', showFileName );
+
 		imporatableData = localStorage.getItem("imporatableData");
 		let importedIdList = localStorage.getItem("importedIdList");
     	if(importedIdList != null) {
@@ -121,12 +141,13 @@ replace into template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/1.0/importExport/export.js"></script> 
 </head>
 
+<div class="pg-export-config">
 
 <div class="container">
 
-    <div class="cm-card pg-export-config">
+    <div class="cm-card">
 	<div class="topband cm-card-header">
-		<h2 class="title-cls-name float-left">Export Config</h2>
+		<h2 class="title-cls-name float-left">Export Configuration</h2>
 		<span onclick="backToPreviousPage();" class="float-right">
 			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
 		</span>	
@@ -141,7 +162,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 <div class="tab">
                         <#if (moduleVOList)??> 
                             <#list moduleVOList as moduleVO> 
-                                	<button class="tablinks" id= "${moduleVO.masterModuleId}" onclick="openTab(event, ''${moduleVO.masterModuleName}'', ''${moduleVO.masterModuleId}'', ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">${(moduleVO.masterModuleName)}</button>
+                                	<button class="tablinks" id= "${moduleVO.masterModuleId}" onclick="openTab(event, ''${moduleVO.masterModuleName}'', ''${moduleVO.masterModuleId}'', ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">${(moduleVO.masterModuleName)} <img src="/webjars/1.0/images/s-information1.svg"></button>
                             </#list>
                         </#if>
 	            </div>
@@ -178,7 +199,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 						<th>Version</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody class="cm-scrollbar">
 				</tbody>
 			</table>
 		</div>
@@ -201,9 +222,12 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		<div id="exportFormDiv" style = "display:none"></div>
     </div>
 </div>
+</div>
 <script>
 
 $(function () {
+	    localStorage.removeItem("imporatableData");
+	    localStorage.removeItem("importedIdList");
 	<#if (customEntities)??> 
 		let exportableData;
 		let exportableDataListMapNew;

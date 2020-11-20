@@ -15,46 +15,54 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 @Repository
 public class TemplateDAO extends DBConnection {
 
-    @Autowired
-    public TemplateDAO(DataSource dataSource) {
-        super(dataSource);
-    }
-    
-	public TemplateMaster findTemplateById(String templateId){
+	@Autowired
+	public TemplateDAO(DataSource dataSource) {
+		super(dataSource);
+	}
+
+	public TemplateMaster findTemplateById(String templateId) {
 		return hibernateTemplate.get(TemplateMaster.class, templateId);
 	}
 
-    public Map<String, Object> getVelocityDataById(String vmMasterId) throws Exception {
-        Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_BY_ID);
-        query.setParameter("vmMasterId", vmMasterId);
-        Map<String, Object> resultData = (Map<String, Object>) query.uniqueResult();
-        return resultData;
-    }
+	public Map<String, Object> getVelocityDataById(String vmMasterId) throws Exception {
+		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_BY_ID);
+		query.setParameter("vmMasterId", vmMasterId);
+		Map<String, Object> resultData = (Map<String, Object>) query.uniqueResult();
+		return resultData;
+	}
 
-    public String checkVelocityData(String velocityName) throws Exception {
-        Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_CHECK_NAME);
-        query.setParameter("vmName", velocityName);
-        String data = (String) query.uniqueResult();
-        return data;
-    }
+	public String checkVelocityData(String velocityName) throws Exception {
+		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_CHECK_NAME);
+		query.setParameter("vmName", velocityName);
+		String data = (String) query.uniqueResult();
+		return data;
+	}
 
-    public void saveVelocityTemplateData(TemplateMaster templateDetails) throws Exception {
-        getCurrentSession().saveOrUpdate(templateDetails);
-    }
-
+	public void saveVelocityTemplateData(TemplateMaster templateDetails) throws Exception {
+		getCurrentSession().saveOrUpdate(templateDetails);
+	}
 
 	public void updateChecksum(TemplateVO templateVO) {
-		Query query = getCurrentSession().createQuery("UPDATE TemplateMaster SET checksum=:checksum WHERE templateId=:templateId");
-		 query.setParameter("checksum", templateVO.getChecksum());
-		 query.setParameter("templateId", templateVO.getTemplateId());
-		 query.executeUpdate();
+		Query query = getCurrentSession()
+				.createQuery("UPDATE TemplateMaster SET checksum=:checksum WHERE templateId=:templateId");
+		query.setParameter("checksum", templateVO.getChecksum());
+		query.setParameter("templateId", templateVO.getTemplateId());
+		query.executeUpdate();
 	}
-	
-	  public TemplateMaster getTemplateDetailsByName(String templateName) {
-	        Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_VMTEMPLATE_BY_VMNAME);
-	        query.setParameter("templateName", templateName);
-	        TemplateMaster template = (TemplateMaster) query.uniqueResult();
-	        return template;
-	    }
+
+	public TemplateMaster getTemplateDetailsByName(String templateName) {
+		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_VMTEMPLATE_BY_VMNAME);
+		query.setParameter("templateName", templateName);
+		TemplateMaster template = (TemplateMaster) query.uniqueResult();
+		return template;
+	}
+
+	public Long getTemplateCount(String templateId) {
+		StringBuilder stringBuilder = new StringBuilder(
+				"SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
+		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		query.setParameter("templateId", templateId);
+		return (Long) query.uniqueResult();
+	}
 
 }

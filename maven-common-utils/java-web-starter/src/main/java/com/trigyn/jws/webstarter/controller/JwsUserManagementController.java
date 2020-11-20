@@ -21,9 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
@@ -37,11 +40,16 @@ import com.trigyn.jws.webstarter.service.UserManagementService;
 public class JwsUserManagementController {
 
 	@Autowired 
-	private MenuService  menuService = null;
+	private MenuService  menuService 						= 	null;
 	
+	@Autowired
+	private PropertyMasterDetails propertyMasterDetails 	=	null;
 	
 	@Autowired 
-	private UserManagementService  userManagementService = null;
+	private UserManagementService  userManagementService 	= 	null;
+	
+	@Autowired
+    private ApplicationSecurityDetails applicationSecurityDetails = null;
 	
 	
 	@GetMapping(value="/um")
@@ -52,9 +60,15 @@ public class JwsUserManagementController {
 	
 	
 	@GetMapping(value="/rl")
-	public String roleListing () throws Exception {
-		Map<String, Object> mapDetails = new HashMap<>();
-		return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
+	public String roleListing (HttpServletResponse response) throws Exception {
+		if(userManagementService.checkAuthenticationEnabled()) {	
+			Map<String, Object> mapDetails = new HashMap<>();
+			return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
+	 	} else {
+			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			return null;
+		}
+		
 	}
 	
 	@PostMapping(value="/srd")
@@ -94,10 +108,19 @@ public class JwsUserManagementController {
 	
 	
 	@GetMapping(value="/ul")
-	public String userListing () throws Exception {
-		
-		Map<String, Object> mapDetails = new HashMap<>();
-		return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
+	public String userListing (HttpServletResponse response) throws Exception {
+		if(userManagementService.checkAuthenticationEnabled()) {	
+			Map<String, Object> mapDetails = new HashMap<>();
+			String templateName = userManagementService.getPropertyValueByAuthName("user-profile-template-details", "templateName");
+			if(StringUtils.isNotBlank(templateName)) {
+				mapDetails.put("isProfilePage", false);
+				return menuService.getTemplateWithSiteLayout(templateName, mapDetails);
+			}
+			return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
+	 	} else {
+			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			return null;
+		}
 	}
 	
 	@PostMapping(value="/sud")
@@ -107,6 +130,18 @@ public class JwsUserManagementController {
 		userManagementService.saveUserData(userData);
 		return true;
 	}
+	
+	@PostMapping(value="/surap")
+	public Boolean saveUserRolesAndPolicies(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+		String userDataJson = httpServletRequest.getParameter("userData");
+		Gson gson = new Gson();
+		JwsUserVO userData = gson.fromJson(userDataJson, JwsUserVO.class);
+		Integer isEdit = httpServletRequest.getParameter("isEdit") == null? 0 
+				: Integer.parseInt(httpServletRequest.getParameter("isEdit")); 
+		userManagementService.saveUserRolesAndPolicies(isEdit, userData);
+		return true;
+	}
+	
 	
 	@PostMapping(value = "/aedu")
 	public String addEditUser(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse) throws IOException {
@@ -119,16 +154,40 @@ public class JwsUserManagementController {
 		}
 	}
 	
+	private Map<String, Object> processRequestParams(HttpServletRequest httpServletRequest) {
+        Map<String, Object> requestParams = new HashMap<>();
+        for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
+        	if(Boolean.FALSE.equals("formId".equalsIgnoreCase(requestParamKey))) {
+        		requestParams.put(requestParamKey, httpServletRequest.getParameter(requestParamKey));
+        	}
+        }
+        return requestParams;
+    }
+	
+	@PostMapping(value = "/mpar")
+	public String manageUserRoleAndPermission(@RequestParam("userId") String userId
+			, HttpServletResponse httpServletResponse) throws IOException {
+		try{
+			return userManagementService.manageUserRoleAndPermission(userId);
+		} catch (Exception exception) {
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
+		}
+	}
+	
 	@PostMapping(value="/sat")
 	public Boolean saveAuthenticationType(
 			@RequestParam("authenticationEnabled") String authenticationEnabled,
 			@RequestParam("authenticationTypeId") String authenticationTypeId,
 			@RequestParam("propertyJson") String propertyJson,
 			@RequestParam("regexObj") String regexObj,
-			@RequestParam("userProfileFormId") String userProfileFormId) throws Exception {
+			@RequestParam("userProfileForm") String userProfileForm,
+			@RequestParam("userProfileTemplate") String userProfileTemplate) throws Exception {
 		
 		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled,authenticationTypeId
-				,propertyJson,regexObj, userProfileFormId);
+				,propertyJson,regexObj, userProfileForm, userProfileTemplate);
+		propertyMasterDetails.resetPropertyMasterDetails();
+		applicationSecurityDetails.resetApplicationSecurityDetails();
 		return true;
 	}
 	
@@ -164,11 +223,15 @@ public class JwsUserManagementController {
 
 	}
 	 	
- 	@PostMapping(value="/mp")
-	public String managePermissions() throws Exception {
-		
- 		Map<String, Object> mapDetails = new HashMap<>();
-		return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
+ 	@GetMapping(value="/mp")
+	public String managePermissions(HttpServletResponse response) throws Exception {
+		if(userManagementService.checkAuthenticationEnabled()) {	
+	 		Map<String, Object> mapDetails = new HashMap<>();
+			return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
+	 	} else {
+			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			return null;
+		}
 	} 	
  	
  	@PostMapping(value="/ser")
@@ -224,5 +287,10 @@ public class JwsUserManagementController {
 		ObjectMapper objectMapper			= new ObjectMapper();
 		JwsEntityRoleAssociation jwsRoleAssoc		= objectMapper.readValue(modifiedContent, JwsEntityRoleAssociation.class);
 		userManagementService.saveJwsEntityRoleAssociation(jwsRoleAssoc);
+	}
+	
+	@GetMapping(value = "/cae")
+	public boolean checkAuthenticationEnabled(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		return userManagementService.checkAuthenticationEnabled();
 	}
 }

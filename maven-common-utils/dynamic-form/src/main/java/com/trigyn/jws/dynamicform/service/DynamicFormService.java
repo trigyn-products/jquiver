@@ -275,7 +275,7 @@ public class DynamicFormService {
 	private Map<String, Object> createParamterMap(List<Map<String, String>> formData) {
 		Map<String, Object> formParameters = new HashMap<String, Object>();
 		for (Map<String, String> data : formData) {
-			String valueType = data.getOrDefault("type", VARCHAR);
+			String valueType = data.getOrDefault("valueType", VARCHAR);
 			Object value = getDataInTypeFormat(data.get("value"), valueType);
 			formParameters.put(data.get("name"), value);
 		}

@@ -56,4 +56,11 @@ public class NotificationDAO extends DBConnection {
 			return data;
 	}
 
+	public Long getNotificationDetailsCount(String notificationId) {
+		StringBuilder stringBuilder = new StringBuilder("SELECT count(*) FROM GenericUserNotification AS d WHERE d.notificationId = :notificationId");
+		org.hibernate.query.Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		query.setParameter("notificationId", notificationId);
+		return (Long) query.uniqueResult();
+	}
+	
 }

@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
+import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Configuration
@@ -39,10 +40,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 @Autowired
 	 private DataSource dataSource = null;
 	
+	@Autowired
+	private UserConfigService userConfigService = null;
+	
 	@Bean
 	@ConditionalOnMissingBean
-	public UserDetailsService userDetailsService(JwsUserRepository userRepository, JwsUserRoleAssociationRepository userRoleAssociationRepository) {
-		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository);
+	public UserDetailsService userDetailsService(JwsUserRepository userRepository, JwsUserRoleAssociationRepository userRoleAssociationRepository,UserConfigService userConfigService) {
+		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository,userConfigService);
 	}
 	
 	@Bean
@@ -76,7 +80,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			http.authorizeRequests().antMatchers("/webjars/**").permitAll()
 					.antMatchers("/").permitAll()
 					.antMatchers("/cf/createPassword","/cf/sendResetPasswordMail","/cf/resetPasswordPage","/cf/sendResetPasswordMail","/cf/resetPassword").permitAll()
-					.antMatchers("/cf/register","/cf/confirm-account","/cf/captcha","/cf/changePassword","/cf/updatePassword").permitAll()
+					.antMatchers("/cf/register","/cf/confirm-account","/cf/captcha/**","/cf/changePassword","/cf/updatePassword","/cf/configureTOTP","/cf/sendConfigureTOTPMail").permitAll()
 					.antMatchers("/**").authenticated()
 					.and()
 					.csrf().disable()
@@ -86,7 +90,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 					.and()
 					.logout().deleteCookies("JSESSIONID").invalidateHttpSession(true).permitAll();
 		} else {
-			http.authorizeRequests().antMatchers("/**").permitAll().and().csrf().disable();
+			http.authorizeRequests().antMatchers("/**").permitAll()
+			.antMatchers("/cf/register","/cf/login").denyAll()
+			.and().csrf().disable();
 		}
 
 	}

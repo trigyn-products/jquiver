@@ -157,8 +157,9 @@ public class ImportExportController {
 	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception  {
 		String imporatableData = request.getParameter("imporatableData");
 		String importId		   = request.getParameter("importId");
+		String moduleType		= request.getParameter("moduleType");
 		
-		return importService.importConfig(imporatableData, importId);
+		return importService.importConfig(imporatableData, importId, moduleType);
 	}
 
 	@PostMapping(value = "/importAll")

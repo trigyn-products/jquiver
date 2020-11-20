@@ -18,6 +18,8 @@ public class TemplateVO implements Serializable{
     private boolean checksumChanged 			= true;
     
     private Integer templateTypeId				= null;
+
+    private String createdBy                    = null;
     
     public TemplateVO() {
     }
@@ -41,6 +43,16 @@ public class TemplateVO implements Serializable{
 		this.template 			= template;
 		this.checksum			= checksum; 
 		this.templateTypeId 	= templateTypeId;
+	}
+
+    public TemplateVO(String templateId, String templateName, String template, String checksum, 
+    		Integer templateTypeId, String createdBy) {
+		this.templateId 		= templateId;
+		this.templateName 		= templateName;
+		this.template 			= template;
+		this.checksum			= checksum; 
+		this.templateTypeId 	= templateTypeId;
+		this.createdBy 			= createdBy;
 	}
 
     public String getTemplateId() {
@@ -90,6 +102,14 @@ public class TemplateVO implements Serializable{
 
 	public void setTemplateType(Integer templateTypeId) {
 		this.templateTypeId = templateTypeId;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package com.trigyn.jws.dbutils.service;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18nPK;
+import com.trigyn.jws.dbutils.entities.ModuleRoleAssociation;
 import com.trigyn.jws.dbutils.repository.IModuleListingI18nRepository;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.repository.IModuleTargetLookupRepository;
@@ -45,7 +49,10 @@ public class ModuleService {
 	
     @Autowired
     private UserRoleRepository userRoleRepository						= null; 
-    
+
+	@Autowired
+	private PropertyMasterService propertyMasterService 	= null;
+	
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception{
 		if(!StringUtils.isBlank(moduleId)) {
 			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId, Constant.DEFAULT_LANGUAGE_ID ,Constant.DEFAULT_LANGUAGE_ID);
@@ -184,7 +191,26 @@ public class ModuleService {
 		return moduleListingI18n;
     }
 
-
+	public ModuleDetailsVO convertModuleEntityToVO(ModuleListing moduleListing) {
+		ModuleDetailsVO vo = new ModuleDetailsVO();
+		vo.setIsInsideMenu(moduleListing.getIsInsideMenu());
+		vo.setModuleId(moduleListing.getModuleId());
+		vo.setModuleURL(moduleListing.getModuleUrl());
+		vo.setParentId(moduleListing.getParentId());
+		
+		List<String> roleIdList = new ArrayList<>();
+		if(moduleListing.getModuleRoleAssociations() != null) {
+			for(ModuleRoleAssociation mra : moduleListing.getModuleRoleAssociations()) {
+				roleIdList.add(mra.getId().getModuleId());
+			}
+		}
+		vo.setRoleIdList(roleIdList);
+		
+		vo.setSequence(moduleListing.getSequence());
+		vo.setTargetLookupId(moduleListing.getTargetLookupId());
+		vo.setTargetTypeId(moduleListing.getTargetTypeId());
+		return vo;
+	}
 	
 	public List<Map<String, Object>> getTargetTypes(Integer targetLookupId, String targetTypeId) throws Exception {
 		List<Map<String, Object>> targetTypeMapList = new ArrayList<>();
@@ -264,8 +290,7 @@ public class ModuleService {
     }
 
 	public ModuleListing getModuleListing(String moduleId) throws Exception{
-		return iModuleListingRepository.findById(moduleId)
-				.orElseThrow(() -> new Exception("data not found with id : " + moduleId));
+		return iModuleListingRepository.getModuleListing(moduleId);
 	}
 
 	public void saveModuleListing(ModuleListing moduleListing) throws Exception {
@@ -274,11 +299,21 @@ public class ModuleService {
 
 	public String getModuleListingJson(String entityId) throws Exception {
 		ModuleListing module = getModuleListing(entityId);
-		module = module.getObject();
-		Gson gson = new Gson();
-		TreeMap<String, String> treeMap = gson.fromJson(gson.toJson(module), TreeMap.class);
-	    String jsonString = gson.toJson(treeMap);
-		
+		String jsonString = "";
+		if(module != null) {
+			module = module.getObject();
+			
+			ModuleDetailsVO vo = convertModuleEntityToVO(module);
+			Gson gson = new Gson();
+			ObjectMapper objectMapper				= new ObjectMapper();
+			String dbDateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+					Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+			DateFormat dateFormat					= new SimpleDateFormat(dbDateFormat);
+			objectMapper.setDateFormat(dateFormat);
+			Map<String, Object> objectMap 			= objectMapper.convertValue(vo, TreeMap.class);
+			jsonString = gson.toJson(objectMap);
+			
+		}
 		return jsonString;
 	}
 }

@@ -46,10 +46,10 @@ public final class Constant {
     }
 
     public enum MasterModuleType {
-        TEMPLATE("Templates"), AUTOCOMPLETE("Autocomplete"),RESOURCEBUNDLE("ResourceBundle")
+        TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"),RESOURCEBUNDLE("ResourceBundle")
         , DASHBOARD("Dashboard"), DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm") 
         , GRID("Grid"), NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission")
-        , SITE_LAYOUT("SiteLayout");
+        , SITELAYOUT("SiteLayout");
 
         final String moduleType;
 
@@ -59,6 +59,22 @@ public final class Constant {
 
         public String getModuleType() {
             return moduleType;
+        }
+    }
+
+    public enum EntityNameModuleTypeEnum {
+    	TEMPLATES("template_master"), AUTOCOMPLETE("autocomplete_details"),RESOURCEBUNDLE("resource_bundle")
+        , DASHBOARD("dashboard"), DASHLET("dashlet"), DASHLETS("dashlet"), DYNAREST("jws_dynamic_rest_details"), DYNAMICFORM("dynamic_form") 
+        , GRID("grid_details"), NOTIFICATION("generic_user_notification");
+
+        final String tableName;
+
+        EntityNameModuleTypeEnum(String i) {
+        	tableName = i;
+        }
+
+        public String geTableName() {
+            return tableName;
         }
     }
     

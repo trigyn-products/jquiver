@@ -138,6 +138,7 @@ public class JwsEntityRoleAssociation {
 	public JwsEntityRoleAssociation getObject() {
 		JwsEntityRoleAssociation role = new JwsEntityRoleAssociation();
 		role.setEntityRoleId(entityRoleId!=null?entityRoleId.trim():entityRoleId);
+		role.setEntityName(entityName!=null?entityName.trim():entityName);
 		role.setEntityId(entityId!=null?entityId.trim():entityId);
 		role.setModuleId(moduleId!=null?moduleId.trim():moduleId);
 		role.setRoleId(roleId!=null?roleId.trim():roleId);

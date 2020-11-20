@@ -507,10 +507,12 @@ public class Dashlet implements Serializable {
 		dashlet.setCreatedDate(createdDate);
 		
 		List<DashboardDashletAssociation>	ddaOtr		= new ArrayList<>();
-		for(DashboardDashletAssociation obj : dashboardAssociation) {
-			ddaOtr.add(obj.getObject());
-		}
-		dashlet.setDashboardAssociation(ddaOtr);
+		if(dashboardAssociation != null && !dashboardAssociation.isEmpty()) {
+			for(DashboardDashletAssociation obj : dashboardAssociation) {
+				ddaOtr.add(obj.getObject());
+			}
+			dashlet.setDashboardAssociation(ddaOtr);
+		} else dashlet.setDashboardAssociation(null);
 		
 		dashlet.setDashletBody(dashletBody!=null?dashletBody.trim():dashletBody);
 		dashlet.setDashletBodyChecksum(dashletBodyChecksum!=null?dashletBodyChecksum.trim():dashletBodyChecksum);
@@ -520,10 +522,12 @@ public class Dashlet implements Serializable {
 		dashlet.setDashletQueryChecksum(dashletQueryChecksum!=null?dashletQueryChecksum.trim():dashletQueryChecksum);
 
 		List<DashletRoleAssociation>	draOtr		= new ArrayList<>();
-		for(DashletRoleAssociation obj : dashletRoleAssociations) {
-			draOtr.add(obj.getObject());
-		}
-		dashlet.setDashletRoleAssociations(draOtr);
+		if(dashletRoleAssociations != null && !dashletRoleAssociations.isEmpty()) {
+			for(DashletRoleAssociation obj : dashletRoleAssociations) {
+				draOtr.add(obj.getObject());
+			}
+			dashlet.setDashletRoleAssociations(draOtr);
+		} else dashlet.setDashletRoleAssociations(null);
 		
 		dashlet.setDashletTitle(dashletTitle!=null?dashletTitle.trim():dashletTitle);
 		dashlet.setDashletTypeId(dashletTypeId);
@@ -531,16 +535,20 @@ public class Dashlet implements Serializable {
 		dashlet.setIsActive(isActive);
 
 		List<DashletProperties>	dpOtr		= new ArrayList<>();
-		for(DashletProperties obj : properties) {
-			dpOtr.add(obj.getObject());
-		}
-		dashlet.setProperties(dpOtr);
+		if(properties != null && !properties.isEmpty()) {
+			for(DashletProperties obj : properties) {
+				dpOtr.add(obj.getObject());
+			}
+			dashlet.setProperties(dpOtr);
+		} else dashlet.setProperties(null);
 
 		List<DashletRoleAssociation>	draOtr1		= new ArrayList<>();
-		for(DashletRoleAssociation obj : roleAssociation) {
-			draOtr1.add(obj.getObject());
-		}
-		dashlet.setRoleAssociation(draOtr1);
+		if(roleAssociation != null && !roleAssociation.isEmpty()) {
+			for(DashletRoleAssociation obj : roleAssociation) {
+				draOtr1.add(obj.getObject());
+			}
+			dashlet.setRoleAssociation(draOtr1);
+		} else dashlet.setRoleAssociation(null);
 		
 		
 		dashlet.setShowHeader(showHeader);

@@ -38,15 +38,16 @@ public class AuthorizedValidatorDAO extends DBConnection {
 	}
 
 
-	public Long hasAccessToGridUtils(String gridId, List<String> roleNames) {
+	public Long hasAccessToGridUtils(String gridId, List<String> roleNames, String moduleId) {
 		
 		Query query = getCurrentSession().createQuery(
 		        " SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN GridDetails gd ON jera.entityId = gd.gridId " + 
 		        " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)" + 
-		        " AND  gd.gridId=:gridId ");
+		        " AND  gd.gridId=:gridId AND jera.moduleId=:moduleId ");
 		query.setParameter("gridId", gridId);
 		query.setParameter("isActive", Constants.ISACTIVE);
 		query.setParameterList("roleNames", roleNames);
+		query.setParameter("moduleId", moduleId);
 		Long count = (Long)query.uniqueResult();
 		return count;
 		
@@ -94,14 +95,15 @@ public class AuthorizedValidatorDAO extends DBConnection {
 	}
 
 
-	public Long hasAccessToAutocomplete(String autocompleteId, List<String> roleNames) {
+	public Long hasAccessToAutocomplete(String autocompleteId, List<String> roleNames, String moduleId) {
 		Query query = getCurrentSession().createQuery(
 		        " SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN Autocomplete ac ON jera.entityId = ac.autocompleteId " + 
 		        " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)" + 
-		        " AND  ac.autocompleteId=:autocompleteId ");
+		        " AND  ac.autocompleteId=:autocompleteId AND jera.moduleId=:moduleId ");
 		query.setParameter("autocompleteId", autocompleteId);
 		query.setParameter("isActive", Constants.ISACTIVE);
 		query.setParameterList("roleNames", roleNames);
+		query.setParameter("moduleId", moduleId);
 		Long count = (Long)query.uniqueResult();
 		return count;
 	}

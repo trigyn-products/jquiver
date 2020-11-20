@@ -1,7 +1,10 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.dao.DashboardDaoImpl;
 import com.trigyn.jws.dashboard.entities.Dashboard;
@@ -26,18 +31,25 @@ import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
+import com.trigyn.jws.dashboard.vo.DashletExportVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.FileUploadConfigRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynamicform.service.FileUploadConfigService;
+import com.trigyn.jws.dynamicform.vo.DynamicFormExportVO;
+import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynamicform.vo.FileUploadConfigVO;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
@@ -54,6 +66,7 @@ import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.TemplateModule;
+import com.trigyn.jws.templating.vo.TemplateExportVO;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -61,7 +74,9 @@ import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.webstarter.utils.Constant;
+import com.trigyn.jws.webstarter.utils.Constant.EntityNameModuleTypeEnum;
 import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
@@ -82,7 +97,7 @@ import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 
 @Service
-@Transactional(readOnly = false)
+@Transactional
 public class ImportService {
 
 	@Autowired
@@ -156,6 +171,12 @@ public class ImportService {
 	@Autowired
 	private FileUploadConfigService fileUploadConfigService = null;
 	
+	@Autowired
+	private IUserDetailsService 	detailsService 						= null;
+
+	@Autowired
+	private PropertyMasterService propertyMasterService 	= null;
+	
 	public Map<String, Object> importConfig(Part file) throws Exception {
 		
 		String unZipFilePath = FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH);
@@ -220,31 +241,31 @@ public class ImportService {
 				File file = fileMap.get(moduleName.toLowerCase()+".xml");
 				String fileName = file.getName();
 				
-				if(fileName.toLowerCase().startsWith("grid"))  {
+				if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.GRID.getModuleType().toLowerCase()))  {
 					outputMap = getImportGridDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("autocomplete"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toLowerCase()))  {
 					outputMap = getImportAutocompleteDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("resourcebundle"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toLowerCase()))  {
 					outputMap = getImportRBDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("dashboard"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.DASHBOARD.getModuleType().toLowerCase()))  {
 					outputMap = getImportDashboardDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("notification"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.NOTIFICATION.getModuleType().toLowerCase()))  {
 					outputMap = getImportNotificationDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("dynarest"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.DYNAREST.getModuleType().toLowerCase()))  {
 					outputMap = getImportDynaRestDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("filemanager"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase()))  {
 					outputMap = getImportFileManagerDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("permission"))  {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase()))  {
 					outputMap = getImportPermissionDetails(outputMap, file);
-				} else if(fileName.toLowerCase().startsWith("sitelayout")) {
+				} else if(fileName.toLowerCase().startsWith(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
 					outputMap = getImportSiteLayoutDetails(outputMap, file);
 				}
 			} else if(Constant.FOLDER_EXPORT_TYPE.equals(moduleType)) {
-				if("Templates".equalsIgnoreCase(moduleName)) {
+				if(Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleName)) {
 					outputMap = getImportTemplatesDetails(outputMap, filePath);
-				} else if("Dashlets".equalsIgnoreCase(moduleName)) {
+				} else if(Constant.MasterModuleType.DASHLET.getModuleType().equalsIgnoreCase(moduleName)) {
 					outputMap = getImportDashletDetails(outputMap, filePath);
-				} else if("DynamicForm".equalsIgnoreCase(moduleName)) {
+				} else if(Constant.MasterModuleType.DYNAMICFORM.getModuleType().equalsIgnoreCase(moduleName)) {
 					outputMap = getImportDynamicFormDetails(outputMap, filePath);
 				}
 			}
@@ -258,7 +279,7 @@ public class ImportService {
 
 		for(GridDetails grid : xmlVO.getGridDetails()) {
 			GridDetailsJsonVO vo = convertGridEntityToVO(grid);
-		    updateOutputMap(outputMap, grid.getGridId(), vo, grid, "grid");
+		    updateOutputMap(outputMap, grid.getGridId(), vo, grid, Constant.MasterModuleType.GRID.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -269,7 +290,8 @@ public class ImportService {
 		for(Autocomplete autocomplete : xmlVO.getAutocompleteDetails()) {
 			AutocompleteVO autocompleteVO = typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
 					autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
-		    updateOutputMap(outputMap, autocomplete.getAutocompleteId(), autocompleteVO, autocomplete, "autocomplete");
+		    updateOutputMap(outputMap, autocomplete.getAutocompleteId(), autocompleteVO, autocomplete, 
+		    		Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -302,7 +324,7 @@ public class ImportService {
 			entityMap.put(rb.getId().getResourceKey(), rbList);			
 			
 		    outputMap = putEntityIntoMap(rb.getId().getResourceKey(), outputMap, rbList);
-		    outputMap = putModuleTypeIntoMap(rb.getId().getResourceKey(), outputMap, "resourceBundle");
+		    outputMap = putModuleTypeIntoMap(rb.getId().getResourceKey(), outputMap, Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toLowerCase());
 		}
 
 		for(java.util.Map.Entry<String, List<ResourceBundleVO>> entry : map.entrySet()) {
@@ -317,7 +339,8 @@ public class ImportService {
 		DashboardXMLVO xmlVO = (DashboardXMLVO) XMLUtil.unMarshaling(DashboardXMLVO.class, file.getAbsolutePath());
 
 		for(Dashboard dashboard : xmlVO.getDashboardDetails()) {
-		    updateOutputMap(outputMap, dashboard.getDashboardId(), dashboardCrudService.convertDashboarEntityToVO(dashboard), dashboard, "dashboard");
+		    updateOutputMap(outputMap, dashboard.getDashboardId(), dashboardCrudService.convertDashboarEntityToVO(dashboard), dashboard, 
+		    		Constant.MasterModuleType.DASHBOARD.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -327,7 +350,8 @@ public class ImportService {
 
 		for(GenericUserNotification notification : xmlVO.getGenericUserNotificationDetails()) {
 			GenericUserNotificationJsonVO vo = convertNotificationEntityToVO(notification);
-		    updateOutputMap(outputMap, notification.getNotificationId(), vo, notification, "notification");
+		    updateOutputMap(outputMap, notification.getNotificationId(), vo, notification, 
+		    		Constant.MasterModuleType.NOTIFICATION.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -337,7 +361,8 @@ public class ImportService {
 
 		for(JwsDynamicRestDetail dynaRest : xmlVO.getDynaRestDetails()) {
 			RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynaRest);
-		    updateOutputMap(outputMap, dynaRest.getJwsDynamicRestId(), vo, dynaRest, "dynarest");
+		    updateOutputMap(outputMap, dynaRest.getJwsDynamicRestId(), vo, dynaRest, 
+		    		Constant.MasterModuleType.DYNAREST.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -347,7 +372,8 @@ public class ImportService {
 
 		for(FileUploadConfig fileConfig : xmlVO.getFileUploadDetails()) {
 			FileUploadConfigVO vo = fileUploadConfigService.convertFileUploadEntityToVO(fileConfig);
-		    updateOutputMap(outputMap, fileConfig.getFileUploadConfigId(), vo, fileConfig, "fileConfig");
+		    updateOutputMap(outputMap, fileConfig.getFileUploadConfigId(), vo, fileConfig, 
+		    		Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -356,7 +382,8 @@ public class ImportService {
 		PermissionXMLVO xmlVO = (PermissionXMLVO) XMLUtil.unMarshaling(PermissionXMLVO.class, file.getAbsolutePath());
 
 		for(JwsEntityRoleAssociation jwsRole : xmlVO.getJwsRoleDetails()) {
-		    updateOutputMap(outputMap, jwsRole.getEntityRoleId(), jwsRole, jwsRole, "permission");
+			JwsEntityRoleAssociationVO vo = convertJwsEntityRoleAssociationEntityToVO(jwsRole);
+		    updateOutputMap(outputMap, jwsRole.getEntityRoleId(), vo, jwsRole, Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -365,7 +392,8 @@ public class ImportService {
 		SiteLayoutXMLVO xmlVO = (SiteLayoutXMLVO) XMLUtil.unMarshaling(SiteLayoutXMLVO.class, file.getAbsolutePath());
 
 		for(ModuleListing siteLayout : xmlVO.getModuleListingDetails()) {
-			updateOutputMap(outputMap, siteLayout.getModuleId(), siteLayout, siteLayout, "sitelayout");
+			ModuleDetailsVO vo = moduleService.convertModuleEntityToVO(siteLayout);
+			updateOutputMap(outputMap, siteLayout.getModuleId(), vo, siteLayout, Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -376,13 +404,14 @@ public class ImportService {
 		for(Modules module : metadataXMLVO.getExportModules().getModule()) {
 			String moduleName 	= module.getModuleName();
 			String moduleID 	= module.getModuleID();
+			TemplateExportVO templateExportVO = module.getTemplate();
 			
-			TemplateMaster template = (TemplateMaster) templateDownloadUploadModule.importData(templateFolderPath, moduleName, moduleID);
+			TemplateMaster template = (TemplateMaster) templateDownloadUploadModule.importData(templateFolderPath, moduleName, moduleID, templateExportVO);
 			template = template.getObject();
 			TemplateVO templateVO = new TemplateVO(template.getTemplateId(),
 	        		template.getTemplateName(), template.getTemplate());
 			
-			updateOutputMap(outputMap, moduleID, templateVO, template, "templates");
+			updateOutputMap(outputMap, moduleID, templateVO, template, Constant.MasterModuleType.TEMPLATES.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -393,12 +422,13 @@ public class ImportService {
 		for(Modules module : metadataXMLVO.getExportModules().getModule()) {
 			String moduleName 	= module.getModuleName();
 			String moduleID 	= module.getModuleID();
+			DashletExportVO dashletExportVO = module.getDashlet();
 			
-			Dashlet dashlet = (Dashlet) dashletDownloadUploadModule.importData(dashletFolderPath, moduleName, moduleID);
+			Dashlet dashlet = (Dashlet) dashletDownloadUploadModule.importData(dashletFolderPath, moduleName, moduleID, dashletExportVO);
 			dashlet = dashlet.getObject();
 			DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
 			
-			updateOutputMap(outputMap, moduleID, dashletVO, dashlet, "dashlet");
+			updateOutputMap(outputMap, moduleID, dashletVO, dashlet, Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -409,11 +439,12 @@ public class ImportService {
 		for(Modules module : metadataXMLVO.getExportModules().getModule()) {
 			String moduleName 	= module.getModuleName();
 			String moduleID 	= module.getModuleID();
-			
-			DynamicForm dynamicForm = (DynamicForm) dynamicFormDownloadUploadModule.importData(dynamicFormFolderPath, moduleName, moduleID);
+			DynamicFormExportVO dynamicFormExportVO = module.getDynamicForm();
+			DynamicForm dynamicForm = (DynamicForm) dynamicFormDownloadUploadModule.importData(dynamicFormFolderPath, moduleName, moduleID, dynamicFormExportVO);
 			dynamicForm = dynamicForm.getObject();
-			
-			updateOutputMap(outputMap, moduleID, dynamicForm, dynamicForm, "dynamicform");
+
+			DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
+			updateOutputMap(outputMap, moduleID, dynamicFormVO, dynamicForm, Constant.MasterModuleType.DYNAMICFORM.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -421,12 +452,16 @@ public class ImportService {
 	private Map<String, Object> updateOutputMap(Map<String, Object> outputMap, String moduleID, 
 			Object jsonObj, Object entity, String moduleType) throws Exception {
 		Gson gson = new Gson();
-		TreeMap<String, String> treeMap = gson.fromJson(gson.toJson(jsonObj), TreeMap.class);
-		String jsonStr = gson.toJson(treeMap);
-	    outputMap.put(moduleID, jsonStr);
-	    outputMap = putEntityIntoMap(moduleID, outputMap, entity);
-	    outputMap = putModuleTypeIntoMap(moduleID, outputMap, moduleType);
-//	    outputMap = putCheckSumIntoMap(moduleID, moduleType, outputMap, jsonStr);
+		ObjectMapper objectMapper				= new ObjectMapper();
+		String dbDateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat dateFormat					= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
+		Map<String, Object> objectMap 			= objectMapper.convertValue(jsonObj, TreeMap.class);
+		String jsonStr = gson.toJson(objectMap);
+	    outputMap.put(moduleType+moduleID, jsonStr);
+	    outputMap = putEntityIntoMap(moduleType+moduleID, outputMap, entity);
+	    outputMap = putModuleTypeIntoMap(moduleType+moduleID, outputMap, moduleType);
 	    return outputMap;
 	}
 	
@@ -480,37 +515,45 @@ public class ImportService {
 	}
 	
 	private Boolean getLatestCRC(String id, String moduleType, String importedJson) throws Exception {
-
+		id = id.replace(moduleType, "");
 	    Boolean isCheckSumUpdated = true;
 	    
-	    if(moduleType.equalsIgnoreCase("fileConfig") || moduleType.equalsIgnoreCase("permission") ||
-	    	moduleType.equalsIgnoreCase("sitelayout") ) {
+	    if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase()) 
+	    		|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase()) 
+	    		|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase()) ) {
 	    	String existingJson = "";
-	    	if(moduleType.equalsIgnoreCase("fileConfig")) {
+	    	if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())) {
 	    		existingJson = fileUploadConfigService.getFileUploadJson(id);
-	    	} else if(moduleType.equalsIgnoreCase("permission")) {
+	    	} else if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 	    		existingJson = userManagementService.getJwsEntityRoleAssociationJson(id);
-	    	} else if(moduleType.equalsIgnoreCase("sitelayout")) {
+	    	} else if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
 	    		existingJson = moduleService.getModuleListingJson(id);
 	    	}
 	    	
 	    	isCheckSumUpdated = checkSumComparisonForNonVersioningModules(existingJson, importedJson);
 	    } else {
-	    	isCheckSumUpdated = checkSumComparison(id, importedJson);
+			String entityName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();		
+	    	isCheckSumUpdated = checkSumComparison(id, entityName, importedJson);
 	    }
     	
     	return isCheckSumUpdated;
 	}
 
-	private Boolean checkSumComparison(String entityTypeId, String importedJson) throws Exception {
+	private Boolean checkSumComparison(String entityTypeId, String entityName, String importedJson) throws Exception {
 		String moduleJsonChecksum = moduleVersionService.generateJsonChecksum(importedJson);
-		Boolean isDataUpdated = moduleVersionService.compareChecksum(entityTypeId, moduleJsonChecksum);
+		Boolean isDataUpdated = moduleVersionService.compareChecksum(entityTypeId, entityName, moduleJsonChecksum);
 		return isDataUpdated;
 	}
 
 	private Boolean checkSumComparisonForNonVersioningModules(String existingJson, String importedJson) throws Exception {
-		String existingJsonChecksum = moduleVersionService.generateJsonChecksum(existingJson);
-		String moduleJsonChecksum = moduleVersionService.generateJsonChecksum(importedJson);
+		String existingJsonChecksum = null;
+		if(existingJson != null) {
+			existingJsonChecksum = moduleVersionService.generateJsonChecksum(existingJson);
+		}
+		String moduleJsonChecksum = null;
+		if(importedJson != null) {
+			moduleJsonChecksum = moduleVersionService.generateJsonChecksum(importedJson);
+		}		
 		Boolean isChecksumChanged = true;
 		if(existingJsonChecksum != null && existingJsonChecksum.equals(moduleJsonChecksum)) {
 			isChecksumChanged = false;
@@ -538,31 +581,56 @@ public class ImportService {
 		for (int i = 0; i < jsonArray.length(); i++) {
 		    JSONObject explrObject = jsonArray.getJSONObject(i);
 		    String entityID = explrObject.getString("moduleID");
+		    String moduleType = explrObject.getString("moduleType");
 		    
-		    String version = String.valueOf(moduleVersionDAO.getVersionIdByEntityId(entityID));
-		    if(version == null || "".equals(version) || "null".equals(version)) {
-		    	version = "NA";
+		    String version = "NA";
+
+		    if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase()) 
+		    		|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase()) 
+		    		|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase()) ) {
+		    	if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())) {
+		    		FileUploadConfig fileUploadConfig = fileUploadConfigService.getFileUploadConfigById(entityID);
+		    		if(fileUploadConfig == null) {
+		    			version = "NE";
+		    		}
+		    	} else if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
+		    		JwsEntityRoleAssociation role = userManagementService.findByEntityRoleID(entityID);
+		    		if(role == null) {
+		    			version = "NE";
+		    		}
+		    	} else if(moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+		    		ModuleListing module = moduleService.getModuleListing(entityID);
+		    		if(module == null) {
+		    			version = "NE";
+		    		}
+		    	}
+		    } else {
+				String entityName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();		
+		    	version = String.valueOf(moduleVersionDAO.getVersionIdByEntityIdAndName(entityID, entityName));
+			    if(version == null || "".equals(version) || "null".equals(version)) {
+			    	version = "NA";
+			    }
+
 		    }
+	    	
 		    explrObject.put("existingVersion", version);
-		    versionMap.put(entityID, version);
+		    versionMap.put(moduleType.toLowerCase()+entityID, version);
 		}
 		
 		return versionMap;
 	}
 
-	public String importConfig(String imporatableData, String importId) throws Exception {
+	public String importConfig(String imporatableData, String importId, String moduleType) throws Exception {
 		Gson g = new Gson(); 
 		JSONObject imporatableDataJson = new JSONObject(imporatableData);
 
-		JSONObject exportedModuleTypeObject = (JSONObject) imporatableDataJson.get("exportedModuleTypeObject");
-		Map<String, String> moduleTypeMap = g.fromJson(exportedModuleTypeObject.toString(), Map.class);
-		String moduleType = moduleTypeMap.get(importId);
-		
 		JSONObject exportedFormatObject = (JSONObject) imporatableDataJson.get("exportedFormatObject");
 		Map<String, String> entityStringMap = g.fromJson(exportedFormatObject.toString(), Map.class);
-		String entityString = entityStringMap.get(importId);
+		String entityString = entityStringMap.get(moduleType.toLowerCase() + importId);
 		
 		saveEntity(moduleType, entityString);
+		importId = importId.replace(moduleType, "");
+	    
 		String version = String.valueOf(moduleVersionDAO.getVersionIdByEntityId(importId));
 		if (version == null || "".equals(version) || "null".equals(version)) {
 			version = "NA";
@@ -587,75 +655,132 @@ public class ImportService {
 			String entityString = entry.getValue();
 			String moduleType = moduleTypeMap.get(importId);
 			
-			if(!importedIdList.contains(importId)) {
+			if(importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
 				saveEntity(moduleType, entityString);
 			}
 		}
 	}
 	
 	private void saveEntity(String moduleType, String entityString) throws Exception {
+
+        UserDetailsVO detailsVO = detailsService.getUserDetails(); 
+        Date date = new Date();
+        String user = detailsVO.getUserName();
+		
 		Gson g = new Gson(); 
-		if("grid".equalsIgnoreCase(moduleType)) {
+		ObjectMapper objectMapper				= new ObjectMapper();
+		if(Constant.MasterModuleType.GRID.getModuleType().equalsIgnoreCase(moduleType)) {
 			GridDetails gridDetails = g.fromJson(entityString, GridDetails.class);
 			gridUtilsDAO.saveGridDetails(gridDetails);
 			GridDetailsJsonVO vo = convertGridEntityToVO(gridDetails);
 			moduleVersionService.saveModuleVersion(vo,null, gridDetails.getGridId(), "grid_details", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("autocomplete".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().equalsIgnoreCase(moduleType)) {
 			Autocomplete autocomplete = g.fromJson(entityString, Autocomplete.class);
 			AutocompleteVO autocompleteVO = typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
 					autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
 			typeAheadRepository.save(autocomplete);
 			moduleVersionService.saveModuleVersion(autocompleteVO,null, autocomplete.getAutocompleteId(), "autocomplete_details", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("resourcebundle".equalsIgnoreCase(moduleType)) {
-			List<ResourceBundle> rbList = g.fromJson(entityString, List.class);
-			resourceBundleRepository.saveAll(rbList);
+		} else if(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().equalsIgnoreCase(moduleType)) {
+			TypeReference<List<ResourceBundle>> resourceBundleType  = new TypeReference<List<ResourceBundle>>() {};
+			List<ResourceBundle> resourceBundleList = objectMapper.readValue(entityString, resourceBundleType);
+			
+			resourceBundleRepository.saveAll(resourceBundleList);
 			
 			List<ResourceBundleVO> resourceBundleVOList = new ArrayList<>();
-			for(ResourceBundle entity : rbList) {
+			for(ResourceBundle entity : resourceBundleList) {
 				ResourceBundleVO vo = resourceBundleService.convertResourceBundleEntityToVO(entity);
 				resourceBundleVOList.add(vo);
 			}
 			String resourceBundleKey = resourceBundleVOList.get(0).getResourceKey();
 			moduleVersionService.saveModuleVersion(resourceBundleVOList,null, resourceBundleKey, "resource_bundle", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("dashboard".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)) {
 			Dashboard dashboard = g.fromJson(entityString, Dashboard.class);
+			
+			Long existingObj = dashboardDao.getDashboardCount(dashboard.getDashboardId());
+			if(existingObj == null || (existingObj != null && existingObj == 0)) {
+				dashboard.setCreatedBy(user);
+				dashboard.setCreatedDate(date);
+			}
 			dashboardDao.saveDashboardDetails(dashboard);
 			DashboardVO dashboardVO = dashboardCrudService.convertDashboarEntityToVO(dashboard);
 			moduleVersionService.saveModuleVersion(dashboardVO,null, dashboard.getDashboardId(), "dashboard", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("notification".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.NOTIFICATION.getModuleType().equalsIgnoreCase(moduleType)) {
 			GenericUserNotification notification = g.fromJson(entityString, GenericUserNotification.class);
+
+			Long existingObj = notificationDao.getNotificationDetailsCount(notification.getNotificationId());
+			if(existingObj == null || (existingObj != null && existingObj == 0)) {
+				notification.setCreatedBy(user);
+				notification.setCreationDate(date);
+			}
+			notification.setUpdatedBy(user);
+			notification.setUpdatedDate(date);
+			
 			notificationDao.saveEditedNotification(notification);
 			GenericUserNotificationJsonVO vo = convertNotificationEntityToVO(notification);
 			moduleVersionService.saveModuleVersion(vo,null, notification.getNotificationId(), "generic_user_notification", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("dynarest".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.DYNAREST.getModuleType().equalsIgnoreCase(moduleType)) {
 			JwsDynamicRestDetail dynarest = g.fromJson(entityString, JwsDynamicRestDetail.class);
 			jwsDynarestDAO.saveJwsDynamicRestDetail(dynarest);
 			RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynarest);
 			moduleVersionService.saveModuleVersion(vo,null, dynarest.getJwsDynamicRestId(), "jws_dynamic_rest_details", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("fileConfig".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.FILEMANAGER.getModuleType().equalsIgnoreCase(moduleType)) {
 			FileUploadConfig fileConfig = g.fromJson(entityString, FileUploadConfig.class);
-			fileUploadConfigRepository.saveAndFlush(fileConfig);
-		} else if("permission".equalsIgnoreCase(moduleType)) {
+			fileConfig.setUpdatedBy(user);
+			fileConfig.setLastUpdatedBy(date);
+			
+			fileUploadConfigRepository.save(fileConfig);
+		} else if(Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
 			JwsEntityRoleAssociation role = g.fromJson(entityString, JwsEntityRoleAssociation.class);
-			jwsEntityRoleAssociationRepository.saveAndFlush(role);
-		} else if("sitelayout".equalsIgnoreCase(moduleType)) {
+			role.setLastUpdatedBy(user);
+			role.setLastUpdatedDate(date);
+			
+			jwsEntityRoleAssociationRepository.save(role);
+		} else if(Constant.MasterModuleType.SITELAYOUT.getModuleType().equalsIgnoreCase(moduleType)) {
 			ModuleListing module = g.fromJson(entityString, ModuleListing.class);
-			moduleListingRepository.saveAndFlush(module);
-		} else if("templates".equalsIgnoreCase(moduleType)) {
+			moduleListingRepository.save(module);
+		} else if(Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleType)) {
 			TemplateMaster template = g.fromJson(entityString, TemplateMaster.class);
+
+			Long existingObj = templateDAO.getTemplateCount(template.getTemplateId());
+			if(existingObj == null || (existingObj != null && existingObj == 0)) {
+				template.setCreatedBy(user);
+			}
+			template.setUpdatedBy(user);
+			template.setUpdatedDate(date);
 			templateDAO.saveVelocityTemplateData(template);
 			TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(), template.getTemplate());
 			moduleVersionService.saveModuleVersion(templateVO,null, template.getTemplateId(), "template_master", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("dashlet".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.DASHLET.getModuleType().equalsIgnoreCase(moduleType)) {
 			Dashlet dashlet = g.fromJson(entityString, Dashlet.class);
+
+			Long existingObj = dashboardDao.getDashletsCount(dashlet.getDashletId());
+			if(existingObj == null || (existingObj != null && existingObj == 0)) {
+				dashlet.setCreatedBy(user);
+				dashlet.setCreatedDate(date);
+			}
+			dashlet.setUpdatedBy(user);
+			dashlet.setUpdatedDate(date);
 			dashletRepository.saveAndFlush(dashlet);
 			DashletVO  dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
 			moduleVersionService.saveModuleVersion(dashletVO,null, dashlet.getDashletId(), "dashlet", Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if("dynamicform".equalsIgnoreCase(moduleType)) {
+		} else if(Constant.MasterModuleType.DYNAMICFORM.getModuleType().equalsIgnoreCase(moduleType)) {
 			DynamicForm dynamicForm = g.fromJson(entityString, DynamicForm.class);
+
+			Long existingObj = dynamicFormCrudDAO.getDynamicFormCount(dynamicForm.getFormId());
+			if(existingObj == null || (existingObj != null && existingObj == 0)) {
+				dynamicForm.setCreatedBy(user);
+				dynamicForm.setCreatedDate(date);
+			}
 			dynamicFormCrudDAO.saveDynamicFormData(dynamicForm);
-	        moduleVersionService.saveModuleVersion(dynamicForm,null, dynamicForm.getFormId(), "dynamic_form", Constant.IMPORT_SOURCE_VERSION_TYPE);
+
+			DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
+	        moduleVersionService.saveModuleVersion(dynamicFormVO,null, dynamicForm.getFormId(), "dynamic_form", Constant.IMPORT_SOURCE_VERSION_TYPE);
 		}
+	}
+
+	private JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(JwsEntityRoleAssociation entityRoleAssociation) {
+		JwsEntityRoleAssociationVO vo = new JwsEntityRoleAssociationVO();
+		return vo.convertEntityToVO(entityRoleAssociation);
 	}
 
 	private GridDetailsJsonVO convertGridEntityToVO(GridDetails grid) {

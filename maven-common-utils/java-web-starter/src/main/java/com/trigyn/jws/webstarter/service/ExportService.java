@@ -164,9 +164,9 @@ public class ExportService {
 			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
 		} else if (moduleType.equals(Constant.MasterModuleType.PERMISSION.getModuleType())) {
 			return retrievePermissionExportData(systemConfigIncludeList, moduleType);
-		} else if (moduleType.equals(Constant.MasterModuleType.SITE_LAYOUT.getModuleType())) {
+		} else if (moduleType.equals(Constant.MasterModuleType.SITELAYOUT.getModuleType())) {
 			return retrieveSiteLayoutExportData(systemConfigIncludeList, moduleType);
-		} else if (moduleType.equals(Constant.MasterModuleType.TEMPLATE.getModuleType())) {
+		} else if (moduleType.equals(Constant.MasterModuleType.TEMPLATES.getModuleType())) {
 			return downloadTemplateExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
 		} else if (moduleType.equals(Constant.MasterModuleType.DASHLET.getModuleType())) {
 			return downloadDashletExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);

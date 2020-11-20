@@ -19,10 +19,12 @@ public class AutocompleteEntityValidator  implements EntityValidator{
 	
 	private String primaryKeyName = "autocompleteId";
 	
+	private String moduleId = "91a81b68-0ece-11eb-94b2-f48e38ab9348";
+	
 	@Override
 	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,ProceedingJoinPoint a_joinPoint) {
 		boolean hasAccess = false;
-		Long count = authorizedValidatorDAO.hasAccessToAutocomplete(reqObject.getParameter(primaryKeyName), roleNames);
+		Long count = authorizedValidatorDAO.hasAccessToAutocomplete(reqObject.getParameter(primaryKeyName), roleNames, moduleId);
 		if (count > 0) {
 			hasAccess = true;
 		}

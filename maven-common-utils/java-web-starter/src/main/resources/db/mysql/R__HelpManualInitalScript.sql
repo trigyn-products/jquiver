@@ -509,8 +509,8 @@ replace into template_master (template_id, template_name, template, updated_by, 
 <div class="container ">
     <div class="pg-manual-display">
         <div class="row">
-            <div class="topband">
-                <h2 id="title" class="title-cls-name float-left"></h2>
+            <div class="topband  help-manual-title-band">
+                <h2 id="title" class="title-cls-name float-left help-manual-title"></h2>
                 <div class="cm-searchwithicon">
                         <div class="form-group has-search clearfix"> <span class="fa fa-search form-control-feedback"></span>
                             <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">   

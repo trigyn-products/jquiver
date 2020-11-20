@@ -201,27 +201,31 @@ replace into template_master (template_id, template_name, template, updated_by, 
     <#if (columnDetails)??>
     	<div class="row">
     	<#list columnDetails as columnDetailsList>
-    		<div class="col-3">
-			<div class="col-inner-form full-form-fields">
-			<#if columnDetailsList?api.get(''columnType'') != "textarea" && columnDetailsList?api.get(''columnType'') != "datetime">
-		            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
-		              ${columnDetailsList?api.get("fieldName")!""}
-		            </label>
-				<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>" maxlength="${columnDetailsList?api.get(''columnSize'')!""}" class="form-control">
-            <#elseif columnDetailsList?api.get(''columnType'') == "datetime">
-                    <span class="asteriskmark">*</span>
-                    <label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-                    <span>
-						<input id="${columnDetailsList?api.get("columnName")!""}" name="${columnDetailsList?api.get("columnName")!""}" class="form-control" placeholder="${columnDetailsList?api.get("fieldName")!""}" />
-                        <button id="${columnDetailsList?api.get("columnName")!""}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-					</span>
+			<#if columnDetailsList?api.get(''columnType'') != "hidden">
+	    		<div class="col-3">
+					<div class="col-inner-form full-form-fields">
+						<#if columnDetailsList?api.get(''columnType'') != "textarea" && columnDetailsList?api.get(''columnType'') != "datetime">
+					            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+					              ${columnDetailsList?api.get("fieldName")!""}
+					            </label>
+							<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>" maxlength="${columnDetailsList?api.get(''columnSize'')!""}" class="form-control">
+			            <#elseif columnDetailsList?api.get(''columnType'') == "datetime">
+			                    <span class="asteriskmark">*</span>
+			                    <label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
+			                    <span>
+									<input id="${columnDetailsList?api.get("columnName")!""}" name="${columnDetailsList?api.get("columnName")!""}" class="form-control" placeholder="${columnDetailsList?api.get("fieldName")!""}" />
+			                        <button id="${columnDetailsList?api.get("columnName")!""}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+								</span>
+						<#else>
+							<span class="asteriskmark">*</span>
+							<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
+							<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"><#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse></textarea>
+						</#if>
+					</div>
+				</div>
 			<#else>
-				<span class="asteriskmark">*</span>
-				<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-				<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"><#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse></textarea>
+				<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>">	
 			</#if>
-			</div>
-		</div>
     	</#list>
     	</div>
     </#if>
@@ -255,6 +259,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
   <#noparse>
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
+	 let isEdit = 0;
 	</#noparse>
   
   $(function(){
@@ -287,7 +292,6 @@ replace into template_master (template_id, template_name, template, updated_by, 
       </#if>
     </#noparse>
     
-    let isEdit = 0;
      <#noparse>
       <#if (resultSet)?? && resultSet?has_content>
       	isEdit = 1;
@@ -315,7 +319,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		formData.push(formIdObj);
 		formIdObj = new Object();
 		formIdObj["name"] = "isEdit";
-		formIdObj["value"] = isEdit;
+		formIdObj["value"] = isEdit + "";
 		formIdObj["valueType"] = "int";
 		formData.push(formIdObj);
 		$.ajax({
@@ -323,7 +327,8 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		  async: false,
 		  url : contextPath+"/cf/psdf",
 		  data : {
-		  	formData: JSON.stringify(formData)
+		  	formData: JSON.stringify(formData),
+		  	formId: formId
 		  },
           success : function(data) {
 			isDataSaved = true;
@@ -351,7 +356,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('f16c057f-09ab-11eb-a027-f48e38ab8cd7', 'system-form-save-query-template', '
   <#noparse>
-    <#if (formData?api.get("isEdit") == 1)>
+   <#if isEdit == 1>
   </#noparse>
     ${updateQuery}
   <#noparse>
@@ -381,7 +386,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">Your page title here</h2> 
+        <h2 class="title-cls-name float-left">${pageTitle!"Your page title here"}</h2> 
         <div class="float-right">
              <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> Create New </button>
             <span onclick="backToWelcomePage();">
@@ -404,7 +409,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     //Add all columns that needs to be displayed in the grid
         let colM = [
           <#list gridDetails as gridInfo>
-            { title: "${gridInfo?api.get("displayName")}", width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
+            { title: "${gridInfo?api.get("displayName")}", hidden : ${gridInfo?api.get("hidden")?c}, width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
           </#list>
             { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}

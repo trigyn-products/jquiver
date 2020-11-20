@@ -1,12 +1,15 @@
 package com.trigyn.jws.webstarter.vo;
 
-import java.util.List;
+import java.io.Serializable;
 
-import org.codehaus.jettison.json.JSONArray;
+public class RestApiDetailsJsonVO  implements Serializable{
 
-public class RestApiDetailsJsonVO {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    private String allowFiles = null;
+	private String allowFiles = null;
 
     private String daoDetailsIds = null;
 

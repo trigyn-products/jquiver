@@ -13,6 +13,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import com.trigyn.jws.dashboard.vo.DashletExportVO;
+import com.trigyn.jws.dynamicform.vo.DynamicFormExportVO;
+import com.trigyn.jws.templating.vo.TemplateExportVO;
 import com.trigyn.jws.webstarter.vo.ExportModule;
 import com.trigyn.jws.webstarter.vo.Modules;
 import com.trigyn.jws.webstarter.vo.Settings;
@@ -21,7 +24,7 @@ import com.trigyn.jws.webstarter.xml.XMLVO;
 
 public class XMLUtil {
 
-	public static void generateMetadataXML(Map<String, String> moduleListMap, Map<String, String> exportFolderData, 
+	public static void generateMetadataXML(Map<String, String> moduleListMap, Map<String, Map<String, Object>> exportFolderData, 
 			String downloadLocation, String version, String userName, String htmlTableJSON) throws Exception {
 		MetadataXMLVO metaDataXMLVO = new MetadataXMLVO();
 
@@ -36,13 +39,22 @@ public class XMLUtil {
 		if(exportFolderData != null && !exportFolderData.isEmpty()) {
 			List<Modules> exportModuleList = new ArrayList<>();
 			
-			for(Entry<String, String> entry : exportFolderData.entrySet()) {
+			for(Entry<String, Map<String, Object>> entry : exportFolderData.entrySet()) {
 				String moduleID = entry.getKey();
-				String moduleName = entry.getValue();
+				Map<String, Object> map = entry.getValue();
 	
 				Modules module = new Modules();
 				module.setModuleID(moduleID);
-				module.setModuleName(moduleName);
+				module.setModuleName((String) map.get("moduleName"));
+				
+				if(map.get("moduleObject") instanceof TemplateExportVO) {
+					module.setTemplate((TemplateExportVO) map.get("moduleObject"));
+				} else if(map.get("moduleObject") instanceof DashletExportVO) {
+					module.setDashlet((DashletExportVO) map.get("moduleObject"));
+				}  else if(map.get("moduleObject") instanceof DynamicFormExportVO) {
+					module.setDynamicForm((DynamicFormExportVO) map.get("moduleObject"));
+				} 
+					
 				exportModuleList.add(module);
 			}
 			exportModule.setModule(exportModuleList);
