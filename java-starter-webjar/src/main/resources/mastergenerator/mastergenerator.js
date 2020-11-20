@@ -11,6 +11,7 @@ function populateFields(element){
         type : 'GET',
         data : {tableName: selectedTable},
         success : function(data) {
+			resetObjects();
             $("#moduleName").val(selectedTable.replaceAll("_", "-"));
             let primaryKey = data.filter(element => element.columnKey == "PRI").map(element => element["columnName"]).toString();
             let columns = data.map(element => element["columnName"]);
@@ -19,6 +20,15 @@ function populateFields(element){
             createTable(columns);
         }
     });
+}
+
+function resetObjects(){
+    gridDetails = new Array();
+    formDetails = new Array();
+    menuDetails = new Object();
+    $("#menuDisplayName").val("");
+	$("#parentModuleName").val("");
+	$("#moduleURL").val("");
 }
 
 function createTable(columns) {
@@ -71,6 +81,20 @@ function addRemoveToGridDetails(element){
 
 function updateGridDetails(element){
 	const counter = element.id.split("_")[1];
+	$.each(gridDetails, function(iCounter, gridElement){
+  		if(gridElement.index == counter){
+  			gridElement.hidden = element.checked;
+  		}
+	});
+}
+
+function updateFormDetails(element){
+	const counter = element.id.split("_")[1];
+	$.each(formDetails, function(iCounter, formElement){
+  		if(formElement.index == counter){
+  			formElement.hidden = element.checked;
+  		}
+	});
 }
 
 function addRemoveToFormDetails(element){
@@ -94,22 +118,38 @@ function addRemoveToFormDetails(element){
 
 function updateFormDetailsI18nResourceKey(element){
 	const counter = element.id.split("_")[1];
-	formDetails[counter].i18nResourceKey=element.value;
+	$.each(formDetails, function(iCounter, formElement){
+  		if(formElement.index == counter){
+  			formElement.i18nResourceKey = element.value;
+  		}
+	});
 }
 
 function updateFormDetailsDisplayName(element){
 	const counter = element.id.split("_")[1];
-	formDetails[counter].displayName=element.value;
+	$.each(formDetails, function(iCounter, formElement){
+  		if(formElement.index == counter){
+  			formElement.displayName = element.value;
+  		}
+	});
 }
 
 function updateGridDetailsI18nResourceKey(element){
 	const counter = element.id.split("_")[1];
-	gridDetails[counter].i18nResourceKey=element.value;
+	$.each(gridDetails, function(iCounter, gridElement){
+  		if(gridElement.index == counter){
+  			gridElement.i18nResourceKey = element.value;
+  		}
+	});
 }
 
 function updateGridDetailsDisplayName(element){
 	const counter = element.id.split("_")[1];
-	gridDetails[counter].displayName=element.value;
+	$.each(gridDetails, function(iCounter, gridElement){
+  		if(gridElement.index == counter){
+  			gridElement.displayName = element.value;
+  		}
+	});
 }
 
 function createMaster() {

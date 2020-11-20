@@ -129,11 +129,11 @@
 				} else if(moduleType == "ResourceBundle") {
 					colM = [
 						{ title: "", width: 10, align: "center", render: updateRBRenderer, dataIndx: "" },
-						{ title: "${messageSource.getMessage('jws.resourceKey')}", width: 90, dataIndx: "resourceKey", align: "left", halign: "center", 
+						{ title: "Resource Key", width: 90, dataIndx: "resourceKey", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "${messageSource.getMessage('jws.languageName')}", width: 90, dataIndx: "languageName", align: "left", halign: "center", 
+					    { title: "Language Name", width: 90, dataIndx: "languageName", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-					    { title: "${messageSource.getMessage('jws.text')}", width: 90, dataIndx: "resourceBundleText", align: "left", halign: "center", 
+					    { title: "Text", width: 90, dataIndx: "resourceBundleText", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 				} else if(moduleType == "Autocomplete") {
@@ -160,33 +160,33 @@
 				} else if(moduleType == "Dashboard") {
 					colM = [
 						{ title: "", width: 20, align: "center", render: updateDashboardRenderer, dataIndx: "" },
-						{ title: "${messageSource.getMessage('jws.dashboardName')}", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
+						{ title: "Dashboard Name", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-						{ title: "${messageSource.getMessage('jws.dashboardType')}", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
+						{ title: "Dashboard Type", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-						{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy", align: "left", halign: "center",
+						{ title: "Created By", width: 100, dataIndx: "createdBy", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-						{ title: "${messageSource.getMessage('jws.createdDate')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
-						{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
-						{ title: "${messageSource.getMessage('jws.contextDescription')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
+						{ title: "Created Date", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
+						{ title: "Last Updated Date", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
+						{ title: "Context Description", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 				} else if(moduleType == "Dashlets") {
 					colM = [
 						{ title: "", width: 20, align: "center", render: updateDashletRenderer, dataIndx: "" },
-						{ title: "${messageSource.getMessage('jws.dashletName')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
+						{ title: "Dashlet Name", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.dashletTitle')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
+						{ title: "Dashlet Title", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
+						{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.createdDate')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
+						{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
+						{ title: "Updated By", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.updatedDate')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
+						{ title: "Updated Date", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "${messageSource.getMessage('jws.status')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
+						{ title: "Status", width: 160, dataIndx: "status" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
 				} else if(moduleType == "DynamicForm") {
@@ -410,8 +410,8 @@
 	}
 	
 	function updateDynaRestRenderer(uiObject) {
-		const id = uiObject.rowData.jws_dynamic_rest_url;
-		const name = uiObject.rowData.jws_method_name;
+		const id = uiObject.rowData.jws_dynamic_rest_id;
+		const name = uiObject.rowData.jws_dynamic_rest_url;
 		let version = getVersion(uiObject);
 		const isSystemVariable =  uiObject.rowData.jws_dynamic_rest_type_id;
 		const moduleType = "DynaRest";
@@ -596,6 +596,6 @@
 	}
 
 	function backToPreviousPage(){
-		location.href = "/cf/pml";
+		location.href = "/cf/home";
 	}
 		

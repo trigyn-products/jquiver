@@ -1361,6 +1361,12 @@ p.divdeform {
     color: #666;
 }
 
+
+.cp {
+    right: 50px ! important;
+    top: 175px ! important;
+}
+
 .passview:hover {
 	color:#0277bd;
 }
@@ -1798,9 +1804,9 @@ div.pq-grid tr:hover {
 .pg-manual-display .cm-rightbar .preview {
 	padding: 15px 15px 0;
 	background-color: #005da31f;
-	min-height: 200px;
+	min-height: 550px;
 	overflow: auto;
-	max-height: 300px;
+	max-height: 550px;
 }
 
 .pg-manual-display .cm-rightbar .preview i {
@@ -2047,7 +2053,7 @@ div.pq-grid tr:hover {
 	display: inline;
 	float: left;
 	overflow: scroll;
-	height: 300px;
+	height: 550px;
 }
 
 .cm-left-wrapper .tabs {
@@ -2058,7 +2064,7 @@ div.pq-grid tr:hover {
 	margin: 0;
 	float: right;
 	width: 77%;
-	height: 300px;
+	height: 550px;
 	padding: 0;
 	overflow: hidden;
 	overflow-x: auto;
@@ -2081,25 +2087,23 @@ div.pq-grid tr:hover {
 
 .cm-right-wrapper .previews {
 	height: 296px;
-	max-height: 300px;
+	max-height: 550px;
 	overflow-x: scroll;
 }
 
 .pg-manual-display .cm-rightbar .preview {
-	min-height: 200px;
+	min-height: 550px;
 	overflow: hidden;
 }
 
-.pg-export-config .cm-card-body {
-	background-color: #005da31f;
-}
+
 
 .pg-export-config #grid {
 	width: 100%!important;
 	border-radius: 0;
 	border: none;
 }
-
+.pg-export-config .cm-boxwrapper{border:1px solid #ccc;}
 .pg-export-config .tabcontent {
 	width: 100% !important;
 	padding-left: 12px;
@@ -2112,7 +2116,7 @@ div.pq-grid tr:hover {
 }
 
 .cm-boxwrapper {
-	height: 300px;
+	height: 350px;
 	overflow: hidden;
 }
 
@@ -2121,35 +2125,32 @@ div.pq-grid tr:hover {
 	width: 23%;
 	display: inline;
 	float: left;
-	height: 300px;
+	height: 350px;
 }
 
 .cm-boxright {
 	margin: 0;
 	float: right;
 	width: 77%;
-	height: 300px;
+	height: 350px;
 	padding: 0;
 	background-color: #ffffff;
 	overflow: scroll;
 	overflow-x: auto;
 }
 
-.pg-export-config #divHtmlTable {
-	background-color: #ffffff;
-	height: 300px;
-	overflow: scroll;
-	overflow-x: hidden;
-}
+
 
 .pg-export-config .topband {
 	margin-bottom: 0px;
 }
 
+#divHtmlTable{border:1px solid #ccc;margin-top:0;}
 #divHtmlTable table {
 	width: 100%;
 	border-collapse: collapse;
-	margin: 15px auto;
+	margin: 0 auto;
+	border: 1px solid #ccc;
 }
 
 #divHtmlTable tr:nth-of-type(odd) {
@@ -2167,7 +2168,7 @@ div.pq-grid tr:hover {
 #divHtmlTable,
 #divHtmlTable th {
 	padding: 10px;
-	border: 1px solid #ccc;
+	
 	text-align: left;
 	font-size: 13px;
 }
@@ -2180,6 +2181,11 @@ div.pq-grid tr:hover {
 #divHtmlTable .table td {
 	padding: 0.75rem;
 }
+
+#divHtmlTable .btn{color:#56616b;}
+#divHtmlTable .btn.disabled{opacity:0.4;}
+#divHtmlTable .btn:disabled{opacity:0.4;}
+#divHtmlTable .table th, #divHtmlTable .table td{}
 
 .pg-manual-display .topband .title-cls-name {
 	text-transform: capitalize;
@@ -2217,6 +2223,7 @@ div.pq-grid tr:hover {
 	background-color: #f1f1f1;
 	margin-bottom: 10px;
 }
+.cm-customimport .upload .upload-box #file-upload-filename{display:inline-block;}
 
 .cm-customimport .upload .upload-box .fa {
 	color: #cfcfcf;
@@ -2226,6 +2233,7 @@ div.pq-grid tr:hover {
 	top: 3px;
 	cursor: pointer !important;
 }
+.cm-customimport .upload .edit>div{display:inline-block;}
 
 #importForm input[type="file"] {
 	cursor: pointer;
@@ -2270,6 +2278,34 @@ div.pq-grid tr:hover {
 	cursor: pointer;
 }
 
+#divHtmlTable {background-color: #ffffff;
+    
+    border: none;
+    overflow: hidden;
+    overflow-x: hidden;
+    padding: 0;}
+
+#divHtmlTable thead {
+  display: table; 
+  width: calc(100% - 6px);
+}
+
+#divHtmlTable tbody {
+  display: block; 
+  max-height: 250px; 
+  overflow-y: scroll;
+}
+#divHtmlTable th, #divHtmlTable td {
+  width: 10%; /* to enable "word-break: break-all" */
+  padding: 5px;
+  word-break: break-all; /* 4. */
+}
+
+#divHtmlTable .table th, #divHtmlTable .table td {
+    font-size: 14px;
+}
+
+
 .history-label {
 	width: 350px;
 	white-space: nowrap;
@@ -2305,8 +2341,7 @@ div.pq-grid tr:hover {
 	position: relative;
 	z-index: 1;
 	width: 500px;
-	
-	margin-left:20%;
+	margin-left:10%;
 	display:inline-block;
 }
 
@@ -2346,6 +2381,7 @@ div.pq-grid tr:hover {
 .pg-manual-display .previews {
 	background-color: #ffffff;
 	border: 1px solid #ccc;
+	border-left: none;
 }
 
 .pg-manual-display .preview .tablinks img {
@@ -2413,4 +2449,25 @@ div.pq-grid tr:hover {
 	.cm-expobtn:hover{background: #005da3;border-color: #005da3;color:#ffffff;}
 
 .cm-exporticon{position:absolute;bottom:10%;right:10%;}
+
+
+.pg-export-config .tablinks img {
+	height: 25px;
+	width: 25px;
+	fill: #ffffff;
+	float:right;
+	margin-right:-10px;
+}
+
+
+.pg-export-config .container{border:none;padding:0;background:none;}
+
+
+.help-manual-title {
+	max-width: 257px;
+}
+
+.help-manual-title-band {
+	border-bottom: none;
+}
 
