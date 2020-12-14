@@ -22,8 +22,7 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
 
   .hm-fieldset {
     margin-top: 12px;
-    
-    height: 130px;
+    margin-bottom:20px;
     border: 1px groove #ddd !important;
     padding: 0 10px 10px 10px !important;
   }
@@ -55,10 +54,10 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
 .slider {
   position: absolute;
   cursor: pointer;
-  top: -6px;
+  top: -10px;
   left: 9px;
   right: -7px;
-  bottom: -5px;
+  bottom: 0px;
   background-color: #ccc;
   -webkit-transition: .4s;
   transition: .4s;
@@ -70,7 +69,7 @@ replace into dynamic_form (form_id, form_name, form_description, form_select_que
   height: 15px;
   width: 15px;
   left: 4px;
-  bottom: 8px;
+  bottom: 7px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -99,9 +98,9 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.mailForm {
+/* .mailForm {
   width: 55%;
-}
+} */
 </style>
 
 <div class="container">
@@ -121,24 +120,24 @@ input:checked + .slider:before {
     <input type="hidden" id="mailConfigJson" name="mailConfigJson" value="">
     <input type="hidden" id="totalFailedMails" name="totalFailedMails" value="">
     <div class="row">
-      <div class="col-6">
+      <div class="col-4">
         <div class="col-inner-form full-form-fields">
           <label for="smtpHost" style="white-space:nowrap"><span class="asteriskmark">*</span>SMTP Host</label>
-          <input type="text" id="smtpHostId" name="smtpHost" value="" placeholder="SMTP Host" required maxlength="20" class="form-control mailForm">
+          <input type="text" id="smtpHostId" name="smtpHost" value="" placeholder="SMTP Host" required  class="form-control mailForm">
         </div>
       </div>
       
-      <div class="col-6 float-right">
+      <div class="col-4 ">
         <div class="col-inner-form full-form-fields">
           <label for="smtpPort" style="white-space:nowrap"><span class="asteriskmark">*</span>SMTP Port</label>
-          <input type="text" id="smtpPortId" name="smtpPort" value="" placeholder="SMTP Port" required maxlength="4" class="form-control mailForm">
+          <input type="text" id="smtpPortId" name="smtpPort" value="" placeholder="SMTP Port" required  class="form-control mailForm">
         </div>
       </div>
-      <br>
-      <div class="col-12">
+      
+      <div class="col-4">
         <div class="col-inner-form full-form-fields">
           <label for="smtpSecurityProtocal" style="white-space:nowrap">Security Protocal</label>
-          <select id="smtpSecurityProtocalId" name="smtpSecurityProtocal" onchange="populateFields(this)" class="form-control" style="width: 26.8%">
+          <select id="smtpSecurityProtocalId" name="smtpSecurityProtocal" onchange="populateFields(this)" class="form-control">
               <option value="TLS">TLS</option> 
               <option value="SSL">SSL</option> 
             </select>
@@ -164,7 +163,7 @@ input:checked + .slider:before {
       <div class="col-6">
         <div class="col-inner-form full-form-fields">
                   <label for="userName" style="white-space:nowrap"><span class="asteriskmark">*</span>User Name </label>
-          <input type="text" id="userName" name="userName" value="" placeholder="Username" maxlength="40" required class="form-control mailForm RemoveData">
+          <input type="text" id="userName" name="userName" value="" placeholder="Username"  required class="form-control mailForm RemoveData">
         </div>
       </div>
       </fieldset>
@@ -198,7 +197,7 @@ input:checked + .slider:before {
       
        <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="email" style="white-space:nowrap">Reply To</label>
+          <label for="email" style="white-space:nowrap">Reply To Email Id</label>
           <input type="email" id="replyToDifferentEmailId" name="replyToDifferentEmailId" placeholder="EMail" value=""  required class="form-control mailForm">
         </div>
       </div>
@@ -226,6 +225,15 @@ input:checked + .slider:before {
           <input type="text" id="internetAddressToArray" name="internetAddressToArray" placeholder="Comma seperated email addresses" value=""  required class="form-control">
         </div>
       </div>
+      <div class="col-3">
+      <div class="col-inner-form full-form-fields">
+        <label for="noOfFailedMails" style="white-space:nowrap; margin-bottom:20px;">
+                    <span class="asteriskmark">*</span>No of failed emails (between 10 and 100):
+                </label>
+                <input type="range" id="noOfFailedMails" name="noOfFailedMails" value="50" min="10" max="100" onchange="showSelectedValue(this.value)">
+                <span id="noOfFailedMailsValue" class="no-of-files-counter"></span>
+      </div>
+    </div>
       
       
     </div>
@@ -234,15 +242,7 @@ input:checked + .slider:before {
     
   </form>
   <div class="row margin-t-10">
-        <div class="col-3">
-      <div class="col-inner-form full-form-fields">
-        <label for="noOfFailedMails" style="white-space:nowrap">
-                    <span class="asteriskmark">*</span>No of failed emails (between 10 and 100):
-                </label>
-                <input type="range" id="noOfFailedMails" name="noOfFailedMails" value="50" min="10" max="100" onchange="showSelectedValue(this.value)">
-                <span id="noOfFailedMailsValue" class="no-of-files-counter"></span>
-      </div>
-    </div>
+        
     <div class="col-12">
       <div class="float-right">
         <div class="btn-group dropdown custom-grp-btn">
@@ -262,6 +262,7 @@ input:checked + .slider:before {
     <br> 
 <div id="failedMailsListingGrid"></div>
 </div>
+
 
 
 <script>
@@ -525,11 +526,19 @@ input:checked + .slider:before {
             $("#isMailFooterRequiredId").prop("checked", false);
          
         }
-      }else{
-    $("#smtpHostId").val("localhost"); 
-    $("#smtpPortId").val("25");
-    $("#mailFrom").val("admin@jquiver.com");
-        $("#noOfFailedMailsValue").html("50");
+      } else {
+            $("#smtpHostId").val("localhost"); 
+            $("#smtpPortId").val("25");
+            $("#mailFrom").val("admin@jquiver.com");
+            $("#fromNameId").val("Admin");
+            $("#internetAddressToArray").val("admin@jquiver.com");
+            $("#noOfFailedMailsValue").html("50");
+            $(".RemoveData").attr("placeholder", ""); 
+            $(".RemoveData").val("");    
+            $(".RemoveData").attr("disabled", "disabled");
+            $("#mailFooterId").attr("placeholder", ""); 
+            $("#mailFooterId").val("");    
+            $("#mailFooterId").attr("disabled", "disabled"); 
     }
         
        
@@ -582,8 +591,8 @@ last_modified_date = NOW()
 WHERE property_master_id = "mail-configuration";', 1, NULL);
 
 replace into jws_dynamic_rest_details
-(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id) VALUES
-('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfirationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2);
+(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
+('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfirationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2);
 
 
 replace into jws_dynamic_rest_dao_details

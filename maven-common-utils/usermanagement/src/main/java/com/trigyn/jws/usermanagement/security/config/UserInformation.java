@@ -2,16 +2,23 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
-public class UserInformation implements UserDetails {
+public class UserInformation implements UserDetails,OAuth2User,OidcUser {
 
 	private static final long serialVersionUID = -1617042842214166605L;
 
@@ -30,6 +37,14 @@ public class UserInformation implements UserDetails {
 	private List<GrantedAuthority> authorities = new ArrayList<>();
 	
 	private List<String> roles = new ArrayList<>();
+	
+	private Map<String, Object> oAuthAttributes = new HashMap<String, Object>();
+	
+	
+
+	public UserInformation() {
+		
+	}
 
 	public UserInformation(JwsUser user, List<JwsRoleVO> roleVOs) {
 		
@@ -37,8 +52,8 @@ public class UserInformation implements UserDetails {
 		this.userName = user.getEmail();
 		this.password = user.getPassword();
 		this.fullName = user.getFirstName() +" " +user.getLastName(); 
-		this.active = user.getIsActive() == 1? true:false;
-		this.isDefaultPassword = user.getForcePasswordChange() == 1? true:false;
+		this.active = (user.getIsActive()!=null)?(user.getIsActive()== 1? true:false):false;
+		this.isDefaultPassword = (user.getForcePasswordChange()!=null)?( user.getForcePasswordChange()== 1? true:false):false;
 		
 		for (JwsRoleVO jwsRoleVO : roleVOs) {
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority(jwsRoleVO.getRoleName());
@@ -108,6 +123,46 @@ public class UserInformation implements UserDetails {
 
 	public void setDefaultPassword(boolean isDefaultPassword) {
 		this.isDefaultPassword = isDefaultPassword;
+	}
+
+	
+	/// OAuth2User overriden methods
+	@Override
+	public Map<String, Object> getAttributes() {
+		return oAuthAttributes;
+	}
+
+	@Override
+	public String getName() {
+		return  fullName;
+	}
+
+	public  UserInformation create(JwsUser user, Map<String, Object> attributes) {
+		
+		// oauth user with default credentials
+		 List<JwsRoleVO> roleVOs = new ArrayList<JwsRoleVO>();
+		 roleVOs.add(new JwsRoleVO(Constants.AUTHENTICATED_ROLE_ID, Constants.AUTHENTICATED_ROLE_NAME));
+		return new UserInformation(user,roleVOs);
+	}
+
+	// OidcUser overriden methods
+	
+	@Override
+	public Map<String, Object> getClaims() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OidcUserInfo getUserInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public OidcIdToken getIdToken() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

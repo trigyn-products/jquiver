@@ -94,10 +94,21 @@
         });
         let placeholderVal = $.trim($(this.element).prop("placeholder"));
         if(placeholderVal === "" && this.options.prefetch === false){
-        	$(this.element).prop("placeholder","Please type text to search");
+        	$(this.element).prop("placeholder","Please type to search");
+        }
+        if(this.options.enableClearText === true){
+        	let elementId =  $(this.element).attr("id");
+        	let clearTxt = $('<span id="'+elementId+'_clearTxt" class="autocomplete-clear-txt" onClick="clearText(this.id);"><i class="fa fa-times" aria-hidden="true"></i></span>');
+        	clearTxt.insertAfter(this.element);
         }
     }
 
+	clearText = function(selectedElementId){
+		let inputId = selectedElementId.split("_")[0];
+		$("#"+inputId).val("");
+		$("#"+inputId).keyup();
+	}
+	
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
         constructor(element, options, selectedItems) {
@@ -126,6 +137,24 @@
         		Multiselect.prototype.createElementForMultiselect(this, this.element[0].id, items[iCounter]);
         	}
         	return this.selectedObject;
+        }
+        
+		resetDependent = function(componentArray){
+			let componentIdArray = new Array();
+			let dependentCompChanged = true;
+			
+			componentArray.forEach(function (component) {
+    			let removeElem = multiselect.removeAllDependent(component.componentId, component.context);
+				removeElem.done(function () {
+    				dependentCompChanged = true;
+				});
+
+				removeElem.fail(function () {
+    				dependentCompChanged = false;
+				});
+			});
+			
+        	return dependentCompChanged;
         }
     }
 
@@ -245,6 +274,25 @@
 		
     },
     
+    
+    Multiselect.prototype.removeAllDependent = function(multiselectId, a_context){
+		let deferredObject = $.Deferred();
+		const context = a_context;
+
+		let multiselectIdDivId = context.options.multiselectItem[0].id;
+		context.selectedObjects = new Array();
+		$("#"+multiselectId+"_count").addClass("disable_cls");
+		$("#"+multiselectId+"_count > span" ).css('pointer-events','none');
+		$("#"+multiselectId+"_count > span").text("0");
+		$("#"+multiselectId+"_removeAll").addClass("disable_cls");
+		$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
+		$("#"+multiselectIdDivId+"_ul").empty();
+		showMessage("All items removed successfully.", "success");
+		deferredObject.resolve();
+		return deferredObject.promise();
+		
+    }
+    
     Multiselect.prototype.removeAllElements = function(multiselectId){
 		const context = this;
 		let deleleteElement = $('<div id="deleteConfirmation"></div>');
@@ -290,7 +338,11 @@
 		   }
 	
 		});
-
+		
+    }
+    
+    Multiselect.prototype.selectWithDependent = function(){
+    
     }
     
     Multiselect.prototype.removeAll = function(){

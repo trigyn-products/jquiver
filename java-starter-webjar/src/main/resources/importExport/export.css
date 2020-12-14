@@ -63,3 +63,28 @@
 	height : 400px;
 	width: 100%;
 }
+
+
+.pg-app-matrix .tab button{text-transform: initial !important;}
+.pg-app-matrix .tablinks img {
+    height: 25px;
+    width: 25px;
+    position:absolute;
+    right:5px;
+    fill: #ffffff;
+  
+}
+
+.pg-app-matrix .tab button.active {
+    background-color: #005da3;
+    color: #fff;
+}
+
+.pq-grid-cont-inner{
+    position:absolute;
+    left:0;
+    top:0;	
+    cursor:default;	
+    overflow:hidden;	
+	min-height:250px;
+}

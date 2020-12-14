@@ -28,8 +28,8 @@ public class Dashlet implements Serializable {
 	private static final long			serialVersionUID		= 1L;
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "dashlet_id", nullable = false)
 	private String						dashletId				= null;
 

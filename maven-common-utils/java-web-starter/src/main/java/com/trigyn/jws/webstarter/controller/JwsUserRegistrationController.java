@@ -2,7 +2,6 @@ package com.trigyn.jws.webstarter.controller;
 
 
 import java.awt.Dimension;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -42,6 +40,7 @@ import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
 import com.trigyn.jws.usermanagement.entities.JwsConfirmationToken;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsAuthenticationTypeRepository;
 import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
@@ -49,7 +48,7 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
 import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
-import com.trigyn.jws.usermanagement.service.InvalidLoginException;
+import com.trigyn.jws.usermanagement.security.config.oauth.OAuthDetails;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
@@ -98,6 +97,9 @@ public class JwsUserRegistrationController {
 	@Autowired
 	private JwsUserRoleAssociationRepository userRoleRepository = null;
 	
+	@Autowired
+	private OAuthDetails oAuthDetails = null;
+	
 	@GetMapping("/login")
 	@ResponseBody
 	public String userLoginPage(HttpServletRequest request,HttpSession session,HttpServletResponse response) throws Exception {
@@ -116,6 +118,11 @@ public class JwsUserRegistrationController {
 			
 		}
 		if(applicationSecurityDetails.getIsAuthenticationEnabled()) {
+			mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
+			if(Integer.parseInt(applicationSecurityDetails.getAuthenticationType()) == Constants.AuthType.OAUTH.getAuthType()
+					&& oAuthDetails!=null) {
+				mapDetails.put("client", oAuthDetails.getOAuthClient());
+			}
 			userConfigService.getConfigurableDetails(mapDetails);
 		}else {
 			response.sendError(HttpStatus.FORBIDDEN.value(),"You dont have rights to access these module");
@@ -243,7 +250,7 @@ public class JwsUserRegistrationController {
         		TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
 				int width = 300;
 				int height = 300;
-				String filePath = System.getProperty("java.io.tmpdir") + File.separator + existingUser.getUserId()  +".png";
+				String filePath = System.getProperty("java.io.tmpdir") + File.separator + userEntityFromVo.getUserId()  +".png";
 				File file = new File(filePath);
 				FileOutputStream fileOutputStream = new FileOutputStream(filePath);
 				String barcodeData = twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(userEntityFromVo.getEmail(), "Jquiver",userEntityFromVo.getSecretKey());

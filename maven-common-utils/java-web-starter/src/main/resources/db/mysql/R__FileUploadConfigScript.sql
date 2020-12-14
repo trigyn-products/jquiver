@@ -151,9 +151,9 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
 				<label for="noOfFiles" style="white-space:nowrap">
-                    <span class="asteriskmark">*</span>No of files (between 1 and 10):
+                    <span class="asteriskmark">*</span>No of files (between 1 and 50):
                 </label>
-                <input type="range" id="noOfFiles" name="noOfFiles" min="1" max="10" onchange="showSelectedValue(this.value)">
+                <input type="range" id="noOfFiles" name="noOfFiles" min="1" max="50" onchange="showSelectedValue(this.value)">
                 <span id="noOfFilesValue" class="no-of-files-counter"></span>
 			</div>
 		</div>
@@ -273,11 +273,14 @@ replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url
 getFileConfigDetails(requestDetails, daoResults);', 3, 2);
 
 replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
-(19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "default")
-order by FIELD(file_upload_config_id, :fileUploadId, "default")
+(19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "helpManual")
+order by FIELD(file_upload_config_id, :fileUploadId, "helpManual")
 LIMIT 1', 1, 1);
 
 REPLACE INTO file_upload_config (file_upload_config_id, file_type_supported, max_file_size, no_of_files, is_deleted, updated_by, updated_date) VALUES
 ('default', '*', 2000000000000, 1, 0, 'admin', NOW());
+
+REPLACE INTO file_upload_config (file_upload_config_id, file_type_supported, max_file_size, no_of_files, is_deleted, updated_by, updated_date) VALUES
+('helpManual', '.png, .jpg, .jpeg, .pdf', 5000000000000, 20, 0, 'admin', NOW());
 
 SET FOREIGN_KEY_CHECKS=1;

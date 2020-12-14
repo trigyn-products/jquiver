@@ -21,8 +21,8 @@ public class PropertyMaster implements Serializable{
 	private static final long serialVersionUID = -6641076236442355786L;
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "property_master_id")
 	private String								propertyMasterId				= null;
 	
@@ -191,5 +191,21 @@ public class PropertyMaster implements Serializable{
 				+ appVersion + ", comments=" + comments + "]";
 	}
 
+	public PropertyMaster getObject() {
+		PropertyMaster propertyMaster = new PropertyMaster();
+		
+		propertyMaster.setAppVersion(appVersion);
+		propertyMaster.setComments(comments);
+		propertyMaster.setIsDeleted(isDeleted);
+		propertyMaster.setLastModifiedDate(lastModifiedDate);
+		propertyMaster.setModifiedBy(modifiedBy);
+		propertyMaster.setOwnerId(ownerId);
+		propertyMaster.setOwnerType(ownerType);
+		propertyMaster.setPropertyMasterId(propertyMasterId);
+		propertyMaster.setPropertyName(propertyName);
+		propertyMaster.setPropertyValue(propertyValue);
+		
+		return propertyMaster;
+	}
 	
 }

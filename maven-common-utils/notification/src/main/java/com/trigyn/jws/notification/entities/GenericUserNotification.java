@@ -25,8 +25,8 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "generic_user_notification")
 public class GenericUserNotification {
 
-	@GeneratedValue(generator="system-uuid")
-	@GenericGenerator(name="system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "notification_id", length = 50, nullable = false)
 	@Id
 	private String notificationId = null;

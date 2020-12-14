@@ -124,15 +124,24 @@ public class MasterCreatorService {
 		String environment = propertyMasterService.findPropertyMasterValue("system", "system", "profile");
 		Map<String, Object> createdMasterDetails = new HashMap<>();
 		Map<String, Object> formData = processFormData(inputDetails.getFirst("formData"));
-		ModuleDetailsVO menuData=processMenu(inputDetails.getFirst("menuDetails"));
+		
 		DynamicForm dynamicForm = createDynamicFormDetails(inputDetails, formData);
 		GridDetails gridDetails = createGridDetailsInfo(formData);
 		TemplateMaster templateMaster = saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(), dynamicForm.getFormId(), formData);
-		insertIntoMenu(menuData, templateMaster);
+		
+		Integer insideMenu = formData.get("isMenuAddActive") == null ? 0 : 
+			Integer.parseInt((String) formData.get("isMenuAddActive"));
+		ModuleDetailsVO menuData = new ModuleDetailsVO();
+		if(insideMenu.equals(Constant.IS_INSIDE_MENU)) {
+			menuData = processMenu(inputDetails.getFirst("menuDetails"));
+			insertIntoMenu(menuData, templateMaster);
+		}
+		
 		createdMasterDetails.put("dynamicForm", dynamicForm);
 		createdMasterDetails.put("gridDetails", gridDetails);
 		createdMasterDetails.put("templateMaster", templateMaster);
 		createdMasterDetails.put("menuData", menuData);
+		
 		if("dev".equalsIgnoreCase(environment)) {
 			templateCrudService.downloadTemplates(templateMaster.getTemplateId());
 			dynamicFormCrudService.downloadDynamicFormsTemplate(dynamicForm.getFormId());

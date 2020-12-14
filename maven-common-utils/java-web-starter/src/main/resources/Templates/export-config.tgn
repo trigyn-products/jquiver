@@ -1,0 +1,221 @@
+<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
+</script><script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="/webjars/1.0/importExport/export.css" />
+<script src="/webjars/1.0/importExport/export.js"></script> 
+</head>
+
+<div class="pg-export-config">
+
+<div class="container">
+
+    <div class="cm-card">
+	<div class="topband cm-card-header">
+		<h2 class="title-cls-name float-left">Export Configuration</h2>
+		<span onclick="backToPreviousPage();" class="float-right">
+			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+		</span>	
+		<div class="clearfix"></div>	
+	</div>
+	
+
+    <div class="cm-card-body">
+    <div class="cm-boxwrapper"  id="mainTab">
+    <div class="cm-boxleft cm-scrollbar">
+          
+                <div class="tab">
+                        <#if (moduleVOList)??> 
+                            <#list moduleVOList as moduleVO> 
+                        <#if moduleVO.moduleType == "ApplicationConfiguration"> 
+                            <button class="tablinks active" id= "${moduleVO.masterModuleId}" 
+                            	onclick="openTab(event, '${moduleVO.masterModuleName}', '${moduleVO.masterModuleId}', '${moduleVO.gridDetailsId}', '${moduleVO.moduleType}')">
+                            	${(moduleVO.masterModuleName)}  <div id="selectedCount_${moduleVO.moduleType}" style="display: inline;"></div> / <div id="totalCount_${moduleVO.moduleType}" style="display: inline;"></div>
+                            	<img src="/webjars/1.0/images/s-information1.svg"></button>
+                        <#else>
+                            <button class="tablinks" id= "${moduleVO.masterModuleId}" 
+                            	onclick="openTab(event, '${moduleVO.masterModuleName}', '${moduleVO.masterModuleId}', '${moduleVO.gridDetailsId}', '${moduleVO.moduleType}')">
+                            	${(moduleVO.masterModuleName)} <div id="selectedCount_${moduleVO.moduleType}" style="display: inline;"></div> / <div id="totalCount_${moduleVO.moduleType}" style="display: inline;"></div>
+                            	<img src="/webjars/1.0/images/s-information1.svg"></button>
+                        </#if>
+                                	
+                            </#list>
+                        </#if>
+	            </div>
+
+    </div>
+
+    <div class="cm-boxright cm-scrollbar">
+         <#if (moduleVOList)??> 
+                    <#list moduleVOList as moduleVO> 
+                        <#if moduleVO.moduleType == "ApplicationConfiguration"> 
+                            <div id="${moduleVO.moduleType}" class="tabcontent">
+                            </div>
+                        <#else>
+                            <div id="${moduleVO.moduleType}" class="tabcontent" style="display:none;">
+                            </div>
+                        </#if>
+                    </#list>
+		        </#if>
+        
+    </div>
+    </div>
+
+        <div>
+        </div>
+
+        	<div id="nextTab" style="display: none;">
+		<div class="cm-scrollbar" id="divHtmlTable">
+			<table class="table table-striped" id="htmlTable">
+				<thead class="thead-light">
+					<tr>
+						<th>Module Type</th>
+						<th>Entity ID</th>
+						<th>Entity Name</th>
+						<th>Version</th>
+					</tr>
+				</thead>
+				<tbody class="cm-scrollbar">
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+    </div>
+
+    <div class="cm-card-footer"><div class="clearfix"></div>
+		<div id="mainTabBtn">
+			<input id="nextBtn" class="btn btn-primary" style="float:right;" 
+				name="nextBtn" value="Next" type="button" onclick="gotoNextPage()">
+			<input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx"
+				 onchange="deselectAll();" style="float:left;">
+			<label for="deselectAllChkBx">Deselect All</label> 
+		</div>
+		<div id="nextTabBtn" style="display: none;">
+            <input id="exportBtn" class="btn btn-primary" style="float: right;" name="exportBtn"
+			value="Export" type="button" onclick="exportData()">
+		<input id="prevBtn" class="btn btn-primary" style="float: right;" name="prevBtn"
+			value="Previous" type="button" onclick="gotoPrevPage()">
+		</div>
+        </div>
+		<div id="exportFormDiv" style = "display:none"></div>
+    </div>
+</div>
+</div>
+<script>
+let isDeselectedAll = false;
+
+$(function () {
+		
+	    localStorage.removeItem("imporatableData");
+	    localStorage.removeItem("importedIdList");
+	    
+	    <#if (customEntityCount)??> 
+	    	<#list customEntityCount as entity> 
+				<#list entity?keys as key>
+					${key} = '${(entity[key])!""}' ;
+				</#list> 
+				$('#selectedCount_'+enityType).text(count);
+			</#list>
+	    </#if>
+	    <#if (allEntityCount)??> 
+	    	<#list allEntityCount as entity> 
+				<#list entity?keys as key>
+					${key} = '${(entity[key])!""}' ;
+				</#list> 
+				$('#totalCount_'+enityType).text(totalCount);
+			</#list>
+	    </#if>
+	<#if (customEntities)??> 
+		let exportableData;
+		let exportableDataListMapNew;
+		let exportObjNew;
+		let systemConfigIncludeListNew=[];
+		let customConfigExcludeListNew=[];
+		<#list customEntities as entity> 
+			<#list entity?keys as key> 
+		    	${key} = '${(entity[key])!""}' ;
+			</#list> 
+			if(id != null && id != "") {
+				exportableData = new ExportableData(enityType, id, name, versionID, 1);
+				if(map.get(enityType) == null) {
+					exportableDataListMapNew = new Map();
+					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, enityType, exportableDataListMapNew);
+					map.set(enityType, exportObjNew);
+				}
+				map.get(enityType).getExportableDataListMap().set(id, exportableData);
+			}
+		</#list>
+	</#if>
+	var exportObj;
+	let moduleName;
+	let moduleID;
+	let gridID;
+	let colM;
+	let moduleType;
+	let systemConfigIncludeList=[];
+	let customConfigExcludeList=[];
+	let exportableDataListMap = new Map();
+	<#if (moduleVOList)??> 
+		<#list moduleVOList as moduleVO> 
+			 moduleName="${moduleVO.masterModuleName}";
+			 moduleID="${moduleVO.masterModuleId}";
+			 gridID="${moduleVO.gridDetailsId}";
+			 
+			 moduleType = "${moduleVO.moduleType}";
+			
+			exportObj = map.get(moduleType);
+			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
+				if(exportObj != null) {
+					systemConfigIncludeList=exportObj.getSystemConfigIncludeList();
+					if(systemConfigIncludeList == null) {
+						systemConfigIncludeList=[];
+					}
+
+					customConfigExcludeList=exportObj.getCustomConfigExcludeList();
+					if(customConfigExcludeList == null) {
+						customConfigExcludeList=[];
+					}
+
+					exportableDataListMap = exportObj.getExportableDataListMap();
+					if(exportableDataListMap == null) {
+						exportableDataListMap = new Map();
+					}
+					
+				}
+				if(moduleType == "ApplicationConfiguration") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
+						{ title: "Owner Id", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Owner Type", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Name", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Value", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Modified By", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+					];
+
+				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
+
+				exportObj.getGrid(1);
+				map.set(moduleType, exportObj);
+				}
+			}
+    		
+      	</#list>
+	</#if>
+});
+
+</script>

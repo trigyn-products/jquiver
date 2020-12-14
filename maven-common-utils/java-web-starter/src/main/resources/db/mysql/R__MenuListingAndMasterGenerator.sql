@@ -18,8 +18,16 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 </head>
 
+
+<div class="pg-master-generator">
+
+
 <div class="container">
-	<div class="topband">
+
+	<div class="cm-card">
+	<div class="topband cm-card-header">
+	
+	
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.masterGenerator'')}</h2> 
 		<div class="float-right">
 			<span onclick="backToPreviousPage();">
@@ -30,8 +38,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="clearfix"></div>		
 	</div>
 		
-	<form method="post" name="createMasterForm" id="createMasterForm">
 		
+		<div class="cm-card-body">
+	<form method="post" name="createMasterForm" id="createMasterForm">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
@@ -55,8 +65,29 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 
+         <div class="row">
+             <div class="col-9">
+                <div class="col-inner-form full-form-fields">
+					<label for="columns" style="white-space:nowrap"><span class="asteriskmark">*</span>Columns to show in listing.</label>
+					<input type="text" id="columns" name="columns" value="" maxlength="1000" class="form-control">
+				</div>
+            </div>
+            <div class="col-3">
+                <div class="col-inner-form full-form-fields">
+					<label for="primaryKey" style="white-space:nowrap">
+                        <span class="asteriskmark">*</span>Primary Key</label>
+					<input type="text" id="primaryKey" name="primaryKey" value="" maxlength="100" class="form-control">
+				</div>
+          
+            </div>
+
+
+         </div>
+
         <div class="row">
             <div class="col-12">
+
+               
                 <h4>Listing</h4><hr/>
             </div>
             <div class="col-12 margin-t-b">
@@ -70,20 +101,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                     </tr>
                 </table>
             </div>
-            <div class="col-9">
-                <div class="col-inner-form full-form-fields">
-					<label for="columns" style="white-space:nowrap"><span class="asteriskmark">*</span>Columns to show in listing.</label>
-					<input type="text" id="columns" name="columns" value="" maxlength="1000" class="form-control">
-				</div>
-            </div>
-            <div class="col-3">
-                <div class="col-inner-form full-form-fields">
-					<label for="primaryKey" style="white-space:nowrap">
-                        <span class="asteriskmark">*</span>Primary Key</label>
-					<input type="text" id="primaryKey" name="primaryKey" value="" maxlength="100" class="form-control">
-				</div>
-            </div>
+            
         </div>
+
+
+
+
+        <div class="cm-menutable">
 
         <div class="row">
             <div class="col-3">
@@ -104,21 +128,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             
 		</div>
         <div class="row">
-            <div class="col-3">
+            <div class="col-4">
+
 				<div class="col-inner-form full-form-fields">
 					<label for="menuDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.displayName")}</label>
 					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
 				</div>
 			</div>
 
-            <div class="col-3">
+            <div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleURL" style="white-space:nowrap">URL</label>
 					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
 				</div>
 			</div>
-            <div class="col-3">
+            <div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
 					<select id="parentModuleName" name="parentModuleName" class="form-control">
@@ -135,9 +160,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
         <div class="row">
             <div class="col-12">
+               
                 <h4>Form</h4><hr/>
             </div>
-            <div class="col-12">
+            <div class="col-12 margin-t-b">
                 <table id="formDetailsTable">
                     <tr>
                         <th>Included</th>
@@ -147,25 +173,40 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                         <th>I18N Resource Key</th>
                     </tr>
                 </table>
+            
             </div>
         </div>
+
+        </div>
+	
+	
 	
 	<@templateWithoutParams "role-autocomplete"/> 
-		<div class="row margin-t-b">
+		
+		
+	</form>
+    
+    </div>
+<div class="cm-card-footer">
+    <div class="row margin-t-b">
 			<div class="col-12">
+			
 				<div class="float-right">
 					<input class="btn btn-primary" name="" value="Create" type="button" onclick="createMaster()">
 					<span onclick="backToPreviousPage();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
 					</span> 
 				</div>
-			</div>
+			
 		</div>
-		
-	</form>
+	</div>
+    </div>
+    
 
 
 	<div id="snackbar"></div>
+</div>
+</div>
 </div>
 
 

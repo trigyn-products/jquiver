@@ -25,9 +25,11 @@ import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
+import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
@@ -39,6 +41,8 @@ import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.TemplateModule;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
+import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.webstarter.dao.CrudQueryStore;
 import com.trigyn.jws.webstarter.dao.ImportExportCrudDAO;
 import com.trigyn.jws.webstarter.utils.Constant;
@@ -52,157 +56,235 @@ import com.trigyn.jws.webstarter.xml.FileManagerXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
+import com.trigyn.jws.webstarter.xml.PropertyMasterXMLVO;
 import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
+import com.trigyn.jws.webstarter.xml.RoleXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
-import com.trigyn.jws.webstarter.xml.XMLVO;
-
+import com.trigyn.jws.webstarter.xml.UserXMLVO;
 
 @Service
 @Transactional(readOnly = false)
 public class ExportService {
-	
-	private final static Logger logger = LogManager.getLogger(ExportService.class);
 
-    @Autowired
-    private ImportExportCrudDAO 	importExportCrudDAO              	= null;
+	private final static Logger	logger							= LogManager.getLogger(ExportService.class);
 
 	@Autowired
-	private TemplateModule 			templateDownloadUploadModule 		= null;
+	private ImportExportCrudDAO	importExportCrudDAO				= null;
+
+	@Autowired
+	private TemplateModule		templateDownloadUploadModule	= null;
 
 	@Autowired
 	@Qualifier("dynamic-form")
-	private DynamicFormModule 		dynamicFormDownloadUploadModule 	= null;
+	private DynamicFormModule	dynamicFormDownloadUploadModule	= null;
 
-    @Autowired
+	@Autowired
 	@Qualifier("dashlet")
-	private DashletModule 			dashletDownloadUploadModule 		= null;
+	private DashletModule		dashletDownloadUploadModule		= null;
 
 	@Autowired
-	private PropertyMasterDAO 		propertyMasterDAO 					= null;
-	
-	private Map<String, String> 	moduleListMap						= null;
+	private PropertyMasterDAO	propertyMasterDAO				= null;
+
+	private Map<String, String>	moduleListMap					= null;
 
 	@Autowired
-	private IUserDetailsService 	detailsService 						= null;
+	private IUserDetailsService	detailsService					= null;
 
-	private String 					version 							= null; 
-	
-	private String 					userName							= null;
-	
+	private String				version							= null;
+
+	private String				userName						= null;
+
 	public List<Map<String, Object>> getAllCustomEntity() {
 		return importExportCrudDAO.getAllCustomEntity();
 	}
-	
-	public String exportConfigData(HttpServletRequest request, HttpServletResponse response, Map<String, String> out) throws Exception {
 
-		version 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
-        UserDetailsVO detailsVO = detailsService.getUserDetails(); 
-        userName = detailsVO.getUserName();
-		
-		String systemPath = System.getProperty("user.dir");
-		String tempDownloadPath= FileUtil.generateTemporaryFilePath(Constant.EXPORTTEMPPATH);
-		new File(tempDownloadPath).mkdir();
-		moduleListMap = new HashMap<>();
-		
-		String htmlTableJSON = "";
-		for(Entry<String,String> obj : out.entrySet()) {
-			XMLVO xmlVO = null;
-			String moduleType = obj.getKey();
-			String exportData = obj.getValue();
-			
-			if("htmlTableJSON".equals(moduleType)) {
-				htmlTableJSON = StringEscapeUtils.unescapeXml("<![CDATA["+ exportData +"]]>");
-			} else {
-				JSONObject jsonObject = new JSONObject(exportData);
-				xmlVO =retrieveDBData(moduleType, jsonObject, tempDownloadPath);
-			}
-			
-			if(xmlVO != null)
-				XMLUtil.marshaling(xmlVO, moduleType, tempDownloadPath);
-		}
-		
-		XMLUtil.generateMetadataXML(moduleListMap, null, tempDownloadPath, version, userName, htmlTableJSON);
-		String zipFilePath = ZipUtil.zipDirectory(tempDownloadPath, systemPath);
-		return zipFilePath;
+	public List<Map<String, Object>> getCustomEntityCount() {
+		return importExportCrudDAO.getCustomEntityCount();
 	}
-	
-	public void downloadExport(HttpServletRequest request, HttpServletResponse response, String filePath) throws Exception {
+
+	public List<Map<String, Object>> getAllEntityCount() {
+		return importExportCrudDAO.getAllEntityCount();
+	}
+
+	public String exportConfigData(HttpServletRequest request, HttpServletResponse response, Map<String, String> out)
+			throws Exception {
+		try {
+			version = propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
+			UserDetailsVO detailsVO = detailsService.getUserDetails();
+			userName = detailsVO.getUserName();
+
+			String	systemPath			= System.getProperty("user.dir");
+			String	tempDownloadPath	= FileUtil.generateTemporaryFilePath(Constant.EXPORTTEMPPATH);
+			new File(tempDownloadPath).mkdir();
+			moduleListMap = new HashMap<>();
+
+			Map<String, List<String>>	exportTableMap	= new HashMap<>();
+			String						htmlTableJSON	= "";
+			for (Entry<String, String> obj : out.entrySet()) {
+				String	moduleType	= obj.getKey();
+				String	exportData	= obj.getValue();
+
+				if ("htmlTableJSON".equals(moduleType)) {
+					htmlTableJSON = StringEscapeUtils.unescapeXml("<![CDATA[" + exportData + "]]>");
+					if (exportData != null && exportData != "") {
+						JSONArray jsonArray = new JSONArray(exportData);
+						for (int i = 0; i < jsonArray.length(); i++) {
+							JSONObject		explrObject	= jsonArray.getJSONObject(i);
+							String			type		= explrObject.getString("moduleType");
+
+							List<String>	list		= new ArrayList<>();
+							if (exportTableMap.containsKey(type.toUpperCase())) {
+								list = exportTableMap.get(type.toUpperCase());
+							}
+							list.add(explrObject.getString("moduleID"));
+							exportTableMap.put(type.toUpperCase(), list);
+						}
+
+					}
+				}
+			}
+
+			for (Entry<String, String> obj : out.entrySet()) {
+				XMLVO	xmlVO		= null;
+				String	moduleType	= obj.getKey();
+				String	exportData	= obj.getValue();
+
+				if (!"htmlTableJSON".equals(moduleType)) {
+					JSONObject jsonObject = new JSONObject(exportData);
+					xmlVO = retrieveDBData(moduleType, jsonObject, tempDownloadPath, exportTableMap);
+				}
+
+				if (xmlVO != null)
+					XMLUtil.marshaling(xmlVO, moduleType, tempDownloadPath);
+			}
+
+			XMLUtil.generateMetadataXML(moduleListMap, null, tempDownloadPath, version, userName, htmlTableJSON);
+			String zipFilePath = ZipUtil.zipDirectory(tempDownloadPath, systemPath);
+			return zipFilePath;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			if (ex.getMessage() != null && ex.getMessage().startsWith("Data mismatch while exporting")) {
+				return "fail:" + ex.getMessage();
+			} else {
+				return "fail:" + "Error occurred while exporting";
+			}
+		}
+	}
+
+	public void downloadExport(HttpServletRequest request, HttpServletResponse response, String filePath)
+			throws Exception {
 		FileUtil.downloadFile(request, response, filePath);
 	}
-	
-	private XMLVO retrieveDBData(String moduleType, JSONObject jsonObject, String downloadFolderLocation) throws Exception {
-		
-		List<String> systemConfigIncludeList = new ArrayList<String>();
-		List<String> customConfigExcludeList = new ArrayList<String>();
-		
-		JSONArray jsonArray = (JSONArray) jsonObject.get("systemConfigIncludeList");
-	    for(int i=0; i < jsonArray.length(); i++) {
-	    	systemConfigIncludeList.add(jsonArray.getString(i));
-	    }
+
+	private XMLVO retrieveDBData(String moduleType, JSONObject jsonObject, String downloadFolderLocation,
+			Map<String, List<String>> exportTableMap) throws Exception {
+
+		List<String>	systemConfigIncludeList	= new ArrayList<String>();
+		List<String>	customConfigExcludeList	= new ArrayList<String>();
+
+		JSONArray		jsonArray				= (JSONArray) jsonObject.get("systemConfigIncludeList");
+		for (int i = 0; i < jsonArray.length(); i++) {
+			systemConfigIncludeList.add(jsonArray.getString(i));
+		}
 
 		jsonArray = (JSONArray) jsonObject.get("customConfigExcludeList");
-	    for(int i=0; i < jsonArray.length(); i++) {
-	    	customConfigExcludeList.add(jsonArray.getString(i));
-	    }
-	    if(customConfigExcludeList.size() == 0) {
-	    	customConfigExcludeList.add("");
-	    }
-	    
+		for (int i = 0; i < jsonArray.length(); i++) {
+			customConfigExcludeList.add(jsonArray.getString(i));
+		}
+		if (customConfigExcludeList.size() == 0) {
+			customConfigExcludeList.add("");
+		}
+
 		if (moduleType.equals(Constant.MasterModuleType.GRID.getModuleType())) {
-			return retrieveGridExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+			return retrieveGridExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.GRID.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType())) {
-			return retrieveRBExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+			return retrieveRBExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType())) {
-			return retrieveAutocompleteExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+			return retrieveAutocompleteExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.NOTIFICATION.getModuleType())) {
-			return retrieveNotificationExportData(customConfigExcludeList, moduleType);
+			return retrieveNotificationExportData(customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.NOTIFICATION.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DASHBOARD.getModuleType())) {
-			return downloadDashboardExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+			return downloadDashboardExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.DASHBOARD.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.FILEMANAGER.getModuleType())) {
-			return retrieveFileManagerExportData(customConfigExcludeList, moduleType);
+			return retrieveFileManagerExportData(customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.FILEMANAGER.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DYNAREST.getModuleType())) {
-			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType);
+			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.DYNAREST.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.PERMISSION.getModuleType())) {
-			return retrievePermissionExportData(systemConfigIncludeList, moduleType);
+			return retrievePermissionExportData(systemConfigIncludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.PERMISSION.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.SITELAYOUT.getModuleType())) {
-			return retrieveSiteLayoutExportData(systemConfigIncludeList, moduleType);
+			return retrieveSiteLayoutExportData(systemConfigIncludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.SITELAYOUT.getModuleType().toUpperCase()));
+		} else if (moduleType.equals(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType())) {
+			return retrieveAppConfigExportData(systemConfigIncludeList, moduleType, exportTableMap
+					.get(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().toUpperCase()));
+		} else if (moduleType.equals(Constant.MasterModuleType.MANAGEUSERS.getModuleType())) {
+			return retrieveManageUsersExportData(systemConfigIncludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toUpperCase()));
+		} else if (moduleType.equals(Constant.MasterModuleType.MANAGEROLES.getModuleType())) {
+			return retrieveManageRolesExportData(systemConfigIncludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.MANAGEROLES.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.TEMPLATES.getModuleType())) {
-			return downloadTemplateExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
+			return downloadTemplateExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation,
+					moduleType, exportTableMap.get(Constant.MasterModuleType.TEMPLATES.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DASHLET.getModuleType())) {
-			return downloadDashletExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
+			return downloadDashletExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation,
+					moduleType, exportTableMap.get(Constant.MasterModuleType.DASHLET.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DYNAMICFORM.getModuleType())) {
-			return downloadDynamicFormExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType);
+			return downloadDynamicFormExportData(systemConfigIncludeList, customConfigExcludeList,
+					downloadFolderLocation, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.DYNAMICFORM.getModuleType().toUpperCase()));
 		} else {
 			return null;
 		}
 	}
 
-	private XMLVO retrieveGridExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, String moduleType)
-			throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_GRID_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
+	private XMLVO retrieveGridExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_GRID_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
 
-		GridXMLVO gridXMLVO = null;		
-		if(exportableList != null && !exportableList.isEmpty()) {
+		validate(exportableList, exportedList, "Grid");
+
+		GridXMLVO gridXMLVO = null;
+		if (exportableList != null && !exportableList.isEmpty()) {
 			gridXMLVO = new GridXMLVO();
-			for(Object obj : exportableList) {
-				gridXMLVO.getGridDetails().add(((GridDetails)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((GridDetails) obj).getGridId())) {
+					throw new Exception("Data mismatch while exporting Grid.");
+				}
+
+				gridXMLVO.getGridDetails().add(((GridDetails) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return gridXMLVO;
 	}
 
-	private XMLVO retrieveRBExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, String moduleType)
-			throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getRBExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_RESOURCE_BUNDLE_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, customConfigExcludeList);
+	private XMLVO retrieveRBExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getRBExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_RESOURCE_BUNDLE_DATA_FOR_EXPORT, systemConfigIncludeList,
+				customConfigExcludeList);
+
+		validate(exportableList, exportedList, "Resource Bundle");
 
 		ResourceBundleXMLVO resourceBundleXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			resourceBundleXMLVO = new ResourceBundleXMLVO();
-			for(Object obj : exportableList) {
-				resourceBundleXMLVO.getResourceBundleDetails().add(((ResourceBundle)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((ResourceBundle) obj).getId().getResourceKey())) {
+					throw new Exception("Data mismatch while exporting Resource Bundle.");
+				}
+				resourceBundleXMLVO.getResourceBundleDetails().add(((ResourceBundle) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
@@ -210,31 +292,44 @@ public class ExportService {
 	}
 
 	private XMLVO retrieveAutocompleteExportData(List<String> systemConfigIncludeList,
-			List<String> customConfigExcludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
+			List<String> customConfigExcludeList, String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList, "Autocomplete");
 
 		AutocompleteXMLVO autocompleteXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			autocompleteXMLVO = new AutocompleteXMLVO();
-			for(Object obj : exportableList) {
-				autocompleteXMLVO.getAutocompleteDetails().add(((Autocomplete)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((Autocomplete) obj).getAutocompleteId())) {
+					throw new Exception("Data mismatch while exporting Autocomplete.");
+				}
+				autocompleteXMLVO.getAutocompleteDetails().add(((Autocomplete) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return autocompleteXMLVO;
 	}
 
-	private XMLVO retrieveNotificationExportData(List<String> customConfigExcludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_NOTIFICATAION_DATA_FOR_EXPORT, 
-				null, null, customConfigExcludeList, null);
+	private XMLVO retrieveNotificationExportData(List<String> customConfigExcludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_NOTIFICATAION_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
+				null);
+
+		validate(exportableList, exportedList,"Notification");
 
 		GenericUserNotificationXMLVO genericUserNotificationXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			genericUserNotificationXMLVO = new GenericUserNotificationXMLVO();
-			for(Object obj : exportableList) {
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((GenericUserNotification) obj).getNotificationId())) {
+					throw new Exception("Data mismatch while exporting Notification.");
+				}
 				genericUserNotificationXMLVO.getGenericUserNotificationDetails()
-					.add(((GenericUserNotification)obj).getObject());
+						.add(((GenericUserNotification) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
@@ -242,126 +337,264 @@ public class ExportService {
 	}
 
 	private XMLVO downloadDashboardExportData(List<String> systemConfigIncludeList,
-			List<String> customConfigExcludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
+			List<String> customConfigExcludeList, String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList,"Dashboard");
 
 		DashboardXMLVO dashboardXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			dashboardXMLVO = new DashboardXMLVO();
-			for(Object obj : exportableList) {
-				dashboardXMLVO.getDashboardDetails().add(((Dashboard)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((Dashboard) obj).getDashboardId())) {
+					throw new Exception("Data mismatch while exporting Dashboard.");
+				}
+				dashboardXMLVO.getDashboardDetails().add(((Dashboard) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return dashboardXMLVO;
 	}
 
-	private XMLVO retrieveFileManagerExportData(List<String> customConfigExcludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_EXPORT, 
-				null, null, customConfigExcludeList, null);
+	private XMLVO retrieveFileManagerExportData(List<String> customConfigExcludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
+				null);
+
+		validate(exportableList, exportedList,"File Manager");
 
 		FileManagerXMLVO fileManagerXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			fileManagerXMLVO = new FileManagerXMLVO();
-			for(Object obj : exportableList) {
-				fileManagerXMLVO.getFileUploadDetails().add(((FileUploadConfig)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((FileUploadConfig) obj).getFileUploadConfigId())) {
+					throw new Exception("Data mismatch while exporting File Manager.");
+				}
+				fileManagerXMLVO.getFileUploadDetails().add(((FileUploadConfig) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return fileManagerXMLVO;
 	}
 
-	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList,
-			List<String> customConfigExcludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
+	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList,"Dyna Rest");
+
 		DynaRestXMLVO dynaRestXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			dynaRestXMLVO = new DynaRestXMLVO();
-			for(Object obj : exportableList) {
-				dynaRestXMLVO.getDynaRestDetails().add(((JwsDynamicRestDetail)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((JwsDynamicRestDetail) obj).getJwsDynamicRestId())) {
+					throw new Exception("Data mismatch while exporting Dyna Rest.");
+				}
+				dynaRestXMLVO.getDynaRestDetails().add(((JwsDynamicRestDetail) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return dynaRestXMLVO;
 	}
 
-	private XMLVO retrievePermissionExportData(List<String> systemConfigIncludeList, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_PERMISSION_FOR_EXPORT, 
-				systemConfigIncludeList, null, null, null);
+	private XMLVO retrievePermissionExportData(List<String> systemConfigIncludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_PERMISSION_FOR_EXPORT, systemConfigIncludeList, null, null, null);
+
+		validate(exportableList, exportedList,"Permission");
 
 		PermissionXMLVO permissionXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			permissionXMLVO = new PermissionXMLVO();
-			for(Object obj : exportableList) {
-				permissionXMLVO.getJwsRoleDetails().add(((JwsEntityRoleAssociation)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((JwsEntityRoleAssociation) obj).getEntityRoleId())) {
+					throw new Exception("Data mismatch while exporting Permission.");
+				}
+				permissionXMLVO.getJwsRoleDetails().add(((JwsEntityRoleAssociation) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return permissionXMLVO;
 	}
 
-	private XMLVO retrieveSiteLayoutExportData(List<String> systemConfigIncludeList, String moduleType) throws Exception {
-		List<Object> exportableList;
-		exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, null, null, null);
+	private XMLVO retrieveSiteLayoutExportData(List<String> systemConfigIncludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
+				null);
+
+		validate(exportableList, exportedList,"SIte Layout");
 
 		SiteLayoutXMLVO siteLayoutXMLVO = null;
-		if(exportableList != null && !exportableList.isEmpty()) {
+		if (exportableList != null && !exportableList.isEmpty()) {
 			siteLayoutXMLVO = new SiteLayoutXMLVO();
-			for(Object obj : exportableList) {
-				siteLayoutXMLVO.getModuleListingDetails().add(((ModuleListing)obj).getObject());
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((ModuleListing) obj).getModuleId())) {
+					throw new Exception("Data mismatch while exporting Site Layout.");
+				}
+				siteLayoutXMLVO.getModuleListingDetails().add(((ModuleListing) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return siteLayoutXMLVO;
 	}
 
-	private XMLVO downloadTemplateExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, 
-			String downloadFolderLocation, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
-		if(exportableList != null && !exportableList.isEmpty()) {
-			for(Object obj : exportableList) {
-				templateDownloadUploadModule.downloadCodeToLocal(((TemplateMaster)obj), downloadFolderLocation);
+	private XMLVO retrieveAppConfigExportData(List<String> systemConfigIncludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_APP_CONFIG_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
+				null);
+
+		validate(exportableList, exportedList,"Application Configuration");
+
+		PropertyMasterXMLVO propertyMasterXMLVO = null;
+		if (exportableList != null && !exportableList.isEmpty()) {
+			propertyMasterXMLVO = new PropertyMasterXMLVO();
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((PropertyMaster) obj).getPropertyMasterId())) {
+					throw new Exception("Data mismatch while exporting Application Configuration.");
+				}
+				propertyMasterXMLVO.getApplicationConfiguration().add(((PropertyMaster) obj).getObject());
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return propertyMasterXMLVO;
+	}
+
+	private XMLVO retrieveManageUsersExportData(List<String> systemConfigIncludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_MANAGE_USERS_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
+				null);
+
+		validate(exportableList, exportedList,"Users");
+
+		UserXMLVO userXMLVO = null;
+		if (exportableList != null && !exportableList.isEmpty()) {
+			userXMLVO = new UserXMLVO();
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((JwsUser) obj).getUserId())) {
+					throw new Exception("Data mismatch while exporting Users.");
+				}
+				userXMLVO.getUserDetails().add(((JwsUser) obj).getObject());
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return userXMLVO;
+	}
+
+	private XMLVO retrieveManageRolesExportData(List<String> systemConfigIncludeList, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_MANAGE_ROLES_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
+				null);
+
+		validate(exportableList, exportedList,"Roles");
+
+		RoleXMLVO roleXMLVO = null;
+		if (exportableList != null && !exportableList.isEmpty()) {
+			roleXMLVO = new RoleXMLVO();
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((JwsRole) obj).getRoleName())) {
+					throw new Exception("Data mismatch while exporting Roles.");
+				}
+				roleXMLVO.getRoleDetails().add(((JwsRole) obj).getObject());
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return roleXMLVO;
+	}
+
+	private XMLVO downloadTemplateExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String downloadFolderLocation, String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList,"Templates");
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((TemplateMaster) obj).getTemplateId())) {
+					throw new Exception("Data mismatch while exporting Templates.");
+				}
+				templateDownloadUploadModule.exportData(((TemplateMaster) obj), downloadFolderLocation);
 			}
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
-			
-			XMLUtil.generateMetadataXML(null, templateDownloadUploadModule.getModuleDetailsMap(), downloadFolderLocation+File.separator+
-					com.trigyn.jws.templating.utils.Constant.TEMPLATE_DIRECTORY_NAME, version, userName,"");
+
+			XMLUtil.generateMetadataXML(null, templateDownloadUploadModule.getModuleDetailsMap(), downloadFolderLocation
+					+ File.separator + com.trigyn.jws.templating.utils.Constant.TEMPLATE_DIRECTORY_NAME, version,
+					userName, "");
 		}
 		return null;
 	}
 
-	private XMLVO downloadDashletExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, 
-			String downloadFolderLocation, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
-		if(exportableList != null && !exportableList.isEmpty()) {
-			for(Object obj : exportableList) {
-				dashletDownloadUploadModule.downloadCodeToLocal(((Dashlet)obj), downloadFolderLocation);
+	private XMLVO downloadDashletExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String downloadFolderLocation, String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList,"Dashlets");
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((Dashlet) obj).getDashletId())) {
+					throw new Exception("Data mismatch while exporting Dashlet.");
+				}
+				dashletDownloadUploadModule.exportData(((Dashlet) obj), downloadFolderLocation);
 			}
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
-			XMLUtil.generateMetadataXML(null, dashletDownloadUploadModule.getModuleDetailsMap(), 
-					downloadFolderLocation+File.separator+Constants.DASHLET_DIRECTORY_NAME, version, userName,"");
+			XMLUtil.generateMetadataXML(null, dashletDownloadUploadModule.getModuleDetailsMap(),
+					downloadFolderLocation + File.separator + Constants.DASHLET_DIRECTORY_NAME, version, userName, "");
 		}
 		return null;
 	}
-	
-	private XMLVO downloadDynamicFormExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, 
-			String downloadFolderLocation, String moduleType) throws Exception {
-		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_EXPORT, 
-				systemConfigIncludeList, 2, customConfigExcludeList, 1);
-		if(exportableList != null && !exportableList.isEmpty()) {
-			for(Object obj : exportableList) {
-				dynamicFormDownloadUploadModule.downloadCodeToLocal(((DynamicForm)obj), downloadFolderLocation);
+
+	private XMLVO downloadDynamicFormExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String downloadFolderLocation, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList,"Dynamic Form");
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((DynamicForm) obj).getFormId())) {
+					throw new Exception("Data mismatch while exporting Dynamic Form.");
+				}
+				dynamicFormDownloadUploadModule.exportData(((DynamicForm) obj), downloadFolderLocation);
 			}
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
-			XMLUtil.generateMetadataXML(null, dynamicFormDownloadUploadModule.getModuleDetailsMap(), downloadFolderLocation+File.separator+
-						com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME, version, userName,"");
+			XMLUtil.generateMetadataXML(null, dynamicFormDownloadUploadModule.getModuleDetailsMap(),
+					downloadFolderLocation + File.separator
+							+ com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME,
+					version, userName, "");
 		}
 		return null;
 	}
-	
+
+	private void validate(List<Object> exportableList, List<String> exportedList, String moduleType) throws Exception {
+
+		if (exportableList != null && exportableList.isEmpty() && exportedList != null && !exportedList.isEmpty()) {
+			throw new Exception("Data mismatch while exporting " + moduleType + ".");
+		} else if (exportableList != null && !exportableList.isEmpty() && exportedList != null
+				&& exportedList.isEmpty()) {
+			throw new Exception("Data mismatch while exporting " + moduleType + ".");
+		} else if (exportableList == null && exportedList != null && !exportedList.isEmpty()) {
+			throw new Exception("Data mismatch while exporting " + moduleType + ".");
+		} else if (exportedList == null && exportableList != null && !exportableList.isEmpty()) {
+			throw new Exception("Data mismatch while exporting " + moduleType + ".");
+		}
+
+	}
+
 }

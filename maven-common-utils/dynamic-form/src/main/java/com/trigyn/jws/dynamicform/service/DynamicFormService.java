@@ -43,6 +43,10 @@ public class DynamicFormService {
 	private static final String INT = "int";
 
 	private static final String VARCHAR = "varchar";
+	
+	private static final String PRIMARY_KEY = "PRI";
+	
+	private static final String AUTO_INCREMENT = "AUTO_INCREMENT";
 
 	@Autowired
 	private TemplatingUtils templateEngine 					= null;
@@ -218,13 +222,24 @@ public class DynamicFormService {
 	private void createSaveUpdateQueryTemplate(List<Map<String, Object>> tableInformation, String tableName, Map<String, String> templatesMap) {
 		
 		StringJoiner insertJoiner = new StringJoiner(",", "INSERT INTO "+tableName+" (", ")");
-		StringJoiner insertValuesJoiner = new StringJoiner(",", " VALUES (", ")");
+		StringJoiner insertValuesJoiner = null;
 		for (Map<String, Object> info : tableInformation) {
 			String columnName = info.get("tableColumnName").toString();
 			String dataType = info.get("dataType").toString();
 			String columnKey = info.get("columnKey").toString();
-			insertJoiner.add(columnName);
-			joinQueryBuilder(insertValuesJoiner, columnName, dataType, false);
+			insertValuesJoiner = createInsertQuery(insertValuesJoiner, tableName, columnName, dataType, columnKey);
+			if(columnKey != null && columnKey.equals(PRIMARY_KEY)) {
+				insertJoiner.add(columnName);
+			}
+		}
+		for (Map<String, Object> info : tableInformation) {
+			String columnName = info.get("tableColumnName").toString();
+			String dataType = info.get("dataType").toString();
+			String columnKey = info.get("columnKey").toString();
+			if(StringUtils.isBlank(columnKey) || columnKey.equals(PRIMARY_KEY) == false) {
+				insertJoiner.add(columnName);
+				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false);
+			}
 			
 		}
 		StringBuilder queryBuilder = new StringBuilder(insertJoiner.toString());
@@ -258,7 +273,29 @@ public class DynamicFormService {
 		}
 	}
 
-	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType, boolean showColumnName) {
+	private StringJoiner createInsertQuery(StringJoiner insertValuesJoiner, String tableName
+			, String columnName, String dataType, String columnKey) {
+		if(columnKey != null && columnKey.equals(PRIMARY_KEY)) {
+			if(dataType.contains(VARCHAR) || dataType.contains(TEXT)) {
+				if(insertValuesJoiner == null) { 
+					insertValuesJoiner = new StringJoiner(",", " VALUES (", ")") ;
+				}
+				String value = "UUID()";
+				insertValuesJoiner.add(value.replace("\\", ""));
+			}else if (dataType.contains(INT)){
+				if(insertValuesJoiner == null) { 
+					String tableQuery = " FROM " + tableName;
+					insertValuesJoiner = new StringJoiner(",", " ", tableQuery);
+				}
+				String value = "SELECT CASE WHEN MAX("+columnName+") IS NULL THEN 1 ELSE MAX("+columnName+") + 1 END ";
+				insertValuesJoiner.add(value.replace("\\", ""));
+			}
+		}
+		return insertValuesJoiner;
+	}
+	
+	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType
+			, boolean showColumnName) {
 		String formFieldName = columnName.replace("_", "");
 		if(dataType.contains(VARCHAR) || dataType.contains(TEXT)) {
 			String value = showColumnName ? columnName + " = :" + formFieldName : ":"+ formFieldName;
@@ -284,7 +321,9 @@ public class DynamicFormService {
 
 	private Object getDataInTypeFormat(String value, String valueType) {
 		if (valueType.equals(INT)) {
-			return Integer.parseInt(value);
+			if(StringUtils.isBlank(value) == false) {
+				return Integer.parseInt(value);
+			}
 		} else if (valueType.equals(DECIMAL)) {
 			return Double.parseDouble(value);
 		} else if (valueType.equals(DATE) || valueType.equals(TIMESTAMP)) {

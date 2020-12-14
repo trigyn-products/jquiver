@@ -27,8 +27,8 @@ public class Dashboard implements Serializable {
 	private static final long serialVersionUID 							= 1L;
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "dashboard_id")
 	private String								dashboardId				= null;
 

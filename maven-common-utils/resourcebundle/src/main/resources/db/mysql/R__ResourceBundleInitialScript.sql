@@ -157,7 +157,8 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.type
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocomplete', 1, 'Autocomplete'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompletePrefetch', 1, 'Autocomplete(Prefetch)');
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(Local Storage)'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteLocalSotrage', 1, 'Autocomplete(Local Storage)');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.autocompleteClearText', 1, 'Autocomplete(Clear Text)'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.multiselect', 1, 'Multiselect');  
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndReturn', 1, 'Save & Return');  
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.saveAndCreateNew', 1, 'Save & Create New');  
@@ -181,5 +182,14 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.crea
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.editUserDetails', 1, 'Edit User Details'); 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageUserDetails', 1, 'Manage User Details');
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.manageRolesAndPolicy', 1, 'Manage User Roles And Policy'); 
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.securityManagement', 1, 'Security Management');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.ddosPageCount', 1, 'DDOS Page Count');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.ddosRefreshInterval', 1, 'DDOS Refresh Interval');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.ddosExcludedExtn', 1, 'DDOS Exlcuded Extensions');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.blockedIPAddr', 1, 'Blocked IP Address');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.ddos', 1, 'Distributed Denial Of Service');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.editProperty', 1, 'Edit Property');
 
 SET FOREIGN_KEY_CHECKS=1;

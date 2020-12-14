@@ -74,7 +74,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                     <h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
                      
                 </div>
-                <p class="mb-1">Built using Spring interceptors, Locale Resolvers and Resource Bundles for different locales</p>
+                <p class="mb-1">Built using Spring interceptors and Locale Resolvers</p>
                 <small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
             </div>
         </a>
@@ -98,7 +98,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         <div class="home_block col-12">
         <a href="../cf/fucl" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+           	<div class="home_list_icon"><img src="/webjars/1.0/images/upload_management.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.fileUploadConfig'')}</span></h5>
@@ -199,6 +199,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </a>
         </div>
         
+        <div class="home_block col-12">
+        <a href="../cf/scm" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="/webjars/1.0/images/security_manager.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.securityManagement'')}</h5>
+                 
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine</p>
+                <small class="text-muted">Secure your web application with some advanced security measures in place</small>
+            </div>
+        </a>
+        </div>
         
         <div class="home_block col-12">
         <a href="../cf/pml" class="list-group-item list-group-item-action">
@@ -236,6 +249,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		                <div class="btn cm-impobtn outline"><i class="fa fa-download"></i> Import</div>
 		            </div>
 	            </a>
+
+                <div class="home_list_content">
+                     <small class="text-muted">Manage export and import of configurations.</small>
+                </div>
 	            <a href="../cf/vexp">
 		            <div class="cm-exporticon">
 		                <div class="btn cm-expobtn outline">Export<i class="fa fa-upload"></i></div>
@@ -836,6 +853,7 @@ let addEditModule;
 let autocomplete;
 let sequence = "${(moduleDetailsVO?api.getSequence())!''''}";
 $(function() {
+	$("#targetLookupType option[value=''4'']").remove();
     let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
     let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
 	let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''''}";
@@ -1150,6 +1168,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 const contextPath = "${(contextPath)!''''}";
 let autocomplete;
 $(function() {
+	$("#targetLookupType option[value=''4'']").remove();
 	let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
 	let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''''}";
 	let selectedTargetDetails = new Object();
@@ -1272,86 +1291,88 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 
 </head>
-<div class="container" style="padding-top: 40px">
-     
-	 <div class="topband">
-		<h2 class="title-cls-name float-left history-label">${messageSource.getMessage("jws.history")} ${(moduleName)!''''}</h2> 
-		<div class="float-right">
-			<span onclick="backToPreviousPage();">
-  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>
-		</div>
-
-		<div class="clearfix"></div>
-	</div>
+<div class="pg-revision-history">
+	<div class="container" style="padding-top: 40px">
+	     
+		 <div class="topband">
+			<h2 class="title-cls-name float-left history-label">${messageSource.getMessage("jws.history")}: ${(moduleName)!''''}</h2> 
+			<div class="float-right">
+				<span onclick="backToPreviousPage();">
+	  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
+	  		 	</span>
+			</div>
 	
-	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-	<div class="row">
+			<div class="clearfix"></div>
+		</div>
 		
-		<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
-		<input type="hidden" id="saveUrl" name="saveUrl" value="${(saveUrl)!''''}">
-		<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="${(previousPageUrl)!''''}">
-		<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
-		<input type="hidden" id="formId" name="formId" value="${(formId)!''''}">
-		<input type="hidden" id="dateFormat" name="dateFormat" value="${(dateFormat)!''''}">
-		
-		<input type="hidden" id="moduleVersionId" value="" name="targetTypeNameId" class="form-control">
-		<input type="hidden" id="selectedDateTime" value="" name="selectedDateTime" class="form-control">
-		
-
-	</div>
-
-
-	<div class="row margin-t-b">
-
-			<div class="col-6">
-				<h3 id="diffEditorHeader" class="titlename">${messageSource.getMessage("jws.currentContent")}</h3>
-			</div>
-			<div class="col-6">
-				<#if isImport == "true"> 
-					<label class="versioning-label" >Import Data </label>
-				<#else>
-					<label for="revisionAutocomplete" class="versioning-label" >Revision History: </label>
-				</#if>
-				<div class="col-inner-form full-form-fields">
-					<#if isImport == "false"> 
-						<div class="search-cover pull-left">
-							<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
-							<i class="fa fa-search" aria-hidden="true"></i>
-						</div>
-					</#if>
-					<span onclick="copyJsonData()"  class="grid_action_icons pull-left">
-
-                        <span class="cm-iconsvg"><img src="/webjars/1.0/images/text-push-right-1.svg"></span>
-                    </span>
-				</div>
-			</div>
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+		<div class="row">
 			
-			<div class="col-12" id="diffEditor_0">
-				<div class="html_script">
-					<div class="grp_lblinp">
-						<div id="jsonContainer_0" class="ace-editor-container">
-							<div id="jsonEditor_0" class="ace-editor"></div>
-						</div>
-					</div>
-				</div>	
-			</div>
-	</div>
-
-	<div class="col-12">
-		<div class="float-right margin-b-25">
-			<div class="btn-group dropdown custom-grp-btn">
-				<div id="savedAction">
-	    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
-	            </div> 
-			</div>
-			<span onclick="backToPreviousPage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
-			</span> 
-		</div>
-	</div>	
-
+			<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
+			<input type="hidden" id="saveUrl" name="saveUrl" value="${(saveUrl)!''''}">
+			<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="${(previousPageUrl)!''''}">
+			<input type="hidden" id="moduleType" name="moduleType" value="${(moduleType)!''''}">
+			<input type="hidden" id="formId" name="formId" value="${(formId)!''''}">
+			<input type="hidden" id="dateFormat" name="dateFormat" value="${(dateFormat)!''''}">
+			
+			<input type="hidden" id="moduleVersionId" value="" name="targetTypeNameId" class="form-control">
+			<input type="hidden" id="selectedDateTime" value="" name="selectedDateTime" class="form-control">
+			
 	
+		</div>
+	
+	
+		<div class="row margin-t-b">
+	
+				<div class="col-6">
+					<h3 id="diffEditorHeader" class="titlename">${messageSource.getMessage("jws.currentContent")}</h3>
+				</div>
+				<div class="col-6">
+					<#if isImport == "true"> 
+						<label class="versioning-label" >Import Data </label>
+					<#else>
+						<label for="revisionAutocomplete" class="versioning-label" >${messageSource.getMessage("jws.revisionTime")}: </label>
+					</#if>
+					<div class="col-inner-form full-form-fields">
+						<#if isImport == "false"> 
+							<div class="search-cover pull-left">
+								<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
+								<i class="fa fa-search" aria-hidden="true"></i>
+							</div>
+						</#if>
+						<span onclick="copyJsonData()"  class="grid_action_icons pull-left">
+	
+	                        <span class="cm-iconsvg"><img src="/webjars/1.0/images/text-push-right-1.svg"></span>
+	                    </span>
+					</div>
+				</div>
+				
+				<div class="col-12" id="diffEditor_0">
+					<div class="html_script">
+						<div class="grp_lblinp">
+							<div id="jsonContainer_0" class="ace-editor-container">
+								<div id="jsonEditor_0" class="ace-editor"></div>
+							</div>
+						</div>
+					</div>	
+				</div>
+		</div>
+	
+		<div class="col-12">
+			<div class="float-right margin-b-25">
+				<div class="btn-group dropdown custom-grp-btn">
+					<div id="savedAction">
+		    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
+		            </div> 
+				</div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+				</span> 
+			</div>
+		</div>	
+	
+		
+	</div>
 </div>
 <script>
 contextPath = "${(contextPath)!''''}";
@@ -1386,6 +1407,7 @@ $(function(){
         autocomplete = $(''#revisionAutocomplete'').autocomplete({
         autocompleteId: ''revisionAutocomplete'',
         prefetch : true,
+        enableClearText : true,
         render: function(item) {
         	var renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -1395,7 +1417,9 @@ $(function(){
         	else
     		{
         		renderStr = item.emptyMsg;	
-    		}	    				        
+    		}	    		
+    		$("#selectedDateTime").val("");
+			$("#moduleVersionId").val("");		        
             return renderStr;
         },
         additionalParamaters: {
@@ -1799,5 +1823,5 @@ function backToPreviousPage(){
 	location.href = contextPath+previousPageUrl;
 }
 
-</script>', 'admin', 'admin', NOW(), 2);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 

@@ -15,7 +15,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <div class="container">
 
 	<div class="topband">
-		<h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.typeAheadAutocompleteDemo" "TypeAhead Demo"/></h2> 
+		<h2 class="title-cls-name float-left">
+			<@resourceBundleWithDefault "jws.typeAheadAutocompleteDemo" "TypeAhead Demo"/>
+		</h2> 
 		<div class="float-right">
 			<span onclick="backToListingPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
@@ -29,7 +31,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <div class="row">
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
-				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocomplete'')}</label>
+				<label for="flammableState" style="white-space:nowrap"><@resourceBundle "jws.autocomplete" /></label>
 				<input class="form-control" id="rbAutocomplete" type="text">
  			</div>
 		</div>
@@ -49,6 +51,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompleteLocalSotrage'')}</label>
 				<input class="form-control" id="rbAutocompleteLS" type="text">
+ 			</div>
+		</div>
+		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompleteClearText'')}</label>
+				<input class="form-control" id="rbAutocompleteCT" type="text">
  			</div>
 		</div>
 	</div>
@@ -76,18 +85,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<div class="multiselectcount_clear_block">
-					<div id="languages_removeAll" class="pull-right disable_cls">
-						<span title="Clear All" class="clearall-cls" onclick="languageSelector.removeAllElements(''languages'')" style="pointer-events:none">Clear All</span>
+					<div id="rbMultiselectLS_removeAll" class="pull-right disable_cls">
+						<span title="Clear All" class="clearall-cls" onclick="rbMultiselectLS.removeAllElements(''rbMultiselectLS'')" style="pointer-events:none">Clear All</span>
 					</div>
-					<div id="languages_count" class="multiselectcount pull-right disable_cls">
-						<span title="hide show" onclick="languageSelector.showHideDataDiv(''languages_selectedOptions'')" style="pointer-events:none">0</span>
+					<div id="rbMultiselectLS_count" class="multiselectcount pull-right disable_cls">
+						<span title="hide show" onclick="rbMultiselectLS.showHideDataDiv(''rbMultiselectLS_selectedOptions'')" style="pointer-events:none">0</span>
 					</div>
 				</div>
 				
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.multiselectLocalStorage'')}</label>
-				<input class="form-control" id="languages" type="text">
+				<input class="form-control" id="rbMultiselectLS" type="text">
 			
-				<div id="languages_selectedOptions"></div>
+				<div id="rbMultiselectLS_selectedOptions"></div>
  			</div>
 		</div>
 		
@@ -101,6 +110,7 @@ function backToListingPage() {
 }
 let autocomplete;
 let autocompletePF;
+let autocompleteCT;
 let multiselect;
 $(function () {
     autocomplete = $(''#rbAutocomplete'').autocomplete({
@@ -108,12 +118,9 @@ $(function () {
 		prefetch : false,
         render: function(item) {
         	var renderStr ='''';
-        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
-    		{
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
-    		}
-        	else
-    		{
+    		}else{
         		renderStr = item.emptyMsg;	
     		}	    				        
             return renderStr;
@@ -132,12 +139,9 @@ $(function () {
 		prefetch : true,
         render: function(item) {
         	var renderStr ='''';
-        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
-    		{
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
-    		}
-        	else
-    		{
+    		}else{
         		renderStr = item.emptyMsg;	
     		}	    				        
             return renderStr;
@@ -156,12 +160,9 @@ $(function () {
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
         render: function(item) {
         	var renderStr ='''';
-        	if(item.emptyMsg == undefined || item.emptyMsg === '''')
-    		{
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
-    		}
-        	else
-    		{
+    		}else{
         		renderStr = item.emptyMsg;	
     		}	    				        
             return renderStr;
@@ -174,8 +175,17 @@ $(function () {
             return item.text;
         },
         select: function(item) {
-            $("#rbMultiselect").blur();
-            multiselect.setSelectedObject(item);
+        	let dependArray = new Array();
+        	let dependObj = new Object();
+        	dependObj.componentId = "rbMultiselectLS";
+        	dependObj.context = rbMultiselectLS;
+        	dependArray.push(dependObj);
+        	let dependentCompUpdated = multiselect.resetDependent(dependArray);
+        	if(dependentCompUpdated === true){ 
+	            multiselect.setSelectedObject(item);
+	        }
+	        $("#rbMultiselect").blur();
+	        $("#rbMultiselect").val("");
         },	
     }, [{key: "jws.action", languageId: 1, text: "Action"}]);
     
@@ -200,12 +210,36 @@ $(function () {
 			});
 		},
 		render: function(item) {
-			return "<p>" + item.languageName + "</p><small>" + item.languageId + "</small>";
+			return "<div class=''jws-rich-autocomplete-multiple''> <div class=''jws-rich-autocomplete-text'' ><label>Language Name: </label>" + item.languageName
+			 + "</div> <div class=''jws-rich-autocomplete-id''><label>Language Id: </label>" + item.languageId 
+			 + "<div class=''clearfix''></div> </div>";
 		}
 	});
 	
-	languageSelector = $("#languages").multiselect({
-            multiselectItem: $("#languages_selectedOptions"),
+	autocompleteCT = $(''#rbAutocompleteCT'').autocomplete({
+        autocompleteId: "resourcesAutocomplete",
+		prefetch : true,
+		enableClearText: true,
+        render: function(item) {
+        	var renderStr ='''';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
+        		renderStr = ''<p>''+item.text+''</p>'';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#rbAutocompleteCT").blur();
+        }, 	
+    });
+    
+	rbMultiselectLS = $("#rbMultiselectLS").multiselect({
+            multiselectItem: $("#rbMultiselectLS_selectedOptions"),
             paging:false,
             items: [{
                 languageName: "English",
@@ -221,7 +255,9 @@ $(function () {
             render: function(item) {
                 var renderStr ="";
                 if(item.emptyMsg == undefined || item.emptyMsg === ''''){
-                    renderStr = "<p>"+item.languageName+"</p>";
+                    return "<div class=''jws-rich-autocomplete-multiple''> <div class=''jws-rich-autocomplete-text'' ><label>Language Name: </label>" + item.languageName
+			 			+ "</div> <div class=''jws-rich-autocomplete-id''><label>Language Id: </label>" + item.languageId 
+			 			+ "<div class=''clearfix''></div> </div>";
                 }else{
                     renderStr = item.emptyMsg;    
                 }                                
@@ -242,8 +278,8 @@ $(function () {
             },
 
             select: function(item) {
-                $("#languages").blur();
-                languageSelector.setSelectedObject(item);
+                $("#rbMultiselectLS").blur();
+                rbMultiselectLS.setSelectedObject(item);
             }    
 
         });
@@ -479,7 +515,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
-CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
   SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
@@ -487,6 +523,30 @@ BEGIN
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT autocompleteId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_id LIKE ''%',autocompleteId,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_id LIKE ''%',autocompleteId,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT autocompleteDescription IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_description LIKE ''%',autocompleteDescription,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_description LIKE ''%',autocompleteDescription,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT acQuery IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_select_query LIKE ''%',acQuery,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_select_query LIKE ''%',acQuery,'%''');
+    END IF;  
+  END IF;
   
   SET @groupByString = ' GROUP BY au.ac_id ';
   
@@ -508,7 +568,7 @@ BEGIN
 END;
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,autocompleteTypeId', 2);
+REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,acQuery,autocompleteTypeId', 2);
 
 REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
 ('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")', 2);

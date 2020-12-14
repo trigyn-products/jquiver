@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.Restarter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,11 +24,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+import com.trigyn.jws.usermanagement.service.JwsUserService;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsMasterModulesVO;
@@ -50,6 +57,12 @@ public class JwsUserManagementController {
 	
 	@Autowired
     private ApplicationSecurityDetails applicationSecurityDetails = null;
+	
+	@Autowired
+	private JwsUserService jwsUserService = null;
+	
+	@Autowired
+	private IUserDetailsService userDetailsService = null;
 	
 	
 	@GetMapping(value="/um")
@@ -112,10 +125,13 @@ public class JwsUserManagementController {
 		if(userManagementService.checkAuthenticationEnabled()) {	
 			Map<String, Object> mapDetails = new HashMap<>();
 			String templateName = userManagementService.getPropertyValueByAuthName("user-profile-template-details", "templateName");
+			UserDetailsVO detailsVO = userDetailsService.getUserDetails();
+			mapDetails.put("userDetails", detailsVO);
 			if(StringUtils.isNotBlank(templateName)) {
 				mapDetails.put("isProfilePage", false);
 				return menuService.getTemplateWithSiteLayout(templateName, mapDetails);
 			}
+			
 			return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
 	 	} else {
 			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
@@ -218,8 +234,24 @@ public class JwsUserManagementController {
 	}
 	
 	 	@GetMapping(value = "/restart")
-	    public void restart() {    
-	        Restarter.getInstance().restart();
+	    public String restart()  {
+	 		
+	 		UserDetailsVO  userVO =  userDetailsService.getUserDetails();
+	 		new Thread(() ->    {
+	 			try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+	 			 Restarter.getInstance().restart();
+	 		}) .start();
+	 		
+	 		if(userVO.getUserId().equalsIgnoreCase("anonymous-user")) {
+	 			return "false";
+	 		}
+	 		
+	 		
+	 		return "true";
 
 	}
 	 	
@@ -282,7 +314,7 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/sjra")
-	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public void savePermission(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
 		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper objectMapper			= new ObjectMapper();
 		JwsEntityRoleAssociation jwsRoleAssoc		= objectMapper.readValue(modifiedContent, JwsEntityRoleAssociation.class);
@@ -292,5 +324,33 @@ public class JwsUserManagementController {
 	@GetMapping(value = "/cae")
 	public boolean checkAuthenticationEnabled(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
 		return userManagementService.checkAuthenticationEnabled();
+	}
+
+	@PostMapping(value = "/mjwsu")
+	public String getLastUpdatedJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String entityId = a_httpServletRequest.getParameter("entityId");
+		return userManagementService.getJwsUserJson(entityId);
+	}
+
+	@PostMapping(value = "/sjwsu")
+	public void saveJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper			= new ObjectMapper();
+		JwsUser user		= objectMapper.readValue(modifiedContent, JwsUser.class);
+		userManagementService.saveJwsUser(user);
+	}
+
+	@PostMapping(value = "/mjwsr")
+	public String getLastUpdatedJwsRole(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String entityId = a_httpServletRequest.getParameter("entityId");
+		return userManagementService.getJwsRoleJson(entityId);
+	}
+
+	@PostMapping(value = "/sjwsr")
+	public void saveJwsRole(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper			= new ObjectMapper();
+		JwsRole role		= objectMapper.readValue(modifiedContent, JwsRole.class);
+		userManagementService.saveJwsRole(role);
 	}
 }

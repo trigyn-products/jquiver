@@ -13,14 +13,15 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
-import com.trigyn.jws.dashboard.vo.DashletExportVO;
-import com.trigyn.jws.dynamicform.vo.DynamicFormExportVO;
-import com.trigyn.jws.templating.vo.TemplateExportVO;
-import com.trigyn.jws.webstarter.vo.ExportModule;
-import com.trigyn.jws.webstarter.vo.Modules;
-import com.trigyn.jws.webstarter.vo.Settings;
-import com.trigyn.jws.webstarter.xml.MetadataXMLVO;
-import com.trigyn.jws.webstarter.xml.XMLVO;
+import com.trigyn.jws.dbutils.utils.CustomCharacterEscapeHandler;
+import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
+import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
+import com.trigyn.jws.dbutils.vo.xml.ExportModule;
+import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
+import com.trigyn.jws.dbutils.vo.xml.Modules;
+import com.trigyn.jws.dbutils.vo.xml.Settings;
+import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 public class XMLUtil {
 

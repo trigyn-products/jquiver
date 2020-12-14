@@ -53,6 +53,12 @@ public class DynamicFormController {
         		requestParams.put(requestParamKey, httpServletRequest.getParameter(requestParamKey));
         	}
         }
+		String uri 						= httpServletRequest.getRequestURI();
+		String url 						= httpServletRequest.getRequestURL().toString();
+		StringBuilder contextPathUrl	= new StringBuilder();
+		url = url.replace(uri, "");
+		contextPathUrl.append(url);
+		requestParams.put("contextPathUrl", contextPathUrl);
         return requestParams;
     }
 	

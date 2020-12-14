@@ -10,15 +10,18 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
 @Entity
 @Table(name = "jws_role")
 public class JwsRole {
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name="role_id")
 	private String roleId = null;
 	
@@ -90,4 +93,14 @@ public class JwsRole {
 		} else role.setJwsRoleMasterModulesAssociation(null);
 		return role;
 	}
+
+	public JwsRoleVO convertEntityToVO(JwsRole jwsRole) {
+		JwsRoleVO jwsRoleVO = new JwsRoleVO();
+		jwsRoleVO.setRoleId(StringUtils.isNotEmpty(jwsRole.getRoleId())?jwsRole.getRoleId():null);
+		jwsRoleVO.setRoleName(jwsRole.getRoleName());
+		jwsRoleVO.setRoleDescription(jwsRole.getRoleDescription());
+		jwsRoleVO.setIsActive(jwsRole.getIsActive());
+		return jwsRoleVO;
+	}
+
 }

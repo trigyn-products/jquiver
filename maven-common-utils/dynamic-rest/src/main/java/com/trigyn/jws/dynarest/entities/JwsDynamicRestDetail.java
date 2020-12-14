@@ -29,8 +29,8 @@ public class JwsDynamicRestDetail implements Serializable {
 	private static final long serialVersionUID 			= 1L;
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name="jws_dynamic_rest_id")
 	private String jwsDynamicRestId					= null;
 
@@ -319,7 +319,12 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setJwsMethodName(jwsMethodName!=null?jwsMethodName.trim():jwsMethodName);
 		dynaRest.setJwsPlatformId(jwsPlatformId);
 		dynaRest.setJwsRbacId(jwsRbacId);
-		dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic!=null?jwsServiceLogic.trim():jwsServiceLogic +"]]>"));
+		if(jwsServiceLogic!=null) {
+			dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic.trim() +"]]>"));
+		} else {
+			dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA["+jwsServiceLogic +"]]>"));
+		}
+		
 		dynaRest.setJwsRequestTypeId(jwsRequestTypeId);
 		dynaRest.setJwsResponseProducerTypeId(jwsResponseProducerTypeId);
 		dynaRest.setJwsDynamicRestTypeId(jwsDynamicRestTypeId);

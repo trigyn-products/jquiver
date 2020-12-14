@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.trigyn.jws.dynamicform.entities.FileUpload;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 
 @XmlRootElement(name = "fileUploadData")

@@ -1,6 +1,8 @@
 package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -113,7 +115,18 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				details.put("fileName", fileUploadDetails.getOriginalFileName());
 				return details;
 			} else {
-				throw new RuntimeException("Could not read the file!");
+				String filePathStr = fileUploadDetails.getFilePath() + "/"+ fileUploadDetails.getPhysicalFileName();
+				URL fileURL = FilesStorageServiceImpl.class.getResource(filePathStr);
+				if (fileURL == null) {
+					throw new RuntimeException("Could not read the file!");
+				}else {
+					URI fileURI = fileURL.toURI();
+					File file = new File(fileURI);
+					byte[] fileByteArray = CryptoUtils.decrypt(JWS_SALT, file, null);
+					details.put("file", fileByteArray);
+					details.put("fileName", fileUploadDetails.getOriginalFileName());
+					return details;
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Error: ", e.getMessage());

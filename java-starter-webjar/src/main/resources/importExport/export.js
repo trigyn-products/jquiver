@@ -1,10 +1,7 @@
 	class ImportExportConfig {
-		constructor(systemConfigIncludeList, customConfigExcludeList, 
-				modeuleName, moduleID, gridID, colM, moduleType, exportableDataListMap) {
+		constructor(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap) {
 			this.systemConfigIncludeList = systemConfigIncludeList;
 			this.customConfigExcludeList = customConfigExcludeList;
-			this.moduleName	= modeuleName;
-			this.moduleID = moduleID;
 			this.gridID = gridID;
 			this.colM = colM;
 			this.moduleType = moduleType;
@@ -17,14 +14,6 @@
 
 		getCustomConfigExcludeList() {
 			return this.customConfigExcludeList;
-		}
-
-		getModuleName() {
-			return this.moduleName;
-		}
-
-		getModuleID() {
-			return this.moduleID;
 		}
 		
 		getModuleType() {
@@ -43,21 +32,26 @@
 			return this.exportableDataListMap;
 		}
 		
-		getGrid() {
+		getGrid(sortIndex) {
 			let grid = $("#"+this.moduleType+"").grid({
 	      		gridId: this.gridID,
-	      		colModel: this.colM
+	      		colModel: this.colM,
+	            dataModel: {
+	                sortIndx: sortIndex,
+	                sortDir: "up"
+	            }
 	 		 });
 			return grid;
 		}
 	}
 	
 	class ExportableData {
-		constructor(moduleType, moduleId, moduleName, moduleVersion) {
+		constructor(moduleType, moduleId, moduleName, moduleVersion, isSystemVariable) {
 			this.moduleType = moduleType;
 			this.moduleId = moduleId;
 			this.moduleName = moduleName;
 			this.moduleVersion = moduleVersion;
+			this.isSystemVariable = isSystemVariable;
 		}
 
 		getModuleType() {
@@ -75,11 +69,15 @@
 		getModuleVersion() {
 			return this.moduleVersion;
 		}
+
+		getIsSystemVariable() {
+			return this.isSystemVariable;
+		}
 	}
 
 	let map = new Map();
 
-	function openTab(evt, moduleName, moduleID, gridID, moduleType) {
+	function openTab(evt, gridID, moduleType) {
 	  	var i, tabcontent, tablinks;
 	  	tabcontent = document.getElementsByClassName("tabcontent");
 	  	for (i = 0; i < tabcontent.length; i++) {
@@ -91,7 +89,7 @@
 	  	}
 	  	
 	  	var exportObj = map.get(moduleType);
-		if(moduleType != "Grid") {
+		if(moduleType != "ApplicationConfiguration") {
 			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
 				let systemConfigIncludeList = [];
 				let customConfigExcludeList = [];
@@ -113,9 +111,25 @@
 					}
 					
 				}
-				if(moduleType == "Templates") {
+				let sortIndex = 1;
+				if(moduleType == "Grid") {
 					colM = [
-						{ title: "", width: 50, align: "center", render: updateExportTemplateFormatter, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportGridFormatter, dataIndx: "" },
+				        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
+				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+				        { title: "Grid Name", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
+				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+				        { title: "Grid Description", width: 160, align: "center", dataIndx: "gridDesc", align: "left", halign: "center",
+				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+				        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
+				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+				        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
+				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					];
+					sortIndex = 1;
+				} else if(moduleType == "Templates") {
+					colM = [
+						{ title: "Action", width: 50, maxWidth: 20, align: "center", render: updateExportTemplateFormatter, dataIndx: "" },
 						{ title: "", hidden: true, sortable : false, dataIndx: "templateId" },
 			            { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
 			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -126,9 +140,10 @@
 			            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
 			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 2;
 				} else if(moduleType == "ResourceBundle") {
 					colM = [
-						{ title: "", width: 10, align: "center", render: updateRBRenderer, dataIndx: "" },
+						{ title: "Action", width: 10, maxWidth: 20, align: "center", render: updateRBRenderer, dataIndx: "" },
 						{ title: "Resource Key", width: 90, dataIndx: "resourceKey", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					    { title: "Language Name", width: 90, dataIndx: "languageName", align: "left", halign: "center", 
@@ -136,19 +151,21 @@
 					    { title: "Text", width: 90, dataIndx: "resourceBundleText", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 1;
 				} else if(moduleType == "Autocomplete") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateExportAutocompleteFormatter, dataIndx: "" },
-						{ title: "Autocomplete Id", width: 130, align: "center", dataIndx: "autocompleteId", halign: "center",
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportAutocompleteFormatter, dataIndx: "" },
+						{ title: "Autocomplete Id", width: 130, align: "left", dataIndx: "autocompleteId", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Autocomplete Description", width: 100, align: "center",  dataIndx: "autocompleteDescription", halign: "center",
+					    { title: "Autocomplete Description", width: 100, align: "left",  dataIndx: "autocompleteDescription", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", halign: "center",
+					    { title: "Autocomplete Query", width: 160, align: "left", dataIndx: "acQuery", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 1;
 				} else if(moduleType == "Notification") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateNotificationRenderer, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateNotificationRenderer, dataIndx: "" },
 						{ title: "",hidden: true, width: 130, dataIndx: "notificationId" },
 				        { title: "Target Platform", width: 100,  dataIndx: "targetPlatform", align: "left", halign: "center",
 				        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
@@ -157,9 +174,10 @@
 						{ title: "Message Text", width: 200, dataIndx: "messageText", align: "left", halign: "center",
 				          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
+					sortIndex = 1;
 				} else if(moduleType == "Dashboard") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateDashboardRenderer, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashboardRenderer, dataIndx: "" },
 						{ title: "Dashboard Name", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 						{ title: "Dashboard Type", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
@@ -171,9 +189,10 @@
 						{ title: "Context Description", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 1;
 				} else if(moduleType == "Dashlets") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateDashletRenderer, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashletRenderer, dataIndx: "" },
 						{ title: "Dashlet Name", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 						{ title: "Dashlet Title", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
@@ -189,10 +208,12 @@
 						{ title: "Status", width: 160, dataIndx: "status" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
+					sortIndex = 2;
 				} else if(moduleType == "DynamicForm") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateDynamicFormRenderer, dataIndx: "" },
-						{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center"},
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynamicFormRenderer, dataIndx: "" },
+							{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center",
+								filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 						{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
 						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 						{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
@@ -204,7 +225,7 @@
 					];
 				} else if(moduleType == "FileManager") {
 					colM = [
-							{ title: "", width: 20, align: "center", render: updateFileManagerRenderer, dataIndx: "" },
+							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateFileManagerRenderer, dataIndx: "" },
 							{ title: "File Config Id", width: 130, dataIndx: "fileUploadConfigId", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					        { title: "File Type Supported", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
@@ -216,7 +237,7 @@
 					];
 				} else if(moduleType == "DynaRest") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
 						{ title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					        { title: "Method Name", width: 100, align: "center",  dataIndx: "jws_method_name", align: "left", halign: "center",
@@ -224,31 +245,78 @@
 					        { title: "Method Description", width: 160, align: "center", dataIndx: "jws_method_description", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 2;
 				} else if(moduleType == "Permission") {
 					colM = [
-							{ title: "", width: 20, align: "center", render: updatePermissionRenderer, dataIndx: "" },
-							{ title: "Module Name", width: 100, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",
+							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updatePermissionRenderer, dataIndx: "" },
+							{ title: "Module ID", width: 100, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					        { title: "Entity Name", width: 130, align: "center", dataIndx: "entityName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 				} else if(moduleType == "SiteLayout") {
 					colM = [
-						{ title: "", width: 20, align: "center", render: updateSiteLayoutRenderer, dataIndx: "" },
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateSiteLayoutRenderer, dataIndx: "" },
 						{ title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 				        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
 				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 				        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
 				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 2;
+				} else if(moduleType == "ApplicationConfiguration") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
+						{ title: "Owner Id", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Owner Type", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Name", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Value", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Modified By", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+					];
+					sortIndex = 4;
+				} else if(moduleType == "ManageUsers") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateUsersRenderer, dataIndx: "" },
+						{ title: "${messageSource.getMessage('jws.email')}", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+						{ title: "${messageSource.getMessage('jws.firstName')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+					    { title: "${messageSource.getMessage('jws.lastName')}", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+					    { title: "${messageSource.getMessage('jws.isActive')}", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					];
+					sortIndex = 1;
+				} else if(moduleType == "ManageRoles") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateRolesRenderer, dataIndx: "" },
+						{ title: "Role Name", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+					    { title: "Role Description", width: 100, align: "center",  dataIndx: "role_description", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+					    { title: "Is Active", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					];
+					sortIndex = 1;
 				}
-				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, moduleName, 
-					moduleID, gridID, colM, moduleType, exportableDataListMap);
+				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
 				map.set(moduleType, exportObj);
 
 				let grid = $("#"+moduleType+"").grid({
 		      		gridId: gridID,
-		      		colModel: colM
+		      		colModel: colM,
+		      		height:300,
+		            dataModel: {
+		                sortIndx: sortIndex,
+		                sortDir: "up"
+		            }
 		 		 });	
 			}
 		}
@@ -452,53 +520,117 @@
 		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
 		
 	}
+	// dont havae system var
+	function updateAppConfigRenderer(uiObject) {
+		const id = uiObject.rowData.propertyMasterId;
+		const name = uiObject.rowData.propertyName;
+		const version = getVersion(uiObject);
+		const isSystemVariable =  2;
+		const moduleType = "ApplicationConfiguration";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
+	// dont havae system var
+	function updateUsersRenderer(uiObject) {
+		const id = uiObject.rowData.user_id;
+		const name = uiObject.rowData.first_name + " " + uiObject.rowData.last_name;
+		const version = "NA";
+		const isSystemVariable =  2;
+		const moduleType = "ManageUsers";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
+	// dont havae system var
+	function updateRolesRenderer(uiObject) {
+		const id = uiObject.rowData.role_name;
+		const name = uiObject.rowData.role_description;
+		const version = "NA";
+		const isSystemVariable =  2;
+		const moduleType = "ManageRoles";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
 
 	function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable) {
-		let exportableData = new ExportableData(moduleType, id, name, version);
+		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		if(isSystemVariable == 1) {
-			if(customConfigExcludeList.indexOf(id) != -1) {
-				return '<input type="checkbox" id="'+id+'" name="'+id+'" onchange="checkCustomVar(this,\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\');">'.toString();
+			if(customConfigExcludeList.indexOf(id) != -1 || isDeselectedAll == true) {
+				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkCustomVar(this,\'' 
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');">'.toString();
 			} else {
 				map.get(moduleType).getExportableDataListMap().set(id, exportableData);
-				return '<input type="checkbox" id="'+id+'" name="'+id+'" onchange="checkCustomVar(this, \'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\');" checked="checked">'.toString();
+				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkCustomVar(this, \'' 
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');" checked="checked">'.toString();
 			}
 		} else {
 			if(systemConfigIncludeList.indexOf(id) != -1) {
 				map.get(moduleType).getExportableDataListMap().set(id, exportableData);
-				return '<input type="checkbox" id="'+id+'" name="'+id+'" onchange="checkSystemVar(this, \'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\');" checked="checked">'.toString();
+				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkSystemVar(this, \'' 
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');" checked="checked">'.toString();
 			} else {
-				return '<input type="checkbox" id="'+id+'" name="'+id+'" onchange="checkSystemVar(this, \'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\');">'.toString();
+				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkSystemVar(this, \'' 
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');">'.toString();
 			}
 		}
 	}
 	
-	function checkCustomVar(checkedCustom,  moduleType, name, version) {
-		debugger;
-		var id=checkedCustom.id;
+	function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVariable) {
 		
-		let exportableData = new ExportableData(moduleType, id, name, version);
+		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		
 		if (!checkedCustom.checked) {
 			map.get(moduleType).getCustomConfigExcludeList().push(id);
 			map.get(moduleType).getExportableDataListMap().delete(id);
+			let count = $('#selectedCount_'+moduleType).text();
+			let countInt = parseInt(count);
+			$('#selectedCount_'+moduleType).text(countInt-1);
 		} else {
 			map.get(moduleType).getCustomConfigExcludeList().splice(id, 1);
 			map.get(moduleType).getExportableDataListMap().set(id, exportableData);
+			if($('#deselectAllChkBx').is(':disabled')) {
+				$("#deselectAllChkBx").removeAttr('disabled');
+				$('#deselectAllChkBx').prop("checked",false);	
+			}
+			let count = $('#selectedCount_'+moduleType).text();
+			let countInt = parseInt(count);
+			$('#selectedCount_'+moduleType).text(countInt+1);
+			
 		}
 	}
 	
-	function checkSystemVar(checkedSystem,  moduleType, name, version){
-		debugger;
-		var id=checkedSystem.id;
+	function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVariable){
 
-		let exportableData = new ExportableData(moduleType, id, name, version);
+		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		
 		if (checkedSystem.checked) {
 			map.get(moduleType).getSystemConfigIncludeList().push(id);
 			map.get(moduleType).getExportableDataListMap().set(id, exportableData);
+			if($('#deselectAllChkBx').is(':disabled')) {
+				$("#deselectAllChkBx").removeAttr('disabled');
+				$('#deselectAllChkBx').prop("checked",false);	
+			}
+
+			let count = $('#selectedCount_'+moduleType).text();
+			let countInt = parseInt(count);
+			$('#selectedCount_'+moduleType).text(countInt+1);
 		} else {
 			map.get(moduleType).getSystemConfigIncludeList().splice(id, 1);
 			map.get(moduleType).getExportableDataListMap().delete(id);
+			let count = $('#selectedCount_'+moduleType).text();
+			let countInt = parseInt(count);
+			$('#selectedCount_'+moduleType).text(countInt-1);
 		}
 	}
 	
@@ -510,17 +642,65 @@
 		$("#mainTabBtn").hide();
 		$("#nextTabBtn").show();
 	}
-	
+
+	function deselectAll(){
+		isDeselectedAll = true;
+		map.forEach(function callback(value, key, map) {
+			if(key != "htmlTableJSON") {
+				let moduleType 	= key;
+				let gridID		= map.get(key).getGridID();
+				let colM		= map.get(key).getColM();
+				
+				let systemConfigIncludeList = [];
+				let customConfigExcludeList = [];
+				let exportableDataListMap = new Map();
+				
+				let exportableDataListMap1 = map.get(key).getExportableDataListMap();
+				for (let exportData of exportableDataListMap1.values()){
+					let id = exportData.getModuleId();
+					let modType = exportData.getModuleType();
+					let isSystemVar = exportData.getIsSystemVariable();
+					
+					$('#'+ modType + id).prop("checked",false);	
+					if(isSystemVar == 1) {
+						customConfigExcludeList.push(id);
+					}
+				}
+				
+				let exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
+				map.set(moduleType, exportObj);
+				
+				$('#selectedCount_'+moduleType).text(0);
+			}
+		});
+		 $("#deselectAllChkBx").attr("disabled", "disabled");
+	}
+		
 	function getPreviewHTMLTable() {
 		var jsonArr = [];
 		var tableRow="";
-		let exportDataList = map.values()
+		var sortedMap = new Map();
+		var keys = [];
+		map.forEach(function callback(value, key, map) {
+		    keys.push(key);
+		});
+		keys.sort().map(function(key) {
+		    sortedMap.set(key, map.get(key));
+		});
+		let exportDataList = sortedMap.values()
 		if(exportDataList != null) {
 			for (let config of exportDataList){
 				if(config instanceof ImportExportConfig) {
-					let  exportDataList = config.getExportableDataListMap().values();
-					if(exportDataList != null) {
-						for (let exportData of exportDataList){
+					if(config.getExportableDataListMap().values() != null) {
+						var sortedexportDataMap = new Map();
+						var keysExportDataList = [];
+						config.getExportableDataListMap().forEach(function callback(value, key, map) {
+							keysExportDataList.push(key);
+						});
+						keysExportDataList.sort().map(function(key) {
+							sortedexportDataMap.set(key, config.getExportableDataListMap().get(key));
+						});
+						for (let exportData of sortedexportDataMap.values()){
 							let ver = exportData.getModuleVersion();
 							let newVer;
 							if(ver != "NA" && ver != "") {
@@ -560,42 +740,55 @@
 	}
 	
 	function exportData() {
-		const out = Object.create(null)
+		let isDataAvailableForExport = true;
+		const out = Object.create(null);
         map.forEach((value, key) => {
+        	if(key == "htmlTableJSON" && map.get(key).length == 0) {
+        		isDataAvailableForExport = false;
+        	}
          if (value instanceof Map) {
            out[key] = map_to_object(value)
          }
          else {
            out[key] = JSON.stringify(value);
          }
-       })
+       });
        
-		$.ajax({
-			type : "POST",
-			url : "/cf/ecd",
-			async: false,
-		     contentType: "application/json",
-		     data : JSON.stringify(out),
-			success : function(data) {
-				$("#exportFormDiv")
-				.html(
-						"<form name='exportForm' method='post' id='exportForm' action='/cf/downloadExport'> "
-								+ "<input type='hidden' id='filePath' name='filePath' value='"
-								+ data
-								+ "'/>"
-								+ "</form>");
-				$("#exportForm").submit();
-				showMessage("Configuration exported successfully", "success");
-			},
-		        
-		    error : function(xhr, error){
-		    	showMessage("Error occurred while exporting", "error");
-		    },
-		        	
-		});
+        if(isDataAvailableForExport == true) {
+    		$.ajax({
+    			type : "POST",
+    			url : "/cf/ecd",
+    			async: false,
+    		     contentType: "application/json",
+    		     data : JSON.stringify(out),
+    			success : function(data) {
+    				if(data.startsWith("fail:")){
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				} else {
+    					$("#exportFormDiv")
+        				.html(
+        						"<form name='exportForm' method='post' id='exportForm' action='/cf/downloadExport'> "
+        								+ "<input type='hidden' id='filePath' name='filePath' value='"
+        								+ data
+        								+ "'/>"
+        								+ "</form>");
+        				$("#exportForm").submit();
+        				showMessage("Configuration exported successfully", "success");
+    				}
+    			},
+    		        
+    		    error : function(xhr, error){
+    		    	showMessage("Error occurred while exporting", "error");
+    		    },
+    		        	
+    		});
+        } else {
+        	showMessage("Nothing to export. Please select atleast one configuration.", "info");
+        }
 	}
 
 	function backToPreviousPage(){
 		location.href = "/cf/home";
 	}
-		
+	

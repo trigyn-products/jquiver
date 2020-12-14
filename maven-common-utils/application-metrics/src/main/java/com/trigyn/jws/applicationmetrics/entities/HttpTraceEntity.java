@@ -16,9 +16,36 @@ public class HttpTraceEntity implements Serializable {
 
 	private String auxillaryDetails = null;
 
-	private Long requestDuration = null;
+	private String requestTimestamp = null;
 
-	private Date requestTimestamp = null;
+	private Long minRequestDuration = null;
+
+	private Long maxRequestDuration = null;
+
+	private Long averageRequestDuration = null;
+
+	public HttpTraceEntity() {
+
+	}
+
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp) {
+		this.httpRequestDetails = httpRequestDetails;
+		this.httpResponseDetails = httpResponseDetails;
+		this.auxillaryDetails = auxillaryDetails;
+		this.requestTimestamp = requestTimestamp;
+	}
+
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp,
+			Long minRequestDuration, Long maxRequestDuration, Long averageRequestDuration) {
+		this.httpRequestDetails = httpRequestDetails;
+		this.httpResponseDetails = httpResponseDetails;
+		this.auxillaryDetails = auxillaryDetails;
+		this.requestTimestamp = requestTimestamp;
+		this.minRequestDuration = minRequestDuration;
+		this.maxRequestDuration = maxRequestDuration;
+		this.averageRequestDuration = averageRequestDuration;
+	}
+	
 
 	public String getHttpRequestDetails() {
 		return httpRequestDetails;
@@ -44,33 +71,36 @@ public class HttpTraceEntity implements Serializable {
 		this.auxillaryDetails = auxillaryDetails;
 	}
 
-	public Long getRequestDuration() {
-		return requestDuration;
-	}
-
-	public void setRequestDuration(Long requestDuration) {
-		this.requestDuration = requestDuration;
-	}
-
-	public Date getRequestTimestamp() {
+	public String getRequestTimestamp() {
 		return requestTimestamp;
 	}
 
-	public void setRequestTimestamp(Date requestTimestamp) {
+	public void setRequestTimestamp(String requestTimestamp) {
 		this.requestTimestamp = requestTimestamp;
 	}
 
-	public HttpTraceEntity() {
-
+	public Long getMinRequestDuration() {
+		return minRequestDuration;
 	}
 
-	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails,
-			Long requestDuration, Date requestTimestamp) {
-		this.httpRequestDetails = httpRequestDetails;
-		this.httpResponseDetails = httpResponseDetails;
-		this.auxillaryDetails = auxillaryDetails;
-		this.requestDuration = requestDuration;
-		this.requestTimestamp = requestTimestamp;
+	public void setMinRequestDuration(Long minRequestDuration) {
+		this.minRequestDuration = minRequestDuration;
+	}
+
+	public Long getMaxRequestDuration() {
+		return maxRequestDuration;
+	}
+
+	public void setMaxRequestDuration(Long maxRequestDuration) {
+		this.maxRequestDuration = maxRequestDuration;
+	}
+
+	public Long getAverageRequestDuration() {
+		return averageRequestDuration;
+	}
+
+	public void setAverageRequestDuration(Long averageRequestDuration) {
+		this.averageRequestDuration = averageRequestDuration;
 	}
 
 	@Override

@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class DynamicForm {
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "form_id")
 	private String formId = null;
 

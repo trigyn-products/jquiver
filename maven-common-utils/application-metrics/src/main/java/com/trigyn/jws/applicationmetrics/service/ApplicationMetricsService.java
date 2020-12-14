@@ -5,6 +5,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +14,15 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.context.ApplicationContext;
+
 import com.sun.management.OperatingSystemMXBean;
 import com.trigyn.jws.applicationmetrics.interceptor.ApplicationServiceInterceptor;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 public class ApplicationMetricsService {	
+
+	private ApplicationContext applicationContext = null;
 	
 	public ApplicationMetricsService() {
 		
@@ -64,22 +70,34 @@ public class ApplicationMetricsService {
 	    actuatorMap.put("thread-metrics", threadMetricMap);
 		
 	    Map<String, Object> systemMetricMap =  new HashMap<String, Object>();
+    	DecimalFormat df = new DecimalFormat("0.00");
+		df.setRoundingMode(RoundingMode.UP);
 	    
 	    OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 	    RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 	    long upTime = runtimeMXBean.getUptime();
 	    long startTime = runtimeMXBean.getStartTime();
 	    double processCpuUsage = operatingSystemMXBean.getProcessCpuLoad();
+	    if (processCpuUsage >= 0) {
+	    	processCpuUsage = (processCpuUsage * 100);
+        }
+	    
 	    double systemCpuUsage = operatingSystemMXBean.getSystemCpuLoad();
+	    if (systemCpuUsage >= 0) {
+	    	systemCpuUsage = (systemCpuUsage * 100);
+        }
+	    
 	    double systemCpuCount = operatingSystemMXBean.getAvailableProcessors();
 	    double systemLoadAverage = operatingSystemMXBean.getSystemLoadAverage();
-	    
+	    if (systemLoadAverage >= 0) {
+	    	systemLoadAverage = (systemLoadAverage * 100);
+        }
 	    systemMetricMap.put("uptime", upTime);
 	    systemMetricMap.put("start-time", startTime);
-	    systemMetricMap.put("process-cpu-usage", processCpuUsage);
-	    systemMetricMap.put("system-cpu-usage", systemCpuUsage);
+	    systemMetricMap.put("process-cpu-usage", df.format(processCpuUsage)+"%");
+	    systemMetricMap.put("system-cpu-usage", df.format(systemCpuUsage)+"%");
 	    systemMetricMap.put("system-cpu-count", systemCpuCount);
-	    systemMetricMap.put("system-load-average", systemLoadAverage);
+	    systemMetricMap.put("system-load-average", df.format(systemLoadAverage)+"%");
 	    
 	    actuatorMap.put("system-metrics", systemMetricMap);
 	    
@@ -100,8 +118,12 @@ public class ApplicationMetricsService {
 	    
 	    Map<String,Object> gcMetricMap = GCInformation.printGCInfo();
 	    actuatorMap.put("gc-metrics", gcMetricMap);
-	    actuatorMap.put("http-trace-metrics", ApplicationServiceInterceptor.getRequestInformation());
+	    actuatorMap.put("http-trace-metrics", ApplicationServiceInterceptor.getTimeInfo());
 	    return actuatorMap;
 	}
-	
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
 }

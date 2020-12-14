@@ -33,7 +33,7 @@
             this.options.dataModel = dataModel;
         }
 
-        createGrid = function(options) {
+        createGrid(options) {
             if(Object.keys(options.dataModel).length === 0) {
                 options.dataModel = dataModelOption
             }

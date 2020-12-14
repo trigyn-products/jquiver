@@ -147,21 +147,21 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Id</label>
-					<input type="text" id="gridId" name="gridId" value="" maxlength="100" class="form-control">
+					<input type="text" id="gridId" name="gridId" value="" maxlength="255" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Name</label>
-					<input type="text" id="gridName" name="gridName" value="" maxlength="100" class="form-control">
+					<input type="text" id="gridName" name="gridName" value="" maxlength="1000" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridDescription" style="white-space:nowrap">Grid Description</label>
-					<input type="text" id="gridDescription" name="gridDescription" value="" maxlength="100" class="form-control">
+					<input type="text" id="gridDescription" name="gridDescription" value="" class="form-control">
 				</div>
 			</div>
 		</div>
@@ -170,14 +170,14 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Table Name</label>
-					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="100" class="form-control">
+					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="1000" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Column Names</label>
-					<input type="text" id="gridColumnName" name="gridColumnName" value="" maxlength="100" class="form-control">
+					<input type="text" id="gridColumnName" name="gridColumnName" value="" class="form-control">
 				</div>
 			</div>
 			
@@ -544,9 +544,9 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 <div class="container">
 	<div class="topband">
 		<#if (resultSet)?? && (resultSet)?has_content>
-		    <h2 class="title-cls-name float-left">Edit property master</h2> 
+		    <h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.editProperty" "Edit property"/></h2> 
         <#else>
-            <h2 class="title-cls-name float-left">Add property master</h2> 
+            <h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.addProperty" "Add property"/></h2> 
         </#if>
 		<div class="clearfix"></div>		
 	</div>
@@ -555,7 +555,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<form method="post" name="addEditForm" id="addEditForm">
 		
 		<div class="row">
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<input type="hidden" id="propertyMasterId" name="propertyMasterId" value="">
 					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Id</label>
@@ -563,35 +563,36 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="ownerType" style="white-space:nowrap"><span class="asteriskmark">*</span>Owner Type</label>
 					<input type="text" id="ownerType" name="ownerType" value="" required maxlength="100" class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Name</label>
-					<input type="text" id="propertyName" name="propertyName" value="" required maxlength="100" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Value</label>
-					<input type="text" id="propertyValue" name="propertyValue" value="" maxlength="100" required class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="appVersion" style="white-space:nowrap"><span class="asteriskmark">*</span>App Version</label>
 					<input type="number" id="appVersion" name="appVersion" value="" maxlength="7" required class="form-control">
 				</div>
 			</div>
 			
-			<div class="col-6">
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Name</label>
+					<input type="text" id="propertyName" name="propertyName" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Value</label>
+					<input type="text" id="propertyValue" name="propertyValue" value="" maxlength="100" required class="form-control">
+				</div>
+			</div>
+
+			
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="comment" style="white-space:nowrap">Comments</label>
 					<textarea id="comment" name="comment" value="" maxlength="100" class="form-control"></textarea>

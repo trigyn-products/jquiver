@@ -100,8 +100,18 @@ public class ResourceBundle implements Serializable {
 	}
 
 	public ResourceBundle getObject() {
-		String textStr = StringEscapeUtils.unescapeXml("<![CDATA["+ text!=null?text.trim():text +"]]>");
-		String langNameStr = StringEscapeUtils.unescapeXml("<![CDATA["+ language.getLanguageName()!=null?language.getLanguageName().trim():language.getLanguageName() +"]]>");
+		String textStr;
+		if(text!=null) {
+			textStr = StringEscapeUtils.unescapeXml("<![CDATA["+ text.trim() +"]]>");
+		} else {
+			textStr = StringEscapeUtils.unescapeXml("<![CDATA["+ text +"]]>");
+		}
+		String langNameStr;
+		if(language.getLanguageName()!=null) {
+			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA["+ language.getLanguageName().trim() +"]]>");
+		} else {
+			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA["+ language.getLanguageName() +"]]>");
+		}
 		ResourceBundlePK rpk = new ResourceBundlePK(id.getResourceKey(), id.getLanguageId());
 		ResourceBundle resourceBundle = new ResourceBundle(rpk, textStr);
 		Language lang = new Language(language.getLanguageId(), langNameStr, language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());

@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.entities.MasterModule;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
-import com.trigyn.jws.webstarter.xml.MetadataXMLVO;
 
 @RestController
 @RequestMapping("/cf")
@@ -57,8 +57,12 @@ public class ImportExportController {
 			Map<String, Object> vmTemplateData 	= new HashMap<>();
 			List<MasterModule> moduleVOList 	= masterModuleService.getModules();
 			List<Map<String, Object>> customEntities = exportService.getAllCustomEntity();
+			List<Map<String, Object>> customEntityCount = exportService.getCustomEntityCount();
+			List<Map<String, Object>> allEntityCount = exportService.getAllEntityCount();
 			vmTemplateData.put("moduleVOList", moduleVOList);
 			vmTemplateData.put("customEntities", customEntities);
+			vmTemplateData.put("customEntityCount", customEntityCount);
+			vmTemplateData.put("allEntityCount", allEntityCount);
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
 		} catch (Exception exception) {
 			logger.error("Error ", exception);

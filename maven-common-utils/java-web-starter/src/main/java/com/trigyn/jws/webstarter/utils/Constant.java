@@ -49,7 +49,7 @@ public final class Constant {
         TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"),RESOURCEBUNDLE("ResourceBundle")
         , DASHBOARD("Dashboard"), DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm") 
         , GRID("Grid"), NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission")
-        , SITELAYOUT("SiteLayout");
+        , SITELAYOUT("SiteLayout"), APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles");
 
         final String moduleType;
 
@@ -65,7 +65,7 @@ public final class Constant {
     public enum EntityNameModuleTypeEnum {
     	TEMPLATES("template_master"), AUTOCOMPLETE("autocomplete_details"),RESOURCEBUNDLE("resource_bundle")
         , DASHBOARD("dashboard"), DASHLET("dashlet"), DASHLETS("dashlet"), DYNAREST("jws_dynamic_rest_details"), DYNAMICFORM("dynamic_form") 
-        , GRID("grid_details"), NOTIFICATION("generic_user_notification");
+        , GRID("grid_details"), NOTIFICATION("generic_user_notification"), APPLICATIONCONFIGURATION("jws_property_master");
 
         final String tableName;
 

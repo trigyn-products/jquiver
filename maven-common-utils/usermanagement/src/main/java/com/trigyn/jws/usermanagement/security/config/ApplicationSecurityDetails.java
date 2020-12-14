@@ -18,6 +18,8 @@ public class ApplicationSecurityDetails {
 	
 	private Map<String, Object> authenticationDetails = new HashMap<>();
 	
+	private String baseUrl	= null;
+	
 	@Autowired
 	private PropertyMasterRepository propertyMasterRepository = null;
 
@@ -27,6 +29,8 @@ public class ApplicationSecurityDetails {
 		this.isAuthenticationEnabled = Boolean.parseBoolean(propertyMaster.getPropertyValue());
 		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
 		this.authenticationType = propertyMasterAuthType.getPropertyValue();
+		PropertyMaster propertyMasterBaseUrl = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "base-url");
+		this.baseUrl = propertyMasterBaseUrl.getPropertyValue();
 	}
 
 	public Boolean getIsAuthenticationEnabled() {
@@ -50,5 +54,11 @@ public class ApplicationSecurityDetails {
 		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
 		this.authenticationType = propertyMasterAuthType.getPropertyValue();
 	}
+
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	
 	
 }

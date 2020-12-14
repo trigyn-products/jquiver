@@ -83,7 +83,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> getTableDetailsByTableName(String tableName) {
-		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, COLUMN_NAME as tableColumnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, " + 
+		String query = "select REPLACE(COLUMN_NAME, '_', '') as columnName, COLUMN_NAME as tableColumnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, EXTRA AS additionalInfo, " + 
 				"REPLACE(CONCAT(UPPER(SUBSTRING(COLUMN_NAME,1,1)),LOWER(SUBSTRING(COLUMN_NAME,2))), '_', ' ') as fieldName, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN \"text\" WHEN DATA_TYPE = \"int\" THEN \"number\" WHEN DATA_TYPE LIKE (\"date%\") THEN \"datetime\" WHEN DATA_TYPE LIKE (\"time%\") THEN \"datetime\" ELSE \"textarea\" END as columnType, " + 
 				"CASE WHEN DATA_TYPE = \"varchar\" THEN CHARACTER_MAXIMUM_LENGTH WHEN DATA_TYPE = \"int\" THEN NUMERIC_PRECISION ELSE CHARACTER_MAXIMUM_LENGTH END as columnSize " + 
@@ -132,7 +132,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> getTableInformationByName(String tableName) {
-		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType,"
+		String query = "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, EXTRA as additionalInfo, "
 				+ "CHARACTER_MAXIMUM_LENGTH as characterMaximumLength from information_schema.COLUMNS where TABLE_NAME = :tableName " + 
 				"and TABLE_SCHEMA = :schemaName ORDER BY ORDINAL_POSITION ASC ";
 		List<Map<String, Object>> resultSet = new ArrayList<>();

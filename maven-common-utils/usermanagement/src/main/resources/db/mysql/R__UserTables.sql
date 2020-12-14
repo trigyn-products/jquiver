@@ -505,7 +505,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
               $("#${roleId}").attr("checked",true);
           </#list>    
 		    </#if>
-        
+        <#else>
+        	 $("#isActive").prop("checked",true);
+        	 $("#isActive").prop("disabled",true);
       </#if> 
   });
   
@@ -515,7 +517,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 		$("#isActive").prop("disabled",true);
 		$("#isActive").prop("checked",false);
 	}else{ 
-		$("#isActive").prop("disabled",false);
+		if(isEdit.trim() !== ""){ 
+			$("#isActive").prop("disabled",false);
+		}
 		$("#isActive").prop("checked",true);
 	}
 }
@@ -670,7 +674,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         <button type="button" class="btn btn-primary" onclick="openManageUser();"> Manage Users</button>
         
-        <button type="button" id="restartServer" style="display:none" class="btn btn-primary" onclick="restartServer();">Restart Server</button>
+        <button type="button" id="restartServer" class="btn btn-primary" onclick="restartServer();">Restart Server</button>
         </div>
         
         <div class="clearfix"></div>        
@@ -715,7 +719,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <span class="pull-left"><i>Kindly restart your server to get your configuration working.</i></span>
     
     <div class="btn-icons nomargin-right-cls pull-right">
-     <input type="button" value="Save" class="btn btn-primary" onclick="saveAuthDetails();">
+     	<input type="button" value="Save" class="btn btn-primary" onclick="openDialogAndSave();">
+     	<span onclick="backToHomePage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button">
+					</span> 
     </div>
 </div>
 	</div>
@@ -724,25 +731,22 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                     
 </div>                  
 <script>
-
+let selectedVerificationType;
+let oAuthArray = [];
 contextPath = "${contextPath}";
 	// set data
 	let autocomplete;
 	$("#isActiveCheckbox").attr("checked",${authEnabled?c});
 	if(!${authEnabled?c}){
 		 $("#authTypeDiv").hide();
-	}else{ 
-		   $("#restartServer").show();
 	}
 	$("#authType").val("${authTypeId}").trigger("change");
 
     function showAuthTypeDropDown(element) {
         if(element.checked) {
             $("#authTypeDiv").show();
-            $("#restartServer").show();
         } else {
             $("#authTypeDiv").hide();
-            $("#restartServer").hide();
             $("#props").html("");
             $("#authType").val(1);
            
@@ -750,24 +754,41 @@ contextPath = "${contextPath}";
     }
     function changeAuthentication(){ 
       if($("#isActiveCheckbox").prop("checked")){
+        let authType = $(''#authType'').val();
         let parsedProperties;
-        let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
+        let properties = $("option[value="+authType+"]").attr("properties");
         if(properties!= undefined && properties != ""){
           parsedProperties = JSON.parse(properties);
         }
         $("#props").html("");
-        $.each(parsedProperties, function(key,val){
-           if(val.type=="boolean"){
-              $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.textValue
-              +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'');
-              $("#"+val.name).prop("checked",val.value).trigger("change");
-           }
-            setTimeout(function () {
-            	if(val.name=="enableVerificationStep"){
-                   	$("#verificationStep").val(val.selectedValue);
-                }
-            }, 100);
-        });
+         if(authType == 2){
+            $.each(parsedProperties, function(key,val){  
+                    $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.textValue
+                    +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'');
+                    $("#"+val.name).prop("checked",val.value).trigger("change");
+               
+                 
+                    setTimeout(function () {
+                        if(val.name=="enableVerificationStep"){
+                            $("#verificationStep").val(val.selectedValue);
+                            selectedVerificationType = val.selectedValue;
+                        }
+                    }, 100);
+                });    
+            }else if(authType == 4){
+                let selectedClient ; 
+                 $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="oauth"><span class="asteriskmark">*</span>OAuth Client <select id="oauth" onchange="changeOAuth();" class="form-control" name="oauth"/></label> </div></div>'');
+                $.each(parsedProperties, function(key,val){  
+                    $("#oauth").append(''<option value="''+val.value+''">''+val.name+''</option>'');
+                     oAuthArray.push(val);
+                   if(val.selected){
+                       selectedClient = val.value;
+                        $("#props .row").append(''<div class="col-3 float-left col-inner-form full-form-fields"><label for="clientId"><span class="asteriskmark">*</span>Client Id <input id="clientId" class="form-control" name="client-id" value="''+val["client-id"]+''"/></label> </div><div class="col-3 float-left col-inner-form full-form-fields"><label for="clientSecret"><span class="asteriskmark">*</span>Client Secret <input id="clientSecret" class="form-control" name="client-id" value="''+val["client-secret"]+''"/></label> </div>'');
+                   }
+                });  
+                $("#oauth").val(selectedClient);
+            }
+       
       }
     }
     
@@ -786,19 +807,35 @@ contextPath = "${contextPath}";
     	}
     	
         let parsedProperties = null;
-        let properties = $("option[value="+$(''#authType'').val()+"]").attr("properties");
+        let properties = $("#authType option[value="+$(''#authType'').val()+"]").attr("properties");
         if(properties!= undefined && properties != ""){
           parsedProperties = JSON.parse(properties);
         }
        
         $.each(parsedProperties, function(key,val){
-          if(val.type=="boolean"){
-            val.value = $("#"+val.name).is(":checked");
-          }  
-          if(val.name=="enableVerificationStep"){
-            val.selectedValue = $("#verificationStep").val();
-          }
+            if(authenticationTypeId == 2){
+                if(val.type=="boolean"){
+                    val.value = $("#"+val.name).is(":checked");
+                }  
+                if(val.name=="enableVerificationStep"){
+                    val.selectedValue = $("#verificationStep").val();
+                }
+            }else if(authenticationTypeId == 4){
+                 let selectedValue = $("#oauth").val();
+                 val.value == selectedValue?val.selected=true:val.selected=false;
+               
+               if(val.selected){
+                    oAuthArray[key]["client-id"] = $("#clientId").val();
+                    oAuthArray[key]["client-secret"] = $("#clientSecret").val();
+                    val["client-id"] = $("#clientId").val();
+                    val["client-secret"] = $("#clientSecret").val();
+                } 
+           
+            }
         });
+         $("#authType option[value="+$(''#authType'').val()+"]").attr("properties", JSON.stringify(parsedProperties));
+        
+        
         
         if($("#enableDynamicForm").is(":checked")){
         	formObj.formId = $("#formId").val();
@@ -823,7 +860,8 @@ contextPath = "${contextPath}";
              			userProfileTemplate:JSON.stringify(templateObj)
 		     		},
 		            success: function(data) {
-                showMessage("Information saved successfully", "success");
+		            	selectedVerificationType = $("#verificationStep").val();
+               	 		showMessage("Information saved successfully", "success");
 		            }
 		     	});
     
@@ -878,7 +916,23 @@ contextPath = "${contextPath}";
     	}
     }
     function restartServer(){
-      location.href="/cf/restart";
+     	
+        $.ajax({
+		     		type : "GET",
+		     		url : contextPath+"/cf/restart",
+		     		data : { 
+			     		
+		     		},
+		            success: function(data) {
+                           if(data=="false"){
+                            	location.href="/cf/home"
+	                        }else{
+	                            location.href="/cf/login"
+	                        }    
+                    }   
+        });
+
+      
     }
     function addInputFields(thisObj){ 
         let inputId;
@@ -951,6 +1005,11 @@ contextPath = "${contextPath}";
 									inputId:inputId,
 							    },
 							    success: function(templateData) {
+							    	if(templateData.templateId !== undefined){
+										$("#templateId").val(templateData.templateId);
+										$("#templateName").val(templateData.templateName);
+										$("#templateNameAC").val(templateData.templateName);
+									}
 							    	initTemplateAutocomplete(templateData);
 							    }
 							});
@@ -1032,6 +1091,65 @@ contextPath = "${contextPath}";
    		}, savedTemplate);
     
     }
+    
+    function openDialogAndSave(){	
+        if($("#authType").val() != 2 || selectedVerificationType != 2){	
+            saveAuthDetails();	
+            return false;	
+        }else{	
+            let selectedType = $("#verificationStep").val();	
+            if (selectedType == 2){	
+                 saveAuthDetails();	
+                 return false;	
+            }	
+        }	
+        let deleleteElement = $(''<div id="deleteConfirmation"></div>'');	
+		$("body").append(deleleteElement);	
+		$("#deleteConfirmation").html("Password reset mail would be sent to all active users. Are you sure?");	
+		$("#deleteConfirmation").dialog({	
+			bgiframe		: true,	
+			autoOpen		: true, 	
+			modal		 	: true,	
+			closeOnEscape 	: true,	
+			draggable	 : true,	
+			resizable	 : false,	
+			title		 : "Confirmation",	
+			buttons		 : [{	
+					text :"Cancel",	
+					click: function() { 	
+						$(this).dialog("destroy");	
+						$(this).remove();	
+					},	
+				},	
+				{	
+					text	: "Yes",	
+					click	: function(){	
+				         saveAuthDetails();	
+                         $(this).dialog("destroy");	
+						$(this).remove();	
+					}	
+	           	},	
+	       ],	
+	       open		: function( event, ui ) {	    		
+		   	   $(".ui-dialog-titlebar")	
+		   	    .find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")	
+		       .prepend(''<span class="ui-button-icon ui-icon ui-icon-closethick"></span>'').append(''<span class="ui-button-icon-space"></span>'');	
+		   }		
+		
+		});
+	}	
+	
+	function backToHomePage(){ 
+		location.href = "/cf/home";
+	}
+	
+	function changeOAuth(){
+        let oauth = $("#oauth").val();
+        $("#clientId").val(oAuthArray[oauth]["client-id"]);
+        $("#clientSecret").val(oAuthArray[oauth]["client-secret"]);
+        
+    }
+    
 </script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
@@ -1125,69 +1243,116 @@ Replace into template_master (template_id, template_name, template, updated_by, 
         </div> 
 
         <div class="col-5">
-            <form class="form-signin" method="post" action="/cf/login" autocomplete="off">
-                <h2 class="form-signin-heading text-center">Welcome To <span class="cm-logotext">JQuiver</span>
-                </h2>
-                <#if queryString?? && queryString == "error">
-                	<#if exceptionMessage?? >
-                		<div class="alert alert-danger" role="alert">${exceptionMessage}</div>
-                	<#else>
-                    	<div class="alert alert-danger" role="alert">Bad Credentials</div>
-                	</#if>
-                <#elseif queryString?? &&  queryString == "logout">
-                    <div class="alert alert-success" role="alert">You have been signed out</div> 
-                </#if>
-                <#if resetPasswordSuccess??>
-                    <div class="alert alert-success" role="alert">${resetPasswordSuccess} </div>
-                </#if>
-                <p class="divdeform">
-                    <label for="username" class="formlablename">Email</label>
-                    <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter Your Email" required autofocus>
-                </p>
-                    <#if !enableGoogleAuthenticator >
-	                <p class="divdeform"> 
-	                    <label for="password" class="formlablename">Password</label>
-	                    <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>
-	                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>
-	                    <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>
-	                </p>
-	                 <#if enableCaptcha >
-	                    <p>
-	                        <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/loginCaptcha">
-	                        <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
-	                        <label for="captcha" class="sr-only">Enter Captcha</label>
-	                        <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >
-	                    </p>
-                	</#if> 
-                    <span class="remebermeblock">
-                        <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>
-                    </span>    
-                    <span class="forgotpassword">
-                        <a href="/cf/resetPasswordPage">Forgot password?</a> 
-                    </span>
-                <#else>
-                	  <p class="divdeform">
-                        <label for="password" class="formlablename">Enter TOTP</label>
-                        <input type="text" id="password" name="password" class="form-control" placeholder="Enter TOTP" required autofocus >
-	                   
-                    </p>
-                    <span class="remebermeblock">
-                        <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>
-                    </span>    
-                    <span class="forgotpassword">
-                        <a href="/cf/configureTOTP">Not Configured? Click here</a> 
-                    </span>
+             <h2 class="form-signin-heading text-center">Welcome To <span class="cm-logotext">JQuiver</span>	
+                </h2>	
+                <#if authenticationType == "2"> 	
+                <div>	
+                    <form class="form-signin" method="post" action="/cf/login" autocomplete="off">	
                 	
-                </#if>   
-              
-               <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-                <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >
-	                <p class="registerlink">New User?
-	                    <a href="/cf/register"> Click here to register</a>
-	                </p>
+                    <#if queryString?? && queryString == "error">	
+                        <#if exceptionMessage?? >	
+                            <div class="alert alert-danger" role="alert">${exceptionMessage}</div>	
+                        <#else>	
+                            <div class="alert alert-danger" role="alert">Bad Credentials</div>	
+                        </#if>	
+                    <#elseif queryString?? &&  queryString == "logout">	
+                        <div class="alert alert-success" role="alert">You have been signed out</div> 	
+                    </#if>	
+                    <#if resetPasswordSuccess??>	
+                        <div class="alert alert-success" role="alert">${resetPasswordSuccess} </div>	
+                    </#if>	
+                    <p class="divdeform">	
+                        <label for="username" class="formlablename">Email</label>	
+                        <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>	
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter Your Email" required autofocus>	
+                    </p>	
+                        <#if !enableGoogleAuthenticator >	
+                        <p class="divdeform"> 	
+                            <label for="password" class="formlablename">Password</label>	
+                            <span class="formicosn"><i class="fa fa-unlock-alt" aria-hidden="true"></i></span>	
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter Your Password" required>	
+                            <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>	
+                        </p>	
+                        <#if enableCaptcha >	
+                            <p>	
+                                <img id="imgCaptcha" name="imgCaptcha" src="/cf/captcha/loginCaptcha">	
+                                <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>	
+                                <label for="captcha" class="sr-only">Enter Captcha</label>	
+                                <input type="text" id="captcha" name="captcha" class="form-control" placeholder="Enter Captcha" required autofocus >	
+                            </p>	
+                        </#if> 	
+                        <span class="remebermeblock">	
+                            <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remember Me</label>	
+                        </span>    	
+                        <span class="forgotpassword">	
+                            <a href="/cf/resetPasswordPage">Forgot password?</a> 	
+                        </span>	
+                    <#else>	
+                        <p class="divdeform">	
+                            <label for="password" class="formlablename">Enter TOTP</label>	
+                            <input type="text" id="password" name="password" class="form-control" placeholder="Enter TOTP" required autofocus >	
+                        	
+                        </p>	
+                        <span class="remebermeblock">	
+                            <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me">Remeber Me</label>	
+                        </span>    	
+                        <span class="forgotpassword">	
+                            <a href="/cf/configureTOTP">Not Configured? Click here</a> 	
+                        </span>	
+                        	
+                    </#if>   	
+                	
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>	
+                    <#if enableRegistration?? && enableRegistration?string("yes", "no") == "yes" >	
+                        <p class="registerlink">New User?	
+                            <a href="/cf/register"> Click here to register</a>	
+                        </p>	
+                    </#if>	
+                </form>	
+                </div>	
+                <#elseif authenticationType == "4">	
+                <#if client?? && client == "office365" >	
+                <div class="block-wrap">	
+                    <div>	
+		                <a class="btn-microsoft" href="/oauth2/authorization/office365">	
+                            <div class="ms-content">	
+                                <div class="logo">	
+                                    <img src="/webjars/1.0/images/jc-microsoft.svg">	
+                                </div>	
+                                <p>Sign in with Microsoft</p>	
+                            </div>	
+		                </a>	
+                    </div>	
+                <#elseif client?? && client == "google" >	
+                <div class="block-wrap">	
+                    <div>	
+                    <a class="btn-google" href="/oauth2/authorization/google">	
+                        <div class="google-content">	
+                            <div class="logo">	
+                                <img src="/webjars/1.0/images/jc-google.svg">	
+                            </div>	
+                            <p>Sign in with Google</p>	
+                        </div>	
+                    </a>	
+                    </div>	
+                </div>	
+                <#elseif client?? && client == "facebook" >	
+                <div class="block-wrap">	
+                    <div>	
+                        <a class="btn-fb" href="/oauth2/authorization/facebook">	
+                            <div class="fb-content">	
+                                <div class="logo">	
+                                    <img src="/webjars/1.0/images/jc-facebook.svg">	
+                                </div>	
+                                <p>Sign in with Facebook</p>	
+                            </div>	
+                        </a>	
+                    </div>	
+                </div>	
                 </#if>
-            </form>
+             </div>
+            </#if>   
+                
         </div>
     </div>   
 </div> 
@@ -2308,6 +2473,8 @@ function saveRolesAndPolicy(){
 
   $(function(){
   	$("#errorMessageUser").hide();
+  	 $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+     $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
 	<#if (jwsUser?api.getUserId())??>
         if(${jwsUser?api.getForcePasswordChange()} == 1){ 
          	 $("#forcePasswordChange").prop("checked",true);
@@ -2404,5 +2571,8 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.emai
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.isActive', 1, 'Active '); 
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addUser', 1, 'Add User'); 
+
+REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'base-url', 'http://localhost:8080', 0, NOW(), 'admin', 1.00, 'Base url of application');
 
 SET FOREIGN_KEY_CHECKS=1;

@@ -2,17 +2,17 @@ SET FOREIGN_KEY_CHECKS=0;
 
 replace into resource_bundle VALUES ("jws.helpManuals", 1, "Help Manuals");
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files) VALUES
+replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
 (1003, 'get-manual-details', 1, 'manualDetails', 'Get manual details', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults["manualEnitityDetails"];
 }
 
-myFunction(requestDetails, daoResults);', 3, 0), 
+myFunction(requestDetails, daoResults);', 3, 0, 2), 
 (1004, 'manual-type', 1, 'manualTypes', 'Get manual Types', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults["manualTypes"];
 }
 
-myFunction(requestDetails, daoResults);', 3, 0), 
+myFunction(requestDetails, daoResults);', 3, 0, 2), 
 (1005, 'validate-manual-details', 1, 'validateManualDetails', 'Validate Manual Details', 2, 7, 'function myFunction(requestDetails, daoResults) {
     if(daoResults["manualDetails"].length > 0) {
         return "Manual entry name already exists";
@@ -23,7 +23,7 @@ myFunction(requestDetails, daoResults);', 3, 0),
     }
 }
 
-myFunction(requestDetails, daoResults);', 3, 0);
+myFunction(requestDetails, daoResults);', 3, 0, 2);
 
 replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (21, 1003, 'manualEnitityDetails', 'select manual_type, entry_name, entry_content, sort_index, manual_entry_id from manual_entry where manual_type = :manualId order by sort_index asc', 1, 1), 
@@ -128,6 +128,7 @@ group by me.manual_entry_id', '<head>
 <script>
     let formId = "${formId}";
     contextPath = "${contextPath}";
+    let contextPathUrl = "${requestDetails?api.get("contextPathUrl")}";
     let manualType = "${requestDetails?api.get("manualType")}";
     let manualObject = new HelpManual();
     let manualdata;
@@ -149,7 +150,7 @@ group by me.manual_entry_id', '<head>
     });
     function showFileDataInEntryContent(fileId) {
         let content = simplemde.value();
-        content = content + " ![](http://localhost:8080/cf/files/"+fileId+")";
+        content = content + " ![](/cf/files/"+fileId+")";
         simplemde.value(content);
     }
 
@@ -515,7 +516,13 @@ replace into template_master (template_id, template_name, template, updated_by, 
                         <div class="form-group has-search clearfix"> <span class="fa fa-search form-control-feedback"></span>
                             <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">   
                         </div>
-                         
+                          <div id="cm-errormsg-div" class="" style="display: none;">
+                 <div class="cm-empty-data clearfix">
+                
+                 <div class="cm-empty-messege">Your search did not match any documents</div>
+                 <p> Please try with different keyword.</p>
+                 </div>
+            </div>
                         
                        
                     </div>
@@ -543,11 +550,6 @@ replace into template_master (template_id, template_name, template, updated_by, 
                     
                 </div>
 
-
-                
-
-                
-
                 <div class="row">
                 <div class="col-md-3">
                     <div id="previewDiv" style="display:none;">
@@ -556,9 +558,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 </div>
             </div>
             </div>
-            <div id="cm-errormsg-div" class="row margin-t-25 margin-b-25" style="display: none;">
-                <div class="cm-errormsg" id="cm-errormsg"></div>
-            </div>
+
         </div>
     </div>
 

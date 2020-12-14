@@ -57,5 +57,14 @@ public final class CrudQueryStore {
 	public static final String HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_EXPORT = "FROM Dashboard AS db WHERE "
 			+ "(db.dashboardId NOT IN :excludeCustomConfigList AND db.dashboardType = :customConfigType) OR "
 			+ "(db.dashboardId IN :includeSystemConfigList AND db.dashboardType = :systemConfigType)";
+
+    public static final String HQL_QUERY_TO_FETCH_APP_CONFIG_DATA_FOR_EXPORT = "FROM PropertyMaster AS pm WHERE "
+    		+ "pm.propertyMasterId IN :includeSystemConfigList";
+
+    public static final String HQL_QUERY_TO_FETCH_MANAGE_USERS_DATA_FOR_EXPORT = "FROM JwsUser AS ju WHERE "
+    		+ "ju.userId IN :includeSystemConfigList";
     
+    public static final String HQL_QUERY_TO_FETCH_MANAGE_ROLES_DATA_FOR_EXPORT = "FROM JwsRole AS jr WHERE "
+    		+ "jr.roleName IN :includeSystemConfigList";
+
 }

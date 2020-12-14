@@ -82,6 +82,7 @@ public class DynamicRestController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exception) {
             exception.printStackTrace();
+            LOGGER.error("Error occurred while processing request: ",exception);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     } 

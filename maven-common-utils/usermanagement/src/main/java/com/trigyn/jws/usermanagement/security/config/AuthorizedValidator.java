@@ -64,7 +64,6 @@ public class AuthorizedValidator {
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
 			
 		}else {
-			
 			UserInformation userInformation = (UserInformation) authentication.getPrincipal();
 			roleNames.addAll(userInformation.getRoles());
 		}

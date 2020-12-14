@@ -6,7 +6,7 @@ REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name,
 VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
 
 REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
-("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formName,formDescription,formTypeId,createdDate,createdBy', 2);
+("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formId,formName,formDescription,formTypeId,createdDate,createdBy', 2);
 
 REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
@@ -36,7 +36,7 @@ VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fil
 
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
-CREATE PROCEDURE autocompleteListing(autocompleteId varchar(100), autocompleteDescription varchar(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE autocompleteListing(autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
   SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
@@ -45,6 +45,30 @@ BEGIN
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id AND jmv.entity_name = 'autocomplete_details' ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT autocompleteId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_id LIKE ''%',autocompleteId,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_id LIKE ''%',autocompleteId,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT autocompleteDescription IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_description LIKE ''%',autocompleteDescription,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_description LIKE ''%',autocompleteDescription,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT acQuery IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_select_query LIKE ''%',acQuery,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.ac_select_query LIKE ''%',acQuery,'%''');
+    END IF;  
+  END IF;
   
   SET @groupByString = ' GROUP BY au.ac_id ';
   
@@ -287,7 +311,7 @@ CLOSE curP;
 END;
 
 DROP PROCEDURE IF EXISTS dynamicFormListing;
-CREATE PROCEDURE dynamicFormListing(formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE dynamicFormListing(formId VARCHAR(50), formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 DECLARE db_format VARCHAR(20);
 
@@ -308,6 +332,14 @@ FETCH curP INTO db_format;
   SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
+  
+  IF NOT formId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND df.form_id LIKE ''%',formId,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE df.form_id LIKE ''%',formId,'%''');
+    END IF;  
+  END IF;
   
   IF NOT formName IS NULL THEN
     IF  @whereString != '' THEN
@@ -379,6 +411,30 @@ BEGIN
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
+  IF NOT dynarestUrl IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_dynamic_rest_url LIKE ''%',dynarestUrl,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_dynamic_rest_url LIKE ''%',dynarestUrl,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT methodName IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_method_name LIKE ''%',methodName,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_method_name LIKE ''%',methodName,'%''');
+    END IF;  
+  END IF;
+    
+  IF NOT methodDescription IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_method_description LIKE ''%',methodDescription,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jdrd.jws_method_description LIKE ''%',methodDescription,'%''');
+    END IF;  
+  END IF;
+    
   IF NOT requestTypeId IS NULL THEN
     IF  @whereString != '' THEN
       SET @whereString = CONCAT(@whereString,' AND jdrd.jws_request_type_id = ',requestTypeId);
@@ -604,6 +660,54 @@ BEGIN
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jpm.property_master_id AND jmv.entity_name = 'jws_property_master' ");
   SET @whereString = ' WHERE jpm.is_deleted = 0 ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT ownerId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.owner_id LIKE ''%',ownerId,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.owner_id LIKE ''%',ownerId,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT ownerType IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.owner_type LIKE ''%',ownerType,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.owner_type LIKE ''%',ownerType,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT propertyName IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.property_name LIKE ''%',propertyName,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.property_name LIKE ''%',propertyName,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT propertyValue IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.property_value LIKE ''%',propertyValue,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.property_value LIKE ''%',propertyValue,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT modifiedBy IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.modified_by LIKE ''%',modifiedBy,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.modified_by LIKE ''%',modifiedBy,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT comments IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jpm.comments LIKE ''%',comments,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE jpm.comments LIKE ''%',comments,'%''');
+    END IF;  
+  END IF;
   
   SET @groupByString = ' GROUP BY propertyMasterId ';
   

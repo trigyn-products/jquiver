@@ -192,7 +192,7 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 				<div class="col-12">
 					<div class="col-inner-form full-form-fields">
 						<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>
-						<input type="text" id="resourceBundleKey" name="resourceBundleKey" class="form-control" maxlength="100" value="${(resourceBundleKey)!''''}" disabled="true" style="width:100%"/>
+						<input type="text" id="resourceBundleKey" name="resourceBundleKey" class="form-control" maxlength="255" value="${(resourceBundleKey)!''''}" disabled="true" style="width:100%"/>
 						</div>
 					</div>
 			</div>

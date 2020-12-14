@@ -21,8 +21,8 @@ public class TemplateMaster implements Serializable {
     private static final long serialVersionUID  = -5210067567698574574L;
 
     @Id
-    @GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
     @Column(name = "template_id", nullable = false)
     private String templateId                   = null;
 

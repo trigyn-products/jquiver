@@ -100,25 +100,33 @@ class ApplicationMetrics {
 		let initdataset = {
 		         label: "init",
 		         data: [],
-		         backgroundColor: context.getRandomColor()
+		         backgroundColor: "rgba(255, 255, 102, 1)",
+			     borderColor: "rgba(255, 255, 102, 1)",
+			     pointColor: "rgba(255, 255, 102, 1)",
 	    }
 	    
 	    let useddataset = {
 	         label: "used",
 	         data: [],
-	         backgroundColor: context.getRandomColor()
+	         backgroundColor: "rgba(153, 204, 0, 1)",
+		     borderColor: "rgba(153, 204, 0, 1)",
+		     pointColor: "rgba(153, 204, 0, 1)",
 	    }
 	    
 	    let committeddataset = {
 	         label: "committed",
 	         data: [],
-	         backgroundColor: context.getRandomColor()
+	         backgroundColor: "rgba(255, 102, 204, 1)",
+		     borderColor: "rgba(255, 102, 204, 1)",
+		     pointColor: "rgba(255, 102, 204, 1)",
 	    }
 	    
 	    let maxdataset = {
 	         label: "max",
 	         data: [],
-	         backgroundColor: context.getRandomColor()
+	         backgroundColor: "rgba(54, 162, 235, 1)",
+		     borderColor: "rgba(54, 162, 235, 1)",
+		     pointColor: "rgba(54, 162, 235, 1)",
 		}
 		
 		for(let counter = 0; counter < labels.length; counter++) {
@@ -151,13 +159,49 @@ class ApplicationMetrics {
 			}
 		});
 	}
-	
+
 	createHttpTraceDetails = function(data) {
+		let context = this;
 		if(data == undefined) {
 			data = appMetrics.applicationDetails["http-trace-metrics"]
 		}
-		console.log(data);
-		//$("#http-trace-metrics-content").html(JSON.stringify(data));
+		let details = Object.keys(data);
+		
+		let tabData = '<div class="cm-boxwrapper"  id="mainTab">';
+			tabData = tabData + '<div class="cm-boxleft cm-scrollbar">';
+			tabData = tabData + '<div class="tab">';
+						for(let counter = 0; counter < details.length; counter++) {
+							let tabVal = details[counter];
+							tabData = tabData + '<button class="tablinks" id= "'+tabVal+'" onclick="openTab(event, \'' + tabVal.trim() +'\')">'+tabVal +'<img src="/webjars/1.0/images/s-information1.svg"></button>';
+						}
+			tabData = tabData + '</div>'
+			tabData = tabData + '</div>'
+			tabData = tabData + '<div class="cm-boxright cm-scrollbar">';
+			tabData = tabData + '<div id="tabContentData">';
+			tabData = tabData + "<div id='http-trace-url-details'> " ;
+			tabData = tabData + "<div id='httpDetails'>";
+			tabData = tabData + "<div><div id='requestDetails-head'>Request URL  </div>"+"<span id='requestDetails'></span></div>";
+			tabData = tabData + "<div><div id='responseDetails-head'>Response Status  </div>" +"<span id='responseDetails'></span></div>";
+			tabData = tabData + "<div><div id='auxilaryDetails-head'>Method Description  </div>" +"<span id='auxilaryDetails'></span></div>";
+			tabData = tabData + "<div><div id='requestTimestamp-head'>Time  </div>"+"<span id='requestTimestamp'></span></div>";
+			tabData = tabData + "<div><div id='requestMinTime-head'>Min Time (in min/sec)  </div>"+"<span id='requestMinTime'></span></div>";
+			tabData = tabData + "<div><div id='requestMaxTime-head'>Max Time (in min/sec)  </div>"+"<span id='requestMaxTime'></span></div>";
+			tabData = tabData + "<div><div id='requestAvgTime-head'>Average Time (in min/sec)  </div>"+"<span id='requestAvgTime'></span></div>";
+			tabData = tabData + "</div> ";
+			tabData = tabData +  "</div>";
+			tabData = tabData + '</div>';
+			tabData = tabData + '</div>';
+			tabData = tabData + '</div>';
+		let component = $(tabData);
+		$("#http-trace-metrics-content").html("");
+		$("#http-trace-metrics-content").append(component);
+
+		for(let counter = 0; counter < details.length; counter++) {
+			if(counter == 0) {
+				document.getElementById(details[counter]).click();
+				break;
+			}
+		}
 	}
 	
 	convertFromByteToMegaByte(bytes) {
@@ -198,4 +242,46 @@ class ApplicationMetrics {
 	    this.createHttpTraceDetails(this.applicationDetails["http-trace-metrics"]);
 	    setInterval(this.createHttpTraceDetails.bind(), 1000 * 60);
     }            
+	
+	millisToMinutesAndSeconds(millis) {
+		  var minutes = Math.floor(millis / 60000);
+		  var seconds = ((millis % 60000) / 1000).toFixed(0);
+		  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+		}
+
+}
+function openTab(evt, url) {
+  	var i, tablinks;
+  	tablinks = document.getElementsByClassName("tablinks");
+  	for (i = 0; i < tablinks.length; i++) {
+    	tablinks[i].className = tablinks[i].className.replace(" active", "");
+  	}
+  	
+  	let urldetails = appMetrics.applicationDetails["http-trace-metrics"][url];
+  	$("#requestDetails").html("");
+	$("#auxilaryDetails").html("");
+	$("#responseDetails").html("");
+	$("#requestTimestamp").html("");
+	$("#requestMinTime").html("");
+	$("#requestMaxTime").html("");
+	$("#requestAvgTime").html("");
+	if(urldetails != null) {
+		var requestURL = JSON.parse(urldetails["httpRequestDetails"])["request-url"];
+		$("#requestDetails").append(requestURL);
+		
+		var methodDesc = JSON.parse(urldetails["auxillaryDetails"])["method-description"];
+		$("#auxilaryDetails").append(methodDesc);
+		
+		var responseStatus = JSON.parse(urldetails["httpResponseDetails"])["response-status"];
+		$("#responseDetails").append(responseStatus);
+		
+		$("#requestTimestamp").append(urldetails["requestTimestamp"]);
+
+		$("#requestMinTime").append(appMetrics.millisToMinutesAndSeconds(urldetails["minRequestDuration"]));
+		
+		$("#requestMaxTime").append(appMetrics.millisToMinutesAndSeconds(urldetails["maxRequestDuration"]));
+		
+		$("#requestAvgTime").append(appMetrics.millisToMinutesAndSeconds(urldetails["averageRequestDuration"]));
+	}
+  	evt.currentTarget.className += " active";
 }

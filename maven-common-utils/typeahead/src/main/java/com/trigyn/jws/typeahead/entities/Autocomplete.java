@@ -97,7 +97,12 @@ public class Autocomplete {
 		autocomplete.setAcTypeId(acTypeId);
 		autocomplete.setAutocompleteDesc(autocompleteDesc!=null?autocompleteDesc.trim():autocompleteDesc);
 		autocomplete.setAutocompleteId(autocompleteId);
-		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery!=null?autocompleteSelectQuery.trim():autocompleteSelectQuery +"]]>"));
+		if(autocompleteSelectQuery!=null) {
+			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery.trim() +"]]>"));
+		} else {
+			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
+		}
+		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
 		autocomplete.setAcTypeId(this.acTypeId);
 		return autocomplete;
 	}

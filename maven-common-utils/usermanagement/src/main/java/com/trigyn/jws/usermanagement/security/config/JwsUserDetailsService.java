@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Component
 public class JwsUserDetailsService implements IUserDetailsService {
@@ -30,8 +29,6 @@ public class JwsUserDetailsService implements IUserDetailsService {
 			List<String> roleList = new ArrayList<String>();
 			roleList.addAll(AuthorityUtils.authorityListToSet(authentication.getAuthorities()));
 			detailsVO.setRoleIdList(roleList);
-	
-			
 		}else {
 			detailsVO = new UserDetailsVO("anonymous-user", "anonymous", Arrays.asList("anonymous"));
 		}

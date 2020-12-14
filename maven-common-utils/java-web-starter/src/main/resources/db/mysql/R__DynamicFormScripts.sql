@@ -52,7 +52,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		sessionStorage.setItem("dynamic-form-manage-details", formDataJson);
 		
 			let colM = [
-				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center"},
+				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",

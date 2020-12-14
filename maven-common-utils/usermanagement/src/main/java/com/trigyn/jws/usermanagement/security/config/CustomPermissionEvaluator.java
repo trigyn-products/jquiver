@@ -28,8 +28,8 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 		List<String> roleNames = new ArrayList<>();
 		
 		if(applicationSecurityDetails.getIsAuthenticationEnabled() && !(authentication instanceof AnonymousAuthenticationToken)) {
-			UserInformation userDetails = (UserInformation) authentication.getPrincipal();
-			roleNames = userDetails.getRoles();
+			UserInformation userInformation = (UserInformation) authentication.getPrincipal();
+			roleNames.addAll(userInformation.getRoles());
 		
 		} else if(!applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			return true;

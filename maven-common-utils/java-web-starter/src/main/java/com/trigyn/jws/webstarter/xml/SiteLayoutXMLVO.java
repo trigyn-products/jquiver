@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.trigyn.jws.dbutils.entities.ModuleListing;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 @XmlRootElement(name = "siteLayoutData")
 @XmlAccessorType (XmlAccessType.FIELD)

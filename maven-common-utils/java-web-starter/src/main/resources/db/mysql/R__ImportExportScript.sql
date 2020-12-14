@@ -86,6 +86,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	var zipFileJsonDataMap = new Map();
 	var imporatableData;
 	let idList = new Array();
+	var isDataAvailableForImport = false;
 	
 	$(function(){
 		var input = document.getElementById(''inputFile'');
@@ -160,9 +161,28 @@ replace into template_master (template_id, template_name, template, updated_by, 
     <div class="cm-boxleft cm-scrollbar">
           
                 <div class="tab">
-                        <#if (moduleVOList)??> 
-                            <#list moduleVOList as moduleVO> 
-                                	<button class="tablinks" id= "${moduleVO.masterModuleId}" onclick="openTab(event, ''${moduleVO.masterModuleName}'', ''${moduleVO.masterModuleId}'', ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">${(moduleVO.masterModuleName)} <img src="/webjars/1.0/images/s-information1.svg"></button>
+                 <#if (moduleVOList)??> 
+                 <#list moduleVOList as moduleVO> 
+                        <#if moduleVO.moduleType == "ApplicationConfiguration"> 
+                            <button class="tablinks active" id= "${moduleVO.masterModuleId}" 
+                            	onclick="openTab(event, ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">
+                            	${(moduleVO.masterModuleName)}  <div class="jws-count-wrap">	
+                                    Selected:	
+                                <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}"></span>	
+                                <img src="/webjars/1.0/images/s-information1.svg">	
+                                </div>	
+                            </button>
+                        <#else>
+                            <button class="tablinks" id= "${moduleVO.masterModuleId}" 
+                            	onclick="openTab(event, ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">
+                            	${(moduleVO.masterModuleName)} <div class="jws-count-wrap">	
+                                    Selected:	
+                                <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}" ></span>	
+                                <img src="/webjars/1.0/images/s-information1.svg">	
+                                </div>	
+                            	</button>
+                        </#if>
+                                	
                             </#list>
                         </#if>
 	            </div>
@@ -172,7 +192,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
     <div class="cm-boxright cm-scrollbar">
          <#if (moduleVOList)??> 
                     <#list moduleVOList as moduleVO> 
-                        <#if moduleVO.moduleType == "Grid"> 
+                        <#if moduleVO.moduleType == "ApplicationConfiguration"> 
                             <div id="${moduleVO.moduleType}" class="tabcontent">
                             </div>
                         <#else>
@@ -211,6 +231,11 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		<div id="mainTabBtn">
 		<input id="nextBtn" class="btn btn-primary" style="float:right;" 
 			name="nextBtn" value="Next" type="button" onclick="gotoNextPage()">
+		<div class="jws-deselect-btn btn btn-primary">
+			<input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx"
+				 onchange="deselectAll();" style="float:left;">
+			<label for="deselectAllChkBx">Deselect All</label> 
+		</div>
 		</div>
 		<div id="nextTabBtn" style="display: none;">
             <input id="exportBtn" class="btn btn-primary" style="float: right;" name="exportBtn"
@@ -224,27 +249,45 @@ replace into template_master (template_id, template_name, template, updated_by, 
 </div>
 </div>
 <script>
+let isDeselectedAll = false;
 
 $(function () {
 	    localStorage.removeItem("imporatableData");
 	    localStorage.removeItem("importedIdList");
+
+
+	    <#if (customEntityCount)??> 
+	    	<#list customEntityCount as entity> 
+				<#list entity?keys as key>
+					${key} = ''${(entity[key])!""}'' ;
+				</#list> 
+				$(''#selectedCount_''+enityType).text(count);
+			</#list>
+	    </#if>
+	    <#if (allEntityCount)??> 
+	    	<#list allEntityCount as entity> 
+				<#list entity?keys as key>
+					${key} = ''${(entity[key])!""}'' ;
+				</#list> 
+				$(''#totalCount_''+enityType).text(totalCount);
+			</#list>
+	    </#if>
+
 	<#if (customEntities)??> 
 		let exportableData;
 		let exportableDataListMapNew;
 		let exportObjNew;
 		let systemConfigIncludeListNew=[];
 		let customConfigExcludeListNew=[];
-		let count = 0;
 		<#list customEntities as entity> 
 			<#list entity?keys as key> 
-		    	${key} = "${(entity[key])!''''}" ;
+		    	${key} = ''${(entity[key])!""}'' ;
 			</#list> 
 			if(id != null && id != "") {
-				exportableData = new ExportableData(enityType, id, name, versionID);
+				exportableData = new ExportableData(enityType, id, name, versionID, 1);
 				if(map.get(enityType) == null) {
 					exportableDataListMapNew = new Map();
-					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, name, 
-							id, null, null, enityType, exportableDataListMapNew);
+					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, enityType, 					exportableDataListMapNew);					
 					map.set(enityType, exportObjNew);
 				}
 				map.get(enityType).getExportableDataListMap().set(id, exportableData);
@@ -268,28 +311,48 @@ $(function () {
 			 
 			 moduleType = "${moduleVO.moduleType}";
 			
-			if(moduleType == "Grid") {
-				colM = [
-					{ title: "Action", width: 20, align: "center", render: updateExportGridFormatter, dataIndx: "" },
-			        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
-			        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			        { title: "Grid Name", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
-			        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			        { title: "Grid Description", width: 160, align: "center", dataIndx: "gridDesc", align: "left", halign: "center",
-			        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
-			        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
-			        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
-				];
+			exportObj = map.get(moduleType);
+			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
+				if(exportObj != null) {
+					systemConfigIncludeList=exportObj.getSystemConfigIncludeList();
+					if(systemConfigIncludeList == null) {
+						systemConfigIncludeList=[];
+					}
 
-				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, moduleName, 
-						moduleID, gridID, colM, moduleType, exportableDataListMap);
+					customConfigExcludeList=exportObj.getCustomConfigExcludeList();
+					if(customConfigExcludeList == null) {
+						customConfigExcludeList=[];
+					}
 
-				exportObj.getGrid();
+					exportableDataListMap = exportObj.getExportableDataListMap();
+					if(exportableDataListMap == null) {
+						exportableDataListMap = new Map();
+					}
+					
+				}
+				if(moduleType == "ApplicationConfiguration") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
+						{ title: "Owner Id", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Owner Type", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Name", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Property Value", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Modified By", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+						{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+					];				
+
+				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
+
+				exportObj.getGrid(1);
 				map.set(moduleType, exportObj);
+				}
 			}
-    		count = count + 1;
     		
       	</#list>
 	</#if>

@@ -26,8 +26,8 @@ public class DashletProperties implements Serializable {
 
 	@Id
 	@Column(name = "property_id", nullable = false)
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	private String				propertyId			= null;
 	
 	@Column(name = "dashlet_id")

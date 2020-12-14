@@ -74,7 +74,7 @@ public class ModuleVersionController {
 	}
 
 	@PostMapping(value = "/sml")
-	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public void saveSiteLayout(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
 		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper objectMapper			= new ObjectMapper();
 		ModuleListing moduleListing		= objectMapper.readValue(modifiedContent, ModuleListing.class);

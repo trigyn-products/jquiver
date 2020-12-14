@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 @XmlRootElement(name = "dashboardData")
 @XmlAccessorType (XmlAccessType.FIELD)

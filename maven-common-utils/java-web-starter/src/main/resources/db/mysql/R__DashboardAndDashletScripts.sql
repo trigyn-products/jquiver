@@ -282,8 +282,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
 		<div class="float-right">
 			<#if environment == "dev">
-				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlet" type="button">
-				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlet" type="button">
+				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
+				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
 			</#if>
 			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage(''jws.createNewDashlet'')}" type="button" onclick="dashletListing.submitForm(this)">
     		<span onclick="dashletListing.backToDashboarListing();">
@@ -331,7 +331,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }, render: dashletStatus},
 			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
 		];
 	

@@ -84,7 +84,8 @@
 					let moduleID = htmlTableJsonArray[i].moduleID;
 					let existingVersion = versionMap.get(moduleType.toLowerCase()+moduleID);
 					let isNonVersioningModule = "false";
-					if(moduleType == "FileManager" || moduleType == "Permission" || moduleType == "SiteLayout") {
+					if(moduleType == "FileManager" || moduleType == "Permission" || moduleType == "SiteLayout"
+						|| moduleType == "ManageUsers" || moduleType == "ManageRoles") {
 						isNonVersioningModule = "true";
 					}
 					let isCheckSumUpdated = crcMap.get(moduleType.toLowerCase()+moduleID);
@@ -129,6 +130,7 @@
 									+ 'onclick="importSingle(\'' + moduleType +'\','
 									+ '\'' + moduleID +'\')" >'
 									+ '<i class="fa fa-download"></i></button>';
+						isDataAvailableForImport = true;
 					}
 					tableRow += '</td>';
 					tableRow += '</tr>';
@@ -225,6 +227,24 @@
 			isNonVersioningModule = "true";
 			nonVersioningFetchURL = "/cf/muj";
 			saveURL = "/cf/sml";
+		} else if(moduleType == "ApplicationConfiguration") {
+			entityName="jws_property_master";
+			formId = jsonObject["formId"];
+			moduleName = jsonObject["propertyName"];
+			moduleTypeStr = "propertyMaster";
+			
+		} else if(moduleType == "ManageUsers") { 
+			moduleName = jsonObject["firstName"] + " " + jsonObject["lastName"];
+			moduleTypeStr = "manageusers";
+			isNonVersioningModule = "true";
+			nonVersioningFetchURL = "/cf/mjwsu";
+			saveURL = "/cf/sjwsu";
+		} else if(moduleType == "ManageRoles") { 
+			moduleName = jsonObject["roleName"];
+			moduleTypeStr = "manageroles";
+			isNonVersioningModule = "true";
+			nonVersioningFetchURL = "/cf/mjwsr";
+			saveURL = "/cf/sjwsr";
 		}
 
       	$("#entityName").val(entityName);
@@ -268,22 +288,26 @@
     }
 
     function importAll() {
-		$.ajax({
-	    	url : '/cf/importAll',
-	    	type : "post",
-	    	data: {
-	    		imporatableData : imporatableData,
-	    		importedIdList  : JSON.stringify(idList)
-	    	},
-	    	success : function(data) {
-	    		$("#importAllBtn").attr("disabled", true);
-	    		backToPreviousPage();
-	    		showMessage("All data imported.", "success");
-	    	},
-	    	error: function (textStatus, errorThrown) {
-	    		showMessage("Error while importing data", "error");
-	    	}
-    	});
+    	if(isDataAvailableForImport == true) {
+    		$.ajax({
+    	    	url : '/cf/importAll',
+    	    	type : "post",
+    	    	data: {
+    	    		imporatableData : imporatableData,
+    	    		importedIdList  : JSON.stringify(idList)
+    	    	},
+    	    	success : function(data) {
+    	    		$("#importAllBtn").attr("disabled", true);
+    	    		backToPreviousPage();
+    	    		showMessage("All data imported.", "success");
+    	    	},
+    	    	error: function (textStatus, errorThrown) {
+    	    		showMessage("Error while importing data", "error");
+    	    	}
+        	});
+    	} else {
+    		showMessage("No data available for importing", "info");
+    	}
     }
 
 	function backToPreviousPage(){

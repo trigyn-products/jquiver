@@ -153,6 +153,11 @@ function updateGridDetailsDisplayName(element){
 }
 
 function createMaster() {
+	let isValidData = validateForm();
+	if(isValidData === false){
+		$('#errorMessage').show();
+		return false;
+	}
 	menuDetails["moduleName"]=$("#menuDisplayName").val();
 	menuDetails["parentModuleId"]=$("#parentModuleName").val();
 	menuDetails["moduleURL"]=$("#moduleURL").val();
@@ -184,6 +189,40 @@ function createMaster() {
     })
 }
 
+
+function validateForm(){
+	$('#errorMessage').hide();
+	if(gridDetails.length === 0){
+		$('#errorMessage').html("Please include at least one column in grid");
+		return false;
+	}
+	
+	if(formDetails.length === 0){
+		$('#errorMessage').html("Please include at least one column in form");
+		return false;
+	}
+	
+	let isValid = true;
+	$.each(gridDetails, function(iCounter, gridElement){
+		if(gridElement.hidden === false && gridElement.displayName.trim() === "" &&
+			gridElement.i18nResourceKey.trim() === ""){
+			$('#errorMessage').html("Please enter valid display name or i18nResourceKey");
+			isValid = false;
+		}
+	});
+	
+	if(isValid === true){
+		$.each(formDetails, function(iCounter, formElement){
+			if(formElement.hidden === false && formElement.displayName.trim() === "" &&
+				formElement.i18nResourceKey.trim() === ""){
+				$('#errorMessage').html("Please enter valid display name or i18nResourceKey");
+				isValid = false;
+			}
+		});
+	}
+	return isValid;
+}
+
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -205,14 +244,14 @@ function enableDisableMenuAdd(){
 		let isInsideMenu = $("#showInMenu").prop("checked");
 		//let targetLookupId = $("#targetLookupType").find(":selected").val();
 		if(!isInsideMenu){
-			$("#isMenuAddActive").val(1);
+			$("#isMenuAddActive").val(0);
 			$("#parentModuleName").val("");
 			$("#parentModuleName").prop('disabled',true);
 			$("#menuDisplayName").prop('disabled',true);
 			$("#moduleURL").prop('disabled',true);
 		}
 		else{
-			$("#isMenuAddActive").val(0);
+			$("#isMenuAddActive").val(1);
 			$("#parentModuleName").val("");
 			$("#parentModuleName").prop('disabled',false);
 			$("#menuDisplayName").prop('disabled',false);

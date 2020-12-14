@@ -16,8 +16,8 @@ import org.hibernate.annotations.GenericGenerator;
 public class FileUploadConfig {
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "file_upload_config_id")
 	private String fileUploadConfigId = null;
 

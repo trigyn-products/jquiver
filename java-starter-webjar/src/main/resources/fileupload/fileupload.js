@@ -89,6 +89,13 @@
 	$.fn.fileUpload = function(options, selectedFiles) {
 	let fileUpload = new FileUpload(this, options, selectedFiles);
 	fileUpload.options = options;
+	
+	$(this).wrap('<div class="pg-form-dropzone"><div class="row"><div class="col-6 dropzone-wrapper"><div class="cm-dropzone-wrap"></div></div></div></div>');
+	
+	let labelDiv = $('<label for="fileupload" class="dropzone-container dz-default dz-message"><div class="cm-uploadwrap clearfix"></div></label><div class="filepreviewcontainer cm-scrollbar"></div>');
+	$(this).append(labelDiv);
+	$(".cm-uploadwrap").append($('<div class="cm-uploadicon"><img src="/webjars/1.0/images/multifileupload.svg"></div><div class="dropzone-title">Drag and drop your files or <span class="browse">browse</span> your files</div>'));
+	// $(this).append($('<label for="fileupload" class="dropzone-container dz-default dz-message"><div class="cm-uploadwrap clearfix"><div class="cm-uploadicon"><img src="/webjars/1.0/images/multifileupload.svg"></div><div class="dropzone-title">Drag and drop your files or <span class="browse">browse</span> your files</div></div></label>'));
 	/** Customizing the dropzone view **/
 	fileUpload.template = '<div id="template" class="col-6 file-row"><div><span class="preview"><img data-dz-thumbnail /></span></div><div>'
             + '<p class="name" data-dz-name></p><strong class="error text-danger" data-dz-errormessage></strong></div>'
@@ -113,11 +120,11 @@
 			  clickable: true,
 			  maxFilesize: fileUpload.getByteSize(data["max_file_size"]),
 			  uploadMultiple: true, 
-			  maxFiles: data["allow_multiple_files"],
+			  maxFiles: Number.parseInt(data["no_of_files"]),
 	  		  acceptedFiles: data["file_type_supported"],
 	  		  createImageThumbnails: false,
 	  		  // previewTemplate: fileUpload.template,
-	  		  // previewsContainer: ".previews",
+	  		  previewsContainer: ".filepreviewcontainer",
   			  // clickable: ".start-upload",
 	  		  success: function(data) {
 	  		  	showMessage("File uploaded successfully", "success");
@@ -142,7 +149,7 @@
 		            formData.append("fileConfigData", options.fileUploadId);
 		        });
 		      this.on("addedfile", function(file) {
-			        var removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-trash float-left'></i>");
+			        var removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-close float-left'></i>");
 			        var _this = this;
 			        removeButton.addEventListener("click", function(e) {
 			        	fileUpload.removeFileEvent(e, _this, file)

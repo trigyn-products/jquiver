@@ -1,24 +1,24 @@
 package com.trigyn.jws.usermanagement.entities;
 
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+
+import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 
 @Entity
 @Table(name = "jws_user")
 public class JwsUser {
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name="user_id")
 	private String userId = null;
 	
@@ -43,6 +43,9 @@ public class JwsUser {
 	
 	@Column(name="secret_key")
 	private String secretKey = null;
+	
+	@Column(name="registered_by")
+	private Integer registeredBy = null;
 	
 	public String getUserId() {
 		return userId;
@@ -108,6 +111,39 @@ public class JwsUser {
 		this.secretKey = secretKey;
 	}
 
-	
-	
+	public Integer getRegisteredBy() {
+		return registeredBy;
+	}
+
+	public void setRegisteredBy(Integer registeredBy) {
+		this.registeredBy = registeredBy;
+	}
+
+	public JwsUser getObject() {
+		JwsUser user = new JwsUser();
+		
+		user.setEmail(email);
+		user.setFirstName(firstName);
+		user.setForcePasswordChange(forcePasswordChange);
+		user.setIsActive(isActive);
+		user.setLastName(lastName);
+		user.setPassword(password);
+		user.setRegisteredBy(registeredBy);
+		user.setSecretKey(secretKey);
+		user.setUserId(userId);
+		return user;
+	}
+
+	public JwsUserVO convertEntityToVO(JwsUser userData) {
+		
+		JwsUserVO jwsUser = new JwsUserVO();
+		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId())?userData.getUserId():null);
+		jwsUser.setFirstName(userData.getFirstName());
+		jwsUser.setLastName(userData.getLastName());
+		jwsUser.setEmail(userData.getEmail());
+		jwsUser.setIsActive(userData.getIsActive());
+		jwsUser.setPassword(userData.getPassword());
+		return jwsUser;
+	}
+
 }
