@@ -33,88 +33,90 @@ import com.trigyn.jws.webstarter.service.TemplateCrudService;
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Templating')")
 public class TemplateCrudController {
-	
-	private final static Logger logger 						= LogManager.getLogger(TemplateCrudController.class);
+
+	private final static Logger	logger				= LogManager.getLogger(TemplateCrudController.class);
 
 	@Autowired
-	private DBTemplatingService dbTemplatingService 		= null;
-	
+	private DBTemplatingService	dbTemplatingService	= null;
+
 	@Autowired
-	private TemplateCrudService templateCrudService			= null;
-	
+	private TemplateCrudService	templateCrudService	= null;
+
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO 			= null;
-	
+	private PropertyMasterDAO	propertyMasterDAO	= null;
+
 	@Autowired
-	private MenuService 				menuService			= null;
-	
+	private MenuService			menuService			= null;
+
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
-    public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
+	public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			Map<String,Object>  modelMap 	= new HashMap<>();
-			String environment 				= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+			Map<String, Object>	modelMap	= new HashMap<>();
+			String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
+	}
 
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
-	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
-			String templateId 					= request.getParameter("vmMasterId");
-			Map<String, Object> vmTemplateData 	= new HashMap<>();
+			String				templateId		= request.getParameter("vmMasterId");
+			Map<String, Object>	vmTemplateData	= new HashMap<>();
 			if (!StringUtils.isBlank(templateId)) {
 				TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
 				templateDetails.setTemplate("");
 				vmTemplateData.put("templateDetails", templateDetails);
 			}
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
-	
+
 	@RequestMapping(value = "/ctd")
 	@ResponseBody
 	public String checkTemplateData(HttpServletRequest request, HttpServletResponse response) {
-		String templateName 	= request.getParameter("templateName");
-		String templateId 		= null;
+		String	templateName	= request.getParameter("templateName");
+		String	templateId		= null;
 		try {
 			templateId = templateCrudService.checkVelocityData(templateName);
 			return templateId;
-		} catch (Exception exception) {
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
 			return null;
 		}
 	}
-	
-	
+
 	@GetMapping(value = "/gtbi")
 	public String getTemplateByTemplateId(HttpServletRequest request) throws Exception {
-		String templateId = request.getParameter("templateId");
-		TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
+		String		templateId		= request.getParameter("templateId");
+		TemplateVO	templateDetails	= dbTemplatingService.getVelocityDataById(templateId);
 		return templateDetails.getTemplate();
 	}
-	
+
 	@PostMapping(value = "/std")
 	public String saveTemplateData(HttpSession session, HttpServletRequest request) throws Exception {
 		return dbTemplatingService.saveTemplateData(request);
 	}
-	
-	@PostMapping(value="/stdv")
-	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
-		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper		= new ObjectMapper();
+
+	@PostMapping(value = "/stdv")
+	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper	objectMapper	= new ObjectMapper();
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		TemplateVO templateVO 			= objectMapper.readValue(modifiedContent, TemplateVO.class);
+		TemplateVO templateVO = objectMapper.readValue(modifiedContent, TemplateVO.class);
 		dbTemplatingService.saveTemplate(templateVO);
 	}
-	
+
 	@PostMapping(value = "/dtl")
 	public void downloadAllTemplatesToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		templateCrudService.downloadTemplates(null);
@@ -124,14 +126,13 @@ public class TemplateCrudController {
 	public void uploadAllTemplatesToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		templateCrudService.uploadTemplates(null);
 	}
-	
+
 	@PostMapping(value = "/dtbi")
 	public void downloadTemplateByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		String templateId = request.getParameter("templateId");
 		templateCrudService.downloadTemplates(templateId);
 	}
-	
-	
+
 	@PostMapping(value = "/utdbi")
 	public void uploadTemplateByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String templateName = request.getParameter("templateName");

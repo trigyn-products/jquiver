@@ -196,4 +196,9 @@ replace into jws_entity_role_association (entity_role_id, entity_id, entity_name
 ('8a80cb817570b939017570baa17f0002', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570b939017570baa1800003', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
+
+UPDATE jws_dynamic_rest_details SET
+jws_service_logic = 'com.trigyn.jws.applicationmetrics.service.ApplicationMetricsService'
+WHERE jws_method_name = 'getJvmMetrics';
+
 SET FOREIGN_KEY_CHECKS=1;

@@ -24,57 +24,57 @@ public class DynamicForm {
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "form_id")
-	private String formId = null;
+	private String						formId					= null;
 
 	@Column(name = "form_name")
-	private String formName = null;
+	private String						formName				= null;
 
 	@Column(name = "form_description")
-	private String formDescription = null;
+	private String						formDescription			= null;
 
 	@Column(name = "form_select_query")
-	private String formSelectQuery = null;
+	private String						formSelectQuery			= null;
 
 	@Column(name = "form_body")
-	private String formBody = null;
-	
+	private String						formBody				= null;
+
 	@Column(name = "form_type_id")
-	private Integer formTypeId = 1;
+	private Integer						formTypeId				= 1;
 
 	@Column(name = "created_by")
-	private String createdBy = null;
+	private String						createdBy				= null;
 
 	@JsonIgnore
 	@Column(name = "created_date")
-	private Date createdDate = null;
-	
+	private Date						createdDate				= null;
+
 	@Column(name = "form_select_checksum")
-	private String formSelectChecksum = null;
+	private String						formSelectChecksum		= null;
 
 	@Column(name = "form_body_checksum")
-	private String formBodyChecksum = null;
+	private String						formBodyChecksum		= null;
 
 	@OneToMany(mappedBy = "dynamicForm")
-	private List<DynamicFormSaveQuery> dynamicFormSaveQueries = null;
+	private List<DynamicFormSaveQuery>	dynamicFormSaveQueries	= null;
 
 	public DynamicForm() {
-		
+
 	}
 
 	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
 			Integer formTypeId, String createdBy, Date createdDate, String formSelectChecksum, String formBodyChecksum,
 			List<DynamicFormSaveQuery> dynamicFormSaveQueries) {
-		this.formId = formId;
-		this.formName = formName;
-		this.formDescription = formDescription;
-		this.formSelectQuery = formSelectQuery;
-		this.formBody = formBody;
-		this.formTypeId = formTypeId;
-		this.createdBy = createdBy;
-		this.createdDate = createdDate;
-		this.formSelectChecksum = formSelectChecksum;
-		this.formBodyChecksum = formBodyChecksum;
-		this.dynamicFormSaveQueries = dynamicFormSaveQueries;
+		this.formId					= formId;
+		this.formName				= formName;
+		this.formDescription		= formDescription;
+		this.formSelectQuery		= formSelectQuery;
+		this.formBody				= formBody;
+		this.formTypeId				= formTypeId;
+		this.createdBy				= createdBy;
+		this.createdDate			= createdDate;
+		this.formSelectChecksum		= formSelectChecksum;
+		this.formBodyChecksum		= formBodyChecksum;
+		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 	}
 
 	public String getFormId() {
@@ -201,31 +201,30 @@ public class DynamicForm {
 				+ formSelectChecksum + ", formBodyChecksum=" + formBodyChecksum + ", dynamicFormSaveQueries="
 				+ dynamicFormSaveQueries + "]";
 	}
-	  
-    public DynamicForm getObject() {
-    	DynamicForm obj = new DynamicForm();
-    	obj.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
-    	obj.setCreatedDate(createdDate);
-    	obj.setFormBody(formBody!=null?formBody.trim():formBody);
-    	obj.setFormBodyChecksum(formBodyChecksum!=null?formBodyChecksum.trim():formBodyChecksum);
-    	obj.setFormDescription(formDescription!=null?formDescription.trim():formDescription);
-    	obj.setFormId(formId!=null?formId.trim():formId);
-    	obj.setFormName(formName!=null?formName.trim():formName);
-    	obj.setFormSelectChecksum(formSelectChecksum!=null?formSelectChecksum.trim():formSelectChecksum);
-    	obj.setFormSelectQuery(formSelectQuery!=null?formSelectQuery.trim():formSelectQuery);
-    	obj.setFormTypeId(formTypeId);
-    	
 
-		List<DynamicFormSaveQuery>	dfsOtr		= new ArrayList<>();
-		if(dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {
-			for(DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
+	public DynamicForm getObject() {
+		DynamicForm obj = new DynamicForm();
+		obj.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
+		obj.setCreatedDate(createdDate);
+		obj.setFormBody(formBody != null ? formBody.trim() : formBody);
+		obj.setFormBodyChecksum(formBodyChecksum != null ? formBodyChecksum.trim() : formBodyChecksum);
+		obj.setFormDescription(formDescription != null ? formDescription.trim() : formDescription);
+		obj.setFormId(formId != null ? formId.trim() : formId);
+		obj.setFormName(formName != null ? formName.trim() : formName);
+		obj.setFormSelectChecksum(formSelectChecksum != null ? formSelectChecksum.trim() : formSelectChecksum);
+		obj.setFormSelectQuery(formSelectQuery != null ? formSelectQuery.trim() : formSelectQuery);
+		obj.setFormTypeId(formTypeId);
+
+		List<DynamicFormSaveQuery> dfsOtr = new ArrayList<>();
+		if (dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {
+			for (DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
 				dfsOtr.add(dfs.getObject());
 			}
 			obj.setDynamicFormSaveQueries(dynamicFormSaveQueries);
-		} else obj.setDynamicFormSaveQueries(null);
-		
+		} else
+			obj.setDynamicFormSaveQueries(null);
+
 		return obj;
 	}
 
-	
 }

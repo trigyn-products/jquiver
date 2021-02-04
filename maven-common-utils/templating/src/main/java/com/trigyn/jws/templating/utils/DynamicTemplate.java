@@ -12,14 +12,14 @@ import com.trigyn.jws.templating.service.MenuService;
 public class DynamicTemplate {
 
 	@Autowired
-	private MenuService 				menuService			= null;
-	
+	private MenuService menuService = null;
+
 	public String includeTemplate(String templateName, Object requestObject) throws Exception {
-		Map<String, Object> templateMap = new HashMap<>(); 
+		Map<String, Object> templateMap = new HashMap<>();
 		templateMap.put("innerTemplateObj", requestObject);
 		return menuService.getTemplateWithoutLayout(templateName, templateMap);
 	}
-	
+
 	public String includeTemplate(String templateName) throws Exception {
 		return menuService.getTemplateWithoutLayout(templateName, new HashMap<>());
 	}

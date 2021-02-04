@@ -26,6 +26,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.Constant;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.webstarter.dao.SendMailDAO;
 import com.trigyn.jws.webstarter.entities.MailHistory;
 import com.trigyn.jws.webstarter.utils.Email;
@@ -45,26 +45,27 @@ import com.trigyn.jws.webstarter.utils.Email;
 @Transactional
 public class SendMailService {
 
-	@Autowired
-	private DBTemplatingService dbTemplatingService = null;
+	private final static Logger		logger					= LogManager.getLogger(SendMailService.class);
 
 	@Autowired
-	private PropertyMasterService propertyMasterService = null;
+	private PropertyMasterService	propertyMasterService	= null;
 
 	@Autowired
-	private SendMailDAO sendMailDao = null;
+	private SendMailDAO				sendMailDao				= null;
 
 	@Async
 	public CompletableFuture<Boolean> sendTestMail(Email mail) throws Exception {
 
-		String jsonString = propertyMasterService.findPropertyMasterValue("mail-configuration");
-		Map<String, String> mailMap = new Gson().fromJson(jsonString, new TypeToken<Map<String, String>>() {
-		}.getType());
-		Authenticator authenticator = null;
-		Session session = null;
-		Properties prop = new Properties();
-		String stmpPort = mailMap.get("smtpPort");
-		String smtpSecurityProtocal = mailMap.get("smtpSecurityProtocal");
+		String				jsonString				= propertyMasterService
+				.findPropertyMasterValue("mail-configuration");
+		Map<String, String>	mailMap					= new Gson().fromJson(jsonString,
+				new TypeToken<Map<String, String>>() {
+															}.getType());
+		Authenticator		authenticator			= null;
+		Session				session					= null;
+		Properties			prop					= new Properties();
+		String				stmpPort				= mailMap.get("smtpPort");
+		String				smtpSecurityProtocal	= mailMap.get("smtpSecurityProtocal");
 		prop.setProperty("mail.smtp.host", mailMap.get("smtpHost"));
 		prop.setProperty("mail.smtp.port", stmpPort);
 
@@ -86,12 +87,12 @@ public class SendMailService {
 			prop.setProperty("mail.smtp.user", mailMap.get("userName"));
 			prop.setProperty("mail.smtp.password", mailMap.get("password"));
 			class SMTPAuthenticator extends javax.mail.Authenticator {
-				String username = "";
-				String password = "";
+				String	username	= "";
+				String	password	= "";
 
 				protected SMTPAuthenticator(String username, String password) {
-					this.username = username;
-					this.password = password;
+					this.username	= username;
+					this.password	= password;
 				}
 
 				protected PasswordAuthentication getPasswordAuthentication() {
@@ -99,27 +100,27 @@ public class SendMailService {
 				}
 			}
 
-			authenticator = new SMTPAuthenticator(mailMap.get("userName"), mailMap.get("password"));
-			session = Session.getInstance(prop, authenticator);
+			authenticator	= new SMTPAuthenticator(mailMap.get("userName"), mailMap.get("password"));
+			session			= Session.getInstance(prop, authenticator);
 		} else {
 			session = Session.getDefaultInstance(prop, null);
 			prop.put("mail.smtp.auth", Boolean.FALSE);
 		}
 
-		Boolean isSent = true;
-		MimeMessage message = new MimeMessage(session);
-		MimeMultipart mimeMultipart = new MimeMultipart();
-		BodyPart messageBodyPart = new MimeBodyPart();
-		String mailBody = "";
-		String fromMailId = mail.getMailFrom();
-		String fromMailName = mail.getMailFromName();
-		Boolean isReplyToDifferentMail = mail.getIsReplyToDifferentMail();
-		InternetAddress replyToDifferentEmailId = mail.getReplyToDifferentMailId();
-		InternetAddress[] mailToList = mail.getInternetAddressToArray();
-		InternetAddress[] ccList = mail.getInternetAddressCCArray();
-		InternetAddress[] bccList = mail.getInternetAddressBCCArray();
-		Boolean isMailFooterRequired = mail.getIsMailFooterEnabled();
-		String mailFooter = mail.getMailFooter();
+		Boolean				isSent					= true;
+		MimeMessage			message					= new MimeMessage(session);
+		MimeMultipart		mimeMultipart			= new MimeMultipart();
+		BodyPart			messageBodyPart			= new MimeBodyPart();
+		String				mailBody				= "";
+		String				fromMailId				= mail.getMailFrom();
+		String				fromMailName			= mail.getMailFromName();
+		Boolean				isReplyToDifferentMail	= mail.getIsReplyToDifferentMail();
+		InternetAddress		replyToDifferentEmailId	= mail.getReplyToDifferentMailId();
+		InternetAddress[]	mailToList				= mail.getInternetAddressToArray();
+		InternetAddress[]	ccList					= mail.getInternetAddressCCArray();
+		InternetAddress[]	bccList					= mail.getInternetAddressBCCArray();
+		Boolean				isMailFooterRequired	= mail.getIsMailFooterEnabled();
+		String				mailFooter				= mail.getMailFooter();
 		try {
 
 			if (fromMailId != null && fromMailId != "" && isValidEmailAddressFromStringValidation(fromMailId)) {
@@ -171,8 +172,8 @@ public class SendMailService {
 
 			if (mail.getAttachementsArray() != null && !mail.getAttachementsArray().isEmpty()) {
 				for (File attachedFile : mail.getAttachementsArray()) {
-					BodyPart atachmentBodyPart = new MimeBodyPart();
-					DataSource source = new FileDataSource(attachedFile);
+					BodyPart	atachmentBodyPart	= new MimeBodyPart();
+					DataSource	source				= new FileDataSource(attachedFile);
 					atachmentBodyPart.setDataHandler(new DataHandler(source));
 					atachmentBodyPart.setFileName(attachedFile.getName());
 					mimeMultipart.addBodyPart(atachmentBodyPart);
@@ -184,9 +185,9 @@ public class SendMailService {
 
 			Transport.send(message);
 
-		} catch (Exception e) {
+		} catch (Exception a_excep) {
 			isSent = false;
-			e.printStackTrace();
+			logger.error("Error ocurred.", a_excep);
 			if (mailBody != "") {
 				messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 			} else if (mail.getBody() != null && mail.getBody() != "") {
@@ -197,13 +198,13 @@ public class SendMailService {
 			mimeMultipart.addBodyPart(messageBodyPart);
 			message.setContent(mimeMultipart);
 			try {
-				String emailEMLFile = UUID.randomUUID().toString();
+				String	emailEMLFile	= UUID.randomUUID().toString();
 				// Have to read path from property file
-				String filePath = "d:/" + emailEMLFile + "_Mail.eml";
+				String	filePath		= "d:/" + emailEMLFile + "_Mail.eml";
 				message.writeTo(new FileOutputStream(new File(filePath)));
 
-				MailHistory mailHistory = new MailHistory();
-				String uuidGenerated = UUID.randomUUID().toString();
+				MailHistory	mailHistory		= new MailHistory();
+				String		uuidGenerated	= UUID.randomUUID().toString();
 				mailHistory.setFailedMailId(uuidGenerated);
 				if (fromMailId == null) {
 					// if no from email id entered exception occured saving database with below mail
@@ -224,9 +225,9 @@ public class SendMailService {
 
 				sendMailDao.saveFailedMails(mailHistory);
 
-			} catch (IOException | MessagingException e1) {
+			} catch (IOException | MessagingException a_exc) {
 				isSent = false;
-				e1.printStackTrace();
+				logger.error("Error ocurred.", a_exc);
 
 			}
 		}
@@ -239,7 +240,8 @@ public class SendMailService {
 		try {
 			InternetAddress emailAddr = new InternetAddress(email);
 			emailAddr.validate();
-		} catch (AddressException ex) {
+		} catch (AddressException a_exc) {
+			logger.error("Error ocurred.", a_exc);
 			result = false;
 		}
 		return result;
@@ -249,23 +251,25 @@ public class SendMailService {
 		boolean result = true;
 		try {
 			emailAddr.validate();
-		} catch (AddressException ex) {
+		} catch (AddressException a_exc) {
+			logger.error("Error ocurred.", a_exc);
 			result = false;
 		}
 		return result;
 	}
 
-	// Email and with json string of properties send test mail call
+	// Email and with json string of properties send test mail call     
 	@Async
 	public CompletableFuture<Boolean> sendTestMail(Email mail, String jsonString) throws Exception {
 
-		Map<String, String> mailMap = new Gson().fromJson(jsonString, new TypeToken<Map<String, String>>() {
-		}.getType());
-		Authenticator authenticator = null;
-		Session session = null;
-		Properties prop = new Properties();
-		String stmpPort = mailMap.get("smtpPort");
-		String smtpSecurityProtocal = mailMap.get("smtpSecurityProtocal");
+		Map<String, String>	mailMap					= new Gson().fromJson(jsonString,
+				new TypeToken<Map<String, String>>() {
+															}.getType());
+		Authenticator		authenticator			= null;
+		Session				session					= null;
+		Properties			prop					= new Properties();
+		String				stmpPort				= mailMap.get("smtpPort");
+		String				smtpSecurityProtocal	= mailMap.get("smtpSecurityProtocal");
 		prop.setProperty("mail.smtp.host", mailMap.get("smtpHost"));
 		prop.setProperty("mail.smtp.port", stmpPort);
 
@@ -287,12 +291,12 @@ public class SendMailService {
 			prop.setProperty("mail.smtp.user", mailMap.get("userName"));
 			prop.setProperty("mail.smtp.password", mailMap.get("password"));
 			class SMTPAuthenticator extends javax.mail.Authenticator {
-				String username = "";
-				String password = "";
+				String	username	= "";
+				String	password	= "";
 
 				protected SMTPAuthenticator(String username, String password) {
-					this.username = username;
-					this.password = password;
+					this.username	= username;
+					this.password	= password;
 				}
 
 				protected PasswordAuthentication getPasswordAuthentication() {
@@ -300,46 +304,57 @@ public class SendMailService {
 				}
 			}
 
-			authenticator = new SMTPAuthenticator(mailMap.get("userName"), mailMap.get("password"));
-			session = Session.getInstance(prop, authenticator);
+			authenticator	= new SMTPAuthenticator(mailMap.get("userName"), mailMap.get("password"));
+			session			= Session.getInstance(prop, authenticator);
 		} else {
 			session = Session.getDefaultInstance(prop, null);
 			prop.put("mail.smtp.auth", Boolean.FALSE);
 		}
 
-		Boolean isSent = true;
-		MimeMessage message = new MimeMessage(session);
-		MimeMultipart mimeMultipart = new MimeMultipart();
-		BodyPart messageBodyPart = new MimeBodyPart();
-		String mailBody = "";
-		String fromMailId = (mailMap.get("mailFrom") != null && mailMap.get("mailFrom") != "") ? mailMap.get("mailFrom")
+		Boolean			isSent					= true;
+		MimeMessage		message					= new MimeMessage(session);
+		MimeMultipart	mimeMultipart			= new MimeMultipart();
+		BodyPart		messageBodyPart			= new MimeBodyPart();
+		String			mailBody				= "";
+		String			fromMailId				= (mailMap.get("mailFrom") != null && mailMap.get("mailFrom") != "")
+				? mailMap.get("mailFrom")
 				: mail.getMailFrom();
-		String fromMailName = (mailMap.get("mailFromName") != null && mailMap.get("mailFromName") != "")
-				? mailMap.get("mailFromName")
-				: mail.getMailFromName();
-		String isReply = mailMap.get("isReplyToDifferentMail");
-		Boolean isReplyToDifferentMail = (isReply != null && !isReply.isEmpty()) ? Boolean.parseBoolean(isReply)
+		String			fromMailName			= (mailMap.get("mailFromName") != null
+				&& mailMap.get("mailFromName") != "") ? mailMap.get("mailFromName") : mail.getMailFromName();
+		String			isReply					= mailMap.get("isReplyToDifferentMail");
+		Boolean			isReplyToDifferentMail	= (isReply != null && !isReply.isEmpty())
+				? Boolean.parseBoolean(isReply)
 				: false;
 
 		if (!isReplyToDifferentMail && mail.getIsReplyToDifferentMail() != null) {
 			isReplyToDifferentMail = mail.getIsReplyToDifferentMail();
 		}
 
-		String replyEmailAddress = (mailMap.get("replyToDifferentMailId") != null
+		String			replyEmailAddress		= (mailMap.get("replyToDifferentMailId") != null
 				&& !mailMap.get("replyToDifferentMailId").isEmpty()) ? mailMap.get("replyToDifferentMailId") : "";
-		InternetAddress replyToDifferentEmailId = null;
+		InternetAddress	replyToDifferentEmailId	= null;
 		if (isReplyToDifferentMail && replyEmailAddress != "") {
 			replyToDifferentEmailId = (new InternetAddress(replyEmailAddress));
 		} else {
 			replyToDifferentEmailId = (mail.getReplyToDifferentMailId());
 		}
 
-		InternetAddress[] mailToList = null;
-		if (mailMap.get("internetAddressToArray") != "" && mailMap.get("internetAddressToArray") != null) {
+		InternetAddress[]	mailToList				= null;
+		if (mail.getInternetAddressToArray() != null) {
+			mailToList				= mail.getInternetAddressToArray();
+		} else if (mailMap.get("internetAddressToArray") != "" && mailMap.get("internetAddressToArray") != null) {
 			mailToList = InternetAddress.parse(mailMap.get("internetAddressToArray"));
 		} else {
-			mailToList = mail.getInternetAddressToArray();
+			// mail to at least one mail id required
+			message.addRecipients(Message.RecipientType.TO, "atleastOneTOMailId@required.com");
+			throw new Exception("To mail id missing  ");
 		}
+
+//		if (mailMap.get("internetAddressToArray") != "" && mailMap.get("internetAddressToArray") != null) {
+//			mailToList = InternetAddress.parse(mailMap.get("internetAddressToArray"));
+//		} else {
+//			mailToList = mail.getInternetAddressToArray();
+//		}
 		InternetAddress[] ccList = null;
 
 		if (mailMap.get("internetAddressCCArray") != null && mailMap.get("internetAddressCCArray") != "") {
@@ -354,9 +369,9 @@ public class SendMailService {
 			bccList = mail.getInternetAddressBCCArray();
 		}
 
-		Boolean isMailFooterRequired;
+		Boolean	isMailFooterRequired;
 
-		String footerExists = mailMap.get("isMailFooterEnabled");
+		String	footerExists	= mailMap.get("isMailFooterEnabled");
 		isMailFooterRequired = (footerExists != null && !footerExists.isEmpty()) ? Boolean.parseBoolean(footerExists)
 				: mail.getIsMailFooterEnabled();
 		mail.setIsMailFooterEnabled(isMailFooterRequired);
@@ -415,8 +430,8 @@ public class SendMailService {
 
 			if (mail.getAttachementsArray() != null && !mail.getAttachementsArray().isEmpty()) {
 				for (File attachedFile : mail.getAttachementsArray()) {
-					BodyPart atachmentBodyPart = new MimeBodyPart();
-					DataSource source = new FileDataSource(attachedFile);
+					BodyPart	atachmentBodyPart	= new MimeBodyPart();
+					DataSource	source				= new FileDataSource(attachedFile);
 					atachmentBodyPart.setDataHandler(new DataHandler(source));
 					atachmentBodyPart.setFileName(attachedFile.getName());
 					mimeMultipart.addBodyPart(atachmentBodyPart);
@@ -428,9 +443,9 @@ public class SendMailService {
 
 			Transport.send(message);
 
-		} catch (Exception e) {
+		} catch (Exception a_exc) {
 			isSent = false;
-			e.printStackTrace();
+			logger.error("Error ocurred.", a_exc);
 			if (mailBody != "") {
 				messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 			} else if (mail.getBody() != null && mail.getBody() != "") {
@@ -442,13 +457,13 @@ public class SendMailService {
 			message.setContent(mimeMultipart);
 
 			try {
-				String emailEMLFile = UUID.randomUUID().toString();
+				String	emailEMLFile	= UUID.randomUUID().toString();
 				// Have to read path from propert file
-				String filePath = "d:/" + emailEMLFile + "_Mail.eml";
+				String	filePath		= "d:/" + emailEMLFile + "_Mail.eml";
 				message.writeTo(new FileOutputStream(new File(filePath)));
 
-				MailHistory mailHistory = new MailHistory();
-				String uuidGenerated = UUID.randomUUID().toString();
+				MailHistory	mailHistory		= new MailHistory();
+				String		uuidGenerated	= UUID.randomUUID().toString();
 				mailHistory.setFailedMailId(uuidGenerated);
 				if (fromMailId == null) {
 					mailHistory.setMailSentBy("fromMailId@notFound.com");
@@ -467,9 +482,9 @@ public class SendMailService {
 
 				sendMailDao.saveFailedMails(mailHistory);
 
-			} catch (IOException | MessagingException e1) {
+			} catch (IOException | MessagingException a_excp) {
 				isSent = false;
-				e1.printStackTrace();
+				logger.error("Error ocurred.", a_excp);
 			}
 		}
 

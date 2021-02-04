@@ -2,24 +2,24 @@ package com.trigyn.jws.dbutils.vo.xml;
 
 public class TemplateExportVO {
 
-	private String templateId 			= null;
+	private String	templateId			= null;
 
-	private String templateName 		= null;
+	private String	templateName		= null;
 
-	private Integer templateTypeId 		= 1;
+	private Integer	templateTypeId		= 1;
 
-	private String templateFileName 	= null;
+	private String	templateFileName	= null;
 
 	public TemplateExportVO() {
-		
+
 	}
-	
+
 	public TemplateExportVO(String templateId, String templateName, Integer templateTypeId, String templateFileName) {
 		super();
-		this.templateId = templateId;
-		this.templateName = templateName;
-		this.templateTypeId = templateTypeId;
-		this.templateFileName = templateFileName;
+		this.templateId			= templateId;
+		this.templateName		= templateName;
+		this.templateTypeId		= templateTypeId;
+		this.templateFileName	= templateFileName;
 	}
 
 	public String getTemplateId() {

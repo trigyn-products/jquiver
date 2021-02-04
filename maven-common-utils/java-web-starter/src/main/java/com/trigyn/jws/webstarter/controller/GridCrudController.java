@@ -21,20 +21,20 @@ import com.trigyn.jws.templating.service.MenuService;
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Grid Utils')")
 public class GridCrudController {
-	
-	private final static Logger logger 						= LogManager.getLogger(GridCrudController.class);
+
+	private final static Logger	logger		= LogManager.getLogger(GridCrudController.class);
 
 	@Autowired
-	private MenuService 	menuService						= null;
-    
-    @GetMapping(value = "/gd", produces = MediaType.TEXT_HTML_VALUE)
-    public String gridUtilsPage(HttpServletResponse httpServletResponse) throws IOException  {
-    	try {
-    		return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());
-    	}catch (Exception exception) {
-    		logger.error("Error while loding gridUtils page ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+	private MenuService			menuService	= null;
+
+	@GetMapping(value = "/gd", produces = MediaType.TEXT_HTML_VALUE)
+	public String gridUtilsPage(HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());
+		} catch (Exception a_exception) {
+			logger.error("Error while loding gridUtils page ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
+	}
 }

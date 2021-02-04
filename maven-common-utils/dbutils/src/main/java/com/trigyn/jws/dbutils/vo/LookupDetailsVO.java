@@ -3,81 +3,89 @@ package com.trigyn.jws.dbutils.vo;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class LookupDetailsVO implements Serializable{
+public class LookupDetailsVO implements Serializable {
 
-	private static final long serialVersionUID 	= 1L;
-	private String lookupId						= null;
-	private String lookupName					= null;
-	private Integer recordId					= null;
-	private Integer languageId					= null;
-	private String recordDescription			= null;
-	
+	private static final long	serialVersionUID	= 1L;
+	private String				lookupId			= null;
+	private String				lookupName			= null;
+	private Integer				recordId			= null;
+	private Integer				languageId			= null;
+	private String				recordDescription	= null;
+
 	public LookupDetailsVO() {
 
 	}
-	
-	public LookupDetailsVO(String lookupName, Integer recordId, Integer languageId,
-			String recordDescription) {
-		this.lookupName 		= lookupName;
-		this.recordId 			= recordId;
-		this.languageId 		= languageId;
-		this.recordDescription 	= recordDescription;
+
+	public LookupDetailsVO(String lookupName, Integer recordId, Integer languageId, String recordDescription) {
+		this.lookupName			= lookupName;
+		this.recordId			= recordId;
+		this.languageId			= languageId;
+		this.recordDescription	= recordDescription;
 	}
-	
+
 	/**
 	 * @return the lookupId
 	 */
 	public String getLookupId() {
 		return lookupId;
 	}
+
 	/**
 	 * @param lookupId the lookupId to set
 	 */
 	public void setLookupId(String lookupId) {
 		this.lookupId = lookupId;
 	}
+
 	/**
 	 * @return the lookupName
 	 */
 	public String getLookupName() {
 		return lookupName;
 	}
+
 	/**
 	 * @param lookupName the lookupName to set
 	 */
 	public void setLookupName(String lookupName) {
 		this.lookupName = lookupName;
 	}
+
 	/**
 	 * @return the recordId
 	 */
 	public Integer getRecordId() {
 		return recordId;
 	}
+
 	/**
 	 * @param recordId the recordId to set
 	 */
 	public void setRecordId(Integer recordId) {
 		this.recordId = recordId;
 	}
+
 	/**
 	 * @return the languageId
 	 */
 	public Integer getLanguageId() {
 		return languageId;
 	}
+
 	/**
 	 * @param languageId the languageId to set
 	 */
 	public void setLanguageId(Integer languageId) {
 		this.languageId = languageId;
 	}
+
 	/**
 	 * @return the recordDescription
 	 */
 	public String getRecordDescription() {
 		return recordDescription;
 	}
+
 	/**
 	 * @param recordDescription the recordDescription to set
 	 */
@@ -114,5 +122,4 @@ public class LookupDetailsVO implements Serializable{
 				+ ", languageId=" + languageId + ", recordDescription=" + recordDescription + "]";
 	}
 
-	
 }

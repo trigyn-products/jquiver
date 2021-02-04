@@ -22,41 +22,41 @@ public class JwsEntityRoleAssociation {
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "entity_role_id")
-	private String entityRoleId = null;
-	
+	private String	entityRoleId	= null;
+
 	@Column(name = "entity_id")
-	private String entityId = null;
-	
+	private String	entityId		= null;
+
 	@Column(name = "entity_name")
-	private String entityName = null;
-	
+	private String	entityName		= null;
+
 	@Column(name = "module_id")
-	private String moduleId = null;
-	
+	private String	moduleId		= null;
+
 	@Column(name = "role_id")
-	private String roleId = null;
-	
-	@ManyToOne
-	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false )
-	private JwsRole role = null;
-	
-	@Column(name = "last_updated_date")
-	@Temporal(TemporalType.DATE)
-	private Date lastUpdatedDate = null;
-	
-	@Column(name = "last_updated_by")
-	private String lastUpdatedBy = null;
-	
-	@Column(name = "is_active")
-	private Integer isActive = null;
-	
-	@Column(name="module_type_id")
-	private Integer moduleTypeId = 0;
+	private String	roleId			= null;
 
 	@ManyToOne
-	@JoinColumn(name="role_id" , referencedColumnName = "role_id",insertable = false, updatable = false)
-	private JwsRole jwsRole =  null;
-	
+	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
+	private JwsRole	role			= null;
+
+	@Column(name = "last_updated_date")
+	@Temporal(TemporalType.DATE)
+	private Date	lastUpdatedDate	= null;
+
+	@Column(name = "last_updated_by")
+	private String	lastUpdatedBy	= null;
+
+	@Column(name = "is_active")
+	private Integer	isActive		= null;
+
+	@Column(name = "module_type_id")
+	private Integer	moduleTypeId	= 0;
+
+	@ManyToOne
+	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
+	private JwsRole	jwsRole			= null;
+
 	public String getEntityRoleId() {
 		return entityRoleId;
 	}
@@ -124,6 +124,7 @@ public class JwsEntityRoleAssociation {
 	public JwsRole getJwsRole() {
 		return jwsRole;
 	}
+
 	public Integer getModuleTypeId() {
 		return moduleTypeId;
 	}
@@ -131,19 +132,20 @@ public class JwsEntityRoleAssociation {
 	public void setJwsRole(JwsRole jwsRole) {
 		this.jwsRole = jwsRole;
 	}
+
 	public void setModuleTypeId(Integer moduleTypeId) {
 		this.moduleTypeId = moduleTypeId;
 	}
 
 	public JwsEntityRoleAssociation getObject() {
 		JwsEntityRoleAssociation role = new JwsEntityRoleAssociation();
-		role.setEntityRoleId(entityRoleId!=null?entityRoleId.trim():entityRoleId);
-		role.setEntityName(entityName!=null?entityName.trim():entityName);
-		role.setEntityId(entityId!=null?entityId.trim():entityId);
-		role.setModuleId(moduleId!=null?moduleId.trim():moduleId);
-		role.setRoleId(roleId!=null?roleId.trim():roleId);
+		role.setEntityRoleId(entityRoleId != null ? entityRoleId.trim() : entityRoleId);
+		role.setEntityName(entityName != null ? entityName.trim() : entityName);
+		role.setEntityId(entityId != null ? entityId.trim() : entityId);
+		role.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
+		role.setRoleId(roleId != null ? roleId.trim() : roleId);
 		role.setLastUpdatedDate(lastUpdatedDate);
-		role.setLastUpdatedBy(lastUpdatedBy!=null?lastUpdatedBy.trim():lastUpdatedBy);
+		role.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		role.setIsActive(isActive);
 		role.setJwsRole(jwsRole.getObject());
 		return role;

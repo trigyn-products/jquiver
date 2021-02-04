@@ -13,11 +13,11 @@ public class DynamicFormApplication {
 
 	@Autowired
 	private FilesStorageService filesStorageService = null;
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(DynamicFormApplication.class, args);
 	}
-	
+
 	@PostConstruct
 	public void initFileStorage() {
 		filesStorageService.init();

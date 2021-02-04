@@ -17,10 +17,10 @@ import com.trigyn.jws.webstarter.entities.ManualEntryFileAssociation;
 public class HelpManualService {
 
 	@Autowired
-	private HelpManualDAO helpManualDAO = null;
+	private HelpManualDAO		helpManualDAO	= null;
 
 	@Autowired
-	private IUserDetailsService detailsService = null;
+	private IUserDetailsService	detailsService	= null;
 
 	public void saveManualType(String manualId, String name) {
 		if (manualId != null) {
@@ -45,8 +45,8 @@ public class HelpManualService {
 	}
 
 	public void saveManualEntryDetails(Map<String, Object> parameters) {
-		String userName = detailsService.getUserDetails().getUserName();
-		ManualEntryDetails manualEntryDetails = new ManualEntryDetails(parameters, userName);
+		String				userName			= detailsService.getUserDetails().getUserName();
+		ManualEntryDetails	manualEntryDetails	= new ManualEntryDetails(parameters, userName);
 		helpManualDAO.saveManualEntry(manualEntryDetails);
 	}
 

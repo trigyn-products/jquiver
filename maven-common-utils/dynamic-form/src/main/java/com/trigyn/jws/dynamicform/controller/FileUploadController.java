@@ -10,6 +10,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
@@ -37,32 +39,35 @@ import com.trigyn.jws.dynamicform.service.FilesStorageService;
 @RequestMapping("/cf")
 public class FileUploadController {
 
+	private final static Logger	logger			= LogManager.getLogger(FileUploadController.class);
+
 	@Autowired
 	@Qualifier("file-system-storage")
-	private FilesStorageService storageService = null;
+	private FilesStorageService	storageService	= null;
 
-	@PostMapping(value = "/upload", produces = {MediaType.APPLICATION_JSON_VALUE})
+	@PostMapping(value = "/upload", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public String uploadFiles(@RequestParam("file") MultipartFile file, HttpServletRequest httpServletRequest) {
-		String message = "";
-		String fileConfigId = httpServletRequest.getParameter("fileConfigData");
+		String	message			= "";
+		String	fileConfigId	= httpServletRequest.getParameter("fileConfigData");
 		try {
-			String fileId = storageService.save(file, fileConfigId);
-			Map<String, Object> uploadDetails = new HashMap<String, Object>();
+			String				fileId			= storageService.save(file, fileConfigId);
+			Map<String, Object>	uploadDetails	= new HashMap<String, Object>();
 			uploadDetails.put("fileId", fileId);
 			uploadDetails.put("success", "1");
 			return new ObjectMapper().writeValueAsString(uploadDetails);
-		} catch (Exception e) {
+		} catch (Exception a_exc) {
 			message = "Fail to upload files!";
+			logger.error(message + a_exc);
 			return message;
 		}
 	}
-	
-	@PostMapping(value = "/m-upload", produces = {MediaType.APPLICATION_JSON_VALUE})
+
+	@PostMapping(value = "/m-upload", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public String uploadFiles(@RequestParam("files[0]") MultipartFile[] files, HttpServletRequest httpServletRequest) {
-		String fileConfigId = httpServletRequest.getParameter("fileConfigData");
-		String message = "";
+		String	fileConfigId	= httpServletRequest.getParameter("fileConfigData");
+		String	message			= "";
 		try {
 			List<String> fileNames = new ArrayList<>();
 
@@ -74,8 +79,9 @@ public class FileUploadController {
 			uploadDetails.put("fileIds", fileNames);
 			uploadDetails.put("success", "1");
 			return new ObjectMapper().writeValueAsString(uploadDetails);
-		} catch (Exception e) {
+		} catch (Exception a_exc) {
 			message = "Fail to upload files!";
+			logger.error(message + a_exc);
 			return message;
 		}
 	}
@@ -85,29 +91,30 @@ public class FileUploadController {
 		List<FileInfo> fileInfos = storageService.loadAll();
 		return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
 	}
-	
+
 	@DeleteMapping("/files/{fileId:.+}")
 	public ResponseEntity<?> deleteFile(@PathVariable String fileId) throws Exception {
 		storageService.deleteFileById(fileId);
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
-	
+
 	@GetMapping("/fileDetails")
-	public ResponseEntity<List<FileInfo>> getListFilesByIds(HttpServletRequest httpServletRequest) throws JsonMappingException, JsonProcessingException {
-		String fileIds = httpServletRequest.getParameter("files");
-		List<String> fileIdList = new ObjectMapper().readValue(fileIds, List.class);
-		List<FileInfo> fileInfos = storageService.getFileDetailsByIds(fileIdList);
+	public ResponseEntity<List<FileInfo>> getListFilesByIds(HttpServletRequest httpServletRequest)
+			throws JsonMappingException, JsonProcessingException {
+		String			fileIds		= httpServletRequest.getParameter("files");
+		List<String>	fileIdList	= new ObjectMapper().readValue(fileIds, List.class);
+		List<FileInfo>	fileInfos	= storageService.getFileDetailsByIds(fileIdList);
 		return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
 	}
 
 	@GetMapping("/files/{fileId:.+}")
 	public ResponseEntity<InputStreamResource> getFile(@PathVariable String fileId) throws IOException {
-		Map<String, Object> fileInfo = storageService.load(fileId);
-		HttpHeaders headers = new HttpHeaders();
+		Map<String, Object>	fileInfo	= storageService.load(fileId);
+		HttpHeaders			headers		= new HttpHeaders();
 		headers.setContentDispositionFormData("attachment", fileInfo.get("fileName").toString());
 		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-		byte[] file = (byte[]) fileInfo.get("file");
-		InputStreamResource streamResource = new InputStreamResource(new ByteArrayInputStream(file));
+		byte[]				file			= (byte[]) fileInfo.get("file");
+		InputStreamResource	streamResource	= new InputStreamResource(new ByteArrayInputStream(file));
 		return new ResponseEntity<InputStreamResource>(streamResource, headers, HttpStatus.OK);
 	}
 

@@ -16,4 +16,7 @@ public interface JwsRoleRepository extends JpaRepository<JwsRole, String> {
 
 	JwsRole findByRoleName(String anonymousRoleName);
 
+	@Query("SELECT jr.roleId AS roleId FROM JwsRole jr WHERE jr.roleName IN (:roleNameList) AND jr.isActive=1 ORDER BY jr.rolePriority DESC ")
+	List<String> getRoleIdByPriority(List<String> roleNameList);
+
 }

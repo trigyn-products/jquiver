@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.17-SNAPSHOT</version>
+		<version>1.3.19-SNAPSHOT</version>
 	</parent>
 	<artifactId>application-metrics</artifactId>
-	<version>1.3.17-SNAPSHOT</version>
+	<version>1.3.19-SNAPSHOT</version>
 	<name>application-metrics</name>
 	<description>application-metrics</description>
 
@@ -30,25 +30,25 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>1.3.17-SNAPSHOT</version>
+			<version>1.3.19-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.3.17-SNAPSHOT</version>
+			<version>1.3.19-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.3.17-SNAPSHOT</version>
+			<version>1.3.19-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-rest</artifactId>
-			<version>1.3.17-SNAPSHOT</version>
+			<version>1.3.19-SNAPSHOT</version>
 		</dependency>	
 
 		<dependency>
@@ -72,5 +72,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

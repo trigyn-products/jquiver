@@ -7,6 +7,6 @@ import com.trigyn.jws.dashboard.entities.DashletConfiguration;
 import com.trigyn.jws.dashboard.entities.DashletConfigurationPK;
 
 @Repository
-public interface IDashletConfigurationRepository extends JpaRepository<DashletConfiguration, DashletConfigurationPK>{
+public interface IDashletConfigurationRepository extends JpaRepository<DashletConfiguration, DashletConfigurationPK> {
 
 }

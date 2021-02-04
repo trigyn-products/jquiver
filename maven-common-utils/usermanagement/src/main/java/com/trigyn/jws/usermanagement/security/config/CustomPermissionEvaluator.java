@@ -13,12 +13,12 @@ import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationR
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 public class CustomPermissionEvaluator implements PermissionEvaluator {
-	
-	private ApplicationSecurityDetails applicationSecurityDetails = null;
-	
+
+	private ApplicationSecurityDetails					applicationSecurityDetails	= null;
+
 	@Autowired
-	private JwsRoleMasterModulesAssociationRepository roleModuleRepository = null;  
-	
+	private JwsRoleMasterModulesAssociationRepository	roleModuleRepository		= null;
+
 	public CustomPermissionEvaluator(ApplicationSecurityDetails applicationSecurityDetails) {
 		this.applicationSecurityDetails = applicationSecurityDetails;
 	}
@@ -26,19 +26,21 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		List<String> roleNames = new ArrayList<>();
-		
-		if(applicationSecurityDetails.getIsAuthenticationEnabled() && !(authentication instanceof AnonymousAuthenticationToken)) {
+
+		if (applicationSecurityDetails.getIsAuthenticationEnabled()
+				&& !(authentication instanceof AnonymousAuthenticationToken)) {
 			UserInformation userInformation = (UserInformation) authentication.getPrincipal();
 			roleNames.addAll(userInformation.getRoles());
-		
-		} else if(!applicationSecurityDetails.getIsAuthenticationEnabled()) {
+
+		} else if (!applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			return true;
-		}else {
+		} else {
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
 		}
-		
-		Long count = roleModuleRepository.checkModulePresentForCurrentRole(roleNames,permission.toString(),Constants.ISACTIVE);
-		if(count > 0) {
+
+		Long count = roleModuleRepository.checkModulePresentForCurrentRole(roleNames, permission.toString(),
+				Constants.ISACTIVE);
+		if (count > 0) {
 			return true;
 		}
 		return false;

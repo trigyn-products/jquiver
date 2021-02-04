@@ -15,35 +15,37 @@ public class ManualEntryDetails {
 
 	@Id
 	@Column(name = "manual_entry_id")
-	private String manualEntryId = null;
+	private String	manualEntryId	= null;
 
 	@Column(name = "manual_type")
-	private String manualType = null;
+	private String	manualType		= null;
 
 	@Column(name = "entry_name")
-	private String entryName = null;
+	private String	entryName		= null;
 
 	@Column(name = "entry_content")
-	private String entryContent = null;
+	private String	entryContent	= null;
 
 	@Column(name = "sort_index")
-	private Integer sortIndex = null;
+	private Integer	sortIndex		= null;
 
 	@Column(name = "last_updated_by")
-	private String lastUpdatedBy = null;
+	private String	lastUpdatedBy	= null;
 
 	@Column(name = "last_modified_on")
-	private Date lastModifiedOn = null;
-	
+	private Date	lastModifiedOn	= null;
+
 	public ManualEntryDetails(Map<String, Object> manualParameterMap, String userName) {
 		super();
-		this.manualEntryId = manualParameterMap.get("manualentryid") == null || "".equals(manualParameterMap.get("manualentryid")) ? UUID.randomUUID().toString() : manualParameterMap.get("manualentryid").toString();
-		this.manualType = manualParameterMap.get("manualtype").toString();
-		this.entryName = manualParameterMap.get("entryname").toString();
-		this.entryContent = manualParameterMap.get("entrycontent").toString();
-		this.sortIndex = Integer.parseInt(manualParameterMap.get("sortindex").toString());
-		this.lastUpdatedBy = userName;
-		this.lastModifiedOn = new Date();
+		this.manualEntryId	= manualParameterMap.get("manualentryid") == null
+				|| "".equals(manualParameterMap.get("manualentryid")) ? UUID.randomUUID().toString()
+						: manualParameterMap.get("manualentryid").toString();
+		this.manualType		= manualParameterMap.get("manualtype").toString();
+		this.entryName		= manualParameterMap.get("entryname").toString();
+		this.entryContent	= manualParameterMap.get("entrycontent").toString();
+		this.sortIndex		= Integer.parseInt(manualParameterMap.get("sortindex").toString());
+		this.lastUpdatedBy	= userName;
+		this.lastModifiedOn	= new Date();
 	}
 
 	public String getManualEntryId() {
@@ -101,5 +103,5 @@ public class ManualEntryDetails {
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
 	}
-	
+
 }

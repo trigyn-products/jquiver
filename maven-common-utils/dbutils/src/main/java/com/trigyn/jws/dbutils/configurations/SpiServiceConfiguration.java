@@ -11,7 +11,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 
 @Configuration
 public class SpiServiceConfiguration {
-	
+
 	private final static Logger logger = LogManager.getLogger(SpiServiceConfiguration.class);
 
 	@ConditionalOnMissingBean
@@ -20,5 +20,5 @@ public class SpiServiceConfiguration {
 		logger.warn("Found no implementation for UserSpiService, wiring default implementation");
 		return new DefaultUserDetailsServiceImpl();
 	}
-	
+
 }

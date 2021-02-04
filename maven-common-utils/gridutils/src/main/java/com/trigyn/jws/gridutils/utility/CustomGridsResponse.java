@@ -4,25 +4,20 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomGridsResponse {
-	
-	private String page = null;
-	
-	
-	private String total = null;
-	
-	
-	private String records = null;
-	
-	
-	private List<Map<String,Object>> rows = null;
-	
-	
-	private Map userdata = null;
 
-	
+	private String						page		= null;
+
+	private String						total		= null;
+
+	private String						records		= null;
+
+	private List<Map<String, Object>>	rows		= null;
+
+	private Map							userdata	= null;
+
 	public CustomGridsResponse() {
 	}
-	
+
 	public String getPage() {
 		return page;
 	}
@@ -47,19 +42,19 @@ public class CustomGridsResponse {
 		this.records = records;
 	}
 
-	public List<Map<String,Object>> getRows() {
+	public List<Map<String, Object>> getRows() {
 		return rows;
 	}
 
-	public void setRows(List<Map<String,Object>> rows) {
+	public void setRows(List<Map<String, Object>> rows) {
 		this.rows = rows;
 	}
 
 	public Map getUserdata() {
-	    return userdata;
+		return userdata;
 	}
 
 	public void setUserdata(Map userdata) {
-	    this.userdata = userdata;
+		this.userdata = userdata;
 	}
 }

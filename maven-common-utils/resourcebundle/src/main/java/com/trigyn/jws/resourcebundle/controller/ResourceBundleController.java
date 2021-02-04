@@ -15,12 +15,12 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @RequestMapping("/cf")
 public class ResourceBundleController {
 
-    @Autowired
-    private SessionLocaleResolver sessionLocaleResolver = null;
-    
-    @GetMapping(value = "/cl", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public boolean changeLanguage(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return Boolean.TRUE;
-    }
+	@Autowired
+	private SessionLocaleResolver sessionLocaleResolver = null;
+
+	@GetMapping(value = "/cl", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public boolean changeLanguage(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return Boolean.TRUE;
+	}
 }

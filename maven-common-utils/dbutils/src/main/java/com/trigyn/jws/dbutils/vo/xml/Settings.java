@@ -4,14 +4,14 @@ import java.util.Date;
 
 public class Settings {
 
-	private Date timestamp = null;
-	
-	private String currentVersion = null;
-	
-	private String author = null;
+	private Date	timestamp				= null;
 
-	private String leastSupportedVersion = null;
-	
+	private String	currentVersion			= null;
+
+	private String	author					= null;
+
+	private String	leastSupportedVersion	= null;
+
 	public Date getTimestamp() {
 		return timestamp;
 	}

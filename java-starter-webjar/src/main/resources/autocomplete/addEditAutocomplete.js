@@ -121,5 +121,20 @@ class AddEditAutocomplete{
 		    }
 	    });
 	}
+	
+	createQuery = function(){
+		const context = this;
+	  	let tableName = $("#autocompleteTableSelect").find(":selected").val();
+	    $.ajax({
+	    	type: "POST",
+	        url: contextPath+"/cf/cnbtn",
+	        data: {
+	        	tableName: tableName
+	        },
+	        success: function(data) {
+	  			context.sqlQuery.setValue("SELECT "+ data[0].columnName + " FROM " + tableName);
+	        }
+        });
+    }
     
 }

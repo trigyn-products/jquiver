@@ -12,9 +12,9 @@ import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 @XmlRootElement(name = "dashboardData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DashboardXMLVO extends XMLVO {
-	
+
 	public List<Dashboard> getDashboardDetails() {
 		return dashboardDetails;
 	}
@@ -24,6 +24,6 @@ public class DashboardXMLVO extends XMLVO {
 	}
 
 	@XmlElement(name = "dashboard")
-    private List<Dashboard> dashboardDetails = new ArrayList<>();
+	private List<Dashboard> dashboardDetails = new ArrayList<>();
 
 }

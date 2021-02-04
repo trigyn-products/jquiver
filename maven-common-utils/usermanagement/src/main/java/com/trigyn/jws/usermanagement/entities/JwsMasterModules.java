@@ -15,20 +15,20 @@ public class JwsMasterModules {
 	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-	@Column(name="module_id")
-	private String moduleId = null;
-	
-	@Column(name="module_name")
-	private String moduleName = null;
-	
-	@Column(name="is_system_module")
-	private Integer isSystemModule = null;
-	
-	@Column(name="auxiliary_data")
-	private String auxiliaryData = null;
-	
-	@Column(name="module_type_id")
-	private Integer moduleTypeId = null;
+	@Column(name = "module_id")
+	private String	moduleId		= null;
+
+	@Column(name = "module_name")
+	private String	moduleName		= null;
+
+	@Column(name = "is_system_module")
+	private Integer	isSystemModule	= null;
+
+	@Column(name = "auxiliary_data")
+	private String	auxiliaryData	= null;
+
+	@Column(name = "module_type_id")
+	private Integer	moduleTypeId	= null;
 
 	public String getModuleId() {
 		return moduleId;
@@ -64,10 +64,10 @@ public class JwsMasterModules {
 
 	public JwsMasterModules getObject() {
 		JwsMasterModules obj = new JwsMasterModules();
-		obj.setAuxiliaryData(auxiliaryData!=null?auxiliaryData.trim():auxiliaryData);
+		obj.setAuxiliaryData(auxiliaryData != null ? auxiliaryData.trim() : auxiliaryData);
 		obj.setIsSystemModule(isSystemModule);
-		obj.setModuleId(moduleId!=null?moduleId.trim():moduleId);
-		obj.setModuleName(moduleName!=null?moduleName.trim():moduleName);
+		obj.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
+		obj.setModuleName(moduleName != null ? moduleName.trim() : moduleName);
 		return obj;
 	}
 

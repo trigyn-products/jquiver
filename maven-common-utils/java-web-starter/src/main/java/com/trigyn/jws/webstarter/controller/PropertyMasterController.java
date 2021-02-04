@@ -20,35 +20,34 @@ import com.trigyn.jws.templating.service.MenuService;
 @RestController
 @RequestMapping("/cf")
 public class PropertyMasterController {
-	
-	private final static Logger logger	 				= LogManager.getLogger(PropertyMasterController.class);
+
+	private final static Logger		logger					= LogManager.getLogger(PropertyMasterController.class);
 
 	@Autowired
-	private MenuService menuService		= null;
-    
+	private MenuService				menuService				= null;
+
 	@Autowired
-	private PropertyMasterDetails propertyMasterDetails	= null;
-	
-    @GetMapping(value = "/pml", produces = MediaType.TEXT_HTML_VALUE)
-    public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException {
-        try {
+	private PropertyMasterDetails	propertyMasterDetails	= null;
+
+	@GetMapping(value = "/pml", produces = MediaType.TEXT_HTML_VALUE)
+	public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+		try {
 			return menuService.getTemplateWithSiteLayout("property-master-listing", new HashMap<>());
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
-    
-    @GetMapping(value = "/upml", produces = MediaType.TEXT_HTML_VALUE)
-    public void updatePropertyMasterDetails(HttpServletResponse httpServletResponse) throws IOException {
-        try {
+	}
+
+	@GetMapping(value = "/upml", produces = MediaType.TEXT_HTML_VALUE)
+	public void updatePropertyMasterDetails(HttpServletResponse httpServletResponse) throws IOException {
+		try {
 			propertyMasterDetails.resetPropertyMasterDetails();
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
-    }
-    
-    
+	}
+
 }

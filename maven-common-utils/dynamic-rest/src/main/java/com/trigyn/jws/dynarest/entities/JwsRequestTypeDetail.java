@@ -1,37 +1,40 @@
 package com.trigyn.jws.dynarest.entities;
 
-
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="jws_request_type_details")
-@NamedQuery(name="JwsRequestTypeDetail.findAll", query="SELECT j FROM JwsRequestTypeDetail j")
+@Table(name = "jws_request_type_details")
+@NamedQuery(name = "JwsRequestTypeDetail.findAll", query = "SELECT j FROM JwsRequestTypeDetail j")
 public class JwsRequestTypeDetail implements Serializable {
-	private static final long serialVersionUID 					= 1L;
+	private static final long			serialVersionUID		= 1L;
 
 	@Id
-	@Column(name="jws_request_type_details_id")
-	private Integer jwsRequestTypeDetailsId						= null;
+	@Column(name = "jws_request_type_details_id")
+	private Integer						jwsRequestTypeDetailsId	= null;
 
-	@Column(name="jws_request_type")
-	private String jwsRequestType								= null;
+	@Column(name = "jws_request_type")
+	private String						jwsRequestType			= null;
 
-	@OneToMany(mappedBy="jwsRequestTypeDetail")
-	private List<JwsDynamicRestDetail> jwsDynamicRestDetails	= null;
+	@OneToMany(mappedBy = "jwsRequestTypeDetail")
+	private List<JwsDynamicRestDetail>	jwsDynamicRestDetails	= null;
 
 	public JwsRequestTypeDetail() {
 	}
 
 	public JwsRequestTypeDetail(Integer jwsRequestTypeDetailsId, String jwsRequestType,
 			List<JwsDynamicRestDetail> jwsDynamicRestDetails) {
-		this.jwsRequestTypeDetailsId 	= jwsRequestTypeDetailsId;
-		this.jwsRequestType 			= jwsRequestType;
-		this.jwsDynamicRestDetails 		= jwsDynamicRestDetails;
+		this.jwsRequestTypeDetailsId	= jwsRequestTypeDetailsId;
+		this.jwsRequestType				= jwsRequestType;
+		this.jwsDynamicRestDetails		= jwsDynamicRestDetails;
 	}
 
 	public Integer getJwsRequestTypeDetailsId() {
@@ -102,9 +105,9 @@ public class JwsRequestTypeDetail implements Serializable {
 
 	public JwsRequestTypeDetail getObject() {
 		JwsRequestTypeDetail dynaRest = new JwsRequestTypeDetail();
-		dynaRest.setJwsRequestType(jwsRequestType!=null?jwsRequestType.trim():jwsRequestType);
+		dynaRest.setJwsRequestType(jwsRequestType != null ? jwsRequestType.trim() : jwsRequestType);
 		dynaRest.setJwsRequestTypeDetailsId(jwsRequestTypeDetailsId);
-		
+
 		return dynaRest;
 	}
 }

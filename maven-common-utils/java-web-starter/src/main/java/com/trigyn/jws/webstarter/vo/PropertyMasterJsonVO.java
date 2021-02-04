@@ -2,29 +2,29 @@ package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
 
-public class PropertyMasterJsonVO implements Serializable{
+public class PropertyMasterJsonVO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	private Double appVersion = null;
+	private Double				appVersion			= null;
 
-    private String comment = null;
+	private String				comment				= null;
 
-    private String entityName = null;
+	private String				entityName			= null;
 
-    private String formId = null;
+	private String				formId				= null;
 
-    private String primaryKey = null;
+	private String				primaryKey			= null;
 
-    private String ownerId = null;
+	private String				ownerId				= null;
 
-    private String ownerType = null;
+	private String				ownerType			= null;
 
-    private String propertyMasterId = null;
+	private String				propertyMasterId	= null;
 
-    private String propertyName = null;
-    
-    private String propertyValue = null;
+	private String				propertyName		= null;
+
+	private String				propertyValue		= null;
 
 	public Double getAppVersion() {
 		return appVersion;

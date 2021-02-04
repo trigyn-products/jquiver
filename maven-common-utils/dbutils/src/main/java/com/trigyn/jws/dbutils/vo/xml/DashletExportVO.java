@@ -1,53 +1,53 @@
 package com.trigyn.jws.dbutils.vo.xml;
 
 public class DashletExportVO {
-	
-	private String						dashletId				= null;
 
-	private String						dashletName				= null;
+	private String	dashletId			= null;
 
-	private String						dashletTitle			= null;
+	private String	dashletName			= null;
 
-	private Integer						xCoordinate				= null;
+	private String	dashletTitle		= null;
 
-	private Integer						yCoordinate				= null;
-	
-	private Integer						width					= null;
+	private Integer	xCoordinate			= null;
 
-	private Integer						height					= null;
-	
-	private String						contextId				= null;
-	
-	private Integer						showHeader				= 1;
-	
-	private Integer						isActive				= null;
-	
-	private Integer						dashletTypeId			= 1;
+	private Integer	yCoordinate			= null;
 
-	private String						selectQueryFileName		= null;
+	private Integer	width				= null;
 
-	private String						htmlBodyFileName		= null;
+	private Integer	height				= null;
+
+	private String	contextId			= null;
+
+	private Integer	showHeader			= 1;
+
+	private Integer	isActive			= null;
+
+	private Integer	dashletTypeId		= 1;
+
+	private String	selectQueryFileName	= null;
+
+	private String	htmlBodyFileName	= null;
 
 	public DashletExportVO() {
-		
+
 	}
-	
+
 	public DashletExportVO(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate,
 			Integer yCoordinate, Integer width, Integer height, String contextId, Integer showHeader, Integer isActive,
 			Integer dashletTypeId, String selectQueryFileName, String htmlBodyFileName) {
-		this.dashletId = dashletId;
-		this.dashletName = dashletName;
-		this.dashletTitle = dashletTitle;
-		this.xCoordinate = xCoordinate;
-		this.yCoordinate = yCoordinate;
-		this.width = width;
-		this.height = height;
-		this.contextId = contextId;
-		this.showHeader = showHeader;
-		this.isActive = isActive;
-		this.dashletTypeId = dashletTypeId;
-		this.selectQueryFileName = selectQueryFileName;
-		this.htmlBodyFileName = htmlBodyFileName;
+		this.dashletId				= dashletId;
+		this.dashletName			= dashletName;
+		this.dashletTitle			= dashletTitle;
+		this.xCoordinate			= xCoordinate;
+		this.yCoordinate			= yCoordinate;
+		this.width					= width;
+		this.height					= height;
+		this.contextId				= contextId;
+		this.showHeader				= showHeader;
+		this.isActive				= isActive;
+		this.dashletTypeId			= dashletTypeId;
+		this.selectQueryFileName	= selectQueryFileName;
+		this.htmlBodyFileName		= htmlBodyFileName;
 	}
 
 	public String getDashletId() {

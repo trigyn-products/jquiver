@@ -19,17 +19,17 @@ public class LookupService {
 
 	@Autowired
 	private IJwsLookUpRepository lookUpRepository = null;
-	
-	public Map<Integer, String> getLookupDetailsByName(String lookupName) throws Exception{
-		   Map<Integer, String> lookupDetailsMap = new LinkedHashMap<>();
-		   List<LookupDetailsVO> lookupDetailsVOs = lookUpRepository.getLookUpDetailsByName(lookupName, Constant.DEFAULT_LANGUAGE_ID
-				   , Constant.DEFAULT_LANGUAGE_ID, Constant.RecordStatus.INSERTED.getStatus());
-		   if(!CollectionUtils.isEmpty(lookupDetailsVOs)) {
-			   for (LookupDetailsVO lookupDetailsVO : lookupDetailsVOs) {
-				   lookupDetailsMap.put(lookupDetailsVO.getRecordId(), lookupDetailsVO.getRecordDescription());
-			   }
-		   }
-		   return lookupDetailsMap;
+
+	public Map<Integer, String> getLookupDetailsByName(String lookupName) throws Exception {
+		Map<Integer, String>	lookupDetailsMap	= new LinkedHashMap<>();
+		List<LookupDetailsVO>	lookupDetailsVOs	= lookUpRepository.getLookUpDetailsByName(lookupName,
+				Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID, Constant.RecordStatus.INSERTED.getStatus());
+		if (!CollectionUtils.isEmpty(lookupDetailsVOs)) {
+			for (LookupDetailsVO lookupDetailsVO : lookupDetailsVOs) {
+				lookupDetailsMap.put(lookupDetailsVO.getRecordId(), lookupDetailsVO.getRecordDescription());
+			}
 		}
-		   
+		return lookupDetailsMap;
+	}
+
 }

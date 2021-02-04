@@ -1,3 +1,4 @@
+
 package com.trigyn.jws.applicationmetrics;
 
 import org.springframework.boot.SpringApplication;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dynamicform.entities.FileUpload;
 
 @Repository
-public interface FileUploadRepository extends JpaRepositoryImplementation<FileUpload, String>{
+public interface FileUploadRepository extends JpaRepositoryImplementation<FileUpload, String> {
 
 	@Query(QueryStore.QUERY_TO_GET_FILE_DETAILS)
 	List<FileUpload> findAllByIds(List<String> fileIdList);

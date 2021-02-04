@@ -12,11 +12,11 @@ import com.trigyn.jws.dashboard.vo.DashboardDashletVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 
 @Repository
-public interface IDashletRepository extends JpaRepository<Dashlet, String>{
+public interface IDashletRepository extends JpaRepository<Dashlet, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_DASHLET_BY_CONTEXT_ID)
 	List<DashboardDashletVO> findDashletByContextId(String contextId, String dashboardId);
-	
+
 	@Query(QueryStore.JPA_QUERY_TO_GET_DAHSLET_DETAILS_BY_ID)
 	DashletVO findDashletByDashletId(String dashletId);
 }

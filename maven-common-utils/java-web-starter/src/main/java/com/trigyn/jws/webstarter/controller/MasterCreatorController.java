@@ -27,45 +27,49 @@ import com.trigyn.jws.webstarter.service.MasterCreatorService;
 @RestController
 @RequestMapping("/cf")
 public class MasterCreatorController {
-	
-	private final static Logger logger  = LogManager.getLogger(MasterCreatorController.class);
+
+	private final static Logger		logger					= LogManager.getLogger(MasterCreatorController.class);
 
 	@Autowired
-	private MasterCreatorService masterCreatorService 		= null;
-	
+	private MasterCreatorService	masterCreatorService	= null;
+
 	@GetMapping(value = "/mg", produces = MediaType.TEXT_HTML_VALUE)
-	public String masterGenertor( HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse) throws IOException {
-		try{
+	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws IOException {
+		try {
 			return masterCreatorService.getModuleDetails(httpServletRequest);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
-	
+
 	@PostMapping(value = "/cm", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public void createMasterModulePages(@RequestBody MultiValueMap<String, String> formData, HttpServletResponse httpServletResponse) throws IOException {
-		try{
-			Map<String, Object> details = masterCreatorService.initMasterCreationScript(formData);
-			ObjectMapper objectMapper = new ObjectMapper();
-			String roleIdString =  formData.getFirst("roleIds");
-			List<String>roleIds = objectMapper.readValue(roleIdString, List.class);
+	public void createMasterModulePages(@RequestBody MultiValueMap<String, String> formData,
+			HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			Map<String, Object>	details			= masterCreatorService.initMasterCreationScript(formData);
+			ObjectMapper		objectMapper	= new ObjectMapper();
+			String				roleIdString	= formData.getFirst("roleIds");
+			List<String>		roleIds			= objectMapper.readValue(roleIdString, List.class);
 			masterCreatorService.saveEntityRolesForMasterGenerator(details, roleIds);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
 	}
-	
+
 	@GetMapping(value = "/mtd", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Map<String, Object>> getTableDetails(@RequestParam(required = true, name = "tableName") String tableName, HttpServletResponse httpServletResponse) throws IOException {
-		try{
+	public List<Map<String, Object>> getTableDetails(
+			@RequestParam(required = true, name = "tableName") String tableName,
+			HttpServletResponse httpServletResponse) throws IOException {
+		try {
 			return masterCreatorService.getTableDetails(tableName);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

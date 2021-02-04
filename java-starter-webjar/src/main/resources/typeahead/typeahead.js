@@ -98,17 +98,17 @@
         }
         if(this.options.enableClearText === true){
         	let elementId =  $(this.element).attr("id");
-        	let clearTxt = $('<span id="'+elementId+'_clearTxt" class="autocomplete-clear-txt" onClick="clearText(this.id);"><i class="fa fa-times" aria-hidden="true"></i></span>');
+        	let clearTxt = $('<span id="'+elementId+'_clearTxt" class="autocomplete-clear-txt" ><i class="fa fa-times" aria-hidden="true"></i></span>');
         	clearTxt.insertAfter(this.element);
+        	$("#"+elementId+"_clearTxt").bind("click", function(){
+        		let inputId = this.id.split("_")[0];
+        		$("#"+inputId).val("");
+				$("#"+inputId).keyup();
+				context.options.resetDependentInput();
+        	});
         }
     }
 
-	clearText = function(selectedElementId){
-		let inputId = selectedElementId.split("_")[0];
-		$("#"+inputId).val("");
-		$("#"+inputId).keyup();
-	}
-	
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
         constructor(element, options, selectedItems) {
@@ -188,10 +188,11 @@
 
     Multiselect.prototype.createElementForMultiselect = function(context, multiselectId, itemData) {
         if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+        	const elementId =  Object.keys(itemData).filter(key => (key.indexOf("Id") != -1));
         	context.selectedObject.push(itemData);
             const element = context.options.selectedItemRender(itemData);
             let listsElement = $("<li></li>");
-            let itemSpan = $('<span class="ml-selected-item">'+element+'</span>');
+            let itemSpan = $('<span id="'+itemData[elementId]+'" class="ml-selected-item">'+element+'</span>');
             let deleteItemContext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
             deleteItemContext.data("selected-item", itemData);
     
@@ -435,6 +436,9 @@
             selectedObjectData: function(item) {
                 this.selectedObject.push(item);
                 return this.selectedObject;
+            },
+            resetDependentInput: function(){
+            
             },
             multiselectItem: Object,
             debounce: 500,

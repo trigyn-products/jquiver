@@ -14,8 +14,7 @@ public class UsermanagementApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(UsermanagementApplication.class, args);
 	}
-	
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder(10);

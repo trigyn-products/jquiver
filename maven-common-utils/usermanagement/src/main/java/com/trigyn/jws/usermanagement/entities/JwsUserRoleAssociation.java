@@ -21,26 +21,26 @@ public class JwsUserRoleAssociation {
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="user_role_id")
-	private String userRoleId = null;
-	
-	@Column(name="role_id")
-	private String roleId = null;
-	
-	@Column(name="user_id")
-	private String userId = null;
-	
+	@Column(name = "user_role_id")
+	private String	userRoleId	= null;
+
+	@Column(name = "role_id")
+	private String	roleId		= null;
+
+	@Column(name = "user_id")
+	private String	userId		= null;
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "updated_date")
-	private Date updatedDate = null;
-	
+	private Date	updatedDate	= null;
+
 	@ManyToOne
-	@JoinColumn(name="role_id" , referencedColumnName = "role_id",insertable = false, updatable = false)
-	private JwsRole jwsRole =  null;
-	
+	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
+	private JwsRole	jwsRole		= null;
+
 	@ManyToOne
-	@JoinColumn(name="user_id" , referencedColumnName = "user_id",insertable = false, updatable = false)
-	private JwsUser jwsUser =  null;
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+	private JwsUser	jwsUser		= null;
 
 	public String getUserRoleId() {
 		return userRoleId;
@@ -90,6 +90,4 @@ public class JwsUserRoleAssociation {
 		this.updatedDate = updatedDate;
 	}
 
-	
-	
 }

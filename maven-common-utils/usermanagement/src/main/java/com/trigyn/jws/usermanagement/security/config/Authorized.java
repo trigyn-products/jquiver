@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 
 import org.springframework.web.bind.annotation.Mapping;
 
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Mapping
 public @interface Authorized {
-	
+
 	String moduleName();
 }

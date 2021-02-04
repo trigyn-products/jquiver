@@ -6,17 +6,17 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "export")
-@XmlAccessorType (XmlAccessType.FIELD)
-public class MetadataXMLVO extends XMLVO{
+@XmlAccessorType(XmlAccessType.FIELD)
+public class MetadataXMLVO extends XMLVO {
 
 	@XmlElement(name = "settings")
-    private Settings settings = null;
+	private Settings		settings		= null;
 
 	@XmlElement(name = "modules")
-    private ExportModule exportModules = null;
+	private ExportModule	exportModules	= null;
 
 	@XmlElement(name = "info")
-    private String info = null;
+	private String			info			= null;
 
 	public Settings getSettings() {
 		return settings;

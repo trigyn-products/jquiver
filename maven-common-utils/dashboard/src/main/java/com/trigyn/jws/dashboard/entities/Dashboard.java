@@ -24,74 +24,73 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "dashboard")
 public class Dashboard implements Serializable {
 
-	private static final long serialVersionUID 							= 1L;
+	private static final long					serialVersionUID			= 1L;
 
 	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "dashboard_id")
-	private String								dashboardId				= null;
+	private String								dashboardId					= null;
 
 	@Column(name = "dashboard_name")
-	private String								dashboardName			= null;
+	private String								dashboardName				= null;
 
 	@Column(name = "context_id")
-	private String								contextId				= null;
+	private String								contextId					= null;
 
 	@Column(name = "dashboard_type")
-	private Integer								dashboardType			= 1;
+	private Integer								dashboardType				= 1;
 
 	@Column(name = "created_by")
-	private String								createdBy				= null;
-	
+	private String								createdBy					= null;
+
 	@JsonIgnore
 	@Column(name = "created_date")
-	private Date								createdDate				= null;
+	private Date								createdDate					= null;
 
 	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_updated_date")
-	private Date								lastUpdatedDate			= null;
+	private Date								lastUpdatedDate				= null;
 
 	@Column(name = "is_deleted")
-	private Integer								isDeleted				= 0;
+	private Integer								isDeleted					= 0;
 
 	@Column(name = "is_draggable")
-	private Integer								isDraggable				= 0;
+	private Integer								isDraggable					= 0;
 
 	@Column(name = "is_exportable")
-	private Integer								isExportable			= 0;
+	private Integer								isExportable				= 0;
 
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.EAGER)
-	private List<DashboardRoleAssociation>		dashboardRoles			= new ArrayList<>();
+	private List<DashboardRoleAssociation>		dashboardRoles				= new ArrayList<>();
 
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.LAZY)
-	private List<DashboardDashletAssociation>	dashboardDashlets		= new ArrayList<>();
-	
-	@OneToMany(mappedBy = "dashboard", fetch = FetchType.LAZY)
-	private List<DashboardRoleAssociation> dashboardRoleAssociations	= new ArrayList<>();
+	private List<DashboardDashletAssociation>	dashboardDashlets			= new ArrayList<>();
 
+	@OneToMany(mappedBy = "dashboard", fetch = FetchType.LAZY)
+	private List<DashboardRoleAssociation>		dashboardRoleAssociations	= new ArrayList<>();
 
 	public Dashboard() {
-		
+
 	}
 
-	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType
-			, String createdBy, Date createdDate, Date lastUpdatedDate, Integer isDeleted
-			, Integer isDraggable, Integer isExportable, List<DashboardRoleAssociation> dashboardRoles
-			, List<DashboardDashletAssociation> dashboardDashlets) {
-		this.dashboardId 		= dashboardId;
-		this.dashboardName 		= dashboardName;
-		this.contextId 			= contextId;
-		this.dashboardType 		= dashboardType;
-		this.createdBy 			= createdBy;
-		this.createdDate 		= createdDate;
-		this.lastUpdatedDate 	= lastUpdatedDate;
-		this.isDeleted 			= isDeleted;
-		this.isDraggable 		= isDraggable;
-		this.isExportable 		= isExportable;
-		this.dashboardRoles 	= dashboardRoles;
-		this.dashboardDashlets 	= dashboardDashlets;
+	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType,
+			String createdBy, Date createdDate, Date lastUpdatedDate, Integer isDeleted, Integer isDraggable,
+			Integer isExportable, List<DashboardRoleAssociation> dashboardRoles,
+			List<DashboardDashletAssociation> dashboardDashlets) {
+		this.dashboardId		= dashboardId;
+		this.dashboardName		= dashboardName;
+		this.contextId			= contextId;
+		this.dashboardType		= dashboardType;
+		this.createdBy			= createdBy;
+		this.createdDate		= createdDate;
+		this.lastUpdatedDate	= lastUpdatedDate;
+		this.isDeleted			= isDeleted;
+		this.isDraggable		= isDraggable;
+		this.isExportable		= isExportable;
+		this.dashboardRoles		= dashboardRoles;
+		this.dashboardDashlets	= dashboardDashlets;
 	}
 
 	public String getDashboardId() {
@@ -208,8 +207,6 @@ public class Dashboard implements Serializable {
 		return this;
 	}
 
-
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(contextId, createdBy, createdDate, dashboardDashlets, dashboardId, dashboardName,
@@ -240,71 +237,61 @@ public class Dashboard implements Serializable {
 				&& Objects.equals(lastUpdatedDate, other.lastUpdatedDate);
 	}
 
-	
 	@Override
 	public String toString() {
-		return "{" +
-			" dashboardId='" + getDashboardId() + "'" +
-			", dashboardName='" + getDashboardName() + "'" +
-			", contextId='" + getContextId() + "'" +
-			", dashboardType='" + getDashboardType() + "'" +
-			", createdBy='" + getCreatedBy() + "'" +
-			", createdDate='" + getCreatedDate() + "'" +
-			", lastUpdatedDate='" + getLastUpdatedDate() + "'" +
-			", isDeleted='" + getIsDeleted() + "'" +
-			", isDraggable='" + getIsDraggable() + "'" +
-			", isExportable='" + getIsExportable() + "'" +
-			", dashboardRoles='" + getDashboardRoles() + "'" +
-			", dashboardDashlets='" + getDashboardDashlets() + "'" +
-			", dashboardRoleAssociations='" + getDashboardRoles() + "'" +
-			"}";
+		return "{" + " dashboardId='" + getDashboardId() + "'" + ", dashboardName='" + getDashboardName() + "'"
+				+ ", contextId='" + getContextId() + "'" + ", dashboardType='" + getDashboardType() + "'"
+				+ ", createdBy='" + getCreatedBy() + "'" + ", createdDate='" + getCreatedDate() + "'"
+				+ ", lastUpdatedDate='" + getLastUpdatedDate() + "'" + ", isDeleted='" + getIsDeleted() + "'"
+				+ ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
+				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets()
+				+ "'" + ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
 	}
 
 	public Dashboard getObject() {
 		Dashboard dashboard = new Dashboard();
-		dashboard.setContextId(contextId!=null?contextId.trim():contextId);
-		dashboard.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
+		dashboard.setContextId(contextId != null ? contextId.trim() : contextId);
+		dashboard.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
 		dashboard.setCreatedDate(createdDate);
-		dashboard.setDashboardId(dashboardId!=null?dashboardId.trim():dashboardId);
-		dashboard.setDashboardName(dashboardName!=null?dashboardName.trim():dashboardName);
+		dashboard.setDashboardId(dashboardId != null ? dashboardId.trim() : dashboardId);
+		dashboard.setDashboardName(dashboardName != null ? dashboardName.trim() : dashboardName);
 		dashboard.setDashboardType(dashboardType);
 		dashboard.setIsDeleted(isDeleted);
 		dashboard.setIsDraggable(isDraggable);
 		dashboard.setIsExportable(isExportable);
 		dashboard.setLastUpdatedDate(lastUpdatedDate);
-		
-		List<DashboardDashletAssociation>	dashboardDashletsOtr		= new ArrayList<>();
-		if(dashboardDashlets != null && !dashboardDashlets.isEmpty()) {
-			for(DashboardDashletAssociation obj : dashboardDashlets) {
+
+		List<DashboardDashletAssociation> dashboardDashletsOtr = new ArrayList<>();
+		if (dashboardDashlets != null && !dashboardDashlets.isEmpty()) {
+			for (DashboardDashletAssociation obj : dashboardDashlets) {
 				dashboardDashletsOtr.add(obj.getObject());
 			}
 			dashboard.setDashboardDashlets(dashboardDashletsOtr);
 		} else {
 			dashboard.setDashboardDashlets(null);
 		}
-		
-		List<DashboardRoleAssociation>	dashboardRoleAssociationsOtr		= new ArrayList<>();
-		if(dashboardRoleAssociations != null && !dashboardRoleAssociations.isEmpty()) {
-			for(DashboardRoleAssociation obj : dashboardRoleAssociations) {
+
+		List<DashboardRoleAssociation> dashboardRoleAssociationsOtr = new ArrayList<>();
+		if (dashboardRoleAssociations != null && !dashboardRoleAssociations.isEmpty()) {
+			for (DashboardRoleAssociation obj : dashboardRoleAssociations) {
 				dashboardRoleAssociationsOtr.add(obj.getObject());
 			}
 			dashboard.setDashboardRoleAssociations(dashboardRoleAssociationsOtr);
 		} else {
 			dashboard.setDashboardRoleAssociations(null);
 		}
-		
-		List<DashboardRoleAssociation>	dashboardRolesOtr		= new ArrayList<>();
-		if(dashboardRoles != null && !dashboardRoles.isEmpty()) {
-			for(DashboardRoleAssociation obj : dashboardRoles) {
+
+		List<DashboardRoleAssociation> dashboardRolesOtr = new ArrayList<>();
+		if (dashboardRoles != null && !dashboardRoles.isEmpty()) {
+			for (DashboardRoleAssociation obj : dashboardRoles) {
 				dashboardRolesOtr.add(obj.getObject());
 			}
 			dashboard.setDashboardRoles(dashboardRolesOtr);
 		} else {
 			dashboard.setDashboardRoles(null);
 		}
-		
+
 		return dashboard;
 	}
-
 
 }

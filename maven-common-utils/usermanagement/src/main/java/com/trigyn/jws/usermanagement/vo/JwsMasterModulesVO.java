@@ -4,13 +4,13 @@ import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 
 public class JwsMasterModulesVO {
 
-	private String moduleId = null;
-	
-	private String moduleName = null;
-	
-	private Integer isSystemModule = null;
-	
-	private String auxiliaryData = null;
+	private String	moduleId		= null;
+
+	private String	moduleName		= null;
+
+	private Integer	isSystemModule	= null;
+
+	private String	auxiliaryData	= null;
 
 	public String getModuleId() {
 		return moduleId;
@@ -45,15 +45,11 @@ public class JwsMasterModulesVO {
 	}
 
 	public JwsMasterModulesVO convertEntityToVO(JwsMasterModules jwsMasterModule) {
-		this.moduleId = jwsMasterModule.getModuleId();
-		this.moduleName = jwsMasterModule.getModuleName();
-		this.isSystemModule = jwsMasterModule.getIsSystemModule();
-		this.auxiliaryData = jwsMasterModule.getAuxiliaryData();
+		this.moduleId		= jwsMasterModule.getModuleId();
+		this.moduleName		= jwsMasterModule.getModuleName();
+		this.isSystemModule	= jwsMasterModule.getIsSystemModule();
+		this.auxiliaryData	= jwsMasterModule.getAuxiliaryData();
 		return this;
 	}
-	
-	
-	
-	
-	
+
 }

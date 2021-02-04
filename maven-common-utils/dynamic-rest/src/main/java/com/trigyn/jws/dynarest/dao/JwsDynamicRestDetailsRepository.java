@@ -12,13 +12,13 @@ import com.trigyn.jws.dynarest.vo.RestApiDetails;
 @Repository
 public interface JwsDynamicRestDetailsRepository extends JpaRepositoryImplementation<JwsDynamicRestDetail, Integer> {
 
-    @Query(QueryStore.QUERY_TO_API_DETAILS_BY_URL)
-    RestApiDetails findByJwsDynamicRestUrl(String jwsDynamicRestUrl);
-    
-    @Query(QueryStore.QUERY_TO_GET_DYNAMIC_REST_ID)
-    String findByJwsDynamicRestId(String jwsDynamicRestUrl, String jwsMethodName);
+	@Query(QueryStore.QUERY_TO_API_DETAILS_BY_URL)
+	RestApiDetails findByJwsDynamicRestUrl(String jwsDynamicRestUrl);
 
-    @Query(QueryStore.QUERY_TO_GET_JAVA_DYNAMIC_REST_DETAILS)
+	@Query(QueryStore.QUERY_TO_GET_DYNAMIC_REST_ID)
+	String findByJwsDynamicRestId(String jwsDynamicRestUrl, String jwsMethodName);
+
+	@Query(QueryStore.QUERY_TO_GET_JAVA_DYNAMIC_REST_DETAILS)
 	List<RestApiDetails> findAllJavaDynarests();
-    
+
 }

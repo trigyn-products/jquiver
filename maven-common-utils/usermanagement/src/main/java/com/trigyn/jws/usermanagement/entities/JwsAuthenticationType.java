@@ -1,24 +1,23 @@
 package com.trigyn.jws.usermanagement.entities;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="jws_authentication_type")
+@Table(name = "jws_authentication_type")
 public class JwsAuthenticationType {
-	
+
 	@Id
-	@Column(name="authentication_id")
-	private Integer authenticationId = null;
-	
+	@Column(name = "authentication_id")
+	private Integer	authenticationId			= null;
+
 	@Column(name = "authentication_name")
-	private String authenticationName = null;
-	
+	private String	authenticationName			= null;
+
 	@Column(name = "authentication_properties")
-	private String authenticationProperties = null;
+	private String	authenticationProperties	= null;
 
 	public Integer getAuthenticationId() {
 		return authenticationId;
@@ -43,8 +42,5 @@ public class JwsAuthenticationType {
 	public void setAuthenticationProperties(String authenticationProperties) {
 		this.authenticationProperties = authenticationProperties;
 	}
-	
-	
-	
 
 }

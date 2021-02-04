@@ -1,6 +1,7 @@
+
 package com.trigyn.jws.applicationmetrics.repositories.interfaces;
 
-//@Repository
+// @Repository
 public interface IApplicationInterceptorRepository {
 
 }

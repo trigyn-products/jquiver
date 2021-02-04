@@ -19,25 +19,25 @@ public class FileUploadConfig {
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "file_upload_config_id")
-	private String fileUploadConfigId = null;
+	private String		fileUploadConfigId	= null;
 
 	@Column(name = "file_type_supported")
-	private String fileTypSupported = null;
+	private String		fileTypSupported	= null;
 
 	@Column(name = "max_file_size")
-	private BigDecimal maxFileSize = null;
+	private BigDecimal	maxFileSize			= null;
 
 	@Column(name = "no_of_files")
-	private Integer noOfFiles = null;
+	private Integer		noOfFiles			= null;
 
 	@Column(name = "is_deleted")
-	private Integer isDeleted = null;
+	private Integer		isDeleted			= null;
 
 	@Column(name = "updated_by")
-	private String updatedBy = null;
+	private String		updatedBy			= null;
 
 	@Column(name = "updated_date")
-	private Date lastUpdatedBy = null;
+	private Date		lastUpdatedBy		= null;
 
 	public String getFileUploadConfigId() {
 		return fileUploadConfigId;
@@ -97,13 +97,13 @@ public class FileUploadConfig {
 
 	public FileUploadConfig getObject() {
 		FileUploadConfig file = new FileUploadConfig();
-		file.setFileTypSupported(fileTypSupported!=null?fileTypSupported.trim():fileTypSupported);
-		file.setFileUploadConfigId(fileUploadConfigId!=null?fileUploadConfigId.trim():fileUploadConfigId);
+		file.setFileTypSupported(fileTypSupported != null ? fileTypSupported.trim() : fileTypSupported);
+		file.setFileUploadConfigId(fileUploadConfigId != null ? fileUploadConfigId.trim() : fileUploadConfigId);
 		file.setIsDeleted(isDeleted);
 		file.setLastUpdatedBy(lastUpdatedBy);
 		file.setMaxFileSize(maxFileSize);
 		file.setNoOfFiles(noOfFiles);
-		file.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
+		file.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
 		return file;
 	}
 }

@@ -5,6 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
@@ -16,35 +23,28 @@ import com.trigyn.jws.resourcebundle.utils.ResourceBundleUtils;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 @Service
 @Transactional(readOnly = true)
 public class ResourceBundleService {
 
 	@Autowired
-	private ResourceBundleDAO dbResourceDAO = null;
+	private ResourceBundleDAO			dbResourceDAO				= null;
 
 	@Autowired
-	private IResourceBundleRepository iResourceBundleRepository = null;
+	private IResourceBundleRepository	iResourceBundleRepository	= null;
 
 	@Autowired
-	private ILanguageRepository iLanguageRepository = null;
+	private ILanguageRepository			iLanguageRepository			= null;
 
 	@Autowired
-	private ModuleVersionService moduleVersionService = null;
-	
-	private final static Logger logger = LogManager.getLogger(ResourceBundleService.class);
+	private ModuleVersionService		moduleVersionService		= null;
+
+	private final static Logger			logger						= LogManager.getLogger(ResourceBundleService.class);
 
 	public Map<Integer, ResourceBundleVO> getResourceBundleVOMap(String resourceBundleKey) throws Exception {
 		try {
-			Map<Integer, ResourceBundleVO> resourceBundleVOMap = new HashMap<Integer, ResourceBundleVO>();
-			List<ResourceBundleVO> resourceBundleVOList = iResourceBundleRepository
+			Map<Integer, ResourceBundleVO>	resourceBundleVOMap		= new HashMap<Integer, ResourceBundleVO>();
+			List<ResourceBundleVO>			resourceBundleVOList	= iResourceBundleRepository
 					.findResourceBundleByKey(resourceBundleKey);
 			if (!CollectionUtils.isEmpty(resourceBundleVOList)) {
 				for (ResourceBundleVO dbResource : resourceBundleVOList) {
@@ -52,7 +52,8 @@ public class ResourceBundleService {
 				}
 			}
 			return resourceBundleVOMap;
-		} catch (Exception exception) {
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred while fetching resource bundle data", a_excep);
 			throw new RuntimeException("Error ocurred while fetching resource bundle data");
 		}
 	}
@@ -60,7 +61,8 @@ public class ResourceBundleService {
 	public List<LanguageVO> getLanguagesList() throws Exception {
 		try {
 			return iLanguageRepository.getAllLanguages(Constant.RecordStatus.INSERTED.getStatus());
-		} catch (Exception exception) {
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred while fetching list of languages.", a_excep);
 			throw new RuntimeException("Error ocurred while fetching list of languages.");
 		}
 	}
@@ -74,7 +76,8 @@ public class ResourceBundleService {
 				keyAlreadyExist = false;
 			}
 			return keyAlreadyExist;
-		} catch (Exception exception) {
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred while fetching list of languages.", a_excep);
 			throw new RuntimeException("Error ocurred while fetching list of languages.");
 		}
 	}
@@ -99,16 +102,16 @@ public class ResourceBundleService {
 				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, "resource_bundle",
 						sourceTypeId);
 			}
-		} catch (Exception exception) {
-			logger.error("Error occurred while saving resource bundle data ", exception);
+		} catch (Exception a_exception) {
+			logger.error("Error occurred while saving resource bundle data ",a_exception);
 			throw new RuntimeException("Error ocurred while saving resource bundle data");
 		}
 	}
 
 	private ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
 			throws Exception {
-		ResourceBundle resourceBundle = new ResourceBundle();
-		ResourceBundlePK resourceBundlePK = new ResourceBundlePK();
+		ResourceBundle		resourceBundle		= new ResourceBundle();
+		ResourceBundlePK	resourceBundlePK	= new ResourceBundlePK();
 		resourceBundlePK.setResourceKey(resourceBundleKey);
 		resourceBundlePK.setLanguageId(resourceBundleVO.getLanguageId());
 		resourceBundle.setId(resourceBundlePK);
@@ -120,28 +123,28 @@ public class ResourceBundleService {
 		return resourceBundle;
 	}
 
-	public ResourceBundleVO convertResourceBundleEntityToVO(ResourceBundle resourceBundle) throws Exception{
-		ResourceBundleVO resourceBundleVO 		= new ResourceBundleVO();
+	public ResourceBundleVO convertResourceBundleEntityToVO(ResourceBundle resourceBundle) throws Exception {
+		ResourceBundleVO resourceBundleVO = new ResourceBundleVO();
 		resourceBundleVO.setLanguageId(resourceBundle.getId().getLanguageId());
 		resourceBundleVO.setResourceKey(resourceBundle.getId().getResourceKey());
 		resourceBundleVO.setText(resourceBundle.getText());
 		return resourceBundleVO;
 	}
-	
 
 	@Transactional(readOnly = false)
 	public void deleteDbResourceEntry(ResourceBundleVO dbresource) throws Exception {
 		try {
 			dbResourceDAO.deleteResourceEntry(dbresource, null);
-		} catch (Exception exception) {
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred while deleting an entry from resource bundle", a_excep);
 			throw new RuntimeException("Error ocurred while deleting an entry from resource bundle");
 		}
 	}
 
 	public ResourceBundleVO checkResourceData(String resKey, String langId) throws Exception {
 		try {
-			List<ResourceBundleVO> resData = dbResourceDAO.checkResourceData(resKey, langId);
-			ResourceBundleVO editData = null;
+			List<ResourceBundleVO>	resData		= dbResourceDAO.checkResourceData(resKey, langId);
+			ResourceBundleVO		editData	= null;
 			for (ResourceBundleVO resMap : resData) {
 				editData = new ResourceBundleVO();
 				editData.setResourceKey(resMap.getResourceKey());
@@ -149,7 +152,8 @@ public class ResourceBundleService {
 				editData.setLanguageId(resMap.getLanguageId());
 			}
 			return editData;
-		} catch (Exception exception) {
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred while fetching resource bundle data", a_excep);
 			throw new RuntimeException("Error ocurred while fetching resource bundle data");
 		}
 	}

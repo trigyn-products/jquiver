@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 
 @XmlRootElement(name = "jwsEntityRoleAssociationData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PermissionXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "jwsEntityRoleAssociation")
-    private List<JwsEntityRoleAssociation> jwsRoleDetails = new ArrayList<>();
+	private List<JwsEntityRoleAssociation> jwsRoleDetails = new ArrayList<>();
 
 	public List<JwsEntityRoleAssociation> getJwsRoleDetails() {
 		return jwsRoleDetails;

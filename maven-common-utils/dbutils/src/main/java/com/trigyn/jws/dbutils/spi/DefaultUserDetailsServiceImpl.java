@@ -11,11 +11,11 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 public class DefaultUserDetailsServiceImpl implements IUserDetailsService {
-	
-	private static final Logger logger = LogManager.getLogger(DefaultUserDetailsServiceImpl.class);
-	
+
+	private static final Logger		logger					= LogManager.getLogger(DefaultUserDetailsServiceImpl.class);
+
 	@Autowired
-	private PropertyMasterService propertyMasterService = null;
+	private PropertyMasterService	propertyMasterService	= null;
 
 	@Override
 	public UserDetailsVO getUserDetails() {
@@ -27,15 +27,15 @@ public class DefaultUserDetailsServiceImpl implements IUserDetailsService {
 		List<String> accessRoles = Arrays.asList("admin");
 		try {
 			String roles = propertyMasterService.findPropertyMasterValue("acl-jws");
-			if(roles == null) {
+			if (roles == null) {
 				return accessRoles;
 			}
 			return Arrays.asList(roles.split(","));
-		} catch (Exception expection) {
-			logger.error("Error while getting default access to jws, setting the value to admin, ", expection);
+		} catch (Exception a_expection) {
+			logger.error("Error while getting default access to jws, setting the value to admin, ", a_expection);
 			return accessRoles;
 		}
-		
+
 	}
 
 }

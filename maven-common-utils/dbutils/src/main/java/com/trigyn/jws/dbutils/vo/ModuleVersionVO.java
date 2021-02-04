@@ -4,43 +4,43 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class ModuleVersionVO implements Serializable{
+public class ModuleVersionVO implements Serializable {
 
-	private static final long serialVersionUID 		= -6331574183601298560L;
+	private static final long	serialVersionUID	= -6331574183601298560L;
 
-	private String moduleVersionId					= null;
+	private String				moduleVersionId		= null;
 
-	private String entityId							= null;
-	
-	private String entityName						= null;
+	private String				entityId			= null;
 
-	private String parentEntityId					= null;
+	private String				entityName			= null;
 
-	private String moduleJson						= null;
+	private String				parentEntityId		= null;
 
-	private Double versionId						= null;
-	
-	private Date updatedDate						= null;
-	
-	private String moduleJsonChecksum				= null;
-	
-	private Integer sourceTypeId					= null;
+	private String				moduleJson			= null;
+
+	private Double				versionId			= null;
+
+	private Date				updatedDate			= null;
+
+	private String				moduleJsonChecksum	= null;
+
+	private Integer				sourceTypeId		= null;
 
 	public ModuleVersionVO() {
 
 	}
 
-	public ModuleVersionVO(String moduleVersionId, String entityId, String moduleJson
-			, Double versionId, Date updatedDate, String moduleJsonChecksum, Integer sourceTypeId) {
-		this.moduleVersionId 			= moduleVersionId;
-		this.entityId 					= entityId;
-		this.moduleJson 				= moduleJson;
-		this.versionId 					= versionId;
-		this.updatedDate				= updatedDate;
-		this.moduleJsonChecksum 		= moduleJsonChecksum;
-		this.sourceTypeId 				= sourceTypeId;
+	public ModuleVersionVO(String moduleVersionId, String entityId, String moduleJson, Double versionId,
+			Date updatedDate, String moduleJsonChecksum, Integer sourceTypeId) {
+		this.moduleVersionId	= moduleVersionId;
+		this.entityId			= entityId;
+		this.moduleJson			= moduleJson;
+		this.versionId			= versionId;
+		this.updatedDate		= updatedDate;
+		this.moduleJsonChecksum	= moduleJsonChecksum;
+		this.sourceTypeId		= sourceTypeId;
 	}
-	
+
 	/**
 	 * @return the moduleVersionId
 	 */
@@ -139,7 +139,6 @@ public class ModuleVersionVO implements Serializable{
 		this.moduleJsonChecksum = moduleJsonChecksum;
 	}
 
-
 	/**
 	 * @return the updatedDate
 	 */
@@ -203,5 +202,4 @@ public class ModuleVersionVO implements Serializable{
 				+ ", sourceTypeId=" + sourceTypeId + "]";
 	}
 
-	
 }

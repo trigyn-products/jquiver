@@ -5,31 +5,29 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-
-
 @Entity
-@Table(name="module_listing_i18n")
-@NamedQuery(name="ModuleListingI18n.findAll", query="SELECT m FROM ModuleListingI18n m")
+@Table(name = "module_listing_i18n")
+@NamedQuery(name = "ModuleListingI18n.findAll", query = "SELECT m FROM ModuleListingI18n m")
 public class ModuleListingI18n implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private ModuleListingI18nPK id					= null;
+	private ModuleListingI18nPK	id					= null;
 
-	@Column(name="module_name")
-	private String moduleName						= null;
+	@Column(name = "module_name")
+	private String				moduleName			= null;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="module_id", insertable = false, updatable = false)
-	private ModuleListing moduleListing				= null;
+	@JoinColumn(name = "module_id", insertable = false, updatable = false)
+	private ModuleListing		moduleListing		= null;
 
 	public ModuleListingI18n() {
 	}
 
 	public ModuleListingI18n(ModuleListingI18nPK id, String moduleName, ModuleListing moduleListing) {
-		this.id 				= id;
-		this.moduleName 		= moduleName;
-		this.moduleListing 		= moduleListing;
+		this.id				= id;
+		this.moduleName		= moduleName;
+		this.moduleListing	= moduleListing;
 	}
 
 	public ModuleListingI18nPK getId() {
@@ -85,7 +83,7 @@ public class ModuleListingI18n implements Serializable {
 	public ModuleListingI18n getObject() {
 		ModuleListingI18n moduleListingI18n = new ModuleListingI18n();
 		moduleListingI18n.setId(id.getObject());
-		moduleListingI18n.setModuleName(moduleName!=null?moduleName.trim():moduleName);
+		moduleListingI18n.setModuleName(moduleName != null ? moduleName.trim() : moduleName);
 		return moduleListingI18n;
 	}
 

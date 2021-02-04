@@ -22,40 +22,40 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class HibernateConfig {
 
-    @Bean
-    @Autowired
-    public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) {
-        HibernateTransactionManager txManager = new HibernateTransactionManager();
-        txManager.setSessionFactory(sessionFactory);
-        return txManager;
-    }
+	@Bean
+	@Autowired
+	public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) {
+		HibernateTransactionManager txManager = new HibernateTransactionManager();
+		txManager.setSessionFactory(sessionFactory);
+		return txManager;
+	}
 
-    @Bean
-    @Qualifier("sessionFactory")
-    public SessionFactory sessionFactory(DataSource dataSource) {
-        Properties hibernateProperties = new Properties();
-        hibernateProperties.put("hibernate.show_sql", "false");
-        hibernateProperties.put("hibernate.format_sql", "false");
-        hibernateProperties.put("hibernate.id.new_generator_mappings", "false");
-        return new LocalSessionFactoryBuilder(dataSource).scanPackages("app.*","com.*")
-                .addProperties(hibernateProperties).buildSessionFactory();
-    }
+	@Bean
+	@Qualifier("sessionFactory")
+	public SessionFactory sessionFactory(DataSource dataSource) {
+		Properties hibernateProperties = new Properties();
+		hibernateProperties.put("hibernate.show_sql", "false");
+		hibernateProperties.put("hibernate.format_sql", "false");
+		hibernateProperties.put("hibernate.id.new_generator_mappings", "false");
+		return new LocalSessionFactoryBuilder(dataSource).scanPackages("app.*", "com.*")
+				.addProperties(hibernateProperties).buildSessionFactory();
+	}
 
-    @Bean
-    public HibernateTemplate hibernateTemplate(DataSource dataSource) {
-        HibernateTemplate hibernateTemplate = new HibernateTemplate();
-        hibernateTemplate.setSessionFactory(sessionFactory(dataSource));
-        return hibernateTemplate;
-    }
+	@Bean
+	public HibernateTemplate hibernateTemplate(DataSource dataSource) {
+		HibernateTemplate hibernateTemplate = new HibernateTemplate();
+		hibernateTemplate.setSessionFactory(sessionFactory(dataSource));
+		return hibernateTemplate;
+	}
 
-    @Bean
-    @Primary
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
-        LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-        factoryBean.setDataSource(dataSource);
-        factoryBean.setPackagesToScan("app.*", "com.*");
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        factoryBean.setJpaVendorAdapter(vendorAdapter);
-        return factoryBean;
-    }
+	@Bean
+	@Primary
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
+		factoryBean.setDataSource(dataSource);
+		factoryBean.setPackagesToScan("app.*", "com.*");
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		factoryBean.setJpaVendorAdapter(vendorAdapter);
+		return factoryBean;
+	}
 }

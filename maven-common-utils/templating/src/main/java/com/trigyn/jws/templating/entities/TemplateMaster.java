@@ -18,75 +18,74 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "template_master")
 public class TemplateMaster implements Serializable {
 
-    private static final long serialVersionUID  = -5210067567698574574L;
+	private static final long	serialVersionUID	= -5210067567698574574L;
 
-    @Id
+	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-    @Column(name = "template_id", nullable = false)
-    private String templateId                   = null;
+	@Column(name = "template_id", nullable = false)
+	private String				templateId			= null;
 
-    @Column(name = "template_name")
-    private String templateName                 = null;
+	@Column(name = "template_name")
+	private String				templateName		= null;
 
-    @Column(name = "template")
-    private String template                     = null;
-    
-    @Column(name = "template_type_id")
-    private Integer templateTypeId				= 1;
+	@Column(name = "template")
+	private String				template			= null;
 
-    @Column(name = "created_by")
-    private String createdBy                    = null;
+	@Column(name = "template_type_id")
+	private Integer				templateTypeId		= 1;
 
-    @Column(name = "updated_by")
-    private String updatedBy                    = null;
+	@Column(name = "created_by")
+	private String				createdBy			= null;
 
-    @JsonIgnore
-    @Column(name = "updated_date")
-    private Date updatedDate                    = null;
+	@Column(name = "updated_by")
+	private String				updatedBy			= null;
 
-    @Column(name = "checksum")
-    private String checksum                     = null;
+	@JsonIgnore
+	@Column(name = "updated_date")
+	private Date				updatedDate			= null;
 
-    public TemplateMaster() {
+	@Column(name = "checksum")
+	private String				checksum			= null;
 
-    }
+	public TemplateMaster() {
 
-    
-    public TemplateMaster(String templateId, String templateName, String template, Integer templateTypeId
-    		, String createdBy, String updatedBy, Date updatedDate) {
-        this.templateId     = templateId;
-        this.templateName   = templateName;
-        this.template       = template;
-        this.templateTypeId	= templateTypeId;
-        this.createdBy      = createdBy;
-        this.updatedBy      = updatedBy;
-        this.updatedDate    = updatedDate;
-    }
+	}
 
-    public String getTemplateId() {
-        return templateId;
-    }
+	public TemplateMaster(String templateId, String templateName, String template, Integer templateTypeId,
+			String createdBy, String updatedBy, Date updatedDate) {
+		this.templateId		= templateId;
+		this.templateName	= templateName;
+		this.template		= template;
+		this.templateTypeId	= templateTypeId;
+		this.createdBy		= createdBy;
+		this.updatedBy		= updatedBy;
+		this.updatedDate	= updatedDate;
+	}
 
-    public void setTemplateId(String vmMasterId) {
-        this.templateId = vmMasterId;
-    }
+	public String getTemplateId() {
+		return templateId;
+	}
 
-    public String getTemplateName() {
-        return templateName;
-    }
+	public void setTemplateId(String vmMasterId) {
+		this.templateId = vmMasterId;
+	}
 
-    public void setTemplateName(String vmName) {
-        this.templateName = vmName;
-    }
+	public String getTemplateName() {
+		return templateName;
+	}
 
-    public String getTemplate() {
-        return template;
-    }
+	public void setTemplateName(String vmName) {
+		this.templateName = vmName;
+	}
 
-    public void setTemplate(String vmTemplate) {
-        this.template = vmTemplate;
-    }
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String vmTemplate) {
+		this.template = vmTemplate;
+	}
 
 	public Integer getTemplateTypeId() {
 		return templateTypeId;
@@ -97,38 +96,36 @@ public class TemplateMaster implements Serializable {
 	}
 
 	public String getCreatedBy() {
-        return createdBy;
-    }
+		return createdBy;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
 
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
 
-    public Date getUpdatedDate() {
-        return updatedDate;
-    }
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
 
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
-    }
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
+	}
 
-    public String getChecksum() {
-        return this.checksum;
-    }
+	public String getChecksum() {
+		return this.checksum;
+	}
 
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
-    }
-
-
+	public void setChecksum(String checksum) {
+		this.checksum = checksum;
+	}
 
 	@Override
 	public int hashCode() {
@@ -150,34 +147,30 @@ public class TemplateMaster implements Serializable {
 		TemplateMaster other = (TemplateMaster) obj;
 		return Objects.equals(checksum, other.checksum) && Objects.equals(createdBy, other.createdBy)
 				&& Objects.equals(template, other.template) && Objects.equals(templateId, other.templateId)
-				&& Objects.equals(templateName, other.templateName) && Objects.equals(templateTypeId, other.templateTypeId)
-				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate);
+				&& Objects.equals(templateName, other.templateName)
+				&& Objects.equals(templateTypeId, other.templateTypeId) && Objects.equals(updatedBy, other.updatedBy)
+				&& Objects.equals(updatedDate, other.updatedDate);
 	}
-	
-	
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder().append("{ vmMasterId = ").append(templateId)
-		.append(", vmName = ").append(templateName)
-        .append(", vmTemplate = ").append(template)
-        .append(", templateTypeId = ").append(templateTypeId)
-        .append(", createdBy = ").append(createdBy)
-        .append(", updatedBy = ").append(updatedBy)
-        .append(", updatedDate = ").append(updatedDate)
-		.append(" }");
+
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder().append("{ vmMasterId = ").append(templateId)
+				.append(", vmName = ").append(templateName).append(", vmTemplate = ").append(template)
+				.append(", templateTypeId = ").append(templateTypeId).append(", createdBy = ").append(createdBy)
+				.append(", updatedBy = ").append(updatedBy).append(", updatedDate = ").append(updatedDate).append(" }");
 		return stringBuilder.toString();
-    }
-    
-    public TemplateMaster getObject() {
-    	TemplateMaster obj = new TemplateMaster();
-    	obj.setChecksum(checksum!=null?checksum.trim():checksum);
-    	obj.setCreatedBy(createdBy!=null?createdBy.trim():createdBy);
-    	obj.setTemplate(template!=null?template.trim():template);
-    	obj.setTemplateId(templateId!=null?templateId.trim():templateId);
-    	obj.setTemplateName(templateName!=null?templateName.trim():templateName);
-    	obj.setTemplateTypeId(templateTypeId);
-    	obj.setUpdatedBy(updatedBy!=null?updatedBy.trim():updatedBy);
-    	obj.setUpdatedDate(updatedDate);
+	}
+
+	public TemplateMaster getObject() {
+		TemplateMaster obj = new TemplateMaster();
+		obj.setChecksum(checksum != null ? checksum.trim() : checksum);
+		obj.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
+		obj.setTemplate(template != null ? template.trim() : template);
+		obj.setTemplateId(templateId != null ? templateId.trim() : templateId);
+		obj.setTemplateName(templateName != null ? templateName.trim() : templateName);
+		obj.setTemplateTypeId(templateTypeId);
+		obj.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
+		obj.setUpdatedDate(updatedDate);
 		return obj;
 	}
 

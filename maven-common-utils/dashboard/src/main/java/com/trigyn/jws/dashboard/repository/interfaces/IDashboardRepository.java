@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 
 @Repository
-public interface IDashboardRepository extends JpaRepository<Dashboard, String>{
+public interface IDashboardRepository extends JpaRepository<Dashboard, String> {
 
 }

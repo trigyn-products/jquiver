@@ -28,42 +28,47 @@ import com.trigyn.jws.templating.service.MenuService;
 @RequestMapping("/cf")
 public class FileController {
 
-	private final static Logger logger = LogManager.getLogger(FileController.class);
-	
-	@Autowired
-	private PropertyMasterService propertyMasterService			= null;
+	private final static Logger		logger					= LogManager.getLogger(FileController.class);
 
 	@Autowired
-	private MenuService menuService 							= null;
+	private PropertyMasterService	propertyMasterService	= null;
 
 	@Autowired
-	private FileUploadConfigService fileUploadConfigService 	= null;
-	
+	private MenuService				menuService				= null;
+
+	@Autowired
+	private FileUploadConfigService	fileUploadConfigService	= null;
+
 	@GetMapping(value = "/fucl", produces = MediaType.TEXT_HTML_VALUE)
-	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException{
-		try{
-			Map<String,Object>  modelMap = new HashMap<>();
-			String environment = propertyMasterService.findPropertyMasterValue("system", "system", "profile");
+	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			Map<String, Object>	modelMap	= new HashMap<>();
+			String				environment	= propertyMasterService.findPropertyMasterValue("system", "system",
+					"profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("file-upload-config-listing", modelMap);
-		} catch (Exception exception) {
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/fuj")
-	public String getLastUpdatedFileJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public String getLastUpdatedFileJsonData(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return fileUploadConfigService.getFileUploadJson(entityId);
 	}
-	
+
 	@PostMapping(value = "/sfuc")
-	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
-		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper			= new ObjectMapper();
-		FileUploadConfigVO fileUploadConfigVO		= objectMapper.readValue(modifiedContent, FileUploadConfigVO.class);
-		FileUploadConfig fileUploadConfig = fileUploadConfigService.convertFileUploadVOToEntity(fileUploadConfigVO);
+	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String				modifiedContent		= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper		objectMapper		= new ObjectMapper();
+		FileUploadConfigVO	fileUploadConfigVO	= objectMapper.readValue(modifiedContent, FileUploadConfigVO.class);
+		FileUploadConfig	fileUploadConfig	= fileUploadConfigService
+				.convertFileUploadVOToEntity(fileUploadConfigVO);
 		fileUploadConfigService.saveFileUploadConfig(fileUploadConfig);
 	}
 }

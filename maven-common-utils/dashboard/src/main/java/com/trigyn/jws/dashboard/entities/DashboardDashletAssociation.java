@@ -12,57 +12,49 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "dashboard_dashlet_association")
-public class DashboardDashletAssociation implements Serializable{
+public class DashboardDashletAssociation implements Serializable {
 
-	
-	private static final long serialVersionUID 	= 1L;
+	private static final long				serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private DashboardDashletAssociationPK id 	= null;
-		
+	private DashboardDashletAssociationPK	id					= null;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "dashboard_id", referencedColumnName = "dashboard_id", nullable = false, insertable = false, updatable = false)
-	private Dashboard	dashboard				= null;
-	
+	private Dashboard						dashboard			= null;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "dashlet_id", referencedColumnName = "dashlet_id", nullable = false, insertable = false, updatable = false)
-	private Dashlet	dashlet						= null;
+	private Dashlet							dashlet				= null;
 
 	public DashboardDashletAssociation() {
-		
+
 	}
-	
+
 	public DashboardDashletAssociation(DashboardDashletAssociationPK id) {
-		this.id 			= id;
+		this.id = id;
 	}
-	
-	
+
 	public DashboardDashletAssociationPK getId() {
 		return id;
 	}
 
-
-	
 	public void setId(DashboardDashletAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public Dashboard getDashboard() {
 		return dashboard;
 	}
 
-	
 	public void setDashboard(Dashboard dashboard) {
 		this.dashboard = dashboard;
 	}
 
-	
 	public Dashlet getDashlet() {
 		return dashlet;
 	}
 
-	
 	public void setDashlet(Dashlet dashlet) {
 		this.dashlet = dashlet;
 	}
@@ -84,7 +76,8 @@ public class DashboardDashletAssociation implements Serializable{
 			return false;
 		}
 		DashboardDashletAssociation other = (DashboardDashletAssociation) obj;
-		return Objects.equals(dashboard, other.dashboard) && Objects.equals(dashlet, other.dashlet) && Objects.equals(id, other.id);
+		return Objects.equals(dashboard, other.dashboard) && Objects.equals(dashlet, other.dashlet)
+				&& Objects.equals(id, other.id);
 	}
 
 	@Override
@@ -95,7 +88,7 @@ public class DashboardDashletAssociation implements Serializable{
 	public DashboardDashletAssociation getObject() {
 		DashboardDashletAssociation dashboardDashletAssociation = new DashboardDashletAssociation();
 		dashboardDashletAssociation.setId(id.getObject());
-		
+
 		return dashboardDashletAssociation;
 	}
 

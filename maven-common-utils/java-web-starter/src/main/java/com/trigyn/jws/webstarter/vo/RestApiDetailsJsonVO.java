@@ -2,48 +2,48 @@ package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
 
-public class RestApiDetailsJsonVO  implements Serializable{
+public class RestApiDetailsJsonVO implements Serializable {
 
-    /**
+	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID			= 1L;
 
-	private String allowFiles = null;
+	private String				allowFiles					= null;
 
-    private String daoDetailsIds = null;
+	private String				daoDetailsIds				= null;
 
-    private String daoQueryDetails = null;
+	private String				daoQueryDetails				= null;
 
-    private String dynarestId = null;
+	private String				dynarestId					= null;
 
-    private String dynarestMethodDescription = null;
+	private String				dynarestMethodDescription	= null;
 
-    private String dynarestMethodName = null;
+	private String				dynarestMethodName			= null;
 
-    private String dynarestPlatformId = null;
+	private String				dynarestPlatformId			= null;
 
-    private String dynarestProdTypeId = null;
+	private String				dynarestProdTypeId			= null;
 
-    private String dynarestRequestTypeId = null;
+	private String				dynarestRequestTypeId		= null;
 
-    private String dynarestUrl = null;
+	private String				dynarestUrl					= null;
 
-    private String entityName = null;
+	private String				entityName					= null;
 
-    private String formId = null;
+	private String				formId						= null;
 
-    private String isEdit = null;
+	private String				isEdit						= null;
 
-    private String primaryKey = null;
+	private String				primaryKey					= null;
 
-    private String queryType = null;
+	private String				queryType					= null;
 
-    private String saveUpdateQuery = null;
+	private String				saveUpdateQuery				= null;
 
-    private String serviceLogic = null;
-    
-    private String variableName = null;
+	private String				serviceLogic				= null;
+
+	private String				variableName				= null;
 
 	public String getAllowFiles() {
 		return allowFiles;

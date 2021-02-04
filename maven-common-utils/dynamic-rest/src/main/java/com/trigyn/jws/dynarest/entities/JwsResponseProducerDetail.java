@@ -1,37 +1,40 @@
 package com.trigyn.jws.dynarest.entities;
 
-
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="jws_response_producer_details")
-@NamedQuery(name="JwsResponseProducerDetail.findAll", query="SELECT j FROM JwsResponseProducerDetail j")
+@Table(name = "jws_response_producer_details")
+@NamedQuery(name = "JwsResponseProducerDetail.findAll", query = "SELECT j FROM JwsResponseProducerDetail j")
 public class JwsResponseProducerDetail implements Serializable {
-	private static final long serialVersionUID 					= 1L;
+	private static final long			serialVersionUID			= 1L;
 
 	@Id
-	@Column(name="jws_response_producer_type_id")
-	private Integer jwsResponseProducerTypeId					= null;
+	@Column(name = "jws_response_producer_type_id")
+	private Integer						jwsResponseProducerTypeId	= null;
 
-	@Column(name="jws_response_producer_type")
-	private String jwsResponseProducerType						= null;
+	@Column(name = "jws_response_producer_type")
+	private String						jwsResponseProducerType		= null;
 
-	@OneToMany(mappedBy="jwsResponseProducerDetail")
-	private List<JwsDynamicRestDetail> jwsDynamicRestDetails	= null;
+	@OneToMany(mappedBy = "jwsResponseProducerDetail")
+	private List<JwsDynamicRestDetail>	jwsDynamicRestDetails		= null;
 
 	public JwsResponseProducerDetail() {
 	}
 
 	public JwsResponseProducerDetail(Integer jwsResponseProducerTypeId, String jwsResponseProducerType,
 			List<JwsDynamicRestDetail> jwsDynamicRestDetails) {
-		this.jwsResponseProducerTypeId 	= jwsResponseProducerTypeId;
-		this.jwsResponseProducerType 	= jwsResponseProducerType;
-		this.jwsDynamicRestDetails 		= jwsDynamicRestDetails;
+		this.jwsResponseProducerTypeId	= jwsResponseProducerTypeId;
+		this.jwsResponseProducerType	= jwsResponseProducerType;
+		this.jwsDynamicRestDetails		= jwsDynamicRestDetails;
 	}
 
 	public Integer getJwsResponseProducerTypeId() {

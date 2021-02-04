@@ -265,21 +265,27 @@
     function importSingle(moduleType, entityId) {
 		$.ajax({
 	    	url : '/cf/importConfig',
-	    	type : "post",
+	    	type : "POST",
+			async: false,
 	    	data: {
 	    		imporatableData : imporatableData,
 	    		importId		: entityId,
 	    		moduleType		: moduleType
 	    	},
 	    	success : function(data) {
-	    		if(!idList.includes(moduleType.toLowerCase()+entityId)) {
-		    		idList.push(moduleType.toLowerCase()+entityId);
-		    		localStorage.setItem("importedIdList", JSON.stringify(idList));
+	    		if(data.startsWith("fail:")){
+					var errorMessageString = data.substring(5);
+					showMessage(errorMessageString, "error");
+				} else {
+		    		if(!idList.includes(moduleType.toLowerCase()+entityId)) {
+			    		idList.push(moduleType.toLowerCase()+entityId);
+			    		localStorage.setItem("importedIdList", JSON.stringify(idList));
+					}
+		    		$("#lblExistingVersion"+entityId).text(data);
+		    		$("#btnImport"+entityId).attr("disabled", true);
+		    		$("#btnCompare"+entityId).attr("disabled", true);
+		    		showMessage("Data imported.", "success");
 				}
-	    		$("#lblExistingVersion"+entityId).text(data);
-	    		$("#btnImport"+entityId).attr("disabled", true);
-	    		$("#btnCompare"+entityId).attr("disabled", true);
-	    		showMessage("Data imported.", "success");
 	    	},
 	    	error: function (textStatus, errorThrown) {
 	    		showMessage("Error while importing data", "error");
@@ -291,18 +297,29 @@
     	if(isDataAvailableForImport == true) {
     		$.ajax({
     	    	url : '/cf/importAll',
-    	    	type : "post",
+    	    	type : "POST",
+    			async: false,
     	    	data: {
     	    		imporatableData : imporatableData,
     	    		importedIdList  : JSON.stringify(idList)
     	    	},
     	    	success : function(data) {
-    	    		$("#importAllBtn").attr("disabled", true);
-    	    		backToPreviousPage();
-    	    		showMessage("All data imported.", "success");
+    	    		if(data.startsWith("fail:")){
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				} else {
+	    	    		$("#importAllBtn").attr("disabled", true);
+	    	    		backToPreviousPage();
+	    	    		showMessage("All data imported.", "success");
+    				}
     	    	},
     	    	error: function (textStatus, errorThrown) {
-    	    		showMessage("Error while importing data", "error");
+    	    		if(data.startsWith("fail:")){
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				}else{
+    	    			showMessage("Error while importing data", "error");
+    	    		}
     	    	}
         	});
     	} else {

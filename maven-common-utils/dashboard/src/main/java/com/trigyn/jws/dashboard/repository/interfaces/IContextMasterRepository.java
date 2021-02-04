@@ -11,7 +11,7 @@ import com.trigyn.jws.dashboard.entities.ContextMaster;
 import com.trigyn.jws.dashboard.vo.ContextMasterVO;
 
 @Repository
-public interface IContextMasterRepository extends JpaRepository<ContextMaster, String>{
+public interface IContextMasterRepository extends JpaRepository<ContextMaster, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_CONTEXT)
 	List<ContextMasterVO> findAllContext();

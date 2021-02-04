@@ -1,7 +1,5 @@
 package com.trigyn.jws.webstarter.controller;
 
-import java.util.concurrent.CompletableFuture;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +19,16 @@ import com.trigyn.jws.webstarter.utils.Email;
 public class SendMailController {
 
 	@Autowired
-	private SendMailService sendMailService = null;
-	
+	private SendMailService		sendMailService		= null;
+
 	@Autowired
-	private DBTemplatingService dbTemplatingService = null;
+	private DBTemplatingService	dbTemplatingService	= null;
 
 	@PostMapping(value = "/stm", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Boolean sendTestMail(HttpServletRequest httpServletRequest) throws Exception {
-		Email email = new Email();
-		String jsonString = httpServletRequest.getParameter("saveMailConfigDetailsJson");
-		TemplateVO templateDetails = dbTemplatingService.getTemplateByName(Constant.MAIL_TEMPLATE_NAME);
+		Email		email			= new Email();
+		String		jsonString		= httpServletRequest.getParameter("saveMailConfigDetailsJson");
+		TemplateVO	templateDetails	= dbTemplatingService.getTemplateByName(Constant.MAIL_TEMPLATE_NAME);
 		email.setBody(templateDetails.getTemplate());
 		sendMailService.sendTestMail(email, jsonString);
 		return Boolean.TRUE;

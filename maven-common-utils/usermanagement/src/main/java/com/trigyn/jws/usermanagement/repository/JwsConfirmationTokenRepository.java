@@ -7,5 +7,5 @@ import com.trigyn.jws.usermanagement.entities.JwsConfirmationToken;
 
 @Repository
 public interface JwsConfirmationTokenRepository extends JpaRepository<JwsConfirmationToken, String> {
-    JwsConfirmationToken findByConfirmationToken(String confirmationToken);
+	JwsConfirmationToken findByConfirmationToken(String confirmationToken);
 }

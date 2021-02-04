@@ -2,10 +2,10 @@ package com.trigyn.jws.dbutils.spi;
 
 public class DynarestApiDetails {
 
-	private String compiledClassPath = null;
-	
-	private String compiledClassName = null;
-	
+	private String	compiledClassPath	= null;
+
+	private String	compiledClassName	= null;
+
 	public String getCompiledClassPath() {
 		return compiledClassPath;
 	}
@@ -20,6 +20,6 @@ public class DynarestApiDetails {
 
 	public void setCompiledClassName(String compiledClassName) {
 		this.compiledClassName = compiledClassName;
-	} 
-	
+	}
+
 }

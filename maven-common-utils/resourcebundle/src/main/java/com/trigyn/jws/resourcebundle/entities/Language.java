@@ -15,107 +15,91 @@ import javax.persistence.Table;
 @Table(name = "language")
 public class Language implements Serializable {
 
-    private static final long serialVersionUID 		= 4495981831880458994L;
+	private static final long		serialVersionUID	= 4495981831880458994L;
 
- 
-    @Id
-    @Column(name = "language_id", nullable = false)
-    private Integer      languageId             	= null;
+	@Id
+	@Column(name = "language_id", nullable = false)
+	private Integer					languageId			= null;
 
-    @Column(name = "language_name")
-    private String      languageName            	= null;
+	@Column(name = "language_name")
+	private String					languageName		= null;
 
-    @Column(name = "language_code")
-    private String      languageCode            	= null;
+	@Column(name = "language_code")
+	private String					languageCode		= null;
 
-    @Column(name = "last_update_ts")
-    private Date      	lastUpdateTs           		= null;
+	@Column(name = "last_update_ts")
+	private Date					lastUpdateTs		= null;
 
-    @Column(name = "is_deleted")
-    private Integer    	isDeleted           		= null;
-    
-	@OneToMany(mappedBy="language")
-	private List<ResourceBundle> resourceBundles	= null;
-    
+	@Column(name = "is_deleted")
+	private Integer					isDeleted			= null;
 
-	
+	@OneToMany(mappedBy = "language")
+	private List<ResourceBundle>	resourceBundles		= null;
+
 	public Language() {
-        
-    }
-    
-    
-    public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs) {
-        this.languageId     = languageId;
-        this.languageName   = languageName;
-        this.languageCode   = languageCode;
-        this.lastUpdateTs   = lastUpdateTs;
-    }
 
-    
-    public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs, Integer isDeleted) {
-		this.languageId 	= languageId;
-		this.languageName 	= languageName;
-		this.languageCode 	= languageCode;
-		this.lastUpdateTs 	= lastUpdateTs;
-		this.isDeleted 		= isDeleted;
 	}
-    
-    public Integer getLanguageId() {
-        return languageId;
-    }
 
-    
-    public void setLanguageId(Integer languageId) {
-        this.languageId = languageId;
-    }
+	public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs) {
+		this.languageId		= languageId;
+		this.languageName	= languageName;
+		this.languageCode	= languageCode;
+		this.lastUpdateTs	= lastUpdateTs;
+	}
 
-    
-    public String getLanguageName() {
-        return languageName;
-    }
+	public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs,
+			Integer isDeleted) {
+		this.languageId		= languageId;
+		this.languageName	= languageName;
+		this.languageCode	= languageCode;
+		this.lastUpdateTs	= lastUpdateTs;
+		this.isDeleted		= isDeleted;
+	}
 
-    
-    public void setLanguageName(String languageName) {
-        this.languageName = languageName;
-    }
+	public Integer getLanguageId() {
+		return languageId;
+	}
 
-    
-    public String getLanguageCode() {
-        return languageCode;
-    }
+	public void setLanguageId(Integer languageId) {
+		this.languageId = languageId;
+	}
 
-    
-    public void setLanguageCode(String languageCode) {
-        this.languageCode = languageCode;
-    }
+	public String getLanguageName() {
+		return languageName;
+	}
 
-    
-    public Date getLastUpdateTs() {
-        return lastUpdateTs;
-    }
+	public void setLanguageName(String languageName) {
+		this.languageName = languageName;
+	}
 
-    
-    public void setLastUpdateTs(Date lastUpdateTs) {
-        this.lastUpdateTs = lastUpdateTs;
-    }
+	public String getLanguageCode() {
+		return languageCode;
+	}
 
-	
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
+	}
+
+	public Date getLastUpdateTs() {
+		return lastUpdateTs;
+	}
+
+	public void setLastUpdateTs(Date lastUpdateTs) {
+		this.lastUpdateTs = lastUpdateTs;
+	}
+
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
-	
-    
-	
+
 	public List<ResourceBundle> getResourceBundles() {
 		return resourceBundles;
 	}
 
-	
 	public void setResourceBundles(List<ResourceBundle> resourceBundles) {
 		this.resourceBundles = resourceBundles;
 	}
@@ -142,23 +126,18 @@ public class Language implements Serializable {
 				&& Objects.equals(lastUpdateTs, other.lastUpdateTs);
 	}
 
-	
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId)
-		.append(", languageCode = ").append(languageCode)
-        .append(", languageName = ").append(languageName)
-        .append(", lastUpdateTs = ").append(lastUpdateTs)
-        .append(", isDeleted = ").append(isDeleted)
-        .append(", resourceBundles = ").append(resourceBundles)
-		.append(" }");
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId)
+				.append(", languageCode = ").append(languageCode).append(", languageName = ").append(languageName)
+				.append(", lastUpdateTs = ").append(lastUpdateTs).append(", isDeleted = ").append(isDeleted)
+				.append(", resourceBundles = ").append(resourceBundles).append(" }");
 		return stringBuilder.toString();
-    }
-
+	}
 
 }

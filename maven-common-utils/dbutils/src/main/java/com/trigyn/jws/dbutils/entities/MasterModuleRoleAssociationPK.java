@@ -5,43 +5,38 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-
 @Embeddable
 public class MasterModuleRoleAssociationPK implements Serializable {
-	
-	private static final long serialVersionUID 				= 1L;
 
-	@Column(name="master_module_id", insertable=false, updatable=false, nullable=false)
-	private String masterModuleId							= null;
+	private static final long	serialVersionUID	= 1L;
 
-	@Column(name="role_id", insertable=false, updatable=false, nullable=false)
-	private String roleId									= null;
+	@Column(name = "master_module_id", insertable = false, updatable = false, nullable = false)
+	private String				masterModuleId		= null;
+
+	@Column(name = "role_id", insertable = false, updatable = false, nullable = false)
+	private String				roleId				= null;
 
 	public MasterModuleRoleAssociationPK() {
-		
+
 	}
 
 	public MasterModuleRoleAssociationPK(String masterModuleId, String roleId) {
-		this.masterModuleId 	= masterModuleId;
-		this.roleId 			= roleId;
+		this.masterModuleId	= masterModuleId;
+		this.roleId			= roleId;
 	}
 
-	
 	public String getMasterModuleId() {
 		return masterModuleId;
 	}
 
-	
 	public void setMasterModuleId(String masterModuleId) {
 		this.masterModuleId = masterModuleId;
 	}
 
-	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
@@ -70,6 +65,5 @@ public class MasterModuleRoleAssociationPK implements Serializable {
 	public String toString() {
 		return "MasterModuleRoleAssociationPK [masterModuleId=" + masterModuleId + ", roleId=" + roleId + "]";
 	}
-	
-	
+
 }

@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.notification.entities.GenericUserNotification;
 
 @XmlRootElement(name = "genericUserNotificationData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class GenericUserNotificationXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "genericUserNotification")
-    private List<GenericUserNotification> genericUserNotificationDetails = new ArrayList<>();
+	private List<GenericUserNotification> genericUserNotificationDetails = new ArrayList<>();
 
 	public List<GenericUserNotification> getGenericUserNotificationDetails() {
 		return genericUserNotificationDetails;

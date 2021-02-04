@@ -21,37 +21,37 @@ public class HelpManualDAO extends DBConnection {
 	}
 
 	public void updateManualDetails(String manualId, String name) {
-		String updateQuery = "UPDATE manual_type SET name = :name WHERE manual_id = :manualId";
-		Map<String, Object> paramMap = new HashMap<>();
+		String				updateQuery	= "UPDATE manual_type SET name = :name WHERE manual_id = :manualId";
+		Map<String, Object>	paramMap	= new HashMap<>();
 		paramMap.put("name", name);
 		paramMap.put("manualId", manualId);
 		namedParameterJdbcTemplate.update(updateQuery, paramMap);
 	}
 
 	public void insertManualDetails(String manualId, String name) {
-		String insertQuery = "INSERT INTO manual_type(manual_id, name, is_system_manual) VALUES (UUID(), :name ,0)";
-		Map<String, Object> paramMap = new HashMap<>();
+		String				insertQuery	= "INSERT INTO manual_type(manual_id, name, is_system_manual) VALUES (UUID(), :name ,0)";
+		Map<String, Object>	paramMap	= new HashMap<>();
 		paramMap.put("name", name);
 		namedParameterJdbcTemplate.update(insertQuery, paramMap);
 	}
 
 	public String getManualDetailByIdAndName(String manualId, String entryName) {
-		String getManualDetails = "SELECT manual_entry_id FROM manual_entry WHERE manual_type = :manualId AND entry_name = :entryName";
-		Map<String, Object> paramMap = new HashMap<>();
+		String				getManualDetails	= "SELECT manual_entry_id FROM manual_entry WHERE manual_type = :manualId AND entry_name = :entryName";
+		Map<String, Object>	paramMap			= new HashMap<>();
 		paramMap.put("manualId", manualId);
 		paramMap.put("entryName", entryName);
 		String manualEntryName = null;
 		manualEntryName = namedParameterJdbcTemplate.queryForObject(getManualDetails, paramMap, String.class);
 		return manualEntryName;
 	}
-	
+
 	public void saveFileAssociation(ManualEntryFileAssociation entryFileAssociation) {
 		getCurrentSession().saveOrUpdate(entryFileAssociation);
 	}
 
 	public void deleteFilesByManualEntryId(String manualEntryId) {
-		String deleteQuery = "DELETE FROM manual_entry_file_association WHERE manual_entry_id = :manualEntryId";
-		Map<String, Object> paramMap = new HashMap<>();
+		String				deleteQuery	= "DELETE FROM manual_entry_file_association WHERE manual_entry_id = :manualEntryId";
+		Map<String, Object>	paramMap	= new HashMap<>();
 		paramMap.put("manualEntryId", manualEntryId);
 		namedParameterJdbcTemplate.update(deleteQuery, paramMap);
 	}

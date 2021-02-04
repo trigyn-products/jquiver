@@ -2,13 +2,13 @@ package com.trigyn.jws.usermanagement.vo;
 
 public class JwsRoleModuleAssociationVO {
 
-	private String roleId = null;
-	
-	private String roleName = null;
-	
-	private String moduleId = null;
-	
-	private String moduleName = null;
+	private String	roleId		= null;
+
+	private String	roleName	= null;
+
+	private String	moduleId	= null;
+
+	private String	moduleName	= null;
 
 	public String getRoleId() {
 		return roleId;
@@ -47,12 +47,10 @@ public class JwsRoleModuleAssociationVO {
 
 	public JwsRoleModuleAssociationVO(String roleId, String roleName, String moduleId, String moduleName) {
 		super();
-		this.roleId = roleId;
-		this.roleName = roleName;
-		this.moduleId = moduleId;
-		this.moduleName = moduleName;
+		this.roleId		= roleId;
+		this.roleName	= roleName;
+		this.moduleId	= moduleId;
+		this.moduleName	= moduleName;
 	}
-	
-	
-	
+
 }

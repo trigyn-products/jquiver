@@ -3,25 +3,23 @@ package com.trigyn.jws.usermanagement.vo;
 import java.util.Date;
 import java.util.List;
 
-
-
 public class JwsEntityRoleVO {
 
-	private String entityRoleId = null;
-	
-	private String entityId = null;
-	
-	private String entityName = null;
-	
-	private String moduleId = null;
-	
-	private List<String> roleIds = null;
-	
-	private Date lastUpdatedDate = null;
-	
-	private String lastUpdatedBy = null;
-	
-	private Integer isActive = null;
+	private String			entityRoleId	= null;
+
+	private String			entityId		= null;
+
+	private String			entityName		= null;
+
+	private String			moduleId		= null;
+
+	private List<String>	roleIds			= null;
+
+	private Date			lastUpdatedDate	= null;
+
+	private String			lastUpdatedBy	= null;
+
+	private Integer			isActive		= null;
 
 	public String getEntityRoleId() {
 		return entityRoleId;
@@ -55,7 +53,6 @@ public class JwsEntityRoleVO {
 		this.moduleId = moduleId;
 	}
 
-
 	public List<String> getRoleIds() {
 		return roleIds;
 	}
@@ -87,6 +84,5 @@ public class JwsEntityRoleVO {
 	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
 	}
-
 
 }

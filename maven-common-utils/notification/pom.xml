@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.3.17-SNAPSHOT</version>
+		<version>1.3.19-SNAPSHOT</version>
 	</parent>
 	<artifactId>notification</artifactId>
-	<version>1.3.17-SNAPSHOT</version>
+	<version>1.3.19-SNAPSHOT</version>
 	<name>notification</name>
 	<description>Notification utils</description>
 
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.3.17-SNAPSHOT</version>
+			<version>1.3.19-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -77,5 +77,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

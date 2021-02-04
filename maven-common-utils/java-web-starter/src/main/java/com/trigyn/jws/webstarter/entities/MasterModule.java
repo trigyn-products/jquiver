@@ -7,24 +7,24 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity(name="master_module")
+@Entity(name = "master_module")
 public class MasterModule {
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name = "master_module_id")
-	private String masterModuleId = null;
-	
-	@Column(name = "master_module_name",unique = true)
-	private String masterModuleName = null;
-	
-	@Column(name = "grid_details_id")
-	private String gridDetailsId = null;
+	private String	masterModuleId		= null;
 
-	@Column(name="module_type")
-	private String moduleType = null;
-	
+	@Column(name = "master_module_name", unique = true)
+	private String	masterModuleName	= null;
+
+	@Column(name = "grid_details_id")
+	private String	gridDetailsId		= null;
+
+	@Column(name = "module_type")
+	private String	moduleType			= null;
+
 	public String getMasterModuleId() {
 		return masterModuleId;
 	}

@@ -13,52 +13,51 @@ import org.apache.commons.text.StringEscapeUtils;
 @Table(name = "autocomplete_details")
 public class Autocomplete {
 
-    @Id
-    @Column(name = "ac_id")
-    private String autocompleteId 					= null;
+	@Id
+	@Column(name = "ac_id")
+	private String	autocompleteId			= null;
 
-    @Column(name = "ac_description")
-    private String autocompleteDesc 				= null;
-    
-    @Column(name = "ac_select_query")
-    private String autocompleteSelectQuery 			= null;
-    
-    @Column(name = "ac_type_id")
-    private Integer acTypeId						= 1;
-    
+	@Column(name = "ac_description")
+	private String	autocompleteDesc		= null;
 
-    public Autocomplete() {
-    }
+	@Column(name = "ac_select_query")
+	private String	autocompleteSelectQuery	= null;
 
-    public Autocomplete(String autocompleteId, String autocompleteDesc, String autocompleteSelectQuery) {
-        this.autocompleteId 			= autocompleteId;
-        this.autocompleteDesc 			= autocompleteDesc;
-        this.autocompleteSelectQuery 	= autocompleteSelectQuery;
-    }
+	@Column(name = "ac_type_id")
+	private Integer	acTypeId				= 1;
 
-    public String getAutocompleteId() {
-        return this.autocompleteId;
-    }
+	public Autocomplete() {
+	}
 
-    public void setAutocompleteId(String autocompleteId) {
-        this.autocompleteId = autocompleteId;
-    }
+	public Autocomplete(String autocompleteId, String autocompleteDesc, String autocompleteSelectQuery) {
+		this.autocompleteId				= autocompleteId;
+		this.autocompleteDesc			= autocompleteDesc;
+		this.autocompleteSelectQuery	= autocompleteSelectQuery;
+	}
 
-    public String getAutocompleteDesc() {
-        return this.autocompleteDesc;
-    }
+	public String getAutocompleteId() {
+		return this.autocompleteId;
+	}
 
-    public void setAutocompleteDesc(String autocompleteDesc) {
-        this.autocompleteDesc = autocompleteDesc;
-    }
+	public void setAutocompleteId(String autocompleteId) {
+		this.autocompleteId = autocompleteId;
+	}
 
-    public String getAutocompleteSelectQuery() {
-        return this.autocompleteSelectQuery;
-    }
+	public String getAutocompleteDesc() {
+		return this.autocompleteDesc;
+	}
 
-    public void setAutocompleteSelectQuery(String autocompleteSelectQuery) {
-        this.autocompleteSelectQuery = autocompleteSelectQuery;
-    }
+	public void setAutocompleteDesc(String autocompleteDesc) {
+		this.autocompleteDesc = autocompleteDesc;
+	}
+
+	public String getAutocompleteSelectQuery() {
+		return this.autocompleteSelectQuery;
+	}
+
+	public void setAutocompleteSelectQuery(String autocompleteSelectQuery) {
+		this.autocompleteSelectQuery = autocompleteSelectQuery;
+	}
 
 	public Integer getAcTypeId() {
 		return acTypeId;
@@ -90,19 +89,21 @@ public class Autocomplete {
 				&& Objects.equals(autocompleteSelectQuery, other.autocompleteSelectQuery);
 	}
 
-
 	public Autocomplete getObject() {
 		Autocomplete autocomplete = new Autocomplete();
-		
+
 		autocomplete.setAcTypeId(acTypeId);
-		autocomplete.setAutocompleteDesc(autocompleteDesc!=null?autocompleteDesc.trim():autocompleteDesc);
+		autocomplete.setAutocompleteDesc(autocompleteDesc != null ? autocompleteDesc.trim() : autocompleteDesc);
 		autocomplete.setAutocompleteId(autocompleteId);
-		if(autocompleteSelectQuery!=null) {
-			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery.trim() +"]]>"));
+		if (autocompleteSelectQuery != null) {
+			autocomplete.setAutocompleteSelectQuery(
+					StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery.trim() + "]]>"));
 		} else {
-			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
+			autocomplete.setAutocompleteSelectQuery(
+					StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
 		}
-		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
+		autocomplete.setAutocompleteSelectQuery(
+				StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
 		autocomplete.setAcTypeId(this.acTypeId);
 		return autocomplete;
 	}

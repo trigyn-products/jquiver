@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
 
 @XmlRootElement(name = "autocompleteData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class AutocompleteXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "autocomplete")
-    private List<Autocomplete> autocompleteDetails = new ArrayList<>();
+	private List<Autocomplete> autocompleteDetails = new ArrayList<>();
 
 	public List<Autocomplete> getAutocompleteDetails() {
 		return autocompleteDetails;

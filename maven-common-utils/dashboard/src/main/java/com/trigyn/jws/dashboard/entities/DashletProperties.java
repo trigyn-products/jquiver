@@ -1,6 +1,8 @@
 package com.trigyn.jws.dashboard.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -10,212 +12,195 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
-
 
 @Entity
 @Table(name = "dashlet_properties")
 @Where(clause = "is_deleted = 0")
 public class DashletProperties implements Serializable {
 
-	
-	private static final long	serialVersionUID	= 1L;
+	private static final long					serialVersionUID				= 1L;
 
 	@Id
 	@Column(name = "property_id", nullable = false)
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-	private String				propertyId			= null;
-	
+	private String								propertyId						= null;
+
 	@Column(name = "dashlet_id")
-	private String				dashletId			= null;
+	private String								dashletId						= null;
 
 	@Column(name = "placeholder_name")
-	private String				placeholderName		= null;
+	private String								placeholderName					= null;
 
 	@Column(name = "display_name")
-	private String				displayName			= null;
+	private String								displayName						= null;
 
 	@Column(name = "type_id")
-	private String				type				= null;
+	private String								type							= null;
 
 	@Column(name = "value")
-	private String				value				= null;
+	private String								value							= null;
 
 	@Column(name = "default_value")
-	private String				defaultValue		= null;
+	private String								defaultValue					= null;
 
 	@Column(name = "configuration_script")
-	private String				configurationScript	= null;
+	private String								configurationScript				= null;
 
 	@Column(name = "is_deleted")
-	private Integer				isDeleted			= null;
+	private Integer								isDeleted						= null;
 
 	@Column(name = "to_display")
-	private Integer				toDisplay			= null;
+	private Integer								toDisplay						= null;
 
 	@Column(name = "sequence")
-	private Integer				sequence			= null;
-	
+	private Integer								sequence						= null;
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "dashlet_id", referencedColumnName = "dashlet_id", nullable = false, insertable = false, updatable = false)
-	private Dashlet				dashlet				= null;
+	private Dashlet								dashlet							= null;
 
+	@OneToMany(mappedBy = "dashletProperties", fetch = FetchType.LAZY)
+	private List<DashletPropertyConfiguration>	dashletPropertyConfigurations	= new ArrayList<>();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "type_id", referencedColumnName = "lookup_category_id", nullable = false, insertable = false, updatable = false)
+	private DashboardLookupCategory				dashboardLookupCategory			= null;
 
 	public DashletProperties() {
-		
+
 	}
 
-	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName, String type, String value, String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence) {
-		this.propertyId 			= propertyId;
-		this.dashletId 				= dashletId;
-		this.placeholderName 		= placeholderName;
-		this.displayName 			= displayName;
-		this.type 					= type;
-		this.value 					= value;
-		this.defaultValue 			= defaultValue;
-		this.configurationScript 	= configurationScript;
-		this.isDeleted 				= isDeleted;
-		this.toDisplay 				= toDisplay;
-		this.sequence 				= sequence;
+	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName,
+			String type, String value, String defaultValue, String configurationScript, Integer isDeleted,
+			Integer toDisplay, Integer sequence) {
+		this.propertyId				= propertyId;
+		this.dashletId				= dashletId;
+		this.placeholderName		= placeholderName;
+		this.displayName			= displayName;
+		this.type					= type;
+		this.value					= value;
+		this.defaultValue			= defaultValue;
+		this.configurationScript	= configurationScript;
+		this.isDeleted				= isDeleted;
+		this.toDisplay				= toDisplay;
+		this.sequence				= sequence;
 	}
 
 	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName,
 			String type, String value, String defaultValue, String configurationScript, Integer isDeleted,
 			Integer toDisplay, Integer sequence, Dashlet dashlet) {
-		this.propertyId 			= propertyId;
-		this.dashletId 				= dashletId;
-		this.placeholderName 		= placeholderName;
-		this.displayName 			= displayName;
-		this.type 					= type;
-		this.value 					= value;
-		this.defaultValue 			= defaultValue;
-		this.configurationScript 	= configurationScript;
-		this.isDeleted 				= isDeleted;
-		this.toDisplay 				= toDisplay;
-		this.sequence 				= sequence;
-		this.dashlet 				= dashlet;
+		this.propertyId				= propertyId;
+		this.dashletId				= dashletId;
+		this.placeholderName		= placeholderName;
+		this.displayName			= displayName;
+		this.type					= type;
+		this.value					= value;
+		this.defaultValue			= defaultValue;
+		this.configurationScript	= configurationScript;
+		this.isDeleted				= isDeleted;
+		this.toDisplay				= toDisplay;
+		this.sequence				= sequence;
+		this.dashlet				= dashlet;
 	}
 
-	
 	public String getPropertyId() {
 		return propertyId;
 	}
 
-	
 	public void setPropertyId(String propertyId) {
 		this.propertyId = propertyId;
 	}
 
-	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	
 	public String getPlaceholderName() {
 		return placeholderName;
 	}
 
-	
 	public void setPlaceholderName(String placeholderName) {
 		this.placeholderName = placeholderName;
 	}
 
-	
 	public String getDisplayName() {
 		return displayName;
 	}
 
-	
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
-	
 	public String getType() {
 		return type;
 	}
 
-	
 	public void setType(String type) {
 		this.type = type;
 	}
 
-	
 	public String getValue() {
 		return value;
 	}
 
-	
 	public void setValue(String value) {
 		this.value = value;
 	}
 
-	
 	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 
-	
 	public String getConfigurationScript() {
 		return configurationScript;
 	}
 
-	
 	public void setConfigurationScript(String configurationScript) {
 		this.configurationScript = configurationScript;
 	}
 
-	
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	
 	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
-	
 	public Integer getToDisplay() {
 		return toDisplay;
 	}
 
-	
 	public void setToDisplay(Integer toDisplay) {
 		this.toDisplay = toDisplay;
 	}
 
-	
 	public Integer getSequence() {
 		return sequence;
 	}
 
-	
 	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
 
-	
 	public Dashlet getDashlet() {
 		return dashlet;
 	}
 
-	
 	public void setDashlet(Dashlet dashlet) {
 		this.dashlet = dashlet;
 	}
@@ -257,19 +242,19 @@ public class DashletProperties implements Serializable {
 
 	public DashletProperties getObject() {
 		DashletProperties obj = new DashletProperties();
-		
-		obj.setConfigurationScript(configurationScript!=null?configurationScript.trim():configurationScript);
-		obj.setDashletId(dashletId!=null?dashletId.trim():dashletId);
-		obj.setDefaultValue(defaultValue!=null?defaultValue.trim():defaultValue);
-		obj.setDisplayName(displayName!=null?displayName.trim():displayName);
+
+		obj.setConfigurationScript(configurationScript != null ? configurationScript.trim() : configurationScript);
+		obj.setDashletId(dashletId != null ? dashletId.trim() : dashletId);
+		obj.setDefaultValue(defaultValue != null ? defaultValue.trim() : defaultValue);
+		obj.setDisplayName(displayName != null ? displayName.trim() : displayName);
 		obj.setIsDeleted(isDeleted);
-		obj.setPlaceholderName(placeholderName!=null?placeholderName.trim():placeholderName);
-		obj.setPropertyId(propertyId!=null?propertyId.trim():propertyId);
+		obj.setPlaceholderName(placeholderName != null ? placeholderName.trim() : placeholderName);
+		obj.setPropertyId(propertyId != null ? propertyId.trim() : propertyId);
 		obj.setSequence(sequence);
 		obj.setToDisplay(toDisplay);
-		obj.setType(type!=null?type.trim():type);
-		obj.setValue(defaultValue!=null?defaultValue.trim():defaultValue);
-		
+		obj.setType(type != null ? type.trim() : type);
+		obj.setValue(defaultValue != null ? defaultValue.trim() : defaultValue);
+
 		return obj;
 	}
 }

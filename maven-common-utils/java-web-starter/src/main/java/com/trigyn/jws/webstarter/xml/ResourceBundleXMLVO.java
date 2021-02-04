@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 
 @XmlRootElement(name = "resourceBundleData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ResourceBundleXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "resourceBundle")
-    private List<ResourceBundle> resourceBundleDetails = new ArrayList<>();
+	private List<ResourceBundle> resourceBundleDetails = new ArrayList<>();
 
 	public List<ResourceBundle> getResourceBundleDetails() {
 		return resourceBundleDetails;

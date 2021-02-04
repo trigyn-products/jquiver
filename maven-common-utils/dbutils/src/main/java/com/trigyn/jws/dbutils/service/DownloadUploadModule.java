@@ -29,35 +29,38 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 public interface DownloadUploadModule<T> {
 
 	void downloadCodeToLocal(T object, String folderLocation) throws Exception;
-	
+
 	void uploadCodeToDB(String uploadFileName) throws Exception;
 
 	void exportData(Object object, String folderLocation) throws Exception;
-	
-	Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception;
 
-	public default void generateMetadataXML(MetadataXMLVO metaDataXMLVO, Map<String, Map<String, Object>> exportFolderData, String downloadLocation, String version, String userName) throws Exception {
-		if(metaDataXMLVO == null) {
+	Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
+			throws Exception;
+
+	public default void generateMetadataXML(MetadataXMLVO metaDataXMLVO,
+			Map<String, Map<String, Object>> exportFolderData, String downloadLocation, String version, String userName)
+			throws Exception {
+		if (metaDataXMLVO == null) {
 			metaDataXMLVO = new MetadataXMLVO();
 			ExportModule exportModule = new ExportModule();
 			exportModule.setModule(new ArrayList<>());
 			metaDataXMLVO.setExportModules(exportModule);
 		}
-		
+
 		Settings settings = new Settings();
 		settings.setTimestamp(new Date());
 		settings.setCurrentVersion(version);
 		settings.setAuthor(userName);
 		settings.setLeastSupportedVersion("1.0");
 
-		ExportModule exportModule = metaDataXMLVO.getExportModules();
-		List<Modules> exportModuleList = exportModule.getModule();
+		ExportModule	exportModule		= metaDataXMLVO.getExportModules();
+		List<Modules>	exportModuleList	= exportModule.getModule();
 
 		for (Entry<String, Map<String, Object>> entry : exportFolderData.entrySet()) {
-			String moduleID = entry.getKey();
-			Map<String, Object> map = entry.getValue();
+			String				moduleID	= entry.getKey();
+			Map<String, Object>	map			= entry.getValue();
 
-			Modules module = new Modules();
+			Modules				module		= new Modules();
 			module.setModuleID(moduleID);
 			module.setModuleName((String) map.get("moduleName"));
 
@@ -78,26 +81,28 @@ public interface DownloadUploadModule<T> {
 		marshaling(metaDataXMLVO, "metadata", downloadLocation);
 
 	}
-	
+
 	public default void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws JAXBException {
-	    JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());;
-	    
-	    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-	    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-	    jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
-	    jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
-	    jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase()+".xml"));
+		JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());
+		;
+
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
+		jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
+		jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml"));
 	}
 
 	public default XMLVO unMarshaling(Class xmlVOClass, String xmlFilePath) throws JAXBException {
 
-        File xmlFile = new File(xmlFilePath);
-         
-	    JAXBContext jaxbContext = JAXBContext.newInstance(xmlVOClass);;
-	    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-	    XMLVO outputXMLVO = (XMLVO) jaxbUnmarshaller.unmarshal(xmlFile);
-        
-	    return outputXMLVO;
+		File		xmlFile		= new File(xmlFilePath);
+
+		JAXBContext	jaxbContext	= JAXBContext.newInstance(xmlVOClass);
+		;
+		Unmarshaller	jaxbUnmarshaller	= jaxbContext.createUnmarshaller();
+		XMLVO			outputXMLVO			= (XMLVO) jaxbUnmarshaller.unmarshal(xmlFile);
+
+		return outputXMLVO;
 	}
-	
+
 }

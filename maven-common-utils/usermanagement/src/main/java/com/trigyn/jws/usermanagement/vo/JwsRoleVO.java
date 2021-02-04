@@ -6,18 +6,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 
+public class JwsRoleVO implements Serializable {
 
-public class JwsRoleVO  implements Serializable{
+	private static final long	serialVersionUID	= -879130649799270177L;
 
-	private static final long serialVersionUID = -879130649799270177L;
+	private String				roleId				= null;
 
-	private String roleId = null;
-	
-	private String roleName = null;
-	
-	private String roleDescription = null;
-	
-	private Integer isActive = null;
+	private String				roleName			= null;
+
+	private String				roleDescription		= null;
+
+	private Integer				isActive			= null;
+
+	private Integer				rolePriority		= null;
 
 	public String getRoleId() {
 		return roleId;
@@ -51,12 +52,27 @@ public class JwsRoleVO  implements Serializable{
 		this.isActive = isActive;
 	}
 
+	/**
+	 * @return the rolePriority
+	 */
+	public Integer getRolePriority() {
+		return rolePriority;
+	}
+
+	/**
+	 * @param rolePriority the rolePriority to set
+	 */
+	public void setRolePriority(Integer rolePriority) {
+		this.rolePriority = rolePriority;
+	}
+
 	public JwsRole convertVOToEntity(JwsRoleVO jwsRoleVO) {
 		JwsRole jwsRole = new JwsRole();
-		jwsRole.setRoleId(StringUtils.isNotEmpty(jwsRoleVO.getRoleId())?jwsRoleVO.getRoleId():null);
+		jwsRole.setRoleId(StringUtils.isNotEmpty(jwsRoleVO.getRoleId()) ? jwsRoleVO.getRoleId() : null);
 		jwsRole.setRoleName(jwsRoleVO.getRoleName());
 		jwsRole.setRoleDescription(jwsRoleVO.getRoleDescription());
 		jwsRole.setIsActive(jwsRoleVO.getIsActive());
+		jwsRole.setRolePriority(jwsRoleVO.getRolePriority());
 		return jwsRole;
 	}
 
@@ -65,9 +81,8 @@ public class JwsRoleVO  implements Serializable{
 
 	public JwsRoleVO(String roleId, String roleName) {
 		super();
-		this.roleId = roleId;
-		this.roleName = roleName;
+		this.roleId		= roleId;
+		this.roleName	= roleName;
 	}
-	
-	
+
 }

@@ -17,85 +17,80 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-
-
 @Entity
-@Table(name="module_listing")
-@NamedQuery(name="ModuleListing.findAll", query="SELECT m FROM ModuleListing m")
+@Table(name = "module_listing")
+@NamedQuery(name = "ModuleListing.findAll", query = "SELECT m FROM ModuleListing m")
 public class ModuleListing implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long			serialVersionUID		= 1L;
 
 	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-	@Column(name="module_id")
-	private String moduleId							= null;
+	@Column(name = "module_id")
+	private String						moduleId				= null;
 
-	@Column(name="module_url")
-	private String moduleUrl						= null;
+	@Column(name = "module_url")
+	private String						moduleUrl				= null;
 
-	@Column(name="parent_id")
-	private String parentId							= null;
+	@Column(name = "parent_id")
+	private String						parentId				= null;
 
-	@Column(name="sequence")
-	private Integer sequence						= null;
-	
-	@Column(name="is_inside_menu")
-	private Integer isInsideMenu					= null;
-	
-	@Column(name="target_lookup_id")
-	private Integer targetLookupId					= null;
-	
-	@Column(name="target_type_id")
-	private String targetTypeId						= null;
+	@Column(name = "sequence")
+	private Integer						sequence				= null;
 
-	@OneToMany(mappedBy="moduleListing")
-	private List<ModuleListingI18n> moduleListingI18ns					= null;
+	@Column(name = "is_inside_menu")
+	private Integer						isInsideMenu			= null;
 
-	@OneToMany(mappedBy="moduleListing")
-	private List<ModuleRoleAssociation> moduleRoleAssociations			= null;
-	
+	@Column(name = "is_home_page")
+	private Integer						isHomePage				= null;
+
+	@Column(name = "target_lookup_id")
+	private Integer						targetLookupId			= null;
+
+	@Column(name = "target_type_id")
+	private String						targetTypeId			= null;
+
+	@OneToMany(mappedBy = "moduleListing")
+	private List<ModuleListingI18n>		moduleListingI18ns		= null;
+
+	@OneToMany(mappedBy = "moduleListing")
+	private List<ModuleRoleAssociation>	moduleRoleAssociations	= null;
+
 	@ManyToOne
-	@JoinColumn(name="target_lookup_id", insertable = false, updatable = false)
-	private ModuleTargetLookup moduleTargetLookup						= null;
+	@JoinColumn(name = "target_lookup_id", insertable = false, updatable = false)
+	private ModuleTargetLookup			moduleTargetLookup		= null;
 
 	public ModuleListing() {
 	}
 
-
-
-	public ModuleListing(String moduleId, String moduleUrl, String parentId,
-			Integer sequence, Integer isInsideMenu, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
+			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
-		this.moduleId 					= moduleId;
-		this.moduleUrl 					= moduleUrl;
-		this.parentId 					= parentId;
-		this.sequence 					= sequence;
-		this.isInsideMenu 				= isInsideMenu;
-		this.targetTypeId 				= targetTypeId;
-		this.moduleListingI18ns 		= moduleListingI18ns;
-		this.moduleRoleAssociations 	= moduleRoleAssociations;
-		this.moduleTargetLookup 		= moduleTargetLookup;
+		this.moduleId				= moduleId;
+		this.moduleUrl				= moduleUrl;
+		this.parentId				= parentId;
+		this.sequence				= sequence;
+		this.isInsideMenu			= isInsideMenu;
+		this.targetTypeId			= targetTypeId;
+		this.moduleListingI18ns		= moduleListingI18ns;
+		this.moduleRoleAssociations	= moduleRoleAssociations;
+		this.moduleTargetLookup		= moduleTargetLookup;
 	}
 
-
-
-	public ModuleListing(String moduleId, String moduleUrl, String parentId,
-			Integer sequence, Integer isInsideMenu, Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
+			Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
-		this.moduleId 					= moduleId;
-		this.moduleUrl 					= moduleUrl;
-		this.parentId 					= parentId;
-		this.sequence 					= sequence;
-		this.isInsideMenu 				= isInsideMenu;
-		this.targetLookupId 			= targetLookupId;
-		this.targetTypeId 				= targetTypeId;
-		this.moduleListingI18ns 		= moduleListingI18ns;
-		this.moduleRoleAssociations 	= moduleRoleAssociations;
-		this.moduleTargetLookup 		= moduleTargetLookup;
+		this.moduleId				= moduleId;
+		this.moduleUrl				= moduleUrl;
+		this.parentId				= parentId;
+		this.sequence				= sequence;
+		this.isInsideMenu			= isInsideMenu;
+		this.targetLookupId			= targetLookupId;
+		this.targetTypeId			= targetTypeId;
+		this.moduleListingI18ns		= moduleListingI18ns;
+		this.moduleRoleAssociations	= moduleRoleAssociations;
+		this.moduleTargetLookup		= moduleTargetLookup;
 	}
-
-
 
 	public String getModuleId() {
 		return this.moduleId;
@@ -205,15 +200,58 @@ public class ModuleListing implements Serializable {
 		this.moduleTargetLookup = moduleTargetLookup;
 	}
 
+	/**
+	 * @return the isHomePage
+	 */
+	public Integer getIsHomePage() {
+		return isHomePage;
+	}
 
+	/**
+	 * @param isHomePage the isHomePage to set
+	 */
+	public void setIsHomePage(Integer isHomePage) {
+		this.isHomePage = isHomePage;
+	}
+
+	public ModuleListing getObject() {
+		ModuleListing moduleListing = new ModuleListing();
+		moduleListing.setIsInsideMenu(isInsideMenu);
+		moduleListing.setIsHomePage(isHomePage);
+		moduleListing.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
+		moduleListing.setModuleUrl(moduleUrl != null ? moduleUrl.trim() : moduleUrl);
+		moduleListing.setParentId(parentId != null ? parentId.trim() : parentId);
+		moduleListing.setSequence(sequence);
+		moduleListing.setTargetLookupId(targetLookupId);
+		moduleListing.setTargetTypeId(targetTypeId != null ? targetTypeId.trim() : targetTypeId);
+
+		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
+		if (moduleListingI18ns != null && !moduleListingI18ns.isEmpty()) {
+			for (ModuleListingI18n otr : moduleListingI18ns) {
+				moduleListingI18nsOtr.add(otr.getObject());
+			}
+			moduleListing.setModuleListingI18ns(moduleListingI18nsOtr);
+		} else
+			moduleListing.setModuleListingI18ns(null);
+
+		List<ModuleRoleAssociation> moduleRoleAssociationsOtr = new ArrayList<>();
+		if (moduleRoleAssociations != null && !moduleRoleAssociations.isEmpty()) {
+			for (ModuleRoleAssociation otr : moduleRoleAssociations) {
+				moduleRoleAssociationsOtr.add(otr.getObject());
+			}
+			moduleListing.setModuleRoleAssociations(moduleRoleAssociationsOtr);
+		} else
+			moduleListing.setModuleRoleAssociations(null);
+
+		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		return moduleListing;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations, moduleTargetLookup, moduleUrl,
-				parentId, sequence, targetLookupId, targetTypeId);
+		return Objects.hash(isHomePage, isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations,
+				moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId);
 	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -227,7 +265,8 @@ public class ModuleListing implements Serializable {
 			return false;
 		}
 		ModuleListing other = (ModuleListing) obj;
-		return Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
+		return Objects.equals(isHomePage, other.isHomePage) && Objects.equals(isInsideMenu, other.isInsideMenu)
+				&& Objects.equals(moduleId, other.moduleId)
 				&& Objects.equals(moduleListingI18ns, other.moduleListingI18ns)
 				&& Objects.equals(moduleRoleAssociations, other.moduleRoleAssociations)
 				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup)
@@ -236,46 +275,13 @@ public class ModuleListing implements Serializable {
 				&& Objects.equals(targetTypeId, other.targetTypeId);
 	}
 
-
-
 	@Override
 	public String toString() {
 		return "ModuleListing [moduleId=" + moduleId + ", moduleUrl=" + moduleUrl + ", parentId=" + parentId
-				+ ", sequence=" + sequence + ", isInsideMenu=" + isInsideMenu + ", targetLookupId=" + targetLookupId
-				+ ", targetTypeId=" + targetTypeId + ", moduleListingI18ns=" + moduleListingI18ns
-				+ ", moduleRoleAssociations=" + moduleRoleAssociations + ", moduleTargetLookup=" + moduleTargetLookup
-				+ "]";
-	}
-
-	public ModuleListing getObject() {
-		ModuleListing moduleListing = new ModuleListing();
-		moduleListing.setIsInsideMenu(isInsideMenu);
-		moduleListing.setModuleId(moduleId!=null?moduleId.trim():moduleId);
-		moduleListing.setModuleUrl(moduleUrl!=null?moduleUrl.trim():moduleUrl);
-		moduleListing.setParentId(parentId!=null?parentId.trim():parentId);
-		moduleListing.setSequence(sequence);
-		moduleListing.setTargetLookupId(targetLookupId);
-		moduleListing.setTargetTypeId(targetTypeId!=null?targetTypeId.trim():targetTypeId);
-		
-		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
-		if(moduleListingI18ns != null && !moduleListingI18ns.isEmpty()) {
-			for(ModuleListingI18n otr : moduleListingI18ns) {
-				moduleListingI18nsOtr.add(otr.getObject());
-			}
-			moduleListing.setModuleListingI18ns(moduleListingI18nsOtr);
-		} else moduleListing.setModuleListingI18ns(null);
-		
-
-		List<ModuleRoleAssociation> moduleRoleAssociationsOtr = new ArrayList<>();
-		if(moduleRoleAssociations != null && !moduleRoleAssociations.isEmpty()) {
-			for(ModuleRoleAssociation otr : moduleRoleAssociations) {
-				moduleRoleAssociationsOtr.add(otr.getObject());
-			}
-			 moduleListing.setModuleRoleAssociations(moduleRoleAssociationsOtr);
-		} else moduleListing.setModuleRoleAssociations(null);
-		
-		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
-		return moduleListing;
+				+ ", sequence=" + sequence + ", isInsideMenu=" + isInsideMenu + ", isHomePage=" + isHomePage
+				+ ", targetLookupId=" + targetLookupId + ", targetTypeId=" + targetTypeId + ", moduleListingI18ns="
+				+ moduleListingI18ns + ", moduleRoleAssociations=" + moduleRoleAssociations + ", moduleTargetLookup="
+				+ moduleTargetLookup + "]";
 	}
 
 }

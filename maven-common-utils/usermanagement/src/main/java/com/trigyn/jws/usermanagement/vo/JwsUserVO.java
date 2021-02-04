@@ -7,30 +7,30 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 
-public class JwsUserVO implements Serializable{
-	
-	private static final long serialVersionUID = 5522267590792143057L;
+public class JwsUserVO implements Serializable {
 
-	private String userId = null;
-	
-	private String firstName = null;
-	
-	private String lastName = null;
-	
-	private String email = null;
-	
-	private String password = null;
-	
-	private Integer isActive = null;
-	
-	private List<String> roleIds = null;
-	
-	private String captcha = null;
-	
-	private Integer forcePasswordChange = null;
-	
-	private Boolean isProfilePage = null;
-	
+	private static final long	serialVersionUID	= 5522267590792143057L;
+
+	private String				userId				= null;
+
+	private String				firstName			= null;
+
+	private String				lastName			= null;
+
+	private String				email				= null;
+
+	private String				password			= null;
+
+	private Integer				isActive			= null;
+
+	private List<String>		roleIds				= null;
+
+	private String				captcha				= null;
+
+	private Integer				forcePasswordChange	= null;
+
+	private Boolean				isProfilePage		= null;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -80,9 +80,9 @@ public class JwsUserVO implements Serializable{
 	}
 
 	public JwsUser convertVOToEntity(JwsUserVO userData) {
-		
+
 		JwsUser jwsUser = new JwsUser();
-		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId())?userData.getUserId():null);
+		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId()) ? userData.getUserId() : null);
 		jwsUser.setFirstName(userData.getFirstName());
 		jwsUser.setLastName(userData.getLastName());
 		jwsUser.setEmail(userData.getEmail());
@@ -122,9 +122,5 @@ public class JwsUserVO implements Serializable{
 	public void setIsProfilePage(Boolean isProfilePage) {
 		this.isProfilePage = isProfilePage;
 	}
-	
-	
 
-	
-	
 }

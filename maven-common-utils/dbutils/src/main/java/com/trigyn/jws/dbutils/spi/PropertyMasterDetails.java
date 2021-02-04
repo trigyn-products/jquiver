@@ -19,14 +19,16 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 @Component
 public class PropertyMasterDetails {
 
-	private static final Logger logger = LogManager.getLogger(PropertyMasterDetails.class);
-	
-	private final ScheduledThreadPoolExecutor scheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1);
-	
-	private HashMap<PropertyMasterKeyVO, String> propertyMasterDetails = new HashMap<>();
+	private static final Logger						logger						= LogManager
+			.getLogger(PropertyMasterDetails.class);
+
+	private final ScheduledThreadPoolExecutor		scheduler					= (ScheduledThreadPoolExecutor) Executors
+			.newScheduledThreadPool(1);
+
+	private HashMap<PropertyMasterKeyVO, String>	propertyMasterDetails		= new HashMap<>();
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDetailsDAO = null;
+	private PropertyMasterDAO						propertyMasterDetailsDAO	= null;
 
 	@PostConstruct
 	private void initalizePropertyMasterDetails() {
@@ -52,15 +54,16 @@ public class PropertyMasterDetails {
 
 	public String getPropertyValueFromPropertyMaster(String ownerId, String ownerType, String propertyName) {
 		PropertyMasterKeyVO propertyMasterKey = new PropertyMasterKeyVO(ownerId, ownerType, propertyName);
-		return this.propertyMasterDetails.getOrDefault(propertyMasterKey, getPropertyValueFromPropertyMasterFromDB(ownerId, ownerType, propertyName));
+		return this.propertyMasterDetails.getOrDefault(propertyMasterKey,
+				getPropertyValueFromPropertyMasterFromDB(ownerId, ownerType, propertyName));
 
 	}
-	
+
 	private String getPropertyValueFromPropertyMasterFromDB(String ownerId, String ownerType, String propertyName) {
 		try {
 			return propertyMasterDetailsDAO.findPropertyMasterValue(ownerType, ownerId, propertyName);
-		} catch (Exception e) {
-			logger.error("Error while getting the data from DB ", e);
+		} catch (Exception a_exc) {
+			logger.error("Error while getting the data from DB ", a_exc);
 			return null;
 		}
 	}
@@ -69,9 +72,9 @@ public class PropertyMasterDetails {
 		synchronized (this) {
 			List<Map<String, Object>> propertyMasterDetails = propertyMasterDetailsDAO.findAll();
 			for (Map<String, Object> details : propertyMasterDetails) {
-				PropertyMasterKeyVO propertyMasterKey = new PropertyMasterKeyVO(details.get("ownerId").toString(),
+				PropertyMasterKeyVO	propertyMasterKey	= new PropertyMasterKeyVO(details.get("ownerId").toString(),
 						details.get("ownerType").toString(), details.get("propertyName").toString());
-				String propertyValue = details.get("propertyValue").toString();
+				String				propertyValue		= details.get("propertyValue").toString();
 				this.propertyMasterDetails.put(propertyMasterKey, propertyValue);
 
 			}

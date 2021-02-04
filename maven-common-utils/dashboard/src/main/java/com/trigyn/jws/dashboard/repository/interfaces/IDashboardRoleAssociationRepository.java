@@ -7,6 +7,7 @@ import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociationPK;
 
 @Repository
-public interface IDashboardRoleAssociationRepository extends JpaRepository<DashboardRoleAssociation, DashboardRoleAssociationPK>{
+public interface IDashboardRoleAssociationRepository
+		extends JpaRepository<DashboardRoleAssociation, DashboardRoleAssociationPK> {
 
 }

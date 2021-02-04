@@ -105,7 +105,7 @@
 						customConfigExcludeList=[];
 					}
 
-					let exportableDataListMap = exportObj.getExportableDataListMap();
+					exportableDataListMap = exportObj.getExportableDataListMap();
 					if(exportableDataListMap == null) {
 						exportableDataListMap = new Map();
 					}
@@ -237,8 +237,8 @@
 					];
 				} else if(moduleType == "DynaRest") {
 					colM = [
-						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
-						{ title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
+							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
+							{ title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					        { title: "Method Name", width: 100, align: "center",  dataIndx: "jws_method_name", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -250,18 +250,23 @@
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updatePermissionRenderer, dataIndx: "" },
 							{ title: "Module ID", width: 100, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					        { title: "Entity Name", width: 130, align: "center", dataIndx: "entityName", align: "left", halign: "center",
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+								filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+							{ title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
+						        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+						    { title: "Role Name", width: 100, align: "center",  dataIndx: "roleName", align: "left", halign: "center",
+						        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+						    { title: "Entity Name", width: 130, align: "center", dataIndx: "entityName", align: "left", halign: "center",
+						        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					sortIndex = 5, 3;
 				} else if(moduleType == "SiteLayout") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateSiteLayoutRenderer, dataIndx: "" },
 						{ title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 				        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
-				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+							filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 				        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
-				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+								filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 2;
 				} else if(moduleType == "ApplicationConfiguration") {
@@ -587,7 +592,6 @@
 	}
 	
 	function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVariable) {
-		
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		
 		if (!checkedCustom.checked) {
@@ -597,7 +601,10 @@
 			let countInt = parseInt(count);
 			$('#selectedCount_'+moduleType).text(countInt-1);
 		} else {
-			map.get(moduleType).getCustomConfigExcludeList().splice(id, 1);
+			var i = map.get(moduleType).getCustomConfigExcludeList().indexOf(id);
+			if(i != -1) {
+				map.get(moduleType).getCustomConfigExcludeList().splice(i, 1);
+			}
 			map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 			if($('#deselectAllChkBx').is(':disabled')) {
 				$("#deselectAllChkBx").removeAttr('disabled');
@@ -626,7 +633,8 @@
 			let countInt = parseInt(count);
 			$('#selectedCount_'+moduleType).text(countInt+1);
 		} else {
-			map.get(moduleType).getSystemConfigIncludeList().splice(id, 1);
+			map.get(moduleType).systemConfigIncludeList 
+				= map.get(moduleType).systemConfigIncludeList.filter((element) => {return element != id});
 			map.get(moduleType).getExportableDataListMap().delete(id);
 			let count = $('#selectedCount_'+moduleType).text();
 			let countInt = parseInt(count);

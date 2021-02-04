@@ -12,55 +12,47 @@ import javax.persistence.Table;
 @Table(name = "dashlet_configuration")
 public class DashletConfiguration implements Serializable {
 
-	
-	private static final long	serialVersionUID	= 1L;
+	private static final long		serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private DashletConfigurationPK id				= null;
-	
+	private DashletConfigurationPK	id					= null;
+
 	@Column(name = "x_coordinate", nullable = false)
-	private Integer				xCoordinate			= null;
+	private Integer					xCoordinate			= null;
 
 	@Column(name = "y_coordinate", nullable = false)
-	private Integer				yCoordinate			= null;
-
+	private Integer					yCoordinate			= null;
 
 	public DashletConfiguration() {
-		
+
 	}
 
 	public DashletConfiguration(DashletConfigurationPK id, Integer xCoordinate, Integer yCoordinate) {
-		this.id 			= id;
-		this.xCoordinate 	= xCoordinate;
-		this.yCoordinate 	= yCoordinate;
+		this.id				= id;
+		this.xCoordinate	= xCoordinate;
+		this.yCoordinate	= yCoordinate;
 	}
 
-	
 	public DashletConfigurationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(DashletConfigurationPK id) {
 		this.id = id;
 	}
 
-	
 	public Integer getxCoordinate() {
 		return xCoordinate;
 	}
 
-	
 	public void setxCoordinate(Integer xCoordinate) {
 		this.xCoordinate = xCoordinate;
 	}
 
-	
 	public Integer getyCoordinate() {
 		return yCoordinate;
 	}
 
-	
 	public void setyCoordinate(Integer yCoordinate) {
 		this.yCoordinate = yCoordinate;
 	}
@@ -82,13 +74,13 @@ public class DashletConfiguration implements Serializable {
 			return false;
 		}
 		DashletConfiguration other = (DashletConfiguration) obj;
-		return Objects.equals(id, other.id) && Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate);
+		return Objects.equals(id, other.id) && Objects.equals(xCoordinate, other.xCoordinate)
+				&& Objects.equals(yCoordinate, other.yCoordinate);
 	}
 
 	@Override
 	public String toString() {
 		return "DashletConfiguration [id=" + id + ", xCoordinate=" + xCoordinate + ", yCoordinate=" + yCoordinate + "]";
 	}
-
 
 }

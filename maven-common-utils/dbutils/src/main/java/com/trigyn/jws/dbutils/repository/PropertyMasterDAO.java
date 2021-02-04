@@ -22,14 +22,14 @@ public class PropertyMasterDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	private final static String QUERY_TO_GET_PROPERTY_MASTER_DETAILS = " SELECT pm.propertyValue FROM PropertyMaster pm WHERE pm.ownerType=:ownerType"
+	private final static String	QUERY_TO_GET_PROPERTY_MASTER_DETAILS		= " SELECT pm.propertyValue FROM PropertyMaster pm WHERE pm.ownerType=:ownerType"
 			+ " AND pm.ownerId=:ownerId AND pm.propertyName=:propertyName";
-	
-	private final static String QUERY_TO_GET_ALL_PROPERTY_MASTER_DETAILS = " SELECT pm.ownerId AS ownerId, pm.ownerType AS ownerType, pm.propertyName AS propertyName, pm.propertyValue AS propertyValue FROM PropertyMaster AS pm ";
+
+	private final static String	QUERY_TO_GET_ALL_PROPERTY_MASTER_DETAILS	= " SELECT pm.ownerId AS ownerId, pm.ownerType AS ownerType, pm.propertyName AS propertyName, pm.propertyValue AS propertyValue FROM PropertyMaster AS pm ";
 
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {
-		String propertyValue = null;
-		Query query = getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_DETAILS);
+		String	propertyValue	= null;
+		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_DETAILS);
 		query.setParameter("ownerType", ownerType);
 		query.setParameter("ownerId", ownerId);
 		query.setParameter("propertyName", propertyName);
@@ -39,7 +39,7 @@ public class PropertyMasterDAO extends DBConnection {
 		}
 		return propertyValue;
 	}
-	
+
 	public void save(PropertyMaster propertyMaster) {
 		getCurrentSession().saveOrUpdate(propertyMaster);
 	}

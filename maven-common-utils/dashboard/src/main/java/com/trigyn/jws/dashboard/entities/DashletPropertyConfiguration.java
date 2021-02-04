@@ -6,47 +6,48 @@ import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "dashlet_property_configuration")
 public class DashletPropertyConfiguration implements Serializable {
 
-	
-	private static final long	serialVersionUID	= 1L;
+	private static final long				serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private DashletPropertyConfigurationPK id		= null;
-	
-	@Column(name = "property_value", nullable = false)
-	private String				propertyValue		= null;
+	private DashletPropertyConfigurationPK	id					= null;
 
+	@Column(name = "property_value", nullable = false)
+	private String							propertyValue		= null;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "property_id", referencedColumnName = "property_id", nullable = false, insertable = false, updatable = false)
+	private DashletProperties				dashletProperties	= null;
 
 	public DashletPropertyConfiguration() {
-		
+
 	}
 
 	public DashletPropertyConfiguration(DashletPropertyConfigurationPK id, String propertyValue) {
-		this.id 			= id;
-		this.propertyValue 	= propertyValue;
+		this.id				= id;
+		this.propertyValue	= propertyValue;
 	}
 
-	
 	public DashletPropertyConfigurationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(DashletPropertyConfigurationPK id) {
 		this.id = id;
 	}
 
-	
 	public String getPropertyValue() {
 		return propertyValue;
 	}
 
-	
 	public void setPropertyValue(String propertyValue) {
 		this.propertyValue = propertyValue;
 	}
@@ -75,6 +76,5 @@ public class DashletPropertyConfiguration implements Serializable {
 	public String toString() {
 		return "DashletPropertyConfiguration [id=" + id + ", propertyValue=" + propertyValue + "]";
 	}
-
 
 }

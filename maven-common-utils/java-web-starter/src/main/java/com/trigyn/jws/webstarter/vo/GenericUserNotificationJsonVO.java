@@ -3,34 +3,34 @@ package com.trigyn.jws.webstarter.vo;
 import java.io.Serializable;
 import java.util.Date;
 
-public class GenericUserNotificationJsonVO  implements Serializable{
+public class GenericUserNotificationJsonVO implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	private String entityName = null;
-	
-	private String formId = null;
-	
-	private Date fromDate = null;
-	
-	private String messageFormat = null;
-	
-	private String messageText = null;
-	
-	private String messageType = null;
-	
-	private String notificationId = null;
-	
-	private String primaryKey = null;
-	
-	private String selectionCriteria = null;
+	private String				entityName			= null;
 
-	private String targetPlatform = null;
+	private String				formId				= null;
 
-	private Date toDate = null;
+	private Date				fromDate			= null;
+
+	private String				messageFormat		= null;
+
+	private String				messageText			= null;
+
+	private String				messageType			= null;
+
+	private String				notificationId		= null;
+
+	private String				primaryKey			= null;
+
+	private String				selectionCriteria	= null;
+
+	private String				targetPlatform		= null;
+
+	private Date				toDate				= null;
 
 	public String getEntityName() {
 		return entityName;

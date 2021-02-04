@@ -7,6 +7,6 @@ import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18nPK;
 
 @Repository
-public interface IModuleListingI18nRepository extends JpaRepository<ModuleListingI18n, ModuleListingI18nPK>{
-	
+public interface IModuleListingI18nRepository extends JpaRepository<ModuleListingI18n, ModuleListingI18nPK> {
+
 }

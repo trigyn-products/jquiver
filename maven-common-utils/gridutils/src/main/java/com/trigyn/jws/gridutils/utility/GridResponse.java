@@ -5,25 +5,25 @@ import java.util.Map;
 
 public class GridResponse {
 
-	private List<Map<String, Object>> list = null;
+	private List<Map<String, Object>>	list				= null;
 
-	private Integer matchingRowCount = null;
+	private Integer						matchingRowCount	= null;
 
-	private GenericGridParams gridParams = null;
+	private GenericGridParams			gridParams			= null;
 
-	private Map<String, String> userData = null;
+	private Map<String, String>			userData			= null;
 
 	public GridResponse(List<Map<String, Object>> list, Integer matchingRowCount, GenericGridParams gridParams) {
 		super();
-		this.list = list;
-		this.matchingRowCount = matchingRowCount;
-		this.gridParams = gridParams;
+		this.list				= list;
+		this.matchingRowCount	= matchingRowCount;
+		this.gridParams			= gridParams;
 	}
 
 	public CustomGridsResponse getResponse() throws Exception {
 
-		Double rowCount = matchingRowCount.doubleValue();
-		Double totalPages = Math.ceil(rowCount / gridParams.getRowsPerPage());
+		Double	rowCount	= matchingRowCount.doubleValue();
+		Double	totalPages	= Math.ceil(rowCount / gridParams.getRowsPerPage());
 
 		if (gridParams.getStartIndex() > matchingRowCount) {
 			gridParams.setPageIndex(1);

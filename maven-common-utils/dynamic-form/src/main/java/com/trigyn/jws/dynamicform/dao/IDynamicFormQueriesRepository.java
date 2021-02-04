@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 
-
 @Repository
-public interface IDynamicFormQueriesRepository extends JpaRepositoryImplementation<DynamicFormSaveQuery, String>{
+public interface IDynamicFormQueriesRepository extends JpaRepositoryImplementation<DynamicFormSaveQuery, String> {
 
 }

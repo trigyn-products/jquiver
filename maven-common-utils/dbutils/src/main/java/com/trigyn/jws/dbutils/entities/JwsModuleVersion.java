@@ -15,64 +15,63 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.GenericGenerator;
 
-
 @Entity
-@Table(name="jws_module_version")
-@NamedQuery(name="JwsModuleVersion.findAll", query="SELECT j FROM JwsModuleVersion j")
+@Table(name = "jws_module_version")
+@NamedQuery(name = "JwsModuleVersion.findAll", query = "SELECT j FROM JwsModuleVersion j")
 public class JwsModuleVersion implements Serializable {
-	
-	private static final long serialVersionUID 		= 1L;
+
+	private static final long	serialVersionUID	= 1L;
 
 	@Id
-    @GeneratedValue(generator = "system-uuid")
+	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="module_version_id", unique=true, nullable=false)
-	private String moduleVersionId					= null;
+	@Column(name = "module_version_id", unique = true, nullable = false)
+	private String				moduleVersionId		= null;
 
-	@Column(name="entity_id", nullable=false)
-	private String entityId							= null;
-	
-	@Column(name="entity_name", nullable=false)
-	private String entityName						= null;
+	@Column(name = "entity_id", nullable = false)
+	private String				entityId			= null;
 
-	@Column(name="parent_entity_id")
-	private String parentEntityId					= null;
+	@Column(name = "entity_name", nullable = false)
+	private String				entityName			= null;
 
-	@Column(name="module_json")
-	private String moduleJson						= null;
+	@Column(name = "parent_entity_id")
+	private String				parentEntityId		= null;
 
-	@Column(name="updated_by", nullable=false)
-	private String updatedBy						= null;
+	@Column(name = "module_json")
+	private String				moduleJson			= null;
+
+	@Column(name = "updated_by", nullable = false)
+	private String				updatedBy			= null;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "updated_date")
-	private Date updatedDate						= null;
+	private Date				updatedDate			= null;
 
-	@Column(name="version_id", nullable=false)
-	private Double versionId						= null;	
-	
-	@Column(name="module_json_checksum", nullable=false)
-	private String moduleJsonChecksum				= null;
-	
-	@Column(name="source_type_id")
-	private Integer sourceTypeId			= null;
+	@Column(name = "version_id", nullable = false)
+	private Double				versionId			= null;
+
+	@Column(name = "module_json_checksum", nullable = false)
+	private String				moduleJsonChecksum	= null;
+
+	@Column(name = "source_type_id")
+	private Integer				sourceTypeId		= null;
 
 	public JwsModuleVersion() {
 	}
 
 	public JwsModuleVersion(String moduleVersionId, String entityId, String entityName, String parentEntityId,
-			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum
-			, Integer sourceTypeId) {
-		this.moduleVersionId 		= moduleVersionId;
-		this.entityId			 	= entityId;
-		this.entityName 			= entityName;
-		this.parentEntityId 		= parentEntityId;
-		this.moduleJson 			= moduleJson;
-		this.updatedBy 				= updatedBy;
-		this.updatedDate 			= updatedDate;
-		this.versionId 				= versionId;
-		this.moduleJsonChecksum 	= moduleJsonChecksum;
-		this.sourceTypeId 			= sourceTypeId;
+			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum,
+			Integer sourceTypeId) {
+		this.moduleVersionId	= moduleVersionId;
+		this.entityId			= entityId;
+		this.entityName			= entityName;
+		this.parentEntityId		= parentEntityId;
+		this.moduleJson			= moduleJson;
+		this.updatedBy			= updatedBy;
+		this.updatedDate		= updatedDate;
+		this.versionId			= versionId;
+		this.moduleJsonChecksum	= moduleJsonChecksum;
+		this.sourceTypeId		= sourceTypeId;
 	}
 
 	/**
@@ -249,6 +248,5 @@ public class JwsModuleVersion implements Serializable {
 				+ updatedBy + ", updatedDate=" + updatedDate + ", versionId=" + versionId + ", moduleJsonChecksum="
 				+ moduleJsonChecksum + ", sourceTypeId=" + sourceTypeId + "]";
 	}
-
 
 }

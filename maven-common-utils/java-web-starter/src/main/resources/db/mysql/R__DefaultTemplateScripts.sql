@@ -45,7 +45,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		let colM = [
 			{ title: "Column Name to be displayed", width: 130, dataIndx: "columnNameInQuery", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
 		];
 	
 	//System will fecth grid data based on gridId
@@ -235,7 +235,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''${formId}'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -305,13 +305,13 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	//Add logic to save form data
 	function saveData(){
 		let isDataSaved = false;
-		let isDataValid = validateData();	
-		if(isDataValid === false){
+		let formData = validateData();	
+		if(formData === undefined){
+			$("#errorMessage").html("All fields are mandatory");
 			$("#errorMessage").show();
 			return false;
 		}
 		$("#errorMessage").hide();
-		let formData = $("#addEditForm").serializeArray().formatSerializedArray();
 		let formIdObj = new Object();
 		formIdObj["name"] = "formId";
 		formIdObj["value"] = formId;
@@ -343,7 +343,19 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	
 	//Basic validation for form fields
     function validateData(){
-		return true;
+		let serializedForm = $("#addEditForm").serializeArray();
+		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+			let fieldValue = $.trim(serializedForm[iCounter].value);
+			let fieldName = $.trim(serializedForm[iCounter].name);
+			let isFieldVisible = $("#"+fieldName).is(":visible");
+            if(fieldValue !== ""){
+            	serializedForm[iCounter].value = fieldValue;
+            }else if(isFieldVisible === true){
+            	return undefined;
+            }  
+		}
+		serializedForm = serializedForm.formatSerializedArray();
+		return serializedForm;
     }
     
 	//Code go back to previous page
@@ -412,7 +424,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             { title: "${gridInfo?api.get("displayName")}", hidden : ${gridInfo?api.get("hidden")?c}, width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
           </#list>
-            { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
     
     //System will fecth grid data based on gridId

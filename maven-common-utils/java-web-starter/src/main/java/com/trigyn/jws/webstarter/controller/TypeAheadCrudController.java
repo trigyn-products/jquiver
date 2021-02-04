@@ -2,6 +2,7 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,55 +32,64 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','TypeAhead Autocomplete')")
 public class TypeAheadCrudController {
-	
-	private final static Logger logger 			= LogManager.getLogger(TypeAheadCrudController.class);
+
+	private final static Logger	logger				= LogManager.getLogger(TypeAheadCrudController.class);
 
 	@Autowired
-	private TypeAheadService typeAheadService	= null;
+	private TypeAheadService	typeAheadService	= null;
 
 	@Autowired
-	private MenuService menuService 			= null;
-	
+	private MenuService			menuService			= null;
+
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
-    public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException {
-    	try {
-			return menuService.getTemplateWithSiteLayout("autocomplete-listing",  new HashMap<>());
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+	public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			return menuService.getTemplateWithSiteLayout("autocomplete-listing", new HashMap<>());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
+	}
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
-    public String demoAutocomplete() throws Exception {
-        return menuService.getTemplateWithSiteLayout("autocomplete-demo",  new HashMap<>());
+	public String demoAutocomplete() throws Exception {
+		return menuService.getTemplateWithSiteLayout("autocomplete-demo", new HashMap<>());
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
-    public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
-		
+	public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
+
 		try {
-			String autocompleteId 				= request.getParameter("acId");
-			Map<String, Object> templateData 	= new HashMap<>();
-			
+			String				autocompleteId	= request.getParameter("acId");
+			Map<String, Object>	templateData	= new HashMap<>();
+
 			if (!StringUtils.isBlank(autocompleteId)) {
 				AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 				templateData.put("autocompleteVO", autocompleteVO);
+			} else {
+				List<String> tableNameList = typeAheadService.getAllTablesListInSchema();
+				templateData.put("tableNameList", tableNameList);
 			}
-			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details",  templateData);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details", templateData);
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
-	
-	@PostMapping(value = "/sacd",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	}
+
+	@PostMapping(value = "/sacd", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	@ResponseBody
-    public String saveAutocompleteDetails(
-    		@RequestBody MultiValueMap<String, String> formDataMap) throws Exception {
+	public String saveAutocompleteDetails(@RequestBody MultiValueMap<String, String> formDataMap) throws Exception {
 		return typeAheadService.saveAutocompleteDetails(formDataMap, Constant.MASTER_SOURCE_VERSION_TYPE);
-    }
-    
+	}
+
+	@PostMapping(value = "/cnbtn", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Map<String, Object>> getColumnNamesByTableName(HttpServletRequest httpServletRequest) throws Exception {
+		String tableName = httpServletRequest.getParameter("tableName");
+		return typeAheadService.getColumnNamesByTableName(tableName);
+	}
+
 }

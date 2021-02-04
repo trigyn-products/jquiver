@@ -1,41 +1,44 @@
 package com.trigyn.jws.dynarest.entities;
 
-
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="jws_response_code_details")
-@NamedQuery(name="JwsResponseCodeDetail.findAll", query="SELECT j FROM JwsResponseCodeDetail j")
+@Table(name = "jws_response_code_details")
+@NamedQuery(name = "JwsResponseCodeDetail.findAll", query = "SELECT j FROM JwsResponseCodeDetail j")
 public class JwsResponseCodeDetail implements Serializable {
-	private static final long serialVersionUID 								= 1L;
+	private static final long					serialVersionUID				= 1L;
 
 	@Id
-	@Column(name="jws_response_code_id")
-	private Integer jwsResponseCodeId										= null;
+	@Column(name = "jws_response_code_id")
+	private Integer								jwsResponseCodeId				= null;
 
-	@Column(name="jws_response_code_description")
-	private String jwsResponseCodeDescription								= null;
+	@Column(name = "jws_response_code_description")
+	private String								jwsResponseCodeDescription		= null;
 
-	@Column(name="jws_response_status_code")
-	private Integer jwsResponseStatusCode									= null;
+	@Column(name = "jws_response_status_code")
+	private Integer								jwsResponseStatusCode			= null;
 
-	@OneToMany(mappedBy="jwsResponseCodeDetail")
-	private List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams	= null;
+	@OneToMany(mappedBy = "jwsResponseCodeDetail")
+	private List<JwsDynamicRestResponseParam>	jwsDynamicRestResponseParams	= null;
 
 	public JwsResponseCodeDetail() {
 	}
 
 	public JwsResponseCodeDetail(Integer jwsResponseCodeId, String jwsResponseCodeDescription,
 			Integer jwsResponseStatusCode, List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
-		this.jwsResponseCodeId 				= jwsResponseCodeId;
-		this.jwsResponseCodeDescription 	= jwsResponseCodeDescription;
-		this.jwsResponseStatusCode 			= jwsResponseStatusCode;
-		this.jwsDynamicRestResponseParams 	= jwsDynamicRestResponseParams;
+		this.jwsResponseCodeId				= jwsResponseCodeId;
+		this.jwsResponseCodeDescription		= jwsResponseCodeDescription;
+		this.jwsResponseStatusCode			= jwsResponseStatusCode;
+		this.jwsDynamicRestResponseParams	= jwsDynamicRestResponseParams;
 	}
 
 	public Integer getJwsResponseCodeId() {
@@ -70,14 +73,16 @@ public class JwsResponseCodeDetail implements Serializable {
 		this.jwsDynamicRestResponseParams = jwsDynamicRestResponseParams;
 	}
 
-	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(
+			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().add(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsResponseCodeDetail(this);
 
 		return jwsDynamicRestResponseParam;
 	}
 
-	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(
+			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().remove(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsResponseCodeDetail(null);
 
@@ -117,7 +122,8 @@ public class JwsResponseCodeDetail implements Serializable {
 
 	public JwsResponseCodeDetail getObject() {
 		JwsResponseCodeDetail dynaRest = new JwsResponseCodeDetail();
-		dynaRest.setJwsResponseCodeDescription(jwsResponseCodeDescription!=null?jwsResponseCodeDescription.trim():jwsResponseCodeDescription);
+		dynaRest.setJwsResponseCodeDescription(
+				jwsResponseCodeDescription != null ? jwsResponseCodeDescription.trim() : jwsResponseCodeDescription);
 		dynaRest.setJwsResponseCodeId(jwsResponseCodeId);
 		dynaRest.setJwsResponseStatusCode(jwsResponseStatusCode);
 		return dynaRest;

@@ -5,19 +5,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class DynamicFormVO  implements Serializable{
+public class DynamicFormVO implements Serializable {
 
-	private static final long serialVersionUID 					= -6467720176448132975L;
-	private String formId 										= null;
-	private String formName 									= null;
-	private String formDescription 								= null;
-	private String formSelectQuery 								= null;
-	private String formBody 									= null;
-	private Integer formTypeId									= null;
-	private String createdBy									= null;
-	private Date createdDate									= null;
-	private List<DynamicFormSaveQueryVO> dynamicFormSaveQueries	= null;
-	
+	private static final long				serialVersionUID		= -6467720176448132975L;
+	private String							formId					= null;
+	private String							formName				= null;
+	private String							formDescription			= null;
+	private String							formSelectQuery			= null;
+	private String							formBody				= null;
+	private Integer							formTypeId				= null;
+	private String							createdBy				= null;
+	private Date							createdDate				= null;
+	private List<DynamicFormSaveQueryVO>	dynamicFormSaveQueries	= null;
+
 	public DynamicFormVO() {
 
 	}
@@ -25,15 +25,15 @@ public class DynamicFormVO  implements Serializable{
 	public DynamicFormVO(String formId, String formName, String formDescription, String formSelectQuery,
 			String formBody, Integer formTypeId, String createdBy, Date createdDate,
 			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries) {
-		this.formId 						= formId;
-		this.formName 						= formName;
-		this.formDescription 				= formDescription;
-		this.formSelectQuery 				= formSelectQuery;
-		this.formBody 						= formBody;
-		this.formTypeId 					= formTypeId;
-		this.createdBy 						= createdBy;
-		this.createdDate 					= createdDate;
-		this.dynamicFormSaveQueries 		= dynamicFormSaveQueries;
+		this.formId					= formId;
+		this.formName				= formName;
+		this.formDescription		= formDescription;
+		this.formSelectQuery		= formSelectQuery;
+		this.formBody				= formBody;
+		this.formTypeId				= formTypeId;
+		this.createdBy				= createdBy;
+		this.createdDate			= createdDate;
+		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 	}
 
 	/**
@@ -195,6 +195,5 @@ public class DynamicFormVO  implements Serializable{
 				+ ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", dynamicFormSaveQueries="
 				+ dynamicFormSaveQueries + "]";
 	}
-
 
 }

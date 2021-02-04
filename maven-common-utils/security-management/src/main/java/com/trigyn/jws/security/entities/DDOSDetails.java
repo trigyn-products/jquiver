@@ -13,31 +13,31 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="jws_ddos_details")
-public class DDOSDetails implements Serializable{
+@Table(name = "jws_ddos_details")
+public class DDOSDetails implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID 		= 4351078363363100037L;
-	
+	private static final long	serialVersionUID	= 4351078363363100037L;
+
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="jws_ddos_details_id")
-	private String jwsDosDetailsId 					= null;
-	
-	@Column(name="ip_address")
-	private String ipAddress 						= null;
-	
-	@Column(name="session_details")
-	private String sessionDetails 					= null;
-	
-	@Column(name="is_blocked")
-	private Integer isBlocked 						= null;
-	
+	@Column(name = "jws_ddos_details_id")
+	private String				jwsDosDetailsId		= null;
+
+	@Column(name = "ip_address")
+	private String				ipAddress			= null;
+
+	@Column(name = "session_details")
+	private String				sessionDetails		= null;
+
+	@Column(name = "is_blocked")
+	private Integer				isBlocked			= null;
+
 	@Column(name = "last_attacked_date")
-	private Date lastAttackedDate					= null;
+	private Date				lastAttackedDate	= null;
 
 	public DDOSDetails() {
 		super();
@@ -45,11 +45,11 @@ public class DDOSDetails implements Serializable{
 
 	public DDOSDetails(String jwsDosDetailsId, String ipAddress, String sessionDetails, Integer isBlocked,
 			Date lastAttackedDate) {
-		this.jwsDosDetailsId 		= jwsDosDetailsId;
-		this.ipAddress 				= ipAddress;
-		this.sessionDetails 		= sessionDetails;
-		this.isBlocked 				= isBlocked;
-		this.lastAttackedDate 		= lastAttackedDate;
+		this.jwsDosDetailsId	= jwsDosDetailsId;
+		this.ipAddress			= ipAddress;
+		this.sessionDetails		= sessionDetails;
+		this.isBlocked			= isBlocked;
+		this.lastAttackedDate	= lastAttackedDate;
 	}
 
 	public String getJwsDosDetailsId() {
@@ -121,6 +121,4 @@ public class DDOSDetails implements Serializable{
 				+ sessionDetails + ", isBlocked=" + isBlocked + ", lastAttackedDate=" + lastAttackedDate + "]";
 	}
 
-	
 }
-

@@ -2,18 +2,18 @@ package com.trigyn.jws.dbutils.vo.xml;
 
 public class Modules {
 
-	private String moduleID;
-	
-	private String moduleName;
-	
-	private String moduleType;
-	
-	private TemplateExportVO template;
+	private String				moduleID;
 
-	private DashletExportVO dashlet;
-	
-	private DynamicFormExportVO dynamicForm;
-	
+	private String				moduleName;
+
+	private String				moduleType;
+
+	private TemplateExportVO	template;
+
+	private DashletExportVO		dashlet;
+
+	private DynamicFormExportVO	dynamicForm;
+
 	public String getModuleID() {
 		return moduleID;
 	}
@@ -61,5 +61,5 @@ public class Modules {
 	public void setDynamicForm(DynamicFormExportVO dynamicForm) {
 		this.dynamicForm = dynamicForm;
 	}
-	
+
 }

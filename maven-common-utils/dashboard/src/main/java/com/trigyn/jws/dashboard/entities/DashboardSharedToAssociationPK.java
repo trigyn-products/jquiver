@@ -7,41 +7,37 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class DashboardSharedToAssociationPK implements Serializable{
+public class DashboardSharedToAssociationPK implements Serializable {
 
-	private static final long serialVersionUID 	= -2863163969760751108L;
+	private static final long	serialVersionUID	= -2863163969760751108L;
 
 	@Column(name = "dashboard_id")
-	private String	dashboardId					= null;
+	private String				dashboardId			= null;
 
 	@Column(name = "user_id")
-	private String	userId						= null;
+	private String				userId				= null;
 
 	public DashboardSharedToAssociationPK() {
-		
+
 	}
 
 	public DashboardSharedToAssociationPK(String dashboardId, String userId) {
-		this.dashboardId 	= dashboardId;
-		this.userId 		= userId;
+		this.dashboardId	= dashboardId;
+		this.userId			= userId;
 	}
 
-	
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
-	
 	public String getUserId() {
 		return userId;
 	}
 
-	
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
@@ -70,6 +66,5 @@ public class DashboardSharedToAssociationPK implements Serializable{
 	public String toString() {
 		return "DashboardSharedToAssociationPK [dashboardId=" + dashboardId + ", userId=" + userId + "]";
 	}
-	
-	
+
 }

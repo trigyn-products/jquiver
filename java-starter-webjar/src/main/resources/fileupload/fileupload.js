@@ -90,11 +90,11 @@
 	let fileUpload = new FileUpload(this, options, selectedFiles);
 	fileUpload.options = options;
 	
-	$(this).wrap('<div class="pg-form-dropzone"><div class="row"><div class="col-6 dropzone-wrapper"><div class="cm-dropzone-wrap"></div></div></div></div>');
+	$(this).wrap('<div class="pg-form-dropzone"><div class="row"><div class="col-12 dropzone-wrapper"><div class="cm-dropzone-wrap"></div></div></div></div>');
 	
 	let labelDiv = $('<label for="fileupload" class="dropzone-container dz-default dz-message"><div class="cm-uploadwrap clearfix"></div></label><div class="filepreviewcontainer cm-scrollbar"></div>');
 	$(this).append(labelDiv);
-	$(".cm-uploadwrap").append($('<div class="cm-uploadicon"><img src="/webjars/1.0/images/multifileupload.svg"></div><div class="dropzone-title">Drag and drop your files or <span class="browse">browse</span> your files</div>'));
+	$(this).find(".cm-uploadwrap").append($('<div class="cm-uploadicon"><img src="/webjars/1.0/images/multifileupload.svg"></div><div class="dropzone-title">Drag and drop your files or <span class="browse">browse</span> your files</div>'));
 	// $(this).append($('<label for="fileupload" class="dropzone-container dz-default dz-message"><div class="cm-uploadwrap clearfix"><div class="cm-uploadicon"><img src="/webjars/1.0/images/multifileupload.svg"></div><div class="dropzone-title">Drag and drop your files or <span class="browse">browse</span> your files</div></div></label>'));
 	/** Customizing the dropzone view **/
 	fileUpload.template = '<div id="template" class="col-6 file-row"><div><span class="preview"><img data-dz-thumbnail /></span></div><div>'
@@ -124,7 +124,7 @@
 	  		  acceptedFiles: data["file_type_supported"],
 	  		  createImageThumbnails: false,
 	  		  // previewTemplate: fileUpload.template,
-	  		  previewsContainer: ".filepreviewcontainer",
+	  		  previewsContainer: $(context).find(".filepreviewcontainer")[0],
   			  // clickable: ".start-upload",
 	  		  success: function(data) {
 	  		  	showMessage("File uploaded successfully", "success");

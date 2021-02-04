@@ -63,7 +63,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
   <div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
                             <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''add-edit-role'', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
@@ -178,7 +178,7 @@ $(function () {
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "Is Active", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Action", width: 30, align: "center", render: editRole, dataIndx: "action" }
+        { title: "Action", width: 30, minWidth: 115, align: "center", render: editRole, dataIndx: "action" }
 	];
     let grid = $("#divRoleMasterGrid").grid({
       gridId: "roleGrid",
@@ -439,7 +439,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
       <div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
                             <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''add-edit-user'', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
@@ -619,7 +619,7 @@ $(function () {
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "${messageSource.getMessage(''jws.isActive'')}", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Action", width: 30, align: "center", render: editUser, dataIndx: "action" }
+        { title: "Action", width: 30, minWidth: 115, align: "center", render: editUser, dataIndx: "action" }
 	];
     let grid = $("#divUserMasterGrid").grid({
       gridId: "jwsUserListingGrid",

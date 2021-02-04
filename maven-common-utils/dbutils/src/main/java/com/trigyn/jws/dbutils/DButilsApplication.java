@@ -19,7 +19,8 @@ public class DButilsApplication {
 
 	@Bean
 	public FluentConfiguration atflywayConfiguration(DataSource dataSource) {
-		FluentConfiguration configuration = Flyway.configure().dataSource(dataSource).locations("db/mysql", "db/migration");
+		FluentConfiguration configuration = Flyway.configure().dataSource(dataSource).locations("db/mysql",
+				"db/migration");
 		configuration.cleanDisabled(Boolean.TRUE);
 		configuration.placeholderReplacement(Boolean.FALSE);
 		configuration.ignoreFutureMigrations(Boolean.TRUE);
@@ -37,13 +38,13 @@ public class DButilsApplication {
 		flyway.migrate();
 		return flyway;
 	}
-	
+
 	@ConditionalOnMissingBean
 	@Bean
-	public DispatcherServlet dispatcherServlet () {
-	    DispatcherServlet dispatcherServlet = new DispatcherServlet();
-	    dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
-	    return dispatcherServlet;
+	public DispatcherServlet dispatcherServlet() {
+		DispatcherServlet dispatcherServlet = new DispatcherServlet();
+		dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+		return dispatcherServlet;
 	}
 
 }

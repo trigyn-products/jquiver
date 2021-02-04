@@ -29,7 +29,7 @@ public class JwsUserDetailsService implements IUserDetailsService {
 			List<String> roleList = new ArrayList<String>();
 			roleList.addAll(AuthorityUtils.authorityListToSet(authentication.getAuthorities()));
 			detailsVO.setRoleIdList(roleList);
-		}else {
+		} else {
 			detailsVO = new UserDetailsVO("anonymous-user", "anonymous", Arrays.asList("anonymous"));
 		}
 

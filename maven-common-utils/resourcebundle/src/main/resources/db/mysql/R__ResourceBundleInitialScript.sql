@@ -191,5 +191,8 @@ REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.bloc
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.ddos', 1, 'Distributed Denial Of Service');
 
 REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.editProperty', 1, 'Edit Property');
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.configHomePageListing', 1, 'Home Page Listing');
+
+REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('projectName', 1, 'JQuiver');
 
 SET FOREIGN_KEY_CHECKS=1;

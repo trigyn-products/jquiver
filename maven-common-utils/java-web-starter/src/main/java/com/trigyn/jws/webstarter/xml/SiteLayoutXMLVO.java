@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 @XmlRootElement(name = "siteLayoutData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SiteLayoutXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "siteLayout")
-    private List<ModuleListing> moduleListingDetails = new ArrayList<>();
+	private List<ModuleListing> moduleListingDetails = new ArrayList<>();
 
 	public List<ModuleListing> getModuleListingDetails() {
 		return moduleListingDetails;

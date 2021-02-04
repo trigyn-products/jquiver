@@ -46,5 +46,9 @@ REPLACE INTO jws_dynamic_rest_dao_details
 (59, 'eb4b4344-901d-436b-82a3-cc07a8b2223c', 'inMemeoryEnabled', 'REPLACE INTO jws_security_properties (security_properties_id, security_type_id,security_property_name, security_property_value) VALUES 
 (''c238f528-32fa-11eb-a009-f48e38ab8cd7'', ''a1fa90e3-32dd-11eb-a009-f48e38ab8cd7'', ''In Memory'', :inMemoryEnabled);', 6, 2);
 
+UPDATE jws_dynamic_rest_details SET
+jws_service_logic = 'com.trigyn.jws.security.service.SecurityManagementService'
+WHERE jws_method_name = 'saveDDOSDetails';
+
 
 SET FOREIGN_KEY_CHECKS=1;

@@ -19,7 +19,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.multilingual'')}</h2> 
         <div class="float-right">
        
-       <select id="languageOptions" onchange="changeLanguage()" class="btn btn-primary">
+       <select id="languageOptions" onchange="changeLanguage()">
           <#list languageVOList as languageVO>
             <#if languageVO??>
               <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
@@ -71,7 +71,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 	        { title: "${messageSource.getMessage(''jws.text'')}", width: 160, dataIndx: "resourceBundleText", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDBResource}
+	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDBResource}
 	    ];
 	    let grid = $("#divdbResourceBundleGrid").grid({
 	      gridId: "resourceBundleListingGrid",
@@ -220,7 +220,7 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''resource-bundle-manage-details'', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -303,7 +303,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	<div id="divNotificationListing"></div>
 </div>
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade cmn-custom-modal" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -359,7 +359,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 	        { title: "Updated Date", width: 100, dataIndx: "updatedData", align: "left", halign: "center",
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Action", width: 100, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
+	        { title: "Action", width: 100, minWidth: 115, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
 		];
 
 	  let grid = $("#divNotificationListing").grid({
@@ -553,7 +553,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''notification-add-edit'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>

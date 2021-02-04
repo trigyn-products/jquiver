@@ -62,6 +62,7 @@ AddEditDashlet.prototype.fn = {
  		let dashlet = new Object();
  		let dashletPropertVOList = new Array();
 		let isValid = context.validateDashletMandatoryFields();
+		let sequenceCounter = 0;
 		if(isValid){
 			$("#errorMessage").hide();
 			$("#dashletProps").find('tr.dashlet_property').each (function() {
@@ -70,10 +71,13 @@ AddEditDashlet.prototype.fn = {
 	  				let fieldName = $(this).prop("name")
 	  				if(fieldName == "toDisplay"){
 	  					dashletProperty[fieldName] = $(this).prop("checked")?1:0;
-	  				}else{
+	  				}else if(fieldName == "sequence"){
+	    				dashletProperty[fieldName] = sequenceCounter++;
+	    			}else{
 	    				dashletProperty[fieldName] = $(this).val();
 	    			}
 	    		});
+	    		dashletProperty["type"] =  $(this).find('td > select').find(":selected").val();
 	    		dashletPropertVOList.push(dashletProperty);
 			});
 			
@@ -197,14 +201,16 @@ AddEditDashlet.prototype.fn = {
  		let actionColumn;
  		let propertyRow;
  		let propertyDetails;
+ 		let propertyMasterId = uuidv4();
  		
         dashletPropertiesCount = dashletPropertiesCount + 1;
        
         var lengthOfTr = jQuery("#dashletProps tbody>tr").length;
         propertyRow = $('<tr class=dashlet_property></tr>');
 		propertyDetails = $('<td id=propertyDetails></td>');
-		propertyDetails.append('<input type="hidden" name="propertyId" id="'+dashletPropertiesCount+'" class="form-control" />');
+		propertyDetails.append('<input type="hidden" name="propertyId" id="'+dashletPropertiesCount+'" value="'+propertyMasterId+'"  />');
         propertyDetails.append('<input type="text" name="placeholderName" id="placeholderName_'+dashletPropertiesCount+'" class="form-control" />');
+        propertyDetails.append('<input type="hidden" name="isDeleted" id="deleted_'+dashletPropertiesCount+'" value="0" />');
         propertyDetails.append('<input type="hidden" name="sequence" id="sequence_'+dashletPropertiesCount+'" value="'+(lengthOfTr+1)+'" />');
         propertyRow.append(propertyDetails);
         propertyRow.append('<td><input type="text" name="displayName" id="displayName_'+dashletPropertiesCount+'" class="form-control"></td>');
@@ -271,71 +277,44 @@ AddEditDashlet.prototype.fn = {
     },
     
 	defaultValueChange : function(selectElementId){
+		let context = this;
 		let selectedPropertyCount = selectElementId.split("_")[1];
-		let type = $('#'+selectElementId).find(":selected").text().trim();
-		let valueText = $('#value_'+selectedPropertyCount);
-		let defaultValue = $('#defaultValue_'+selectedPropertyCount);
-		$(defaultValue).val("");
-		if(type === "select" || type === "rangeslider" || type === "decimal" || type === "number" || type === "text"){
-			valueText.removeAttr("disabled");
-			defaultValue.removeAttr("keypress");
-		}else{
-			valueText.val("");
-			valueText.attr("disabled","disabled");
-		}
-		if(type === "datepicker"){
-			defaultValue.val("");
-			defaultValue.attr("disabled","disabled");
-			defaultValue.removeAttr("keypress");
-		}else{
-			defaultValue.removeAttr("disabled");
-		}
-		if(type === "number"){
-			$(defaultValue).keypress(function (e) {
-			     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-			        return false;
-			    }
-			});
-		}else{
-			$(defaultValue).keypress(function (e) {
-				$(defaultValue).unbind("keypress");
-			});
-		}
+		context.disableConfigProperties(selectedPropertyCount, true);
 	},
 	
 	moveUpDown : function(currentObjectId){
 		let currentObjectName = currentObjectId.split("_")[0];
 		let sourceTr = $('#'+currentObjectId).closest('tr');
-		let sourcePropertyId = $(sourceTr).find("input[name=propertyId]").prop("id");
+		let sourceSequence = $(sourceTr).find("td:last > span[id^=upArrow_]").attr("id").split("_")[1];
 		let targetTr;
 		
 		if(currentObjectName === "upArrow"){
 			targetTr = $('#'+currentObjectId).closest('tr').prev();
-			let targetPropertyId = $(targetTr).find("input[name=propertyId]").prop("id");
+			let targetSequence = $(targetTr).find("td:last > span[id^=upArrow_]").attr("id").split("_")[1];
 			targetTr.insertAfter(sourceTr);
 			if($(sourceTr).is(":first-child")){
-				$("#upArrow_"+sourcePropertyId).addClass("disable_cls");
-				$("#upArrow_"+targetPropertyId).removeClass("disable_cls");
+				$("#upArrow_"+sourceSequence).addClass("disable_cls");
+				$("#upArrow_"+targetSequence).removeClass("disable_cls");
 			}
 
 			if($(targetTr).is(":last-child")){
-				$("#downArrow_"+targetPropertyId).addClass("disable_cls");
-				$("#downArrow_"+sourcePropertyId).removeClass("disable_cls");
+				$("#downArrow_"+targetSequence).addClass("disable_cls");
+				$("#downArrow_"+sourceSequence).removeClass("disable_cls");
 			}
 		}
 	
 		if(currentObjectName === "downArrow"){
 			targetTr = $('#'+currentObjectId).closest('tr').next();
-			let targetPropertyId = $(targetTr).find("input[name=propertyId]").prop("id");
+			let targetSequence = $(targetTr).find("td:last > span[id^=upArrow_]").attr("id").split("_")[1];
 			sourceTr.insertAfter(targetTr);
 			if($(sourceTr).is(":last-child")){
-				$("#downArrow_"+sourcePropertyId).addClass("disable_cls");
-				$("#downArrow_"+targetPropertyId).removeClass("disable_cls");
+				$("#downArrow_"+sourceSequence).addClass("disable_cls");
+				$("#downArrow_"+targetSequence).removeClass("disable_cls");
 			}
 
 			if($(targetTr).is(":first-child")){
-				$("#upArrow_"+sourcePropertyId).removeClass("disable_cls");
-				$("#upArrow_"+targetPropertyId).addClass("disable_cls");
+				$("#upArrow_"+sourceSequence).removeClass("disable_cls");
+				$("#upArrow_"+targetSequence).addClass("disable_cls");
 			}
 		}
 
@@ -357,6 +336,9 @@ AddEditDashlet.prototype.fn = {
 		draggable	 : true,
 		resizable	 : false,
 		title		 : "Delete",
+		position: {
+		 my: "center", at: "center", of: "#dashletProps"
+		},
 		buttons		 : [{
 				text		:"Cancel",
 				click	: function() { 
@@ -382,20 +364,57 @@ AddEditDashlet.prototype.fn = {
 	
 	removeProperty : function(currentObjectId){
 		let context = this;
-		dashletPropertiesCount = dashletPropertiesCount - 1;
 		let currentObjectTr = $('#'+currentObjectId).closest('tr');
+		let deletedSequence = $(currentObjectTr).find("td [id^=sequence]").val();
 		
-		$.each( currentObjectTr.nextAll().find('td:first input:last'), function( index, inputElement ) {
-			let sequence = inputElement.value;
-			inputElement.value = sequence-1;
-		});
-		currentObjectTr.remove();
+		currentObjectTr.hide();
+		$("#deleted_"+deletedSequence).val("1");
+		$(currentObjectTr).find("td [id^=sequence]").val("-1");
 		
-		$("#dashletProps").find("tbody tr:first span[id^=upArrow]").addClass("disable_cls");
-		$("#dashletProps").find("tbody tr:last span[id^=downArrow]").addClass("disable_cls");
+		$("#dashletProps").find("tbody tr:visible:first span[id^=upArrow]").addClass("disable_cls");
+		$("#dashletProps").find("tbody tr:visible:last span[id^=downArrow]").addClass("disable_cls");
 	},
 	
+	disableInputFields : function(){
+		let context = this;
+		$("#dashletProps > tbody > tr").each( function(index , trElement){
+    		let configurationId = $(this).find("select").prop("id").split("_")[1];
+    		context.disableConfigProperties(configurationId);
+		})
+	},
 	
+    disableConfigProperties : function(selectedPropertyCount, isAddEdit){
+    	let type = $('#componentType_'+selectedPropertyCount).find(":selected").text().trim();
+		let valueText = $('#value_'+selectedPropertyCount);
+		let defaultValue = $('#defaultValue_'+selectedPropertyCount);
+		if(isAddEdit === true){
+			$(defaultValue).val("");
+		}
+		
+		if(type !== "datepicker"){
+			valueText.removeAttr("disabled");
+			defaultValue.removeAttr("keypress");
+			defaultValue.removeAttr("disabled");
+		}else{
+			valueText.val("");
+			valueText.attr("disabled","disabled");
+			defaultValue.val("");
+			defaultValue.attr("disabled","disabled");
+			defaultValue.removeAttr("keypress");
+		}
+		
+		if(type === "number"){
+			$(defaultValue).keypress(function (event) {
+			     if (event.which != 8 && event.which != 0 && (event.which < 48 || event.which > 57)) {
+			        return false;
+			    }
+			});
+		}else{
+			$(defaultValue).keypress(function (event) {
+				$(defaultValue).unbind("keypress");
+			});
+		}
+    },
    
 	backToDashletListing : function() {
 		location.href = contextPath+"/cf/dlm";

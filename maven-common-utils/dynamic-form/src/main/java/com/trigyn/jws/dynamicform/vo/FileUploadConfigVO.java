@@ -4,29 +4,30 @@ import java.math.BigDecimal;
 
 public class FileUploadConfigVO {
 
-	private String fileUploadConfigId = null;
+	private String		fileUploadConfigId	= null;
 
-	private String fileTypSupported = null;
+	private String		fileTypSupported	= null;
 
-	private BigDecimal maxFileSize = null;
+	private BigDecimal	maxFileSize			= null;
 
-	private Integer noOfFiles = null;
+	private Integer		noOfFiles			= null;
 
-	private Integer isDeleted = null;
+	private Integer		isDeleted			= null;
 
-	private String updatedBy = null;
+	private String		updatedBy			= null;
 
-	public FileUploadConfigVO() {}
-	
+	public FileUploadConfigVO() {
+	}
+
 	public FileUploadConfigVO(String fileUploadConfigId, String fileTypSupported, BigDecimal maxFileSize,
 			Integer noOfFiles, Integer isDeleted) {
-		this.fileUploadConfigId = fileUploadConfigId;
-		this.fileTypSupported = fileTypSupported;
-		this.maxFileSize = maxFileSize;
-		this.noOfFiles = noOfFiles;
-		this.isDeleted = isDeleted;
+		this.fileUploadConfigId	= fileUploadConfigId;
+		this.fileTypSupported	= fileTypSupported;
+		this.maxFileSize		= maxFileSize;
+		this.noOfFiles			= noOfFiles;
+		this.isDeleted			= isDeleted;
 	}
-	
+
 	public String getFileUploadConfigId() {
 		return fileUploadConfigId;
 	}

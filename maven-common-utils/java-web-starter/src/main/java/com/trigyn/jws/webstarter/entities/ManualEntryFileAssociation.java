@@ -9,21 +9,21 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "manual_entry_file_association")
-public class ManualEntryFileAssociation implements Serializable{
+public class ManualEntryFileAssociation implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	@Id
 	@Column(name = "file_upload_id")
-	private String fileUploadId = null;
-	
+	private String				fileUploadId		= null;
+
 	@Id
 	@Column(name = "manual_entry_id")
-	private String manualEntryId = null;
-	
+	private String				manualEntryId		= null;
+
 	public String getFileUploadId() {
 		return fileUploadId;
 	}

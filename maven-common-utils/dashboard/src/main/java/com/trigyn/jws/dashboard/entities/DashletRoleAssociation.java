@@ -3,64 +3,61 @@ package com.trigyn.jws.dashboard.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 import com.trigyn.jws.dbutils.entities.UserRole;
 
-
-
 @Entity
-@Table(name="dashlet_role_association")
-@NamedQuery(name="DashletRoleAssociation.findAll", query="SELECT d FROM DashletRoleAssociation d")
+@Table(name = "dashlet_role_association")
+@NamedQuery(name = "DashletRoleAssociation.findAll", query = "SELECT d FROM DashletRoleAssociation d")
 public class DashletRoleAssociation implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long			serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private DashletRoleAssociationPK id				= null;
-	
-	@ManyToOne
-	@JoinColumn(name="dashlet_id", nullable=false, insertable=false, updatable=false)
-	private Dashlet dashlet							= null;
+	private DashletRoleAssociationPK	id					= null;
 
 	@ManyToOne
-	@JoinColumn(name="role_id", nullable=false, insertable=false, updatable=false)
-	private UserRole userRole						= null;
+	@JoinColumn(name = "dashlet_id", nullable = false, insertable = false, updatable = false)
+	private Dashlet						dashlet				= null;
+
+	@ManyToOne
+	@JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
+	private UserRole					userRole			= null;
 
 	public DashletRoleAssociation() {
-		
+
 	}
 
 	public DashletRoleAssociation(DashletRoleAssociationPK id, UserRole userRole) {
-		this.id 		= id;
-		this.userRole 	= userRole;
+		this.id			= id;
+		this.userRole	= userRole;
 	}
 
-	
 	public DashletRoleAssociationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(DashletRoleAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public Dashlet getDashlet() {
 		return dashlet;
 	}
 
-	
 	public void setDashlet(Dashlet dashlet) {
 		this.dashlet = dashlet;
 	}
-	
-	
+
 	public UserRole getUserRole() {
 		return userRole;
 	}
 
-	
 	public void setUserRole(UserRole userRole) {
 		this.userRole = userRole;
 	}
@@ -93,10 +90,10 @@ public class DashletRoleAssociation implements Serializable {
 
 	public DashletRoleAssociation getObject() {
 		DashletRoleAssociation obj = new DashletRoleAssociation();
-		
+
 		obj.setId(id.getObject());
 		obj.setUserRole(userRole.getObject());
-		
+
 		return obj;
 	}
 

@@ -3,64 +3,61 @@ package com.trigyn.jws.dynarest.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 import com.trigyn.jws.dbutils.entities.UserRole;
 
-
-
 @Entity
-@Table(name="jws_dynamic_rest_role_association")
-@NamedQuery(name="JwsDynamicRestRoleAssociation.findAll", query="SELECT j FROM JwsDynamicRestRoleAssociation j")
+@Table(name = "jws_dynamic_rest_role_association")
+@NamedQuery(name = "JwsDynamicRestRoleAssociation.findAll", query = "SELECT j FROM JwsDynamicRestRoleAssociation j")
 public class JwsDynamicRestRoleAssociation implements Serializable {
-	
-	private static final long serialVersionUID 			= 1L;
+
+	private static final long				serialVersionUID		= 1L;
 
 	@EmbeddedId
-	private JwsDynamicRestRoleAssociationPK id			= null;
-	
-	@ManyToOne
-	@JoinColumn(name="jws_dynamic_rest_id", nullable=false, insertable=false, updatable=false)
-	private JwsDynamicRestDetail jwsDynamicRestDetail	= null;
+	private JwsDynamicRestRoleAssociationPK	id						= null;
 
 	@ManyToOne
-	@JoinColumn(name="role_id", nullable=false, insertable=false, updatable=false)
-	private UserRole userRole							= null;
+	@JoinColumn(name = "jws_dynamic_rest_id", nullable = false, insertable = false, updatable = false)
+	private JwsDynamicRestDetail			jwsDynamicRestDetail	= null;
+
+	@ManyToOne
+	@JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
+	private UserRole						userRole				= null;
 
 	public JwsDynamicRestRoleAssociation() {
 	}
 
 	public JwsDynamicRestRoleAssociation(JwsDynamicRestRoleAssociationPK id, UserRole userRole) {
-		this.id 		= id;
-		this.userRole 	= userRole;
+		this.id			= id;
+		this.userRole	= userRole;
 	}
 
-	
 	public JwsDynamicRestRoleAssociationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(JwsDynamicRestRoleAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public JwsDynamicRestDetail getJwsDynamicRestDetail() {
 		return jwsDynamicRestDetail;
 	}
 
-	
 	public void setJwsDynamicRestDetail(JwsDynamicRestDetail jwsDynamicRestDetail) {
 		this.jwsDynamicRestDetail = jwsDynamicRestDetail;
 	}
-	
-	
+
 	public UserRole getUserRole() {
 		return userRole;
 	}
 
-	
 	public void setUserRole(UserRole userRole) {
 		this.userRole = userRole;
 	}
@@ -97,5 +94,5 @@ public class JwsDynamicRestRoleAssociation implements Serializable {
 		dynaRest.setId(id.getObject());
 		return dynaRest;
 	}
-	
+
 }

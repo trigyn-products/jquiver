@@ -23,74 +23,68 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.trigyn.jws.usermanagement.utils.Constants;
 
-
 @Aspect
 @Component
 public class AuthorizedValidator {
-	
-	
+
 	@Autowired
-	private EntityValidatorFactory entityValidatorFactory = null;
-	
+	private EntityValidatorFactory		entityValidatorFactory		= null;
+
 	@Autowired
-	private ApplicationSecurityDetails applicationSecurityDetails = null;
-	
-	
+	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
+
 	@Pointcut("@annotation(com.trigyn.jws.usermanagement.security.config.Authorized)")
 	private void customHasPermission() {
 	}
-	
-	
+
 	@Around("com.trigyn.jws.usermanagement.security.config.AuthorizedValidator.customHasPermission()")
 	public Object validateEntityPermission(ProceedingJoinPoint a_joinPoint) throws Throwable {
-		
-		if(!applicationSecurityDetails.getIsAuthenticationEnabled()) {
+
+		if (!applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			return a_joinPoint.proceed();
 		}
-		
-		
-		MethodSignature signature = (MethodSignature) a_joinPoint.getSignature();
-		Method method = signature.getMethod();
-		
-		List<String> roleNames = new ArrayList<>();
-		HttpServletRequest requestObject = getRequest();
-		HttpServletResponse responseObject = getResponse();
-		Authorized myAnnotation = method.getAnnotation(Authorized.class);
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String moduleName = myAnnotation.moduleName();
-		
-		if((authentication instanceof AnonymousAuthenticationToken)) {
-	
+
+		MethodSignature		signature		= (MethodSignature) a_joinPoint.getSignature();
+		Method				method			= signature.getMethod();
+
+		List<String>		roleNames		= new ArrayList<>();
+		HttpServletRequest	requestObject	= getRequest();
+		HttpServletResponse	responseObject	= getResponse();
+		Authorized			myAnnotation	= method.getAnnotation(Authorized.class);
+		Authentication		authentication	= SecurityContextHolder.getContext().getAuthentication();
+		String				moduleName		= myAnnotation.moduleName();
+
+		if ((authentication instanceof AnonymousAuthenticationToken)) {
+
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
-			
-		}else {
+
+		} else {
 			UserInformation userInformation = (UserInformation) authentication.getPrincipal();
 			roleNames.addAll(userInformation.getRoles());
 		}
-		
-		EntityValidator entityValidator =  entityValidatorFactory.createEntityValidator(moduleName);
-		boolean hasAccess  = entityValidator.hasAccessToEntity(requestObject, roleNames, a_joinPoint);
-		
-		if(hasAccess == Boolean.FALSE) {
+
+		EntityValidator	entityValidator	= entityValidatorFactory.createEntityValidator(moduleName);
+		boolean			hasAccess		= entityValidator.hasAccessToEntity(requestObject, roleNames, a_joinPoint);
+
+		if (hasAccess == Boolean.FALSE) {
 			responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access " + moduleName);
-			//throw new AccessDeniedException("You dont have rights to access this entity");
+			// throw new AccessDeniedException("You dont have rights to access this
+			// entity");
+			return null;
 		}
-		
-		
-		
-		
+
 		return a_joinPoint.proceed();
-		
+
 	}
-	
+
 	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		return sra.getRequest();
 	}
-	
+
 	private HttpServletResponse getResponse() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		return sra.getResponse();
 	}
-	
+
 }

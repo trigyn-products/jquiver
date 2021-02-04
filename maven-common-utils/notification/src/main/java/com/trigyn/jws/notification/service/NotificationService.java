@@ -1,6 +1,5 @@
 package com.trigyn.jws.notification.service;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +19,14 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 public class NotificationService {
 
 	@Autowired
-	private NotificationDAO notificationDao = null;
-	
-	@Autowired
-	private DBTemplatingService templatingService = null;
+	private NotificationDAO		notificationDao		= null;
 
 	@Autowired
-	private TemplatingUtils templateEngine = null;
+	private DBTemplatingService	templatingService	= null;
 
-	
+	@Autowired
+	private TemplatingUtils		templateEngine		= null;
+
 	public GenericUserNotification getNotification(String notificationId) {
 		GenericUserNotification genericUserNotificationDetails = notificationDao.getNotificationDetails(notificationId);
 		return genericUserNotificationDetails;
@@ -37,18 +35,18 @@ public class NotificationService {
 	public void saveEditedNotificationData(GenericUserNotification userNotification) {
 		notificationDao.saveEditedNotification(userNotification);
 	}
-	
+
 	public String loadNotifications(String viewName, String contextName) throws Exception {
-		String template = null;
-		Map<String,Object> templateMap = new HashMap<>();
-		 TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-		 List<GenericUserNotification> notificationData =  notificationDao.getNotificationData(contextName);
-		 templateMap.put("notifications", notificationData);
-		 if(!notificationData.isEmpty()) {
-			 template = templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
-		 }
+		String							template			= null;
+		Map<String, Object>				templateMap			= new HashMap<>();
+		TemplateVO						templateVO			= templatingService.getTemplateByName(viewName);
+		List<GenericUserNotification>	notificationData	= notificationDao.getNotificationData(contextName);
+		templateMap.put("notifications", notificationData);
+		if (!notificationData.isEmpty()) {
+			template = templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					templateMap);
+		}
 		return template;
 	}
-	
 
 }

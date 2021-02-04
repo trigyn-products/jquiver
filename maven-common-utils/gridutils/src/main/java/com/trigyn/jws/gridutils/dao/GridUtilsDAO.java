@@ -23,7 +23,7 @@ import com.trigyn.jws.gridutils.utility.GridUtility;
 
 @Repository
 public class GridUtilsDAO extends DBConnection {
-	
+
 	private final static Logger logger = LogManager.getLogger(GridUtilsDAO.class);
 
 	@Autowired
@@ -31,7 +31,6 @@ public class GridUtilsDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	
 	public void getGridDetails() throws Exception {
 		System.out.println();
 	}
@@ -40,20 +39,23 @@ public class GridUtilsDAO extends DBConnection {
 	public Integer findCount(GridDetails gridDetails, GenericGridParams gridParams) {
 		Integer rowCount = null;
 		if (gridDetails.getQueryType().intValue() == Constants.queryImplementationType.VIEW.getType()) {
-			String query = GridUtility.generateQueryForCount(gridDetails, gridParams);
-			Object criteriaParams[] = GridUtility.generateCriteriaForCount(gridParams);
+			String	query				= GridUtility.generateQueryForCount(gridDetails, gridParams);
+			Object	criteriaParams[]	= GridUtility.generateCriteriaForCount(gridParams);
 			rowCount = jdbcTemplate.queryForObject(query, criteriaParams, Integer.class);
 		} else {
-			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(gridDetails.getGridTableName());
-			try (Connection connection = dataSource.getConnection();){
+			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+					.withProcedureName(gridDetails.getGridTableName());
+			try (Connection connection = dataSource.getConnection();) {
 				simpleJdbcCall.setCatalogName(connection.getCatalog());
-			} catch (SQLException sqlException) {
-				logger.error("Didn't find the schema name in datasource ", sqlException);
+			} catch (SQLException a_sqlException) {
+				logger.error("Didn't find the schema name in datasource ", a_sqlException);
 			}
-			Map<String, Object> inParamMap = GridUtility.generateParamMap(gridDetails, gridParams, true);
-			SqlParameterSource in = new MapSqlParameterSource(inParamMap);
-			Map<String, Object> simpleJdbcCallResult = simpleJdbcCall.execute(in);
-			List<Map<String, Long>> list = (List<Map<String, Long>>) (Object) simpleJdbcCallResult.get("#result-set-1");
+			Map<String, Object>		inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams,
+					true);
+			SqlParameterSource		in						= new MapSqlParameterSource(inParamMap);
+			Map<String, Object>		simpleJdbcCallResult	= simpleJdbcCall.execute(in);
+			List<Map<String, Long>>	list					= (List<Map<String, Long>>) (Object) simpleJdbcCallResult
+					.get("#result-set-1");
 			rowCount = list.get(0).get("COUNT(*)").intValue();
 		}
 		return rowCount;
@@ -63,19 +65,20 @@ public class GridUtilsDAO extends DBConnection {
 	public List<Map<String, Object>> findAllRecords(GridDetails gridDetails, GenericGridParams gridParams) {
 		List<Map<String, Object>> list = null;
 		if (gridDetails.getQueryType().intValue() == Constants.queryImplementationType.VIEW.getType()) {
-			String query = GridUtility.generateQueryForList(gridDetails, gridParams);
-			Object criteriaParams[] = GridUtility.generateCriteriaForList(gridParams);
+			String	query				= GridUtility.generateQueryForList(gridDetails, gridParams);
+			Object	criteriaParams[]	= GridUtility.generateCriteriaForList(gridParams);
 			list = (List<Map<String, Object>>) (Object) jdbcTemplate.queryForList(query, criteriaParams);
 		} else {
-			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(gridDetails.getGridTableName());
-			try (Connection connection = dataSource.getConnection();){
+			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+					.withProcedureName(gridDetails.getGridTableName());
+			try (Connection connection = dataSource.getConnection();) {
 				simpleJdbcCall.setCatalogName(connection.getCatalog());
-			} catch (SQLException sqlException) {
-				logger.error("Didn't find the schema name in datasource ", sqlException);
+			} catch (SQLException a_sqlException) {
+				logger.error("Didn't find the schema name in datasource ", a_sqlException);
 			}
-			Map<String, Object> inParamMap = GridUtility.generateParamMap(gridDetails, gridParams, false);
-			SqlParameterSource in = new MapSqlParameterSource(inParamMap);
-			Map<String, Object> simpleJdbcCallResult = simpleJdbcCall.execute(in);
+			Map<String, Object>	inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams, false);
+			SqlParameterSource	in						= new MapSqlParameterSource(inParamMap);
+			Map<String, Object>	simpleJdbcCallResult	= simpleJdbcCall.execute(in);
 			list = (List<Map<String, Object>>) simpleJdbcCallResult.get("#result-set-1");
 		}
 		return list;
@@ -84,10 +87,12 @@ public class GridUtilsDAO extends DBConnection {
 	public GridDetails getGridDetails(String gridId) {
 
 		String sql = "SELECT * FROM grid_details WHERE grid_id = ?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { gridId }, (rs, rowNum) -> new GridDetails(rs.getString("grid_id"), rs.getString("grid_name"), rs.getString("grid_description"),
-				rs.getString("grid_table_name"), rs.getString("grid_column_names"), Integer.parseInt(rs.getString("query_type"))));
+		return jdbcTemplate.queryForObject(sql, new Object[] { gridId },
+				(rs, rowNum) -> new GridDetails(rs.getString("grid_id"), rs.getString("grid_name"),
+						rs.getString("grid_description"), rs.getString("grid_table_name"),
+						rs.getString("grid_column_names"), Integer.parseInt(rs.getString("query_type"))));
 	}
-	
+
 	public GridDetails saveGridDetails(GridDetails gridDetails) {
 		getCurrentSession().saveOrUpdate(gridDetails);
 		return gridDetails;

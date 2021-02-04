@@ -1,4 +1,5 @@
 package com.trigyn.jws.usermanagement.security.config;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,12 +21,11 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-
 public final class CaptchaUtil {
 	public static final String			FILE_TYPE	= "png";
 	private static final Random			random		= new Random();
 	private static final List<Color[]>	ColourSet	= new ArrayList<Color[]>();
-	static String path = "D:/Captcha";
+	static String						path		= "D:/Captcha";
 
 	static {
 		ColourSet.add(new Color[] { new Color(0, 161, 143), new Color(255, 255, 255) });
@@ -39,26 +39,27 @@ public final class CaptchaUtil {
 		throw new RuntimeException("This is singleton class. Please don't try to initiate this class");
 	}
 
-//	public static void main(String[] args) {
-//		try {
-//	        String captchaStr = getCaptchaString();
-//			
-//			System.out.println(captchaStr);
-//			for(int i = 0; i < 50; i++) {
-//				//System.out.println(getCaptchaString());
-//			}
-//			
-//			int width = 130;
-//			int height = 59;
-//			
-//			File file = new File(path + File.separator + UUID.randomUUID().toString() + ".png");
-//			generateCaptcha(new Dimension(width, height), captchaStr, file);
-//		} catch (Throwable a_th) {
-//			a_th.printStackTrace();
-//		}
-//	}
+	// public static void main(String[] args) {
+	// try {
+	// String captchaStr = getCaptchaString();
+	//
+	// System.out.println(captchaStr);
+	// for(int i = 0; i < 50; i++) {
+	// //System.out.println(getCaptchaString());
+	// }
+	//
+	// int width = 130;
+	// int height = 59;
+	//
+	// File file = new File(path + File.separator + UUID.randomUUID().toString() +
+	// ".png");
+	// generateCaptcha(new Dimension(width, height), captchaStr, file);
+	// } catch (Throwable a_th) {
+	// a_th.printStackTrace();
+	// }
+	// }
 
-	public  static void generateCaptcha(Dimension size, String captchaStr, OutputStream  outputStream) throws Throwable {
+	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream) throws Throwable {
 		int				width			= size.width;
 		int				height			= size.height;
 		Color[]			colours			= getColours();
@@ -89,8 +90,8 @@ public final class CaptchaUtil {
 			xPos	+= 20;
 			isEven	= !isEven;
 		}
-		
-		//((Graphics2D) graphics).dispose();
+
+		// ((Graphics2D) graphics).dispose();
 		for (int iCounter = 12; iCounter <= 60; iCounter = iCounter + 12) {
 			Graphics2D		graphics2d		= (Graphics2D) cpimg.getGraphics();
 			AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
@@ -106,19 +107,19 @@ public final class CaptchaUtil {
 
 			graphics2d.drawString(watermarkText, centerX, centerY);
 		}
-		
+
 		drawLines(foregroundColor, size, graphics);
-		
+
 		ImageIO.write(cpimg, FILE_TYPE, outputStream);
 	}
-	
+
 	private static void drawLines(Color lineColor, Dimension size, Graphics graphics) {
-		int	lineGap			= 5;
-		int	horizontalCount	= (int) Math.ceil(size.height / lineGap);
-		int	verticalCount	= (int) Math.ceil(size.width / lineGap);
+		int				lineGap			= 5;
+		int				horizontalCount	= (int) Math.ceil(size.height / lineGap);
+		int				verticalCount	= (int) Math.ceil(size.width / lineGap);
 
 		AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
-		((Graphics2D)graphics).setComposite(alphaChannel);
+		((Graphics2D) graphics).setComposite(alphaChannel);
 		graphics.setColor(lineColor);
 
 		for (int iHorizontalCounter = 0; iHorizontalCounter < horizontalCount; iHorizontalCounter++) {
@@ -126,7 +127,8 @@ public final class CaptchaUtil {
 		}
 
 		for (int iVerticalCounter = 0; iVerticalCounter < verticalCount; iVerticalCounter++) {
-			//System.out.println("CaptchaGeneratorServlet.drawLines() " + iVerticalCounter);
+			// System.out.println("CaptchaGeneratorServlet.drawLines() " +
+			// iVerticalCounter);
 			graphics.drawLine(15 * iVerticalCounter, 2, 15 * iVerticalCounter, size.height);
 		}
 	}
@@ -144,56 +146,58 @@ public final class CaptchaUtil {
 		int randomNum = random.nextInt((ColourSet.size() - 1) + 1) + 0;
 		return ColourSet.get(randomNum);
 	}
-	
-	
-	public static String getCaptchaString() {
-		final String CHARACTERS = "abcdefghjklmnpqrstuvwxyz23456789";
-		final String CHARACTER_NUMBERS = "23456789";
 
-		char[] charArray = CHARACTERS.toCharArray();
-		char[] numberCharArray = CHARACTER_NUMBERS.toCharArray();
-		String captchaStr = RandomStringUtils.random(6, 0, CHARACTERS.length(), true, true, charArray).toUpperCase();
-		
-		List<Integer> digits = new ArrayList<Integer>();
-		String digitStr = "";
-        for (int i = 0; i < captchaStr.length(); i++) {
-            if (Character.isDigit(captchaStr.charAt(i))) {
-                digitStr += captchaStr.charAt(i);
-            } else {
-                if (!digitStr.isEmpty()) {
-                    digits.add(Integer.parseInt(digitStr));
-                    digitStr = "";
-                }
-            }
-        }
-        if (!digitStr.isEmpty()) {
-            digits.add(Integer.parseInt(digitStr));
-            digitStr = "";
-        }
-        
-        if(digits.isEmpty()){
-        	captchaStr = captchaStr.replace(Character.toString(captchaStr.charAt(4)), RandomStringUtils.random(1, numberCharArray));
-        	captchaStr = captchaStr.replace(Character.toString(captchaStr.charAt(1)), RandomStringUtils.random(1, numberCharArray));
-        }
-        
-        return captchaStr;
+	public static String getCaptchaString() {
+		final String	CHARACTERS			= "abcdefghjklmnpqrstuvwxyz23456789";
+		final String	CHARACTER_NUMBERS	= "23456789";
+
+		char[]			charArray			= CHARACTERS.toCharArray();
+		char[]			numberCharArray		= CHARACTER_NUMBERS.toCharArray();
+		String			captchaStr			= RandomStringUtils.random(6, 0, CHARACTERS.length(), true, true, charArray)
+				.toUpperCase();
+
+		List<Integer>	digits				= new ArrayList<Integer>();
+		String			digitStr			= "";
+		for (int i = 0; i < captchaStr.length(); i++) {
+			if (Character.isDigit(captchaStr.charAt(i))) {
+				digitStr += captchaStr.charAt(i);
+			} else {
+				if (!digitStr.isEmpty()) {
+					digits.add(Integer.parseInt(digitStr));
+					digitStr = "";
+				}
+			}
+		}
+		if (!digitStr.isEmpty()) {
+			digits.add(Integer.parseInt(digitStr));
+			digitStr = "";
+		}
+
+		if (digits.isEmpty()) {
+			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(4)),
+					RandomStringUtils.random(1, numberCharArray));
+			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(1)),
+					RandomStringUtils.random(1, numberCharArray));
+		}
+
+		return captchaStr;
 	}
-	
+
 	public static int getRandomNumber(int min, int max) {
-	    return (int) ((Math.random() * (max - min)) + min);
+		return (int) ((Math.random() * (max - min)) + min);
 	}
-	
+
 	private static String[] getCharacters() {
 		String[] chars = new String[36];
-		
-		for(int i = 0; i < 10; i++) {
+
+		for (int i = 0; i < 10; i++) {
 			chars[i] = i + "";
 		}
-		for(int i = 10; i < 36; i++) {
-			chars[i] = ((char)(i + 55)) + "";
+		for (int i = 10; i < 36; i++) {
+			chars[i] = ((char) (i + 55)) + "";
 		}
-		for(int i = 36; i < 62; i++) {
-			//chars[i] = ((char)(i + 61)) + "";
+		for (int i = 36; i < 62; i++) {
+			// chars[i] = ((char)(i + 61)) + "";
 		}
 		List<String> stringList = Arrays.asList(chars);
 		Collections.shuffle(stringList);

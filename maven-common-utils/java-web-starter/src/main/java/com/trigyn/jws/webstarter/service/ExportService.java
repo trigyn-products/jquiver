@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
+import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
@@ -81,6 +83,9 @@ public class ExportService {
 	@Autowired
 	@Qualifier("dashlet")
 	private DashletModule		dashletDownloadUploadModule		= null;
+
+	@Autowired
+	private DashboardCrudService	dashboardCrudService	= null;
 
 	@Autowired
 	private PropertyMasterDAO	propertyMasterDAO				= null;
@@ -161,10 +166,10 @@ public class ExportService {
 			XMLUtil.generateMetadataXML(moduleListMap, null, tempDownloadPath, version, userName, htmlTableJSON);
 			String zipFilePath = ZipUtil.zipDirectory(tempDownloadPath, systemPath);
 			return zipFilePath;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			if (ex.getMessage() != null && ex.getMessage().startsWith("Data mismatch while exporting")) {
-				return "fail:" + ex.getMessage();
+		} catch (Exception a_excep) {
+			logger.error("Error while exporting the configuration ", a_excep);
+			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Data mismatch while exporting")) {
+				return "fail:" + a_excep.getMessage();
 			} else {
 				return "fail:" + "Error occurred while exporting";
 			}
@@ -319,7 +324,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_NOTIFICATAION_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
 				null);
 
-		validate(exportableList, exportedList,"Notification");
+		validate(exportableList, exportedList, "Notification");
 
 		GenericUserNotificationXMLVO genericUserNotificationXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -342,7 +347,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_DASHBOARD_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
 				customConfigExcludeList, 1);
 
-		validate(exportableList, exportedList,"Dashboard");
+		validate(exportableList, exportedList, "Dashboard");
 
 		DashboardXMLVO dashboardXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -351,6 +356,11 @@ public class ExportService {
 				if (!exportedList.contains(((Dashboard) obj).getDashboardId())) {
 					throw new Exception("Data mismatch while exporting Dashboard.");
 				}
+				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(((Dashboard) obj).getDashboardId());
+				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
+					((Dashboard) obj).setDashboardRoles(dashletRoleAssociation);
+				}
+				
 				dashboardXMLVO.getDashboardDetails().add(((Dashboard) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
@@ -364,7 +374,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
 				null);
 
-		validate(exportableList, exportedList,"File Manager");
+		validate(exportableList, exportedList, "File Manager");
 
 		FileManagerXMLVO fileManagerXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -386,7 +396,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
 				customConfigExcludeList, 1);
 
-		validate(exportableList, exportedList,"Dyna Rest");
+		validate(exportableList, exportedList, "Dyna Rest");
 
 		DynaRestXMLVO dynaRestXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -407,7 +417,7 @@ public class ExportService {
 		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
 				CrudQueryStore.HQL_QUERY_TO_FETCH_PERMISSION_FOR_EXPORT, systemConfigIncludeList, null, null, null);
 
-		validate(exportableList, exportedList,"Permission");
+		validate(exportableList, exportedList, "Permission");
 
 		PermissionXMLVO permissionXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -429,7 +439,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
 				null);
 
-		validate(exportableList, exportedList,"SIte Layout");
+		validate(exportableList, exportedList, "SIte Layout");
 
 		SiteLayoutXMLVO siteLayoutXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -451,7 +461,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_APP_CONFIG_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
 				null);
 
-		validate(exportableList, exportedList,"Application Configuration");
+		validate(exportableList, exportedList, "Application Configuration");
 
 		PropertyMasterXMLVO propertyMasterXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -473,7 +483,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_MANAGE_USERS_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
 				null);
 
-		validate(exportableList, exportedList,"Users");
+		validate(exportableList, exportedList, "Users");
 
 		UserXMLVO userXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -495,7 +505,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_MANAGE_ROLES_DATA_FOR_EXPORT, systemConfigIncludeList, null, null,
 				null);
 
-		validate(exportableList, exportedList,"Roles");
+		validate(exportableList, exportedList, "Roles");
 
 		RoleXMLVO roleXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
@@ -517,7 +527,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
 				customConfigExcludeList, 1);
 
-		validate(exportableList, exportedList,"Templates");
+		validate(exportableList, exportedList, "Templates");
 
 		if (exportableList != null && !exportableList.isEmpty()) {
 			for (Object obj : exportableList) {
@@ -541,7 +551,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_DASHLET_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
 				customConfigExcludeList, 1);
 
-		validate(exportableList, exportedList,"Dashlets");
+		validate(exportableList, exportedList, "Dashlets");
 
 		if (exportableList != null && !exportableList.isEmpty()) {
 			for (Object obj : exportableList) {
@@ -564,7 +574,7 @@ public class ExportService {
 				CrudQueryStore.HQL_QUERY_TO_FETCH_DYNAMIC_FORM_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
 				customConfigExcludeList, 1);
 
-		validate(exportableList, exportedList,"Dynamic Form");
+		validate(exportableList, exportedList, "Dynamic Form");
 
 		if (exportableList != null && !exportableList.isEmpty()) {
 			for (Object obj : exportableList) {

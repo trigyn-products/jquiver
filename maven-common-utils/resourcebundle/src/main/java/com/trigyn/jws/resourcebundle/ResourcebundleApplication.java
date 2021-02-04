@@ -17,22 +17,22 @@ public class ResourcebundleApplication {
 		SpringApplication.run(ResourcebundleApplication.class, args);
 	}
 
-    @Bean
-    public SessionLocaleResolver localeResolver() {
+	@Bean
+	public SessionLocaleResolver localeResolver() {
 		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
 		localeResolver.setDefaultLocale(Locale.US);
-        return localeResolver;
-    }
-    
+		return localeResolver;
+	}
+
 	@Bean
-    public WebMvcConfigurer configurer () {
-        return new WebMvcConfigurer() {
-        	@Override
-        	public void addInterceptors(InterceptorRegistry registry) {
-        		LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
-        		localeChangeInterceptor.setParamName("lang");
-        		registry.addInterceptor(localeChangeInterceptor);
-        	}
-        };
-    }
+	public WebMvcConfigurer configurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addInterceptors(InterceptorRegistry registry) {
+				LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+				localeChangeInterceptor.setParamName("lang");
+				registry.addInterceptor(localeChangeInterceptor);
+			}
+		};
+	}
 }

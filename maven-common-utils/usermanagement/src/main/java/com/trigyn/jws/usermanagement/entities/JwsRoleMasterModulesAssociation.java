@@ -17,26 +17,26 @@ public class JwsRoleMasterModulesAssociation {
 	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-	@Column(name="role_module_id")
-	private String roleModuleId = null;
-	
-	@Column(name="role_id")
-	private String roleId = null;
-	
-	@Column(name="module_id")
-	private String moduleId = null;
-	
-	@Column(name="is_active")
-	private Integer isActive = null;
-	
+	@Column(name = "role_module_id")
+	private String				roleModuleId	= null;
+
+	@Column(name = "role_id")
+	private String				roleId			= null;
+
+	@Column(name = "module_id")
+	private String				moduleId		= null;
+
+	@Column(name = "is_active")
+	private Integer				isActive		= null;
+
 	@ManyToOne
-	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false )
-	private JwsRole role = null;
-	
+	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
+	private JwsRole				role			= null;
+
 	@ManyToOne
-	@JoinColumn(name = "module_id", referencedColumnName = "module_id", insertable = false, updatable = false )
-	private JwsMasterModules module = null;
-	
+	@JoinColumn(name = "module_id", referencedColumnName = "module_id", insertable = false, updatable = false)
+	private JwsMasterModules	module			= null;
+
 	public String getRoleModuleId() {
 		return roleModuleId;
 	}
@@ -88,14 +88,14 @@ public class JwsRoleMasterModulesAssociation {
 	public void setModule(JwsMasterModules module) {
 		this.module = module;
 	}
-	
+
 	public JwsRoleMasterModulesAssociation getObject() {
 		JwsRoleMasterModulesAssociation obj = new JwsRoleMasterModulesAssociation();
 		obj.setIsActive(isActive);
-		obj.setModuleId(moduleId!=null?moduleId.trim():moduleId);
+		obj.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
 		obj.setModules(module.getObject());
-		obj.setRoleId(roleId!=null?roleId.trim():roleId);
-		obj.setRoleModuleId(roleModuleId!=null?roleModuleId.trim():roleModuleId);
+		obj.setRoleId(roleId != null ? roleId.trim() : roleId);
+		obj.setRoleModuleId(roleModuleId != null ? roleModuleId.trim() : roleModuleId);
 		return obj;
 	}
 }

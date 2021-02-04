@@ -348,7 +348,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 30, align: "center", render: editAutocomplete, dataIndx: "action" }
+	        { title: "Action", width: 30, minWidth: 115, align: "center", render: editAutocomplete, dataIndx: "action" }
 		];
 	    let grid = $("#divAutocompleteGrid").grid({
 	      gridId: "autocompleteListingGrid",
@@ -447,6 +447,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
 			</div>
 	    </div>
+	    <#if (tableNameList)?has_content>                                            
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<label for="autocompleteTableSelect" >Autocomplete Table : </label>
+                    <select id="autocompleteTableSelect" name="autocompleteTableSelect" placeholder="Select for autocomplete table" class="form-control" onchange="addEditAutocomplete.createQuery();"/>   
+						<option>Select</option>
+                       	<#list tableNameList as tableName>
+							<option>${tableName}</option>
+                        </#list>
+					</select>
+				</div>
+			</div>
+		</#if>
+			
 	</div>
 	
 	<div class="row">
@@ -471,7 +485,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
   <div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''autocomplete-manage-details'', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>

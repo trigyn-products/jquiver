@@ -33,39 +33,37 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @RestController
 @RequestMapping(value = "/cf")
 public class ResourceBundleCrudController {
-	
-	private final static Logger logger 						= LogManager.getLogger(ResourceBundleCrudController.class);
+
+	private final static Logger		logger					= LogManager.getLogger(ResourceBundleCrudController.class);
 
 	@Autowired
-	private ResourceBundleService resourceBundleService 	= null;
+	private ResourceBundleService	resourceBundleService	= null;
 
 	@Autowired
-	private MenuService menuService			= null;
+	private MenuService				menuService				= null;
 
-	
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
 	public String dbResourceBundleListing(HttpServletResponse httpServletResponse) throws IOException {
-		
+
 		try {
-			Map<String, Object> templateMap = new HashMap<>();
-			List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
+			Map<String, Object>	templateMap		= new HashMap<>();
+			List<LanguageVO>	languageVOList	= resourceBundleService.getLanguagesList();
 			templateMap.put("languageVOList", languageVOList);
 			return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-		
+
 	}
 
-
-	
 	@PostMapping(value = "/aerb")
 	public String dbResourceJsp(@RequestParam("resource-key") String resourceBundleKey) throws Exception {
 		Map<String, Object> templateMap = new HashMap<>();
 		if (resourceBundleKey != null) {
-			Map<Integer, ResourceBundleVO> resourceBundleVOMap = resourceBundleService.getResourceBundleVOMap(resourceBundleKey);
+			Map<Integer, ResourceBundleVO> resourceBundleVOMap = resourceBundleService
+					.getResourceBundleVOMap(resourceBundleKey);
 			templateMap.put("resourceBundleVOMap", resourceBundleVOMap);
 		}
 		List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
@@ -74,50 +72,49 @@ public class ResourceBundleCrudController {
 		return menuService.getTemplateWithSiteLayout("resource-bundle-manage-details", templateMap);
 	}
 
-
-	
 	@GetMapping(value = "/crbk", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Boolean> checkResourceData(@RequestParam("resourceKey") String resourceBundleKey) throws Exception {
-		
+	public ResponseEntity<Boolean> checkResourceData(@RequestParam("resourceKey") String resourceBundleKey)
+			throws Exception {
+
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		try {
 			Boolean keyAlreadyExist = resourceBundleService.checkResourceKeyExist(resourceBundleKey);
 			return new ResponseEntity<>(keyAlreadyExist, httpHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			logger.error("Error ", e);
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
-	
-	
+
 	@PostMapping(value = "/srb", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Boolean> saveResourceDetails(@RequestBody List<ResourceBundleVO> dbResourceList) throws Exception {
-		
+	public ResponseEntity<Boolean> saveResourceDetails(@RequestBody List<ResourceBundleVO> dbResourceList)
+			throws Exception {
+
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		try {
 			resourceBundleService.saveResourceBundleDetails(dbResourceList, Constant.MASTER_SOURCE_VERSION_TYPE);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
-		} catch (Exception e) {
-			logger.error("Error ", e);
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
 			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
-	
-	
+
 	@PostMapping(value = "/srbv", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public void saveResourceDetailsByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
-		TypeReference<List<ResourceBundleVO>> resourceBundleType 
-										= new TypeReference<List<ResourceBundleVO>>() {};
-		String modifiedContent 					  = a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper				  = new ObjectMapper();
-		List<ResourceBundleVO> resourceBundleList = objectMapper.readValue(modifiedContent, resourceBundleType);
+	public void saveResourceDetailsByVersion(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		TypeReference<List<ResourceBundleVO>>	resourceBundleType	= new TypeReference<List<ResourceBundleVO>>() {
+																	};
+		String									modifiedContent		= a_httpServletRequest
+				.getParameter("modifiedContent");
+		ObjectMapper							objectMapper		= new ObjectMapper();
+		List<ResourceBundleVO>					resourceBundleList	= objectMapper.readValue(modifiedContent,
+				resourceBundleType);
 		resourceBundleService.saveResourceBundleDetails(resourceBundleList, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
-
-	
 
 }

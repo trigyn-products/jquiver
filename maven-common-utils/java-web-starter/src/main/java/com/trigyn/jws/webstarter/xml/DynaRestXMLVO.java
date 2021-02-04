@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
 @XmlRootElement(name = "dynaRestData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class DynaRestXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "dynaRest")
-    private List<JwsDynamicRestDetail> dynaRestDetails = new ArrayList<>();
+	private List<JwsDynamicRestDetail> dynaRestDetails = new ArrayList<>();
 
 	public List<JwsDynamicRestDetail> getDynaRestDetails() {
 		return dynaRestDetails;

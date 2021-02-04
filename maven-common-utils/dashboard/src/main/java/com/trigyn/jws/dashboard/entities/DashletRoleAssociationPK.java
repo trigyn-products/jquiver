@@ -3,45 +3,41 @@ package com.trigyn.jws.dashboard.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @Embeddable
 public class DashletRoleAssociationPK implements Serializable {
-	
-	private static final long serialVersionUID 		= 1L;
 
-	@Column(name="dashlet_id", insertable=false, updatable=false, nullable=false)
-	private String dashletId						= null;
+	private static final long	serialVersionUID	= 1L;
 
-	@Column(name="role_id", insertable=false, updatable=false, nullable=false)
-	private String roleId							= null;
+	@Column(name = "dashlet_id", insertable = false, updatable = false, nullable = false)
+	private String				dashletId			= null;
+
+	@Column(name = "role_id", insertable = false, updatable = false, nullable = false)
+	private String				roleId				= null;
 
 	public DashletRoleAssociationPK() {
-		
+
 	}
 
 	public DashletRoleAssociationPK(String dashletId, String roleId) {
-		this.dashletId 		= dashletId;
-		this.roleId 		= roleId;
+		this.dashletId	= dashletId;
+		this.roleId		= roleId;
 	}
 
-	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
 
-	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
@@ -73,12 +69,11 @@ public class DashletRoleAssociationPK implements Serializable {
 
 	public DashletRoleAssociationPK getObject() {
 		DashletRoleAssociationPK obj = new DashletRoleAssociationPK();
-		
-		obj.setDashletId(dashletId!=null?dashletId.trim():dashletId);
-		obj.setRoleId(roleId!=null?roleId.trim():roleId);
-		
+
+		obj.setDashletId(dashletId != null ? dashletId.trim() : dashletId);
+		obj.setRoleId(roleId != null ? roleId.trim() : roleId);
+
 		return obj;
 	}
 
-	
 }

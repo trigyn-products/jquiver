@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 
 @XmlRootElement(name = "gridData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class GridXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "grid")
-    private List<GridDetails> gridDetails = new ArrayList<>();
+	private List<GridDetails> gridDetails = new ArrayList<>();
 
 	public List<GridDetails> getGridDetails() {
 		return gridDetails;
@@ -25,5 +25,5 @@ public class GridXMLVO extends XMLVO {
 	public void setGridDetails(List<GridDetails> gridDetails) {
 		this.gridDetails = gridDetails;
 	}
- 
+
 }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 
 @Repository
-public interface GridDetailsRepository extends JpaRepositoryImplementation<GridDetails, String>{
-    
+public interface GridDetailsRepository extends JpaRepositoryImplementation<GridDetails, String> {
+
 }

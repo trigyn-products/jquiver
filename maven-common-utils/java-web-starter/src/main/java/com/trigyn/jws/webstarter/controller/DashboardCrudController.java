@@ -46,135 +46,134 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @PreAuthorize("hasPermission('module','Dashboard')")
 public class DashboardCrudController {
 
-	private final static Logger logger = LogManager.getLogger(DashboardCrudController.class);
-	
-	@Autowired
-	private DashboardCrudService dashboardCrudService 	= null;
+	private final static Logger		logger					= LogManager.getLogger(DashboardCrudController.class);
 
 	@Autowired
-	private DashletService dashletServive 				= null;
+	private DashboardCrudService	dashboardCrudService	= null;
 
 	@Autowired
-	private IUserDetailsService userDetails 			= null;
-	
+	private DashletService			dashletServive			= null;
+
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO 		= null;
-	
+	private IUserDetailsService		userDetails				= null;
+
 	@Autowired
-	private MenuService menuService 					= null;
-    
-    
+	private PropertyMasterDAO		propertyMasterDAO		= null;
+
+	@Autowired
+	private MenuService				menuService				= null;
+
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException{
-		try{
-			Map<String,Object>  modelMap = new HashMap<>();
-			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			Map<String, Object>	modelMap	= new HashMap<>();
+			String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
-		} catch (Exception exception) {
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
-	
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException {
-		try{
+		try {
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
-		} catch (Exception exception) {
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
-    }
+	}
 
-    
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId, HttpServletResponse httpServletResponse) throws IOException {
-		try{
-			Map<String, Object> templateMap 	= new HashMap<>();
-			Dashboard dashboard 				= new Dashboard();
-			List<UserRoleVO> userRoleVOs 		= dashboardCrudService.getAllUserRoles();
+	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId,
+			HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			Map<String, Object>	templateMap	= new HashMap<>();
+			Dashboard			dashboard	= new Dashboard();
+			List<UserRoleVO>	userRoleVOs	= dashboardCrudService.getAllUserRoles();
 			if (!StringUtils.isBlank(dashboardId)) {
 				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
-				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
+				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService
+						.findDashboardRoleByDashboardId(dashboardId);
 				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
 					dashboard.setDashboardRoles(dashletRoleAssociation);
 				}
 			} else {
 				dashboard.setDashboardRoles(new ArrayList<>());
 			}
-			
+
 			templateMap.put("userRoleVOs", userRoleVOs);
 			Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
 			templateMap.put("contextDetails", contextDetails);
 			templateMap.put("dashboard", dashboard);
 			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
-		} catch (Exception exception) {
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
-	
 	@PostMapping(value = "/sdb")
 	@ResponseBody
 	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
-			@RequestHeader(value = "user-id", required = false) String userId) throws Exception{
+			@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
 		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
 		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
 		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId, Constant.MASTER_SOURCE_VERSION_TYPE);
-    }
-    
-	@PostMapping(value="/sdbv")
-	public void saveDashboardByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
-		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper		= new ObjectMapper();
-		DashboardVO dashboardVO			= objectMapper.readValue(modifiedContent, DashboardVO.class);
+	}
+
+	@PostMapping(value = "/sdbv")
+	public void saveDashboardByVersion(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper	objectMapper	= new ObjectMapper();
+		DashboardVO		dashboardVO		= objectMapper.readValue(modifiedContent, DashboardVO.class);
 		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
 		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
 		dashboardCrudService.saveDashboardDetails(dashboardVO, null, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
-    
-	@PostMapping(value = "/aedl", produces = {MediaType.TEXT_HTML_VALUE})
-	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId, HttpServletResponse httpServletResponse) throws IOException {
-		try{
-			Map<String, Object> templateMap 		= new HashMap<>();
-			DashletVO dashletVO						= dashletServive.getDashletDetailsById(dashletId);
-			Map<String, String> componentsMap		= dashletServive.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
-			Map<String, String> contextDetailsMap	= dashboardCrudService.findContextDetails();
+
+	@PostMapping(value = "/aedl", produces = { MediaType.TEXT_HTML_VALUE })
+	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId,
+			HttpServletResponse httpServletResponse) throws IOException {
+		try {
+			Map<String, Object>	templateMap			= new HashMap<>();
+			DashletVO			dashletVO			= dashletServive.getDashletDetailsById(dashletId);
+			Map<String, String>	componentsMap		= dashletServive
+					.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
+			Map<String, String>	contextDetailsMap	= dashboardCrudService.findContextDetails();
 			templateMap.put("dashletVO", dashletVO);
 			templateMap.put("componentMap", componentsMap);
 			templateMap.put("contextDetailsMap", contextDetailsMap);
 			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
-	
 
-	
 	@PostMapping(value = "/sdl")
 	@ResponseBody
-	public String saveDashlet(@RequestHeader(value = "user-id", required = true) String userId
-			, @RequestBody DashletVO dashletVO) throws Exception {
-		dashboardCrudService.deleteAllDashletProperty(dashletVO);
-		dashboardCrudService.deleteAllDashletRoles(dashletVO);
-		return dashboardCrudService.saveDashlet(userId, dashletVO,  Constant.MASTER_SOURCE_VERSION_TYPE);
+	public String saveDashlet(@RequestHeader(value = "user-id", required = true) String userId,
+			@RequestBody DashletVO dashletVO) throws Exception {
+		return dashboardCrudService.saveDashlet(userId, dashletVO, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
-    
-	@PostMapping(value="/sdlv")
-	public void saveDashletByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
-		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper		= new ObjectMapper();
-		DashletVO dashletVO				= objectMapper.readValue(modifiedContent, DashletVO.class);
-		dashboardCrudService.deleteAllDashletProperty(dashletVO);
-		dashboardCrudService.deleteAllDashletRoles(dashletVO);
+
+	@PostMapping(value = "/sdlv")
+	public void saveDashletByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper	objectMapper	= new ObjectMapper();
+		DashletVO		dashletVO		= objectMapper.readValue(modifiedContent, DashletVO.class);
 		dashboardCrudService.saveDashlet(null, dashletVO, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
-	
+
 	@PostMapping(value = "/ddl")
 	public void downloadAllDashletsToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		dashboardCrudService.downloadDashlets(null);
@@ -184,14 +183,13 @@ public class DashboardCrudController {
 	public void uploadAllDashletsToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		dashboardCrudService.uploadDashlets(null);
 	}
-	
-	
+
 	@PostMapping(value = "/ddlbi")
 	public void downloadDashletByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Exception {
 		String dashletId = request.getParameter("dashletId");
 		dashboardCrudService.downloadDashlets(dashletId);
 	}
-	
+
 	@PostMapping(value = "/udlbn")
 	public void uploadDashletsByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String dashletName = request.getParameter("dashletName");

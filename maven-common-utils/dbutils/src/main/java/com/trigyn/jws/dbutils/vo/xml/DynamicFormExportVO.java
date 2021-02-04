@@ -4,33 +4,33 @@ import java.util.Map;
 
 public class DynamicFormExportVO {
 
-	private String 						formId 					= null;
+	private String					formId				= null;
 
-	private String 						formName				= null;
+	private String					formName			= null;
 
-	private String 						formDescription 		= null;
+	private String					formDescription		= null;
 
-	private Integer 					formTypeId 				= 1;
+	private Integer					formTypeId			= 1;
 
-	private String						selectQueryFileName		= null;
+	private String					selectQueryFileName	= null;
 
-	private String						htmlBodyFileName		= null;
+	private String					htmlBodyFileName	= null;
 
-	private Map<Integer, String>		saveFileNameMap			= null;
+	private Map<Integer, String>	saveFileNameMap		= null;
 
 	public DynamicFormExportVO() {
-		
+
 	}
-	
+
 	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
 			String selectQueryFileName, String htmlBodyFileName, Map<Integer, String> saveFileNameMap) {
-		this.formId = formId;
-		this.formName = formName;
-		this.formDescription = formDescription;
-		this.formTypeId = formTypeId;
-		this.selectQueryFileName = selectQueryFileName;
-		this.htmlBodyFileName = htmlBodyFileName;
-		this.saveFileNameMap = saveFileNameMap;
+		this.formId					= formId;
+		this.formName				= formName;
+		this.formDescription		= formDescription;
+		this.formTypeId				= formTypeId;
+		this.selectQueryFileName	= selectQueryFileName;
+		this.htmlBodyFileName		= htmlBodyFileName;
+		this.saveFileNameMap		= saveFileNameMap;
 	}
 
 	public String getFormId() {

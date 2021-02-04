@@ -96,7 +96,7 @@ group by me.manual_entry_id', '<head>
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="col-6 fileupload dropzone"></div>
+                        <div class="col-5 fileupload dropzone"></div>
                     </div>
                 </div>
 
@@ -104,7 +104,7 @@ group by me.manual_entry_id', '<head>
     <div class="row">
         <div class="col-12">
             <div class="float-right">
-                <div class="btn-group dropdown custom-grp-btn">
+                <div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''${formId}'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -134,7 +134,7 @@ group by me.manual_entry_id', '<head>
     let manualdata;
 
     let dropzoneElement = $(".fileupload").fileUpload({
-        fileUploadId : "dynamic-form",
+        fileUploadId : "helpManual",
         successcallback: showFileDataInEntryContent.bind(this),
         deletecallback: deleteFileDataInEntryContent.bind(this)
     });
@@ -311,7 +311,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Last Updated Timestamp", width: 130, dataIndx: "last_modified_on", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]} , render: lastUpdatedDate },
-            { title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
     
     //System will fecth grid data based on gridId
@@ -429,7 +429,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
         let colM = [
             { title: "Name", dataIndx: "name", width: 800, align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-            { title: "Action", dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+            { title: "Action", minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
         ];
     
     //System will fecth grid data based on gridId

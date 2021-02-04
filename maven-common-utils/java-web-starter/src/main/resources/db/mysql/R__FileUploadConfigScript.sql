@@ -55,7 +55,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 			{ title: "No Of Files", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editFileUploadConfig}
+	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editFileUploadConfig}
 	    ];
 	    let grid = $("#divFileConfigListingGrid").grid({
 	      gridId: "fileUploadConfigGrid",
@@ -164,7 +164,7 @@ WHERE fuc.file_upload_config_id = "${fileUploadConfigId}" AND is_deleted = 0;', 
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''file-upload-config'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -273,14 +273,14 @@ replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url
 getFileConfigDetails(requestDetails, daoResults);', 3, 2);
 
 replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
-(19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "helpManual")
-order by FIELD(file_upload_config_id, :fileUploadId, "helpManual")
+(19, 1002, 'fileConfigs', 'select fuc.* from file_upload_config as fuc where fuc.file_upload_config_id IN (:fileUploadId, "default")
+order by FIELD(file_upload_config_id, :fileUploadId, "default")
 LIMIT 1', 1, 1);
 
 REPLACE INTO file_upload_config (file_upload_config_id, file_type_supported, max_file_size, no_of_files, is_deleted, updated_by, updated_date) VALUES
-('default', '*', 2000000000000, 1, 0, 'admin', NOW());
+('default', '', 32000000, 10, 0, 'admin', NOW());
 
 REPLACE INTO file_upload_config (file_upload_config_id, file_type_supported, max_file_size, no_of_files, is_deleted, updated_by, updated_date) VALUES
-('helpManual', '.png, .jpg, .jpeg, .pdf', 5000000000000, 20, 0, 'admin', NOW());
+('helpManual', '.png, .jpg, .jpeg, .pdf', 33000000, 20, 0, 'admin', NOW());
 
 SET FOREIGN_KEY_CHECKS=1;

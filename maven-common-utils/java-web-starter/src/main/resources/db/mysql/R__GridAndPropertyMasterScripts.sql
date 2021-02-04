@@ -68,7 +68,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 50, align: "center", render: editGridDetails, dataIndx: "action" }
+	        { title: "Action", width: 50, minWidth: 115, align: "center", render: editGridDetails, dataIndx: "action" }
 		];
 		let grid = $("#divGridDetailsListing").grid({
 	      gridId: "gridDetailsListing",
@@ -204,7 +204,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''grid-details-form'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -482,7 +482,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
 		];
 	
 		grid = $("#propertyMasterListingGrid").grid({
@@ -608,7 +608,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	<div class="row margin-t-10">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
 			      <div id="savedAction">
 		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''property-master-form'', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		     	   </div>

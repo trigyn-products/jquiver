@@ -3,22 +3,22 @@ package com.trigyn.jws.dbutils.vo;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class UserRoleVO implements Serializable{
+public class UserRoleVO implements Serializable {
 
-	private static final long serialVersionUID 	= -5698385393824051258L;
-	
-	private String roleId						= null;
-	private String roleName						= null;
-	private String roleDescription				= null;
-	
+	private static final long	serialVersionUID	= -5698385393824051258L;
+
+	private String				roleId				= null;
+	private String				roleName			= null;
+	private String				roleDescription		= null;
+
 	public UserRoleVO() {
 
 	}
 
 	public UserRoleVO(String roleId, String roleName, String roleDescription) {
-		this.roleId 			= roleId;
-		this.roleName 			= roleName;
-		this.roleDescription 	= roleDescription;
+		this.roleId				= roleId;
+		this.roleName			= roleName;
+		this.roleDescription	= roleDescription;
 	}
 
 	/**
@@ -88,6 +88,5 @@ public class UserRoleVO implements Serializable{
 	public String toString() {
 		return "UserRoleVO [roleId=" + roleId + ", roleName=" + roleName + ", roleDescription=" + roleDescription + "]";
 	}
-	
-	
+
 }

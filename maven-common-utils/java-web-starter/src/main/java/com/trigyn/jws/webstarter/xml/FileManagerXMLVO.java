@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 
 @XmlRootElement(name = "fileUploadData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class FileManagerXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "fileUpload")
-    private List<FileUploadConfig> fileUploadDetails = new ArrayList<>();
+	private List<FileUploadConfig> fileUploadDetails = new ArrayList<>();
 
 	public List<FileUploadConfig> getFileUploadDetails() {
 		return fileUploadDetails;

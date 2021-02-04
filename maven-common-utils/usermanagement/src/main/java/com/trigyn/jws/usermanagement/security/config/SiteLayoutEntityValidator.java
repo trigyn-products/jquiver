@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,20 +11,17 @@ import org.springframework.stereotype.Component;
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
 
 @Component
-public class SiteLayoutEntityValidator  implements EntityValidator{
+public class SiteLayoutEntityValidator implements EntityValidator {
 
 	@Autowired
 	private AuthorizedValidatorDAO authorizedValidatorDAO = null;
-	
-	
+
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
-		boolean hasAccess = false;
-		String moduleUrl = reqObject.getRequestURI();
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
+			ProceedingJoinPoint a_joinPoint) {
+		boolean	hasAccess	= false;
+		String	moduleUrl	= reqObject.getRequestURI();
 		moduleUrl = moduleUrl.replaceFirst("/view/", "");
-		if(StringUtils.isNotBlank(reqObject.getQueryString())) {
-			moduleUrl += "?"+reqObject.getQueryString();
-		}
 		Long count = authorizedValidatorDAO.hasAccessToSiteLayout(moduleUrl, roleNames);
 		if (count > 0) {
 			hasAccess = true;

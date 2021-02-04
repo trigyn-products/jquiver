@@ -62,7 +62,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Action", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter}
+				{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter}
 			];
 	
 			let grid = $("#divDynamicFormMasterGrid").grid({
@@ -286,7 +286,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
 						<div id="savedAction">
 							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dynamic-form-manage-details'', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
 						</div>

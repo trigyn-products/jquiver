@@ -139,7 +139,7 @@ $(function () {
         filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
         { title: "Platform", width: 160, align: "center", dataIndx: "platformId", align: "left", halign: "center", render: platforms,
         filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
-        { title: "Action", width: 30, align: "center", render: editDynarest, dataIndx: "action" }
+        { title: "Action", width: 30, minWidth: 115, align: "center", render: editDynarest, dataIndx: "action" }
 	];
     let grid = $("#divDynarestGrid").grid({
       gridId: "dynarestListingGrid",
@@ -351,7 +351,7 @@ where jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
     <div class="row">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dynamic-rest-form'', this, dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
@@ -522,8 +522,6 @@ return response;', 1, 2);
 REPLACE INTO jws_dynamic_rest_dao_details (jws_dao_details_id,jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence) VALUES
 (7,4, 'defaultTemplates', 'select template_name as name, template as template from template_master where template_name like ("default-%")', 1);
 
-update jws_dynamic_rest_details SET jws_service_logic = "com.trigyn.jws.dynarest.service.DynaRest" where jws_platform_id = 1;
-
 replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 (1001, 'js-demo', 1, 'jsdemo', 'JS', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults;
@@ -535,5 +533,13 @@ replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_
 (15, 1001, 'values', 'select * from jws_property_master', 1, 1);
 
 delete from jws_response_producer_details where jws_response_producer_type_id = 11;
+
+UPDATE jws_dynamic_rest_details SET
+jws_service_logic = 'com.trigyn.jws.dynarest.service.DynaRest'
+WHERE jws_method_name = 'getDynamicRestDetails'; 
+
+UPDATE jws_dynamic_rest_details SET
+jws_service_logic = 'com.trigyn.jws.dynarest.service.DynaRest'
+WHERE jws_method_name = 'defaultTemplates'; 
 
 SET FOREIGN_KEY_CHECKS=1;

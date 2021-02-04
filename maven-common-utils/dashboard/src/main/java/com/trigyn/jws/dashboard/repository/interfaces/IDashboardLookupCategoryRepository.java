@@ -11,8 +11,11 @@ import com.trigyn.jws.dashboard.entities.DashboardLookupCategory;
 import com.trigyn.jws.dashboard.vo.DashboardLookupCategoryVO;
 
 @Repository
-public interface IDashboardLookupCategoryRepository extends JpaRepository<DashboardLookupCategory, String>{
+public interface IDashboardLookupCategoryRepository extends JpaRepository<DashboardLookupCategory, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_NAME)
 	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByName(String lookupCategoryName);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_ID)
+	List<DashboardLookupCategoryVO> findDashboardLookupCategoryById(List<String> lookupCategoryId);
 }

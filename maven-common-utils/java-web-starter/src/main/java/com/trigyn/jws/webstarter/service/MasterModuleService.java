@@ -16,13 +16,13 @@ import com.trigyn.jws.webstarter.entities.MasterModule;
 public class MasterModuleService {
 
 	@Autowired
-	private IMasterModuleDAO masterModuleDAO 					= null;
-	
+	private IMasterModuleDAO masterModuleDAO = null;
+
 	public List<MasterModule> getModules() {
-		
+
 		List<MasterModule> masterModules = new ArrayList<>();
 		masterModules = masterModuleDAO.findAll(Sort.by(Sort.Direction.ASC, "masterModuleName"));
-		
+
 		return masterModules;
 	}
 }

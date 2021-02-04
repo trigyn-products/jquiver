@@ -58,9 +58,9 @@ public class TemplateDAO extends DBConnection {
 	}
 
 	public Long getTemplateCount(String templateId) {
-		StringBuilder stringBuilder = new StringBuilder(
+		StringBuilder	stringBuilder	= new StringBuilder(
 				"SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
-		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("templateId", templateId);
 		return (Long) query.uniqueResult();
 	}

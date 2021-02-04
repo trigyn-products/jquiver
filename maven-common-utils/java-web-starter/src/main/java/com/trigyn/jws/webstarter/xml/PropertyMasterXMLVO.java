@@ -12,11 +12,11 @@ import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 
 @XmlRootElement(name = "applicationConfigurationData")
-@XmlAccessorType (XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PropertyMasterXMLVO extends XMLVO {
-	
+
 	@XmlElement(name = "applicationConfiguration")
-    private List<PropertyMaster> applicationConfiguration = new ArrayList<>();
+	private List<PropertyMaster> applicationConfiguration = new ArrayList<>();
 
 	public List<PropertyMaster> getApplicationConfiguration() {
 		return applicationConfiguration;

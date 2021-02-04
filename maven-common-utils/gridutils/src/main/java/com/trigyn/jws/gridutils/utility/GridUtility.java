@@ -13,28 +13,31 @@ import org.apache.logging.log4j.Logger;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 
 public class GridUtility {
-	
+
 	private final static Logger logger = LogManager.getLogger(GridUtility.class);
 
 	public static String generateQueryForCount(GridDetails gridDetails, GenericGridParams gridParams) {
-		boolean       criteriaParamsPressent = gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true : false;
-		boolean       filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true
-				: false;
-		StringBuilder query                  = new StringBuilder("select count(*) from " + gridDetails.getGridTableName() + " ");
+		boolean			criteriaParamsPressent	= gridParams.getCriteriaParams() != null
+				&& gridParams.getCriteriaParams().size() > 0 ? true : false;
+		boolean			filterParamsPresent		= gridParams.getFilterParams() != null
+				&& (gridParams.getFilterParams().getRules() != null
+						&& gridParams.getFilterParams().getRules().size() > 0) ? true : false;
+		StringBuilder	query					= new StringBuilder(
+				"select count(*) from " + gridDetails.getGridTableName() + " ");
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? and ", " where ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				joiner.add(criteriaParams.getKey());
 			}
-			
-			if(gridParams.getCriteriaParams().entrySet().size() == 1) {
+
+			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
 				query.append(joiner.toString() + " = ? ");
 			} else {
 				query.append(joiner.toString());
 			}
 		}
 		if (filterParamsPresent) {
-			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
+			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where ", " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
 				StringJoiner joiner = new StringJoiner(" or ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
@@ -50,20 +53,22 @@ public class GridUtility {
 			}
 			query.append(stringJoiner.toString());
 		}
-		
+
 		return query.toString();
 	}
 
 	public static Object[] generateCriteriaForCount(GenericGridParams gridParams) {
-		boolean           criteriaParamsPressent = gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true : false;
-		boolean           filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0)
-				? true
-				: false;
-		ArrayList<Object> params                 = new ArrayList<Object>();
+		boolean				criteriaParamsPressent	= gridParams.getCriteriaParams() != null
+				&& gridParams.getCriteriaParams().size() > 0 ? true : false;
+		boolean				filterParamsPresent		= gridParams.getFilterParams() != null
+				&& (gridParams.getFilterParams().getRules() != null
+						&& gridParams.getFilterParams().getRules().size() > 0) ? true : false;
+		ArrayList<Object>	params					= new ArrayList<Object>();
 		if (criteriaParamsPressent) {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				if (criteriaParams.getValue() instanceof String) {
-					String criteriaParam = criteriaParams.getValue() == null ? null : escapeSql(criteriaParams.getValue().toString());
+					String criteriaParam = criteriaParams.getValue() == null ? null
+							: escapeSql(criteriaParams.getValue().toString());
 					params.add(criteriaParam);
 				} else {
 					params.add(criteriaParams.getValue());
@@ -79,25 +84,27 @@ public class GridUtility {
 	}
 
 	public static String generateQueryForList(GridDetails gridDetails, GenericGridParams gridParams) {
-		boolean       criteriaParamsPressent = gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true : false;
-		boolean       filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true
-				: false;
-		StringBuilder query                  = new StringBuilder("select ");
+		boolean			criteriaParamsPressent	= gridParams.getCriteriaParams() != null
+				&& gridParams.getCriteriaParams().size() > 0 ? true : false;
+		boolean			filterParamsPresent		= gridParams.getFilterParams() != null
+				&& (gridParams.getFilterParams().getRules() != null
+						&& gridParams.getFilterParams().getRules().size() > 0) ? true : false;
+		StringBuilder	query					= new StringBuilder("select ");
 		query.append(gridDetails.getGridColumnName() + " from " + gridDetails.getGridTableName() + " ");
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? and ", " where ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				joiner.add(criteriaParams.getKey());
 			}
-			
-			if(gridParams.getCriteriaParams().entrySet().size() == 1) {
+
+			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
 				query.append(joiner.toString() + " = ? ");
 			} else {
 				query.append(joiner.toString());
 			}
 		}
 		if (filterParamsPresent) {
-			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where " , " ");
+			StringJoiner stringJoiner = new StringJoiner("", criteriaParamsPressent ? "" : " where ", " ");
 			if (gridParams.getFilterParams().getGroupOp().equalsIgnoreCase("or")) {
 				StringJoiner joiner = new StringJoiner(" or ");
 				for (SearchFields sf : gridParams.getFilterParams().getRules()) {
@@ -113,7 +120,8 @@ public class GridUtility {
 			}
 			query.append(stringJoiner.toString());
 		}
-		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty()) && (gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty())) {
+		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty())
+				&& (gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty())) {
 			query.append("order by " + gridParams.getSortIndex() + " " + gridParams.getSortOrder());
 		}
 		query.append(" limit ?,?");
@@ -121,11 +129,12 @@ public class GridUtility {
 	}
 
 	public static Object[] generateCriteriaForList(GenericGridParams gridParams) {
-		boolean           criteriaParamsPressent = gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true : false;
-		boolean           filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0)
-				? true
-				: false;
-		ArrayList<Object> params                 = new ArrayList<Object>();
+		boolean				criteriaParamsPressent	= gridParams.getCriteriaParams() != null
+				&& gridParams.getCriteriaParams().size() > 0 ? true : false;
+		boolean				filterParamsPresent		= gridParams.getFilterParams() != null
+				&& (gridParams.getFilterParams().getRules() != null
+						&& gridParams.getFilterParams().getRules().size() > 0) ? true : false;
+		ArrayList<Object>	params					= new ArrayList<Object>();
 		if (criteriaParamsPressent) {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				params.add(criteriaParams.getValue());
@@ -142,18 +151,21 @@ public class GridUtility {
 		return params.toArray();
 	}
 
-	public static Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams, boolean forCnt) {
-		boolean             criteriaParamsPressent = gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true : false;
-		boolean             filterParamsPresent    = gridParams.getFilterParams() != null && (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0)
-				? true
-				: false;
-		Map<String, Object> inParamMap             = new HashMap<String, Object>();
-		String[]            columnNames            = gridDetails.getGridColumnName().split(",");
-		List<String>        columns                = new ArrayList<String>(Arrays.asList(columnNames));
+	public static Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams,
+			boolean forCnt) {
+		boolean				criteriaParamsPressent	= gridParams.getCriteriaParams() != null
+				&& gridParams.getCriteriaParams().size() > 0 ? true : false;
+		boolean				filterParamsPresent		= gridParams.getFilterParams() != null
+				&& (gridParams.getFilterParams().getRules() != null
+						&& gridParams.getFilterParams().getRules().size() > 0) ? true : false;
+		Map<String, Object>	inParamMap				= new HashMap<String, Object>();
+		String[]			columnNames				= gridDetails.getGridColumnName().split(",");
+		List<String>		columns					= new ArrayList<String>(Arrays.asList(columnNames));
 		if (criteriaParamsPressent) {
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
 				if (criteriaParams.getValue() instanceof String) {
-					String criteriaParam = criteriaParams.getValue() == null ? null : escapeSql(criteriaParams.getValue().toString());
+					String criteriaParam = criteriaParams.getValue() == null ? null
+							: escapeSql(criteriaParams.getValue().toString());
 					inParamMap.put(criteriaParams.getKey(), criteriaParam);
 				} else {
 					inParamMap.put(criteriaParams.getKey(), criteriaParams.getValue());
@@ -169,7 +181,9 @@ public class GridUtility {
 
 		for (String column : columns) {
 			if (column.length() > 0) {
-				inParamMap.put(column, null);
+				if(inParamMap.containsKey(column) == false) {
+					inParamMap.put(column, null);
+				}
 			}
 		}
 
@@ -180,8 +194,14 @@ public class GridUtility {
 			inParamMap.put("limitTo", null);
 			inParamMap.put("forCount", 1);
 		} else {
-			inParamMap.put("sortIndex", gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty() ? escapeSql(gridParams.getSortIndex()) : null);
-			inParamMap.put("sortOrder", gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty() ? escapeSql(gridParams.getSortOrder()) : null);
+			inParamMap.put("sortIndex",
+					gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty()
+							? escapeSql(gridParams.getSortIndex())
+							: null);
+			inParamMap.put("sortOrder",
+					gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty()
+							? escapeSql(gridParams.getSortOrder())
+							: null);
 			inParamMap.put("limitFrom", gridParams.getStartIndex());
 			inParamMap.put("limitTo", gridParams.getRowsPerPage());
 			inParamMap.put("forCount", 0);
@@ -190,9 +210,9 @@ public class GridUtility {
 	}
 
 	public static String escapeSql(String data) {
-		data = data.replace("\\", "\\\\\\\\");
-		data = data.replace("%", "\\%");
-		data = data.replace("'", "''");
+		data	= data.replace("\\", "\\\\\\\\");
+		data	= data.replace("%", "\\%");
+		data	= data.replace("'", "''");
 		return data;
 	}
 

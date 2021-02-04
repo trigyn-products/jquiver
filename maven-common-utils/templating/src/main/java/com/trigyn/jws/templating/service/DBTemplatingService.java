@@ -29,47 +29,47 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Transactional(readOnly = true)
 public class DBTemplatingService {
 
-	private static final Logger logger = LogManager.getLogger(DBTemplatingService.class);
-    
-	@Autowired
-	private DBTemplatingRepository dbTemplatingRepository 	= null;
+	private static final Logger		logger					= LogManager.getLogger(DBTemplatingService.class);
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO 			= null;
-	
-	@Autowired
-	private IUserDetailsService userDetailsService 			= null;
+	private DBTemplatingRepository	dbTemplatingRepository	= null;
 
 	@Autowired
-	private FileUtilities fileUtilities  					= null;
-	
+	private PropertyMasterDAO		propertyMasterDAO		= null;
+
 	@Autowired
-	private ModuleVersionService moduleVersionService		= null;
-	
+	private IUserDetailsService		userDetailsService		= null;
+
+	@Autowired
+	private FileUtilities			fileUtilities			= null;
+
+	@Autowired
+	private ModuleVersionService	moduleVersionService	= null;
+
 	@Autowired
 	@Qualifier("template")
-	private TemplateModule templateModule 					= null;
-	
-	@Authorized(moduleName =  Constants.TEMPLATING)
+	private TemplateModule			templateModule			= null;
+
+	@Authorized(moduleName = Constants.TEMPLATING)
 	public TemplateVO getTemplateByName(String templateName) throws Exception {
-	    	
-	        TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
-			if (templateVO == null) {
-	            throw new Exception("No template was found with the  name " + templateName);
-	        }
-	        String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-	        if(environment.equalsIgnoreCase("dev")) {
-	        	getTemplateContentsForDevEnvironment(templateName, templateVO);
-	        }
-	        return templateVO;
+
+		TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
+		if (templateVO == null) {
+			throw new Exception("No template was found with the  name " + templateName);
+		}
+		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+		if (environment.equalsIgnoreCase("dev")) {
+			getTemplateContentsForDevEnvironment(templateName, templateVO);
+		}
+		return templateVO;
 	}
 
-    public TemplateVO getVelocityDataById(String templateId) throws Exception {
-        TemplateMaster templateMaster = dbTemplatingRepository.findById(templateId)
-                .orElseThrow(() -> new Exception("Template not found with id : " + templateId));
-        return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
-                templateMaster.getTemplate());
-    }
+	public TemplateVO getVelocityDataById(String templateId) throws Exception {
+		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateId)
+				.orElseThrow(() -> new Exception("Template not found with id : " + templateId));
+		return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
+				templateMaster.getTemplate());
+	}
 
 	public String checkVelocityData(String velocityName) throws Exception {
 		TemplateVO templateVO = dbTemplatingRepository.findByVmName(velocityName);
@@ -82,47 +82,50 @@ public class DBTemplatingService {
 	@Transactional(readOnly = false)
 	public String saveTemplateData(HttpServletRequest request) throws Exception {
 
-        UserDetailsVO detailsVO = userDetailsService.getUserDetails();
-        String templateName = request.getParameter("velocityName");
-        String templateId = request.getParameter("velocityId") == null ? "-1" : request.getParameter("velocityId");
-        String templateData = request.getParameter("velocityTempData");
+		UserDetailsVO	detailsVO		= userDetailsService.getUserDetails();
+		String			templateName	= request.getParameter("velocityName");
+		String			templateId		= request.getParameter("velocityId") == null ? "-1"
+				: request.getParameter("velocityId");
+		String			templateData	= request.getParameter("velocityTempData");
 
-        TemplateMaster templateDetails = dbTemplatingRepository.findById(templateId).orElse(new TemplateMaster());
-        templateDetails.setTemplate(templateData);
-        templateDetails.setTemplateName(templateName);
-        templateDetails.setUpdatedDate(new Date());
+		TemplateMaster	templateDetails	= dbTemplatingRepository.findById(templateId).orElse(new TemplateMaster());
+		templateDetails.setTemplate(templateData);
+		templateDetails.setTemplateName(templateName);
+		templateDetails.setUpdatedDate(new Date());
 
-        if (templateId != null && !templateId.isEmpty()) {
-            templateDetails.setUpdatedBy(detailsVO.getUserName());
-            templateDetails.setTemplateId(templateId);
-            templateDetails.setCreatedBy(detailsVO.getUserName());
-        } else {
-            templateDetails.setCreatedBy(detailsVO.getUserId());
-        }
-        String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-        if(environment.equalsIgnoreCase("dev")) {
-        	
-        	String ftlCustomExtension = ".tgn";
-    		String templateDirectory = "Templates";
-    		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-    		TemplateVO templateVO = new TemplateVO();
-            templateVO.setTemplate(templateData);
-    		folderLocation = folderLocation +File.separator+templateDirectory;
-    		File directory = new File(folderLocation);
-    		if(!directory.exists()) {
-    			throw new Exception("No such directory present");
-    		}
-            File templateFile = new File(folderLocation+File.separator+templateName+ftlCustomExtension);
-            templateDetails.setChecksum(fileUtilities.writeFileContents(templateVO.getTemplate(), templateFile));
-        }
-        
-        TemplateMaster templateMaster = dbTemplatingRepository.saveAndFlush(templateDetails);
-        TemplateVO templateVO = new TemplateVO(templateMaster.getTemplateId(),
-        		templateMaster.getTemplateName(), templateMaster.getTemplate());
-        moduleVersionService.saveModuleVersion(templateVO,null, templateMaster.getTemplateId(), "template_master", Constant.MASTER_SOURCE_VERSION_TYPE);
-        
-        return templateMaster.getTemplateId();
-    }
+		if (templateId != null && !templateId.isEmpty()) {
+			templateDetails.setUpdatedBy(detailsVO.getUserName());
+			templateDetails.setTemplateId(templateId);
+			templateDetails.setCreatedBy(detailsVO.getUserName());
+		} else {
+			templateDetails.setCreatedBy(detailsVO.getUserId());
+		}
+		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+		if (environment.equalsIgnoreCase("dev")) {
+
+			String		ftlCustomExtension	= ".tgn";
+			String		templateDirectory	= "Templates";
+			String		folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+					"template-storage-path");
+			TemplateVO	templateVO			= new TemplateVO();
+			templateVO.setTemplate(templateData);
+			folderLocation = folderLocation + File.separator + templateDirectory;
+			File directory = new File(folderLocation);
+			if (!directory.exists()) {
+				throw new Exception("No such directory present");
+			}
+			File templateFile = new File(folderLocation + File.separator + templateName + ftlCustomExtension);
+			templateDetails.setChecksum(fileUtilities.writeFileContents(templateVO.getTemplate(), templateFile));
+		}
+
+		TemplateMaster	templateMaster	= dbTemplatingRepository.saveAndFlush(templateDetails);
+		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(),
+				templateMaster.getTemplateName(), templateMaster.getTemplate());
+		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "template_master",
+				Constant.MASTER_SOURCE_VERSION_TYPE);
+
+		return templateMaster.getTemplateId();
+	}
 
 	public List<TemplateMaster> getAllTemplates() {
 		List<TemplateMaster> templates = dbTemplatingRepository.findAll();
@@ -133,37 +136,41 @@ public class DBTemplatingService {
 		List<TemplateVO> templateVOs = dbTemplatingRepository.getAllDefaultTemplates(Constant.DEFAULT_TEMPLATE_TYPE);
 		return templateVOs;
 	}
-	
+
 	public void saveAllTemplates(List<TemplateMaster> templates) {
 		dbTemplatingRepository.saveAll(templates);
 	}
-	
+
 	public TemplateMaster saveTemplateMaster(TemplateMaster templateMaster) {
 		return dbTemplatingRepository.save(templateMaster);
 	}
-	
+
 	@Transactional(readOnly = false)
-	public void saveTemplate(TemplateVO templateVO) throws Exception{
-		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateVO.getTemplateId()).orElse(new TemplateMaster());
+	public void saveTemplate(TemplateVO templateVO) throws Exception {
+		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateVO.getTemplateId())
+				.orElse(new TemplateMaster());
 		templateMaster.setTemplate(templateVO.getTemplate());
 		dbTemplatingRepository.save(templateMaster);
-		moduleVersionService.saveModuleVersion(templateVO,null, templateMaster.getTemplateId(), "template_master", Constant.REVISION_SOURCE_VERSION_TYPE);
+		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "template_master",
+				Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
-	
+
 	private void getTemplateContentsForDevEnvironment(String templateName, TemplateVO templateVO) throws Exception {
-		String ftlCustomExtension = ".tgn";
-		String templateDirectory = "Templates";
-		String folderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-		folderLocation = folderLocation +File.separator+templateDirectory;
-		
-		if(!new File(folderLocation).exists()) {
+		String	ftlCustomExtension	= ".tgn";
+		String	templateDirectory	= "Templates";
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"template-storage-path");
+		folderLocation = folderLocation + File.separator + templateDirectory;
+
+		if (!new File(folderLocation).exists()) {
 			logger.warn("Templates not downloaded on system, downloading templates to system.");
-			String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+			String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
+					"template-storage-path");
 			templateModule.downloadCodeToLocal(null, downloadFolderLocation);
 			logger.info("Templates downloaded to local machine");
 		}
-		File file = new File(folderLocation+ File.separator+templateVO.getTemplateName()+ftlCustomExtension);
-		if(file.exists()) {
+		File file = new File(folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
+		if (file.exists()) {
 			String content = fileUtilities.readContentsOfFile(file.getAbsolutePath());
 			templateVO.setTemplate(content);
 		}

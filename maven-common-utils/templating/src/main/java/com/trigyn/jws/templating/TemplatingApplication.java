@@ -18,8 +18,8 @@ public class TemplatingApplication {
 
 	@Bean
 	public FreeMarkerConfigurer freemarkerConfig() {
-		FreeMarkerConfigurer freeMarkerConfigurer = new FreeMarkerConfigurer();
-		Properties properties = new Properties();
+		FreeMarkerConfigurer	freeMarkerConfigurer	= new FreeMarkerConfigurer();
+		Properties				properties				= new Properties();
 		properties.put("auto_import", "spring.ftl as spring");
 		freeMarkerConfigurer.setFreemarkerSettings(properties);
 		freeMarkerConfigurer.setConfiguration(getFreemarkerConfigDetails());
@@ -27,10 +27,10 @@ public class TemplatingApplication {
 	}
 
 	public Configuration getFreemarkerConfigDetails() {
-        Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
-        cfg.setAPIBuiltinEnabled(Boolean.TRUE);
-        cfg.setNumberFormat("0.####");
-        return cfg;
-    }
+		Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+		cfg.setAPIBuiltinEnabled(Boolean.TRUE);
+		cfg.setNumberFormat("0.####");
+		return cfg;
+	}
 
 }

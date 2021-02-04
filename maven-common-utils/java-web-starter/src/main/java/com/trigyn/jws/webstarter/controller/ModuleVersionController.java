@@ -24,60 +24,65 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @RestController
 @RequestMapping("/cf")
 public class ModuleVersionController {
-	
-	@Autowired
-	private ModuleVersionService moduleVersionService				= null;
-	
-	@Autowired
-	private MenuService menuService 								= null;
-	
-	@Autowired
-	private ModuleRevisionService revisionService					= null;
 
 	@Autowired
-	private ModuleService moduleService 					= null;
+	private ModuleVersionService	moduleVersionService	= null;
 
-	@PostMapping(value="/smv",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public void saveModuleVersioning(@RequestBody MultiValueMap<String, String> formData) throws Exception{
+	@Autowired
+	private MenuService				menuService				= null;
+
+	@Autowired
+	private ModuleRevisionService	revisionService			= null;
+
+	@Autowired
+	private ModuleService			moduleService			= null;
+
+	@PostMapping(value = "/smv", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public void saveModuleVersioning(@RequestBody MultiValueMap<String, String> formData) throws Exception {
 		revisionService.saveModuleVersioning(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
-	
+
 	@PostMapping(value = "/cmv", produces = { MediaType.TEXT_HTML_VALUE })
-	public String compareModuleVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
-		Map<String , Object> templateMap = revisionService.getModuleVersioningData(a_httpServletRequest);
+	public String compareModuleVersion(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		Map<String, Object> templateMap = revisionService.getModuleVersioningData(a_httpServletRequest);
 		return menuService.getTemplateWithSiteLayout("revision-details", templateMap);
 	}
-	
+
 	@PostMapping(value = "/mj")
-	public String getModuleJsonById(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public String getModuleJsonById(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String moduleVersionId = a_httpServletRequest.getParameter("moduleVersionId");
 		return moduleVersionService.getModuleJsonById(moduleVersionId);
 	}
-	
+
 	@PostMapping(value = "/uj")
-	public String getLastUpdatedJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
-		String entityId = a_httpServletRequest.getParameter("entityId");
-		String entityName = a_httpServletRequest.getParameter("entityName");
+	public String getLastUpdatedJsonData(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		String	entityId	= a_httpServletRequest.getParameter("entityId");
+		String	entityName	= a_httpServletRequest.getParameter("entityName");
 		return moduleVersionService.getLastUpdatedJsonData(entityId, entityName);
 	}
-	
-	
+
 	@PostMapping(value = "/suj")
-	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		revisionService.saveUpdatedContent(a_httpServletRequest);
 	}
 
 	@PostMapping(value = "/muj")
-	public String getLastUpdatedSitelayoutJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
+	public String getLastUpdatedSitelayoutJsonData(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return moduleService.getModuleListingJson(entityId);
 	}
 
 	@PostMapping(value = "/sml")
-	public void saveSiteLayout(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception{
-		String modifiedContent 				= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper objectMapper			= new ObjectMapper();
-		ModuleListing moduleListing		= objectMapper.readValue(modifiedContent, ModuleListing.class);
+	public void saveSiteLayout(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper	objectMapper	= new ObjectMapper();
+		ModuleListing	moduleListing	= objectMapper.readValue(modifiedContent, ModuleListing.class);
 		moduleService.saveModuleListing(moduleListing);
 	}
 }

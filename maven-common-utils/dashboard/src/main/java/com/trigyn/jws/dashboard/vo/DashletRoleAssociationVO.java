@@ -5,37 +5,33 @@ import java.util.Objects;
 
 public class DashletRoleAssociationVO implements Serializable {
 
-	private static final long serialVersionUID = -3135097488170334107L;
+	private static final long	serialVersionUID	= -3135097488170334107L;
 
 	private String				roleId				= null;
 
 	private String				dashletId			= null;
 
 	public DashletRoleAssociationVO() {
-		
-	}
-	
-	public DashletRoleAssociationVO(String roleId, String dashletId) {
-		this.roleId 	= roleId;
-		this.dashletId 	= dashletId;
+
 	}
 
-	
+	public DashletRoleAssociationVO(String roleId, String dashletId) {
+		this.roleId		= roleId;
+		this.dashletId	= dashletId;
+	}
+
 	public String getRoleId() {
 		return roleId;
 	}
 
-	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
 
-	
 	public String getDashletId() {
 		return dashletId;
 	}
 
-	
 	public void setDashletId(String dashletId) {
 		this.dashletId = dashletId;
 	}
@@ -65,8 +61,4 @@ public class DashletRoleAssociationVO implements Serializable {
 		return "DashletRoleAssociationVO [roleId=" + roleId + ", dashletId=" + dashletId + "]";
 	}
 
-
-
-	
-	
 }

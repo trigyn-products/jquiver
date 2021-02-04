@@ -11,40 +11,38 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="jws_reset_password_token")
+@Table(name = "jws_reset_password_token")
 public class JwsResetPasswordToken {
 
-    @Id
-    @Column(name="token_id")
-    private String tokenId = null;
- 
-    @Column(name="password_reset_url")
-    private String resetPasswordUrl = null;
+	@Id
+	@Column(name = "token_id")
+	private String		tokenId				= null;
 
-    
+	@Column(name = "password_reset_url")
+	private String		resetPasswordUrl	= null;
+
 	@Column(name = "password_reset_gen_time", nullable = false)
-	private Calendar passwordResetTime;
-    
-    @Column(name = "is_reset_url_expired")
-    private Boolean isResetUrlExpired ;
-    
-    @Column(name = "user_id")
-    private String userId = null;
+	private Calendar	passwordResetTime;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn( name = "user_id",referencedColumnName = "user_id" ,nullable = false, insertable = false, updatable = false)
-    private JwsUser user = null;
+	@Column(name = "is_reset_url_expired")
+	private Boolean		isResetUrlExpired;
 
+	@Column(name = "user_id")
+	private String		userId				= null;
 
-	public JwsResetPasswordToken(String tokenId, String resetPasswordUrl,  String userId,
-			JwsUser user, Calendar passwordResetTime,Boolean isResetUrlExpired) {
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
+	private JwsUser		user				= null;
+
+	public JwsResetPasswordToken(String tokenId, String resetPasswordUrl, String userId, JwsUser user,
+			Calendar passwordResetTime, Boolean isResetUrlExpired) {
 		super();
-		this.tokenId = tokenId;
-		this.resetPasswordUrl = resetPasswordUrl;
-		this.passwordResetTime = passwordResetTime;
-		this.userId = userId;
-		this.user = user;
-		this.isResetUrlExpired=isResetUrlExpired;
+		this.tokenId			= tokenId;
+		this.resetPasswordUrl	= resetPasswordUrl;
+		this.passwordResetTime	= passwordResetTime;
+		this.userId				= userId;
+		this.user				= user;
+		this.isResetUrlExpired	= isResetUrlExpired;
 	}
 
 	public JwsResetPasswordToken() {
@@ -65,8 +63,6 @@ public class JwsResetPasswordToken {
 	public void setResetPasswordUrl(String resetPasswordUrl) {
 		this.resetPasswordUrl = resetPasswordUrl;
 	}
-
-
 
 	public Calendar getPasswordResetTime() {
 		return passwordResetTime;
@@ -100,8 +96,4 @@ public class JwsResetPasswordToken {
 		this.isResetUrlExpired = isResetUrlExpired;
 	}
 
-   
-
-	
-    
 }

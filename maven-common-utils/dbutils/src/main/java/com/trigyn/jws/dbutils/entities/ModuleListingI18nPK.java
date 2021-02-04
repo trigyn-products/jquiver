@@ -5,34 +5,36 @@ import java.util.Objects;
 
 import javax.persistence.*;
 
-
 @Embeddable
 public class ModuleListingI18nPK implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	@Column(name="module_id", insertable=false, updatable=false)
-	private String moduleId						= null;
+	@Column(name = "module_id", insertable = false, updatable = false)
+	private String				moduleId			= null;
 
-	@Column(name="language_id", insertable=false, updatable=false)
-	private Integer languageId						= null;
+	@Column(name = "language_id", insertable = false, updatable = false)
+	private Integer				languageId			= null;
 
 	public ModuleListingI18nPK() {
 	}
-	
+
 	public ModuleListingI18nPK(String moduleId, Integer languageId) {
-		this.moduleId 		= moduleId;
-		this.languageId 	= languageId;
+		this.moduleId	= moduleId;
+		this.languageId	= languageId;
 	}
 
 	public String getModuleId() {
 		return this.moduleId;
 	}
+
 	public void setModuleId(String moduleId) {
 		this.moduleId = moduleId;
 	}
+
 	public Integer getLanguageId() {
 		return this.languageId;
 	}
+
 	public void setLanguageId(Integer languageId) {
 		this.languageId = languageId;
 	}

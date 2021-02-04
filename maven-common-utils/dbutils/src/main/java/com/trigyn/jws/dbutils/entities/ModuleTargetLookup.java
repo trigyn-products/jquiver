@@ -11,23 +11,21 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-
-
 @Entity
-@Table(name="module_target_lookup")
-@NamedQuery(name="ModuleTargetLookup.findAll", query="SELECT m FROM ModuleTargetLookup m")
+@Table(name = "module_target_lookup")
+@NamedQuery(name = "ModuleTargetLookup.findAll", query = "SELECT m FROM ModuleTargetLookup m")
 public class ModuleTargetLookup implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	@Id
-	@Column(name="lookup_id")
-	private Integer lookupId						= null;
+	@Column(name = "lookup_id")
+	private Integer				lookupId			= null;
 
-	@Column(name="description")
-	private String description						= null;
+	@Column(name = "description")
+	private String				description			= null;
 
-	@OneToMany(mappedBy="moduleTargetLookup")
-	private List<ModuleListing> moduleListings		= null;
+	@OneToMany(mappedBy = "moduleTargetLookup")
+	private List<ModuleListing>	moduleListings		= null;
 
 	public ModuleTargetLookup() {
 	}
@@ -99,7 +97,7 @@ public class ModuleTargetLookup implements Serializable {
 
 	public ModuleTargetLookup getObject() {
 		ModuleTargetLookup moduleTargetLookup = new ModuleTargetLookup();
-		moduleTargetLookup.setDescription(description!=null?description.trim():description);
+		moduleTargetLookup.setDescription(description != null ? description.trim() : description);
 		moduleTargetLookup.setLookupId(lookupId);
 		return moduleTargetLookup;
 	}

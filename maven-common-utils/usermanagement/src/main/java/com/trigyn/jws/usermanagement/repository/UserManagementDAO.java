@@ -1,9 +1,7 @@
 package com.trigyn.jws.usermanagement.repository;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,11 +20,11 @@ import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Repository
-public class UserManagementDAO  extends DBConnection{
+public class UserManagementDAO extends DBConnection {
 
-    @PersistenceContext
-    private EntityManager em;
-    
+	@PersistenceContext
+	private EntityManager em;
+
 	@Autowired
 	public UserManagementDAO(DataSource dataSource) {
 		super(dataSource);
@@ -36,11 +34,12 @@ public class UserManagementDAO  extends DBConnection{
 		Query query = getCurrentSession().createQuery("DELETE FROM JwsUserRoleAssociation WHERE userId=:userId");
 		query.setParameter("userId", userId);
 		query.executeUpdate();
-		
+
 	}
-	
-	public List<String> getRoleIdsByUserId(String userId)throws Exception {
-		Query query = getCurrentSession().createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId");
+
+	public List<String> getRoleIdsByUserId(String userId) throws Exception {
+		Query query = getCurrentSession()
+				.createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId");
 		query.setParameter("userId", userId);
 		List<String> roleIds = (List<String>) query.getResultList();
 		return roleIds;
@@ -49,7 +48,7 @@ public class UserManagementDAO  extends DBConnection{
 	@Transactional
 	public JwsUser saveUserData(JwsUser jwsUser) {
 		jwsUser.setRegisteredBy(Constants.AuthType.OAUTH.getAuthType());
-		if(jwsUser.getUserId() == null) {
+		if (jwsUser.getUserId() == null) {
 			TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
 			jwsUser.setSecretKey(twoFactorGoogleUtil.generateSecretKey());
 		}

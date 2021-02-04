@@ -3,23 +3,21 @@ package com.trigyn.jws.resourcebundle.vo;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ResourceBundleVO  implements Serializable {
+public class ResourceBundleVO implements Serializable {
 
-	private static final long serialVersionUID 	= -7443059574819653335L;
-	private Integer languageId					= null;
-	private String resourceKey					= null;
-	private String text							= null;
+	private static final long	serialVersionUID	= -7443059574819653335L;
+	private Integer				languageId			= null;
+	private String				resourceKey			= null;
+	private String				text				= null;
 
-	
 	public ResourceBundleVO() {
-		
+
 	}
 
-	
 	public ResourceBundleVO(Integer languageId, String resourceKey, String text) {
-		this.languageId 	= languageId;
-		this.resourceKey 	= resourceKey;
-		this.text 			= text;
+		this.languageId		= languageId;
+		this.resourceKey	= resourceKey;
+		this.text			= text;
 	}
 
 	public Integer getLanguageId() {
@@ -70,8 +68,7 @@ public class ResourceBundleVO  implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ResourceBundleVO other = (ResourceBundleVO) obj;
-		return Objects.equals(languageId, other.languageId) 
-				&& Objects.equals(resourceKey, other.resourceKey) 
+		return Objects.equals(languageId, other.languageId) && Objects.equals(resourceKey, other.resourceKey)
 				&& Objects.equals(text, other.text);
 	}
 
@@ -83,11 +80,8 @@ public class ResourceBundleVO  implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId)
-		.append(", text = ").append(text)
-		.append(", resourceKey = ").append(resourceKey)
-		.append(" }");
+				.append(", text = ").append(text).append(", resourceKey = ").append(resourceKey).append(" }");
 		return stringBuilder.toString();
 	}
 
-    
 }

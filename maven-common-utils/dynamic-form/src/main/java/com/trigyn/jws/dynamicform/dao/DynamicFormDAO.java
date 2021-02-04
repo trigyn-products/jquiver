@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 
 @Repository
-public class DynamicFormDAO  extends DBConnection{
+public class DynamicFormDAO extends DBConnection {
 
 	@Autowired
 	public DynamicFormDAO(DataSource dataSource) {

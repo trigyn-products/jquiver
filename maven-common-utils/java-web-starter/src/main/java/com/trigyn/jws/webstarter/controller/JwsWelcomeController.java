@@ -19,33 +19,32 @@ import com.trigyn.jws.usermanagement.security.config.UserInformation;
 @RequestMapping("/cf")
 public class JwsWelcomeController {
 
-	
-	@Autowired 
-	private MenuService  menuService = null;
-	
+	@Autowired
+	private MenuService menuService = null;
+
 	@GetMapping()
 	@ResponseBody
 	public void welcome(HttpServletResponse httpServletResponse) throws Exception {
-		 httpServletResponse.sendRedirect("/cf/login");
+		httpServletResponse.sendRedirect("/cf/login");
 	}
-	
-	
+
 	@GetMapping("/welcome")
 	@ResponseBody
 	public String welcomeUser(Map<String, Object> model) throws Exception {
-		
-		Map<String, Object> mapDetails =new HashMap<>();
-		
-		String  name = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(name!=null && !name.equalsIgnoreCase("anonymousUser")) {
-			UserInformation userDetails = (UserInformation) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		Map<String, Object>	mapDetails	= new HashMap<>();
+
+		String				name		= SecurityContextHolder.getContext().getAuthentication().getName();
+		if (name != null && !name.equalsIgnoreCase("anonymousUser")) {
+			UserInformation userDetails = (UserInformation) SecurityContextHolder.getContext().getAuthentication()
+					.getPrincipal();
 			mapDetails.put("loggedInUser", Boolean.TRUE);
 			mapDetails.put("userName", userDetails.getFullName());
-			
-		}else {
+
+		} else {
 			mapDetails.put("loggedInUser", Boolean.FALSE);
 		}
-		
-		return menuService.getTemplateWithSiteLayout("jws-welcome",mapDetails);
+
+		return menuService.getTemplateWithSiteLayout("jws-welcome", mapDetails);
 	}
 }

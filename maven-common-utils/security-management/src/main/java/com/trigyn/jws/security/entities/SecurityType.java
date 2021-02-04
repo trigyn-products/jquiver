@@ -12,34 +12,34 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="jws_security_type")
-public class SecurityType implements Serializable{
+@Table(name = "jws_security_type")
+public class SecurityType implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID 	= -5288215708996881343L;
+	private static final long	serialVersionUID	= -5288215708996881343L;
 
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="security_type_id")
-	private String securityTypeId				= null;
-	
+	@Column(name = "security_type_id")
+	private String				securityTypeId		= null;
+
 	@Column(name = "security_name")
-	private String securityName 				= null;
-	
+	private String				securityName		= null;
+
 	@Column(name = "is_active")
-	private Integer isActive 					= null;
+	private Integer				isActive			= null;
 
 	public SecurityType() {
 
 	}
 
 	public SecurityType(String securityTypeId, String securityName, Integer isActive) {
-		this.securityTypeId 		= securityTypeId;
-		this.securityName 			= securityName;
-		this.isActive 				= isActive;
+		this.securityTypeId	= securityTypeId;
+		this.securityName	= securityName;
+		this.isActive		= isActive;
 	}
 
 	public String getSecurityTypeId() {
@@ -89,9 +89,8 @@ public class SecurityType implements Serializable{
 
 	@Override
 	public String toString() {
-		return "SecurityManagement [securityTypeId=" + securityTypeId + ", securityName=" + securityName
-				+ ", isActive=" + isActive + "]";
+		return "SecurityManagement [securityTypeId=" + securityTypeId + ", securityName=" + securityName + ", isActive="
+				+ isActive + "]";
 	}
-	
-	
+
 }

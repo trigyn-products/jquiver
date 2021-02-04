@@ -14,47 +14,48 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.apache.commons.text.StringEscapeUtils;
-
-
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="jws_dynamic_rest_dao_details")
-@NamedQuery(name="JwsDynamicRestDaoDetail.findAll", query="SELECT j FROM JwsDynamicRestDaoDetail j")
+@Table(name = "jws_dynamic_rest_dao_details")
+@NamedQuery(name = "JwsDynamicRestDaoDetail.findAll", query = "SELECT j FROM JwsDynamicRestDaoDetail j")
 public class JwsDynamicRestDaoDetail implements Serializable {
-	private static final long serialVersionUID 			= 1L;
+	private static final long		serialVersionUID		= 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="jws_dao_details_id")
-	private Integer jwsDaoDetailsId						= null;
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "custom-identity-generator")
+	@GenericGenerator(name = "custom-identity-generator", strategy = "com.trigyn.jws.dbutils.configurations.CustomIdentityGenerator")
+	@Column(name = "jws_dao_details_id")
+	private Integer					jwsDaoDetailsId			= null;
 
-	@Column(name="jws_dao_query_template")
-	private String jwsDaoQueryTemplate					= null;
+	@Column(name = "jws_dao_query_template")
+	private String					jwsDaoQueryTemplate		= null;
 
-	@Column(name="jws_result_variable_name")
-	private String jwsResultVariableName				= null;
+	@Column(name = "jws_result_variable_name")
+	private String					jwsResultVariableName	= null;
 
-	@Column(name="jws_query_sequence")
-	private Integer jwsQuerySequence					= null;
+	@Column(name = "jws_query_sequence")
+	private Integer					jwsQuerySequence		= null;
 
-	@Column(name="jws_dynamic_rest_details_id")
-	private String jwsDynamicRestDetailId 				= null;
-	
+	@Column(name = "jws_dynamic_rest_details_id")
+	private String					jwsDynamicRestDetailId	= null;
+
 	@Column(name = "jws_dao_query_type")
-	private Integer queryType							= null;
+	private Integer					queryType				= null;
 
 	@ManyToOne
-	@JoinColumn(name="jws_dynamic_rest_details_id", referencedColumnName = "jws_dynamic_rest_id", insertable = false, updatable = false)
-	private JwsDynamicRestDetail jwsDynamicRestDetail	= null;
+	@JoinColumn(name = "jws_dynamic_rest_details_id", referencedColumnName = "jws_dynamic_rest_id", insertable = false, updatable = false)
+	private JwsDynamicRestDetail	jwsDynamicRestDetail	= null;
 
 	public JwsDynamicRestDaoDetail() {
 	}
 
-	public JwsDynamicRestDaoDetail(Integer jwsDaoDetailsId, String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence) {
-		this.jwsDaoDetailsId 			= jwsDaoDetailsId;
-		this.jwsDaoQueryTemplate 		= jwsDaoQueryTemplate;
-		this.jwsResultVariableName 		= jwsResultVariableName;
-		this.jwsQuerySequence 			= jwsQuerySequence;
+	public JwsDynamicRestDaoDetail(Integer jwsDaoDetailsId, String jwsDaoQueryTemplate, String jwsResultVariableName,
+			Integer jwsQuerySequence) {
+		this.jwsDaoDetailsId		= jwsDaoDetailsId;
+		this.jwsDaoQueryTemplate	= jwsDaoQueryTemplate;
+		this.jwsResultVariableName	= jwsResultVariableName;
+		this.jwsQuerySequence		= jwsQuerySequence;
 	}
 
 	public Integer getJwsDaoDetailsId() {
@@ -146,15 +147,18 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	public JwsDynamicRestDaoDetail getObject() {
 		JwsDynamicRestDaoDetail dynaRest = new JwsDynamicRestDaoDetail();
 		dynaRest.setJwsDaoDetailsId(jwsDaoDetailsId);
-		if(jwsDaoQueryTemplate!=null) {
-			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA["+jwsDaoQueryTemplate.trim() +"]]>"));
+		if (jwsDaoQueryTemplate != null) {
+			dynaRest.setJwsDaoQueryTemplate(
+					StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate.trim() + "]]>"));
 		} else {
-			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA["+jwsDaoQueryTemplate +"]]>"));
+			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate + "]]>"));
 		}
-		
-		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId!=null?jwsDynamicRestDetailId.trim():jwsDynamicRestDetailId);
+
+		dynaRest.setJwsDynamicRestDetailId(
+				jwsDynamicRestDetailId != null ? jwsDynamicRestDetailId.trim() : jwsDynamicRestDetailId);
 		dynaRest.setJwsQuerySequence(jwsQuerySequence);
-		dynaRest.setJwsResultVariableName(jwsResultVariableName!=null?jwsResultVariableName.trim():jwsResultVariableName);
+		dynaRest.setJwsResultVariableName(
+				jwsResultVariableName != null ? jwsResultVariableName.trim() : jwsResultVariableName);
 		dynaRest.setQueryType(queryType);
 		return dynaRest;
 	}

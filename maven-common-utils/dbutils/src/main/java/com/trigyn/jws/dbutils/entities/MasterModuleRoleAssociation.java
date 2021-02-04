@@ -10,60 +10,52 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-
-
 @Entity
-@Table(name="master_module_role_association")
-@NamedQuery(name="MasterModuleRoleAssociation.findAll", query="SELECT m FROM MasterModuleRoleAssociation m")
+@Table(name = "master_module_role_association")
+@NamedQuery(name = "MasterModuleRoleAssociation.findAll", query = "SELECT m FROM MasterModuleRoleAssociation m")
 public class MasterModuleRoleAssociation implements Serializable {
-	
-	private static final long serialVersionUID 			= 1L;
+
+	private static final long				serialVersionUID	= 1L;
 
 	@EmbeddedId
-	private MasterModuleRoleAssociationPK id			= null;
+	private MasterModuleRoleAssociationPK	id					= null;
 
 	@ManyToOne
-	@JoinColumn(name="module_id", nullable=false, insertable=false, updatable=false)
-	private ModuleListing moduleListing					= null;
-	
+	@JoinColumn(name = "module_id", nullable = false, insertable = false, updatable = false)
+	private ModuleListing					moduleListing		= null;
+
 	@ManyToOne
-	@JoinColumn(name="role_id", nullable=false, insertable=false, updatable=false)
-	private UserRole userRole							= null;
+	@JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
+	private UserRole						userRole			= null;
 
 	public MasterModuleRoleAssociation() {
 	}
 
 	public MasterModuleRoleAssociation(MasterModuleRoleAssociationPK id, UserRole userRole) {
-		this.id 		= id;
-		this.userRole 	= userRole;
+		this.id			= id;
+		this.userRole	= userRole;
 	}
 
-	
 	public MasterModuleRoleAssociationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(MasterModuleRoleAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public ModuleListing getModuleListing() {
 		return moduleListing;
 	}
 
-	
 	public void setModuleListing(ModuleListing moduleListing) {
 		this.moduleListing = moduleListing;
 	}
-	
-	
+
 	public UserRole getUserRole() {
 		return userRole;
 	}
 
-	
 	public void setUserRole(UserRole userRole) {
 		this.userRole = userRole;
 	}
@@ -94,6 +86,5 @@ public class MasterModuleRoleAssociation implements Serializable {
 		return "MasterModuleRoleAssociation [id=" + id + ", moduleListing=" + moduleListing + ", userRole=" + userRole
 				+ "]";
 	}
-
 
 }

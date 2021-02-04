@@ -59,8 +59,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                     <h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
                  
                 </div>
-                <p class="mb-1">Built using Freemarker templating engine, generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</p>
-                <small class="text-muted">Now create views for your project, and leverage all benifits of spring utils on it.</small>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</small>
             </div>
         </a>
         </div>
@@ -75,7 +75,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                      
                 </div>
                 <p class="mb-1">Built using Spring interceptors and Locale Resolvers</p>
-                <small class="text-muted">Any web application with users all around the world, internationalization (i18n) or localization (L10n) is very important for better user interaction, so handle all these from the admin panel itself by storing it in database.</small>
+                <small class="text-muted">Any web application with users all around the world, i18n or L10n is important for better user interaction, so handle all these from the admin panel by storing it in database.</small>
             </div>
         </a>
         </div>
@@ -346,7 +346,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
             { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Action", width: 50, align: "center", render: editTemplate, dataIndx: "action" }
+            { title: "Action", width: 50, minWidth: 115, align: "center", render: editTemplate, dataIndx: "action" }
         ];
      let grid = $("#divTemplateGrid").grid({
           gridId: "templateListingGrid",
@@ -530,7 +530,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''template-manage-details'', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
@@ -628,7 +628,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 <form action="${(contextPath)!''''}/cf/aem" method="POST" id="formMuRedirect">
 	<input type="hidden" id="moduleId" name="module-id">
 </form>
-<form action="${(contextPath)!''''}/cf/chp" method="POST" id="configHomeForm">
+<form action="${(contextPath)!''''}/cf/chpl" method="GET" id="configHomePageListing">
 	
 </form>
 <script>
@@ -651,7 +651,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        { title: "Sequence Number", width: 100, align: "center", dataIndx: "sequence", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Inside Menu", width: 100, align: "center", dataIndx: "isInsideMenu", align: "left", halign: "center", render: formatIsInsideMenu},
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editModule}
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editModule}
 		];
 		let grid = $("#divModuleListing").grid({
 	      gridId: "moduleListingGrid",
@@ -682,7 +682,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	}
 	
 	function configHomePage() {
-		$("#configHomeForm").submit();
+		$("#configHomePageListing").submit();
 	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
@@ -755,7 +755,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				<div class="col-inner-form full-form-fields">
 					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
 						<div class="search-cover">
-						<input type="text" id="targetTypeName" value= "" name="targetTypeName" class="form-control">
+						<input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
 						<i class="fa fa-search" aria-hidden="true"></i>
 				</div>
 				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
@@ -919,7 +919,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-
+<title>JQuiver</title>
 </head>
 	<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
 		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/cf/home">JQuiver</a>
@@ -931,8 +931,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             <#if loggedInUserName?? && loggedInUserName != "anonymous">
                 <li class="nav-item text-nowrap">
                     <div class="row margin-r-5 profile-tray">
-                        <a class="nav-link" href="/cf/profile">${loggedInUserName}</a>
-                        <a class="nav-link signout-icon" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+                        <ul>
+                            <li> <a class="nav-link cm-userid" href="/cf/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> ${loggedInUserName}</a></li>
+                            <li><a class="nav-link signout-icon" href="/logout"> <i class="fa fa-sign-out" aria-hidden="true"></i></a></li>
+                        </ul>
                     </div>
                 </li>
             </#if>
@@ -944,6 +946,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<nav id="mySidenav" class=" bg-dark sidenav sidebar">
 			<div class="nav-inside">
 				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter()">
+				<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </span>
 				<ul id="menuUL" class="nav flex-column customnav">
 					<#if moduleDetailsVOList??>
 						<#list moduleDetailsVOList as moduleDetailsVO>
@@ -1121,6 +1126,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
     
     <div class="row">
     	<input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''''}">
+    	<input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
 			  <div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
@@ -1143,12 +1149,28 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
+					<label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Name</label>
 						<div class="search-cover">
-						<input type="text" id="targetTypeName" value= "" name="targetTypeName" class="form-control">
+						<input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
 						<i class="fa fa-search" aria-hidden="true"></i>
 				</div>
 				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Home Page URL</label>
+					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
+					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="200" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="roleName" style="white-space:nowrap"><span class="asteriskmark">*</span>Role Name</label>
+					<input type="text" id="roleName" value="${roleName!''''}" name="roleName" readonly="true" class="form-control">
+					<input type="hidden" id="roleId" value="${roleId!''''}" name="roleId">
 				</div>
 			</div>
     </div>
@@ -1167,6 +1189,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 <script>
 const contextPath = "${(contextPath)!''''}";
 let autocomplete;
+
 $(function() {
 	$("#targetLookupType option[value=''4'']").remove();
 	let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''''}";
@@ -1200,10 +1223,11 @@ $(function() {
             $("#targetTypeNameId").val(item.targetTypeId)
         }, 	
     }, selectedTargetDetails);
+    
 });
 
 function backToModuleListingPage() {
-	location.href = contextPath+"/cf/mul";
+	location.href = contextPath+"/cf/chpl";
 }
 
 function getTargeTypeNames(){
@@ -1233,6 +1257,9 @@ function saveHomeModule(){
 	let moduleId = $("#moduleId").val();
 	let targetLookupTypeId = $("#targetLookupType").find(":selected").val();
 	let targetTypeId = $("#targetTypeNameId").val();
+	let homePageUrl = $("#moduleURL").val();
+	let roleId = $("#roleId").val();
+	
 	$.ajax({
 		type : "POST",
 		url : contextPath+"/cf/schm",
@@ -1240,12 +1267,14 @@ function saveHomeModule(){
 		data : {
 			moduleId : moduleId,
 			targetLookupTypeId : targetLookupTypeId,
-			targetTypeId : targetTypeId
-			
+			targetTypeId : targetTypeId,
+			homePageUrl: homePageUrl,
+			roleId: roleId,
 		},
-		success : function(data) {
-			$("#moduleId").val(data);
+		success : function(moduleId) {
+			$("#moduleId").val(moduleId);
 			$("#errorMessage").hide();
+			saveEntityRoleAssociation(moduleId);
 			showMessage("Information saved successfully", "success");
 		},
 	        
@@ -1255,6 +1284,29 @@ function saveHomeModule(){
 	        	
 	});
 }
+
+
+function saveEntityRoleAssociation (moduleId){
+	let roleIds =[];
+	let entityRoles = new Object();
+	entityRoles.entityName = $("#moduleURL").val().trim();
+	entityRoles.moduleId=$("#masterModuleId").val();
+	entityRoles.entityId= moduleId;
+	roleIds.push($("#roleId").val());
+	entityRoles.roleIds=roleIds;
+		
+	$.ajax({
+    	async : false,
+        type : "POST",
+        contentType : "application/json",
+        url : "/cf/ser", 
+        data : JSON.stringify(entityRoles),
+        success : function(data) {
+		
+		}
+    });
+}
+
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
@@ -1360,7 +1412,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 		<div class="col-12">
 			<div class="float-right margin-b-25">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
 					<div id="savedAction">
 		    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
 		            </div> 
@@ -1418,8 +1470,6 @@ $(function(){
     		{
         		renderStr = item.emptyMsg;	
     		}	    		
-    		$("#selectedDateTime").val("");
-			$("#moduleVersionId").val("");		        
             return renderStr;
         },
         additionalParamaters: {
@@ -1439,6 +1489,10 @@ $(function(){
 			diffEditorArray = new Array();
 			getUpdatedData();
 			getJsonData(item.moduleVersionId);
+        },
+        resetDependentInput: function(){ 
+        	$("#selectedDateTime").val("");
+			$("#moduleVersionId").val("");	
         }, 	
     });
 	}
@@ -1825,3 +1879,192 @@ function backToPreviousPage(){
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
+
+
+DROP PROCEDURE IF EXISTS homePageListing;
+CREATE PROCEDURE homePageListing(moduleId varchar(100), moduleName varchar(500),
+moduleURL varchar(500), roleName varchar(100), forCount INT, 
+limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT jr.role_id AS roleId, ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, jr.role_name AS roleName';
+  SET @fromString  = ' FROM  jws_role AS jr';
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_role_association AS mra ON jr.role_id = mra.role_id AND mra.is_deleted = 0  ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing AS ml ON mra.module_id = ml.module_id ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n ON mli18n.module_id = ml.module_id AND mli18n.language_id = 1 ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
+  SET @whereString = ' WHERE jr.is_active = 1 ';
+  
+  
+  IF NOT moduleName IS NULL THEN
+    SET @moduleName= REPLACE(moduleName,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
+  END IF;
+  
+  IF NOT moduleURL IS NULL THEN
+    SET @moduleURL= REPLACE(moduleURL,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND ml.module_url LIKE ''%',@moduleURL,'%'''); 
+  END IF;
+  
+  IF NOT roleName IS NULL THEN
+    SET @roleName= REPLACE(roleName,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND jr.role_name LIKE ''%',@roleName,'%''');  
+ END IF;
+
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY jr.role_priority DESC');
+  END IF;
+    
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+  
+  
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+
+REPLACE INTO grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
+) VALUES ('homePageListingGrid','Home Page Listing','Home Page Listing','homePageListing' 
+  ,'moduleId,moduleName,moduleURL,roleName', 2 , 2);
+  
+REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+('55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '<head>
+<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
+<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+		<div class="topband">
+		
+		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.configHomePageListing'')}</h2> 
+		<div class="float-right">
+		 <!-- <span>
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Add Default Page" type="button" onclick="submitForm()">
+		</span> -->
+
+
+         <span onclick="backToModuleListingPage();">
+          	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+         </span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+		</div>
+		
+		<div id="divConfigHomeListing"></div>
+
+</div>
+
+
+
+<form action="${(contextPath)!''''}/cf/chp" method="POST" id="configHomeForm">
+	<input type="hidden" id="moduleId" name="module-id">
+	<input type="hidden" id="roleId" name="role-id">
+	<input type="hidden" id="roleName" name="role-name">
+</form>
+<script>
+	contextPath = "${(contextPath)!''''}";
+	function backToModuleListingPage() {
+		location.href = contextPath+"/cf/mul";
+	}
+	$(function () {
+		let formElement = $("#configHomeForm")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("module-manage-details", formDataJson);
+		let colM = [
+	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
+	        { title: "", width: 130, align: "center", dataIndx: "roleId", align: "left", halign: "center", hidden : true },
+	        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Role Name", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center",},
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editHomePage}
+		];
+		let grid = $("#divConfigHomeListing").grid({
+	      gridId: "homePageListingGrid",
+	      colModel: colM
+	  });
+	});
+  
+  	function editHomePage(uiObject) {
+		const roleId = uiObject.rowData.roleId;
+		const moduleId = uiObject.rowData.moduleId;
+		const roleName = uiObject.rowData.roleName;
+		if(moduleId !== null){ 
+			return ''<span id="''+roleId+''" data-module-id="''+moduleId+''" data-role-name="''+roleName+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
+		}
+		return ''<span id="''+roleId+''" data-role-name="''+roleName+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
+	}
+  
+  	
+  	function submitForm(sourceElement) {
+		let roleId;
+		let moduleId;
+		let roleName;
+		if(sourceElement !== undefined){
+			roleId = sourceElement.id
+		}
+		moduleId = $("#"+roleId).data("module-id");
+		roleName = $("#"+roleId).data("role-name");
+		if(moduleId !== undefined){ 
+			$("#moduleId").val(moduleId);
+		}
+		$("#roleId").val(roleId);
+		$("#roleName").val(roleName);
+		$("#configHomeForm").submit();
+	}
+	
+
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+
+
+REPLACE INTO autocomplete_details(
+   ac_id
+  ,ac_description
+  ,ac_select_query
+  ,ac_type_id
+) VALUES (
+   'home-page-role'
+  ,'Role autocomplete for home page'
+  ,'SELECT jr.role_id AS roleId, jr.role_name AS roleName FROM jws_role AS jr
+WHERE jr.role_name LIKE CONCAT("%", :searchText, "%")  
+AND jr.is_active = 1 
+AND jr.role_id NOT IN (SELECT mra.role_id FROM module_role_association AS mra WHERE mra.is_deleted = 0)'
+  ,1
+);
+
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('d8146692-97e8-4cd4-97c0-412ff7a1513f', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('2eaea3fc-54c5-11eb-9e7a-f48e38ab8cd7', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('ec8750ed-3500-42c0-a925-14b822338273', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
+
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('586d1b73-c333-47a0-b3d0-93d383cdcf29', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0),
+('329eb2de-54c5-11eb-9e7a-f48e38ab8cd7', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('e3413a71-1707-4620-a17e-032fc4f3ba37', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
+
+
+REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('776c0d05-9339-4a3a-b28b-b42224d3f438', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('369e53f3-54c5-11eb-9e7a-f48e38ab8cd7', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('7b7c93fb-702e-475e-8279-036f4321a7a3', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);

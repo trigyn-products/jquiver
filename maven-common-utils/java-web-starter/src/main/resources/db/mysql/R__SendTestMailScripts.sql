@@ -245,7 +245,7 @@ input:checked + .slider:before {
         
     <div class="col-12">
       <div class="float-right">
-        <div class="btn-group dropdown custom-grp-btn">
+        <div class="btn-group dropup custom-grp-btn">
             <div id="sendTestMail">
                 <button type="button" id="sendTestMailId" class="btn btn-primary" onclick="sendMail()">${messageSource.getMessage("jws.sendTestMail")}</button>
              </div>   &nbsp;  

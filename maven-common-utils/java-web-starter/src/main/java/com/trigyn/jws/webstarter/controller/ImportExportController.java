@@ -37,116 +37,120 @@ import com.trigyn.jws.webstarter.service.MasterModuleService;
 @RequestMapping("/cf")
 public class ImportExportController {
 
-	private final static Logger logger 						= LogManager.getLogger(ImportExportController.class);
+	private final static Logger	logger				= LogManager.getLogger(ImportExportController.class);
 
 	@Autowired
-	private 	MasterModuleService 		masterModuleService = null;
-	
-	@Autowired
-	private 	MenuService 				menuService			= null;
-	
-	@Autowired
-	private 	ExportService				exportService	= null;
+	private MasterModuleService	masterModuleService	= null;
 
 	@Autowired
-	private 	ImportService				importService	= null;
-	
+	private MenuService			menuService			= null;
+
+	@Autowired
+	private ExportService		exportService		= null;
+
+	@Autowired
+	private ImportService		importService		= null;
+
 	@GetMapping(value = "/vexp", produces = MediaType.TEXT_HTML_VALUE)
-	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			Map<String, Object> vmTemplateData 	= new HashMap<>();
-			List<MasterModule> moduleVOList 	= masterModuleService.getModules();
-			List<Map<String, Object>> customEntities = exportService.getAllCustomEntity();
-			List<Map<String, Object>> customEntityCount = exportService.getCustomEntityCount();
-			List<Map<String, Object>> allEntityCount = exportService.getAllEntityCount();
+			Map<String, Object>			vmTemplateData		= new HashMap<>();
+			List<MasterModule>			moduleVOList		= masterModuleService.getModules();
+			List<Map<String, Object>>	customEntities		= exportService.getAllCustomEntity();
+			List<Map<String, Object>>	customEntityCount	= exportService.getCustomEntityCount();
+			List<Map<String, Object>>	allEntityCount		= exportService.getAllEntityCount();
 			vmTemplateData.put("moduleVOList", moduleVOList);
 			vmTemplateData.put("customEntities", customEntities);
 			vmTemplateData.put("customEntityCount", customEntityCount);
 			vmTemplateData.put("allEntityCount", allEntityCount);
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
-	@RequestMapping(value ="/ecd")
+	@RequestMapping(value = "/ecd")
 	@ResponseBody
-	public String exportConfigData(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception {
+	public String exportConfigData(@RequestBody Map<String, String> map, HttpServletRequest request,
+			HttpServletResponse httpServletResponse) throws Exception {
 		return exportService.exportConfigData(request, httpServletResponse, map);
 	}
 
-	@RequestMapping(value ="/downloadExport",method = RequestMethod.POST)
+	@RequestMapping(value = "/downloadExport", method = RequestMethod.POST)
 	@ResponseBody
 	public void downloadExport(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String filePath	= request.getParameter("filePath");
+		String filePath = request.getParameter("filePath");
 		exportService.downloadExport(request, response, filePath);
 	}
 
 	@GetMapping(value = "/vimp", produces = MediaType.TEXT_HTML_VALUE)
-	public String viewImport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String viewImport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			Map<String, Object> vmTemplateData 	= new HashMap<>();
+			Map<String, Object> vmTemplateData = new HashMap<>();
 			return menuService.getTemplateWithSiteLayout("import-config", vmTemplateData);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/impF")
 	@ResponseBody
-	public String importFile(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String importFile(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			Part file = request.getPart("inputFile");
-			Map<String, Object> map = importService.importConfig(file);
-			
-			MetadataXMLVO metadataXmlvo = (MetadataXMLVO) map.get("metadataVO");
-			String unZipFilePath = (String) map.get("unZipFilePath");
+			Part				file			= request.getPart("inputFile");
+			Map<String, Object>	map				= importService.importConfig(file);
 
-			String jsonArray = importService.getJsonArrayFromMetadataXMLVO(metadataXmlvo);
-			Map<String, Object> zipFileDataMap = importService.getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
-			
+			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
+			String				unZipFilePath	= (String) map.get("unZipFilePath");
+
+			String				jsonArray		= importService.getJsonArrayFromMetadataXMLVO(metadataXmlvo);
+			Map<String, Object>	zipFileDataMap	= importService.getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
+
 			zipFileDataMap.put("completeZipJsonData", jsonArray);
-			
-			Gson gson = new GsonBuilder().create();
-		    String jsonString = gson.toJson(zipFileDataMap);
-		    
+
+			Gson	gson		= new GsonBuilder().create();
+			String	jsonString	= gson.toJson(zipFileDataMap);
+
 			return jsonString;
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/glv")
 	@ResponseBody
-	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
-			Gson gson = new Gson();
-			String inputData = request.getParameter("imporatableData");
-			JSONObject imporatableDataJson = new JSONObject(inputData);
-			Map<String, Object> zipFileDataMap = new ObjectMapper().readValue(inputData, Map.class);;
-			Map<String,String> versionMap = importService.getLatestVersion(zipFileDataMap);
+			Gson				gson				= new Gson();
+			String				inputData			= request.getParameter("imporatableData");
+			JSONObject			imporatableDataJson	= new JSONObject(inputData);
+			Map<String, Object>	zipFileDataMap		= new ObjectMapper().readValue(inputData, Map.class);
+			;
+			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
 			return gson.toJson(versionMap);
-		} catch (Exception exception) {
-			logger.error("Error ", exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/glcrc")
 	@ResponseBody
-	public String getLatestCRC(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException  {
+	public String getLatestCRC(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			String inputData = request.getParameter("imporatableData");
-			JSONObject imporatableDataJson = new JSONObject(inputData);
-			Gson gson = new Gson();
-			Map<String, Object> zipFileDataMap = new ObjectMapper().readValue(inputData, Map.class);;
+			String				inputData			= request.getParameter("imporatableData");
+			JSONObject			imporatableDataJson	= new JSONObject(inputData);
+			Gson				gson				= new Gson();
+			Map<String, Object>	zipFileDataMap		= new ObjectMapper().readValue(inputData, Map.class);
+			;
 			Map<String, Boolean> crcMap = importService.getLatestCRC(zipFileDataMap);
 			return gson.toJson(crcMap);
 		} catch (Exception exception) {
@@ -156,23 +160,31 @@ public class ImportExportController {
 		}
 	}
 
-	@PostMapping(value = "/importConfig")
+	@RequestMapping(value = "/importConfig",method = RequestMethod.POST)
 	@ResponseBody
-	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception  {
-		String imporatableData = request.getParameter("imporatableData");
-		String importId		   = request.getParameter("importId");
-		String moduleType		= request.getParameter("moduleType");
-		
-		return importService.importConfig(imporatableData, importId, moduleType);
+	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) {
+		try {
+			String	imporatableData	= request.getParameter("imporatableData");
+			String	importId		= request.getParameter("importId");
+			String	moduleType		= request.getParameter("moduleType");
+
+			return importService.importConfig(imporatableData, importId, moduleType);
+		} catch (Exception e) {
+			return "fail:"+e.getMessage();
+		}
 	}
 
-	@PostMapping(value = "/importAll")
+	@RequestMapping(value = "/importAll",method = RequestMethod.POST)
 	@ResponseBody
-	public void importAll(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception  {
-		String imporatableData = request.getParameter("imporatableData");
-		String importedIdList  = request.getParameter("importedIdList");
-
-		importService.importAll(imporatableData, importedIdList);
+	public String importAll(HttpServletRequest request, HttpServletResponse httpServletResponse) {
+		try {
+			String	imporatableData	= request.getParameter("imporatableData");
+			String	importedIdList	= request.getParameter("importedIdList");
+	
+			return importService.importAll(imporatableData, importedIdList);
+		} catch (Exception e) {
+			return "fail:"+e.getMessage();
+		}
 	}
 
 }

@@ -4,7 +4,7 @@ replace into manual_type (manual_id, name, is_system_manual) VALUES ('07cf45ae-2
 
 
 replace into manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
-('e03447c8-eaa0-4119-b97e-b802bd8f4ff1', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'User Management', '# User Management ', 3, NOW(), 'admin');
+('e03447c8-eaa0-4119-b97e-b802bd8f4ff1', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'User Management', '# User Management ', 3, NOW(), 'admin@jquiver.com');
 
 
 
@@ -17,7 +17,7 @@ In order to import the dashboard jar, add following dependency in your pom.xml.
 <dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dashboard</artifactId>
-			<version>version</version>
+			<version>latest-version</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ User can also add provide additional configurable properties to a dashlet like n
 
 
 
-', 8, NOW(), 'admin');
+', 8, NOW(), 'admin@jquiver.com');
 
 REPLACE INTO manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
 ('5e46df00-e07a-4b73-889f-2894adfd3df8', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'AutoComplete', '# AutoComplete
@@ -68,7 +68,7 @@ REPLACE INTO manual_entry (manual_entry_id, manual_type, entry_name, entry_conte
 <dependency>
 <groupId>com.trigyn</groupId>
 <artifactId>typeahead</artifactId>
-<version>version</version>
+<version>latest-version</version>
 </dependency>
 ```
 
@@ -81,18 +81,33 @@ ac_select_query: The query to fetch data for autocomplete.
 You can enhance your autocomplete or multiselect with following options:
 **Prefetch:** You can speed up the operations just by adding one flag (prefetch : true) to you component. 
 **Local Storage: **You can avoid server call to fetch and render data in autocomplete/multiselect using local storage. To enable local storage you have to set list of available items in autocomplete using items property.
-**Enable Clear Text: ** You can add **clear text** button to your autocomplete by setting true value enableClearText.
+**Enable Clear Text: ** You can add **clear text** button to your autocomplete by setting true value enableClearText. You can overwrite resetDependentInput function to reset dependent JavaScript variables, html input fields etc. 
 
+Following are the steps to add autocomplet/multiselect.
+
+**Step 1: **
+Add following css and js.
+
+```
+	<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+	<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+	<script src="/webjars/1.0/typeahead/typeahead.js"></script>
+	<link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+```
+
+**Step 2: **
 Make sure to add following div for each of your multiselect component:
 
 ```
-<div id="rbMultiselect_removeAll" class="pull-right"> 
-<span title="Clear All" class="clearall-cls" onclick="multiselect.removeAllElements(''rbMultiselect'')" style="pointer-events: auto;">Clear All</span> </div> 
-<div id="rbMultiselect_count" class="multiselectcount pull-right">
-<span title="hide show" onclick="multiselect.showHideDataDiv(''rbMultiselect_selectedOptions'')" style="pointer-events: auto;">1</span> </div>
+	<div id="rbMultiselect_removeAll" class="pull-right"> 
+	<span title="Clear All" class="clearall-cls" onclick="multiselect.removeAllElements(''rbMultiselect'')" style="pointer-events: auto;">Clear All</span> </div> 
+	<div id="rbMultiselect_count" class="multiselectcount pull-right">
+	<span title="hide show" onclick="multiselect.showHideDataDiv(''rbMultiselect_selectedOptions'')" style="pointer-events: auto;">1</span> </div>
 ```
  
  
+**Step 3: **
+Initialize autocomple/multiselect component in javascript ready function. 
  
 # Example to include basic autocomplete component:
 HTML Structure: 
@@ -225,7 +240,9 @@ $(function () {
 			});
 		},
 		render: function(item) {
-			return "<p>" + item.languageName + "</p><small>" + item.languageId + "</small>";
+			return "<div class=''jws-rich-autocomplete-multiple''> <div class=''jws-rich-autocomplete-text'' ><label>Language Name: </label>" + item.languageName
+			 + "</div> <div class=''jws-rich-autocomplete-id''><label>Language Id: </label>" + item.languageId 
+			 + "<div class=''clearfix''></div> </div>";
 		}
 	});
 });	
@@ -273,7 +290,10 @@ $(function () {
         },
         select: function(item) {
             $("#rbAutocompleteCT").blur();
-        }, 	
+        },
+		resetDependentInput: function(){ 
+        	//Code to reset dependent JavaScript variables, input fields etc.
+        },  	
     });
 });    
  </script>   
@@ -420,7 +440,7 @@ $(function () {
  
 ![](/cf/files/40289d3d765124480176512aa3f80005) 
  
-**Note** : - Do not include limit in autocomplete query.', 7, NOW(), 'admin');
+**Note** : - Do not include limit in autocomplete query.', 7, NOW(), 'admin@jquiver.com');
 
 REPLACE INTO manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
 ('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder
@@ -431,7 +451,7 @@ In order to import this jar, add following dependency in your pom.xml
 <dependency>
 	<groupId>com.trigyn</groupId>
 	<artifactId>dynamic-form</artifactId>
-	<version>1.3.16-SNAPSHOT</version>
+	<version>latest-version</version>
 </dependency>
 ```
 
@@ -439,7 +459,7 @@ These will import the form builder jar and will create dynamic_form and dynamic_
 
 To use these
 
-', 9, NOW(), 'admin');
+', 9, NOW(), 'admin@jquiver.com');
 
 
 replace into manual_entry
@@ -452,7 +472,7 @@ In order to import the templating jar, add following dependency in your pom.xml.
 <dependency>
 <groupId>com.trigyn</groupId>
 <artifactId>templating</artifactId>
-<version>version</version>
+<version>latest-version</version>
 </dependency>
 ```
 
@@ -537,7 +557,7 @@ Example:
 
 **Note** : - Importing the jar will create template_master table in your application schema.
 
-References for Freemaker :- https://freemarker.apache.org/ ', 5, NOW(), 'admin'), ('57bdec61-325a-4487-9ba6-de218207f8c0', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver', '# Purpose 
+References for Freemaker :- https://freemarker.apache.org/ ', 5, NOW(), 'admin@jquiver.com'), ('57bdec61-325a-4487-9ba6-de218207f8c0', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver', '# Purpose 
 Trigyn has been working with number of Web Application project, which consists of components like Grids, Forms, Templating. In-order to speed up the initial project setup and components configuration there was a need to develop a reusable component. 
 
 # Including Jar
@@ -546,7 +566,7 @@ Trigyn has been working with number of Web Application project, which consists o
 <!-- https://mvnrepository.com/artifact/com.trigyn/java-web-starter --> <dependency>
     <groupId>com.trigyn</groupId>
     <artifactId>java-web-starter</artifactId>
-    <version>1.3.15</version>
+    <version>latest-version</version>
 </dependency>
 ```
 
@@ -564,7 +584,7 @@ Maven Group-id :- com.trigyn
 10. **REST Builder** : - (dynamic-rest) 
 11. **User Management** :- (usermanagement)
 
-', 0, NOW(), 'admin'), ('67b91245-e86c-4b9b-9aa9-7f373916d1c5', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'DB Utils', '# DB Utils
+', 0, NOW(), 'admin@jquiver.com'), ('67b91245-e86c-4b9b-9aa9-7f373916d1c5', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'DB Utils', '# DB Utils
 
 Configuring datasource in application using application.yml : 
 
@@ -601,7 +621,7 @@ Database utils provides the database and hibernate configuration. In order to im
 <dependency>
 <groupId>com.trigyn</groupId>
 <artifactId>dbutils</artifactId>
-<version>version</version>
+<version>latest-version</version>
 </dependency>
 ```
 
@@ -634,27 +654,136 @@ return configuration;
 
 ```
 
-DB Utils also contains a table **property_master**, which is used as a configuration table for application. Please refer **Application configuration** manual for more details on this.', 1,  NOW(), 'admin'), ('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder In order to import this jar, add following dependency in your pom.xml
+DB Utils also contains a table **property_master**, which is used as a configuration table for application. Please refer **Application configuration** manual for more details on this.', 1,  NOW(), 'admin@jquiver.com'), 
+('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder In order to import this jar, add following dependency in your pom.xml
 
 ```
 <dependency>
 <groupId>com.trigyn</groupId>
 <artifactId>dynamic-form</artifactId>
-<version>1.3.16-SNAPSHOT</version>
+<version>latest-version</version>
 </dependency>
 ```
 
 These will import the form builder jar and will create dynamic_form and dynamic_form_save_queries tables. Table dynamic_form  used for storing the  form details such as form html and select  query to fetch data for existing records, while dynamic_form_save_queries is used for storing the save/update queries.
 
-To use these
-', 9, NOW(), 'admin'),
+Dynamic form can be used to create simple forms , by just selecting the table we get the html form ready, save query etc. This form can be user for add as well as  editing it .
+
+**To add a new dynamic-form follow steps: **  
+
+**Step 1: ** Open Dynamic Form from home page.
+![](/cf/files/4028b88176a8f81a0176a9aad1090000)
+**Step 2: ** After that all dynamic forms will be listed where we can add/edit  form. 
+![](/cf/files/4028b88176a8f81a0176a9ae0cf80001)
+**Step 3:** After clicking on add , Enter form name, and select value from Form template  around which form would be generated.
+![](/cf/files/4028b88176ae0bd20176ae160c010000)
+**Step 4:** After selecting the table , select script , html and save script would be populated.
+![](/cf/files/4028b88176ae0bd20176ae1abd670002)
+![](/cf/files/4028b88176ae0bd20176ae1843480001)
+![](/cf/files/4028b88176ae0bd20176ae1bbc760003)
+		 
+**Step 5:** All the populated fields can be altered if required.
+**Note:** Form field names should match with the save query params.
+Example:
+```
+<input type="text" data-type="varchar" id="formdescription" name="formdescription"  value="" maxlength="100" class="form-control">
+			
+UPDATE dynamic_form SET form_name = :formname,form_description = :formdescription  WHERE form_id = :formid
+```
+			
+If the primary key is of varchar type then `UUID()` is used as primary key, if auto increment then  `SELECT CASE WHEN MAX(authentication_id) IS NULL THEN 1 ELSE MAX(authentication_id) + 1` is used as primary key.
+
+**Step 6: **  To use form ie. add a new record or edit a record below code format can be used:
+```
+<form id="addEditNotification" action="/cf/df" method="post" class="margin-r-5 pull-left">
+<input type="hidden" name="formId" value="e848b04c-f19b-11ea-9304-f48e38ab9348">
+<input type="hidden" name="primaryId" id="primaryId" value=""> 
+<button type="submit" class="btn btn-primary">
+                Add Notification
+            </button>
+</form>
+```
+For new record  primaryId should be blank, for edit it should contain the value.
+
+
+
+
+
+
+
+
+# File Upload Manager
+
+
+
+File Upload Manager is included in dynamic form.
+Steps to create new file configuration:
+
+**Step 1: ** Open File Upload Manager
+ ![](/cf/files/40289d3d768650810176866b317e0003)
+ 
+**Step 2: ** Click on Add File Configuration
+ ![](/cf/files/40289d3d768650810176866b46ad0004)
+ 
+**Step 3: ** Provide data for all manadatory fields.
+ ![](/cf/files/40289d3d768650810176866b52100005)
+ 
+**Note: ** Max file size supported is 9094947 Terabytes
+
+
+Steps to initialize and use file component in your template or form:
+
+**Step 1: ** Create HTML element
+```
+	<div class="col-3">
+		<div class="col-inner-form full-form-fields">
+			<label for="reimbursementFiles" style="white-space:nowrap"><span class="asteriskmark">*</span>
+				Attach Files
+			</label>
+			<div class="reimbursementFiles col-12 dropzone"></div>
+		</div>
+	</div>
+```							
+							
+**Step 2: **  While initializing file component, use file Upload Config Id as **fileUploadId**. If there are no configuration found for provided id then system will use **default ** configuration id.
+```
+
+    let reimbursementFiles = $(".reimbursementFiles").fileUpload({
+        fileUploadId : "reimbursementFileId",
+        successcallback: fileUploadSuccess.bind(this),
+        deletecallback: fileDeleteSuccess.bind(this)
+    });
+```
+		
+**Step 3: ** Create success and delete callback function if required
+```
+
+    function fileUploadSuccess(fileId){
+		// code changes
+    }
+
+    function fileDeleteSuccess(deletedFileUploadId){
+    	// code changes
+    }
+```
+
+**Enable/Disable File Upload container **
+Add following lines of code to enable only file preview and disable new files upload and delete existing uploaded files
+$(".filepreviewcontainer").find(".fa-close").remove();
+$(".dz-clickable").addClass("dz-disable-file-upload");
+$(".filepreviewcontainer").addClass("dz-enable-file-preview");
+
+**Note: **This will disable all file upload containers in your page. If you want to disable only specific file container then use unique identifier like for e.g. $(".reimbursementFiles").addClass("dz-disable-file-upload");
+
+
+', 9, NOW(), 'admin@jquiver.com'),
 ('7428a452-da97-4ef0-b6d7-acf4921beb82', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Grid Utils', '# Grid Utils
 
 ```
 <dependency>
      <groupId>com.trigyn</groupId>
      <artifactId>gridutils</artifactId>
-     <version>version</version>
+     <version>latest-version</version>
 </dependency>
 ```
 
@@ -686,7 +815,7 @@ Steps to create grid details.
 
 **Step 5 :- **Modify the col models accordingly in template, and pass the appropriate values in the grid initialization. 
 
-Parameters to be passed, gridId, additionalParams, colModels.', 4, NOW(), 'admin'), ('81c506ff-dab5-43de-a790-58af356de3e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Rest API Builder', '# Rest API Builder 
+Parameters to be passed, gridId, additionalParams, colModels.', 4, NOW(), 'admin@jquiver.com'), ('81c506ff-dab5-43de-a790-58af356de3e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Rest API Builder', '# Rest API Builder 
 
 Rest API Builder lets you write API''s in below languages :
 1. FTL (Freemaker)
@@ -747,7 +876,7 @@ myFunction(requestDetails, daoResults);
 ```
 
 
-', 10, NOW(), 'admin'), ('918676c8-b653-43ee-964a-d4faaeb13787', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Application Configurations', '# Property Master Details.
+', 10, NOW(), 'admin@jquiver.com'), ('918676c8-b653-43ee-964a-d4faaeb13787', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Application Configurations', '# Property Master Details.
 
 Jquiver provides with a database level implementation of application configurations, wherein you can manage all you environment and system related properties.
 Property Master table contains below configurations :
@@ -785,10 +914,45 @@ Whereas dev mode enabled the user to download the Template, Form Builder templat
 
 
  ![](/cf/files/40289d3d763887410176388995320000) 
+
+
+JQuiver has in-built classes and methods to configure mails.
+
+** Step 1:**Autowire SendMailService in your class
+ 	@Autowired
+	private SendMailService sendMailService = null;
+
+**Step 2: **Create instance of com.trigyn.jws.webstarter.utils.Email class
+	Email email = new Email();
+
+Following are the properties of Email class:
+
+
+| Property Name | Type | Required |
+| -------- | -------- | -------- |
+| mailFrom     | String     | Yes     |
+| mailFromName     | String     | No     |
+| internetAddressToArray     | array of InternetAddress(javax.mail.internet) objects      | Yes     |
+| body     | String     | Yes     |
+| subject     | String     | Yes     |
+| mailContent     | String     | No     |
+| contentType     | String     | No     |
+| isReplyToDifferentMail     | Boolean     | No     |
+| replyToDifferentMailId     | InternetAddress     | No     |
+| internetAddressCCArray     | array of InternetAddress(javax.mail.internet) objects     | No     |
+| internetAddressBCCArray     | array of InternetAddress(javax.mail.internet) objects     | No     |
+| isMailFooterEnabled     | Boolean     | No     |
+| mailFooter     | String     | No     |
+| attachementsArray     | List of files     | No     |
+
+
+**Step 3: **Call sendTestMail of SendMailService class. It requires only one parameter i.e. instance of Email class.
+	sendMailService.sendTestMail(email);
+
  
- Application configuration also provides you with enabling Google Analytics, Create a Google Analytics Key and add it in **google-analytics-key** and also you need to set the property of **enable-google-analytics** to **true**
+Application configuration also provides you with enabling Google Analytics, Create a Google Analytics Key and add it in **google-analytics-key** and also you need to set the property of **enable-google-analytics** to **true**
  
- ![](/cf/files/40289d3d763887410176388b36b60001)', 2, NOW(), 'admin'),
+ ![](/cf/files/40289d3d763887410176388b36b60001)', 2, NOW(), 'admin@jquiver.com'),
   
 ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Versioning', '# Versioning
 
@@ -855,8 +1019,8 @@ function submitRevisionForm(sourceElement) {
  
 ![](/cf/files/40289d3d7629c27501762a0f914b000e)
 
-![](/cf/files/40289d3d7629c27501762a0f9c51000f)', 11, NOW(), 'admin'),
-   ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'User Management', '# User Management ', 3, NOW(), 'admin');
+![](/cf/files/40289d3d7629c27501762a0f9c51000f)', 11, NOW(), 'admin@jquiver.com'),
+   ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'User Management', '# User Management ', 3, NOW(), 'admin@jquiver.com');
    
 REPLACE INTO manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
 ('9c25fb63-8336-4f22-bb97-a5042159d5c4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Mulitlingual', '# Mulitlingual
@@ -866,7 +1030,7 @@ If you are finding ways to spread your market reach and attain global presence, 
 <dependency>
 	<groupId>com.trigyn</groupId>
 	<artifactId>resourcebundle</artifactId>
-	<version>version</version>
+	<version>latest-version</version>
 </dependency>
 ```
 
@@ -920,11 +1084,11 @@ private IResourceBundleRepository iResourceBundleRepository = null;```
 String message = iResourceBundleRepository.findByKeyAndLanguageCode(resourceBundleKey,localeCode,defaultLocaleCode,isDeleted);
 ```
 
-', 12, NOW(), 'admin');
+', 12, NOW(), 'admin@jquiver.com');
 
 REPLACE INTO manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
 
-('935b9394-c33d-4113-a248-27c46c45e7e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Dev environment', '# Dev environment:
+('935b9394-c33d-4113-a248-27c46c45e7e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Dev Environment', '# Dev Environment:
 
 You can modify the following modules in your favourite editor just by changing the value of **Profile** property to **dev** from application configuration:
 * Templating
@@ -977,7 +1141,7 @@ Find all the templates under **Templates** folder. It consist of **template-name
 ![](/cf/files/40289d3d7661398f0176615d9dbd0001)
  
  Application will save all forms in **DynamicForms** folder. Inside DynamicForms, there will be one folder for each dynamic form and it should contain at least 3 files:
-*  htmlContent.tgn
+*  htmlContent
 *  selectQuery
 *  saveQuery-1
 
@@ -998,7 +1162,7 @@ Like dynamic forms, each dashlet details will be stored in seperate folder and a
 ![](/cf/files/402816927661a061017661a88a860006)
 
 
-', 13, NOW(), 'admin');
+', 13, NOW(), 'admin@jquiver.com');
 
 
 
@@ -1012,7 +1176,7 @@ User management utils provides  user authentication through various authenticati
 <dependency>
 <groupId>com.trigyn</groupId>
 <artifactId>usermanagement</artifactId>
-<version>version</version>
+<version>latest-version</version>
 </dependency>
 ```
 
@@ -1127,7 +1291,7 @@ There are 4 types of authentication:
 		
    2) Add mandatory fields in step 1 and keep rest of the steps as default and continue
    
-![](/cf/files/4028b8817661a798017661afd9e80000)
+![](/cf/files/4028b881765fd6570176602d10ac0004)
 		
  5)Click on Credentials tab  >  Click on + new credentials > O Auth client Id > select web application  and add application name
     1) Scroll down and add google redirect uri http://localhost:8080/login/oauth2/code/google
@@ -1173,95 +1337,582 @@ There are 4 types of authentication:
 
 ![](/cf/files/4028b881765fd657017660da9464000c)
 
-7) Go to jws_authentication_type table  > Oauth > change authentication_properties  of office365  client id and secret id 
+7) Go to jws_authentication_type table  > Oauth > change authentication_properties  of office365  client id and secret id
 
+
+**Note:** While restarting the application  if you dont want to maintain the session of  already  logged in users , you can do this by adding  the following property 
+**server.servlet.session.persistent=false**  in  you application.properties or application.yaml file. 
+
+Add following lines of code to get logged-in user details in any template or dynamic forms:
+
+![](/cf/files/40289d8f76a600980176a60bfa870002)
+ 
+ 
 ', 3, NOW(), 'admin@jquiver.com');
 
+replace into manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+('dd97c23d-feef-4cea-afcf-3cece7819159', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Export Configuration', '# Export Configuration
+
+Exporting the configuration plays pivotal role when you want to migrate some configuration or data from an existing database to another database. 
+
+To export a configuration go to particular module on the export configuration page and select the same. By default all the custom configurations will be selected and system configurations deselected. If at all user wants to reset the default selection and export only particular configuration, then that can be achieved by "Deselect All" checkbox.
+
+![](/cf/files/40288089766a9a9501766acfa31b0002)
+
+Once the configuration to be exported are finalized, go to the preview page using "Next" button and get it exported in zip format.
+
+ ![](/cf/files/40288089766a9a9501766acfe7920003)
+
+**For Developer:** 
+To implement export of any new configuration, other than what is currently available, following changes has to be taken care.
+
+**Step 1: ** Add the menu for new module to be introduced.
+
+This requires database change.
+Add module_name, grid_details_id and module_type(this will be unique string, which will be used to identify the module throughout the export process) into master_module table.
+
+![](/cf/files/40288089766a9a9501766ad0ba300004)
+ 
+ **Step 2: ** Create a XML VO/POJO to export the entity to be exported in XML format.
+ 
+  ```
+@XmlRootElement(name = "data")
+@XmlAccessorType (XmlAccessType.FIELD)
+public class ModuleXMLVO extends XMLVO {
+	
+	@XmlElement(name = "object")
+    private List<entity-name> details = new ArrayList<>();
+
+	public List<entity-name> getDetails() {
+		return details;
+	}
+
+	public void setDetails(List<entity-name> details) {
+		this.details = details;
+	}
+}
+ ```
+ 
+ **Step 3: ** Add getObject() method in the particular entity, if does not exist, to return a clone of the entity object.
+ 
+ ```
+ public Autocomplete getObject() {
+		Autocomplete autocomplete = new Autocomplete();
+		
+		autocomplete.setAcTypeId(acTypeId);
+		autocomplete.setAutocompleteDesc(autocompleteDesc!=null?autocompleteDesc.trim():autocompleteDesc);
+		autocomplete.setAutocompleteId(autocompleteId);
+		if(autocompleteSelectQuery!=null) {
+			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery.trim() +"]]>"));
+		} else {
+			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
+		}
+		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA["+ autocompleteSelectQuery +"]]>"));
+		autocomplete.setAcTypeId(this.acTypeId);
+		return autocomplete;
+	}
+ ```
+ 
+**Step 4: ** 
+Do appropriate changes in ExportService, to handle the export of new module added.
+Please make a note that, while retrieving data from database, we are fetching all the system configuration selected in the UI and excluding all the custom configuration included in the list passed from the client.
+
+**Step 5:** 
+Once the server side code change is done, make appropriate changes in export.js. For this, add the tab UI appropriately in ```openTab(evt, gridID, moduleType)``` method. 
+Make sure to manage the condition for listing to UI, as per the module_type value specified in master_module table.
+Currently we have handled only grid listing in export configuration page.', 
+
+14, NOW(), 'admin@jquiver.com');
+
+replace into manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+('be37c240-2607-4d79-9ef1-136dbd7c524b', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Import Configuration', '# Import Configuration
+
+Importing the configuration plays pivotal role when you want to migrate some configuration or data from an existing database to another database. 
+
+To import a configuration browse and upload the particular zip file already exported and saved in the local drive. Once uploaded, all the configuration to be imported will be listed down with the existing version number and import version number. Existing version number is the number which is available in your current setup, if the configuration already exists and import version number will be the number of the configuration from the setup from which it was exported.
+The configuration can imported all together or can be imported one by one after review, by the user. This can also be compared, with the existing version in the system, if any, using the comparison icon (if enabled).
+![](/cf/files/40288089766b4ac701766b5f263d0017)
+
+Comparison of the imported configuration is done and can be viewed as in versioning module.
+
+ ![](/cf/files/40288089766b4ac701766b61fa4a0019)
+
+**For Developer:** 
+To implement import of any new configuration, other than what is currently available, following changes has to be taken care.
+
+ **Step 1: ** Create a XML VO/POJO to export the entity to be exported in XML format.
+ 
+  ```
+@XmlRootElement(name = "data")
+@XmlAccessorType (XmlAccessType.FIELD)
+public class ModuleXMLVO extends XMLVO {
+	
+	@XmlElement(name = "object")
+    private List<entity-name> details = new ArrayList<>();
+
+	public List<entity-name> getDetails() {
+		return details;
+	}
+
+	public void setDetails(List<entity-name> details) {
+		this.details = details;
+	}
+}
+ ```
+ 
+ **Step 2: ** Create a Json VO/POJO if required.
+ This VO will be a normal java class with private variables and its getters and setters. This class will be used for comparison. Hence only those variables will be maintained in this class, which should be available in the versioning/comparison UI.
+ 
+ **Step 3: ** 
+Do appropriate changes in ImportService, to handle the import of new module added. i.e;
+1. Convert the XML VO into appropriate entity object, by un-marshaling.
+2. Convert the entity object to Json VO/POJO.
+3. Invoke "updateOutputMap()", with required inputs.
+4. Handle appropriate save logic, using repository.save(), for the newly added module.
+
+Please note, following has to be  kept in mind while handling import service.
+1. The key in the output map will be the combination of moduleID and moduleType. This is because, there can be case where the module id can repeat in different modules. Hence this will help in maintaining the uniqueness.
+2. If at all, there is any primary key with UUID generator, then make sure to update the column with ``` inquisitive-uuid```, if not available.
+ ```
+ @Entity
+@Table(name = "jws_user")
+public class JwsUser {
+
+	@Id
+	@GeneratedValue(generator = "inquisitive-uuid")
+	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
+	@Column(name="user_id")
+	private String userId = null;
+	
+	@Column(name="first_name")
+	private String firstName = null;
+	
+ ```
+This will help to maintain the same primary, while importing, if the configuration is not available in the system.
+
+**Step 4:** 
+Once the server side code change is done, make appropriate changes in import.js. For this, add the appropriate condition in ```submitRevisionForm(moduleType, entityId)``` method. For this following is taken into consideration.
+1. Provide saveURL if it is not a dynamic form module.
+2. Provide formId, if it is a dynamic form module.
+3. If it is a non versioning module. That is, if the versioning feature is not available for this module then
+		a. Provide isNonVersioningModule = "true"
+		b. Provide nonVersioningFetchURL
+		c. Provide saveURL
+4. Also, update server side code to satisfy the  nonVersioningFetchURL, saveURL request, if newly added module is a non versioning module.
+
+', 15, NOW(), 'admin@jquiver.com');
 
 
 REPLACE INTO jws_file_upload (file_upload_id, file_path, original_file_name, physical_file_name, updated_by, last_update_ts, file_config_id) VALUES
-('40281694762864a50176288c66620001', '/images', 'REST_API_Home.png', '54d81128-66eb-44e1-bd7c-a7aba6c1f081', 'admin', NOW(), 'dynamic-form'), 
-('40281694762864a50176288c755a0002', '/images', 'REST_API_Step_1.PNG', 'f34047da-dbe7-4f0a-8672-8ff74a47b391', 'admin', NOW(), 'dynamic-form'),
-('402816947628cb18017628cfa6110000', '/images', 'REST_API_Step_2.PNG', '538e5a16-0eb6-47d3-b196-23733426a0e1', 'admin',  NOW(), 'dynamic-form'),
-('402816947628e22d017628e709eb0000', '/images', 'Dashboard_Master.PNG', '1a999d28-8f4b-4475-99e6-439e7b40bec4', 'admin',  NOW(), 'dynamic-form'), 
-('40289d3d7650c0a1017650c8fccf0001', '/images', 'Add_Edit_Dashlet_Step_1.png', '5eda819c-bcbb-486a-b94b-1d93d73379c5', 'admin',  NOW(), 'dynamic-form'), 
-('40289d3d7650c0a1017650c90cce0002', '/images', 'Add_Edit_Dashlet_Step_2.png', 'e54568fc-8d7c-40eb-ab62-cd8521956878', 'admin',  NOW(), 'dynamic-form'),
-('402816947628e22d017628e71f020001', '/images', 'Add_Edit_Dashlet_3.PNG', 'ff8c8d67-2b68-4a2b-843b-de7d747324b7', 'admin',  NOW(), 'dynamic-form'), 
-('402816947628e22d017628ea39e00002', '/images', 'Add_Edit_Dashlet_4.PNG', '75368f52-d90f-456c-b9f5-69703014991e', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7650c0a1017650c8ef410000', '/images', 'Add_Edit_Dashboard_Step_1.png', '8346ff39-89b4-40f2-b1fa-cd01ca503541', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7629c275017629c35c830000', '/images', 'Add_Edit_Dashboard_Step_2.PNG', '606e1003-2f89-4514-9b63-1ff0d11ac8ce', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7629c27501762a0eb728000a', '/images', 'Revision_Enable_UI.PNG', '461685d6-a188-406c-920e-41bc210ada68', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a0ee8f3000b', '/images', 'Revision_Simple_1.PNG', '5303697a-2fc2-4abc-af89-9621fe0fdf25', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d76509b1e017650ae7d4d0015', '/images', 'Revision_Simple_2.png', 'af8ce88f-a5f0-401d-ac19-05fb1e583d15', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7629c27501762a0f3e5a000c', '/images', 'Revision_Simple_3.PNG', 'ed8c766f-5da2-4dbe-a335-c3aeca501157', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a0f8466000d', '/images', 'Revision_Complex_1.PNG', '4713e718-d56d-46f4-9d98-fb0c74902c4a', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a0f914b000e', '/images', 'Revision_Complex_2.PNG', '44c79c88-138d-487e-ab18-187c55efff6c', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7629c27501762a0f9c51000f', '/images', 'Revision_Complex_3.PNG', '1de987bc-dbc4-46f3-9eb4-d524304c5fe4', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7629c27501762a22257f0012', '/images', 'Grid_Util_Master.PNG', '5a25ffc8-d516-41ca-931e-6a3ad8ddf6bf', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a22341b0013', '/images', 'Add_Grid_Utils.PNG', 'dbbaf3ee-eb76-4e9c-8df4-27e8be86cab2', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a223f2e0014', '/images', 'Add_Grid_Utils_Step_2.PNG', '2cb34a18-ad8c-4ace-818f-d7d3eb0d5d5d', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7629c27501762a2258450015', '/images', 'Listing_Template.PNG', '165dad67-09bf-4521-b4cf-023f7851516f', 'admin', NOW(), 'dynamic-form'),
-('40289d3d762c323c01762cc6c8a30000', '/images', 'Multilingual_Master.PNG', '263dbcbd-754e-42d0-b1bf-3ba1dfa85a0e', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d762c323c01762cc6f25c0001', '/images', 'Add_Multilingual_Data_Step_1.PNG', 'd6e30474-ca6c-4b3c-8894-090f1d985de5', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d762c323c01762cc7015f0002', '/images', 'Add_Multilingual_Data_Step_2.PNG', '3d331031-fb3c-4aaa-81f9-e18dc99d2812', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d762c323c01762cc712310003', '/images', 'Multilingual_Demo.PNG', '5a1a9bf9-ce85-483c-8eb9-a9ce0d8884b9', 'admin',NOW(), 'dynamic-form'), 
-('40289d3d762c323c01762cc71ee00004', '/images', 'Multilingual_Demo_French.PNG', '688edc01-ec45-4a09-a08e-d18f7b5000ee', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d762c323c01762cc72f480005', '/images', 'Multilingual_Demo_Hindi.PNG', '86247f52-2f06-4506-b8e5-03056d3bbaca', 'admin', NOW(), 'dynamic-form'),
-('40289d3d763887410176388995320000', '/images', 'Application_Configuration_1.PNG', '2e4403fd-9d8f-42ed-a782-551e45f50a59', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d763887410176388b36b60001', '/images', 'Application_Configuration_2.PNG', '11fdbaad-55f3-48e6-8032-4fd650df0e30', 'admin', NOW(), 'dynamic-form'),
-('4028168b7647e50a0176488ec8860003', '/images', 'Template_Without_Param.PNG', 'c9336bc5-f083-42cd-bf70-152ef859b638', 'admin', NOW(), 'dynamic-form'), 
-('4028168b7647e50a0176488f32110004', '/images', 'Template_With_Param.PNG', '3fb18376-b4df-43c7-bfde-a62ac98e241b', 'admin', NOW(), 'dynamic-form'), 
-('4028168b7647e50a0176488f4ebe0005', '/images', 'Resource_Bundle_Without_Default.png', 'db085e59-de62-440c-a8c5-039595a8392a', 'admin', NOW(), 'dynamic-form'), 
-('4028168b7647e50a0176488f60ba0006', '/images', 'Resource_Bundle_With_Default.png', '79fd4660-5fd7-40c0-9238-92a0b9e91cae', 'admin',NOW(), 'dynamic-form'),
-('4028168b7647e50a017648c9a2fc0008', '/images', 'Profile_Property.PNG', '284056ff-151a-4230-a044-cf04306b89bf', 'admin', NOW(), 'dynamic-form'), 
-('4028168b7647e50a017648ca0c690009', '/images', 'Template_Storage_Location_Property.png', '425284ef-03b1-4fbd-81f2-6649c6fb0404', 'admin', NOW(), 'dynamic-form'),
-('4028b8817646ed03017647dc3ab40021', '/images', 'manageRole.PNG', '1eab0154-70c2-4b19-824b-3a99a7f72bb5', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817646ed03017647ef2f050022', '/images', 'manageUser.PNG', '55072ccf-76cf-4a20-b66b-8d9ba9371e38', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817646ed03017647f1c1330023', '/images', 'forcePasswordMail.PNG', '076e8dd4-6389-4a13-be07-c524e96dbef7', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817646ed030176480a3c080024', '/images', 'manageRoleModule.PNG', '50b32b99-29e1-45e4-8920-84701895e783', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817646ed030176480ce3fd0025', '/images', 'manageEntityRole.PNG', '891bd5e4-043a-41eb-a623-95856f23c453', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817646ed030176480e43ab0026', '/images', 'userManagement.PNG', '75354d31-d32b-41d8-877c-f15b86bac8da', 'admin@jquiver.com', NOW(), 'dynamic-form'),
-('4028b8817650f1220176511211c40002', '/images', 'authTypes.png', '85b8a915-bd77-4b54-9e39-0fcbc27fb9d0', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817650f12201765116077e0003', '/images', 'databaseAuth-1.png', 'ebfd663a-42ec-4ce9-9190-f0f9b6acba74', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817650f122017651166e0d0004', '/images', 'databaseAuth-2.png', '9563f6a8-7ef5-4bef-8db5-2a89edf07c75', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817650f12201765121c1300005', '/images', 'databaseAuth-password.png', '7f733b86-f55b-4eb5-ab5d-1a0f530aeeec', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817650f122017651226ab90006', '/images', 'databaseAuth-password-captcha.png', '43966179-960e-4339-aa47-94d676a44aa0', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b8817650f12201765122f1750007', '/images', 'databaseAuth-totp.png', '93c8b0c5-3e68-444b-8c64-fb86c6aaf62f', 'admin@jquiver.com',NOW(), 'dynamic-form'), 
-('4028b881765fd657017660116dac0000', '/images', 'oauth-clients.png', '394f9c18-0b9e-4f05-ac14-ca4a754fc018', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd65701766028c6f60001', '/images', 'google-credentials.PNG', 'e6599f51-6988-4ec3-b382-a0caeb78105a', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd6570176602a9c080002', '/images', 'google-create-project.PNG', '3df83556-44da-48a1-a68b-7ad6d2d84b14', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd6570176602ca2d50003', '/images', 'google-configure-consent-screen.PNG', '554929bc-c01a-4f7b-8786-386107c7e682', 'admin@jquiver.com',NOW() , 'dynamic-form'), 
-('4028b881765fd6570176602d10ac0004', '/images', 'google-configure-consent-screen-2.PNG', '86102523-6b13-4313-8d27-c9db1816d54f', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd6570176609447520005', '/images', 'google-credentials-3.PNG', '67d1978e-1274-4e51-9a75-4ffbba12a8d3', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660d3c0550006', '/images', 'facebook-1.PNG', 'e0820928-668d-4558-bd8c-e4e9d190a764', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660d441bd0007', '/images', 'facebook-2.PNG', 'a9a61d99-4697-4482-b791-b651fa49373e', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660d70c6d0008', '/images', 'offcie365-1.PNG', '8f1ca6b2-b9e5-4dfa-ac9b-1976637abc4b', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660d8b7380009', '/images', 'offcie365-2.PNG', 'd1ef583f-6fc7-4a58-a5d8-9e015052f0f8', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660d92df9000a', '/images', 'offcie365-3.PNG', 'cad0118f-f44f-48fa-b6de-ff2b6fc74fa2', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660da0caa000b', '/images', 'offcie365-4.PNG', '4e4a9bd9-d0ed-44e0-9b14-263bcc39f25c', 'admin@jquiver.com', NOW(), 'dynamic-form'), 
-('4028b881765fd657017660da9464000c', '/images', 'offcie365-5.PNG', 'bf29893b-b207-4982-b350-a32c8ca377a0', 'admin@jquiver.com', NOW() , 'dynamic-form'),
-('40289d3d765124480176512a5e0f0000', '/images', 'Autocomplete_Example_1.PNG', 'cb9f36dd-18be-429a-b6be-9a6042f06c9a', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765124480176512a6e660001', '/images', 'Autocomplete_Example_2.PNG', 'f77ad3ca-d27c-4a0a-a2e7-e9a4ebd776a0', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765124480176512a79560002', '/images', 'Autocomplete_Example_3.PNG', '17fb0677-f999-4fe0-8cd9-7190098a7e8d', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765124480176512a89830003', '/images', 'Autocomplete_Example_4.PNG', 'bf5e5d91-56f2-4c75-89aa-458612aba3cd', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765124480176512a96630004', '/images', 'MultiSelect_Example_1.PNG', '99a536d6-7dd4-4e7e-9702-6a312c14cc8a', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765124480176512aa3f80005', '/images', 'MultiSelect_Example_2.PNG', 'db6394b8-d7a6-4231-be9a-f587794e2f99', 'admin', NOW(), 'dynamic-form'),
-('40289d3d765d4f9c01765d5514740000', '/images', 'Profile_Property.PNG', 'e8ba205c-1f99-46e6-891f-cf7f220daf76', 'admin', NOW(), 'dynamic-form'),
-('40289d3d765d4f9c01765d67c7d90005', '/images', 'Template_Download_All.PNG', '118e8bd6-1fa5-4b72-b30a-64e4ac09a447', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765d4f9c01765d67d7850006', '/images', 'Template_Upload_All.PNG', '27d6eba0-55b4-4e82-82fb-4c16d38d1d19', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765d4f9c01765d67e8320007', '/images', 'Dynamic_Form_Download_All.PNG', '2684d1d6-6650-4d08-bed8-fb229afa969c', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765d4f9c01765d67f5d90008', '/images', 'Dynamic_Form_Upload_All.PNG', '58bd210e-47d5-4516-a9dc-89b27d32d49d', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765d4f9c01765d7279a50009', '/images', 'Dashlet_Download_All.png', '8090ddee-8014-46a0-b147-6c2ed5fd6d57', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d765d4f9c01765d7287ee000a', '/images', 'Dashlet_Upload_All.png', '092a5276-c6c6-4710-a50b-c1913b8c2d36', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7660efd0017660f91702000a', '/images', 'Template_Action_Buttons.PNG', '65b32265-e86e-4e87-9901-2e986dda2dc1', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7660efd0017660f9a518000b', '/images', 'Dashlet_Action_Buttons.png', '4a848d47-474d-4d27-a597-adf003fd094a', 'admin', NOW(), 'dynamic-form'), 
-('40289d3d7660efd0017660f9ba53000c', '/images', 'Dynamic_Form_Action_Buttons.PNG', '46d81eed-e1a6-4db2-b02f-bb617321f08f', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7661398f0176615d9dbd0001', '/images', 'Template_Folder_Structure.PNG', 'fa1b8ef9-5a89-49b1-935d-25959e47ed21', 'admin', NOW(), 'dynamic-form'),
-('402816927661a061017661a88a860006', '/images', 'Dashlet_Folder_Structure_1.PNG', '2b9debb5-9f13-40e6-9d58-e51a7c83e0d7', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7661398f0176617e3aee0004', '/images', 'Dashlet_Folder_Structure_2.PNG', '850316b0-bd29-41a3-88b8-30764903b73b', 'admin',  NOW(), 'dynamic-form'),
-('402816927661a061017661a86f8c0004', '/images', 'Dynamic_Form_Folder_Structure_1.PNG', 'a0661c6d-887b-44eb-9bb4-ac29cfe78dc3', 'admin', NOW(), 'dynamic-form'),
-('40289d3d7661398f0176617633730002', '/images', 'Dynamic_Form_Folder_Structure_2.PNG', 'b7568e9a-c31b-4492-bea1-bfe580a580ec', 'admin',  NOW(), 'dynamic-form');
+('40281694762864a50176288c66620001', '/images', 'REST_API_Master.PNG', '54d81128-66eb-44e1-bd7c-a7aba6c1f081', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40281694762864a50176288c755a0002', '/images', 'Add_Edit_REST_API_Step_1.PNG', 'f34047da-dbe7-4f0a-8672-8ff74a47b391', 'admin@jquiver.com', NOW(), 'helpManual'),
+('402816947628cb18017628cfa6110000', '/images', 'Add_Edit_REST_API_Step_2.PNG', '538e5a16-0eb6-47d3-b196-23733426a0e1', 'admin@jquiver.com',  NOW(), 'helpManual'),
+('402816947628e22d017628e709eb0000', '/images', 'Dashboard_Master.PNG', '1a999d28-8f4b-4475-99e6-439e7b40bec4', 'admin@jquiver.com',  NOW(), 'helpManual'), 
+('40289d3d7650c0a1017650c8fccf0001', '/images', 'Add_Edit_Dashlet_Step_1.PNG', '5eda819c-bcbb-486a-b94b-1d93d73379c5', 'admin@jquiver.com',  NOW(), 'helpManual'), 
+('40289d3d7650c0a1017650c90cce0002', '/images', 'Add_Edit_Dashlet_Step_2.PNG', 'e54568fc-8d7c-40eb-ab62-cd8521956878', 'admin@jquiver.com',  NOW(), 'helpManual'),
+('402816947628e22d017628e71f020001', '/images', 'Add_Edit_Dashlet_Step_1.PNG', 'ff8c8d67-2b68-4a2b-843b-de7d747324b7', 'admin@jquiver.com',  NOW(), 'helpManual'), 
+('402816947628e22d017628ea39e00002', '/images', 'Add_Edit_Dashlet_Step_2.PNG', '75368f52-d90f-456c-b9f5-69703014991e', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7650c0a1017650c8ef410000', '/images', 'Add_Edit_Dashboard_Step_1.PNG', '8346ff39-89b4-40f2-b1fa-cd01ca503541', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7629c275017629c35c830000', '/images', 'Add_Edit_Dashboard_Step_2.PNG', '606e1003-2f89-4514-9b63-1ff0d11ac8ce', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7629c27501762a0eb728000a', '/images', 'Module_Revision_Enable_UI.PNG', '461685d6-a188-406c-920e-41bc210ada68', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a0ee8f3000b', '/images', 'Module_Revision_Simple_Example_1.PNG', '5303697a-2fc2-4abc-af89-9621fe0fdf25', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d76509b1e017650ae7d4d0015', '/images', 'Module_Revision_Simple_Example_2.PNG', 'af8ce88f-a5f0-401d-ac19-05fb1e583d15', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7629c27501762a0f3e5a000c', '/images', 'Module_Revision_Simple_Example_3.PNG', 'ed8c766f-5da2-4dbe-a335-c3aeca501157', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a0f8466000d', '/images', 'Module_Revision_Complex_Example_1.PNG', '4713e718-d56d-46f4-9d98-fb0c74902c4a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a0f914b000e', '/images', 'Module_Revision_Complex_Example_2.PNG', '44c79c88-138d-487e-ab18-187c55efff6c', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7629c27501762a0f9c51000f', '/images', 'Module_Revision_Complex_Example_3.PNG', '1de987bc-dbc4-46f3-9eb4-d524304c5fe4', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7629c27501762a22257f0012', '/images', 'Grid_Util_Master.PNG', '5a25ffc8-d516-41ca-931e-6a3ad8ddf6bf', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a22341b0013', '/images', 'Add_Grid_Details_Step_1.PNG', 'dbbaf3ee-eb76-4e9c-8df4-27e8be86cab2', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a223f2e0014', '/images', 'Add_Grid_Details_Step_2.PNG', '2cb34a18-ad8c-4ace-818f-d7d3eb0d5d5d', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7629c27501762a2258450015', '/images', 'Default_Listing_Template.PNG', '165dad67-09bf-4521-b4cf-023f7851516f', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d762c323c01762cc6c8a30000', '/images', 'Multilingual_Master.PNG', '263dbcbd-754e-42d0-b1bf-3ba1dfa85a0e', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d762c323c01762cc6f25c0001', '/images', 'Add_Edit_Multilingual_Data_Step_1.PNG', 'd6e30474-ca6c-4b3c-8894-090f1d985de5', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d762c323c01762cc7015f0002', '/images', 'Add_Edit_Multilingual_Data_Step_2.PNG', '3d331031-fb3c-4aaa-81f9-e18dc99d2812', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d762c323c01762cc712310003', '/images', 'Multilingual_Demo.PNG', '5a1a9bf9-ce85-483c-8eb9-a9ce0d8884b9', 'admin@jquiver.com',NOW(), 'helpManual'), 
+('40289d3d762c323c01762cc71ee00004', '/images', 'Multilingual_Demo_French.PNG', '688edc01-ec45-4a09-a08e-d18f7b5000ee', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d762c323c01762cc72f480005', '/images', 'Multilingual_Demo_Hindi.PNG', '86247f52-2f06-4506-b8e5-03056d3bbaca', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d763887410176388995320000', '/images', 'Google_Analytics_Application_Configuration.PNG', '2e4403fd-9d8f-42ed-a782-551e45f50a59', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d763887410176388b36b60001', '/images', 'Dev_Environment_Application_Configuration.PNG', '11fdbaad-55f3-48e6-8032-4fd650df0e30', 'admin@jquiver.com', NOW(), 'helpManual'),
+('4028168b7647e50a0176488ec8860003', '/images', 'Template_Without_Param.PNG', 'c9336bc5-f083-42cd-bf70-152ef859b638', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028168b7647e50a0176488f32110004', '/images', 'Template_With_Param.PNG', '3fb18376-b4df-43c7-bfde-a62ac98e241b', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028168b7647e50a0176488f4ebe0005', '/images', 'Resource_Bundle_Without_Default.PNG', 'db085e59-de62-440c-a8c5-039595a8392a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028168b7647e50a0176488f60ba0006', '/images', 'Resource_Bundle_With_Default.PNG', '79fd4660-5fd7-40c0-9238-92a0b9e91cae', 'admin@jquiver.com',NOW(), 'helpManual'),
+('4028168b7647e50a017648c9a2fc0008', '/images', 'Profile_Property.PNG', '284056ff-151a-4230-a044-cf04306b89bf', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028168b7647e50a017648ca0c690009', '/images', 'Template_Storage_Location_Property.PNG', '425284ef-03b1-4fbd-81f2-6649c6fb0404', 'admin@jquiver.com', NOW(), 'helpManual'),
+('4028b8817646ed03017647dc3ab40021', '/images', 'manageRole.PNG', '1eab0154-70c2-4b19-824b-3a99a7f72bb5', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817646ed03017647ef2f050022', '/images', 'manageUser.PNG', '55072ccf-76cf-4a20-b66b-8d9ba9371e38', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817646ed03017647f1c1330023', '/images', 'forcePasswordMail.PNG', '076e8dd4-6389-4a13-be07-c524e96dbef7', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817646ed030176480a3c080024', '/images', 'manageRoleModule.PNG', '50b32b99-29e1-45e4-8920-84701895e783', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817646ed030176480ce3fd0025', '/images', 'manageEntityRole.PNG', '891bd5e4-043a-41eb-a623-95856f23c453', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817646ed030176480e43ab0026', '/images', 'userManagement.PNG', '75354d31-d32b-41d8-877c-f15b86bac8da', 'admin@jquiver.com', NOW(), 'helpManual'),
+('4028b8817650f1220176511211c40002', '/images', 'authTypes.png', '85b8a915-bd77-4b54-9e39-0fcbc27fb9d0', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817650f12201765116077e0003', '/images', 'databaseAuth-1.png', 'ebfd663a-42ec-4ce9-9190-f0f9b6acba74', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817650f122017651166e0d0004', '/images', 'databaseAuth-2.png', '9563f6a8-7ef5-4bef-8db5-2a89edf07c75', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817650f12201765121c1300005', '/images', 'databaseAuth-password.png', '7f733b86-f55b-4eb5-ab5d-1a0f530aeeec', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817650f122017651226ab90006', '/images', 'databaseAuth-password-captcha.png', '43966179-960e-4339-aa47-94d676a44aa0', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b8817650f12201765122f1750007', '/images', 'databaseAuth-totp.png', '93c8b0c5-3e68-444b-8c64-fb86c6aaf62f', 'admin@jquiver.com',NOW(), 'helpManual'), 
+('4028b881765fd657017660116dac0000', '/images', 'oauth-clients.png', '394f9c18-0b9e-4f05-ac14-ca4a754fc018', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd65701766028c6f60001', '/images', 'google-credentials.PNG', 'e6599f51-6988-4ec3-b382-a0caeb78105a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd6570176602a9c080002', '/images', 'google-create-project.PNG', '3df83556-44da-48a1-a68b-7ad6d2d84b14', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd6570176602ca2d50003', '/images', 'google-configure-consent-screen.PNG', '554929bc-c01a-4f7b-8786-386107c7e682', 'admin@jquiver.com',NOW() , 'helpManual'), 
+('4028b881765fd6570176602d10ac0004', '/images', 'google-configure-consent-screen-2.PNG', '86102523-6b13-4313-8d27-c9db1816d54f', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd6570176609447520005', '/images', 'google-credentials-3.PNG', '67d1978e-1274-4e51-9a75-4ffbba12a8d3', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660d3c0550006', '/images', 'facebook-1.PNG', 'e0820928-668d-4558-bd8c-e4e9d190a764', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660d441bd0007', '/images', 'facebook-2.PNG', 'a9a61d99-4697-4482-b791-b651fa49373e', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660d70c6d0008', '/images', 'offcie365-1.PNG', '8f1ca6b2-b9e5-4dfa-ac9b-1976637abc4b', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660d8b7380009', '/images', 'offcie365-2.PNG', 'd1ef583f-6fc7-4a58-a5d8-9e015052f0f8', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660d92df9000a', '/images', 'offcie365-3.PNG', 'cad0118f-f44f-48fa-b6de-ff2b6fc74fa2', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660da0caa000b', '/images', 'offcie365-4.PNG', '4e4a9bd9-d0ed-44e0-9b14-263bcc39f25c', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b881765fd657017660da9464000c', '/images', 'offcie365-5.PNG', 'bf29893b-b207-4982-b350-a32c8ca377a0', 'admin@jquiver.com', NOW() , 'helpManual'),
+('40289d3d765124480176512a5e0f0000', '/images', 'Autocomplete_Example_1.PNG', 'cb9f36dd-18be-429a-b6be-9a6042f06c9a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765124480176512a6e660001', '/images', 'Autocomplete_Example_2.PNG', 'f77ad3ca-d27c-4a0a-a2e7-e9a4ebd776a0', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765124480176512a79560002', '/images', 'Autocomplete_Example_3.PNG', '17fb0677-f999-4fe0-8cd9-7190098a7e8d', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765124480176512a89830003', '/images', 'Autocomplete_Example_4.PNG', 'bf5e5d91-56f2-4c75-89aa-458612aba3cd', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765124480176512a96630004', '/images', 'MultiSelect_Example_1.PNG', '99a536d6-7dd4-4e7e-9702-6a312c14cc8a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765124480176512aa3f80005', '/images', 'MultiSelect_Example_2.PNG', 'db6394b8-d7a6-4231-be9a-f587794e2f99', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d765d4f9c01765d5514740000', '/images', 'Profile_Property.PNG', 'e8ba205c-1f99-46e6-891f-cf7f220daf76', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d765d4f9c01765d67c7d90005', '/images', 'Template_Download_All.PNG', '118e8bd6-1fa5-4b72-b30a-64e4ac09a447', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765d4f9c01765d67d7850006', '/images', 'Template_Upload_All.PNG', '27d6eba0-55b4-4e82-82fb-4c16d38d1d19', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765d4f9c01765d67e8320007', '/images', 'Dynamic_Form_Download_All.PNG', '2684d1d6-6650-4d08-bed8-fb229afa969c', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765d4f9c01765d67f5d90008', '/images', 'Dynamic_Form_Upload_All.PNG', '58bd210e-47d5-4516-a9dc-89b27d32d49d', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765d4f9c01765d7279a50009', '/images', 'Dashlet_Download_All.PNG', '8090ddee-8014-46a0-b147-6c2ed5fd6d57', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d765d4f9c01765d7287ee000a', '/images', 'Dashlet_Upload_All.PNG', '092a5276-c6c6-4710-a50b-c1913b8c2d36', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7660efd0017660f91702000a', '/images', 'Template_Action_Buttons.PNG', '65b32265-e86e-4e87-9901-2e986dda2dc1', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7660efd0017660f9a518000b', '/images', 'Dashlet_Action_Buttons.PNG', '4a848d47-474d-4d27-a597-adf003fd094a', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d7660efd0017660f9ba53000c', '/images', 'Dynamic_Form_Action_Buttons.PNG', '46d81eed-e1a6-4db2-b02f-bb617321f08f', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7661398f0176615d9dbd0001', '/images', 'Template_Folder_Structure.PNG', 'fa1b8ef9-5a89-49b1-935d-25959e47ed21', 'admin@jquiver.com', NOW(), 'helpManual'),
+('402816927661a061017661a88a860006', '/images', 'Dashlet_Folder_Structure_1.PNG', '2b9debb5-9f13-40e6-9d58-e51a7c83e0d7', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7661398f0176617e3aee0004', '/images', 'Dashlet_Folder_Structure_2.PNG', '850316b0-bd29-41a3-88b8-30764903b73b', 'admin@jquiver.com',  NOW(), 'helpManual'),
+('402816927661a061017661a86f8c0004', '/images', 'Dynamic_Form_Folder_Structure_1.PNG', 'a0661c6d-887b-44eb-9bb4-ac29cfe78dc3', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d7661398f0176617633730002', '/images', 'Dynamic_Form_Folder_Structure_2.PNG', 'b7568e9a-c31b-4492-bea1-bfe580a580ec', 'admin@jquiver.com',  NOW(), 'helpManual'),
+('40288089766a9a9501766acfa31b0002', '/images', 'export_config.PNG', '921e106e-a5d5-464e-a2f3-75902adeb49e', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40288089766a9a9501766acfe7920003', '/images', 'preview_export.PNG', '8cb04e93-41c1-4d34-9e4a-5d0eb5b9c461', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40288089766a9a9501766ad0ba300004', '/images', 'export_menu_db.PNG', '2278931c-ce43-4bb8-86dc-6b202b63b1a0', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40288089766b4ac701766b5f263d0017', '/images', 'import_config.PNG', '12fb5a7f-ac0e-4dfc-b14d-a65310d75e1e', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40288089766b4ac701766b61fa4a0019', '/images', 'import_compare.PNG', '0945e9ce-b63d-4505-852d-491e56b4f74b', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d3d768650810176866b317e0003', '/images', 'File_Upload_Manager_Master.PNG', '3c60e10d-c0cd-4b60-944f-b9a54e9faa45', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d768650810176866b46ad0004', '/images', 'Add_File_Configuration_Step_1.PNG', 'dab82912-46c3-46e0-9d4e-d2b4abb1e283', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('40289d3d768650810176866b52100005', '/images', 'Add_File_Configuration_Step_2.PNG', '750c9d79-1970-48da-8f8d-5ebcde096944', 'admin@jquiver.com', NOW(), 'helpManual'),
+('40289d8f76a600980176a60bfa870002', '/images', 'User_Details_In_JS.png', 'fe9a16c1-bf80-4269-92a3-83bc33b48864', 'admin@jquiver.com', NOW(), 'helpManual'),
+('4028b88176a8f81a0176a9aad1090000', '/images', 'form-builder-welcome.png', '99300f8f-0ad6-4021-8bcd-f679a6f32b8c', 'admin@jquiver.com',NOW() , 'helpManual'), 
+('4028b88176a8f81a0176a9ae0cf80001', '/images', 'form-builder-listing.PNG', 'eb941ec9-1eb2-47c4-a0cc-0ce53145a540', 'admin@jquiver.com',NOW(), 'helpManual'), 
+('4028b88176ae0bd20176ae160c010000', '/images', 'form-builder-template.png', '2c5ac0a7-47fe-480b-b9c7-7982a2ec99a6', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b88176ae0bd20176ae1843480001', '/images', 'form-builder-populate.png', 'b6307aae-374f-499f-87f6-82add750c0e6', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b88176ae0bd20176ae1abd670002', '/images', 'form-builder-populate-select.png', '7a17a93c-4365-42c2-ab2f-b7a0e65254ac', 'admin@jquiver.com', NOW(), 'helpManual'), 
+('4028b88176ae0bd20176ae1bbc760003', '/images', 'form-builder-populate-save.png', '134dccf1-2974-48fc-aa51-021f096f6724', 'admin@jquiver.com', NOW(), 'helpManual');
  
+
+
+
+/*Application Configurations*/
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('918676c8-b653-43ee-964a-d4faaeb13787','40289d3d763887410176388995320000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('918676c8-b653-43ee-964a-d4faaeb13787','40289d3d763887410176388b36b60001');
+
+
+/*User Management*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','40289d8f76a600980176a60bfa870002');
+
+
+/*Grid Utils*/
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('7428a452-da97-4ef0-b6d7-acf4921beb82','40289d3d7629c27501762a22257f0012');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('7428a452-da97-4ef0-b6d7-acf4921beb82','40289d3d7629c27501762a22341b0013');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('7428a452-da97-4ef0-b6d7-acf4921beb82','40289d3d7629c27501762a223f2e0014');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('7428a452-da97-4ef0-b6d7-acf4921beb82','40289d3d7629c27501762a2258450015');
+
+
+/*Templating*/
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('17feffba-99f4-4591-9cb5-0fef46ee0b77','4028168b7647e50a0176488ec8860003');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('17feffba-99f4-4591-9cb5-0fef46ee0b77','4028168b7647e50a0176488f32110004');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('17feffba-99f4-4591-9cb5-0fef46ee0b77','4028168b7647e50a0176488f4ebe0005');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('17feffba-99f4-4591-9cb5-0fef46ee0b77','4028168b7647e50a0176488f60ba0006');
+
+
+/*AutoComplete*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512a5e0f0000');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512a6e660001');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512a79560002');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512a89830003');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512a96630004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('5e46df00-e07a-4b73-889f-2894adfd3df8','40289d3d765124480176512aa3f80005');
+
+/*Dashboard*/
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','402816947628e22d017628e709eb0000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','40289d3d7650c0a1017650c8fccf0001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','40289d3d7650c0a1017650c90cce0002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','402816947628e22d017628e71f020001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','402816947628e22d017628ea39e00002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','40289d3d7650c0a1017650c8ef410000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2','40289d3d7629c275017629c35c830000');
+
+
+
+
+/*REST API*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('81c506ff-dab5-43de-a790-58af356de3e9','40281694762864a50176288c66620001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('81c506ff-dab5-43de-a790-58af356de3e9','40281694762864a50176288c755a0002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('81c506ff-dab5-43de-a790-58af356de3e9','402816947628cb18017628cfa6110000');
+
+/*Versioning*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0eb728000a');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0ee8f3000b');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d76509b1e017650ae7d4d0015');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0f3e5a000c');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0f8466000d');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0f914b000e');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d7629c27501762a0f9c51000f');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b','40289d3d767581730176758f76300001');
+
+
+/*Multilingual*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc6c8a30000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc6f25c0001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc7015f0002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc712310003');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc71ee00004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('9c25fb63-8336-4f22-bb97-a5042159d5c4','40289d3d762c323c01762cc72f480005');
+
+/*Dev Environment*/
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d5514740000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','4028168b7647e50a017648ca0c690009');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d67c7d90005');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d67e8320007');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d7279a50009');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d67d7850006');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d67f5d90008');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d765d4f9c01765d7287ee000a');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7660efd0017660f91702000a');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7660efd0017660f9ba53000c');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7660efd0017660f9a518000b');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7661398f0176615d9dbd0001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','402816927661a061017661a86f8c0004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7661398f0176617633730002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','40289d3d7661398f0176617e3aee0004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('935b9394-c33d-4113-a248-27c46c45e7e9','402816927661a061017661a88a860006');
+
+/*Form Builder*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','40289d3d768650810176866b317e0003');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','40289d3d768650810176866b46ad0004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','40289d3d768650810176866b52100005');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176a8f81a0176a9aad1090000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176a8f81a0176a9ae0cf80001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176ae0bd20176ae160c010000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176ae0bd20176ae1abd670002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176ae0bd20176ae1843480001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('6938f0ac-00fe-4b94-95e7-02ef72016fe4','4028b88176ae0bd20176ae1bbc760003');
+
+
+/*User Management*/
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed030176480e43ab0026');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed03017647dc3ab40021');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed03017647ef2f050022');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed03017647f1c1330023');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed030176480a3c080024');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817646ed030176480ce3fd0025');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817650f1220176511211c40002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817650f122017651166e0d0004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817650f12201765121c1300005');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817650f122017651226ab90006');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b8817650f12201765122f1750007');
+
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660116dac0000');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd65701766028c6f60001');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd6570176602a9c080002');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd6570176602ca2d50003');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd6570176602d10ac0004');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd6570176609447520005');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660d3c0550006');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660d441bd0007');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660d70c6d0008');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660d8b7380009');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660d92df9000a');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660da0caa000b');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','4028b881765fd657017660da9464000c');
+
+REPLACE INTO manual_entry_file_association (manual_entry_id,file_upload_id) 
+VALUES ('e03447c8-eaa0-4119-b97e-b802bd8f4ff1','40289d8f76a600980176a60bfa870002');
 
 SET FOREIGN_KEY_CHECKS=1;
 

@@ -1,6 +1,5 @@
 package com.trigyn.jws.usermanagement.entities;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,34 +18,34 @@ public class JwsUser {
 	@Id
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
-	@Column(name="user_id")
-	private String userId = null;
-	
-	@Column(name="first_name")
-	private String firstName = null;
-	
-	@Column(name="last_name")
-	private String lastName = null;
-	
-	@Column(name="email")
-	private String email = null;
-	
-	@Column(name="force_password_change")
-	private Integer forcePasswordChange = null;
+	@Column(name = "user_id")
+	private String	userId				= null;
+
+	@Column(name = "first_name")
+	private String	firstName			= null;
+
+	@Column(name = "last_name")
+	private String	lastName			= null;
+
+	@Column(name = "email")
+	private String	email				= null;
+
+	@Column(name = "force_password_change")
+	private Integer	forcePasswordChange	= null;
 	// system generated password
-	
-	@Column(name="password")
-	private String password = null;
-	
-	@Column(name="is_active")
-	private Integer isActive = null;
-	
-	@Column(name="secret_key")
-	private String secretKey = null;
-	
-	@Column(name="registered_by")
-	private Integer registeredBy = null;
-	
+
+	@Column(name = "password")
+	private String	password			= null;
+
+	@Column(name = "is_active")
+	private Integer	isActive			= null;
+
+	@Column(name = "secret_key")
+	private String	secretKey			= null;
+
+	@Column(name = "registered_by")
+	private Integer	registeredBy		= null;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -121,7 +120,7 @@ public class JwsUser {
 
 	public JwsUser getObject() {
 		JwsUser user = new JwsUser();
-		
+
 		user.setEmail(email);
 		user.setFirstName(firstName);
 		user.setForcePasswordChange(forcePasswordChange);
@@ -135,9 +134,9 @@ public class JwsUser {
 	}
 
 	public JwsUserVO convertEntityToVO(JwsUser userData) {
-		
+
 		JwsUserVO jwsUser = new JwsUserVO();
-		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId())?userData.getUserId():null);
+		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId()) ? userData.getUserId() : null);
 		jwsUser.setFirstName(userData.getFirstName());
 		jwsUser.setLastName(userData.getLastName());
 		jwsUser.setEmail(userData.getEmail());

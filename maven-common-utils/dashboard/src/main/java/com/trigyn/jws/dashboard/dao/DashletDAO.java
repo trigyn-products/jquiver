@@ -34,12 +34,14 @@ public class DashletDAO extends DBConnection {
 		return dashletPropertyEntity;
 	}
 
-	public DashletConfiguration saveDashletConfiguration(DashletConfiguration dashletConfigurationEntity) throws Exception {
+	public DashletConfiguration saveDashletConfiguration(DashletConfiguration dashletConfigurationEntity)
+			throws Exception {
 		getCurrentSession().saveOrUpdate(dashletConfigurationEntity);
 		return dashletConfigurationEntity;
 	}
 
-	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden) throws Exception {
+	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden)
+			throws Exception {
 		StringBuilder stringBuilder = new StringBuilder(
 				"FROM DashletProperties AS dp WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted");
 		if (!includeHidden) {
@@ -57,15 +59,13 @@ public class DashletDAO extends DBConnection {
 		return dashletPropertiesList;
 	}
 
-	public List<Object[]> getDashlets(List<String> userRoleList,String dashboardId) throws Exception {
+	public List<Object[]> getDashlets(List<String> userRoleList, String dashboardId) throws Exception {
 
-		String hqlQuery = "FROM Dashlet AS d INNER JOIN d.roleAssociation AS ra INNER JOIN d.dashboardAssociation AS da "
-				+ " LEFT OUTER JOIN ra.userRole AS ur "
-				+ " WHERE ur.roleName IN ( :roleNames ) AND d.isActive = :isActive AND da.id.dashboardId =:dashboardId  GROUP BY d.dashletId ";
-		Query hql = getCurrentSession().createQuery(hqlQuery);
+		String	hqlQuery	= "FROM Dashlet AS dl INNER JOIN dl.dashboardAssociation AS da "
+				+ " WHERE da.id.dashboardId =:dashboardId AND dl.isActive = :isActive GROUP BY dl.dashletId ";
+		Query	hql			= getCurrentSession().createQuery(hqlQuery);
 		hql.setParameter("isActive", Constants.DashletStatus.ACTIVE.getDashletStatus());
-		hql.setParameter("roleNames", userRoleList);
-		hql.setParameter("dashboardId",dashboardId);
+		hql.setParameter("dashboardId", dashboardId);
 		List<Object[]> resultSet = (List<Object[]>) hql.getResultList();
 
 		return resultSet;
@@ -84,35 +84,36 @@ public class DashletDAO extends DBConnection {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	public List<Object[]> getUserPreferences(String userId, String dashletId) throws Exception {
-		String sql = "SELECT dp.id.propertyId AS property, COALESCE(dpc.propertyValue, dp.defaultValue) AS value "
+	public List<Object[]> getUserPreferences(String userId, String dashletId, String dashboardId) throws Exception {
+		String	sql		= "SELECT dp.id.propertyId AS property, COALESCE(dpc.propertyValue, dp.defaultValue) AS value "
 				+ " FROM DashletProperties dp LEFT OUTER JOIN DashletPropertyConfiguration dpc ON dp.id.propertyId = dpc.id.propertyId "
-				+ "AND dpc.id.userId=:userId  WHERE dp.isDeleted = 0 AND dp.dashletId = :dashletId ";
+				+ "AND dpc.id.userId=:userId  WHERE dp.isDeleted = 0 AND dp.dashletId = :dashletId AND dpc.id.dashboardId =:dashboardId ";
 
-		Query query = getCurrentSession().createQuery(sql);
+		Query	query	= getCurrentSession().createQuery(sql);
 		query.setParameter("userId", userId);
 		query.setParameter("dashletId", dashletId);
+		query.setParameter("dashboardId", dashboardId);
 		return query.getResultList();
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId)
+	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId)
 			throws Exception {
-				String sql="SELECT COALESCE(dc.xCoordinate,dsh.xCoordinate) AS xCoordinate,COALESCE(dc.yCoordinate,dsh.yCoordinate) AS yCoordinate "+
-				"FROM Dashlet dsh LEFT OUTER JOIN DashletConfiguration dc ON dsh.dashletId = dc.id.dashletId "+
-				"AND dc.id.userId=:userId where dsh.dashletId=:dashletId ";
-	 Query query = getCurrentSession().createQuery(sql);
-	 query.setParameter("userId", userId);
-	 query.setParameter("dashletId", dashletId);
-	 return query.getResultList();
+		String	sql		= "SELECT COALESCE(dc.xCoordinate,dsh.xCoordinate) AS xCoordinate,COALESCE(dc.yCoordinate,dsh.yCoordinate) AS yCoordinate "
+				+ "FROM Dashlet dsh LEFT OUTER JOIN DashletConfiguration dc ON dsh.dashletId = dc.id.dashletId "
+				+ "AND dc.id.userId=:userId where dsh.dashletId=:dashletId AND dc.id.dashboardId=:dashboardId ";
+		Query	query	= getCurrentSession().createQuery(sql);
+		query.setParameter("userId", userId);
+		query.setParameter("dashletId", dashletId);
+		query.setParameter("dashboardId", dashboardId);
+		return query.getResultList();
 	}
 
 	public void saveRoleAssociation(DashletRoleAssociation dashletRoleAssociation) {
 		getCurrentSession().saveOrUpdate(dashletRoleAssociation);
 	}
 
-	
-	public List<String> findDashletRoleByDashletId(String dashletId)throws Exception {
+	public List<String> findDashletRoleByDashletId(String dashletId) throws Exception {
 		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_TO_GET_DASHLET_ROLES_ID_BY_DASHLET_ID);
 		query.setParameter("dashletId", dashletId);
 		List<String> dashletRoleAssociations = (List<String>) query.getResultList();
@@ -120,28 +121,29 @@ public class DashletDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> getDashletsByContextId(String contextId) {
-		StringBuilder stringBuilder = new StringBuilder(
+		StringBuilder	stringBuilder	= new StringBuilder(
 				"SELECT dashletId AS dashletId, dashletName AS dashletName FROM Dashlet AS d WHERE d.contextId = :contextId");
-		Query query = getCurrentSession().createQuery(stringBuilder.toString());
+		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("contextId", contextId);
 		return query.getResultList();
 	}
-	
 
-	public List<Dashlet> getAllDashlets(Integer dashletTypeId)throws Exception {
-		Query query = getCurrentSession().createQuery("FROM Dashlet WHERE isActive =:isActive AND dashletTypeId = :dashletTypeId ");
-		query.setParameter("isActive",  Constants.DashletStatus.ACTIVE.getDashletStatus());
+	public List<Dashlet> getAllDashlets(Integer dashletTypeId) throws Exception {
+		Query query = getCurrentSession()
+				.createQuery("FROM Dashlet WHERE isActive =:isActive AND dashletTypeId = :dashletTypeId ");
+		query.setParameter("isActive", Constants.DashletStatus.ACTIVE.getDashletStatus());
 		query.setParameter("dashletTypeId", dashletTypeId);
 		List<Dashlet> dashlets = (List<Dashlet>) query.getResultList();
 		return dashlets;
 	}
-	
-	public Dashlet getDashletByName(String dashletName)throws Exception {
-		Query query = getCurrentSession().createQuery("FROM Dashlet WHERE lower(dashletName) = lower(:dashletName) AND isActive =:isActive");
+
+	public Dashlet getDashletByName(String dashletName) throws Exception {
+		Query query = getCurrentSession()
+				.createQuery("FROM Dashlet WHERE lower(dashletName) = lower(:dashletName) AND isActive =:isActive");
 		query.setParameter("dashletName", dashletName);
-		query.setParameter("isActive",  Constants.DashletStatus.ACTIVE.getDashletStatus());
+		query.setParameter("isActive", Constants.DashletStatus.ACTIVE.getDashletStatus());
 		Dashlet dashlet = (Dashlet) query.uniqueResult();
 		return dashlet;
 	}
-	
+
 }

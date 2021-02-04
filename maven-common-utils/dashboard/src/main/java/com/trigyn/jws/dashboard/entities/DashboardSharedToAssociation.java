@@ -10,42 +10,36 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "dashboard_shared_to_association")
-public class DashboardSharedToAssociation implements Serializable{
+public class DashboardSharedToAssociation implements Serializable {
 
-	
-	private static final long serialVersionUID 	= 1L;
+	private static final long				serialVersionUID		= 1L;
 
 	@EmbeddedId
-	private DashboardSharedToAssociationPK id 	= null;
-	
-	@Column(name = "dashboard_permission_type")
-	private String	dashboardPermissionType		= null;
+	private DashboardSharedToAssociationPK	id						= null;
 
+	@Column(name = "dashboard_permission_type")
+	private String							dashboardPermissionType	= null;
 
 	public DashboardSharedToAssociation() {
-		
+
 	}
 
 	public DashboardSharedToAssociation(DashboardSharedToAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public DashboardSharedToAssociationPK getId() {
 		return id;
 	}
 
-	
 	public void setId(DashboardSharedToAssociationPK id) {
 		this.id = id;
 	}
 
-	
 	public String getDashboardPermissionType() {
 		return dashboardPermissionType;
 	}
 
-	
 	public void setDashboardPermissionType(String dashboardPermissionType) {
 		this.dashboardPermissionType = dashboardPermissionType;
 	}
@@ -74,6 +68,5 @@ public class DashboardSharedToAssociation implements Serializable{
 	public String toString() {
 		return "DashboardSharedToAssociation [id=" + id + ", dashboardPermissionType=" + dashboardPermissionType + "]";
 	}
-
 
 }

@@ -23,6 +23,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -37,101 +38,107 @@ import freemarker.template.TemplateException;
 @Component
 public class TemplatingUtils {
 
-    @Autowired
-    private FreeMarkerConfigurer    freeMarkerConfigurer = null;
-
-    @Autowired
-    private ServletContext          servletContext      = null;
-
-    @Autowired
-    private SessionLocaleResolver   localeResolver      = null;
-
-    @Autowired
-    private MessageSource           messageSource       = null;
-    
-    @Autowired
-    private DBTemplatingService 	templatingService 	= null;
-	
 	@Autowired
-	private FileUtilities fileUtilities  				= null;
-	
+	private FreeMarkerConfigurer	freeMarkerConfigurer	= null;
+
 	@Autowired
-	private DynamicTemplate dynamicTemplate 			= null;
-	
+	private ServletContext			servletContext			= null;
+
 	@Autowired
-	private IUserDetailsService detailsService 			= null;
+	private SessionLocaleResolver	localeResolver			= null;
 
-    public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap) throws Exception {
-        templateContent = StringEscapeUtils.unescapeHtml4(templateContent);
-        StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
-        stringTemplateLoader.putTemplate("templateUtils", templateUtils());
-        Configuration configuration = freeMarkerConfigurer.getConfiguration();
-        configuration.addAutoInclude("templateUtils");
-        configuration.setTemplateLoader(stringTemplateLoader);
-        
-        addTemplateProperties(modelMap);
-        Template templateObj = new Template(templateName, new StringReader(templateContent),
-        		configuration);
-        Writer writer = new StringWriter();
-        templateObj.process(modelMap, writer);
-        return writer.toString();
-    }
+	@Autowired
+	private MessageSource			messageSource			= null;
 
-    public String processMultipleTemplateContents(String mainTemplateContent, String templateName, Map<String, Object> modelMap, Map<String, String> childTemplateDetails)
-            throws Exception {
-        addTemplateProperties(modelMap);
-        StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
-        stringTemplateLoader.putTemplate(templateName, mainTemplateContent);
-        stringTemplateLoader.putTemplate("templateUtils", templateUtils());
-        for (Entry<String, String> templates : childTemplateDetails.entrySet()) {
-            stringTemplateLoader.putTemplate(templates.getKey(), templates.getValue());
-        }
-        Configuration configuration = freeMarkerConfigurer.getConfiguration();
-        configuration.addAutoInclude("templateUtils");
-        configuration.setTemplateLoader(stringTemplateLoader);
-        Template templateObj = configuration.getTemplate(templateName);
-        Writer writer = new StringWriter();
-        templateObj.process(modelMap, writer);
-        return writer.toString();
-    }
+	@Autowired
+	private DBTemplatingService		templatingService		= null;
 
-    private void addTemplateProperties(Map<String, Object> modelMap) {
-        String contextPath = servletContext.getContextPath();
-        modelMap.put("contextPath", contextPath);
-        Locale locale = localeResolver.resolveLocale(getRequest());
-        modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
-        modelMap.put("dynamicTemplate", dynamicTemplate);
-        
-        UserDetailsVO detailsVO = detailsService.getUserDetails(); 
-        if(detailsVO!=null) {
-        	modelMap.put("loggedInUserName", detailsVO.getUserName());
-        }
-    }
+	@Autowired
+	private FileUtilities			fileUtilities			= null;
 
-    private HttpServletRequest getRequest() {
+	@Autowired
+	private DynamicTemplate			dynamicTemplate			= null;
+
+	@Autowired
+	private IUserDetailsService		detailsService			= null;
+
+	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap)
+			throws Exception {
+		templateContent = StringEscapeUtils.unescapeHtml4(templateContent);
+		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
+		stringTemplateLoader.putTemplate("templateUtils", templateUtils());
+		Configuration configuration = freeMarkerConfigurer.getConfiguration();
+		configuration.addAutoInclude("templateUtils");
+		configuration.setTemplateLoader(stringTemplateLoader);
+
+		addTemplateProperties(modelMap);
+		Template	templateObj	= new Template(templateName, new StringReader(templateContent), configuration);
+		Writer		writer		= new StringWriter();
+		templateObj.process(modelMap, writer);
+		return writer.toString();
+	}
+
+	public String processMultipleTemplateContents(String mainTemplateContent, String templateName,
+			Map<String, Object> modelMap, Map<String, String> childTemplateDetails) throws Exception {
+		addTemplateProperties(modelMap);
+		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
+		stringTemplateLoader.putTemplate(templateName, mainTemplateContent);
+		stringTemplateLoader.putTemplate("templateUtils", templateUtils());
+		for (Entry<String, String> templates : childTemplateDetails.entrySet()) {
+			stringTemplateLoader.putTemplate(templates.getKey(), templates.getValue());
+		}
+		Configuration configuration = freeMarkerConfigurer.getConfiguration();
+		configuration.addAutoInclude("templateUtils");
+		configuration.setTemplateLoader(stringTemplateLoader);
+		Template	templateObj	= configuration.getTemplate(templateName);
+		Writer		writer		= new StringWriter();
+		templateObj.process(modelMap, writer);
+		return writer.toString();
+	}
+
+	private void addTemplateProperties(Map<String, Object> modelMap) {
+		String contextPath = servletContext.getContextPath();
+		modelMap.put("contextPath", contextPath);
+		Locale locale = localeResolver.resolveLocale(getRequest());
+		modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
+		modelMap.put("dynamicTemplate", dynamicTemplate);
+
+		UserDetailsVO detailsVO = detailsService.getUserDetails();
+		if (detailsVO != null) {
+			modelMap.put("loggedInUserName", detailsVO.getUserName());
+			Gson gson = new Gson();
+			modelMap.put("loggedInUserRoles", gson.toJson(detailsVO.getRoleIdList()).toString());
+		}
+	}
+
+	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		return sra.getRequest();
 	}
 
-	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap) throws IOException, TemplateException {
-		Template templateObj = new Template(templateName, new StringReader(templateContent), freeMarkerConfigurer.getConfiguration());
-        Writer writer = new StringWriter();
-        templateObj.process(modelMap, writer);
-        return writer.toString();
+	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap)
+			throws IOException, TemplateException {
+		Template	templateObj	= new Template(templateName, new StringReader(templateContent),
+				freeMarkerConfigurer.getConfiguration());
+		Writer		writer		= new StringWriter();
+		templateObj.process(modelMap, writer);
+		return writer.toString();
 	}
-	
-	public String processTemplate(String templateName, Map<String, Object> modelMap, Boolean includeLayout) throws Exception {
-        TemplateVO templateVO = templatingService.getTemplateByName(templateName);
-        addTemplateProperties(modelMap);
-        Template templateObj = new Template(templateName, new StringReader(templateVO.getTemplate()), freeMarkerConfigurer.getConfiguration());
-        Writer writer = new StringWriter();
-        templateObj.process(modelMap, writer);
-        return writer.toString();
-    }
-	
+
+	public String processTemplate(String templateName, Map<String, Object> modelMap, Boolean includeLayout)
+			throws Exception {
+		TemplateVO templateVO = templatingService.getTemplateByName(templateName);
+		addTemplateProperties(modelMap);
+		Template	templateObj	= new Template(templateName, new StringReader(templateVO.getTemplate()),
+				freeMarkerConfigurer.getConfiguration());
+		Writer		writer		= new StringWriter();
+		templateObj.process(modelMap, writer);
+		return writer.toString();
+	}
+
 	public String templateUtils() throws Exception {
 		URL url = TemplatingUtils.class.getResource("/templates/template.ftl");
 		return Resources.toString(url, Charsets.UTF_8);
-	}	
-    
+	}
+
 }

@@ -12,15 +12,15 @@ import org.apache.ibatis.jdbc.ScriptRunner;
 
 public class ScriptMigrator {
 
-    private ScriptMigrator() {
+	private ScriptMigrator() {
 
-    }
+	}
 
-    public static void runScripts(DataSource dataSource, String filePath) throws SQLException {
-        ScriptRunner scriptRunner = new ScriptRunner(dataSource.getConnection());
-        InputStream inputStream = ScriptMigrator.class.getResourceAsStream(filePath);
-        Reader reader = new BufferedReader(new InputStreamReader(inputStream));
-        scriptRunner.runScript(reader);
-    }
+	public static void runScripts(DataSource dataSource, String filePath) throws SQLException {
+		ScriptRunner	scriptRunner	= new ScriptRunner(dataSource.getConnection());
+		InputStream		inputStream		= ScriptMigrator.class.getResourceAsStream(filePath);
+		Reader			reader			= new BufferedReader(new InputStreamReader(inputStream));
+		scriptRunner.runScript(reader);
+	}
 
 }

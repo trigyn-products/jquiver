@@ -6,24 +6,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity(name="failed_mail_history")
+@Entity(name = "failed_mail_history")
 public class MailHistory {
 
 	@Id
 	@Column(name = "failed_mail_id")
-	private String failedMailId = null;
-	
+	private String		failedMailId	= null;
+
 	@Column(name = "mail_sent_by")
-	private String mailSentBy = null;
-	
+	private String		mailSentBy		= null;
+
 	@Column(name = "mail_sent_to")
-	private String mailSentTo = null;
-	
+	private String		mailSentTo		= null;
+
 	@Column(name = "eml_file_path")
-	private String emlFilePath = null;
-	
+	private String		emlFilePath		= null;
+
 	@Column(name = "mail_failed_time", nullable = false)
-	private Calendar mailFailedTime;
+	private Calendar	mailFailedTime;
 
 	public String getFailedMailId() {
 		return failedMailId;
@@ -64,8 +64,5 @@ public class MailHistory {
 	public void setMailFaliedTime(Calendar mailFaliedTime) {
 		this.mailFailedTime = mailFaliedTime;
 	}
-	
-	
-	
-	
+
 }

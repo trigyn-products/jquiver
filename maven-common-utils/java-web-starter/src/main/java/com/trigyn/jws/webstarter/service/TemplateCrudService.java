@@ -1,7 +1,5 @@
 package com.trigyn.jws.webstarter.service;
 
-
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,31 +15,31 @@ import com.trigyn.jws.templating.entities.TemplateMaster;
 public class TemplateCrudService {
 
 	@Autowired
-	private TemplateDAO templateDAO 					= null;
+	private TemplateDAO								templateDAO				= null;
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO 		= null;
-	
+	private PropertyMasterDAO						propertyMasterDAO		= null;
+
 	@Autowired
-	private DownloadUploadModule<TemplateMaster> downloadUploadModule 	= null;
-	
+	private DownloadUploadModule<TemplateMaster>	downloadUploadModule	= null;
+
 	public void downloadTemplates(String templateId) throws Exception {
-		String downloadFolderLocation 		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-    	if(!StringUtils.isBlank(templateId)) {
+		String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"template-storage-path");
+		if (!StringUtils.isBlank(templateId)) {
 			TemplateMaster templateMaster = templateDAO.findTemplateById(templateId);
 			downloadUploadModule.downloadCodeToLocal(templateMaster, downloadFolderLocation);
-		}else {
+		} else {
 			downloadUploadModule.downloadCodeToLocal(null, downloadFolderLocation);
 		}
 	}
-	
+
 	public void uploadTemplates(String templateName) throws Exception {
 		downloadUploadModule.uploadCodeToDB(templateName);
 	}
 
-	
-   public String checkVelocityData(String velocityName) throws Exception {
-	   return templateDAO.checkVelocityData(velocityName);
-   }
-   
+	public String checkVelocityData(String velocityName) throws Exception {
+		return templateDAO.checkVelocityData(velocityName);
+	}
+
 }

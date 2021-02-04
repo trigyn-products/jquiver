@@ -3,45 +3,41 @@ package com.trigyn.jws.dashboard.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @Embeddable
 public class DashboardRoleAssociationPK implements Serializable {
 
-	private static final long serialVersionUID 			= 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	@Column(name="dashboard_id", insertable=false, updatable=false, nullable=false)
-	private String dashboardId							= null;
+	@Column(name = "dashboard_id", insertable = false, updatable = false, nullable = false)
+	private String				dashboardId			= null;
 
-	@Column(name="role_id", insertable=false, updatable=false, nullable=false)
-	private String roleId								= null;
+	@Column(name = "role_id", insertable = false, updatable = false, nullable = false)
+	private String				roleId				= null;
 
 	public DashboardRoleAssociationPK() {
-		
-	}
-	
-	public DashboardRoleAssociationPK(String dashboardId, String roleId) {
-		this.dashboardId 	= dashboardId;
-		this.roleId 		= roleId;
+
 	}
 
-	
+	public DashboardRoleAssociationPK(String dashboardId, String roleId) {
+		this.dashboardId	= dashboardId;
+		this.roleId			= roleId;
+	}
+
 	public String getDashboardId() {
 		return dashboardId;
 	}
 
-	
 	public void setDashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 	}
 
-	
 	public String getRoleId() {
 		return roleId;
 	}
 
-	
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
@@ -73,9 +69,9 @@ public class DashboardRoleAssociationPK implements Serializable {
 
 	public DashboardRoleAssociationPK getObject() {
 		DashboardRoleAssociationPK pk = new DashboardRoleAssociationPK();
-		pk.setDashboardId(dashboardId!=null?dashboardId.trim():dashboardId);
-		pk.setRoleId(roleId!=null?roleId.trim():roleId);
-		
+		pk.setDashboardId(dashboardId != null ? dashboardId.trim() : dashboardId);
+		pk.setRoleId(roleId != null ? roleId.trim() : roleId);
+
 		return pk;
 	}
 

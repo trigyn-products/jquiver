@@ -4,26 +4,25 @@ import java.util.Date;
 
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 
-
 public class JwsEntityRoleAssociationVO {
 
-	private String entityRoleId = null;
-	
-	private String entityId = null;
-	
-	private String entityName = null;
-	
-	private String moduleId = null;
-	
-	private String roleId = null;
-	
-	private Date lastUpdatedDate = null;
-	
-	private String lastUpdatedBy = null;
-	
-	private Integer isActive = null;
-	
-	private Integer moduleTypeId = 0;
+	private String	entityRoleId	= null;
+
+	private String	entityId		= null;
+
+	private String	entityName		= null;
+
+	private String	moduleId		= null;
+
+	private String	roleId			= null;
+
+	private Date	lastUpdatedDate	= null;
+
+	private String	lastUpdatedBy	= null;
+
+	private Integer	isActive		= null;
+
+	private Integer	moduleTypeId	= 0;
 
 	public String getEntityRoleId() {
 		return entityRoleId;
@@ -120,5 +119,5 @@ public class JwsEntityRoleAssociationVO {
 		association.setModuleTypeId(entityRoleAssociation.getModuleTypeId());
 		return association;
 	}
-	
+
 }

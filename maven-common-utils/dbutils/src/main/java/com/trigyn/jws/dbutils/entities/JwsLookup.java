@@ -14,45 +14,44 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-
 /**
  * The persistent class for the jws_lookup database table.
  * 
  */
 @Entity
-@Table(name="jws_lookup")
-@NamedQuery(name="JwsLookup.findAll", query="SELECT j FROM JwsLookup j")
+@Table(name = "jws_lookup")
+@NamedQuery(name = "JwsLookup.findAll", query = "SELECT j FROM JwsLookup j")
 public class JwsLookup implements Serializable {
-	private static final long serialVersionUID 		= 1L;
+	private static final long	serialVersionUID	= 1L;
 
 	@Id
-    @GeneratedValue(generator = "system-uuid")
+	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="lookup_id", unique=true, nullable=false, length=50)
-	private String lookupId							= null;
+	@Column(name = "lookup_id", unique = true, nullable = false, length = 50)
+	private String				lookupId			= null;
 
-	@Column(name="is_deleted")
-	private Integer isDeleted						= null;
+	@Column(name = "is_deleted")
+	private Integer				isDeleted			= null;
 
-	@Column(name="lookup_name", length=1000)
-	private String lookupName						= null;
+	@Column(name = "lookup_name", length = 1000)
+	private String				lookupName			= null;
 
-	@Column(name="record_id", nullable=false)
-	private Integer recordId						= null;
+	@Column(name = "record_id", nullable = false)
+	private Integer				recordId			= null;
 
-	@OneToMany(mappedBy="jwsLookup")
-	private List<JwsLookupI18n> jwsLookupI18ns		= null;
-	
+	@OneToMany(mappedBy = "jwsLookup")
+	private List<JwsLookupI18n>	jwsLookupI18ns		= null;
+
 	public JwsLookup() {
 	}
 
 	public JwsLookup(String lookupId, Integer isDeleted, String lookupName, Integer recordId,
 			List<JwsLookupI18n> jwsLookupI18ns) {
-		this.lookupId 			= lookupId;
-		this.isDeleted 			= isDeleted;
-		this.lookupName 		= lookupName;
-		this.recordId 			= recordId;
-		this.jwsLookupI18ns 	= jwsLookupI18ns;
+		this.lookupId		= lookupId;
+		this.isDeleted		= isDeleted;
+		this.lookupName		= lookupName;
+		this.recordId		= recordId;
+		this.jwsLookupI18ns	= jwsLookupI18ns;
 	}
 
 	public String getLookupId() {

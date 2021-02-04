@@ -12,28 +12,28 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name="jws_security_properties")
-public class SecurityProperties implements Serializable{
+@Table(name = "jws_security_properties")
+public class SecurityProperties implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID 		= -1236888556975800761L;
-	
+	private static final long	serialVersionUID		= -1236888556975800761L;
+
 	@Id
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
-	@Column(name="security_properties_id")
-	private String securityPropertiesId				= null;
-	
+	@Column(name = "security_properties_id")
+	private String				securityPropertiesId	= null;
+
 	@Column(name = "security_type_id")
-	private String securityTypeId 					= null;
-	
+	private String				securityTypeId			= null;
+
 	@Column(name = "security_property_name")
-	private String securityPropertyName 			= null;
-	
+	private String				securityPropertyName	= null;
+
 	@Column(name = "security_property_value")
-	private String securityPropertyValue			= null;
+	private String				securityPropertyValue	= null;
 
 	public SecurityProperties() {
 
@@ -41,10 +41,10 @@ public class SecurityProperties implements Serializable{
 
 	public SecurityProperties(String securityPropertiesId, String securityTypeId, String securityPropertyName,
 			String securityPropertyValue) {
-		this.securityPropertiesId		= securityPropertiesId;
-		this.securityTypeId 			= securityTypeId;
-		this.securityPropertyName 		= securityPropertyName;
-		this.securityPropertyValue 		= securityPropertyValue;
+		this.securityPropertiesId	= securityPropertiesId;
+		this.securityTypeId			= securityTypeId;
+		this.securityPropertyName	= securityPropertyName;
+		this.securityPropertyValue	= securityPropertyValue;
 	}
 
 	public String getSecurityPropertiesId() {
@@ -108,5 +108,5 @@ public class SecurityProperties implements Serializable{
 				+ ", securityPropertyName=" + securityPropertyName + ", securityPropertyValue=" + securityPropertyValue
 				+ "]";
 	}
-	
+
 }

@@ -12,7 +12,8 @@ import com.trigyn.jws.dashboard.entities.DashletRoleAssociationPK;
 import com.trigyn.jws.dashboard.vo.DashletRoleAssociationVO;
 
 @Repository
-public interface IDashletRoleAssociationRepository extends JpaRepository<DashletRoleAssociation, DashletRoleAssociationPK>{
+public interface IDashletRoleAssociationRepository
+		extends JpaRepository<DashletRoleAssociation, DashletRoleAssociationPK> {
 
 	@Query(QueryStore.JPQ_QUERY_TO_GET_DASHLET_ROLES_ASSOCIATION_BY_ID)
 	List<DashletRoleAssociationVO> getDashletRolesByDashletId(String dashletId);

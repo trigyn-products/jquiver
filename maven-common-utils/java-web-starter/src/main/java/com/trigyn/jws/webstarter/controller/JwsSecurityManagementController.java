@@ -11,33 +11,29 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.security.service.SecurityManagementService;
 
-
 @RestController
 @RequestMapping(value = "/cf")
 public class JwsSecurityManagementController {
 
-	@Autowired 
-	private SecurityManagementService securityManagementService		= 	null;
-	
 	@Autowired
-	private PropertyMasterDetails propertyMasterDetails 			=	null;
-	
-	
-	@GetMapping(value="/scm")
+	private SecurityManagementService	securityManagementService	= null;
+
+	@Autowired
+	private PropertyMasterDetails		propertyMasterDetails		= null;
+
+	@GetMapping(value = "/scm")
 	public String securityManagement() throws Exception {
 		return securityManagementService.securityManagement();
 	}
-	
-	
-	@PostMapping(value="/ddosc")
+
+	@PostMapping(value = "/ddosc")
 	public String loadDDOSConfiguration() throws Exception {
 		return securityManagementService.loadDDOSConfiguration();
 	}
-	
-	
-	@PostMapping(value="/sddosd")
+
+	@PostMapping(value = "/sddosd")
 	public void saveDDOSDetails(HttpServletRequest a_httpServletRequest) throws Exception {
 		propertyMasterDetails.resetPropertyMasterDetails();
 	}
-	
+
 }

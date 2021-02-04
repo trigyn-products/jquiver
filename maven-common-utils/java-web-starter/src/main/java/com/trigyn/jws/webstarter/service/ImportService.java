@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,27 +15,36 @@ import java.util.TreeMap;
 import javax.servlet.http.Part;
 import javax.xml.bind.JAXBException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.dao.DashboardDaoImpl;
 import com.trigyn.jws.dashboard.entities.Dashboard;
+import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
+import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.Dashlet;
+import com.trigyn.jws.dashboard.repository.interfaces.IDashboardDashletAssociationRepository;
 import com.trigyn.jws.dashboard.repository.interfaces.IDashboardRepository;
+import com.trigyn.jws.dashboard.repository.interfaces.IDashboardRoleAssociationRepository;
 import com.trigyn.jws.dashboard.repository.interfaces.IDashletRepository;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
+import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
+import com.trigyn.jws.dbutils.repository.IModuleListingI18nRepository;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
@@ -59,6 +69,7 @@ import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynamicform.service.FileUploadConfigService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynamicform.vo.FileUploadConfigVO;
+import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
@@ -116,103 +127,118 @@ import com.trigyn.jws.webstarter.xml.UserXMLVO;
 @Transactional
 public class ImportService {
 
-	@Autowired
-	private ModuleVersionDAO					moduleVersionDAO					= null;
+	private final static Logger						logger								= LogManager
+			.getLogger(ExportService.class);
 
 	@Autowired
-	private DashboardCrudService				dashboardCrudService				= null;
+	private ModuleVersionDAO						moduleVersionDAO					= null;
 
 	@Autowired
-	private ResourceBundleService				resourceBundleService				= null;
+	private DashboardCrudService					dashboardCrudService				= null;
 
 	@Autowired
-	private ModuleVersionService				moduleVersionService				= null;
+	private ResourceBundleService					resourceBundleService				= null;
 
 	@Autowired
-	private ModuleService						moduleService						= null;
+	private ModuleVersionService					moduleVersionService				= null;
 
 	@Autowired
-	private UserManagementService				userManagementService				= null;
+	private ModuleService							moduleService						= null;
 
 	@Autowired
-	private TemplateModule						templateDownloadUploadModule		= null;
+	private UserManagementService					userManagementService				= null;
+
+	@Autowired
+	private TemplateModule							templateDownloadUploadModule		= null;
 
 	@Autowired
 	@Qualifier("dynamic-form")
-	private DynamicFormModule					dynamicFormDownloadUploadModule		= null;
+	private DynamicFormModule						dynamicFormDownloadUploadModule		= null;
 
 	@Autowired
 	@Qualifier("dashlet")
-	private DashletModule						dashletDownloadUploadModule			= null;
+	private DashletModule							dashletDownloadUploadModule			= null;
 
 	@Autowired
-	private GridDetailsRepository				gridDetailsRepository				= null;
+	private GridDetailsRepository					gridDetailsRepository				= null;
 
 	@Autowired
-	private TypeAheadRepository					typeAheadRepository					= null;
+	private TypeAheadRepository						typeAheadRepository					= null;
 
 	@Autowired
-	private TypeAheadService					typeAheadService					= null;
+	private TypeAheadService						typeAheadService					= null;
 
 	@Autowired
-	private DashboardDaoImpl					dashboardDao						= null;
+	private DashboardDaoImpl						dashboardDao						= null;
 
 	@Autowired
-	private IDashboardRepository				dashboardRepository					= null;
+	private IDashboardRepository					dashboardRepository					= null;
 
 	@Autowired
-	private NotificationDAO						notificationDao						= null;
+	private NotificationDAO							notificationDao						= null;
 
 	@Autowired
-	private INotificationRepository				notificationRepository				= null;
+	private INotificationRepository					notificationRepository				= null;
 
 	@Autowired
-	private JwsDynamicRestDetailsRepository		jwsDynamicRestDetailsRepository		= null;
+	private JwsDynamicRestDetailsRepository			jwsDynamicRestDetailsRepository		= null;
 
 	@Autowired
-	private FileUploadConfigRepository			fileUploadConfigRepository			= null;
+	private JwsDynamicRestDAORepository				jwsDynamicRestDAORepository			= null;
 
 	@Autowired
-	private JwsEntityRoleAssociationRepository	jwsEntityRoleAssociationRepository	= null;
+	private FileUploadConfigRepository				fileUploadConfigRepository			= null;
 
 	@Autowired
-	private IModuleListingRepository			moduleListingRepository				= null;
+	private JwsEntityRoleAssociationRepository		jwsEntityRoleAssociationRepository	= null;
 
 	@Autowired
-	private IDashletRepository					dashletRepository					= null;
+	private IModuleListingRepository				moduleListingRepository				= null;
 
 	@Autowired
-	private DynamicFormCrudDAO					dynamicFormCrudDAO					= null;
+	private IModuleListingI18nRepository			iModuleListingI18nRepository		= null;
 
 	@Autowired
-	private IDynamicFormRepository				dynamicFormRepository				= null;
+	private IDashletRepository						dashletRepository					= null;
 
 	@Autowired
-	private IResourceBundleRepository			resourceBundleRepository			= null;
+	private IDashboardRoleAssociationRepository		iDashboardRoleRepository			= null;
 
 	@Autowired
-	private FileUploadConfigService				fileUploadConfigService				= null;
+	private IDashboardDashletAssociationRepository	iDashboardDashletRepository			= null;
 
 	@Autowired
-	private IUserDetailsService					detailsService						= null;
+	private DynamicFormCrudDAO						dynamicFormCrudDAO					= null;
 
 	@Autowired
-	private PropertyMasterService				propertyMasterService				= null;
+	private IDynamicFormRepository					dynamicFormRepository				= null;
 
 	@Autowired
-	private TemplateDAO							templateDAO							= null;
+	private IResourceBundleRepository				resourceBundleRepository			= null;
 
 	@Autowired
-	private DBTemplatingRepository				dbTemplatingRepository				= null;
+	private FileUploadConfigService					fileUploadConfigService				= null;
 
 	@Autowired
-	private PropertyMasterRepository			propertyMasterRepository			= null;
+	private IUserDetailsService						detailsService						= null;
 
 	@Autowired
-	private JwsUserRepository					jwsUserRepository					= null;
+	private PropertyMasterService					propertyMasterService				= null;
 
 	@Autowired
-	private JwsRoleRepository					jwsRoleRepository					= null;
+	private TemplateDAO								templateDAO							= null;
+
+	@Autowired
+	private DBTemplatingRepository					dbTemplatingRepository				= null;
+
+	@Autowired
+	private PropertyMasterRepository				propertyMasterRepository			= null;
+
+	@Autowired
+	private JwsUserRepository						jwsUserRepository					= null;
+
+	@Autowired
+	private JwsRoleRepository						jwsRoleRepository					= null;
 
 	public Map<String, Object> importConfig(Part file) throws Exception {
 
@@ -762,193 +788,279 @@ public class ImportService {
 	}
 
 	public String importConfig(String imporatableData, String importId, String moduleType) throws Exception {
-		Gson				g						= new Gson();
-		JSONObject			imporatableDataJson		= new JSONObject(imporatableData);
-
-		JSONObject			exportedFormatObject	= (JSONObject) imporatableDataJson.get("exportedFormatObject");
-		Map<String, String>	entityStringMap			= g.fromJson(exportedFormatObject.toString(), Map.class);
-		String				entityString			= entityStringMap.get(moduleType.toLowerCase() + importId);
-
-		saveEntity(moduleType, entityString);
-		importId = importId.replace(moduleType, "");
-
-		String version = String.valueOf(moduleVersionDAO.getVersionIdByEntityId(importId));
-		if (version == null || "".equals(version) || "null".equals(version)) {
-			version = "NA";
-		}
-		return version;
-	}
-
-	public void importAll(String imporatableData, String importedIdJsonArray) throws Exception {
-		Gson				g							= new Gson();
-		JSONObject			imporatableDataJson			= new JSONObject(imporatableData);
-
-		JSONObject			exportedModuleTypeObject	= (JSONObject) imporatableDataJson
-				.get("exportedModuleTypeObject");
-		Map<String, String>	moduleTypeMap				= g.fromJson(exportedModuleTypeObject.toString(), Map.class);
-
-		JSONObject			exportedFormatObject		= (JSONObject) imporatableDataJson.get("exportedFormatObject");
-		Map<String, String>	entityStringMap				= g.fromJson(exportedFormatObject.toString(), Map.class);
-
-		List<String>		importedIdList				= g.fromJson(importedIdJsonArray, List.class);
-
-		for (Entry<String, String> entry : entityStringMap.entrySet()) {
-			String	importId		= entry.getKey();
-			String	entityString	= entry.getValue();
-			String	moduleType		= moduleTypeMap.get(importId);
-
-			if (importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
-				saveEntity(moduleType, entityString);
+		try {
+			Gson				g						= new Gson();
+			JSONObject			imporatableDataJson		= new JSONObject(imporatableData);
+	
+			JSONObject			exportedFormatObject	= (JSONObject) imporatableDataJson.get("exportedFormatObject");
+			Map<String, String>	entityStringMap			= g.fromJson(exportedFormatObject.toString(), Map.class);
+			String				entityString			= entityStringMap.get(moduleType.toLowerCase() + importId);
+	
+			saveEntity(moduleType, entityString, importId);
+			importId = importId.replace(moduleType, "");
+	
+			String version = String.valueOf(moduleVersionDAO.getVersionIdByEntityId(importId));
+			if (version == null || "".equals(version) || "null".equals(version)) {
+				version = "NA";
+			}
+			return version;
+		} catch (Exception a_excep) {
+			logger.error("Error while importing the configuration ", a_excep);
+			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Error while importing entity of ")) {
+				throw new Exception("fail:" + a_excep.getMessage());
+			} else {
+				throw new Exception("fail:" + "Error while importing data");
 			}
 		}
 	}
 
-	private void saveEntity(String moduleType, String entityString) throws Exception {
+	public String importAll(String imporatableData, String importedIdJsonArray) throws Exception{
 
-		UserDetailsVO	detailsVO	= detailsService.getUserDetails();
-		Date			date		= new Date();
-		String			user		= detailsVO.getUserName();
-		String			tableName	= "";
-		if (!(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())))
-			tableName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();
+		try {
+			Gson				g							= new Gson();
+			JSONObject			imporatableDataJson			= new JSONObject(imporatableData);
 
-		Gson			g				= new Gson();
-		ObjectMapper	objectMapper	= new ObjectMapper();
-		if (Constant.MasterModuleType.GRID.getModuleType().equalsIgnoreCase(moduleType)) {
-			GridDetails gridDetails = g.fromJson(entityString, GridDetails.class);
-			gridDetailsRepository.save(gridDetails);
-			GridDetailsJsonVO vo = convertGridEntityToVO(gridDetails);
-			moduleVersionService.saveModuleVersion(vo, null, gridDetails.getGridId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().equalsIgnoreCase(moduleType)) {
-			Autocomplete	autocomplete	= g.fromJson(entityString, Autocomplete.class);
-			AutocompleteVO	autocompleteVO	= typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
-					autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
-			typeAheadRepository.save(autocomplete);
-			moduleVersionService.saveModuleVersion(autocompleteVO, null, autocomplete.getAutocompleteId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().equalsIgnoreCase(moduleType)) {
-			TypeReference<List<ResourceBundle>>	resourceBundleType	= new TypeReference<List<ResourceBundle>>() {
-																	};
-			List<ResourceBundle>				resourceBundleList	= objectMapper.readValue(entityString,
-					resourceBundleType);
+			JSONObject			exportedModuleTypeObject	= (JSONObject) imporatableDataJson
+					.get("exportedModuleTypeObject");
+			Map<String, String>	moduleTypeMap				= g.fromJson(exportedModuleTypeObject.toString(),
+					Map.class);
 
-			resourceBundleRepository.saveAll(resourceBundleList);
+			JSONObject			exportedFormatObject		= (JSONObject) imporatableDataJson
+					.get("exportedFormatObject");
+			Map<String, String>	entityStringMap				= g.fromJson(exportedFormatObject.toString(), Map.class);
 
-			List<ResourceBundleVO> resourceBundleVOList = new ArrayList<>();
-			for (ResourceBundle entity : resourceBundleList) {
-				ResourceBundleVO vo = resourceBundleService.convertResourceBundleEntityToVO(entity);
-				resourceBundleVOList.add(vo);
+			List<String>		importedIdList				= g.fromJson(importedIdJsonArray, List.class);
+			Collection<String>	moduleTypeList				= moduleTypeMap.values();
+
+			Map<String, String>	pendingDashboardEntityStringMap		= new HashMap<>();
+			Map<String, String>	pendingPermissionEntityStringMap		= new HashMap<>();
+
+			for (Entry<String, String> entry : entityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				String	moduleType		= moduleTypeMap.get(importId);
+ 
+				if (importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
+
+					if (Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)
+							&& moduleTypeList.contains(Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase())) {
+						pendingDashboardEntityStringMap.put(importId, entityString);
+						continue;
+					}
+					
+					if(Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
+						pendingPermissionEntityStringMap.put(importId, entityString);
+						continue;
+					}
+
+					saveEntity(moduleType, entityString, importId);
+				}
 			}
-			String resourceBundleKey = resourceBundleVOList.get(0).getResourceKey();
-			moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)) {
-			Dashboard	dashboard	= g.fromJson(entityString, Dashboard.class);
 
-			Long		existingObj	= dashboardDao.getDashboardCount(dashboard.getDashboardId());
-			if (existingObj == null || (existingObj != null && existingObj == 0)) {
-				dashboard.setCreatedBy(user);
-				dashboard.setCreatedDate(date);
+			for (Entry<String, String> entry : pendingDashboardEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				saveEntity(Constant.MasterModuleType.DASHBOARD.getModuleType(), entityString, importId);
 			}
-			dashboardRepository.save(dashboard);
-			DashboardVO dashboardVO = dashboardCrudService.convertDashboarEntityToVO(dashboard);
-			moduleVersionService.saveModuleVersion(dashboardVO, null, dashboard.getDashboardId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.NOTIFICATION.getModuleType().equalsIgnoreCase(moduleType)) {
-			GenericUserNotification	notification	= g.fromJson(entityString, GenericUserNotification.class);
 
-			Long					existingObj		= notificationDao
-					.getNotificationDetailsCount(notification.getNotificationId());
-			if (existingObj == null || (existingObj != null && existingObj == 0)) {
-				notification.setCreatedBy(user);
-				notification.setCreationDate(date);
+			for (Entry<String, String> entry : pendingPermissionEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				saveEntity(Constant.MasterModuleType.PERMISSION.getModuleType(), entityString, importId);
 			}
-			notification.setUpdatedBy(user);
-			notification.setUpdatedDate(date);
-
-			notificationRepository.save(notification);
-			GenericUserNotificationJsonVO vo = convertNotificationEntityToVO(notification);
-			moduleVersionService.saveModuleVersion(vo, null, notification.getNotificationId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.DYNAREST.getModuleType().equalsIgnoreCase(moduleType)) {
-			JwsDynamicRestDetail dynarest = g.fromJson(entityString, JwsDynamicRestDetail.class);
-			jwsDynamicRestDetailsRepository.save(dynarest);
-			RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynarest);
-			moduleVersionService.saveModuleVersion(vo, null, dynarest.getJwsDynamicRestId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.FILEMANAGER.getModuleType().equalsIgnoreCase(moduleType)) {
-			FileUploadConfig fileConfig = g.fromJson(entityString, FileUploadConfig.class);
-			fileConfig.setUpdatedBy(user);
-			fileConfig.setLastUpdatedBy(date);
-
-			fileUploadConfigRepository.save(fileConfig);
-		} else if (Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
-			JwsEntityRoleAssociation role = g.fromJson(entityString, JwsEntityRoleAssociation.class);
-			role.setLastUpdatedBy(user);
-			role.setLastUpdatedDate(date);
-
-			jwsEntityRoleAssociationRepository.save(role);
-		} else if (Constant.MasterModuleType.SITELAYOUT.getModuleType().equalsIgnoreCase(moduleType)) {
-			ModuleListing module = g.fromJson(entityString, ModuleListing.class);
-			moduleListingRepository.save(module);
-		} else if (Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().equalsIgnoreCase(moduleType)) {
-			PropertyMaster propertyMaster = g.fromJson(entityString, PropertyMaster.class);
-			propertyMasterRepository.save(propertyMaster);
-			PropertyMasterJsonVO vo = convertPropertyMasterEntityToVO(propertyMaster);
-			moduleVersionService.saveModuleVersion(vo, null, propertyMaster.getPropertyMasterId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.MANAGEUSERS.getModuleType().equalsIgnoreCase(moduleType)) {
-			JwsUser jwsUser = g.fromJson(entityString, JwsUser.class);
-			jwsUserRepository.save(jwsUser);
-		} else if (Constant.MasterModuleType.MANAGEROLES.getModuleType().equalsIgnoreCase(moduleType)) {
-			JwsRole role = g.fromJson(entityString, JwsRole.class);
-			jwsRoleRepository.save(role);
-		} else if (Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleType)) {
-			TemplateMaster	template	= g.fromJson(entityString, TemplateMaster.class);
-
-			Long			existingObj	= templateDAO.getTemplateCount(template.getTemplateId());
-			if (existingObj == null || (existingObj != null && existingObj == 0)) {
-				template.setCreatedBy(user);
+		} catch (Exception a_excep) {
+			logger.error("Error while importing the configuration ", a_excep);
+			String errorMessage = a_excep.getMessage();
+			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Error while importing entity of ")) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				throw new Exception("fail:" + errorMessage);
+			} else {
+				throw new Exception("fail:" + "Error while importing data");
 			}
-			template.setUpdatedBy(user);
-			template.setUpdatedDate(date);
-			dbTemplatingRepository.saveAndFlush(template);
-			TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate());
-			moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.DASHLET.getModuleType().equalsIgnoreCase(moduleType)) {
-			Dashlet	dashlet		= g.fromJson(entityString, Dashlet.class);
+		}
+		return "success";
+	}
 
-			Long	existingObj	= dashboardDao.getDashletsCount(dashlet.getDashletId());
-			if (existingObj == null || (existingObj != null && existingObj == 0)) {
-				dashlet.setCreatedBy(user);
-				dashlet.setCreatedDate(date);
+	private void saveEntity(String moduleType, String entityString, String importId) throws Exception {
+
+		try {
+			UserDetailsVO	detailsVO	= detailsService.getUserDetails();
+			Date			date		= new Date();
+			String			user		= detailsVO.getUserName();
+			String			tableName	= "";
+			if (!(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
+					|| moduleType
+							.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())))
+				tableName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();
+
+			Gson			g				= new Gson();
+			ObjectMapper	objectMapper	= new ObjectMapper();
+			if (Constant.MasterModuleType.GRID.getModuleType().equalsIgnoreCase(moduleType)) {
+				GridDetails gridDetails = g.fromJson(entityString, GridDetails.class);
+				gridDetailsRepository.save(gridDetails);
+				GridDetailsJsonVO vo = convertGridEntityToVO(gridDetails);
+				moduleVersionService.saveModuleVersion(vo, null, gridDetails.getGridId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().equalsIgnoreCase(moduleType)) {
+				Autocomplete	autocomplete	= g.fromJson(entityString, Autocomplete.class);
+				AutocompleteVO	autocompleteVO	= typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
+						autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
+				typeAheadRepository.save(autocomplete);
+				moduleVersionService.saveModuleVersion(autocompleteVO, null, autocomplete.getAutocompleteId(),
+						tableName, Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().equalsIgnoreCase(moduleType)) {
+				TypeReference<List<ResourceBundle>>	resourceBundleType	= new TypeReference<List<ResourceBundle>>() {
+																		};
+				List<ResourceBundle>				resourceBundleList	= objectMapper.readValue(entityString,
+						resourceBundleType);
+
+				resourceBundleRepository.saveAll(resourceBundleList);
+
+				List<ResourceBundleVO> resourceBundleVOList = new ArrayList<>();
+				for (ResourceBundle entity : resourceBundleList) {
+					ResourceBundleVO vo = resourceBundleService.convertResourceBundleEntityToVO(entity);
+					resourceBundleVOList.add(vo);
+				}
+				String resourceBundleKey = resourceBundleVOList.get(0).getResourceKey();
+				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)) {
+				Dashboard	dashboard	= g.fromJson(entityString, Dashboard.class);
+
+				Long		existingObj	= dashboardDao.getDashboardCount(dashboard.getDashboardId());
+				if (existingObj == null || (existingObj != null && existingObj == 0)) {
+					dashboard.setCreatedBy(user);
+					dashboard.setCreatedDate(date);
+				}
+				List<DashboardRoleAssociation>		dashboardRoleAssociations	= dashboard.getDashboardRoles();
+				List<DashboardDashletAssociation>	dashboardDashlets			= dashboard.getDashboardDashlets();
+				dashboard.setDashboardRoles(null);
+				dashboard.setDashboardDashlets(null);
+
+				dashboardRepository.saveAndFlush(dashboard);
+				
+				for(DashboardRoleAssociation dra : dashboardRoleAssociations) {
+					iDashboardRoleRepository.saveAndFlush(dra);
+				}
+				for(DashboardDashletAssociation dda : dashboardDashlets) {
+					iDashboardDashletRepository.saveAndFlush(dda);
+				}
+
+				dashboard.setDashboardRoles(dashboardRoleAssociations);
+				dashboard.setDashboardDashlets(dashboardDashlets);
+				DashboardVO dashboardVO = dashboardCrudService.convertDashboarEntityToVO(dashboard);
+				moduleVersionService.saveModuleVersion(dashboardVO, null, dashboard.getDashboardId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.NOTIFICATION.getModuleType().equalsIgnoreCase(moduleType)) {
+				GenericUserNotification	notification	= g.fromJson(entityString, GenericUserNotification.class);
+
+				Long					existingObj		= notificationDao
+						.getNotificationDetailsCount(notification.getNotificationId());
+				if (existingObj == null || (existingObj != null && existingObj == 0)) {
+					notification.setCreatedBy(user);
+					notification.setCreationDate(date);
+				}
+				notification.setUpdatedBy(user);
+				notification.setUpdatedDate(date);
+
+				notificationRepository.save(notification);
+				GenericUserNotificationJsonVO vo = convertNotificationEntityToVO(notification);
+				moduleVersionService.saveModuleVersion(vo, null, notification.getNotificationId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.DYNAREST.getModuleType().equalsIgnoreCase(moduleType)) {
+				JwsDynamicRestDetail			dynarest					= g.fromJson(entityString,
+						JwsDynamicRestDetail.class);
+
+				List<JwsDynamicRestDaoDetail>	jwsDynamicRestDaoDetails	= dynarest.getJwsDynamicRestDaoDetails();
+				dynarest.setJwsDynamicRestDaoDetails(null);
+
+				jwsDynamicRestDetailsRepository.save(dynarest);
+				jwsDynamicRestDAORepository.saveAll(jwsDynamicRestDaoDetails);
+
+				dynarest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetails);
+				RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynarest);
+				moduleVersionService.saveModuleVersion(vo, null, dynarest.getJwsDynamicRestId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.FILEMANAGER.getModuleType().equalsIgnoreCase(moduleType)) {
+				FileUploadConfig fileConfig = g.fromJson(entityString, FileUploadConfig.class);
+				fileConfig.setUpdatedBy(user);
+				fileConfig.setLastUpdatedBy(date);
+
+				fileUploadConfigRepository.save(fileConfig);
+			} else if (Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
+				JwsEntityRoleAssociation role = g.fromJson(entityString, JwsEntityRoleAssociation.class);
+				role.setLastUpdatedBy(user);
+				role.setLastUpdatedDate(date);
+
+				jwsEntityRoleAssociationRepository.save(role);
+			} else if (Constant.MasterModuleType.SITELAYOUT.getModuleType().equalsIgnoreCase(moduleType)) {
+				ModuleListing			module				= g.fromJson(entityString, ModuleListing.class);
+
+				List<ModuleListingI18n>	moduleListingI18ns	= module.getModuleListingI18ns();
+				module.setModuleListingI18ns(null);
+				moduleListingRepository.save(module);
+				iModuleListingI18nRepository.saveAll(moduleListingI18ns);
+			} else if (Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType()
+					.equalsIgnoreCase(moduleType)) {
+				PropertyMaster propertyMaster = g.fromJson(entityString, PropertyMaster.class);
+				propertyMasterRepository.save(propertyMaster);
+				PropertyMasterJsonVO vo = convertPropertyMasterEntityToVO(propertyMaster);
+				moduleVersionService.saveModuleVersion(vo, null, propertyMaster.getPropertyMasterId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.MANAGEUSERS.getModuleType().equalsIgnoreCase(moduleType)) {
+				JwsUser jwsUser = g.fromJson(entityString, JwsUser.class);
+				jwsUserRepository.save(jwsUser);
+			} else if (Constant.MasterModuleType.MANAGEROLES.getModuleType().equalsIgnoreCase(moduleType)) {
+				JwsRole role = g.fromJson(entityString, JwsRole.class);
+				jwsRoleRepository.save(role);
+			} else if (Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleType)) {
+				TemplateMaster	template	= g.fromJson(entityString, TemplateMaster.class);
+
+				Long			existingObj	= templateDAO.getTemplateCount(template.getTemplateId());
+				if (existingObj == null || (existingObj != null && existingObj == 0)) {
+					template.setCreatedBy(user);
+				}
+				template.setUpdatedBy(user);
+				template.setUpdatedDate(date);
+				dbTemplatingRepository.saveAndFlush(template);
+				TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
+						template.getTemplate());
+				moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.DASHLET.getModuleType().equalsIgnoreCase(moduleType)) {
+				Dashlet	dashlet		= g.fromJson(entityString, Dashlet.class);
+
+				Long	existingObj	= dashboardDao.getDashletsCount(dashlet.getDashletId());
+				if (existingObj == null || (existingObj != null && existingObj == 0)) {
+					dashlet.setCreatedBy(user);
+					dashlet.setCreatedDate(date);
+				}
+				dashlet.setUpdatedBy(user);
+				dashlet.setUpdatedDate(date);
+				dashletRepository.saveAndFlush(dashlet);
+				DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
+				moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
+			} else if (Constant.MasterModuleType.DYNAMICFORM.getModuleType().equalsIgnoreCase(moduleType)) {
+				DynamicForm	dynamicForm	= g.fromJson(entityString, DynamicForm.class);
+
+				Long		existingObj	= dynamicFormCrudDAO.getDynamicFormCount(dynamicForm.getFormId());
+				if (existingObj == null || (existingObj != null && existingObj == 0)) {
+					dynamicForm.setCreatedBy(user);
+					dynamicForm.setCreatedDate(date);
+				}
+				dynamicFormRepository.saveAndFlush(dynamicForm);
+
+				DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
+				moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
 			}
-			dashlet.setUpdatedBy(user);
-			dashlet.setUpdatedDate(date);
-			dashletRepository.saveAndFlush(dashlet);
-			DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
-			moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
-		} else if (Constant.MasterModuleType.DYNAMICFORM.getModuleType().equalsIgnoreCase(moduleType)) {
-			DynamicForm	dynamicForm	= g.fromJson(entityString, DynamicForm.class);
-
-			Long		existingObj	= dynamicFormCrudDAO.getDynamicFormCount(dynamicForm.getFormId());
-			if (existingObj == null || (existingObj != null && existingObj == 0)) {
-				dynamicForm.setCreatedBy(user);
-				dynamicForm.setCreatedDate(date);
-			}
-			dynamicFormRepository.saveAndFlush(dynamicForm);
-
-			DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
-			moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), tableName,
-					Constant.IMPORT_SOURCE_VERSION_TYPE);
+		} catch (Exception exp) {
+			exp.printStackTrace();
+			throw new Exception("Error while importing entity of id: " + importId + ", module type: " + moduleType);
 		}
 	}
 

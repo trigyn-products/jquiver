@@ -3,37 +3,33 @@ package com.trigyn.jws.dbutils.vo;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ModuleTargetTypeDetailsVO implements Serializable{
+public class ModuleTargetTypeDetailsVO implements Serializable {
 
-	private static final long serialVersionUID 	= 8875101658807300486L;
-	private String targetTypeId 				= null;
-	private String targetTypeName 				= null;
-	
+	private static final long	serialVersionUID	= 8875101658807300486L;
+	private String				targetTypeId		= null;
+	private String				targetTypeName		= null;
+
 	public ModuleTargetTypeDetailsVO() {
 
 	}
 
 	public ModuleTargetTypeDetailsVO(String targetTypeId, String targetTypeName) {
-		this.targetTypeId 		= targetTypeId;
-		this.targetTypeName 	= targetTypeName;
+		this.targetTypeId	= targetTypeId;
+		this.targetTypeName	= targetTypeName;
 	}
 
-	
 	public String getTargetTypeId() {
 		return targetTypeId;
 	}
 
-	
 	public void setTargetTypeId(String targetTypeId) {
 		this.targetTypeId = targetTypeId;
 	}
 
-	
 	public String getTargetTypeName() {
 		return targetTypeName;
 	}
 
-	
 	public void setTargetTypeName(String targetTypeName) {
 		this.targetTypeName = targetTypeName;
 	}
@@ -62,6 +58,5 @@ public class ModuleTargetTypeDetailsVO implements Serializable{
 	public String toString() {
 		return "ModuleTargetTypeDetailsVO [targetTypeId=" + targetTypeId + ", targetTypeName=" + targetTypeName + "]";
 	}
-	
-	
+
 }

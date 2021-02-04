@@ -18,25 +18,25 @@ public class FileUpload {
 	@GeneratedValue(generator = "system-uuid")
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name = "file_upload_id")
-	private String fileUploadId = null;
+	private String	fileUploadId		= null;
 
 	@Column(name = "physical_file_name")
-	private String physicalFileName = null;
+	private String	physicalFileName	= null;
 
 	@Column(name = "original_file_name")
-	private String originalFileName = null;
+	private String	originalFileName	= null;
 
 	@Column(name = "file_path")
-	private String filePath = null;
+	private String	filePath			= null;
 
 	@Column(name = "updated_by")
-	private String updatedBy = null;
+	private String	updatedBy			= null;
 
 	@Column(name = "last_update_ts")
-	private Date lastUpdatedBy = null;
-	
+	private Date	lastUpdatedBy		= null;
+
 	@Column(name = "file_config_id")
-	private String fileConfigId = "default";
+	private String	fileConfigId		= "default";
 
 	public String getFileUploadId() {
 		return fileUploadId;
@@ -93,5 +93,5 @@ public class FileUpload {
 	public void setFileConfigId(String fileConfigId) {
 		this.fileConfigId = fileConfigId;
 	}
-	
+
 }

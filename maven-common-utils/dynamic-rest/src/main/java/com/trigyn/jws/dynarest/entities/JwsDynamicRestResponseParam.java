@@ -1,6 +1,5 @@
 package com.trigyn.jws.dynarest.entities;
 
-
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -12,38 +11,36 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-
-
 @Entity
-@Table(name="jws_dynamic_rest_response_params")
-@NamedQuery(name="JwsDynamicRestResponseParam.findAll", query="SELECT j FROM JwsDynamicRestResponseParam j")
+@Table(name = "jws_dynamic_rest_response_params")
+@NamedQuery(name = "JwsDynamicRestResponseParam.findAll", query = "SELECT j FROM JwsDynamicRestResponseParam j")
 public class JwsDynamicRestResponseParam implements Serializable {
-	private static final long serialVersionUID 						= 1L;
+	private static final long		serialVersionUID		= 1L;
 
 	@Id
-	@Column(name="jws_response_param_id")
-	private Integer jwsResponseParamId								= null;
+	@Column(name = "jws_response_param_id")
+	private Integer					jwsResponseParamId		= null;
 
-	@Column(name="jws_response_code_message")
-	private String jwsResponseCodeMessage							= null;
-
-	@ManyToOne
-	@JoinColumn(name="jws_dynamic_rest_details_id")
-	private JwsDynamicRestDetail jwsDynamicRestDetail				= null;
+	@Column(name = "jws_response_code_message")
+	private String					jwsResponseCodeMessage	= null;
 
 	@ManyToOne
-	@JoinColumn(name="jws_response_code_id")
-	private JwsResponseCodeDetail jwsResponseCodeDetail				= null;
+	@JoinColumn(name = "jws_dynamic_rest_details_id")
+	private JwsDynamicRestDetail	jwsDynamicRestDetail	= null;
+
+	@ManyToOne
+	@JoinColumn(name = "jws_response_code_id")
+	private JwsResponseCodeDetail	jwsResponseCodeDetail	= null;
 
 	public JwsDynamicRestResponseParam() {
 	}
 
 	public JwsDynamicRestResponseParam(Integer jwsResponseParamId, String jwsResponseCodeMessage,
 			JwsDynamicRestDetail jwsDynamicRestDetail, JwsResponseCodeDetail jwsResponseCodeDetail) {
-		this.jwsResponseParamId 		= jwsResponseParamId;
-		this.jwsResponseCodeMessage 	= jwsResponseCodeMessage;
-		this.jwsDynamicRestDetail 		= jwsDynamicRestDetail;
-		this.jwsResponseCodeDetail 		= jwsResponseCodeDetail;
+		this.jwsResponseParamId		= jwsResponseParamId;
+		this.jwsResponseCodeMessage	= jwsResponseCodeMessage;
+		this.jwsDynamicRestDetail	= jwsDynamicRestDetail;
+		this.jwsResponseCodeDetail	= jwsResponseCodeDetail;
 	}
 
 	public Integer getJwsResponseParamId() {
@@ -111,9 +108,10 @@ public class JwsDynamicRestResponseParam implements Serializable {
 	public JwsDynamicRestResponseParam getObject() {
 		JwsDynamicRestResponseParam dynaRest = new JwsDynamicRestResponseParam();
 		dynaRest.setJwsResponseCodeDetail(jwsResponseCodeDetail.getObject());
-		dynaRest.setJwsResponseCodeMessage(jwsResponseCodeMessage!=null?jwsResponseCodeMessage.trim():jwsResponseCodeMessage);
+		dynaRest.setJwsResponseCodeMessage(
+				jwsResponseCodeMessage != null ? jwsResponseCodeMessage.trim() : jwsResponseCodeMessage);
 		dynaRest.setJwsResponseParamId(jwsResponseParamId);
-		
+
 		return dynaRest;
 	}
 }

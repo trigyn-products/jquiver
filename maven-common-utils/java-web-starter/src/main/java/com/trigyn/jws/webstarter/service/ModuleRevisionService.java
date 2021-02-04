@@ -27,90 +27,88 @@ import com.trigyn.jws.webstarter.utils.Constant;
 public class ModuleRevisionService {
 
 	@Autowired
-	private ModuleVersionService moduleVersionService				= null;
-	
+	private ModuleVersionService	moduleVersionService	= null;
+
 	@Autowired
-	private DynamicFormService dynamicFormService 					= null;
-	
+	private DynamicFormService		dynamicFormService		= null;
+
 	@Autowired
-	private TypeAheadService typeAheadService						= null;
-	
+	private TypeAheadService		typeAheadService		= null;
+
 	@Autowired
-	private DynamicFormCrudService dynamicFormCrudService 			= null;
-	
+	private DynamicFormCrudService	dynamicFormCrudService	= null;
+
 	@Autowired
-	private PropertyMasterService propertyMasterService 			= null;
-	
+	private PropertyMasterService	propertyMasterService	= null;
+
 	@Autowired
-	private DynarestCrudService dynarestCrudService 				= null;
-	
-	
-	public void saveModuleVersioning( MultiValueMap<String, String> formData, Integer sourceTypeId) throws Exception{
-		Map<String, Object> versioningData = new HashMap<>();
-		String primaryKey = null;
-		String entityName = null;
-		for (Entry<String, List<String>> formDataMap : formData.entrySet())  {
+	private DynarestCrudService		dynarestCrudService		= null;
+
+	public void saveModuleVersioning(MultiValueMap<String, String> formData, Integer sourceTypeId) throws Exception {
+		Map<String, Object>	versioningData	= new HashMap<>();
+		String				primaryKey		= null;
+		String				entityName		= null;
+		for (Entry<String, List<String>> formDataMap : formData.entrySet()) {
 			versioningData.put(formDataMap.getKey(), formDataMap.getValue().get(0));
 		}
-		if(versioningData.get("primaryKey") != null) {
+		if (versioningData.get("primaryKey") != null) {
 			primaryKey = versioningData.get("primaryKey").toString();
 		}
-		if(versioningData.get("entityName") != null) {
+		if (versioningData.get("entityName") != null) {
 			entityName = versioningData.get("entityName").toString();
 		}
 		moduleVersionService.saveModuleVersion(versioningData, null, primaryKey, entityName, sourceTypeId);
 	}
-	
-	
-	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest) throws Exception{
-		String modifiedContent 			= a_httpServletRequest.getParameter("modifiedContent");
-		String moduleType				= a_httpServletRequest.getParameter("moduleType");
-		ObjectMapper objectMapper		= new ObjectMapper();
-		
-		Map<String, String> formData = objectMapper.readValue(modifiedContent, Map.class);
-		MultiValueMap<String, String> multivalueMap = new LinkedMultiValueMap<>();
-		for (Entry<String, String> formDataMap : formData.entrySet())  {
+
+	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest) throws Exception {
+		String							modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
+		String							moduleType		= a_httpServletRequest.getParameter("moduleType");
+		ObjectMapper					objectMapper	= new ObjectMapper();
+
+		Map<String, String>				formData		= objectMapper.readValue(modifiedContent, Map.class);
+		MultiValueMap<String, String>	multivalueMap	= new LinkedMultiValueMap<>();
+		for (Entry<String, String> formDataMap : formData.entrySet()) {
 			List<String> multiValueString = new ArrayList<>();
-			if(formDataMap.getValue() != null) {
+			if (formDataMap.getValue() != null) {
 				Object formValue = formDataMap.getValue();
 				multiValueString.add(formValue.toString());
 				multivalueMap.put(formDataMap.getKey(), multiValueString);
-				if(formDataMap.getKey().equalsIgnoreCase("isEdit")) {
+				if (formDataMap.getKey().equalsIgnoreCase("isEdit")) {
 					multiValueString = new ArrayList<>();
 					multiValueString.add(Constant.DYNAMIC_FORM_IS_EDIT);
 					multivalueMap.put(formDataMap.getKey(), multiValueString);
 				}
 			}
 		}
-		if(moduleType.equals(Constant.ModuleType.AUTOCOMPLETE.getModuleType())) {
+		if (moduleType.equals(Constant.ModuleType.AUTOCOMPLETE.getModuleType())) {
 			typeAheadService.saveAutocompleteDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
-		}else if(moduleType.equals(Constant.ModuleType.DYNAMICFORM.getModuleType())){
-			dynamicFormCrudService.saveDynamicFormDetails(multivalueMap,  Constant.REVISION_SOURCE_VERSION_TYPE);
-		}else {
+		} else if (moduleType.equals(Constant.ModuleType.DYNAMICFORM.getModuleType())) {
+			dynamicFormCrudService.saveDynamicFormDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
+		} else {
 			dynamicFormService.saveDynamicForm(multivalueMap);
-			if(moduleType.equals(Constant.ModuleType.DYNAREST.getModuleType())){
+			if (moduleType.equals(Constant.ModuleType.DYNAREST.getModuleType())) {
 				dynarestCrudService.deleteDAOQueries(multivalueMap);
 				dynarestCrudService.saveDAOQueries(multivalueMap);
 			}
 			saveModuleVersioning(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
 		}
 	}
-	
-	
-	public Map<String , Object> getModuleVersioningData(HttpServletRequest a_httpServletRequest) throws Exception {
-		String moduleType			= a_httpServletRequest.getParameter("moduleType");
-		String entityId 			= a_httpServletRequest.getParameter("entityId");
-		String entityName 			= a_httpServletRequest.getParameter("entityName");
-		String saveUrl		 		= a_httpServletRequest.getParameter("saveUrl");
-		String previousPageUrl 		= a_httpServletRequest.getParameter("previousPageUrl");
-		String formId 				= a_httpServletRequest.getParameter("formId");
-		String dateFormat			= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
-				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, Constant.JWS_DB_DATE_FORMAT_PROPERTY_NAME);
-	
-		List<ModuleVersionVO> versionVOs = moduleVersionService.fetchModuleVersionDetails(entityId, entityName);
-		String moduleName = a_httpServletRequest.getParameter("moduleName");
-		
-		Map<String , Object> templateMap = new HashMap<>();
+
+	public Map<String, Object> getModuleVersioningData(HttpServletRequest a_httpServletRequest) throws Exception {
+		String					moduleType		= a_httpServletRequest.getParameter("moduleType");
+		String					entityId		= a_httpServletRequest.getParameter("entityId");
+		String					entityName		= a_httpServletRequest.getParameter("entityName");
+		String					saveUrl			= a_httpServletRequest.getParameter("saveUrl");
+		String					previousPageUrl	= a_httpServletRequest.getParameter("previousPageUrl");
+		String					formId			= a_httpServletRequest.getParameter("formId");
+		String					dateFormat		= propertyMasterService.getDateFormatByName(
+				Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+				Constant.JWS_DATE_FORMAT_PROPERTY_NAME, Constant.JWS_DB_DATE_FORMAT_PROPERTY_NAME);
+
+		List<ModuleVersionVO>	versionVOs		= moduleVersionService.fetchModuleVersionDetails(entityId, entityName);
+		String					moduleName		= a_httpServletRequest.getParameter("moduleName");
+
+		Map<String, Object>		templateMap		= new HashMap<>();
 		templateMap.put("moduleType", moduleType);
 		templateMap.put("entityName", entityName);
 		templateMap.put("entityId", entityId);
@@ -120,21 +118,21 @@ public class ModuleRevisionService {
 		templateMap.put("saveUrl", saveUrl);
 		templateMap.put("dateFormat", dateFormat);
 		templateMap.put("previousPageUrl", previousPageUrl);
-		
+
 		String isImport = a_httpServletRequest.getParameter("isImport");
-		if("true".equals(isImport)) {
-			String importJson = a_httpServletRequest.getParameter("importJson");
-			Gson gson = new GsonBuilder().create();
+		if ("true".equals(isImport)) {
+			String	importJson	= a_httpServletRequest.getParameter("importJson");
+			Gson	gson		= new GsonBuilder().create();
 			templateMap.put("importJson", gson.toJson(importJson));
 			templateMap.put("isImport", isImport);
 			templateMap.put("isNonVersioningModule", a_httpServletRequest.getParameter("isNonVersioningModule"));
 			templateMap.put("nonVersioningFetchURL", a_httpServletRequest.getParameter("nonVersioningFetchURL"));
-			
+
 		} else {
 			templateMap.put("isImport", "false");
 		}
-		
+
 		return templateMap;
 	}
-	
+
 }

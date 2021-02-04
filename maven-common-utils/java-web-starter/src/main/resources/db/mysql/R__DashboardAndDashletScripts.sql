@@ -64,7 +64,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			{ title: "${messageSource.getMessage(''jws.lastUpdatedDate'')}", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
 			{ title: "${messageSource.getMessage(''jws.contextDescription'')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashboard}
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashboard}
 		];
 	
 		let grid = $("#dashboardMasterGrid").grid({
@@ -219,7 +219,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
@@ -332,7 +332,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }, render: dashletStatus},
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
 		];
 	
 		let grid = $("#divdDashletMasterGrid").grid({
@@ -537,10 +537,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 									<#list dashletVO?api.getDashletPropertVOList() as dashletProperty>
 										<tr class="dashlet_property">
 											<td id="propertyDetails">
-							  					<input type="hidden" name="propertyId" id="${(dashletProperty.propertyId)!''''}" class="form-control" value="${(dashletProperty.propertyId)!''''}"/>
-							  					<input type="hidden" name="dashletId" id="${(dashletVO.dashletId)!''''}" class="form-control" value="${(dashletVO.dashletId)!''''}"/>
+							  					<input type="hidden" name="propertyId" id="${(dashletProperty.propertyId)!''''}"  value="${(dashletProperty.propertyId)!''''}"/>
+							  					<input type="hidden" name="dashletId" id="${(dashletVO.dashletId)!''''}"  value="${(dashletVO.dashletId)!''''}"/>
 							  					<input type="text" name="placeholderName" id="placeholderName_${(dashletProperty.sequence)!''''}" class="form-control" value="${(dashletProperty.placeholderName)!''''}"/>
-							  				    <input type="hidden" name="sequence" id="sequence_${(dashletProperty.sequence)!''''}" value="${(dashletProperty.sequence)!''''}" class="form-control"/>
+							  				    <input type="hidden" name="isDeleted" id="deleted_${(dashletProperty.sequence)!''''}" value="${(dashletProperty.isDeleted)!''''}" />
+							  				    <input type="hidden" name="sequence" id="sequence_${(dashletProperty.sequence)!''''}" value="${(dashletProperty.sequence)!''''}" />
 							          		</td>
           
 											<td>
@@ -623,7 +624,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="row margin-t-10">
 		<div class="col-12">
 			<div class="float-right">
-				<div class="btn-group dropdown custom-grp-btn">
+				<div class="btn-group dropup custom-grp-btn">
 		            <div id="savedAction">
 	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		            </div>
@@ -672,6 +673,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	 	const addEditDashlet = new AddEditDashlet(dashletPropertiesCount, componentArray, dashletSQLEditor, dashletHTMLEditor);
 		addEditDashletFn = addEditDashlet.fn;
 		addEditDashletFn.loadAddEditDashletPage();
+		addEditDashletFn.disableInputFields();
 		savedAction("dashlet-manage-details", dashletId);
 		hideShowActionButtons();
 	});

@@ -1,0 +1,73 @@
+DROP PROCEDURE IF EXISTS manageEntityPermissionListing;
+CREATE PROCEDURE manageEntityPermissionListing
+(entityName VARCHAR(1000), moduleName varchar(100), moduleId varchar(50), roleName varchar(100),forCount INT, limitFrom INT, limitTo INT
+,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+
+  SET @resultQuery = CONCAT(" SELECT jera.entity_role_id AS entityRoleId,jera.entity_id AS entityId, jera.entity_name AS entityName ");
+  SET @resultQuery = CONCAT(@resultQuery, " ,jera.module_id AS moduleId, jmm.module_name AS moduleName, jr.role_name AS roleName ") ;
+  SET @fromString  = ' FROM  jws_entity_role_association AS jera '
+  ' LEFT OUTER JOIN jws_role AS jr ON jr.role_id = jera.role_id AND jr.is_active = 1 '
+  ' LEFT OUTER JOIN jws_master_modules jmm ON jmm.module_id = jera.module_id  ';
+  SET @whereString = ' WHERE jera.is_active = 1 AND jera.module_type_id = 0 ';
+   
+  IF NOT moduleId IS NULL THEN
+    SET @moduleId= REPLACE(moduleId,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jera.module_id like ''%',@moduleId,'%''');
+  END IF;
+  
+  IF NOT entityName IS NULL THEN
+    SET @entityName= REPLACE(entityName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jera.entity_name like ''%',@entityName,'%''');
+  END IF;
+  
+  IF NOT moduleName IS NULL THEN
+    SET @moduleName= REPLACE(moduleName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jmm.module_name like ''%',@moduleName,'%''');
+  END IF;
+  
+  IF NOT roleName IS NULL THEN
+    SET @roleName= REPLACE(roleName,"'","''");
+    SET @whereString = CONCAT(@roleName,' AND jr.role_name like ''%',@roleName,'%''');
+  END IF;
+  
+  
+  
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY last_updated_date DESC');
+  END IF;
+  
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString,@orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+
+
+  
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+ 
+END;
+
+
+REPLACE INTO grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
+) VALUES ('manageEntityPermissionListing','Import Export Permission Listing','Import Export Permission Listing','manageEntityPermissionListing' 
+,'entityName,moduleName,moduleId,roleName', 2 , 2);
+
+  
+REPLACE INTO jws_entity_role_association (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id) 
+VALUES ('43f3ea6e-5596-11eb-9e7a-f48e38ab8cd7','manageEntityPermissionListing','manageEntityPermissionListing','07067149-098d-11eb-9a16-f48e38ab9348','ae6465b3-097f-11eb-9a16-f48e38ab9348',NOW(),'admin',1,0);
+
+REPLACE INTO jws_entity_role_association (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id) 
+VALUES ('343dd25b-5596-11eb-9e7a-f48e38ab8cd7','manageEntityPermissionListing','manageEntityPermissionListing','07067149-098d-11eb-9a16-f48e38ab9348','b4a0dda1-097f-11eb-9a16-f48e38ab9348',NOW(),'admin',1,0);
+
+REPLACE INTO jws_entity_role_association (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id) 
+VALUES ('3b433058-5596-11eb-9e7a-f48e38ab8cd7','manageEntityPermissionListing','manageEntityPermissionListing','07067149-098d-11eb-9a16-f48e38ab9348','2ace542e-0c63-11eb-9cf5-f48e38ab9348',NOW(),'admin',1,0);
+

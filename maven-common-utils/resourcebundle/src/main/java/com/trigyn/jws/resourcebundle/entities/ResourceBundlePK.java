@@ -7,42 +7,37 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class ResourceBundlePK implements Serializable{
-	
+public class ResourceBundlePK implements Serializable {
 
-	private static final long serialVersionUID 	= 2217428722569615565L;
+	private static final long	serialVersionUID	= 2217428722569615565L;
 
 	@Column(name = "resource_key", nullable = false)
-    private String      resourceKey             = null;
+	private String				resourceKey			= null;
 
-    @Column(name = "language_id")
-    private Integer     languageId              = null;
+	@Column(name = "language_id")
+	private Integer				languageId			= null;
 
 	public ResourceBundlePK() {
-		
+
 	}
 
 	public ResourceBundlePK(String resourceKey, Integer languageId) {
-		this.resourceKey 	= resourceKey;
-		this.languageId 	= languageId;
+		this.resourceKey	= resourceKey;
+		this.languageId		= languageId;
 	}
 
-	
 	public String getResourceKey() {
 		return resourceKey;
 	}
 
-	
 	public void setResourceKey(String resourceKey) {
 		this.resourceKey = resourceKey;
 	}
 
-	
 	public Integer getLanguageId() {
 		return languageId;
 	}
 
-	
 	public void setLanguageId(Integer languageId) {
 		this.languageId = languageId;
 	}

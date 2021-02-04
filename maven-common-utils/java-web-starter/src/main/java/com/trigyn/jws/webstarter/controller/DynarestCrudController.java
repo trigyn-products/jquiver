@@ -25,37 +25,36 @@ import com.trigyn.jws.webstarter.service.DynarestCrudService;
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','REST API Builder')")
 public class DynarestCrudController {
-	
-	private final static Logger logger 						= LogManager.getLogger(DynarestCrudController.class);
+
+	private final static Logger	logger				= LogManager.getLogger(DynarestCrudController.class);
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO 			= null;
-	
+	private PropertyMasterDAO	propertyMasterDAO	= null;
+
 	@Autowired
-	private DynarestCrudService dynarestCrudService 		= null;
-	
+	private DynarestCrudService	dynarestCrudService	= null;
+
 	@Autowired
-	private MenuService			menuService					= null;
-	
-    
-    @GetMapping(value = "/dynl", produces = MediaType.TEXT_HTML_VALUE)
+	private MenuService			menuService			= null;
+
+	@GetMapping(value = "/dynl", produces = MediaType.TEXT_HTML_VALUE)
 	public String loadDynarestListing(HttpServletRequest httpServletRequest) throws Exception {
-		Map<String, Object> modelMap = new HashMap<>();
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+		Map<String, Object>	modelMap	= new HashMap<>();
+		String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-		String uri = httpServletRequest.getRequestURI();
-		String url = httpServletRequest.getRequestURL().toString();
-		StringBuilder urlPrefix = new StringBuilder();
+		String			uri			= httpServletRequest.getRequestURI();
+		String			url			= httpServletRequest.getRequestURL().toString();
+		StringBuilder	urlPrefix	= new StringBuilder();
 		url = url.replace(uri, "");
 		urlPrefix.append(url).append("/api/");
 		modelMap.put("urlPrefix", urlPrefix);
 		return menuService.getTemplateWithSiteLayout("dynarest-details-listing", modelMap);
 	}
-    
-	@PostMapping(value = "/sdq",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public String saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception{
+
+	@PostMapping(value = "/sdq", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public String saveDynamicRestSaveQueries(@RequestBody MultiValueMap<String, String> formData) throws Exception {
 		dynarestCrudService.deleteDAOQueries(formData);
 		return dynarestCrudService.saveDAOQueries(formData);
 	}
-	
+
 }

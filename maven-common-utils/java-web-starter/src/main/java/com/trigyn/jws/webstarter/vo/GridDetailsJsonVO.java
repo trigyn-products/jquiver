@@ -2,32 +2,32 @@ package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
 
-public class GridDetailsJsonVO  implements Serializable {
+public class GridDetailsJsonVO implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long	serialVersionUID	= 1L;
 
-	private String entityName					= null;
+	private String				entityName			= null;
 
-	private String formId					= null;
+	private String				formId				= null;
 
-    private String gridColumnName               = null;
+	private String				gridColumnName		= null;
 
-    private String gridDescription               = null;
+	private String				gridDescription		= null;
 
-	private String gridId                        = null;
+	private String				gridId				= null;
 
-    private String gridName                      = null;
+	private String				gridName			= null;
 
-    private String gridTableName                 = null;
+	private String				gridTableName		= null;
 
-    private String primaryKey                   = null;
+	private String				primaryKey			= null;
 
-	private String queryType                    = null;
+	private String				queryType			= null;
 
-    public String getEntityName() {
+	public String getEntityName() {
 		return entityName;
 	}
 
@@ -99,5 +99,4 @@ public class GridDetailsJsonVO  implements Serializable {
 		this.queryType = queryType;
 	}
 
-    
 }

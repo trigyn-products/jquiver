@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.security.entities.DDOSDetails;
 
 @Repository
-public interface DDOSDetailsRepository extends JpaRepository<DDOSDetails, String>{
+public interface DDOSDetailsRepository extends JpaRepository<DDOSDetails, String> {
 
 	@Query("SELECT DISTINCT ddosD.ipAddress FROM DDOSDetails AS ddosD ")
 	List<String> getAllBlockedIPAddr();

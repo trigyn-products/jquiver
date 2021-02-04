@@ -16,5 +16,5 @@ public class DynarestDetails {
 	public void setDynarestUrl(String dynarestUrl) {
 		this.dynarestUrl = dynarestUrl;
 	}
-	
+
 }

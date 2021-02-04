@@ -13,6 +13,7 @@ HomePage.prototype.fn = {
 		$("#openbtni").addClass("hidecls");
 		$('body').css('background-color', 'rgba(0,0,0,0.4)');
 		$(".container").addClass("overlaycls");
+		$(".jws-body-overlay").addClass("overlaycls");
 		$('#searchInput').focus();
 	},
 
@@ -24,6 +25,7 @@ HomePage.prototype.fn = {
 		$("#closebtni").addClass("hidecls");	    
 		$('body').css('background-color', 'white'); 
 		$(".container").removeClass("overlaycls");
+		$(".jws-body-overlay").removeClass("overlaycls");
 
 	},
 	
@@ -67,6 +69,10 @@ HomePage.prototype.fn = {
 		});
 	},	
 	
+	clearMenuSearch: function(){
+		$("#searchInput").val("");
+		this.menuSearchFilter();
+	},
 	
 	menuSearchFilter : function(){
 		let inputText = $("#searchInput").val().toUpperCase().trim();

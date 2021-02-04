@@ -1,15 +1,15 @@
 package com.trigyn.jws.dbutils.vo;
 
 public class FileInfo {
-	private String fileId = null;
-	private String fileName = null;
-	private Long sizeInBytes = null;
+	private String	fileId		= null;
+	private String	fileName	= null;
+	private Long	sizeInBytes	= null;
 
 	public FileInfo(String fileId, String fileName, Long sizeInBytes) {
 		super();
-		this.fileId = fileId;
-		this.fileName = fileName;
-		this.sizeInBytes = sizeInBytes;
+		this.fileId			= fileId;
+		this.fileName		= fileName;
+		this.sizeInBytes	= sizeInBytes;
 	}
 
 	public String getFileId() {

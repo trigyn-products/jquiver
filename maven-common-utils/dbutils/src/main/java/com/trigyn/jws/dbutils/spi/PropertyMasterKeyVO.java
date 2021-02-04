@@ -2,16 +2,16 @@ package com.trigyn.jws.dbutils.spi;
 
 public final class PropertyMasterKeyVO {
 
-	private String ownerId = null;
+	private String	ownerId			= null;
 
-	private String ownerType = null;
+	private String	ownerType		= null;
 
-	private String propertyName = null;
-	
+	private String	propertyName	= null;
+
 	public PropertyMasterKeyVO(String ownerId, String ownerType, String propertyName) {
-		this.ownerId = ownerId;
-		this.ownerType = ownerType;
-		this.propertyName = propertyName;
+		this.ownerId		= ownerId;
+		this.ownerType		= ownerType;
+		this.propertyName	= propertyName;
 	}
 
 	public String getOwnerId() {
@@ -40,11 +40,11 @@ public final class PropertyMasterKeyVO {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((ownerId == null) ? 0 : ownerId.hashCode());
-		result = prime * result + ((ownerType == null) ? 0 : ownerType.hashCode());
-		result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+		final int	prime	= 31;
+		int			result	= 1;
+		result	= prime * result + ((ownerId == null) ? 0 : ownerId.hashCode());
+		result	= prime * result + ((ownerType == null) ? 0 : ownerType.hashCode());
+		result	= prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
 		return result;
 	}
 

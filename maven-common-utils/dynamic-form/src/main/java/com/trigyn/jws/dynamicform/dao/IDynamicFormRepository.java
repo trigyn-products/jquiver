@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 
 @Repository
-public interface IDynamicFormRepository extends JpaRepositoryImplementation<DynamicForm, String>{
+public interface IDynamicFormRepository extends JpaRepositoryImplementation<DynamicForm, String> {
 
 }

@@ -10,7 +10,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 public interface IUserDetailsService {
 
 	UserDetailsVO getUserDetails();
-	
+
 	List<String> getUsersRoleHavingAccessToJWS();
 
 }

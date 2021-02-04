@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.notification.entities.GenericUserNotification;
 
 @Repository
-public interface INotificationRepository extends JpaRepository<GenericUserNotification, String>{
+public interface INotificationRepository extends JpaRepository<GenericUserNotification, String> {
 
 }

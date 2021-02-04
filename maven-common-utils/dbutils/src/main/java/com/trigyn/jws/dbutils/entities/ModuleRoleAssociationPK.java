@@ -3,29 +3,32 @@ package com.trigyn.jws.dbutils.entities;
 import java.io.Serializable;
 import javax.persistence.*;
 
-
 @Embeddable
 public class ModuleRoleAssociationPK implements Serializable {
-	//default serial version id, required for serializable classes.
-	private static final long serialVersionUID = 1L;
+	// default serial version id, required for serializable classes.
+	private static final long	serialVersionUID	= 1L;
 
-	@Column(name="module_id", insertable=false, updatable=false, unique=true, nullable=false, length=50)
-	private String moduleId;
+	@Column(name = "module_id", insertable = false, updatable = false, unique = true, nullable = false, length = 50)
+	private String				moduleId;
 
-	@Column(name="role_id", unique=true, nullable=false, length=100)
-	private String roleId;
+	@Column(name = "role_id", unique = true, nullable = false, length = 100)
+	private String				roleId;
 
 	public ModuleRoleAssociationPK() {
 	}
+
 	public String getModuleId() {
 		return this.moduleId;
 	}
+
 	public void setModuleId(String moduleId) {
 		this.moduleId = moduleId;
 	}
+
 	public String getRoleId() {
 		return this.roleId;
 	}
+
 	public void setRoleId(String roleId) {
 		this.roleId = roleId;
 	}
@@ -37,25 +40,23 @@ public class ModuleRoleAssociationPK implements Serializable {
 		if (!(other instanceof ModuleRoleAssociationPK)) {
 			return false;
 		}
-		ModuleRoleAssociationPK castOther = (ModuleRoleAssociationPK)other;
-		return 
-			this.moduleId.equals(castOther.moduleId)
-			&& this.roleId.equals(castOther.roleId);
+		ModuleRoleAssociationPK castOther = (ModuleRoleAssociationPK) other;
+		return this.moduleId.equals(castOther.moduleId) && this.roleId.equals(castOther.roleId);
 	}
 
 	public int hashCode() {
-		final int prime = 31;
-		int hash = 17;
-		hash = hash * prime + this.moduleId.hashCode();
-		hash = hash * prime + this.roleId.hashCode();
-		
+		final int	prime	= 31;
+		int			hash	= 17;
+		hash	= hash * prime + this.moduleId.hashCode();
+		hash	= hash * prime + this.roleId.hashCode();
+
 		return hash;
 	}
 
 	public ModuleRoleAssociationPK getObject() {
 		ModuleRoleAssociationPK moduleRoleAssociationPK = new ModuleRoleAssociationPK();
-		moduleRoleAssociationPK.setModuleId(moduleId!=null?moduleId.trim():moduleId);
-		moduleRoleAssociationPK.setRoleId(roleId!=null?roleId.trim():roleId);
+		moduleRoleAssociationPK.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
+		moduleRoleAssociationPK.setRoleId(roleId != null ? roleId.trim() : roleId);
 		return moduleRoleAssociationPK;
 	}
 

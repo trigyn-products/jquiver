@@ -8,14 +8,13 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 
 @Repository
-public interface PropertyMasterRepository extends JpaRepositoryImplementation<PropertyMaster, String>{
-	
+public interface PropertyMasterRepository extends JpaRepositoryImplementation<PropertyMaster, String> {
+
 	@Modifying
 	@Query(" UPDATE PropertyMaster SET propertyValue=:propertyValue WHERE propertyName =:propertyName ")
-	void updatePropertyValueByName(String propertyValue,String propertyName);
-	
-	
+	void updatePropertyValueByName(String propertyValue, String propertyName);
+
 	@Query()
 	PropertyMaster findByOwnerTypeAndOwnerIdAndPropertyName(String ownerType, String ownerId, String propertyName);
-	
+
 }

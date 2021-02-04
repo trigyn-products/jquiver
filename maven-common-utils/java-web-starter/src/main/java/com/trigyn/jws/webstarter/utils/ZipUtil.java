@@ -16,18 +16,23 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ZipUtil {
+
+	private final static Logger logger = LogManager.getLogger(ZipUtil.class);
 
 	public static String zipDirectory(String zipSourceFolder, String zipDestinationFolder) {
 
-    	File dir = new File(zipSourceFolder);
-    	
-    	Date date = new Date();  
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");  
-        String strDate= formatter.format(date); 
-    	String zipFileName = strDate + ".zip";
-    	
-    	String zipFilePath = zipDestinationFolder + File.separator + zipFileName;
+		File				dir			= new File(zipSourceFolder);
+
+		Date				date		= new Date();
+		SimpleDateFormat	formatter	= new SimpleDateFormat("dd-MMM-yyyy");
+		String				strDate		= formatter.format(date);
+		String				zipFileName	= strDate + ".zip";
+
+		String				zipFilePath	= zipDestinationFolder + File.separator + zipFileName;
 
 		try {
 			zipFolder(dir.toPath(), zipFileName);
@@ -37,14 +42,14 @@ public class ZipUtil {
 				FileUtil.deleteFolder(directory);
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException a_ioe) {
+			logger.error("Error ocurred while zipping the folder.", a_ioe);
 		}
 		return zipFilePath;
-    }
-	
-	private static String zipFolder(Path source,String zipFileName ) throws IOException {
-		
+	}
+
+	private static String zipFolder(Path source, String zipFileName) throws IOException {
+
 		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFileName))) {
 			Files.walkFileTree(source, new SimpleFileVisitor<>() {
 				@Override
@@ -59,15 +64,15 @@ public class ZipUtil {
 						Path targetFile = source.relativize(file);
 						zos.putNextEntry(new ZipEntry(targetFile.toString()));
 
-						byte[] buffer = new byte[1024];
-						int len;
+						byte[]	buffer	= new byte[1024];
+						int		len;
 						while ((len = fis.read(buffer)) > 0) {
 							zos.write(buffer, 0, len);
 						}
 						zos.closeEntry();
 
-					} catch (IOException e) {
-						e.printStackTrace();
+					} catch (IOException a_ioe) {
+						logger.error("Error ocurred while zipping the folder.", a_ioe);
 					}
 					return FileVisitResult.CONTINUE;
 				}
@@ -83,20 +88,20 @@ public class ZipUtil {
 	}
 
 	public static void unzip(InputStream fis, String destDir) {
-        File dir = new File(destDir);
-        if(!dir.exists()) 
-        	dir.mkdirs();
-        byte[] buffer = new byte[1024];
-        try {
-            ZipInputStream zis = new ZipInputStream(fis);
-            ZipEntry ze = zis.getNextEntry();
+		File dir = new File(destDir);
+		if (!dir.exists())
+			dir.mkdirs();
+		byte[] buffer = new byte[1024];
+		try {
+			ZipInputStream	zis	= new ZipInputStream(fis);
+			ZipEntry		ze	= zis.getNextEntry();
 			while (ze != null) {
-				String fileName = ze.getName();
-				File newFile = new File(destDir + File.separator + fileName);
+				String	fileName	= ze.getName();
+				File	newFile		= new File(destDir + File.separator + fileName);
 				// create directories for sub directories in zip
 				new File(newFile.getParent()).mkdirs();
-				FileOutputStream fos = new FileOutputStream(newFile);
-				int len;
+				FileOutputStream	fos	= new FileOutputStream(newFile);
+				int					len;
 				while ((len = zis.read(buffer)) > 0) {
 					fos.write(buffer, 0, len);
 				}
@@ -105,13 +110,13 @@ public class ZipUtil {
 				zis.closeEntry();
 				ze = zis.getNextEntry();
 			}
-            //close last ZipEntry
-            zis.closeEntry();
-            zis.close();
-            fis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-    }
+			// close last ZipEntry
+			zis.closeEntry();
+			zis.close();
+			fis.close();
+		} catch (IOException a_ioe) {
+			logger.error("Error ocurred while zipping the folder.", a_ioe);
+		}
+
+	}
 }

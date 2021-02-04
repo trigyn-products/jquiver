@@ -11,19 +11,21 @@ import com.google.gson.reflect.TypeToken;
 
 public class AutocompleteParams {
 
-	private String autocompleteId = null;
-	private String searchText = null;
-	private Integer startIndex = Integer.MIN_VALUE;
-	private Integer pageSize = Integer.MIN_VALUE;
-	private Map<String, Object> criteriaParams = null;
+	private String				autocompleteId	= null;
+	private String				searchText		= null;
+	private Integer				startIndex		= Integer.MIN_VALUE;
+	private Integer				pageSize		= Integer.MIN_VALUE;
+	private Map<String, Object>	criteriaParams	= null;
 
-	public AutocompleteParams(HttpServletRequest request){
-		this.searchText=request.getParameter("searchText");
-		this.autocompleteId=request.getParameter("autocompleteId");
-		this.startIndex = request.getParameter("startIndex") == null ? -1 : Integer.parseInt(request.getParameter("startIndex"));
-		this.pageSize = request.getParameter("pageSize") == null ? -1 : Integer.parseInt(request.getParameter("pageSize"));
-		this.criteriaParams = request.getParameter("additionalParamaters") == null ? new HashMap<String, Object>() 
-								: new Gson().fromJson(request.getParameter("additionalParamaters"), Map.class);
+	public AutocompleteParams(HttpServletRequest request) {
+		this.searchText		= request.getParameter("searchText");
+		this.autocompleteId	= request.getParameter("autocompleteId");
+		this.startIndex		= request.getParameter("startIndex") == null ? -1
+				: Integer.parseInt(request.getParameter("startIndex"));
+		this.pageSize		= request.getParameter("pageSize") == null ? -1
+				: Integer.parseInt(request.getParameter("pageSize"));
+		this.criteriaParams	= request.getParameter("additionalParamaters") == null ? new HashMap<String, Object>()
+				: new Gson().fromJson(request.getParameter("additionalParamaters"), Map.class);
 	}
 
 	public AutocompleteParams proccessAutocompleteReqeustObject() {
@@ -37,8 +39,9 @@ public class AutocompleteParams {
 			return new HashMap<>();
 		} else {
 			for (String reqParamKey : criteriaParams.keySet()) {
-				Object reqParamValue = this.criteriaParams.get(reqParamKey) == null ? null : this.criteriaParams.get(reqParamKey);
-				String[] keySets = reqParamKey.split("_");
+				Object		reqParamValue	= this.criteriaParams.get(reqParamKey) == null ? null
+						: this.criteriaParams.get(reqParamKey);
+				String[]	keySets			= reqParamKey.split("_");
 				if (reqParamValue != null && keySets.length <= 1) {
 					createParameterDetails(parameterMap, reqParamKey, reqParamValue);
 				} else if (reqParamValue != null && keySets.length >= 1) {
@@ -65,15 +68,13 @@ public class AutocompleteParams {
 	private void createInParameterDetails(Map<String, Object> parameterMap, String reqParamKey, String reqParamValue) {
 		Object obj = reqParamValue;
 		if (reqParamKey.contains("li_")) {
-			List<Integer> intListParameter = new Gson().fromJson(obj.toString(),
-					new TypeToken<List<Integer>>() {
-					}.getType());
+			List<Integer> intListParameter = new Gson().fromJson(obj.toString(), new TypeToken<List<Integer>>() {
+			}.getType());
 			obj = intListParameter;
 		}
 		if (reqParamKey.contains("ls_")) {
-			List<String> strListParameter = new Gson().fromJson(obj.toString(),
-					new TypeToken<List<String>>() {
-					}.getType());
+			List<String> strListParameter = new Gson().fromJson(obj.toString(), new TypeToken<List<String>>() {
+			}.getType());
 			obj = strListParameter;
 		}
 		parameterMap.put(reqParamKey.split("_")[1], obj);
@@ -82,7 +83,7 @@ public class AutocompleteParams {
 	public String getAutocompleteId() {
 		return autocompleteId;
 	}
-	
+
 	public void setAutocompleteId(String autocompleteId) {
 		this.autocompleteId = autocompleteId;
 	}
@@ -118,5 +119,5 @@ public class AutocompleteParams {
 	public void setCriteriaParams(Map<String, Object> criteriaParams) {
 		this.criteriaParams = criteriaParams;
 	}
-	
+
 }

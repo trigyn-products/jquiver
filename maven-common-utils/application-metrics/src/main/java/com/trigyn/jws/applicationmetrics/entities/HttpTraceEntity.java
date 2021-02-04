@@ -1,51 +1,56 @@
+
 package com.trigyn.jws.applicationmetrics.entities;
 
 import java.io.Serializable;
-import java.util.Date;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HttpTraceEntity implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private final static Logger	logger					= LogManager.getLogger(HttpTraceEntity.class);
 
-	private String httpRequestDetails = null;
+	private static final long	serialVersionUID		= 1L;
 
-	private String httpResponseDetails = null;
+	private String				httpRequestDetails		= null;
 
-	private String auxillaryDetails = null;
+	private String				httpResponseDetails		= null;
 
-	private String requestTimestamp = null;
+	private String				auxillaryDetails		= null;
 
-	private Long minRequestDuration = null;
+	private String				requestTimestamp		= null;
 
-	private Long maxRequestDuration = null;
+	private Long				minRequestDuration		= null;
 
-	private Long averageRequestDuration = null;
+	private Long				maxRequestDuration		= null;
+
+	private Long				averageRequestDuration	= null;
 
 	public HttpTraceEntity() {
 
 	}
 
-	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp) {
-		this.httpRequestDetails = httpRequestDetails;
-		this.httpResponseDetails = httpResponseDetails;
-		this.auxillaryDetails = auxillaryDetails;
-		this.requestTimestamp = requestTimestamp;
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails,
+			String requestTimestamp) {
+		this.httpRequestDetails		= httpRequestDetails;
+		this.httpResponseDetails	= httpResponseDetails;
+		this.auxillaryDetails		= auxillaryDetails;
+		this.requestTimestamp		= requestTimestamp;
 	}
 
-	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp,
-			Long minRequestDuration, Long maxRequestDuration, Long averageRequestDuration) {
-		this.httpRequestDetails = httpRequestDetails;
-		this.httpResponseDetails = httpResponseDetails;
-		this.auxillaryDetails = auxillaryDetails;
-		this.requestTimestamp = requestTimestamp;
-		this.minRequestDuration = minRequestDuration;
-		this.maxRequestDuration = maxRequestDuration;
-		this.averageRequestDuration = averageRequestDuration;
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails,
+			String requestTimestamp, Long minRequestDuration, Long maxRequestDuration, Long averageRequestDuration) {
+		this.httpRequestDetails		= httpRequestDetails;
+		this.httpResponseDetails	= httpResponseDetails;
+		this.auxillaryDetails		= auxillaryDetails;
+		this.requestTimestamp		= requestTimestamp;
+		this.minRequestDuration		= minRequestDuration;
+		this.maxRequestDuration		= maxRequestDuration;
+		this.averageRequestDuration	= averageRequestDuration;
 	}
-	
 
 	public String getHttpRequestDetails() {
 		return httpRequestDetails;
@@ -107,8 +112,8 @@ public class HttpTraceEntity implements Serializable {
 	public String toString() {
 		try {
 			return new ObjectMapper().writeValueAsString(this);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+		} catch (JsonProcessingException jpe) {
+			logger.error("- ERROR loading '" + jpe + "'");
 			return this.httpRequestDetails;
 		}
 	}
