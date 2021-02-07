@@ -84,8 +84,7 @@ public class DBTemplatingService {
 
 		UserDetailsVO	detailsVO		= userDetailsService.getUserDetails();
 		String			templateName	= request.getParameter("velocityName");
-		String			templateId		= request.getParameter("velocityId") == null ? "-1"
-				: request.getParameter("velocityId");
+		String			templateId		= request.getParameter("velocityId");
 		String			templateData	= request.getParameter("velocityTempData");
 
 		TemplateMaster	templateDetails	= dbTemplatingRepository.findById(templateId).orElse(new TemplateMaster());
@@ -93,12 +92,11 @@ public class DBTemplatingService {
 		templateDetails.setTemplateName(templateName);
 		templateDetails.setUpdatedDate(new Date());
 
-		if (templateId != null && !templateId.isEmpty()) {
+		if (templateId != null && !templateId.isEmpty() && templateId.equals("0") == false) {
 			templateDetails.setUpdatedBy(detailsVO.getUserName());
 			templateDetails.setTemplateId(templateId);
-			templateDetails.setCreatedBy(detailsVO.getUserName());
 		} else {
-			templateDetails.setCreatedBy(detailsVO.getUserId());
+			templateDetails.setCreatedBy(detailsVO.getUserName());
 		}
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		if (environment.equalsIgnoreCase("dev")) {
