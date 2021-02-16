@@ -13,3 +13,12 @@ Also the development is live development. Developers can work right on the SIT s
 * Site Layout
 * Mail Configuration
 * Export / Import
+
+To install JQuiver application use below command, assuming  you know about Basic Maven and Java.
+
+```
+mvn archetype:generate -DarchetypeGroupId=com.trigyn  -DarchetypeArtifactId=jquiver -DarchetypeVersion=1.3 -DgroupId=com.mygroup -DartifactId=myartifact
+```
+
+After that change in /src/main/resources/application.yml
+Change `datasource` `URL`, `username` and `password`
