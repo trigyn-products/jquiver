@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS jws_role;
-CREATE TABLE jws_role (
+DROP TABLE IF EXISTS jq_role;
+CREATE TABLE jq_role (
   role_id varchar(50) NOT NULL,
   role_name varchar(100) NOT NULL,
   role_description varchar(2000) DEFAULT NULL,
@@ -10,8 +10,8 @@ CREATE TABLE jws_role (
   UNIQUE KEY role_name (role_name) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_master_modules;
-CREATE TABLE jws_master_modules (
+DROP TABLE IF EXISTS jq_master_modules;
+CREATE TABLE jq_master_modules (
   module_id varchar(50) NOT NULL,
   module_name varchar(100) DEFAULT NULL,
   is_system_module int(11) NOT NULL,
@@ -20,19 +20,19 @@ CREATE TABLE jws_master_modules (
   UNIQUE KEY module_name(module_name) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_role_master_modules_association;
-CREATE TABLE jws_role_master_modules_association (
+DROP TABLE IF EXISTS jq_role_master_modules_association;
+CREATE TABLE jq_role_master_modules_association (
   role_module_id varchar(50) NOT NULL,
   role_id varchar(50) NOT NULL,
   module_id varchar(50) NOT NULL,
   is_active int(2)  NOT NULL DEFAULT 0,
   PRIMARY KEY (role_module_id),
-  CONSTRAINT fk_jws_role_master_modules_association_1 FOREIGN KEY (role_id) REFERENCES jws_role (role_id),
-  CONSTRAINT fk_jws_role_master_modules_association_2 FOREIGN KEY (module_id) REFERENCES jws_master_modules (module_id)
+  CONSTRAINT jq_role_master_modules_association_ibfk_1 FOREIGN KEY (role_id) REFERENCES jq_role (role_id),
+  CONSTRAINT jq_role_master_modules_association_ibfk_2 FOREIGN KEY (module_id) REFERENCES jq_master_modules (module_id)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_user;
-CREATE TABLE jws_user (
+DROP TABLE IF EXISTS jq_user;
+CREATE TABLE jq_user (
   user_id varchar(50) NOT NULL,
   first_name varchar(100) NOT NULL,
   last_name varchar(100) NOT NULL,
@@ -43,24 +43,24 @@ CREATE TABLE jws_user (
   UNIQUE KEY email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_user_role_association;
-CREATE TABLE jws_user_role_association (
+DROP TABLE IF EXISTS jq_user_role_association;
+CREATE TABLE jq_user_role_association (
   user_role_id varchar(50) NOT NULL,
   role_id varchar(50) NOT NULL,
   user_id varchar(50) NOT NULL,
   updated_date timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (user_role_id),
-  KEY fk_jws_user_role_association_1 (role_id),
-  KEY fk_jws_user_role_association_2 (user_id),
-  CONSTRAINT fk_jws_user_role_association_1 FOREIGN KEY (role_id) REFERENCES jws_role (role_id),
-  CONSTRAINT fk_jws_user_role_association_2 FOREIGN KEY (user_id) REFERENCES jws_user (user_id)
+  KEY jq_user_role_association_ibfk_1 (role_id),
+  KEY jq_user_role_association_ibfk_2 (user_id),
+  CONSTRAINT jq_user_role_association_ibfk_1 FOREIGN KEY (role_id) REFERENCES jq_role (role_id),
+  CONSTRAINT jq_user_role_association_ibfk_2 FOREIGN KEY (user_id) REFERENCES jq_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-REPLACE INTO jws_role VALUES ('ae6465b3-097f-11eb-9a16-f48e38ab9348','ADMIN','admin role',1 ),('b4a0dda1-097f-11eb-9a16-f48e38ab9348','ANONYMOUS','anonymous role',1 )
+REPLACE INTO jq_role VALUES ('ae6465b3-097f-11eb-9a16-f48e38ab9348','ADMIN','admin role',1 ),('b4a0dda1-097f-11eb-9a16-f48e38ab9348','ANONYMOUS','anonymous role',1 )
 ,('2ace542e-0c63-11eb-9cf5-f48e38ab9348','AUTHENTICATED','authenticated role',1 );  
 
-REPLACE INTO jws_master_modules (
+REPLACE INTO jq_master_modules (
    module_id
   ,module_name
   ,is_system_module 
@@ -132,7 +132,7 @@ REPLACE INTO jws_master_modules (
    ,null  
 );
 
-REPLACE INTO jws_user (
+REPLACE INTO jq_user (
    user_id
   ,first_name
   ,last_name
@@ -148,33 +148,33 @@ REPLACE INTO jws_user (
   ,1
 );
 
-REPLACE INTO jws_user_role_association VALUES 
+REPLACE INTO jq_user_role_association VALUES 
 ('cbc69d67-0988-11eb-9a16-f48e38ab9348','ae6465b3-097f-11eb-9a16-f48e38ab9348','111415ae-0980-11eb-9a16-f48e38ab9348',now())
 ,('9e3d2c83-0c63-11eb-9cf5-f48e38ab9348','2ace542e-0c63-11eb-9cf5-f48e38ab9348','111415ae-0980-11eb-9a16-f48e38ab9348',now());
 
-DROP TABLE IF EXISTS jws_confirmation_token;
-CREATE TABLE  `jws_confirmation_token` (
+DROP TABLE IF EXISTS jq_confirmation_token;
+CREATE TABLE  jq_confirmation_token (
   `token_id` varchar(50) NOT NULL,
   `confirmation_token` varchar(50) NOT NULL,
   `created_date` date NOT NULL,
   `user_id` varchar(500) NOT NULL,
   PRIMARY KEY (`user_id`),
-  CONSTRAINT `fk_jws_confirmation_token_1` FOREIGN KEY (`user_id`) REFERENCES `jws_user` (`user_id`)
+  CONSTRAINT `jq_confirmation_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `jq_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_reset_password_token;
-CREATE TABLE  `jws_reset_password_token` (
+DROP TABLE IF EXISTS jq_reset_password_token;
+CREATE TABLE  `jq_reset_password_token` (
   `token_id` varchar(50) NOT NULL,
   `password_reset_url` varchar(255) NOT NULL,
   `password_reset_gen_time` datetime NOT NULL,
   `user_id` varchar(500) NOT NULL,
   `is_reset_url_expired` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'This flag will decide ,Is password reset url expired or not .0 means not expired and 1 means Expired',
   PRIMARY KEY (`token_id`),
-  CONSTRAINT `fk_jws_reset_password_token_1` FOREIGN KEY (`user_id`) REFERENCES `jws_user` (`user_id`)
+  CONSTRAINT `jq_reset_password_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `jq_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS jws_authentication_type;
-CREATE TABLE  jws_authentication_type (
+DROP TABLE IF EXISTS jq_authentication_type;
+CREATE TABLE  jq_authentication_type (
 authentication_id int(11) auto_increment,
 authentication_name varchar(50),
 authentication_properties JSON  DEFAULT NULL,
@@ -182,7 +182,7 @@ PRIMARY KEY (authentication_id)
 )ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
-REPLACE INTO jws_authentication_type (
+REPLACE INTO jq_authentication_type (
    authentication_id
   ,authentication_name
   ,authentication_properties
@@ -204,8 +204,8 @@ REPLACE INTO jws_authentication_type (
   ,null
 );
 
-DROP TABLE IF EXISTS jws_entity_role_association;
-CREATE TABLE jws_entity_role_association (
+DROP TABLE IF EXISTS jq_entity_role_association ;
+CREATE TABLE jq_entity_role_association  (
   entity_role_id varchar(50) NOT NULL,
   entity_id varchar(50) NOT NULL,
   entity_name varchar(50) NOT NULL,
@@ -215,8 +215,8 @@ CREATE TABLE jws_entity_role_association (
   last_updated_by varchar(50) NOT NULL,
   is_active int(2) NOT NULL,
   PRIMARY KEY (entity_role_id),
-  CONSTRAINT fk_jws_entity_role_association_1 FOREIGN KEY (module_id) REFERENCES jws_master_modules (module_id),
-  CONSTRAINT fk_jws_entity_role_association_2 FOREIGN KEY (role_id) REFERENCES jws_role (role_id)
+  CONSTRAINT jq_entity_role_association_ibfk_1 FOREIGN KEY (module_id) REFERENCES jq_master_modules (module_id),
+  CONSTRAINT jq_entity_role_association_ibfk_2 FOREIGN KEY (role_id) REFERENCES jq_role (role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET FOREIGN_KEY_CHECKS=1;

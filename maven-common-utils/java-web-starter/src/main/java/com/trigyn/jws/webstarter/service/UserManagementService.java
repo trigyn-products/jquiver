@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,7 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
@@ -134,6 +137,9 @@ public class UserManagementService {
 	@Autowired
 	private PropertyMasterDetails						propertyMasterDetails			= null;
 
+	@Autowired
+	private ServletContext								servletContext					= null;
+
 	public String addEditRole(String roleId) throws Exception {
 
 		Map<String, Object>	templateMap	= new HashMap<>();
@@ -226,6 +232,9 @@ public class UserManagementService {
 			jwsUser = jwsUserRepository.findByUserId(userData.getUserId());
 			jwsUser.setFirstName(userData.getFirstName());
 			jwsUser.setLastName(userData.getLastName());
+			if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+				jwsUser.setFailedAttempt(0);
+			}
 			jwsUserRepository.save(jwsUser);
 		} else {
 			if (StringUtils.isNotEmpty(userData.getUserId())) {
@@ -235,11 +244,16 @@ public class UserManagementService {
 				userManagementDAO.deleteUserRoleAssociation(jwsUser.getUserId());
 				jwsUser.setIsActive(userData.getIsActive());
 				jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+				if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+					jwsUser.setFailedAttempt(0);
+				}
 				jwsUserRepository.save(jwsUser);
-				if (userData.getForcePasswordChange() == 1) {
+				if (userData.getForcePasswordChange() == 1 && userData.getIsSendMail() == true) {
 					Email email = new Email();
 					forcePasswordAndMail(userData, jwsUser, email);
-					sendMailService.sendTestMail(email);
+				} else if(userData.getIsSendMail() == true) {
+					Email email = new Email();
+					sendMailForUserUpdate(jwsUser.getUserId(), userData.getEmail(), email);
 				}
 			} else {
 				jwsUser.setFirstName(userData.getFirstName());
@@ -256,35 +270,19 @@ public class UserManagementService {
 					jwsUser.setPassword(null);
 					jwsUser.setIsActive(userData.getIsActive());
 					jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+					if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+						jwsUser.setFailedAttempt(0);
+					}
 					jwsUserRepository.save(jwsUser);
-					TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
-					int					width				= 300;
-					int					height				= 300;
-					String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
-							+ jwsUser.getUserId() + ".png";
-					File				file				= new File(filePath);
-					FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-					String				barcodeData			= twoFactorGoogleUtil
-							.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver", jwsUser.getSecretKey());
-					twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
 
-					email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
-					email.setSubject("TOTP Login");
-					email.setMailFrom("admin@jquiver.com");
-					Map<String, Object>	mailDetails	= new HashMap<>();
-					TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
-					String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-							templateVO.getTemplateName(), mailDetails);
-					email.setBody(mailBody);
-					System.out.println(mailBody);
-					List<File> attachedFiles = new ArrayList<>();
-					attachedFiles.add(file);
-					email.setAttachementsArray(attachedFiles);
-				}
-
-				CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
-				if (mailSuccess.isDone()) {
-					email.getAttachementsArray().stream().forEach(f -> f.delete());
+					if (userData.getIsSendMail() == true) {
+						if (mapDetails.get("authType").toString().equalsIgnoreCase("4")) {
+							sendMailForO365Authentication(jwsUser.getUserId(), userData.getForcePasswordChange(),
+									userData.getEmail(), email, password);
+						} else {
+							sendMailForTotpAuthentication(jwsUser, email);
+						}
+					}
 				}
 			}
 
@@ -307,6 +305,9 @@ public class UserManagementService {
 			jwsUser.setFirstName(userData.getFirstName());
 			jwsUser.setLastName(userData.getLastName());
 			jwsUser.setRegisteredBy(Constants.AuthType.DAO.getAuthType());
+			if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+				jwsUser.setFailedAttempt(0);
+			}
 			jwsUserRepository.save(jwsUser);
 		}
 		jwsUser = jwsUserRepository.findByUserId(userData.getUserId());
@@ -317,13 +318,18 @@ public class UserManagementService {
 		}
 		jwsUser.setForcePasswordChange(forcePasswordChange);
 		jwsUser.setIsActive(isActive);
+		if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+			jwsUser.setFailedAttempt(0);
+		}
 		jwsUserRepository.save(jwsUser);
 
 		if (userData.getForcePasswordChange() == 1) {
 			Email email = new Email();
 			userData.setEmail(jwsUser.getEmail());
 			forcePasswordAndMail(userData, jwsUser, email);
-			sendMailService.sendTestMail(email);
+		} else if(userData.getIsSendMail() == true) {
+			Email email = new Email();
+			sendMailForUserUpdate(jwsUser.getUserId(), userData.getEmail(), email);
 		}
 
 		userManagementDAO.deleteUserRoleAssociation(jwsUser.getUserId());
@@ -343,21 +349,28 @@ public class UserManagementService {
 		jwsUser.setPassword(passwordEncoder.encode(password));
 		jwsUser.setIsActive(userData.getIsActive());
 		jwsUser.setForcePasswordChange(userData.getForcePasswordChange());// force password change
+		if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+			jwsUser.setFailedAttempt(0);
+		}
 		jwsUserRepository.save(jwsUser);
 
-		Map<String, Object> mailDetails = new HashMap<>();
-		mailDetails.put("password", password);
-		mailDetails.put("forcePasswordChange", userData.getForcePasswordChange());
-		mailDetails.put("userId", jwsUser.getUserId());
+		if (userData.getIsSendMail() == true) {
+			sendMailForForcePassword(jwsUser.getUserId(), userData.getForcePasswordChange(), userData.getEmail(), email,
+					password);
+		}
+	}
 
-		email.setInternetAddressToArray(InternetAddress.parse(userData.getEmail()));
-		email.setSubject("Account Password");
-		email.setMailFrom("admin@jquiver.com");
-		TemplateVO	templateVO	= templatingService.getTemplateByName("force-password-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		System.out.println(mailBody);
+	public static String getBaseURL(PropertyMasterService propertyMasterService, ServletContext servletContext)
+			throws Exception {
+		String baseURL = propertyMasterService.findPropertyMasterValue("base-url");
+		if (servletContext.getContextPath().isBlank() == false) {
+			if (baseURL.endsWith("/")) {
+				baseURL = baseURL + servletContext.getContextPath();
+			} else {
+				baseURL = baseURL + "/" + servletContext.getContextPath();
+			}
+		}
+		return baseURL;
 	}
 
 	public String addEditUser(String userId, boolean isProfilePage) throws Exception {
@@ -453,6 +466,9 @@ public class UserManagementService {
 			userConfigService.getConfigurableDetails(mapDetails);
 		}
 
+		if (authenticationTypeId == null || (authenticationTypeId != null && authenticationTypeId.isBlank())) {
+			authenticationTypeId = "1";
+		}
 		authenticationTypeRepository.updatePropertyById(Integer.parseInt(authenticationTypeId), propertyJson);
 
 		if (StringUtils.isNotBlank(regexObj)) {
@@ -481,19 +497,11 @@ public class UserManagementService {
 						jwsUser.setForcePasswordChange(Constants.ISACTIVE);
 						jwsUser.setIsActive(Constants.INACTIVE);
 						jwsUserRepository.save(jwsUser);
-						StringBuilder messageText = new StringBuilder("Your account password is  " + password);
-						messageText.append(
-								" Please change your password through these url : http://localhost:8080/cf/changePassword?token="
-										+ jwsUser.getUserId());
-						email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
-						email.setSubject("Account Password");
-						email.setMailFrom("admin@jquiver.com");
-						email.setBody(messageText.toString());
-						sendMailService.sendTestMail(email);
 
+						sendMailForForcePassword(jwsUser.getUserId(), jwsUser.getForcePasswordChange(),
+								jwsUser.getEmail(), email, password);
 					}
 				}
-
 			}
 		}
 
@@ -514,22 +522,12 @@ public class UserManagementService {
 
 						String password = UUID.randomUUID().toString();
 						jwsUser.setPassword(passwordEncoder.encode(password));
+						if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+							jwsUser.setFailedAttempt(0);
+						}
 						jwsUserRepository.save(jwsUser);
-
-						Map<String, Object> mailDetails = new HashMap<>();
-						mailDetails.put("password", password);
-						mailDetails.put("forcePasswordChange", jwsUser.getForcePasswordChange());
-						mailDetails.put("userId", jwsUser.getUserId());
-
-						email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
-						email.setSubject("Account Password");
-						email.setMailFrom("admin@jquiver.com");
-						TemplateVO	templateVO	= templatingService.getTemplateByName("force-password-mail");
-						String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-								templateVO.getTemplateName(), mailDetails);
-						email.setBody(mailBody);
-						sendMailService.sendTestMail(email);
-
+						sendMailForForcePassword(jwsUser.getUserId(), jwsUser.getForcePasswordChange(),
+								jwsUser.getEmail(), email, password);
 					}
 				}
 			} else {
@@ -537,44 +535,121 @@ public class UserManagementService {
 				for (JwsUser jwsUser : jwsUsers) {
 					if (jwsUser.getIsActive() == Constants.ISACTIVE
 							&& jwsUser.getRegisteredBy() == Constants.AuthType.OAUTH.getAuthType()) {
-
-						int					width				= 300;
-						int					height				= 300;
-						String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
-								+ jwsUser.getUserId() + ".png";
-						File				file				= new File(filePath);
-						FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-						TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
-						String				barcodeData			= twoFactorGoogleUtil
-								.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver", jwsUser.getSecretKey());
-						twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
-
-						email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
-						email.setSubject("TOTP Login");
-						email.setMailFrom("admin@jquiver.com");
-						Map<String, Object>	mailDetails	= new HashMap<>();
-						TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
-						String				mailBody	= templatingUtils.processTemplateContents(
-								templateVO.getTemplate(), templateVO.getTemplateName(), mailDetails);
-						email.setBody(mailBody);
-						System.out.println(mailBody);
-						List<File> attachedFiles = new ArrayList<>();
-						attachedFiles.add(file);
-						email.setAttachementsArray(attachedFiles);
-
-					}
-
-					CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
-					if (mailSuccess.isDone()) {
-						email.getAttachementsArray().stream().forEach(f -> f.delete());
+						sendMailForTotpAuthentication(jwsUser, email);
 					}
 
 				}
-
 			}
-
 		}
+	}
 
+	private void sendMailForForcePassword(String userId, Integer forcePasswordChange, String emailId, Email email,
+			String password) throws Exception {
+
+		Map<String, Object> mailDetails = new HashMap<>();
+		mailDetails.put("password", password);
+		mailDetails.put("forcePasswordChange", forcePasswordChange);
+		mailDetails.put("userId", userId);
+
+		String baseURL = getBaseURL(propertyMasterService, servletContext);
+
+		mailDetails.put("baseURL", baseURL);
+
+		email.setInternetAddressToArray(InternetAddress.parse(emailId));
+		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("force-password-mail-subject");
+		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+				subjectTemplateVO.getTemplateName(), mailDetails);
+		email.setSubject(subject);
+
+		TemplateVO	templateVO	= templatingService.getTemplateByName("force-password-mail");
+		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
+				templateVO.getTemplateName(), mailDetails);
+		email.setBody(mailBody);
+		System.out.println(mailBody);
+		sendMailService.sendTestMail(email);
+	}
+	
+	private void sendMailForUserUpdate(String userId, String emailId, Email email) throws Exception {
+
+		Map<String, Object> mailDetails = new HashMap<>();
+		mailDetails.put("forcePasswordChange", 0);
+		mailDetails.put("userId", userId);
+
+		String baseURL = getBaseURL(propertyMasterService, servletContext);
+
+		mailDetails.put("baseURL", baseURL);
+
+		email.setInternetAddressToArray(InternetAddress.parse(emailId));
+		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("user-updated-mail-subject");
+		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+				subjectTemplateVO.getTemplateName(), mailDetails);
+		email.setSubject(subject);
+
+		TemplateVO	templateVO	= templatingService.getTemplateByName("user-updated-mail");
+		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
+				templateVO.getTemplateName(), mailDetails);
+		email.setBody(mailBody);
+		System.out.println(mailBody);
+		sendMailService.sendTestMail(email);
+	}
+
+	public void sendMailForTotpAuthentication(JwsUser jwsUser, Email email)
+			throws FileNotFoundException, AddressException, Exception {
+		TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
+		int					width				= 300;
+		int					height				= 300;
+		String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
+				+ jwsUser.getUserId() + ".png";
+		File				file				= new File(filePath);
+		FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
+		String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(jwsUser.getEmail(),
+				"Jquiver", jwsUser.getSecretKey());
+		twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
+
+		email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
+
+		Map<String, Object>	mailDetails			= new HashMap<>();
+		TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("totp-subject");
+		String				subject				= templatingUtils.processTemplateContents(
+				subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
+		email.setSubject(subject);
+		// email.setMailFrom("admin@jquiver.com");
+		TemplateVO	templateVO	= templatingService.getTemplateByName("totp-qr-mail");
+		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
+				templateVO.getTemplateName(), mailDetails);
+		email.setBody(mailBody);
+		System.out.println(mailBody);
+		List<File> attachedFiles = new ArrayList<>();
+		attachedFiles.add(file);
+		email.setAttachementsArray(attachedFiles);
+		CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
+		if (mailSuccess.isDone()) {
+			email.getAttachementsArray().stream().forEach(f -> f.delete());
+		}
+	}
+
+	private void sendMailForO365Authentication(String userId, Integer o365Type, String emailId, Email email,
+			String password) throws Exception {
+
+		Map<String, Object> mailDetails = new HashMap<>();
+		mailDetails.put("userId", userId);
+		mailDetails.put("o365-type", o365Type);
+
+		String baseURL = getBaseURL(propertyMasterService, servletContext);
+		mailDetails.put("baseURL", baseURL);
+
+		email.setInternetAddressToArray(InternetAddress.parse(emailId));
+		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("o365-mail-subject");
+		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+				subjectTemplateVO.getTemplateName(), mailDetails);
+		email.setSubject(subject);
+
+		TemplateVO	templateVO	= templatingService.getTemplateByName("o365-mail");
+		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
+				templateVO.getTemplateName(), mailDetails);
+		email.setBody(mailBody);
+		System.out.println(mailBody);
+		sendMailService.sendTestMail(email);
 	}
 
 	public String manageEntityRoles() throws Exception {
@@ -630,12 +705,14 @@ public class UserManagementService {
 			// inactive
 			if (!entityRoles.getRoleIds().contains(jwsEntityRoleAssociation.getRoleId())) {
 				newRoleIds.remove(jwsEntityRoleAssociation.getRoleId());
-				jwsEntityRoleAssociation.setIsActive(Constants.INACTIVE);
+				jwsEntityRoleAssociation.setEntityName(entityRoles.getEntityName());
 				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
 				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+				jwsEntityRoleAssociation.setIsActive(Constants.INACTIVE);
 				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 			} else {
 				newRoleIds.remove(jwsEntityRoleAssociation.getRoleId());
+				jwsEntityRoleAssociation.setEntityName(entityRoles.getEntityName());
 				jwsEntityRoleAssociation.setIsActive(Constants.ISACTIVE);
 				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
 				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());

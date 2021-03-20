@@ -1,23 +1,28 @@
 SET FOREIGN_KEY_CHECKS=0;
  
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('561cdf55-09fa-11eb-a894-f48e38ab8cd7', 'resource-bundle-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.multilingual'')}</h2> 
         <div class="float-right">
+		    Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
        
        <select id="languageOptions" onchange="changeLanguage()">
           <#list languageVOList as languageVO>
@@ -48,7 +53,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="resource-key" name="resource-key">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-	<input type="hidden" id="entityName" name="entityName" value="resource_bundle">
+	<input type="hidden" id="entityName" name="entityName" value="jq_resource_bundle">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="resourceBundle">
@@ -60,6 +65,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	contextPath = "${(contextPath)!''''}";
 	
 	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
 		let formElement = $("#formRbRedirect")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("resource-bundle-manage-details", formDataJson);
@@ -71,13 +79,41 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 	        { title: "${messageSource.getMessage(''jws.text'')}", width: 160, dataIndx: "resourceBundleText", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDBResource}
+	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDBResource, sortable: false}
 	    ];
+	    
+	    let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "resourceKey",
+        	sortDir: "up",
+    	};
 	    let grid = $("#divdbResourceBundleGrid").grid({
-	      gridId: "resourceBundleListingGrid",
-	      colModel: colM
+	      gridId: "customResourceBundleListingGrid",
+	      colModel: colM,
+          dataModel: dataModel
 	  	});
   	});
+  	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"resourceBundleListingGrid"}
+        } else if(type == 1){
+            postData = {gridId:"customResourceBundleListingGrid"}
+        } else {
+            let typeCondition = "str_jws";       
+   
+            postData = {gridId:"resourceBundleListingGrid"
+                    ,"cr_resourceKey":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divdbResourceBundleGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+      
 	function editDBResource(uiObject) {
 		const resourceKey = uiObject.rowData.resourceKey;
 		const revisionCount = uiObject.rowData.revisionCount;
@@ -133,7 +169,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
           async : false,
           type : "GET",
           cache : false,
-          url : "/cf/cl?lang="+localeId, 
+          url : contextPath+"/cf/cl?lang="+localeId, 
           success: function(data){
              
             setCookie("locale", localeId, 1);
@@ -155,13 +191,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`, template_type_id) VALUES ('5cbb7388-09fa-11eb-a894-f48e38ab8cd7' ,'resource-bundle-manage-details','<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
+REPLACE INTO `jq_template_master`(`template_id`,`template_name`,`template`,`updated_by`,`created_by`,`updated_date`, template_type_id)VALUES
+ ('5cbb7388-09fa-11eb-a894-f48e38ab8cd7' ,'resource-bundle-manage-details','<head>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<script src="${(contextPath)!''''}/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
 <style type="text/css">
 .area{
   width:100%;
@@ -257,20 +294,20 @@ REPLACE INTO `template_master`(`template_id`,`template_name`,`template`,`updated
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('70c2153c-09fa-11eb-a894-f48e38ab8cd7', 'notification-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <div class="container">
 	<div class="topband">
@@ -324,7 +361,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="notificationId" name="notificationId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-	<input type="hidden" id="entityName" name="entityName" value="generic_user_notification">
+	<input type="hidden" id="entityName" name="entityName" value="jq_generic_user_notification">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="notification">
@@ -359,13 +396,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 	        { title: "Updated Date", width: 100, dataIndx: "updatedData", align: "left", halign: "center",
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Action", width: 100, minWidth: 115, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter },
+	        { title: "Action", width: 100, minWidth: 115, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter, sortable: false },
 		];
 
-	  let grid = $("#divNotificationListing").grid({
-	      gridId: "notificationDetailsListing",
-	      colModel: colM
-	  });
+ 		let dataModel = {
+	       	url: contextPath+"/cf/pq-grid-data",
+	       	sortIndx: "validTill",
+        	sortDir: "up",
+    	};
+	  	let grid = $("#divNotificationListing").grid({
+	     	gridId: "notificationDetailsListing",
+	      	colModel: colM,
+          	dataModel: dataModel
+	  	});
 });
 
 	function editNotificationFormatter(uiObject) {
@@ -417,7 +460,7 @@ function editNotification(thisObj){
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
- REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+ REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('79d3522a-09fa-11eb-a894-f48e38ab8cd7', 'loadNotifications', '<div>
 	<ul class="notification_list">
 		<#list notifications as currentNotf >
@@ -437,22 +480,22 @@ function editNotification(thisObj){
 </div>
 ', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2); 
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
-('e848b04c-f19b-11ea-9304-f48e38ab9348', 'notification', 'notification add/edit', 'select * from generic_user_notification where notification_id="${(primaryId)!''''}"', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/jscal2.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/border-radius.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
-<script type="text/javascript" src="/webjars/1.0/dropzone/dist/dropzone.js"></script>
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/dropzone/dist/dropzone.css" />
-<script type="text/javascript" src="/webjars/1.0/fileupload/fileupload.js"></script>
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+('e848b04c-f19b-11ea-9304-f48e38ab9348', 'notification', 'notification add/edit', 'select * from jq_generic_user_notification where notification_id="${(primaryId)!''''}"', '<head>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/fileupload/fileupload.js"></script>
 
 </head>
 <div class="container">
@@ -573,7 +616,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 	</div>
 	
 		<input type="hidden" id="primaryKey" name="primaryKey">
-		<input type="hidden" id="entityName" name="entityName" value="generic_user_notification">
+		<input type="hidden" id="entityName" name="entityName" value="jq_generic_user_notification">
 </form>   
 
 </div>
@@ -661,7 +704,7 @@ function saveData (){
     
     $.ajax({
 	  type : "POST",
-	  url : "sdf",
+	  url : contextPath+"/cf/sdf",
 	  async: false,
 	  data : formData, 
 	  success : function(data) {
@@ -720,9 +763,9 @@ function backToPreviousPage(){
 }     
 </script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
-REPLACE INTO dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
+REPLACE INTO jq_dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
    'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'
-REPLACE INTO generic_user_notification (
+REPLACE INTO jq_generic_user_notification (
    notification_id
   ,target_platform
   ,message_valid_from

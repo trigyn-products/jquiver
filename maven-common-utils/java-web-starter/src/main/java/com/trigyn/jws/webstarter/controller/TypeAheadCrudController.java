@@ -47,14 +47,26 @@ public class TypeAheadCrudController {
 			return menuService.getTemplateWithSiteLayout("autocomplete-listing", new HashMap<>());
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
-	public String demoAutocomplete() throws Exception {
-		return menuService.getTemplateWithSiteLayout("autocomplete-demo", new HashMap<>());
+	public String demoAutocomplete(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			return menuService.getTemplateWithSiteLayout("autocomplete-demo", new HashMap<>());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
+		}
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
@@ -68,13 +80,17 @@ public class TypeAheadCrudController {
 			if (!StringUtils.isBlank(autocompleteId)) {
 				AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 				templateData.put("autocompleteVO", autocompleteVO);
-			} else {
-				List<String> tableNameList = typeAheadService.getAllTablesListInSchema();
-				templateData.put("tableNameList", tableNameList);
 			}
+			//			else {
+			//				List<String> tableNameList = typeAheadService.getAllTablesListInSchema();
+			//				templateData.put("tableNameList", tableNameList);
+			//			}
 			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details", templateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

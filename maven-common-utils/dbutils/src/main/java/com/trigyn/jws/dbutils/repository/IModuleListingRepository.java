@@ -35,11 +35,17 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	@Query(QueryStore.JPA_QUERY_TO_GET_MODULE_ID_BY_PARENT_SEQUENCE)
 	String getParentModuleIdBySequence(String parentModuleId, Integer sequence);
 
+	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_MODULE_ID)
+	List<ModuleDetailsVO> getAllModuleId(String moduleId);
+
 	@Query(QueryStore.JPA_QUERY_TO_GET_MODULE_ID_BY_URL)
-	String getModuleIdByURL(String moduleURL);
+	List<ModuleDetailsVO> getModuleIdByURL(String moduleURL, String moduleId);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_TARGET_TYPE_BY_URL)
-	ModuleDetailsVO getTargetTypeDetails(String moduleURL);
+	ModuleDetailsVO getTargetTypeByURL(String moduleURL);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_TARGET_TYPE_FOR_URL)
+	List<ModuleDetailsVO> getTargetTypeURL(String moduleURL);
 
 	@Query(" FROM ModuleListing WHERE moduleId=:moduleId")
 	ModuleListing getModuleListing(String moduleId);

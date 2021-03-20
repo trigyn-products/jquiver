@@ -1,21 +1,22 @@
-REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query) VALUES
-('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM dashboard 
-WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")'), 
-('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")'), 
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM jq_dashboard 
+WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")',2), 
+('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM jq_dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")',2), 
 ('dynarestListing', 'Autocomplete for dynamic rest', 'SELECT jws_dynamic_rest_id AS targetTypeId, jws_method_name AS targetTypeName 
-FROM jws_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")'), 
-('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")');
+FROM jq_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")',2), 
+('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM jq_template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")',2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('55c2db62-0480-11eb-9926-e454e805e22f', 'master-creator', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/mastergenerator/mastergenerator.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 </head>
 
 
@@ -39,25 +40,21 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	</div>
 		
 		
-		<div class="cm-card-body">
+	<div class="cm-card-body">
 	<form method="post" name="createMasterForm" id="createMasterForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
-			<div class="col-6">
-				<div class="col-inner-form full-form-fields">
-					<label for="field1" style="white-space:nowrap">Select Table</label>
-						<select id="selectTable" name="selectTable" onchange="populateFields(this)" class="form-control">
-							<option value="">Select</option>
-                            <#if (tables)?has_content> 
-                                <#list tables as tableName>
-                                    <option value="${tableName}">${tableName}</option>
-                                </#list>
-                            </#if>
-						</select>
-					</label>
-				</div>
-			</div>
-            <div class="col-3">
+			<div class="col-8">
+                <div class="col-inner-form full-form-fields">
+                    <label for="flammableState" style="white-space:nowrap">Select Table</label>
+                    <div class="search-cover">
+                        <input class="form-control" id="tableAutocomplete" type="text">
+                    	<i class="fa fa-search" aria-hidden="true"></i>
+                    </div>  
+                    <input type="hidden" id="selectTable" name="selectTable">
+                </div>
+            </div>
+            <div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>Module Name</label>
 					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control">
@@ -65,24 +62,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>
 
-         <div class="row">
-             <div class="col-9">
-                <div class="col-inner-form full-form-fields">
-					<label for="columns" style="white-space:nowrap"><span class="asteriskmark">*</span>Columns to show in listing.</label>
-					<input type="text" id="columns" name="columns" value="" maxlength="1000" class="form-control">
-				</div>
-            </div>
-            <div class="col-3">
-                <div class="col-inner-form full-form-fields">
-					<label for="primaryKey" style="white-space:nowrap">
-                        <span class="asteriskmark">*</span>Primary Key</label>
-					<input type="text" id="primaryKey" name="primaryKey" value="" maxlength="100" class="form-control">
-				</div>
-          
-            </div>
+        <input type="hidden" id="columns" name="columns" value="" maxlength="1000">
+        <input type="hidden" id="primaryKey" name="primaryKey" value="" maxlength="100">
 
-
-         </div>
 
         <div class="row">
             <div class="col-12">
@@ -201,6 +183,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>
 	</div>
     </div>
+             </div>
     
 
 
@@ -218,9 +201,35 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     let menuDetails = new Object();
     $("#showInMenu").prop("checked",false);
 	$("#showInMenu").trigger("change");
+	let tableAutocomplete;
+	
 	$(function() {
-	        let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
-            multiselect.setSelectedObject(defaultAdminRole);
+	
+		tableAutocomplete = $("#tableAutocomplete").autocomplete({
+	        autocompleteId: "table-autocomplete",
+	        prefetch : true,
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                renderStr = "<p>"+item.tableName+"</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },
+	        additionalParamaters: {},
+	        extractText: function(item) {
+	            return item.tableName;
+	        },
+	        select: function(item) {
+	            $("#tableAutocomplete").blur();
+	            $("#selectTable").val(item.tableName);
+	            populateFields(item.tableName);
+	        },     
+	    });
+	    
+	    let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+        multiselect.setSelectedObject(defaultAdminRole);
 	});
 </script>
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL);
+', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);

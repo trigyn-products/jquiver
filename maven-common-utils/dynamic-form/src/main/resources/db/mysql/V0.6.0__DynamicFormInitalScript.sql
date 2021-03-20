@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS dynamic_form;
-CREATE TABLE dynamic_form (
+DROP TABLE IF EXISTS jq_dynamic_form;
+CREATE TABLE jq_dynamic_form (
   form_id varchar(50) NOT NULL,
   form_name varchar(50) NOT NULL,
   form_description varchar(100) DEFAULT NULL,
@@ -13,13 +13,13 @@ CREATE TABLE dynamic_form (
   UNIQUE KEY (form_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE dynamic_form_save_queries (
+CREATE TABLE jq_dynamic_form_save_queries (
    dynamic_form_query_id VARCHAR(50) NOT NULL,
    dynamic_form_id VARCHAR(50) NOT NULL,
    dynamic_form_save_query MEDIUMTEXT ASCII NOT NULL,
    sequence INT(11) NOT NULL,
    checksum varchar(512) DEFAULT NULL,
-  FOREIGN KEY (dynamic_form_id) REFERENCES dynamic_form (form_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+  FOREIGN KEY (dynamic_form_id) REFERENCES jq_dynamic_form (form_id) ON UPDATE RESTRICT ON DELETE RESTRICT,
   PRIMARY KEY (dynamic_form_query_id)
 ) ENGINE = InnoDB ROW_FORMAT = DEFAULT CHARACTER SET utf8;
 

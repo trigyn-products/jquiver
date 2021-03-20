@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dashlet_property_configuration")
+@Table(name = "jq_dashlet_property_configuration")
 public class DashletPropertyConfiguration implements Serializable {
 
 	private static final long				serialVersionUID	= 1L;

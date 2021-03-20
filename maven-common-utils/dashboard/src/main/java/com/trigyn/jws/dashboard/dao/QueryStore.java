@@ -6,11 +6,11 @@ public final class QueryStore {
 
 	protected static final String	HQL_QUERY_LOAD_DASHBOARD_DASHLETS					= " FROM DashboardDashletAssociation AS dda INNER JOIN dda.dashlet AS d WITH d.isActive = 1 where dda.dashboardId = :dashboardId ";
 
-	protected static final String	SQL_QUERY_FIND_CONTEXT_NAME_BY_ID					= "SELECT context_id AS contextId from context_master where context_description LIKE :contextName";
+	protected static final String	SQL_QUERY_FIND_CONTEXT_NAME_BY_ID					= "SELECT context_id AS contextId from jq_context_master where context_description LIKE :contextName";
 
-	protected static final String	SQL_QUERY_GET_CONTEXT_BASED_PERMISSION				= "SELECT allow_dashboard_addition AS allowDashboardAddition from context_master where context_description LIKE :contextName";
+	protected static final String	SQL_QUERY_GET_CONTEXT_BASED_PERMISSION				= "SELECT allow_dashboard_addition AS allowDashboardAddition from jq_context_master where context_description LIKE :contextName";
 
-	protected static final String	SQL_QUERY_DELETE_DASHLET_FROM_DASHBOARD				= "delete from dashboard_dashlet_association where dashboard_id = :dashboardId AND dashlet_id = :dashletId";
+	protected static final String	SQL_QUERY_DELETE_DASHLET_FROM_DASHBOARD				= "delete from jq_dashboard_dashlet_association where dashboard_id = :dashboardId AND dashlet_id = :dashletId";
 
 	public static final String		JPA_QUERY_TO_GET_ALL_CONTEXT						= "SELECT new com.trigyn.jws.dashboard.vo.ContextMasterVO "
 			+ " (cm.contextId AS contextId, cm.contextDescription AS contextDescription) "

@@ -11,7 +11,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "master_module_role_association")
+@Table(name = "jq_master_module_role_association")
 @NamedQuery(name = "MasterModuleRoleAssociation.findAll", query = "SELECT m FROM MasterModuleRoleAssociation m")
 public class MasterModuleRoleAssociation implements Serializable {
 

@@ -13,7 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.devtools.restart.FailureHandler;
 import org.springframework.boot.devtools.restart.Restarter;
+import org.springframework.boot.devtools.restart.FailureHandler.Outcome;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,18 +66,38 @@ public class JwsUserManagementController {
 	private IUserDetailsService			userDetailsService			= null;
 
 	@GetMapping(value = "/um")
-	public String userManagement() throws Exception {
+	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws Exception {
 
-		return userManagementService.loadUserManagement();
+		try {
+			return userManagementService.loadUserManagement();
+		} catch (Exception exception) {
+			logger.error("Error ", exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+		}
+		return null;
 	}
 
 	@GetMapping(value = "/rl")
-	public String roleListing(HttpServletResponse response) throws Exception {
-		if (userManagementService.checkAuthenticationEnabled()) {
-			Map<String, Object> mapDetails = new HashMap<>();
-			return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+	public String roleListing(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			if (userManagementService.checkAuthenticationEnabled()) {
+				Map<String, Object> mapDetails = new HashMap<>();
+				return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
+			} else {
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
+				return null;
+			}
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -95,6 +117,9 @@ public class JwsUserManagementController {
 			return userManagementService.addEditRole(roleId);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -119,21 +144,31 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/ul")
-	public String userListing(HttpServletResponse response) throws Exception {
-		if (userManagementService.checkAuthenticationEnabled()) {
-			Map<String, Object>	mapDetails		= new HashMap<>();
-			String				templateName	= userManagementService
-					.getPropertyValueByAuthName("user-profile-template-details", "templateName");
-			UserDetailsVO		detailsVO		= userDetailsService.getUserDetails();
-			mapDetails.put("userDetails", detailsVO);
-			if (StringUtils.isNotBlank(templateName)) {
-				mapDetails.put("isProfilePage", false);
-				return menuService.getTemplateWithSiteLayout(templateName, mapDetails);
-			}
+	public String userListing(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			if (userManagementService.checkAuthenticationEnabled()) {
+				Map<String, Object>	mapDetails		= new HashMap<>();
+				String				templateName	= userManagementService
+						.getPropertyValueByAuthName("user-profile-template-details", "templateName");
+				UserDetailsVO		detailsVO		= userDetailsService.getUserDetails();
+				mapDetails.put("userDetails", detailsVO);
+				if (StringUtils.isNotBlank(templateName)) {
+					mapDetails.put("isProfilePage", false);
+					return menuService.getTemplateWithSiteLayout(templateName, mapDetails);
+				}
 
-			return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
+			} else {
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
+				return null;
+			}
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -165,6 +200,9 @@ public class JwsUserManagementController {
 			return userManagementService.addEditUser(userId, isProfilePage);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -187,6 +225,9 @@ public class JwsUserManagementController {
 			return userManagementService.manageUserRoleAndPermission(userId);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -207,15 +248,31 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/profile")
-	public String profilePage() throws Exception {
-
-		return userManagementService.getProfilePage();
+	public String profilePage(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			return userManagementService.getProfilePage();
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
+		}
 	}
 
 	@GetMapping(value = "/mer")
-	public String manageEntityRoles() throws Exception {
-
-		return userManagementService.manageEntityRoles();
+	public String manageEntityRoles(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			return userManagementService.manageEntityRoles();
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
+		}
 	}
 
 	@PostMapping(value = "/suer")
@@ -232,29 +289,44 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/restart")
-	public String restart() {
+	public void restart() {
 
-		UserDetailsVO userVO = userDetailsService.getUserDetails();
 		new Thread(() -> {
 			try {
 				TimeUnit.SECONDS.sleep(1);
 			} catch (InterruptedException a_exception) {
 				logger.error("Error ", a_exception);
 			}
-			Restarter.getInstance().restart();
+			Restarter.getInstance().restart(new FailureHandler() {
+				
+				@Override
+				public Outcome handle(Throwable failure) {
+					logger.error("Error while restarting the server : ", failure);
+					return Outcome.ABORT;
+				}
+			});
 		}).start();
 
-		return "false";
 
 	}
 
 	@GetMapping(value = "/mp")
-	public String managePermissions(HttpServletResponse response) throws Exception {
-		if (userManagementService.checkAuthenticationEnabled()) {
-			Map<String, Object> mapDetails = new HashMap<>();
-			return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+	public String managePermissions(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			if (userManagementService.checkAuthenticationEnabled()) {
+				Map<String, Object> mapDetails = new HashMap<>();
+				return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
+			} else {
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+						"You dont have rights to access these module");
+				return null;
+			}
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

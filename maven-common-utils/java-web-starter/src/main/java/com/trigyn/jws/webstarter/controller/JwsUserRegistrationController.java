@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import javax.mail.internet.InternetAddress;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -98,6 +101,12 @@ public class JwsUserRegistrationController {
 	@Autowired
 	private OAuthDetails						oAuthDetails					= null;
 
+	@Autowired
+	private PropertyMasterService				propertyMasterService			= null;
+
+	@Autowired
+	private ServletContext						servletContext					= null;
+
 	@GetMapping("/login")
 	@ResponseBody
 	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response)
@@ -114,7 +123,13 @@ public class JwsUserRegistrationController {
 					mapDetails.put("exceptionMessage", excep.getMessage());
 				}
 			}
-
+		} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
+			Exception exc = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+			if (exc != null && !exc.getMessage().isBlank()) {
+				mapDetails.put("queryString", "error");
+				mapDetails.put("exceptionMessage", exc.getMessage());
+			}
+			session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
 		}
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
@@ -212,9 +227,18 @@ public class JwsUserRegistrationController {
 
 					Email email = new Email();
 					email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-					email.setSubject("Complete Registration!");
-					email.setMailFrom("admin@jquiver.com");
-					Map<String, Object> mailDetails = new HashMap<>();
+					// email.setMailFrom("admin@jquiver.com");
+
+					Map<String, Object>	mailDetails			= new HashMap<>();
+					TemplateVO			subjectTemplateVO	= templatingService
+							.getTemplateByName("confirm-account-mail-subject");
+					String				subject				= templatingUtils.processTemplateContents(
+							subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
+					email.setSubject(subject);
+
+					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
+					mailDetails.put("baseURL", baseURL);
+					
 					mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
 					TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
 					String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),

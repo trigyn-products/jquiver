@@ -17,7 +17,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "dynamic_form")
+@Table(name = "jq_dynamic_form")
 public class DynamicForm {
 
 	@Id

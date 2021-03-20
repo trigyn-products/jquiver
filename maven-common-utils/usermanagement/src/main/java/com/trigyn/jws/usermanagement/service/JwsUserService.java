@@ -35,4 +35,8 @@ public class JwsUserService {
 		return jwsUserRepository.findByEmailIgnoreCase(email);
 	}
 
+	public void updateUser(JwsUser jwsUser) {
+		jwsUserRepository.save(jwsUser);
+	}
+
 }

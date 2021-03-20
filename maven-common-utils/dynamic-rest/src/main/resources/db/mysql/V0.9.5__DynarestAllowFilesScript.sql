@@ -1,1 +1,1 @@
-ALTER TABLE  jws_dynamic_rest_details ADD COLUMN jws_allow_files TINYINT(4) DEFAULT NULL;
+ALTER TABLE  jq_dynamic_rest_details ADD COLUMN jws_allow_files TINYINT(4) DEFAULT NULL;

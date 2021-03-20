@@ -4,7 +4,7 @@ class TemplateEngine {
     }
 
     backToTemplateListingPage = function() {
-        location.href = "/cf/te";
+        location.href = contextPath+"/cf/te";
     }
     
     initPage = function() {
@@ -25,7 +25,11 @@ class TemplateEngine {
 	        	});
 			context.setTemplateValue();
 			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-			    context.validateSaveVelocity("stay");
+			    typeOfAction('template-manage-details', $("#savedAction").find("button"), 
+			    	templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);
+			});
+			context.editor.onDidChangeModelContent( function (){
+    			$('#errorMessage').hide();
 			});
     	});
     }
@@ -54,14 +58,14 @@ class TemplateEngine {
     validateSaveVelocity = function (){
         const context = this;
         let isDataSaved = false;
-        const validTemplate = this.validateTemplateName();
+        const validTemplate = this.validateTemplate();
         if(validTemplate) {
             const templateName = $("#vmName").val();
             $.ajax({
                 async : false,
                 type : "POST",
                 cache : false,
-                url : "/cf/ctd", 
+                url : contextPath+"/cf/ctd", 
                 data : {
                     templateName : templateName,
                 },
@@ -81,38 +85,39 @@ class TemplateEngine {
 	        	},
             });
         }else{
-        	$('#errorMessage').html("Please enter valid template name");
+        	$('#errorMessage').html("Template name and content cannot be blank");
         	$('#errorMessage').show();
         }
         return isDataSaved;
     }
 
-    validateTemplateName = function() {
-        var templateName = $.trim($("#vmName").val());
-        return templateName !== "";
+    validateTemplate = function() {
+    	const context = this;
+        let templateName = $.trim($("#vmName").val());
+        let velocityTempData = context.editor.getValue().trim(); 
+        return templateName !== "" && velocityTempData !== "";
     }
+    
+    
 
     onSaveAndClose = function() {
         const context = this;
         let isDataSaved = false;
         const velocityName = $("#vmName").val().trim();
         let velocityTempData = context.editor.getValue().trim();
-        if(velocityTempData == ""){
-            return false;
-        }
         $.ajax({
             async : false,
             type : "POST",
             cache : false,
-            url : "/cf/std", 
+            url : contextPath+"/cf/std", 
             data : {
                 velocityId : context.templateId,
                 velocityName : velocityName,
                 velocityTempData : velocityTempData
             },
             success : function(data) {
-            	var templateId = data;
-            	context.saveEntityRoleAssociation(templateId);
+            	context.templateId = data;
+            	context.saveEntityRoleAssociation(context.templateId);
            		isDataSaved = true;
            		showMessage("Information saved successfully", "success");
 		    },
@@ -141,7 +146,7 @@ class TemplateEngine {
             async : false,
             type : "POST",
             contentType : "application/json",
-            url : "/cf/ser", 
+            url : contextPath+"/cf/ser", 
             data : JSON.stringify(entityRoles),
             success : function(data) {
 		    }
@@ -151,7 +156,7 @@ class TemplateEngine {
 		$.ajax({
             async : false,
             type : "GET",
-            url : "/cf/ler", 
+            url : contextPath+"/cf/ler", 
             data : {
             	entityId:this.templateId,
             	moduleId:$("#moduleId").val(),

@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d0328a53-138b-11eb-9b1e-f48e38ab9348', 'addEditRole', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -128,7 +128,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	}
 </script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('e027d3a3-138b-11eb-9b1e-f48e38ab9348', 'role-listing', '
 <head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -208,10 +208,10 @@ function showErrorMessage(){
 
 
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
- ('roleGrid','role listing','List of roles','jws_role','*', 1, 2);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
+ ('roleGrid','role listing','List of roles','jq_role','*', 1, 2);
 
-REPLACE  INTO  jws_property_master (
+REPLACE  INTO  jq_property_master (
 property_master_id
   ,owner_type
   ,owner_id
@@ -235,7 +235,7 @@ property_master_id
   ,'By default user management will be disabled' 
 );
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('e604edf6-138b-11eb-9b1e-f48e38ab9348', 'manageRoleModule', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -335,7 +335,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	}
 </script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('f1a476f8-138b-11eb-9b1e-f48e38ab9348', 'addEditJwsUser', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -565,7 +565,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	}
 </script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('fc1ff685-138b-11eb-9b1e-f48e38ab9348', 'jws-user-listing', '
 <head>
 	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -648,10 +648,10 @@ function showErrorMessage(){
 
 
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
- ('jwsUserListingGrid','user listing','List of users','jws_user','*', 1, 2);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id)  VALUES 
+ ('jwsUserListingGrid','user listing','List of users','jq_user','*', 1, 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('cf973388-0991-11eb-9926-e454e805e22f', 'user-management', '
 <head>
     <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
@@ -1153,7 +1153,7 @@ contextPath = "${contextPath}";
 </script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
-   REPLACE  INTO  jws_property_master (
+   REPLACE  INTO  jq_property_master (
   property_master_id
   ,owner_type
   ,owner_id
@@ -1177,7 +1177,7 @@ contextPath = "${contextPath}";
   ,'Authentication type - default in memory authentication' 
 );
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('02fb1cb5-138c-11eb-9b1e-f48e38ab9348', 'jws-welcome', '<div>
 	<h1>Welcome to TSMS</h1>
 	
@@ -1197,7 +1197,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 ','admin','admin',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('0c7acdf9-138c-11eb-9b1e-f48e38ab9348', 'jws-login', ' 
  
 <!DOCTYPE html>
@@ -1361,7 +1361,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('11c869d4-138c-11eb-9b1e-f48e38ab9348', 'jws-register', ' 
 <head>
     <meta charset="utf-8">
@@ -1441,7 +1441,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('16e9ddec-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-mail', ' 
  
 <!DOCTYPE html>
@@ -1518,7 +1518,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('1ef38eb1-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-page', ' 
 <head>
     <meta charset="utf-8">
@@ -1585,7 +1585,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 ','admin','admin',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('28207b8f-138c-11eb-9b1e-f48e38ab9348', 'jws-password-reset-mail-success', ' 
 <!DOCTYPE html>
 <html lang="en">
@@ -1631,7 +1631,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </body></html>
  ','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2d3d1d39-138c-11eb-9b1e-f48e38ab9348', 'jws-successfulRegisteration', ' 
 <head>
      <title>Registration confirmation sent </title>
@@ -1667,7 +1667,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
  </body>  
 ','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('348d7075-138c-11eb-9b1e-f48e38ab9348', 'jws-accountVerified', '
 	<head>
         <title>Congratulations!</title>
@@ -1707,7 +1707,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     </body>    
 ','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('3b92295c-138c-11eb-9b1e-f48e38ab9348', 'my-profile', ' 
 <head>
      <title>My Profile </title>
@@ -1722,7 +1722,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
  ('manageEntityRoleGrid','manage entity roles listing','Entities and role association','manageEntityRoleListing','entityName,moduleId',2);
 
 DROP PROCEDURE IF EXISTS manageEntityRoleListing;
@@ -1730,11 +1730,11 @@ CREATE PROCEDURE `manageEntityRoleListing`(entityName varchar(50), moduleId varc
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 
-  SET @selectRoleQuery  =  (SELECT GROUP_CONCAT(CONCAT ('GROUP_CONCAT(CASE WHEN jr.role_name="',jr.role_name,'" THEN CONCAT(jera.role_id,"@::@",jera.is_active) END)  AS `',jr.role_name,'`')) FROM jws_role jr ORDER BY jr.role_name);
+  SET @selectRoleQuery  =  (SELECT GROUP_CONCAT(CONCAT ('GROUP_CONCAT(CASE WHEN jr.role_name="',jr.role_name,'" THEN CONCAT(jera.role_id,"@::@",jera.is_active) END)  AS `',jr.role_name,'`')) FROM jq_role AS jr ORDER BY jr.role_name);
 
   SET @resultQuery = CONCAT(" SELECT jera.entity_role_id AS entityRoleId,jera.entity_id AS entityId,jera.entity_name AS entityName,jera.module_id AS moduleId,jmm.module_name AS moduleName, "
   ,@selectRoleQuery ) ;
-  SET @fromString  = ' FROM  jws_role jr RIGHT OUTER JOIN jws_entity_role_association jera ON jera.role_id = jr.role_id INNER JOIN jws_master_modules jmm ON jmm.module_id = jera.module_id ';
+  SET @fromString  = ' FROM  jq_role jr RIGHT OUTER JOIN jq_entity_role_association  jera ON jera.role_id = jr.role_id INNER JOIN jq_master_modules jmm ON jmm.module_id = jera.module_id ';
   SET @whereString = ' WHERE jr.is_active=1  AND jera.module_type_id=0 ';
   
   IF NOT moduleId IS NULL THEN
@@ -1773,7 +1773,7 @@ BEGIN
  
 END;
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('446e1b24-138c-11eb-9b1e-f48e38ab9348', 'manageEntityRoles', '
 <head>
     <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -1906,7 +1906,7 @@ function saveEntity(entityDataList){
 }
 </script>','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('47fa56d2-138c-11eb-9b1e-f48e38ab9348', 'manage-permission', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -1984,7 +1984,7 @@ var contextPath = "${contextPath}";
 	}
 </script>','admin','admin',now(),2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('bef1d368-13be-11eb-9b1e-f48e38ab9348', 'role-autocomplete', '
 <head>
 <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
@@ -2096,20 +2096,20 @@ $(function () {
 </script>
 ','admin','admin',now(), 2);
 
-REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jws_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 1);
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jq_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 1);
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'regexPattern', '{"expression":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@#$%^&+=])[A-Za-z\\\\d@#$%^&+=]{6,20}$","message":"Password length 6-20"}', 0, NOW(), 'admin', 1.00, 'Regex Pattern to validate password');
 
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'user-profile-form-details', '{}', 0, NOW(), 'admin', 1.00, 'Dynamic Form for add edit user details');
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'user-profile-template-details', '{}', 0, NOW(), 'admin', 1.00, 'Custom template for user profile listing page');
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('edcafd25-19b9-11eb-9631-f48e38ab9348', 'jws-change-password', ' 
 <head>
     <meta charset="utf-8">
@@ -2186,7 +2186,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </body>    
 ','admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('16918f98-19f6-11eb-9631-f48e38ab9348', 'jws-common-css-js', ' 
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -2199,9 +2199,9 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 <link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />  
 ','admin','admin',now(), 2);
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'verification-mode', '[{"name":"password","type":"select","value":0},{"name":"password + captcha","type":"select","value":1},{"name":"TOTP","type":"select","value":2}]', 0, NOW(), 'admin', 1.00, 'Which verification mode to be used');
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('9b4b9988-25bd-11eb-9388-f48e38ab9348', 'jws-configure-totp', ' 
  
 <!DOCTYPE html>
@@ -2259,7 +2259,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </body></html>','admin','admin',now(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '
 <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -2363,7 +2363,7 @@ const userId = "${userId!''''}";
 </script>','admin','admin',now(),2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '
    <head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -2499,80 +2499,106 @@ function saveRolesAndPolicy(){
 
 ','admin','admin',now(),2);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('922b2eca-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0); 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('961b6d9d-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
 ('995997ab-2a45-11eb-95bb-f48e38ab8cd7', '4cdf00b9-2a40-11eb-95bb-f48e38ab8cd7', 'jws-user-manage-details', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('bdd6589a-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0); 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('c1ce084a-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
 ('c87b189d-2a45-11eb-95bb-f48e38ab8cd7', '453dda11-2a40-11eb-95bb-f48e38ab8cd7', 'manage-user-roles-policy', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
-('257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', ' To reset your TSMS user account password, please click here : http://localhost:8080/cf/resetPassword?token=${tokenId}',
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', ' To reset your TSMS user account password, please click here : ${baseURL}/cf/resetPassword?token=${tokenId}',
 'admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', 'Scan the attached QR code via google authenticator app for login process',
 'admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
-('b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', ' To confirm your account, please click here : http://localhost:8080/cf/confirm-account?token=${tokenId}',
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', ' To confirm your account, please click here : ${baseURL}/cf/confirm-account?token=${tokenId}',
 'admin','admin',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', 'Your account password is : ${password} 
 <#if forcePasswordChange == 1 >
-    Please change your password through these url : http://localhost:8080/cf/changePassword?token=${userId}
+    Please change your password through these url : ${baseURL}/cf/changePassword?token=${userId}
 <#else>
-  You can login through these url : http://localhost:8080/cf/login
+  You can login through the url : ${baseURL}/cf/login
 </#if>
 ',
 'admin','admin',now(), 2);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
-('a27c7972-2b53-11eb-96fd-f48e38ab9348', '257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('e0e183c6-88aa-11eb-8dcd-0242ac130003', '257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('e535df4e-88aa-11eb-8dcd-0242ac130003', '257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('e89e774a-88aa-11eb-8dcd-0242ac130003', '257af738-2b4c-11eb-96fd-f48e38ab9348', 'reset-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
-('a801e666-2b53-11eb-96fd-f48e38ab9348', '8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('ec0e4194-88aa-11eb-8dcd-0242ac130003', '8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('ef7ce6d2-88aa-11eb-8dcd-0242ac130003', '8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('f27a8560-88aa-11eb-8dcd-0242ac130003', '8b616c92-2b4c-11eb-96fd-f48e38ab9348', 'totp-qr-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
-('ac0a9088-2b53-11eb-96fd-f48e38ab9348', 'b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('f614760e-88aa-11eb-8dcd-0242ac130003', 'b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('f987c08e-88aa-11eb-8dcd-0242ac130003', 'b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('fcdf8d98-88aa-11eb-8dcd-0242ac130003', 'b82fbeb7-2b4c-11eb-96fd-f48e38ab9348', 'confirm-account-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
-('b0bff2f7-2b53-11eb-96fd-f48e38ab9348', '0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('01241dba-88ab-11eb-8dcd-0242ac130003', '0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('045ce7aa-88ab-11eb-8dcd-0242ac130003', '0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('089ac3d2-88ab-11eb-8dcd-0242ac130003', '0d03ee9f-2b4d-11eb-96fd-f48e38ab9348', 'force-password-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 
-REPLACE INTO jws_entity_role_association (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id)
- VALUES ('36e5a3a8-2b54-11eb-96fd-f48e38ab9348','9b4b9988-25bd-11eb-9388-f48e38ab9348','jws-configure-totp','1b0a2e40-098d-11eb-9a16-f48e38ab9348','ae6465b3-097f-11eb-9a16-f48e38ab9348',now(),'admin',1,1);
+REPLACE INTO jq_entity_role_association  (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id)
+ VALUES ('0c0587c8-88ab-11eb-8dcd-0242ac130003','9b4b9988-25bd-11eb-9388-f48e38ab9348','jws-configure-totp','1b0a2e40-098d-11eb-9a16-f48e38ab9348','2ace542e-0c63-11eb-9cf5-f48e38ab9348',now(),'admin',1,1);
+REPLACE INTO jq_entity_role_association  (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id)
+ VALUES ('101ae060-88ab-11eb-8dcd-0242ac130003','9b4b9988-25bd-11eb-9388-f48e38ab9348','jws-configure-totp','1b0a2e40-098d-11eb-9a16-f48e38ab9348','ae6465b3-097f-11eb-9a16-f48e38ab9348',now(),'admin',1,1);
+REPLACE INTO jq_entity_role_association  (entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id)
+ VALUES ('1377895c-88ab-11eb-8dcd-0242ac130003','9b4b9988-25bd-11eb-9388-f48e38ab9348','jws-configure-totp','1b0a2e40-098d-11eb-9a16-f48e38ab9348','b4a0dda1-097f-11eb-9a16-f48e38ab9348',now(),'admin',1,1);
 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.roleMaster', 1, 'Role Master'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.roleMaster', 1, 'Role Master'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addRole', 1, 'Add Role'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.addRole', 1, 'Add Role'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.userMaster', 1, 'User Master'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.userMaster', 1, 'User Master'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.firstName', 1, 'First Name'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.firstName', 1, 'First Name'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.lastName', 1, 'Last Name'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.lastName', 1, 'Last Name'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.email', 1, 'Email'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.email', 1, 'Email'); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.isActive', 1, 'Active '); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.isActive', 1, 'Active '); 
 
-REPLACE INTO resource_bundle (resource_key, language_id, text) VALUES ('jws.addUser', 1, 'Add User'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.addUser', 1, 'Add User'); 
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (UUID(), 'system', 'system', 'base-url', 'http://localhost:8080', 0, NOW(), 'admin', 1.00, 'Base url of application');
+
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'maxFailedCount', '5', 0, NOW(), 'admin', 1.00, 'Max failed attempt entry');
+
+REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+VALUES (UUID(), 'system', 'system', 'user-profile-template-details', '{}', 0, NOW(), 'admin', 1.00, 'Custom template for user profile listing page');
 
 SET FOREIGN_KEY_CHECKS=1;

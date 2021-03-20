@@ -19,7 +19,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name = "dashlet_properties")
+@Table(name = "jq_dashlet_properties")
 @Where(clause = "is_deleted = 0")
 public class DashletProperties implements Serializable {
 

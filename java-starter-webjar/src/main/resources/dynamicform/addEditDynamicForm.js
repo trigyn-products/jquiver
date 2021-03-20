@@ -20,6 +20,13 @@ class AddEditDynamicForm {
 					wordWrapMinified: true,
 					wrappingIndent: "indent"
 	        	});
+	        	dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+					typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
+				});
+				dashletSQLEditor.onDidChangeModelContent( function (){
+    				$('#errorMessage').hide();
+				});
 	        	$("#sqlContent").remove();
     	});
     	
@@ -35,6 +42,13 @@ class AddEditDynamicForm {
 					wordWrapMinified: true,
 					wrappingIndent: "indent"
 	        	});
+	        	dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+					typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
+				});
+				dashletHTMLEditor.onDidChangeModelContent( function (){
+    				$('#errorMessage').hide();
+				});
 	        	$("#htmlContent").remove();
     	});
 
@@ -43,7 +57,7 @@ class AddEditDynamicForm {
 		if(formId != "") {
 			$.ajax({
 				type : "POST",
-				url : "gfsq",
+				url : contextPath+"/cf/gfsq",
 				data : {formId: formId},
 				success : function(data) {
 					for(let counter = 0; counter < data.length; ++counter) {
@@ -60,7 +74,7 @@ class AddEditDynamicForm {
     }
     
     backToDynamicFormListing(){
-		window.location.href="./dfl"
+		window.location.href= contextPath+"/cf/dfl"
 	}
 	
 	addSaveQueryEditor(element, data){
@@ -106,7 +120,13 @@ class AddEditDynamicForm {
 				wordWrapMinified: true,
 				wrappingIndent: "indent"
         	});
-        	
+        	dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+				typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
+			});
+			dashletSAVESQLEditor.onDidChangeModelContent( function (){
+    			$('#errorMessage').hide();
+			});	
         	let editorObj = new Object();
 	        editorObj["index"] = index;
 	        editorObj["editor"] = dashletSAVESQLEditor;
@@ -129,7 +149,7 @@ class AddEditDynamicForm {
     saveDynamicForm (){
     	let context = this;
     	let isDataSaved = false;
-    	let formValid = context.validateDynamicForm();
+    	let formValid = addEdit.validateDynamicForm();
     	if(formValid){
 			let serializedForm = context.getFormData();
 			if(initialFormData === serializedForm){
@@ -142,7 +162,7 @@ class AddEditDynamicForm {
 	             async : false,
 	             type : "GET",
 	             cache : false,
-	             url : "/cf/cdd", 
+	             url : contextPath+"/cf/cdd", 
 	             data : {
 	                 formName : $("#formName").val(),
 	             },
@@ -191,10 +211,11 @@ class AddEditDynamicForm {
 	    $.ajax({
 			type : "POST",
 			async : false,
-			url : "sdfd",
+			url : contextPath+"/cf/sdfd",
 			data : formData,
 			success : function(data) {
 				isDataSaved = true;
+				$("#formId").val(data);
 				saveEntityRoleAssociation(data);
 				showMessage("Information saved successfully", "success");
 			},
@@ -244,6 +265,9 @@ class AddEditDynamicForm {
     	return true;
     }
     
+    hideErrorMessage(){
+    	$('#errorMessage').hide();
+    }
     
 	
     
@@ -266,7 +290,7 @@ let saveEntityRoleAssociation = function(savedFormId){
         async : false,
         type : "POST",
         contentType : "application/json",
-        url : "/cf/ser", 
+        url : contextPath+"/cf/ser", 
         data : JSON.stringify(entityRoles),
         success : function(data) {
 	    }
@@ -276,7 +300,7 @@ let getEntityRoles = function(){
 	$.ajax({
         async : false,
         type : "GET",
-        url : "/cf/ler", 
+        url : contextPath+"/cf/ler", 
         data : {
         	entityId:formId,
         	moduleId:$("#moduleId").val(),

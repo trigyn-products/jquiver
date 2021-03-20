@@ -16,7 +16,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
 @Entity
-@Table(name = "jws_role")
+@Table(name = "jq_role")
 public class JwsRole {
 
 	@Id

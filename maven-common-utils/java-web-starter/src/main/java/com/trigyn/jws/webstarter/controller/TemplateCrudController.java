@@ -57,6 +57,9 @@ public class TemplateCrudController {
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -76,6 +79,9 @@ public class TemplateCrudController {
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

@@ -1,2 +1,2 @@
-REPLACE INTO jws_property_master (property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+REPLACE INTO jq_property_master (property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES ('e887b756-1a8f-11eb-98d3-f48e38ab8cd7','system', 'system', 'file-upload-location', 'D://commons//documents', 0, NOW(), 'admin', 1.00, 'File upload path');

@@ -17,7 +17,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_dynamic_rest_dao_details")
+@Table(name = "jq_dynamic_rest_dao_details")
 @NamedQuery(name = "JwsDynamicRestDaoDetail.findAll", query = "SELECT j FROM JwsDynamicRestDaoDetail j")
 public class JwsDynamicRestDaoDetail implements Serializable {
 	private static final long		serialVersionUID		= 1L;

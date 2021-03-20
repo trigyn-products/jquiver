@@ -288,7 +288,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 							dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
 							DynamicFormVO dynamicFormVO = convertEntityToVO(dynamicForm);
 							moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(),
-									"dynamic_form", Constant.UPLOAD_SOURCE_VERSION_TYPE);
+									"jq_dynamic_form", Constant.UPLOAD_SOURCE_VERSION_TYPE);
 						}
 					} else {
 						throw new Exception("Invalid count of files for saving dynamic form" + currentDirectoryName);

@@ -218,7 +218,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 						TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
 								template.getTemplate());
 						moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(),
-								"template_master", Constant.UPLOAD_SOURCE_VERSION_TYPE);
+								"jq_template_master", Constant.UPLOAD_SOURCE_VERSION_TYPE);
 					}
 				}
 			}

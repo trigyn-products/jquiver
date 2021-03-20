@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.InternetAddress;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -75,6 +77,12 @@ public class JwsResetPasswordController {
 
 	@Autowired
 	private UserConfigService				userConfigService				= null;
+
+	@Autowired
+	private PropertyMasterService			propertyMasterService			= null;
+
+	@Autowired
+	private ServletContext					servletContext					= null;
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
@@ -122,15 +130,22 @@ public class JwsResetPasswordController {
 				resetPassword.setTokenId(tokenId);
 				resetPassword.setPasswordResetTime(Calendar.getInstance());
 				resetPassword.setUserId(existingUser.getUserId());
-				resetPassword.setResetPasswordUrl("http://localhost:8080/cf/resetPassword?token=" + tokenId);
+				String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
+				resetPassword.setResetPasswordUrl(baseURL+"/cf/resetPassword?token=" + tokenId);
 				resetPassword.setIsResetUrlExpired(Boolean.FALSE);
 				resetPasswordTokenRepository.save(resetPassword);
 
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
-				email.setSubject("Please reset your password");
-				email.setMailFrom("admin@jquiver.com");
+				
+//				email.setMailFrom("admin@jquiver.com");
 				Map<String, Object> mailDetails = new HashMap<>();
+				TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("reset-password-mail-subject");
+				String		subject	= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+						subjectTemplateVO.getTemplateName(), mailDetails);
+				email.setSubject(subject);
+				
+				mailDetails.put("baseURL", baseURL);
 				mailDetails.put("tokenId", tokenId);
 				TemplateVO	templateVO	= templatingService.getTemplateByName("reset-password-mail");
 				String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
@@ -382,36 +397,8 @@ public class JwsResetPasswordController {
 			userConfigService.getConfigurableDetails(mapDetails);
 			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
 			if (existingUser != null) {
-
-				TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
-				int					width				= 300;
-				int					height				= 300;
-				String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
-						+ existingUser.getUserId() + ".png";
-				File				file				= new File(filePath);
-				FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-				String				barcodeData			= twoFactorGoogleUtil
-						.getGoogleAuthenticatorBarCode(existingUser.getEmail(), "Jquiver", existingUser.getSecretKey());
-				twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
-
 				Email email = new Email();
-				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
-				email.setSubject("TOTP Login");
-				email.setMailFrom("admin@jquiver.com");
-				Map<String, Object>	mailDetails	= new HashMap<>();
-				TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
-				String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-						templateVO.getTemplateName(), mailDetails);
-				email.setBody(mailBody);
-				System.out.println(mailBody);
-				List<File> attachedFiles = new ArrayList<>();
-				attachedFiles.add(file);
-				email.setAttachementsArray(attachedFiles);
-
-				CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
-				if (mailSuccess.isDone()) {
-					email.getAttachementsArray().stream().forEach(f -> f.delete());
-				}
+				userManagementService.sendMailForTotpAuthentication(existingUser, email);
 
 				mapDetails.put("successResetPasswordMsg",
 						"Check your email for a instructions to login through Google AUtheticator. If it doesn’t appear within a few minutes, check your spam folder.");

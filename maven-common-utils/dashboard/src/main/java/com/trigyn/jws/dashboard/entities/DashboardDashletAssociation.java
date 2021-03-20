@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dashboard_dashlet_association")
+@Table(name = "jq_dashboard_dashlet_association")
 public class DashboardDashletAssociation implements Serializable {
 
 	private static final long				serialVersionUID	= 1L;

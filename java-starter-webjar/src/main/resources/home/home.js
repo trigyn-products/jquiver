@@ -112,19 +112,18 @@ const showMessage = function(a_messageText, a_messageType){
 	$("body").append(validationElement);
 	let validationDiv = $("#" + currentDivID);
 
-
 	if(messageType === "success"){
 		validationDiv.addClass("alert alert-success common-validation-cls");
-		validationDiv.append("<i class='val-icon fa fa-check'></i>");
+		validationDiv.addClass("alert alert-success common-validation-cls jws-alert-div");
 	}else if(messageType === "info"){
 		validationDiv.addClass("alert alert-info common-validation-cls");
-		validationDiv.append("<i class='val-icon fa fa-info'></i>");
+		validationDiv.addClass("alert alert-info common-validation-cls jws-alert-div");
 	}else if(messageType === "warn"){
 		validationDiv.addClass("alert alert-warning common-validation-cls");
-		validationDiv.append("<i class='val-icon fa fa-exclamation-triangle'></i>");
+		validationDiv.addClass("alert alert-warning common-validation-cls jws-alert-div");
 	}else if(messageType === "error"){
 		validationDiv.addClass("alert alert-danger common-validation-cls");
-		validationDiv.append("<i class='val-icon fa fa-exclamation-triangle'></i>");
+		validationDiv.addClass("alert alert-danger common-validation-cls jws-alert-div");
 	}
 
 	validationDiv.append(a_messageText);
@@ -132,7 +131,7 @@ const showMessage = function(a_messageText, a_messageType){
     	$("#" + currentDivID).fadeOut();
     	$("#" + currentDivID).remove();
     }, 3000);
-
+	
 }
 
 const typeOfAction = function(formId, selectedButton, saveFunction, backFunction){
@@ -279,6 +278,18 @@ const hideShowActionButtons = function(){
             actionOptions(event.target.id);
         }
     });
+}
+
+const generateHashCode = function(inputStr) {
+  let hash = 0;
+  let iCounter;
+  let char;
+  for (iCounter = 0; iCounter < inputStr.length; iCounter++) {
+    char   = inputStr.charCodeAt(iCounter);
+    hash  = ((hash << 5) - hash) + char;
+    hash |= 0; 
+  }
+  return hash;
 }
 
 Array.prototype.formatSerializedArray = function() {

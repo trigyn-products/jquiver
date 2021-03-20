@@ -1,7 +1,7 @@
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('0d91402d-1062-11eb-a867-f48e38ab8cd7', 'dashlet-common-div', '
-<script src="/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<script src="${(contextPath)!''''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 
  
 <div dashlet-id="${dashletId}" class="grid-stack-item" data-gs-x="${xCord}" data-gs-y="${yCord}" data-gs-width="${width}" data-gs-height="${height}" style="position: absolute;">
@@ -34,29 +34,29 @@ Replace into template_master (template_id, template_name, template, updated_by, 
     </div>
 </div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
   
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('1389accc-1062-11eb-a867-f48e38ab8cd7', 'dashlets', '
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="/webjars/lodash/4.17.15/lodash.js"></script>
-	<script src="/webjars/gridstack/0.4.0/dist/gridstack.js"></script>
-	<script src="/webjars/gridstack/0.4.0/dist/gridstack.jQueryUI.js"></script>
-	<script src="/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.js"></script>
-	<script type="text/javascript" src="/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.categoryAxisRenderer.js"></script>
-	<script type="text/javascript" src="/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasAxisTickRenderer.js"></script>
-	<script type="text/javascript" src="/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasTextRenderer.js"></script>
-	<script type="text/javascript" src="/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.pointLabels.js"></script>
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.css" />
-	<link rel="stylesheet" href="/webjars/gridstack/0.4.0/dist/gridstack.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="${(contextPath)!''''}/webjars/lodash/4.17.15/lodash.js"></script>
+	<script src="${(contextPath)!''''}/webjars/gridstack/0.4.0/dist/gridstack.js"></script>
+	<script src="${(contextPath)!''''}/webjars/gridstack/0.4.0/dist/gridstack.jQueryUI.js"></script>
+	<script src="${(contextPath)!''''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.categoryAxisRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasTextRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.pointLabels.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/gridstack/0.4.0/dist/gridstack.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script>
 	let crntdashletId;
 	let configDailog;
-	const contextPath = "${(contextPath)!''''}";
+	contextPath = "${(contextPath)!''''}";
 $(function() {
 $(".ui-dialog-content").dialog("destroy").html("");
     let options = {};
@@ -222,18 +222,18 @@ function backToDashboardPage() {
 
 <div id="configurationDialog"></div></div>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('1f8682c4-1062-11eb-a867-f48e38ab8cd7', 'dashlet-configuration', '
 
 
 
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script>
 </script>
 <form id="formConfiguration">
@@ -277,7 +277,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 
 ','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('25e7cb01-1062-11eb-a867-f48e38ab8cd7', 'select', '<script type="text/javascript">
 	var selectOptions =  "${innerTemplateObj.propertyValue!''''}";
 	var selectId = "${innerTemplateObj.propertyId!''''}";
@@ -294,14 +294,14 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 	<select id="${innerTemplateObj.propertyId!''''}" class="select form-control" name="${innerTemplateObj.propertyId!''''}"></select>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2ab671a3-1062-11eb-a867-f48e38ab8cd7', 'text', '<script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''''}" style="white-space:nowrap">${innerTemplateObj.displayName!''''}</label>
 	<input type="text" id="${innerTemplateObj.propertyId!''''}" name="${innerTemplateObj.propertyId!''''}" value="${innerTemplateObj.defaultValue!''''}" class="form-control"/>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('2ff2b7ea-1062-11eb-a867-f48e38ab8cd7', 'rangeslider', '<div class="col-12 margin-b-10">
 <div class="range-slider">
 	<label for="${innerTemplateObj.propertyId!''''}" style="white-space:nowrap">${innerTemplateObj.displayName!''''}</label>
@@ -310,7 +310,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('369aa97d-1062-11eb-a867-f48e38ab8cd7', 'number', '<script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''''}" style="white-space:nowrap">${innerTemplateObj.displayName!''''}</label>
@@ -318,7 +318,7 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '<script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''''}" style="white-space:nowrap">${innerTemplateObj.displayName!''''}</label>
@@ -326,13 +326,13 @@ Replace into template_master (template_id, template_name, template, updated_by, 
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('3b902ade-1062-11eb-a867-f48e38ab8cd7', 'datepicker', '
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/jscal2.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/border-radius.css" />
-<link rel="stylesheet" type="text/css" href="/webjars/1.0/JSCal2/css/steel/steel.css" />
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/jscal2.js"></script>
-<script type="text/javascript" src="/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 <script type="text/javascript">
 jQuery(function() {
 	Calendar.setup({
@@ -367,7 +367,7 @@ if(defaultDate.trim() !== ""){
 					
 ', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('40a58aae-1062-11eb-a867-f48e38ab8cd7', 'checkbox', '
 <script type="text/javascript">
 	
@@ -382,28 +382,28 @@ Replace into template_master (template_id, template_name, template, updated_by, 
  </div>
 </div>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-Replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('46154204-1062-11eb-a867-f48e38ab8cd7', 'monthpicker', '', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
 
-DELETE FROM dashboard_lookup_category WHERE lookup_category_id = 'c1f03803-c862-11e7-a62a-f48e38ab9229';
-DELETE FROM template_master WHERE template_id = '46154204-1062-11eb-a867-f48e38ab8cd7';
+DELETE FROM jq_dashboard_lookup_category WHERE lookup_category_id = 'c1f03803-c862-11e7-a62a-f48e38ab9229';
+DELETE FROM jq_template_master WHERE template_id = '46154204-1062-11eb-a867-f48e38ab8cd7';
 
 
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, dashlet_query, is_active, created_by, created_date, updated_by, updated_date, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header,dashlet_query_checksum,dashlet_body_checksum, dashlet_type_id) VALUES
-('09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', 'Grids', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.gridCount}</#list></#if> used in application</div>', 'SELECT COUNT(gd.grid_id) AS gridCount FROM grid_details AS gd', 1, 'admin', NOW(), 'admin', NOW(), 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
-('0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', 'Notification', '<div class="jws-dashlet-view"> Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.notificationCount}</#list></#if> used in application</div>', 'SELECT COUNT(gun.notification_id) AS notificationCount FROM generic_user_notification AS gun ', 1, 'admin', NOW(), 'admin', NOW(), 0, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
-('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', 'Templates', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.templateCount}</#list></#if> used in application</div>', 'SELECT COUNT(tm.template_id) AS templateCount FROM template_master AS tm WHERE tm.updated_date > STR_TO_DATE("${startDate}","%d-%b-%Y") AND tm.updated_date <= STR_TO_DATE("${endDate}","%d-%b-%Y")', 1, 'admin', NOW(), 'admin', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
-('37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', 'DB resource bundles', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.resourceBundleCount}</#list></#if> used in application</div>', 'SELECT COUNT(DISTINCT(rb.resource_key)) AS resourceBundleCount FROM resource_bundle AS rb', 1, 'admin', NOW(), 'admin', NOW(), 0, 6, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
-('3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', 'Dashboards', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.dashboardCount}</#list></#if> used in application</div>', 'SELECT COUNT(db.dashboard_id) AS dashboardCount FROM  dashboard AS db', 1, 'admin', NOW(), 'admin', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2),
+REPLACE INTO jq_dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, dashlet_query, is_active, created_by, created_date, updated_by, updated_date, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header,dashlet_query_checksum,dashlet_body_checksum, dashlet_type_id) VALUES
+('09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', 'Grids', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.gridCount}</#list></#if> used in application</div>', 'SELECT COUNT(gd.grid_id) AS gridCount FROM jq_grid_details AS gd', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', 'Notification', '<div class="jws-dashlet-view"> Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.notificationCount}</#list></#if> used in application</div>', 'SELECT COUNT(gun.notification_id) AS notificationCount FROM jq_generic_user_notification AS gun ', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 0, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', 'Templates', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.templateCount}</#list></#if> used in application</div>', 'SELECT COUNT(tm.template_id) AS templateCount FROM jq_template_master AS tm WHERE tm.updated_date > STR_TO_DATE("${startDate}","%d-%b-%Y") AND tm.updated_date <= STR_TO_DATE("${endDate}","%d-%b-%Y")', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', 'DB resource bundles', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.resourceBundleCount}</#list></#if> used in application</div>', 'SELECT COUNT(DISTINCT(rb.resource_key)) AS resourceBundleCount FROM jq_resource_bundle AS rb', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 0, 6, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
+('3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', 'Dashboards', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.dashboardCount}</#list></#if> used in application</div>', 'SELECT COUNT(db.dashboard_id) AS dashboardCount FROM  jq_dashboard AS db', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2),
 ('44cb330d-eadf-11ea-a036-e454e805e22f', 'Dashlets', 'Dashlets', '<head>
 
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>
 </head>
 
 <div class="jws-dashlet-view">
@@ -420,6 +420,7 @@ REPLACE INTO dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, das
 	<input type="hidden" id="dashletId" name="dashlet-id">
 </form>
 <script>
+	contextPath = "${contextPath}";
 	$(function () {
 		var colM = [
 			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
@@ -436,12 +437,16 @@ REPLACE INTO dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, das
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet, sortable: false}
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        };
 	
 		var grid = $("#divdDashletMasterGrid").grid({
 			gridId: "dashletMasterListingGrid",
-			colModel: colM
+			colModel: colM,
+          dataModel: dataModel
 		});
 	});
 	function editDashlet(uiObject) {
@@ -457,10 +462,10 @@ REPLACE INTO dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, das
 	function backToDashboarListing() {
 		location.href = contextPath+"/cf/dbm";
 	}
-</script>', 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(updated_date,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM dashlet', 1, 'admin', NOW(), 'admin', NOW(), 6, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2);
+</script>', 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(updated_date,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM jq_dashlet', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2);
 
-REPLACE INTO dashlet(dashlet_id, dashlet_name, dashlet_title, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header, dashlet_query, dashlet_body, created_by, created_date, updated_by, updated_date, is_active, dashlet_query_checksum, dashlet_body_checksum, dashlet_type_id) VALUES
-('76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', 'Modules', 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1, 'Select 1', '<script src="/webjars/1.0/chartjs/chart.js"></script>
+REPLACE INTO jq_dashlet(dashlet_id, dashlet_name, dashlet_title, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header, dashlet_query, dashlet_body, created_by, created_date, updated_by, updated_date, is_active, dashlet_query_checksum, dashlet_body_checksum, dashlet_type_id) VALUES
+('76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', 'Modules', 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1, 'Select 1', '<script src="${(contextPath)!''''}/webjars/1.0/chartjs/chart.js"></script>
 <div class="jws-dashlet-view">
       <div class="row">
           
@@ -489,6 +494,7 @@ REPLACE INTO dashlet(dashlet_id, dashlet_name, dashlet_title, x_coordinate, y_co
 
 <script>
 $(function() {
+	contextPath = "${(contextPath)!''''}";
     let startDate = "${startDate!''''}";
     let endDate = "${endDate!''''}";
     let gridName = "${gridName!''''}";
@@ -497,7 +503,7 @@ $(function() {
     $.ajax({
         type : "GET",
         async : false,
-        url : "/api/dashlet-module-details",
+        url : contextPath+"/api/dashlet-module-details",
         data : {
             startDate: startDate,
             endDate: endDate,
@@ -540,9 +546,9 @@ function createModuleChart(data){
 		}
 	}); 
 }
-</script>', 'admin', NOW(), 'admin', NOW(), 1, NULL, NULL, 1);
+</script>', 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 1, NULL, NULL, 2);
 
-REPLACE INTO jws_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
+REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
 ('8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashlet-module-details', 1, 'dashletmoduleDetails', 'Get all modules details for dashlet', 2, 7, 'function dashletmoduleDetails(requestDetails, daoResults) {
     var moduleDetails = new Object();
     moduleDetails.templates = daoResults["templateDetails"];
@@ -554,39 +560,39 @@ REPLACE INTO jws_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url,
     return moduleDetails;
 }
 
-dashletmoduleDetails(requestDetails, daoResults);', 3, 0, 1);
+dashletmoduleDetails(requestDetails, daoResults);', 3, 0, 2);
 
 
-REPLACE INTO jws_dynamic_rest_dao_details(jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
+REPLACE INTO jq_dynamic_rest_dao_details(jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (102, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'templateDetails', 'SELECT COUNT(tm.template_id) AS templateCount 
-FROM template_master AS tm 
+FROM jq_template_master AS tm 
 WHERE tm.updated_date > STR_TO_DATE(:startDate,"%d-%b-%Y") 
 AND tm.updated_date <= STR_TO_DATE(:endDate,"%d-%b-%Y")', 1, 1), 
 (103, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'gridDetails', 'SELECT COUNT(gd.grid_id) AS gridCount 
-FROM grid_details AS gd 
+FROM jq_grid_details AS gd 
 WHERE gd.grid_name LIKE "%":gridName"%"', 2, 1), 
 (104, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashboardDetails', 'SELECT COUNT(db.dashboard_id) AS dashboardCount
-FROM  dashboard AS db', 3, 1), 
+FROM  jq_dashboard AS db', 3, 1), 
 (105, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'resourceBundleDetails', 'SELECT COUNT(DISTINCT(rb.resource_key)) AS resourceBundleCount 
-FROM resource_bundle AS rb', 4, 1), 
+FROM jq_resource_bundle AS rb', 4, 1), 
 (106, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashletDetails', 'SELECT COUNT(dl.dashlet_id) AS dashletCount
-FROM dashlet AS dl', 5, 1), 
+FROM jq_dashlet AS dl', 5, 1), 
 (107, '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'notificationDetails', 'SELECT COUNT(gun.notification_id) AS notificationCount 
-FROM generic_user_notification AS gun', 6, 1);
+FROM jq_generic_user_notification AS gun', 6, 1);
 
 
-REPLACE into dashboard (dashboard_id, dashboard_name, context_id, dashboard_type, created_by, created_date, last_updated_date, is_deleted, is_draggable, is_exportable) VALUES
-('ab7202bf-eadd-11ea-a036-e454e805e22f', 'Java Stater Usages', (SELECT context_id FROM context_master where context_description='jws'), 2, 'admin', NOW(), NOW(), 0, 1, 0);
+REPLACE into jq_dashboard (dashboard_id, dashboard_name, context_id, dashboard_type, created_by, created_date, last_updated_date, is_deleted, is_draggable, is_exportable) VALUES
+('ab7202bf-eadd-11ea-a036-e454e805e22f', 'Java Stater Usages', (SELECT context_id FROM jq_context_master where context_description='jws'), 2, 'admin', NOW(), NOW(), 0, 1, 0);
 
-REPLACE INTO dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
+REPLACE INTO jq_dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
 ('8178b7ea-b874-4c31-8732-db76419a4f0f', '31c9ffa9-eadf-11ea-a036-e454e805e22f', 'startDate', 'Start Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '30-11-2020', NULL, 0, 1, 0), 
 ('10126791-74e7-48de-8778-2f5c344e2cc5', '31c9ffa9-eadf-11ea-a036-e454e805e22f', 'endDate', 'End Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '05-01-2021', NULL, 0, 1, 1);
 
-REPLACE INTO dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
+REPLACE INTO jq_dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
 ('e7af6a9e-9b32-4c06-bcb5-d107723b3fcf', '3d97273b-eadf-11ea-a036-e454e805e22f', 'startDate', 'Start Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '05-11-2018', NULL, 0, 1, 0),
 ('9d3d7bc9-8b06-4b08-95b2-7d0a786381ab', '3d97273b-eadf-11ea-a036-e454e805e22f', 'endDate', 'End Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '05-10-2019', NULL, 0, 1, 1);
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('9e36a1b9-ad7e-4f0f-b5c5-f2f925f9ef57', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
 ('bd4bc2cb-d843-4600-a304-7cc7a8528ec9', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
 ('c4d4dbf6-256f-4e1d-9bff-b8159620ac4c', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);

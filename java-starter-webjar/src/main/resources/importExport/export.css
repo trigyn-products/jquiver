@@ -65,7 +65,7 @@
 }
 
 
-.pg-app-matrix .tab button{text-transform: initial !important;}
+.pg-app-matrix .tab button{text-transform: initial !important; padding-right:30px;}
 .pg-app-matrix .tablinks img {
     height: 25px;
     width: 25px;

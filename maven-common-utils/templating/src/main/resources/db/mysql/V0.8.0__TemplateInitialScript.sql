@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS `template_master`;
-CREATE TABLE `template_master` (
+DROP TABLE IF EXISTS `jq_template_master`;
+CREATE TABLE `jq_template_master` (
   `template_id` varchar(50),
   `template_name` varchar(100) NOT NULL,
   `template` mediumtext DEFAULT NULL,
@@ -9,5 +9,5 @@ CREATE TABLE `template_master` (
   PRIMARY KEY (`template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE template_master ADD UNIQUE INDEX (template_name);
-ALTER TABLE template_master ADD checksum VARCHAR(512) AFTER updated_date;
+ALTER TABLE jq_template_master ADD UNIQUE INDEX (template_name);
+ALTER TABLE jq_template_master ADD checksum VARCHAR(512) AFTER updated_date;

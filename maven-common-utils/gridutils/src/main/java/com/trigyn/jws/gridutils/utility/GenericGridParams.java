@@ -12,12 +12,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class GenericGridParams {
 	private String				sortIndex		= null;
@@ -87,24 +89,24 @@ public class GenericGridParams {
 			this.filterParams = params;
 		}
 		Set<String> reqParamKeys = request.getParameterMap().keySet();
-        for (String reqParamKey : reqParamKeys) {
-            if (reqParamKey.contains("cr_")) {
-                if (this.criteriaParams == null) {
-                    this.criteriaParams = new HashMap<String, Object>();
-                }
-                Object obj = null;
-                if (request.getParameter(reqParamKey).contains("int_")) {
-                    obj = Long.parseLong(request.getParameter(reqParamKey).replace("int_", ""));
-                } else if (request.getParameter(reqParamKey).contains("flt_")) {
-                    obj = Double.parseDouble(request.getParameter(reqParamKey).replace("flt_", ""));
-                } else if (request.getParameter(reqParamKey).contains("str_")) {
-                    obj = request.getParameter(reqParamKey).replace("str_", "");
-                } /*
-                     * else { obj = request.getParameter(reqParamKey); }
-                     */
-                this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
-            }
-        }
+		for (String reqParamKey : reqParamKeys) {
+			if (reqParamKey.contains("cr_")) {
+				if (this.criteriaParams == null) {
+					this.criteriaParams = new HashMap<String, Object>();
+				}
+				Object obj = null;
+				if (request.getParameter(reqParamKey).contains("int_")) {
+					obj = Long.parseLong(request.getParameter(reqParamKey).replace("int_", ""));
+				} else if (request.getParameter(reqParamKey).contains("flt_")) {
+					obj = Double.parseDouble(request.getParameter(reqParamKey).replace("flt_", ""));
+				} else if (request.getParameter(reqParamKey).contains("str_")) {
+					obj = request.getParameter(reqParamKey).replace("str_", "");
+				} /*
+					 * else { obj = request.getParameter(reqParamKey); }
+					 */
+				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
+			}
+		}
 	}
 
 	public GenericGridParams(String sortIndex, String sortOrder, int pageIndex, int rowsPerPage, int startIndex,
@@ -229,6 +231,27 @@ public class GenericGridParams {
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
+			} else if (reqParamKey.contains("additionalParameters")) {
+				String				additonalParamStr	= request.getParameter(reqParamKey).toString();
+				Map<String, String>	additonalParamMap	= new Gson().fromJson(additonalParamStr,
+						new TypeToken<Map<String, String>>() {
+																}.getType());
+				if (CollectionUtils.isEmpty(additonalParamMap) == false) {
+					if (this.criteriaParams == null) {
+						this.criteriaParams = new HashMap<String, Object>();
+					}
+					for (Map.Entry<String, String> additionalParam : additonalParamMap.entrySet()) {
+						Object obj = null;
+						if (additionalParam.getValue().contains("int_")) {
+							obj = Long.parseLong(additionalParam.getValue().replace("int_", ""));
+						} else if (additionalParam.getValue().contains("flt_")) {
+							obj = Double.parseDouble(additionalParam.getValue().replace("flt_", ""));
+						} else if (additionalParam.getValue().contains("str_")) {
+							obj = additionalParam.getValue().replace("str_", "");
+						}
+						this.criteriaParams.put(additionalParam.getKey().replace("cr_", ""), obj);
+					}
+				}
 			}
 		}
 

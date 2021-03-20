@@ -15,7 +15,7 @@
             const context = this;
             $.ajax({
                 type: "POST",
-                url: "/cf/dls",
+                url:  contextPath+"/cf/dls",
                 data: {
                     "dashboardId":  this.options.dashboardId,
                 },

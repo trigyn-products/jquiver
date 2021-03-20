@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_security_properties")
+@Table(name = "jq_security_properties")
 public class SecurityProperties implements Serializable {
 
 	/**

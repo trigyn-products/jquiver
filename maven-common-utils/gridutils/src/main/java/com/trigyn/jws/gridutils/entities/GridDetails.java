@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "grid_details")
+@Table(name = "jq_grid_details")
 public class GridDetails implements Serializable {
 
 	private static final long	serialVersionUID	= 4472368074028971649L;

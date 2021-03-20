@@ -1,16 +1,16 @@
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d5a5102b-09ab-11eb-a027-f48e38ab8cd7', 'default-listing-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -45,13 +45,17 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		let colM = [
 			{ title: "Column Name to be displayed", width: 130, dataIndx: "columnNameInQuery", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
 	
 	//System will fecth grid data based on gridId
 		let grid = $("#yourGridId").grid({
 	      gridId: "",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel
 	  	});
 	
 	});
@@ -76,18 +80,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('dfdf7c4e-09ab-11eb-a027-f48e38ab8cd7', 'default-form-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -161,13 +165,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('e700ac42-09ab-11eb-a027-f48e38ab8cd7', 'default-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<script src="${(contextPath)!''''}/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <div class="container" style="padding-top: 40px">
     <div class="page-header">
@@ -179,15 +183,28 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('ec26a648-09ab-11eb-a027-f48e38ab8cd7', 'system-form-html-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<#if (columnDetails)??>
+	<#list columnDetails as columnDetailsList>
+        <#if columnDetailsList?api.get(''columnType'') == "datetime">
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+        	<#break>
+        </#if>
+	</#list>
+</#if>
+        
 </head>
 
 <div class="container">
@@ -362,10 +379,10 @@ replace into template_master (template_id, template_name, template, updated_by, 
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/home";
 	}
-</script>', 'admin', 'admin', NOW(), NULL, 2);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('f16c057f-09ab-11eb-a027-f48e38ab8cd7', 'system-form-save-query-template', '
   <#noparse>
    <#if isEdit == 1>
@@ -382,18 +399,18 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d3cb061d-0743-11eb-9926-e454e805e22f', 'system-listing-template', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -424,13 +441,17 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             { title: "${gridInfo?api.get("displayName")}", hidden : ${gridInfo?api.get("hidden")?c}, width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
           </#list>
-            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
     
+    	let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
     //System will fecth grid data based on gridId
         let grid = $("#${gridId}").grid({
           gridId: "${gridId}",
-          colModel: colM
+          colModel: colM,
+          dataModel: dataModel
         });
     
     });
@@ -459,4 +480,4 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
     }
-</script>', 'admin', 'admin',NOW(), 2);
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);

@@ -414,7 +414,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 
 	public void saveDashletVersioning(Dashlet dashlet) throws Exception {
 		DashletVO dashletVO = convertDashletEntityToVO(dashlet);
-		moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "dashlet",
+		moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "jq_dashlet",
 				Constants.UPLOAD_SOURCE_VERSION_TYPE);
 	}
 

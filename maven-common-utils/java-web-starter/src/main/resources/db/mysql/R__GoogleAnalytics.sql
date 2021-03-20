@@ -1,6 +1,6 @@
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('9378ee23-09fa-11eb-a894-f48e38ab8cdga', 'google-analytics-template', '
 
 <#if innerTemplateObj.enableGoogleAnalytics ?? && innerTemplateObj.googleAnalyticsKey?? 
@@ -21,7 +21,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </#if>
 ', 'satishchandra.pandey@trigyn.com', 'satishchandra.pandey@trigyn.com', NOW(), NULL);
 
-REPLACE  INTO  jws_property_master (
+REPLACE  INTO  jq_property_master (
   property_master_id
   ,owner_type
   ,owner_id
@@ -46,7 +46,7 @@ REPLACE  INTO  jws_property_master (
 );
 
 
-REPLACE  INTO  jws_property_master (
+REPLACE  INTO  jq_property_master(
   property_master_id
   ,owner_type
   ,owner_id

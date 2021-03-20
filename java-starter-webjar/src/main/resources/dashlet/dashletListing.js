@@ -10,7 +10,7 @@ class DashletListing {
 	downloadDashlet = function(){
 	let context = this;
 		$.ajax({
-			url:"/cf/ddl",
+			url: contextPath+"/cf/ddl",
 			type:"POST",
 			success:function(data){
 				showMessage("Dashlets downloaded successfully", "success");
@@ -24,7 +24,7 @@ class DashletListing {
 	uploadDashlet = function(){
 	let context = this;
 		$.ajax({
-			url:"/cf/udl",
+			url: contextPath+"/cf/udl",
 		    type:"POST",
 		    success:function(data){
 				showMessage("Dashlets uploaded successfully", "success");
@@ -39,7 +39,7 @@ class DashletListing {
    		let context = this;
 	  	let dashletId = thisObj.id;
 	  	$.ajax({
-			url:"/cf/ddlbi",
+			url: contextPath+"/cf/ddlbi",
 			type:"POST",
 	        data:{
 	        	dashletId : dashletId,
@@ -58,7 +58,7 @@ class DashletListing {
 	  	let dashletId = thisObj.id;
 		let dashletName = $("#"+dashletId).attr("name");
 	  	$.ajax({
-			url:"/cf/udlbn",
+			url: contextPath+"/cf/udlbn",
 			type:"POST",
 	        data:{
 	        	dashletName : dashletName,

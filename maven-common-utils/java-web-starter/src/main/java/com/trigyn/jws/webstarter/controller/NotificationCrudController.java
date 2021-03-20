@@ -49,6 +49,9 @@ public class NotificationCrudController {
 			return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -56,7 +59,7 @@ public class NotificationCrudController {
 
 	@GetMapping(value = "/aen", produces = MediaType.TEXT_HTML_VALUE)
 	public String createNewUserNotification(HttpSession session, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException {
 
 		try {
 			String				dateFormat		= Constants.DATE_FORMAT;
@@ -69,7 +72,7 @@ public class NotificationCrudController {
 				GenericUserNotification genericUserNotificationDetails = notificationService
 						.getNotification(notificationId);
 				if (genericUserNotificationDetails == null) {
-					response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid Notification Id");
+					httpServletResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid Notification Id");
 					return null;
 				}
 				String obj = new Gson().toJson(genericUserNotificationDetails);
@@ -82,7 +85,10 @@ public class NotificationCrudController {
 			return menuService.getTemplateWithSiteLayout(Constants.CREATE_NEW_USER_NOTIFICATION, templateDetails);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
-			response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

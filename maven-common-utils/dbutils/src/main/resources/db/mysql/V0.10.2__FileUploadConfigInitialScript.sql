@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS file_upload_config;
-CREATE TABLE file_upload_config( 
+DROP TABLE IF EXISTS jq_file_upload_config;
+CREATE TABLE jq_file_upload_config( 
 file_upload_config_id VARCHAR(500)
 , file_type_supported VARCHAR(5000) DEFAULT NULL
 , max_file_size BIGINT UNSIGNED

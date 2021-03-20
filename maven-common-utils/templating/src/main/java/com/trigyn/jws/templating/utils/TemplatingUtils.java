@@ -13,6 +13,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -23,7 +25,6 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -37,6 +38,8 @@ import freemarker.template.TemplateException;
 
 @Component
 public class TemplatingUtils {
+
+	private final static Logger		logger					= LogManager.getLogger(TemplatingUtils.class);
 
 	@Autowired
 	private FreeMarkerConfigurer	freeMarkerConfigurer	= null;
@@ -64,6 +67,8 @@ public class TemplatingUtils {
 
 	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap)
 			throws Exception {
+		logger.debug("Inside TemplatingUtils.processTemplateContents(templateContent{}, templateName{}, modelMap{})",
+				templateContent, templateName, modelMap);
 		templateContent = StringEscapeUtils.unescapeHtml4(templateContent);
 		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
 		stringTemplateLoader.putTemplate("templateUtils", templateUtils());
@@ -80,6 +85,9 @@ public class TemplatingUtils {
 
 	public String processMultipleTemplateContents(String mainTemplateContent, String templateName,
 			Map<String, Object> modelMap, Map<String, String> childTemplateDetails) throws Exception {
+		logger.debug(
+				"Inside TemplatingUtils.processMultipleTemplateContents(mainTemplateContent{}, templateName{}, modelMap{}, childTemplateDetails{})",
+				mainTemplateContent, templateName, modelMap, childTemplateDetails);
 		addTemplateProperties(modelMap);
 		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
 		stringTemplateLoader.putTemplate(templateName, mainTemplateContent);
@@ -97,6 +105,7 @@ public class TemplatingUtils {
 	}
 
 	private void addTemplateProperties(Map<String, Object> modelMap) {
+		logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap{})", modelMap);
 		String contextPath = servletContext.getContextPath();
 		modelMap.put("contextPath", contextPath);
 		Locale locale = localeResolver.resolveLocale(getRequest());
@@ -106,8 +115,7 @@ public class TemplatingUtils {
 		UserDetailsVO detailsVO = detailsService.getUserDetails();
 		if (detailsVO != null) {
 			modelMap.put("loggedInUserName", detailsVO.getUserName());
-			Gson gson = new Gson();
-			modelMap.put("loggedInUserRoles", gson.toJson(detailsVO.getRoleIdList()).toString());
+			modelMap.put("loggedInUserRoleList", detailsVO.getRoleIdList());
 		}
 	}
 
@@ -118,6 +126,8 @@ public class TemplatingUtils {
 
 	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap)
 			throws IOException, TemplateException {
+		logger.debug("Inside TemplatingUtils.processFtl(templateName{}, templateContent{}, modelMap{})", templateName,
+				templateContent, modelMap);
 		Template	templateObj	= new Template(templateName, new StringReader(templateContent),
 				freeMarkerConfigurer.getConfiguration());
 		Writer		writer		= new StringWriter();
@@ -127,6 +137,8 @@ public class TemplatingUtils {
 
 	public String processTemplate(String templateName, Map<String, Object> modelMap, Boolean includeLayout)
 			throws Exception {
+		logger.debug("Inside TemplatingUtils.processTemplate(templateName{}, modelMap{}, includeLayout{})",
+				templateName, modelMap, includeLayout);
 		TemplateVO templateVO = templatingService.getTemplateByName(templateName);
 		addTemplateProperties(modelMap);
 		Template	templateObj	= new Template(templateName, new StringReader(templateVO.getTemplate()),

@@ -119,7 +119,7 @@ public class DBTemplatingService {
 		TemplateMaster	templateMaster	= dbTemplatingRepository.saveAndFlush(templateDetails);
 		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(),
 				templateMaster.getTemplateName(), templateMaster.getTemplate());
-		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "template_master",
+		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "jq_template_master",
 				Constant.MASTER_SOURCE_VERSION_TYPE);
 
 		return templateMaster.getTemplateId();
@@ -149,7 +149,7 @@ public class DBTemplatingService {
 				.orElse(new TemplateMaster());
 		templateMaster.setTemplate(templateVO.getTemplate());
 		dbTemplatingRepository.save(templateMaster);
-		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "template_master",
+		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "jq_template_master",
 				Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
 

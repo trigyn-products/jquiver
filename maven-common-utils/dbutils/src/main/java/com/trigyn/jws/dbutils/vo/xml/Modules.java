@@ -14,6 +14,10 @@ public class Modules {
 
 	private DynamicFormExportVO	dynamicForm;
 
+	private HelpManualTypeExportVO	helpManual;
+	
+	private FileUploadConfigExportVO fileBin;
+
 	public String getModuleID() {
 		return moduleID;
 	}
@@ -60,6 +64,22 @@ public class Modules {
 
 	public void setDynamicForm(DynamicFormExportVO dynamicForm) {
 		this.dynamicForm = dynamicForm;
+	}
+
+	public HelpManualTypeExportVO getHelpManual() {
+		return helpManual;
+	}
+
+	public void setHelpManual(HelpManualTypeExportVO helpManual) {
+		this.helpManual = helpManual;
+	}
+
+	public FileUploadConfigExportVO getFileBin() {
+		return fileBin;
+	}
+
+	public void setFileBin(FileUploadConfigExportVO fileBin) {
+		this.fileBin = fileBin;
 	}
 
 }

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "user_role")
+@Table(name = "jq_user_role")
 @NamedQuery(name = "UserRole.findAll", query = "SELECT u FROM UserRole u")
 public class UserRole implements Serializable {
 	private static final long	serialVersionUID	= 1L;

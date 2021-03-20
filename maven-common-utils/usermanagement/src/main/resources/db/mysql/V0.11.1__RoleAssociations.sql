@@ -1,1 +1,1 @@
-ALTER TABLE jws_entity_role_association ADD UNIQUE INDEX entity_role_id (`entity_id`, `role_id`);
+ALTER TABLE jq_entity_role_association  ADD UNIQUE INDEX entity_role_id (`entity_id`, `role_id`);

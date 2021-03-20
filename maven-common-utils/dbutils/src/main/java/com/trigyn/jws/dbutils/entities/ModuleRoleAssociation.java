@@ -16,7 +16,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "module_role_association")
+@Table(name = "jq_module_role_association")
 @NamedQuery(name = "ModuleRoleAssociation.findAll", query = "SELECT m FROM ModuleRoleAssociation m")
 public class ModuleRoleAssociation implements Serializable {
 	private static final long	serialVersionUID	= 1L;

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_ddos_details")
+@Table(name = "jq_ddos_details")
 public class DDOSDetails implements Serializable {
 
 	/**

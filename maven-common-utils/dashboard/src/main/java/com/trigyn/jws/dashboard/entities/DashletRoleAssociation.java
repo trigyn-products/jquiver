@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import com.trigyn.jws.dbutils.entities.UserRole;
 
 @Entity
-@Table(name = "dashlet_role_association")
+@Table(name = "jq_dashlet_role_association")
 @NamedQuery(name = "DashletRoleAssociation.findAll", query = "SELECT d FROM DashletRoleAssociation d")
 public class DashletRoleAssociation implements Serializable {
 	private static final long			serialVersionUID	= 1L;

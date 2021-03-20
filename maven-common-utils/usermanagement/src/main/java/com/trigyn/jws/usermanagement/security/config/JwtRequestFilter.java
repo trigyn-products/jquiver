@@ -40,8 +40,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		String			username			= null;
 		String			jwt					= null;
-
-		if (request.getRequestURI().startsWith("/japi/") && !request.getRequestURI().equals("/japi/error")) {
+		String			requestUri			= request.getRequestURI().substring(request.getContextPath().length());
+		if (requestUri.startsWith("/japi/") && !requestUri.equals("/japi/error")) {
 
 			try {
 				if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {

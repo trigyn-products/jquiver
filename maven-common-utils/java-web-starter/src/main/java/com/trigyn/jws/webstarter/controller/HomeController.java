@@ -51,7 +51,7 @@ public class HomeController {
 			throws IOException {
 		try {
 			UserDetailsVO	userDetailsVO		= userDetails.getUserDetails();
-			List<String>	roleNameList			= userDetailsVO.getRoleIdList();
+			List<String>	roleNameList		= userDetailsVO.getRoleIdList();
 			List<String>	roleIdPriorityList	= jwsRoleRepository.getRoleIdByPriority(roleNameList);
 			List<String>	homePageURLList		= iModuleListingRepository.getModuleURLByRoleId(roleIdPriorityList,
 					Constant.IS_HOME_PAGE);
@@ -65,6 +65,9 @@ public class HomeController {
 			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

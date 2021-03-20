@@ -9,7 +9,7 @@ import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 @Repository
 public interface FileUploadConfigRepository extends JpaRepository<FileUploadConfig, String> {
 
-	@Query(" FROM FileUploadConfig WHERE fileUploadConfigId=:fileUploadConfigId")
-	FileUploadConfig getFileUploadConfig(String fileUploadConfigId);
+	@Query(" FROM FileUploadConfig WHERE fileBinId=:fileBinId")
+	FileUploadConfig getFileUploadConfig(String fileBinId);
 
 }

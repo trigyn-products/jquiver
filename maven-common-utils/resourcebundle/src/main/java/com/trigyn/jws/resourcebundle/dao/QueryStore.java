@@ -23,25 +23,25 @@ public final class QueryStore {
 
 	protected static final String	SQL_QUERY_TO_GET_MESSAGE_DETAILS_BY_RESOURCE_KEY	= new StringBuilder(
 			" SELECT language_id AS languageId, text AS text, resource_Key AS resourceKey ")
-					.append(" FROM resource_bundle WHERE resource_Key =:resourceKey ").toString();
+					.append(" FROM jq_resource_bundle WHERE resource_Key =:resourceKey ").toString();
 
 	protected static final String	SQL_QUERY_TO_GET_MESSAGE_DETAILS					= new StringBuilder(
 			" SELECT language_id AS languageId, resource_key AS resourceKey, text ")
-					.append(" FROM resource_bundle WHERE language_id=? AND resource_key=?").toString();
+					.append(" FROM jq_resource_bundle WHERE language_id=? AND resource_key=?").toString();
 
 	protected static final String	SQL_QUERY_TO_DELETE_RESOURCE_BUNDLE					= new StringBuilder(
-			" DELETE FROM resource_bundle WHERE text=? AND language_id=? AND resource_key=?").toString();
+			" DELETE FROM jq_resource_bundle WHERE text=? AND language_id=? AND resource_key=?").toString();
 
 	protected static final String	SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE					= new StringBuilder(
-			" INSERT INTO resource_bundle(language_id,resource_key,text) VALUES (?,?,?)").toString();
+			" INSERT INTO jq_resource_bundle(language_id,resource_key,text) VALUES (?,?,?)").toString();
 
 	protected static final String	SQL_QUERY_TO_UPDATE_RESOURCE_BUNDLE					= new StringBuilder(
-			"UPDATE resource_bundle SET text=? WHERE resource_key=? AND language_id=?").toString();
+			"UPDATE jq_resource_bundle SET text=? WHERE resource_key=? AND language_id=?").toString();
 
 	protected static final String	SQL_QUERY_TO_GET_LANGAUGE_ID_BY_NAME				= new StringBuilder(
-			" SELECT language_id AS languageId FROM language WHERE language_name = ? ").toString();
+			" SELECT language_id AS languageId FROM jq_language WHERE language_name = ? ").toString();
 
 	protected static final String	SQL_QUERY_TO_GET_LANGAUGE_DETAILS					= new StringBuilder(
-			" SELECT language_name AS languageName, language_id AS languageId FROM language ").toString();
+			" SELECT language_name AS languageName, language_id AS languageId FROM jq_language ").toString();
 
 }

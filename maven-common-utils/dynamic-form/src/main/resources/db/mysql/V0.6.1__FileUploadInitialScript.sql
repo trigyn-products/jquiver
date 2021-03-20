@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS jws_file_upload;
-CREATE TABLE jws_file_upload (
+DROP TABLE IF EXISTS jq_file_upload;
+CREATE TABLE jq_file_upload (
    file_upload_id VARCHAR(50) NOT NULL,
    file_path VARCHAR(5000) CHARACTER SET utf8 COLLATE utf8_general_ci,
    original_file_name VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci,

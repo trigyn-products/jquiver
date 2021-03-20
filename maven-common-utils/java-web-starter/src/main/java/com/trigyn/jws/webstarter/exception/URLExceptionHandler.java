@@ -1,6 +1,5 @@
 package com.trigyn.jws.webstarter.exception;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.repository.ModuleDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
-import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -119,22 +117,6 @@ public class URLExceptionHandler implements ErrorController {
 
 		}
 		return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
-	}
-
-	private TemplateVO getTemplateIfAssociatedWithURL(String requestedURL) throws Exception {
-		TemplateVO		templateVO		= null;
-		ModuleDetailsVO	moduleDetailsVO	= iModuleListingRepository.getTargetTypeDetails(requestedURL);
-
-		if (moduleDetailsVO != null) {
-			List<Map<String, Object>> targetTypeMapList = new ArrayList<>();
-			targetTypeMapList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(),
-					moduleDetailsVO.getTargetTypeId());
-			if (!CollectionUtils.isEmpty(targetTypeMapList)) {
-				String templateName = targetTypeMapList.get(0).get("targetTypeName").toString();
-				templateVO = templateService.getTemplateByName(templateName);
-			}
-		}
-		return templateVO;
 	}
 
 	@Override

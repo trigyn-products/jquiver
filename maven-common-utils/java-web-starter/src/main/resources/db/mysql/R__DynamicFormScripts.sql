@@ -1,22 +1,27 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('ba1845fd-09ac-11eb-a027-f48e38ab8cd7', 'dynamic-form-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <div class="container">
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.formBuilder'')}</h2> 
 		<div class="float-right">
+            Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
 			<#if environment == "dev">
 				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="Download Forms" type="button">
 				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="Upload Forms" type="button">
@@ -32,11 +37,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		
 		<div id="divDynamicFormMasterGrid"></div>
 
-		<form action="/cf/aedf" method="POST" id="addEditDynamicForm">	
+		<form action="${(contextPath)!''''}/cf/aedf" method="POST" id="addEditDynamicForm">	
 			<input type="hidden" id="formId" name="form-id">	
 		</form>
 		<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-			<input type="hidden" id="entityName" name="entityName" value="dynamic_form">
+			<input type="hidden" id="entityName" name="entityName" value="jq_dynamic_form">
 			<input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
 			<input type="hidden" id="moduleType" name="moduleType" value="dynamicForm">
@@ -47,6 +52,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
 		let formElement = $("#addEditDynamicForm")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("dynamic-form-manage-details", formDataJson);
@@ -62,15 +70,39 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter}
+				{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter, sortable: false}
 			];
-	
+			let dataModel = {
+        		url: contextPath+"/cf/pq-grid-data",
+        		sortIndx: "formName",
+        		sortDir: "up",
+    		};
 			let grid = $("#divDynamicFormMasterGrid").grid({
 				gridId: "dynamicFormListingGrid",
-				colModel: colM
+				colModel: colM,
+          		dataModel: dataModel,
+                additionalParameters: {"cr_formTypeId":"str_1"}
 			});
 	});
 	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dynamicFormListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dynamicFormListingGrid"
+                    ,"cr_formTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divDynamicFormMasterGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+        
 	function formType(uiObject){
 		const formTypeId = uiObject.rowData.formTypeId;
 		if(formTypeId === 1){
@@ -116,7 +148,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
   	function downloadFormById(thisObj){
 	  	let formId = thisObj.id;
 	  	$.ajax({
-			url:"/cf/ddfbi",
+			url:contextPath+"/cf/ddfbi",
 			type:"POST",
 	        data:{
 	        	formId : formId,
@@ -134,7 +166,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  	let formId = thisObj.id;
 		let formName = $("#"+formId).attr("name");
 	  	$.ajax({
-			url:"/cf/udfbn",
+			url:contextPath+"/cf/udfbn",
 			type:"POST",
 	        data:{
 	        	formName : formName,
@@ -149,12 +181,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
   	}
 	
 	function backToHome() {
-		location.href = "/cf/home";
+		location.href = contextPath+"/cf/home";
 	}
 	<#if environment == "dev">
 		function downloadForm(){
 		     $.ajax({
-		        url:"/cf/ddf",
+		        url:contextPath+"/cf/ddf",
 		        type:"POST",
 				success : function(data) {
 				  showMessage("Dynamic Forms downloaded successfully", "success");
@@ -167,7 +199,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		}
 		function uploadForm(){
 		     $.ajax({
-		        url:"/cf/udf",
+		        url:contextPath+"/cf/udf",
 		        type:"POST",
 		        success : function(data) {
 				  showMessage("Dynamic Forms uploaded successfully", "success");
@@ -183,30 +215,40 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 </script>', 'aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id)VALUES ('be46dd5b-09ac-11eb-a027-f48e38ab8cd7','dynamic-form-manage-details','<head>
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<script src="/webjars/1.0/monaco/require.js"></script>
-	<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-	<script src="/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id)VALUES
+ ('be46dd5b-09ac-11eb-a027-f48e38ab8cd7','dynamic-form-manage-details','<head>
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+	<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
+	<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+	<script src="${(contextPath)!''''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 </head>
 
 <div class="container">
-	<div class="topband">
-		<#if (dynamicForm?api.getFormId())??>
-		    <h2 class="title-cls-name float-left">Edit Dynamic Form</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">Add Dynamic Form</h2> 
-        </#if>
-		<div class="float-right">				
-			<span onclick="addEdit.backToDynamicFormListing();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-			</span>              
-		</div>
+	<div class="row topband">
+		<div class="col-8">
+			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content>
+			    <h2 class="title-cls-name float-left">Edit Dynamic Form</h2> 
+	        <#else>
+	            <h2 class="title-cls-name float-left">Add Dynamic Form</h2> 
+	        </#if>
+	    </div>
+        
+       	<div class="col-4">
+	        <#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content>
+	        <#assign ufAttributes = {
+	            "entityType": "Form Builder",
+	            "entityId": "formId",
+	            "entityName": "formName"
+	        }>
+	        <@templateWithParams "user-favorite-template" ufAttributes />
+	        </#if>
+	     </div>
+        
 		<div class="clearfix"></div>                         
 	</div>
                               
@@ -218,7 +260,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 					<span class="asteriskmark">*</span>
 					<label for="formName" >Form name: </label>
 					<input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
-					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
+					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" onkeyup="addEdit.hideErrorMessage();" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
 				</div>
 			</div>
                                                                                                                         
@@ -229,23 +271,29 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
                 
-            <#if (tables)?has_content>                                            
-				<div class="col-6">
+            <#if !(dynamicForm?api.getFormId())?? && !(dynamicForm?api.getFormId())?has_content>   
+	            <div class="col-6">
 					<div class="col-inner-form full-form-fields">
-						<label for="formTemplate" >Form template : </label>
-                        <select id="formTemplate" name="formTemplate" placeholder="Select for default template" class="form-control" onchange="loadTableTemplate(event);"/>   
-							<option>Select</option>
-                        	<#list tables as tableName>
-								<option>${tableName}</option>
-                            </#list>
-						</select>
-					</div>
+	                    <label for="flammableState" style="white-space:nowrap">Select Table</label>
+	                    <div class="search-cover">
+	                        <input class="form-control" id="tableAutocomplete" type="text">
+	                    	<i class="fa fa-search" aria-hidden="true"></i>
+	                    </div>
+	                	<input type="hidden" id="formTemplate" name="formTemplate">
+	            	</div>
 				</div>
 			</#if>
 				
 
 		</div>
-                   
+        
+    <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+		<h3 class="titlename method-sign-info">
+		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
+	    </h3>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+    </div>
+               
         <div class="row margin-t-b">  
 			<div class="col-12">
 				<h3 class="titlename"><span class="asteriskmark">*</span>Select Script</h3>
@@ -330,6 +378,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	let formName = "${(dynamicForm?api.getFormName())!''''}";
 	let formId = "${(dynamicForm?api.getFormId())!''''}";
 	let initialFormData;
+	let tableAutocomplete;
+	
 	formName = $.trim(formName);
 	if(formName !== ""){
 		$("#formName").prop("disabled", true);
@@ -337,6 +387,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	const addEdit = new AddEditDynamicForm();
   $(function () {
     AddEditDynamicForm.prototype.loadAddEditDynamicForm();
+	if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+		getSavedEntity();
+	}
+	
 	savedAction("dynamic-form-manage-details", formId);
     hideShowActionButtons();
     
@@ -345,15 +399,38 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         multiselect.setSelectedObject(defaultAdminRole);
     
     </#if>
+    
+    	tableAutocomplete = $("#tableAutocomplete").autocomplete({
+	        autocompleteId: "table-autocomplete",
+	        prefetch : true,
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                renderStr = "<p>"+item.tableName+"</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },
+	        additionalParamaters: {},
+	        extractText: function(item) {
+	            return item.tableName;
+	        },
+	        select: function(item) {
+	            $("#tableAutocomplete").blur();
+	            $("#selectTable").val(item.tableName);
+	            loadTableTemplate(item.tableName);
+	        },     
+	    });
+    
   });
 
-  function loadTableTemplate(event){
-  	let tableName = event.currentTarget.value;
+  function loadTableTemplate(tableName){
       $.ajax({
           type: "POST",
           url: contextPath+"/cf/dfte",
           data: {
-            tableName: event.currentTarget.value
+            tableName: tableName
           },
           success: function(data) {
   		      dashletHTMLEditor.setValue(data["form-template"].trim());

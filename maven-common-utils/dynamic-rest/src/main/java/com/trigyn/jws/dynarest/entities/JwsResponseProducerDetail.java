@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jws_response_producer_details")
+@Table(name = "jq_response_producer_details")
 @NamedQuery(name = "JwsResponseProducerDetail.findAll", query = "SELECT j FROM JwsResponseProducerDetail j")
 public class JwsResponseProducerDetail implements Serializable {
 	private static final long			serialVersionUID			= 1L;

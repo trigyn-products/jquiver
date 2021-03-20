@@ -52,6 +52,9 @@ public class ResourceBundleCrudController {
 			return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -59,17 +62,27 @@ public class ResourceBundleCrudController {
 	}
 
 	@PostMapping(value = "/aerb")
-	public String dbResourceJsp(@RequestParam("resource-key") String resourceBundleKey) throws Exception {
+	public String dbResourceJsp(HttpServletResponse httpServletResponse,
+			@RequestParam("resource-key") String resourceBundleKey) throws Exception {
 		Map<String, Object> templateMap = new HashMap<>();
-		if (resourceBundleKey != null) {
-			Map<Integer, ResourceBundleVO> resourceBundleVOMap = resourceBundleService
-					.getResourceBundleVOMap(resourceBundleKey);
-			templateMap.put("resourceBundleVOMap", resourceBundleVOMap);
+		try {
+			if (resourceBundleKey != null) {
+				Map<Integer, ResourceBundleVO> resourceBundleVOMap = resourceBundleService
+						.getResourceBundleVOMap(resourceBundleKey);
+				templateMap.put("resourceBundleVOMap", resourceBundleVOMap);
+			}
+			List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
+			templateMap.put("languageVOList", languageVOList);
+			templateMap.put("resourceBundleKey", resourceBundleKey);
+			return menuService.getTemplateWithSiteLayout("resource-bundle-manage-details", templateMap);
+		} catch (Exception a_exception) {
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
 		}
-		List<LanguageVO> languageVOList = resourceBundleService.getLanguagesList();
-		templateMap.put("languageVOList", languageVOList);
-		templateMap.put("resourceBundleKey", resourceBundleKey);
-		return menuService.getTemplateWithSiteLayout("resource-bundle-manage-details", templateMap);
+
 	}
 
 	@GetMapping(value = "/crbk", produces = { MediaType.APPLICATION_JSON_VALUE })

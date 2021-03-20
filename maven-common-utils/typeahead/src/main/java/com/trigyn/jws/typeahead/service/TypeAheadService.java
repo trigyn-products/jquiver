@@ -28,7 +28,7 @@ public class TypeAheadService {
 	@Autowired
 	private ModuleVersionService	moduleVersionService	= null;
 
-	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
+	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) throws Exception {
 		return typeAheadDAO.getAutocompleteData(autocompleteParams);
 	}
 
@@ -59,7 +59,7 @@ public class TypeAheadService {
 		AutocompleteVO autocompleteVO = convertEntityToVO(autoCompleteId, autoCompleteDesc, autoCompleteSelectQuery);
 
 		typeAheadRepository.save(autocomplete);
-		moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "autocomplete_details",
+		moduleVersionService.saveModuleVersion(autocompleteVO, null, autoCompleteId, "jq_autocomplete_details",
 				sourceTypeId);
 
 		return autoCompleteId;
@@ -75,9 +75,9 @@ public class TypeAheadService {
 		return autocompleteVO;
 	}
 
-	public List<String> getAllTablesListInSchema() {
-		return typeAheadDAO.getAllTablesListInSchema();
-	}
+	//	public List<String> getAllTablesListInSchema() {
+	//		return typeAheadDAO.getAllTablesListInSchema();
+	//	}
 
 	public List<Map<String, Object>> getColumnNamesByTableName(String tableName) {
 		return typeAheadDAO.getColumnNamesByTableName(tableName);

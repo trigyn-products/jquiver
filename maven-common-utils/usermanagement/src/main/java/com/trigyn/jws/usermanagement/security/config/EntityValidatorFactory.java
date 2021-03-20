@@ -29,6 +29,12 @@ public class EntityValidatorFactory {
 	@Autowired
 	private SiteLayoutEntityValidator	siteLayoutEntityValidator	= null;
 
+	@Autowired
+	private FileBinEntityValidator		fileBinEntityValidator		= null;
+
+	@Autowired
+	private HelManualEntityValidator	helManualEntityValidator	= null;
+
 	public EntityValidator createEntityValidator(String entityType) {
 
 		switch (entityType) {
@@ -52,6 +58,12 @@ public class EntityValidatorFactory {
 
 			case Constants.SITELAYOUT:
 				return siteLayoutEntityValidator;
+
+			case Constants.FILEBIN:
+				return fileBinEntityValidator;
+
+			case Constants.HELPMANUAL:
+				return helManualEntityValidator;
 
 			default:
 				// throw new UnsupportedOperationException("Unsupported type!");

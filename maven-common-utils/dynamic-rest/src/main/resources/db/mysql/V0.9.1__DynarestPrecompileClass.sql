@@ -1,4 +1,4 @@
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum) VALUES
 ('8a80cb8174922d6b01749235bd840000', 'dynarest-class-template-structure', 'import java.util.List;
 import java.util.Map;
 import java.util.HashMap;

@@ -57,6 +57,12 @@ public class UserManagementDAO extends DBConnection {
 	}
 
 	@Transactional
+	public JwsUser updateUserData(JwsUser jwsUser) {
+		getCurrentSession().saveOrUpdate(jwsUser);
+		return jwsUser;
+	}
+
+	@Transactional
 	public void saveRoleData(JwsRole jwsRole) {
 		getCurrentSession().saveOrUpdate(jwsRole);
 	}

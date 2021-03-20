@@ -64,7 +64,14 @@ class DynamicRest {
 					wordWrapMinified: true,
 					wrappingIndent: "indent"
 	        	});
+	        	context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+					typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
+				});
+				context.serviceLogicContent.onDidChangeModelContent( function (){
+    				$('#errorMessage').hide();
+				});
     	});
+
     }
     
     addSaveQueryEditor = function(element, daoDetailsId, versionDetails, variableName, saveQueryContent, queryType){
@@ -129,6 +136,12 @@ class DynamicRest {
 	        		context.daoDetailsIds.push(daoDetailsObject);
 	        	}
 	        	$("#removeTemplate_0").remove();
+	        	saveUpdateEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+					typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
+				});
+				saveUpdateEditor.onDidChangeModelContent( function (){
+    				$('#errorMessage').hide();
+				});
 	        	context.updateVariableSeq();
     	});
 	}
@@ -162,11 +175,12 @@ class DynamicRest {
 		
 		$.ajax({
 		    type : "POST",
-		    url : "sdf",
+		    url : contextPath+"/cf/sdf",
 		    async : false,
 			data : formData, 
 			success : function(data){
 				if(data === true){
+					$("#isEdit").val(1);
 					isDataSaved = context.saveDAOQueries(context.formId);
 				}
 			},
@@ -306,6 +320,10 @@ class DynamicRest {
 		});
 	}
 	
+	hideErrorMessage = function(){
+    	$('#errorMessage').hide();
+    }
+    
 	backToDynarestListingPage = function() {
     	window.location = "../cf/dynl";
   	}
@@ -332,7 +350,7 @@ let saveEntityRoleAssociation = function(dynaRestId){
         async : false,
         type : "POST",
         contentType : "application/json",
-        url : "/cf/ser", 
+        url : contextPath+"/cf/ser", 
         data : JSON.stringify(entityRoles),
         success : function(data) {
 	    }
@@ -342,7 +360,7 @@ let getEntityRoles = function(){
 	$.ajax({
         async : false,
         type : "GET",
-        url : "/cf/ler", 
+        url : contextPath+"/cf/ler", 
         data : {
         	entityId:$("#dynarestId").val(),
         	moduleId:$("#moduleId").val(),

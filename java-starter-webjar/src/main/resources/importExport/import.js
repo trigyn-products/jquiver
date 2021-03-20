@@ -3,18 +3,23 @@
 		importedFileData = new FormData(document.getElementById("importForm"))
     	    	
     	$.ajax({
-	    	url : '/cf/impF',
+	    	url : contextPath+'/cf/impF',
 	    	type : "post",
 	    	data: importedFileData,
 	        enctype: 'multipart/form-data',
 	        processData: false,
 	        contentType: false,
 	    	success : function(data) {
-				localStorage.removeItem("imporatableData");
-	    		localStorage.removeItem("importedIdList");
-	    		idList = new Array();
-	    		imporatableData = data;
-	    		loadTable(imporatableData);
+	    		if(data.startsWith("fail:")){
+    				let errorMessageString = data.substring(5);
+    				showMessage(errorMessageString, "error");
+    			} else {
+					localStorage.removeItem("imporatableData");
+		    		localStorage.removeItem("importedIdList");
+		    		idList = new Array();
+		    		imporatableData = data;
+		    		loadTable(imporatableData);
+		    	}
 	    	},
 	    	error: function (textStatus, errorThrown) {
 	    		$("#htmlTable > tbody").empty();
@@ -27,7 +32,7 @@
     	let isError = "false";
     	var versionMap = new Map();
     	$.ajax({
-	    	url : '/cf/glv',
+	    	url : contextPath+'/cf/glv',
 	    	async : false,
 	    	type : "post",
 	    	data: {
@@ -48,7 +53,7 @@
     	
     	var crcMap = new Map();
     	$.ajax({
-	    	url : '/cf/glcrc',
+	    	url : contextPath+'/cf/glcrc',
 	    	async : false,
 	    	type : "post",
 	    	data: {
@@ -85,7 +90,7 @@
 					let existingVersion = versionMap.get(moduleType.toLowerCase()+moduleID);
 					let isNonVersioningModule = "false";
 					if(moduleType == "FileManager" || moduleType == "Permission" || moduleType == "SiteLayout"
-						|| moduleType == "ManageUsers" || moduleType == "ManageRoles") {
+						|| moduleType == "ManageUsers" || moduleType == "ManageRoles" || moduleType == "HelpManual") {
 						isNonVersioningModule = "true";
 					}
 					let isCheckSumUpdated = crcMap.get(moduleType.toLowerCase()+moduleID);
@@ -201,14 +206,14 @@
 			moduleName = jsonObject["formName"];
 			moduleTypeStr = "dynamicForm";
 			
-		} else if(moduleType == "FileManager") { 
+		} /*else if(moduleType == "FileManager") { 
 			moduleName = jsonObject["fileUploadConfigId"];
 			moduleTypeStr = "fileManager";
 			isNonVersioningModule = "true";
 			nonVersioningFetchURL = "/cf/fuj";
 			saveURL = "/cf/sfuc";
 			
-		} else if(moduleType == "DynaRest") {
+		} */else if(moduleType == "DynaRest") {
 			entityName="jws_dynamic_rest_details";
 			formId = jsonObject["formId"];
 			moduleName = jsonObject["jwsDynamicRestUrl"];
@@ -264,7 +269,7 @@
     
     function importSingle(moduleType, entityId) {
 		$.ajax({
-	    	url : '/cf/importConfig',
+	    	url : contextPath+'/cf/importConfig',
 	    	type : "POST",
 			async: false,
 	    	data: {
@@ -296,7 +301,7 @@
     function importAll() {
     	if(isDataAvailableForImport == true) {
     		$.ajax({
-    	    	url : '/cf/importAll',
+    	    	url : contextPath+'/cf/importAll',
     	    	type : "POST",
     			async: false,
     	    	data: {
@@ -328,7 +333,7 @@
     }
 
 	function backToPreviousPage(){
-		location.href = "/cf/home";
+		location.href = contextPath+"/cf/home";
 	}
 	
 

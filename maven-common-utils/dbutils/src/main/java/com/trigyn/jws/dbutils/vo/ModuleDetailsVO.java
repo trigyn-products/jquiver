@@ -41,9 +41,10 @@ public class ModuleDetailsVO implements Serializable {
 		this.targetTypeId		= targetTypeId;
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName) {
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL) {
 		this.moduleId	= moduleId;
 		this.moduleName	= moduleName;
+		this.moduleURL	= moduleURL;
 	}
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,
@@ -55,6 +56,12 @@ public class ModuleDetailsVO implements Serializable {
 		this.parentModuleName	= parentModuleName;
 		this.sequence			= sequence;
 		this.subModuleCount		= subModuleCount;
+	}
+
+	public ModuleDetailsVO(String moduleURL, Integer targetLookupId, String targetTypeId) {
+		this.moduleURL		= moduleURL;
+		this.targetLookupId	= targetLookupId;
+		this.targetTypeId	= targetTypeId;
 	}
 
 	public ModuleDetailsVO(Integer targetLookupId, String targetTypeId) {

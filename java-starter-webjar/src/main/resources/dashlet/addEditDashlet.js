@@ -10,6 +10,7 @@ class AddEditDashlet {
 AddEditDashlet.prototype.fn = {
 	
 	loadAddEditDashletPage : function(){
+		let context = this;
 		let isActive = $("#isActive").val();
 		let showHeader = $("#showHeader").val();
 		
@@ -23,8 +24,16 @@ AddEditDashlet.prototype.fn = {
 					readOnly: false,
 					theme: "vs-dark"
 	        	});
+	        	dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+			    	typeOfAction('dashlet-manage-details',  $("#savedAction").find("button"), 
+			    		addEditDashletFn.saveDashlet.bind(addEditDashletFn),addEditDashletFn.backToDashletListing);
+				});
+		    	dashletSQLEditor.onDidChangeModelContent( function (){
+		    		$('#errorMessage').hide();
+				});
 	        	$("#sqlContent").remove();
     	});
+
     	
     	require(["vs/editor/editor.main"], function() {
         dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
@@ -35,8 +44,16 @@ AddEditDashlet.prototype.fn = {
 					readOnly: false,
 					theme: "vs-dark"
 	        	});
+	        	dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+			    	typeOfAction('dashlet-manage-details',  $("#savedAction").find("button"), 
+			    		addEditDashletFn.saveDashlet.bind(addEditDashletFn),addEditDashletFn.backToDashletListing);
+				});
+		    	dashletHTMLEditor.onDidChangeModelContent( function (){
+		    		$('#errorMessage').hide();
+				});
 	        	$("#htmlContent").remove();
-    	})
+    	});
+
   		
 		if (isActive === "1") {
 			$("#isActiveCheckbox").prop("checked", true);

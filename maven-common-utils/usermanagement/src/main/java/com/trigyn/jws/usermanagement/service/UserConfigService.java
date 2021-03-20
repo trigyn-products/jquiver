@@ -36,6 +36,7 @@ public class UserConfigService {
 		if (applicationSecurityDetails.getAuthenticationType() != null) {
 			Integer					authType			= Integer
 					.parseInt(applicationSecurityDetails.getAuthenticationType());
+			mapDetails.put("authType", String.valueOf(authType));
 			JwsAuthenticationType	authenticationType	= authenticationTypeRepository.findById(authType)
 					.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
 			if (StringUtils.isNotBlank(authenticationType.getAuthenticationProperties())) {
@@ -60,6 +61,9 @@ public class UserConfigService {
 						mapDetails.put(captchaPropertyName, Boolean.FALSE);
 						mapDetails.put(authenticatorPropertyName, Boolean.FALSE);
 					}
+				} else if(authType != null && authType==4) {
+					mapDetails.put(captchaPropertyName, Boolean.FALSE);
+					mapDetails.put(authenticatorPropertyName, Boolean.TRUE);
 				} else {
 					mapDetails.put(captchaPropertyName, Boolean.FALSE);
 					mapDetails.put(authenticatorPropertyName, Boolean.FALSE);

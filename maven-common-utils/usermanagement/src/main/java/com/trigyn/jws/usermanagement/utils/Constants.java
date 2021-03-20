@@ -23,7 +23,8 @@ public final class Constants {
 	public final static String	AUTHENTICATED_ROLE_NAME	= "AUTHENTICATED";
 
 	public enum AuthType {
-		INMEMORY(1), DAO(2), LDAP(3), OAUTH(4);
+		@Deprecated
+		INMEMORY(1), DAO(2), LDAP(3), OAUTH(4), SAML(5);
 
 		final Integer authType;
 
@@ -39,7 +40,8 @@ public final class Constants {
 	public enum Modules {
 
 		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
-		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout");
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"),
+		FILEBIN("File Bin"), HELPMANUAL("Help Manual");
 
 		final String moduleName;
 
@@ -59,6 +61,8 @@ public final class Constants {
 	public final static String	AUTOCOMPLETE			= "TypeAhead Autocomplete";
 	public final static String	DASHBOARD				= "Dashboard";
 	public final static String	SITELAYOUT				= "Site Layout";
+	public final static String	FILEBIN					= "File Bin";
+	public final static String	HELPMANUAL				= "Help Manual";
 
 	public final static Integer	COMMON_MODULE_TYPE_ID	= 1; // included templates or anonymous templates
 	public final static Integer	DEFAULT_MODULE_TYPE_ID	= 0; // rest all templates shown in entityrole listing

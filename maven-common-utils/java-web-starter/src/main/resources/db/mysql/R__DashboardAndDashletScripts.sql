@@ -1,21 +1,26 @@
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('365e2aa5-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.dashboard'')}</h2> 
 		<div class="float-right">
+		Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
 			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage(''jws.createNewDashboard'')}" type="button" onclick="submitForm(this)">
 			<input class="btn btn-primary" name="manageDashlets" value="${messageSource.getMessage(''jws.manageDashblet'')}" type="button" onclick="openDashlets(this)">
 			<span onclick="backToWelcomePage();">
@@ -48,32 +53,59 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
 		let formElement = $("#formDBRedirect")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("dashboard-manage-details", formDataJson);
 		
 		let colM = [
 			{ title: "", dataIndx: "dashboardId", hidden: true},
-			{ title: "${messageSource.getMessage(''jws.dashboardName'')}", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.dashboardName'')}", width: 180, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "${messageSource.getMessage(''jws.dashboardType'')}", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.contextDescription'')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+			{ title: "${messageSource.getMessage(''jws.createdBy'')}", hidden: true, width: 100, dataIndx: "createdBy", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
 			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
 			{ title: "${messageSource.getMessage(''jws.lastUpdatedDate'')}", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
-			{ title: "${messageSource.getMessage(''jws.contextDescription'')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
-				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashboard}
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashboard, sortable: false}
 		];
-	
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedDate",
+        	sortDir: "down",
+    	};	
 		let grid = $("#dashboardMasterGrid").grid({
 	      gridId: "dashboardMasterListingGrid",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_dashboardType":"str_1"}
 	  	});
 	
 	});
 	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dashboardMasterListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dashboardMasterListingGrid" 
+                    ,"cr_dashboardType":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#dashboardMasterGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+      
 	function editDashboard(uiObject) {
 		let actionElement;
 		const dashboardId = uiObject.rowData.dashboardId;
@@ -122,34 +154,41 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('410deeb3-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 
 </head> 
 
 <div class="container"> 
 
-	<div class="topband">
-		<#if (dashboard?api.getDashboardId())??>
-		    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashboard")}</h2>  
-        </#if> 
-		
-		<div class="float-right">
-			<span onclick="addEditDashboardFn.backToDashboardListingPage();">
-  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-  		 	</span>	
-		</div>
-		
+		<div class="row topband">
+			<div class="col-8">
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashboard")}</h2>  
+		        </#if>
+		   	</div>
+	    
+	        <div class="col-4">   
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+			        <#assign ufAttributes = {
+			            "entityType": "Dashboard",
+			            "entityId": "dashboardId",
+			            "entityName": "dashboardName"
+			        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	     		</#if> 
+			</div>
+			
 		<div class="clearfix"></div>		
 	</div>
 
@@ -238,7 +277,6 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			</div>
 		</div>		
 	
-	</div>
 	
 </div>
 
@@ -250,29 +288,34 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 	$(function() {
 		  
-	  const addEditDashboard = new AddEditDashboard(contextId, dashboardId);
-	  addEditDashboardFn = addEditDashboard.fn;
-	  addEditDashboardFn.loadDashboardPage();
-	  savedAction("dashboard-manage-details", dashboardId);
-	  hideShowActionButtons();
+	  	const addEditDashboard = new AddEditDashboard(contextId, dashboardId);
+	  	addEditDashboardFn = addEditDashboard.fn;
+	  	addEditDashboardFn.loadDashboardPage();
+	  
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+	  	
+	  	savedAction("dashboard-manage-details", dashboardId);
+	  	hideShowActionButtons();
 	});
 
 </script>
-<script src="/webjars/1.0/dashboard/addEditDashboard.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
+<script src="${(contextPath)!''''}/webjars/1.0/dashboard/addEditDashboard.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('448f4ab0-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script>
   contextPath = "${(contextPath)!''''}";
 </script>
@@ -281,6 +324,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
 		<div class="float-right">
+		Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
 			<#if environment == "dev">
 				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
 				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
@@ -312,35 +360,60 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	let dashletListing;
 	$(function () {
-	dashletListing = new DashletListing();
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		dashletListing = new DashletListing();
 		let formElement = $("#formDMRedirect")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("dashlet-manage-details", formDataJson);
 		
 		let colM = [
-			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.dashletName'')}", width: 180, dataIndx: "dashletName" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.dashletTitle'')}", width: 180, dataIndx: "dashletTitle", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdBy'')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.createdBy'')}", hidden: true, width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center"},
+			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", hidden: true, width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.status'')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }, render: dashletStatus},
-			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center"},
+			{ title: "${messageSource.getMessage(''jws.status'')}", width: 80, dataIndx: "status" , align: "left", halign: "center", render: dashletStatus},
+			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashlet, sortable: false}
 		];
-	
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "updatedDate",
+        	sortDir: "down",
+    	};
 		let grid = $("#divdDashletMasterGrid").grid({
 			gridId: "dashletMasterListingGrid",
-			colModel: colM
-		});
+			colModel: colM,
+          	dataModel: dataModel,
+          additionalParameters: {"cr_dashletTypeId":"str_1"}
+	  });
+	  
 	});
 	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dashletMasterListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dashletMasterListingGrid" 
+                    ,"cr_dashletTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divdDashletMasterGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+       
 	function dashletType(uiObject){
 		const dashletTypeId = uiObject.rowData.dashletTypeId;
 		if(dashletTypeId === 1){
@@ -385,36 +458,45 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 	
 </script>
-<script src="/webjars/1.0/dashlet/dashletListing.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+<script src="${(contextPath)!''''}/webjars/1.0/dashlet/dashletListing.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('49f6cfd9-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" href="/webjars/1.0/dashboard/dashboard.css" />
-<script src="/webjars/1.0/monaco/require.js"></script>
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/dashboard/dashboard.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 
 
 <div class="container">
 
 	<div class="topband">
-		<#if (dashletVO.dashletId)??>
-		    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
-        </#if> 
-		<div class="float-right">
-			<span onclick="addEditDashletFn.backToDashletListing();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
-			</span>	
-		</div>
+		<div class="row topband">
+			<div class="col-8">
+				<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
+		        </#if> 
+		     </div>
+        
+	        <div class="col-4">
+		        <#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+			        <#assign ufAttributes = {
+			            "entityType": "Dashlet",
+			            "entityId": "dashletId",
+			            "entityName": "dashletName"
+			        }>
+			        <@templateWithParams "user-favorite-template" ufAttributes />
+		        </#if>
+		      </div>
 		
 		<div class="clearfix"></div>		
 	</div>
@@ -594,6 +676,13 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		</div>
 	</div>
    
+    <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+		<h3 class="titlename method-sign-info">
+		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
+	    </h3>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+    </div>
+    
 	<div class="row margin-t-b">
 		<div class="col-12">
 			<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.htmlScript")}</h3>
@@ -674,10 +763,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		addEditDashletFn = addEditDashlet.fn;
 		addEditDashletFn.loadAddEditDashletPage();
 		addEditDashletFn.disableInputFields();
+		
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
 		savedAction("dashlet-manage-details", dashletId);
 		hideShowActionButtons();
 	});
 
 </script>
-<script src="/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+<script src="${(contextPath)!''''}/webjars/1.0/dashlet/addEditDashlet.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
   

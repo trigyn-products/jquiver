@@ -30,7 +30,11 @@ public class JwsUserVO implements Serializable {
 	private Integer				forcePasswordChange	= null;
 
 	private Boolean				isProfilePage		= null;
-
+	
+	private Boolean				isSendMail			= true;
+	
+	private int failedAttempt = 0;
+	
 	public String getUserId() {
 		return userId;
 	}
@@ -88,6 +92,7 @@ public class JwsUserVO implements Serializable {
 		jwsUser.setEmail(userData.getEmail());
 		jwsUser.setIsActive(userData.getIsActive());
 		jwsUser.setPassword(userData.getPassword());
+		jwsUser.setFailedAttempt(userData.getFailedAttempt());
 		return jwsUser;
 	}
 
@@ -121,6 +126,22 @@ public class JwsUserVO implements Serializable {
 
 	public void setIsProfilePage(Boolean isProfilePage) {
 		this.isProfilePage = isProfilePage;
+	}
+
+	public Boolean getIsSendMail() {
+		return isSendMail;
+	}
+
+	public void setIsSendMail(Boolean isSendMail) {
+		this.isSendMail = isSendMail;
+	}
+
+	public int getFailedAttempt() {
+		return failedAttempt;
+	}
+
+	public void setFailedAttempt(int failedAttempt) {
+		this.failedAttempt = failedAttempt;
 	}
 
 }

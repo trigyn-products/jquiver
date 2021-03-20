@@ -8,14 +8,15 @@
             this.selectedObject = [];
         }
 
-        loadServerPages = function (searchTerm, pageNumber, pageSize) {
+        loadServerPages = function ( searchTerm, pageNumber, pageSize) {
             const context = this;
+            let contextPathLocal = context.options.contextPath == undefined ? "" : context.options.contextPath;
             var deferred = $.Deferred();
             var searchval = $.trim($(this.element).val());
             if(this.options.prefetch || searchval !== ""){
                 $.ajax({
                     type: "POST",
-                    url: "/cf/autocomplete-data",
+                    url:  contextPathLocal+"/cf/autocomplete-data",
                     data: { 
                             searchText: searchval,
                             autocompleteId : context.options.autocompleteId,
@@ -74,6 +75,12 @@
 	        return this.selectedObject;
         }
         
+        resetAutocomplete = function(){
+        	$(this.element).val("");
+        	$(this.element).blur();
+        	$(this.element).keyup();
+        }
+        
     }
 
     Autocomplete.prototype.init = function(options) {
@@ -107,6 +114,7 @@
 				context.options.resetDependentInput();
         	});
         }
+        
     }
 
     class Multiselect extends TypeAhead {
@@ -155,6 +163,12 @@
 			});
 			
         	return dependentCompChanged;
+        }
+        
+        resetMultiselect = function(){
+        	$(this.element).val("");
+        	$(this.element).blur();
+        	$(this.element).keyup();
         }
     }
 

@@ -1,39 +1,39 @@
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("dashboardMasterListingGrid", 'Dashboard Master Listing', 'Dashboard Master', 'dashboardMasterListing'
 ,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedDate', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
 ("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formId,formName,formDescription,formTypeId,createdDate,createdBy', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing',
 'resourceKey,languageName,resourceBundleText', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
  VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
 VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu', 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
-VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jws_dynamic_rest_details'
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jq_dynamic_rest_details'
 ,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
-VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jws_property_master','*', 1, 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jq_property_master','*', 1, 2);
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
-,'fileUploadConfigId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
-
+,'fileBinId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
+ 
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
 CREATE PROCEDURE autocompleteListing(autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
@@ -41,8 +41,8 @@ BEGIN
   SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
   SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @fromString  = ' FROM autocomplete_details au ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id AND jmv.entity_name = 'autocomplete_details' ");
+  SET @fromString  = ' FROM jq_autocomplete_details au ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = au.ac_id AND jmv.entity_name = 'jq_autocomplete_details' ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -67,6 +67,14 @@ BEGIN
       SET @whereString = CONCAT(@whereString,' AND au.ac_select_query LIKE ''%',acQuery,'%''');
     ELSE
       SET @whereString = CONCAT('WHERE au.ac_select_query LIKE ''%',acQuery,'%''');
+    END IF;  
+  END IF;
+  
+  IF NOT autocompleteTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.ac_type_id = ',autocompleteTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE au.ac_type_id = ',autocompleteTypeId);
     END IF;  
   END IF;
   
@@ -95,8 +103,8 @@ CREATE PROCEDURE dbResourceListing(resourceKey VARCHAR(100), languageName VARCHA
 BEGIN
   SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
   SET @selectQuery = CONCAT(@selectQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @fromString  = ' FROM resource_bundle AS rb INNER JOIN language AS lang ON lang.language_id = rb.language_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'resource_bundle' ");
+  SET @fromString  = ' FROM jq_resource_bundle AS rb INNER JOIN jq_language AS lang ON lang.language_id = rb.language_id ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'resource_bundle' ");
   
   IF languageName IS NULL THEN  
     SET @whereString = ' WHERE lang.language_id = 1 ';
@@ -145,7 +153,7 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
 
 OPEN curP;
 FETCH curP INTO db_format;
@@ -156,8 +164,8 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.created_date,''', db_format,''') as createdDate ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.last_updated_date,''', db_format,''') as lastUpdatedDate ');
-  SET @fromString  = ' FROM dashboard AS db INNER JOIN context_master cm ON db.context_id = cm.context_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'dashboard' ");
+  SET @fromString  = ' FROM jq_dashboard AS db INNER JOIN jq_context_master cm ON db.context_id = cm.context_id ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'dashboard' ");
   SET @whereString = ' WHERE db.is_deleted = 0';
   
   IF NOT dashboardName IS NULL THEN
@@ -183,6 +191,14 @@ FETCH curP INTO db_format;
   IF NOT contextDescription IS NULL THEN
     SET @contextDescription= REPLACE(contextDescription,"'","''");
     SET @whereString = CONCAT(@whereString,' AND cm.context_description like ''%',@contextDescription,'%''');
+  END IF;
+  
+  IF NOT dashboardType IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND db.dashboard_type = ',dashboardType);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE db.dashboard_type = ',dashboardType);
+    END IF;  
   END IF;
   
   
@@ -215,7 +231,7 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
 
 OPEN curP;
 FETCH curP INTO db_format;
@@ -226,8 +242,8 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.created_date,''', db_format,''') as createdDate ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.updated_date,''', db_format,''') as updatedDate ');
-  SET @fromString  = ' FROM dashlet AS dl';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'dashlet' ");
+  SET @fromString  = ' FROM jq_dashlet AS dl';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'dashlet' ");
   SET @whereString = '';
   SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
@@ -290,6 +306,14 @@ FETCH curP INTO db_format;
     END IF;  
   END IF; 
   
+  IF NOT dashletTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND dl.dashlet_type_id = ',dashletTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE dl.dashlet_type_id = ',dashletTypeId);
+    END IF;  
+  END IF;
+  
   SET @groupByString = ' GROUP BY dl.dashlet_id ';
   
   IF NOT sortIndex IS NULL THEN
@@ -316,7 +340,7 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
 
 OPEN curP;
 FETCH curP INTO db_format;
@@ -326,8 +350,8 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId, COUNT(jmv.version_id) AS revisionCount  '); 
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(df.created_date,''', db_format,''') as createdDate ');
-  SET @fromString  = ' from dynamic_form AS df ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version  jmv ON jmv.entity_id = df.form_id AND jmv.entity_name = 'dynamic_form' ");
+  SET @fromString  = ' from jq_dynamic_form AS df ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version  jmv ON jmv.entity_id = df.form_id AND jmv.entity_name = 'jq_dynamic_form' ");
   SET @whereString = '';
   SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -373,6 +397,14 @@ FETCH curP INTO db_format;
     END IF;  
   END IF;
   
+  IF NOT formTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND df.form_type_id = ',formTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE df.form_type_id = ',formTypeId);
+    END IF;  
+  END IF;
+  
   SET @groupByString = ' GROUP BY df.form_id ';
   
   IF NOT sortIndex IS NULL THEN
@@ -406,8 +438,8 @@ BEGIN
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_platform_id AS platformId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_dynamic_rest_type_id AS dynarestTypeId ');
   SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @fromString  = ' FROM jws_dynamic_rest_details AS jdrd ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
+  SET @fromString  = ' FROM jq_dynamic_rest_details AS jdrd ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -452,6 +484,14 @@ BEGIN
     END IF;  
   END IF;
 
+  IF NOT dynarestTypeId IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND jdrd.jws_dynamic_rest_type_id = ',dynarestTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE jdrd.jws_dynamic_rest_type_id = ',dynarestTypeId);
+    END IF;  
+  END IF;
+  
   SET @groupByString = ' GROUP BY dynarestId ';
   
   IF NOT sortIndex IS NULL THEN
@@ -478,35 +518,66 @@ BEGIN
   SET @resultQuery = ' SELECT gd.grid_id AS gridId, gd.grid_name AS gridName, gd.grid_description AS gridDesc, gd.grid_table_name AS gridTableName, gd.grid_column_names AS gridColumnName ';
   SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @fromString  = ' FROM grid_details AS gd ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gd.grid_id AND jmv.entity_name = 'grid_details' ");
+  SET @fromString  = ' FROM jq_grid_details AS gd ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = gd.grid_id AND jmv.entity_name = 'jq_grid_details' ");
 
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   IF NOT gridId IS NULL THEN
     SET @gridId= REPLACE(gridId,"'","''");
-    SET @whereString = CONCAT(@whereString,' WHERE grid_id LIKE ''%',@gridId,'%''');
-  END IF;
-  
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_id LIKE ''%',@gridId,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_id LIKE ''%',@gridId,'%''');
+    END IF; 
+   END IF; 
+    
   IF NOT gridName IS NULL THEN
     SET @gridName= REPLACE(gridName,"'","''");
-    SET @whereString = CONCAT(@whereString,' WHERE grid_name LIKE ''%',@gridName,'%''');
-  END IF;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_name LIKE ''%',@gridName,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_name LIKE ''%',@gridName,'%''');
+    END IF;      
+  END IF; 
+  
   
   IF NOT gridDesc IS NULL THEN
     SET @gridDesc= REPLACE(gridDesc,"'","''");
-    SET @whereString = CONCAT(@whereString,' WHERE grid_description LIKE ''%',@gridDesc,'%''');
-  END IF;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_description LIKE ''%',@gridDesc,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_description LIKE ''%',@gridDesc,'%''');
+    END IF;      
+  END IF; 
   
   IF NOT gridTableName IS NULL THEN
     SET @gridTableName= REPLACE(gridTableName,"'","''");
-    SET @whereString = CONCAT(@whereString,' WHERE grid_table_name LIKE ''%',@gridTableName,'%''');
-  END IF;
-
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_table_name LIKE ''%',@gridTableName,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_table_name LIKE ''%',@gridTableName,'%''');
+    END IF;      
+  END IF; 
+  
+  
   IF NOT gridColumnName IS NULL THEN
     SET @gridColumnName= REPLACE(gridColumnName,"'","''");
-    SET @whereString = CONCAT(@whereString,' WHERE grid_column_names LIKE ''%',@gridColumnName,'%''');
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_column_names LIKE ''%',@gridColumnName,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_column_names LIKE ''%',@gridColumnName,'%''');
+    END IF;      
+  END IF; 
+  IF NOT gridTypeId IS NULL THEN
+    SET @gridTypeId= gridTypeId;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND grid_type_id = ',@gridTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE grid_type_id = ',@gridTypeId);
+    END IF;  
+    
   END IF;
   
   SET @groupByString = ' GROUP BY gd.grid_id ';
@@ -534,7 +605,7 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
 
 OPEN curP;
 FETCH curP INTO db_format;
@@ -545,8 +616,8 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_from,''', db_format,''') as validFrom ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_till,''', db_format,''') as validTill ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.updated_date,''', db_format,''') as updatedDate ');
-  SET @fromString  = ' FROM generic_user_notification AS gun';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'generic_user_notification' ");
+  SET @fromString  = ' FROM jq_generic_user_notification AS gun';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'jq_generic_user_notification' ");
   SET @whereString = '';
   SET @dateFormat = CONCAT(''', db_format,''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
@@ -656,8 +727,8 @@ BEGIN
   SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   
-  SET @fromString  = ' FROM jws_property_master AS jpm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jpm.property_master_id AND jmv.entity_name = 'jws_property_master' ");
+  SET @fromString  = ' FROM jq_property_master AS jpm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jpm.property_master_id AND jmv.entity_name = 'jq_property_master' ");
   SET @whereString = ' WHERE jpm.is_deleted = 0 ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -736,7 +807,7 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jws_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
+SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
 
 OPEN curP;
 FETCH curP INTO db_format;
@@ -744,33 +815,44 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(tm.updated_date,''', db_format,''') as updatedDate ');
-  SET @fromString  = ' FROM template_master AS tm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = tm.template_id AND jmv.entity_name = 'template_master' ");
+  SET @fromString  = ' FROM jq_template_master AS tm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = tm.template_id AND jmv.entity_name = 'jq_template_master' ");
   SET @whereString = '';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
-  IF NOT templateName IS NULL OR NOT createdBy IS NULL OR NOT updatedBy IS NULL THEN
-    SET @whereString = CONCAT(@whereString, " WHERE ");
-  END IF;
-  
   IF NOT templateName IS NULL THEN
     SET @templateName= REPLACE(templateName,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.template_name LIKE ''%',@templateName,'%''');
+    SET @whereString = CONCAT(@whereString,' WHERE tm.template_name LIKE ''%',@templateName,'%''');
   END IF;
   
   IF NOT templateTypeId IS NULL THEN
-    SET @templateName= REPLACE(templateTypeId,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.template_type_id = ',@templateTypeId);
+    SET @templateTypeId= templateTypeId;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND tm.template_type_id = ',@templateTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE tm.template_type_id = ',@templateTypeId);
+    END IF;  
+    
   END IF;
   
   IF NOT createdBy IS NULL THEN
     SET @createdBy= REPLACE(createdBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.created_by LIKE ''%',@createdBy,'%''');
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND tm.created_by LIKE ''%',@createdBy,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE tm.created_by LIKE ''%',@createdBy,'%''');
+    END IF;  
+    
   END IF;
   
   IF NOT updatedBy IS NULL THEN
     SET @updatedBy= REPLACE(updatedBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' tm.updated_by LIKE ''%',@updatedBy,'%''');
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND tm.updated_by LIKE ''%',@updatedBy,'%''');
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE tm.updated_by LIKE ''%',@updatedBy,'%''');
+    END IF;  
+    
   END IF;
 
   
@@ -797,19 +879,19 @@ END;
 
 
 DROP PROCEDURE IF EXISTS fileUploadConfigListing;
-CREATE PROCEDURE `fileUploadConfigListing`(fileUploadConfigId varchar(50), fileTypeSupported varchar(100), maxFileSize varchar(1000)
+CREATE PROCEDURE `fileUploadConfigListing`(fileBinId varchar(100), fileTypeSupported varchar(100), maxFileSize varchar(1000)
 ,noOfFiles INT(11), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = CONCAT(" SELECT fuc.file_upload_config_id AS fileUploadConfigId, fuc.file_type_supported AS fileTypeSupported "
+  SET @resultQuery = CONCAT(" SELECT fuc.file_bin_id AS fileBinId, fuc.file_type_supported AS fileTypeSupported "
   ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy " 
   ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
-  SET @fromString  = ' FROM file_upload_config AS fuc ';
+  SET @fromString  = ' FROM jq_file_upload_config AS fuc ';
   SET @whereString = ' WHERE fuc.is_deleted = 0';
   
-  IF NOT fileUploadConfigId IS NULL THEN
-    SET @fileUploadConfigId= REPLACE(fileUploadConfigId,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.file_upload_config_id like ''%',@fileUploadConfigId,'%''');
+  IF NOT fileBinId IS NULL THEN
+    SET @fileBinId= REPLACE(fileBinId,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.file_bin_id like ''%',@fileBinId,'%''');
   END IF;
   
   IF NOT fileTypeSupported IS NULL THEN
@@ -866,12 +948,12 @@ limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, COALESCE(mli18nParent.module_name, mli18nParent2.module_name) AS parentModuleName'
     ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu ';
-  SET @fromString  = ' FROM module_listing AS ml ';
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing AS mlParent ON ml.parent_id = mlParent.module_id ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18nParent ON mlParent.module_id = mli18nParent.module_id AND mli18nParent.language_id = 1 ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18nParent2 ON mlParent.module_id = mli18nParent2.module_id AND mli18nParent2.language_id = 1 ');
+  SET @fromString  = ' FROM jq_module_listing AS ml ';
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing AS mlParent ON ml.parent_id = mlParent.module_id ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18nParent ON mlParent.module_id = mli18nParent.module_id AND mli18nParent.language_id = 1 ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18nParent2 ON mlParent.module_id = mli18nParent2.module_id AND mli18nParent2.language_id = 1 ');
   SET @whereString = ' WHERE ml.is_home_page = 0 ';
   
   
@@ -933,3 +1015,73 @@ BEGIN
  DEALLOCATE PREPARE stmt;
 END;
 
+
+DROP PROCEDURE IF EXISTS homePageListing;
+CREATE PROCEDURE homePageListing(moduleId varchar(100), moduleName varchar(500),
+moduleURL varchar(500), roleName varchar(100), rolePriority INT(11), forCount INT, 
+limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+  SET @resultQuery = ' SELECT jr.role_id AS roleId, ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, jr.role_name AS roleName, jr.role_priority AS rolePriority ';
+  SET @fromString  = ' FROM  jq_role AS jr';
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_role_association AS mra ON jr.role_id = mra.role_id AND mra.is_deleted = 0  ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing AS ml ON mra.module_id = ml.module_id ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON mli18n.module_id = ml.module_id AND mli18n.language_id = 1 ');
+  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
+  SET @whereString = ' WHERE jr.is_active = 1 ';
+  
+  
+  IF NOT moduleName IS NULL THEN
+    SET @moduleName= REPLACE(moduleName,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
+  END IF;
+  
+  IF NOT moduleURL IS NULL THEN
+    SET @moduleURL= REPLACE(moduleURL,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND ml.module_url LIKE ''%',@moduleURL,'%'''); 
+  END IF;
+  
+  IF NOT roleName IS NULL THEN
+    SET @roleName= REPLACE(roleName,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND jr.role_name LIKE ''%',@roleName,'%''');  
+ END IF;
+ 
+   IF NOT rolePriority IS NULL THEN
+    SET @rolePriority= REPLACE(rolePriority,"'","''");
+    SET @whereString = CONCAT(@whereString, 'AND jr.role_priority LIKE ''%',@rolePriority,'%''');  
+ END IF;
+
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY jr.role_priority DESC');
+  END IF;
+    
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+	IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+  
+  
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+END;
+
+CREATE  OR REPLACE VIEW `jq_customResourceBundleListingView` AS
+SELECT * FROM ( SELECT
+  `rb`.`resource_key`    AS `resourceKey`,
+  `lang`.`language_name` AS `languageName`,
+  `rb`.`text`            AS `resourceBundleText`,
+  COUNT(`jmv`.`version_id`) AS `revisionCount`,
+  MAX(`jmv`.`version_id`) AS `max_version_id`
+FROM ((`jq_resource_bundle` `rb`
+    JOIN `jq_language` `lang`
+      ON (`lang`.`language_id` = `rb`.`language_id`))
+   LEFT JOIN `jq_module_version` `jmv`
+     ON (`jmv`.`entity_id` = `rb`.`resource_key`
+         AND `jmv`.`entity_name` = 'jq_resource_bundle'))
+WHERE `rb`.`resource_key` NOT LIKE 'jws.%') t WHERE t.revisionCount > 0

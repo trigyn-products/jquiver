@@ -82,8 +82,7 @@ class AddEditModule {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("*") != -1 
-   			|| moduleURL.indexOf("#") != -1 || moduleURL.indexOf("/") == 0) && contextType != "6"){
+   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("#") != -1) && contextType != "6"){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
@@ -109,7 +108,8 @@ class AddEditModule {
     			"parent-module-id": parentModuleId,
     			"sequence":  sequence,
     			"module-url" : moduleURL,
-    			"module-name" : moduleName
+    			"module-name" : moduleName,
+    			"module-id": moduleId,
     		},
 			success : function(data) {
 				if(data != ""){
@@ -169,7 +169,6 @@ class AddEditModule {
 	    	autocomplete.options.autocompleteId = context.getAutocompleteId();
     	}
     	context.insideMenuOnChange();
-    	context.getEntityRoles();
     }
     
     getAutocompleteId = function(){
@@ -283,7 +282,7 @@ class AddEditModule {
             async : false,
             type : "POST",
             contentType : "application/json",
-            url : "/cf/ser", 
+            url : contextPath+"/cf/ser", 
             data : JSON.stringify(entityRoles),
             success : function(data) {
 		    }
@@ -293,7 +292,7 @@ class AddEditModule {
 		$.ajax({
             async : false,
             type : "GET",
-            url : "/cf/ler", 
+            url : contextPath+"/cf/ler", 
             data : {
             	entityId:$("#moduleId").val(),
             	moduleId:$("#masterModuleId").val(),

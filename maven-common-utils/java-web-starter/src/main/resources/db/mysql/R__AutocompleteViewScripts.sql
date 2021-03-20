@@ -1,16 +1,16 @@
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('76e09b33-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-demo', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
-<script src="/webjars/1.0/typeahead/typeahead.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <div class="container">
 
@@ -32,14 +32,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap"><@resourceBundle "jws.autocomplete" /></label>
-				<input class="form-control" id="rbAutocomplete" type="text">
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocomplete" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>
  			</div>
 		</div>
 	
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompletePrefetch'')}</label>
-				<input class="form-control" id="rbAutocompletePF" type="text">
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocompletePF" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>
  			</div>
 		</div>
 		<div class="clearfix"></div>
@@ -50,14 +56,20 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompleteLocalSotrage'')}</label>
-				<input class="form-control" id="rbAutocompleteLS" type="text">
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocompleteLS" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>					
  			</div>
 		</div>
 		
 		<div class="col-6">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.autocompleteClearText'')}</label>
-				<input class="form-control" id="rbAutocompleteCT" type="text">
+				<div class="search-cover">			
+					<input class="form-control" id="rbAutocompleteCT" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>					
  			</div>
 		</div>
 	</div>
@@ -75,8 +87,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 				
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.multiselect'')}</label>
-				<input class="form-control" id="rbMultiselect" type="text">
-			
+				<div class="search-cover">			
+					<input class="form-control" id="rbMultiselect" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>				
 				<div id="rbMultiselect_selectedOptions"></div>
  			</div>
 		</div>
@@ -94,8 +108,10 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 				
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage(''jws.multiselectLocalStorage'')}</label>
-				<input class="form-control" id="rbMultiselectLS" type="text">
-			
+				<div class="search-cover">				
+					<input class="form-control" id="rbMultiselectLS" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>				
 				<div id="rbMultiselectLS_selectedOptions"></div>
  			</div>
 		</div>
@@ -104,9 +120,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	
 </div>
 <script>
-//const contextPath = "${(contextPath)!''''}";
+contextPath = "${(contextPath)!''''}";
 function backToListingPage() {
-    location.href = "/cf/adl";
+    location.href = contextPath+"/cf/adl";
 }
 let autocomplete;
 let autocompletePF;
@@ -114,6 +130,7 @@ let autocompleteCT;
 let multiselect;
 $(function () {
     autocomplete = $(''#rbAutocomplete'').autocomplete({
+        contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : false,
         render: function(item) {
@@ -135,6 +152,7 @@ $(function () {
     }, {key: "jws.action", languageId: 1, text: "Action"});
     
 	autocompletePF = $(''#rbAutocompletePF'').autocomplete({
+		contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : true,
         render: function(item) {
@@ -156,6 +174,7 @@ $(function () {
     });
 	
     multiselect = $(''#rbMultiselect'').multiselect({
+    	contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
         render: function(item) {
@@ -217,6 +236,7 @@ $(function () {
 	});
 	
 	autocompleteCT = $(''#rbAutocompleteCT'').autocomplete({
+		contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : true,
 		enableClearText: true,
@@ -289,24 +309,29 @@ $(function () {
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('7e8438bf-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>  
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>  
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <div class="container">
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h2> 
 		<div class="float-right">
-		    <a href="${(contextPath)!''''}/cf/da"> 
+		    Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
+            <a href="${(contextPath)!''''}/cf/da"> 
 				<input id="demoAutocomplete" class="btn btn-primary" name="demoAutocomplete" value="Demo" type="button">
 			</a>
 			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete Details" type="button">
@@ -328,7 +353,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<input type="hidden" id="acId" name="acId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityName" name="entityName" value="autocomplete_details">
+    <input type="hidden" id="entityName" name="entityName" value="jq_autocomplete_details">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="autocomplete">
@@ -337,6 +362,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <script>
 	contextPath = "${(contextPath)!''''}";
 	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
 		let formElement = $("#formACRedirect")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("autocomplete-manage-details", formDataJson);
@@ -348,14 +376,39 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 30, minWidth: 115, align: "center", render: editAutocomplete, dataIndx: "action" }
+	        { title: "Action", width: 30, minWidth: 115, align: "center", render: editAutocomplete, dataIndx: "action", sortable: false }
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "autocompleteId",
+        	sortDir: "up",
+    	};
 	    let grid = $("#divAutocompleteGrid").grid({
 	      gridId: "autocompleteListingGrid",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_autocompleteTypeId":"str_1"}
 	  });
 	});
 	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"autocompleteListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"autocompleteListingGrid"
+                    ,"cr_autocompleteTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divAutocompleteGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+        
 	function autocompleteType(uiObject){
 		const autocompleteTypeId = uiObject.rowData.autocompleteTypeId;
 		if(autocompleteTypeId === 1){
@@ -403,33 +456,40 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('85f44645-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/monaco/require.js"></script>
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 	<div class="container">
-		<div class="topband">
-		<#if (autocompleteVO.autocompleteId)??>
-		    <h2 class="title-cls-name float-left">Edit Autocomplete Details</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">Add Autocomplete Details</h2>  
-        </#if>  
-		<div class="float-right">
-			 
-		<span onclick="addEditAutocomplete.backToListingPage();">
-  		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-  		 </span>	
-		</div>
+		<div class="row topband">
+			<div class="col-8">
+				<#if (autocompleteVO.autocompleteId)??>
+				    <h2 class="title-cls-name float-left">Edit Autocomplete Details</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">Add Autocomplete Details</h2>  
+		        </#if>
+		    </div>
+	    
+	        <div class="col-4">    
+				<#if (autocompleteVO.autocompleteId)?? && (autocompleteVO.autocompleteId)?has_content>	 
+			        <#assign ufAttributes = {
+			            "entityType": "TypeAhead Autocomplete",
+			            "entityId": "autoId",
+			            "entityName": "autoId"
+			        }>
+			        <@templateWithParams "user-favorite-template" ufAttributes />
+		        </#if>
+		     </div>
 		
-		<div class="clearfix"></div>		
+			<div class="clearfix"></div>		
 		</div>
 	
     <form id="autocompleteForm" method="post" >
@@ -438,7 +498,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>Autocomplete Id </label>
-	        <input id="autoId" name="autocompleteId" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
+	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
 			</div>
 	    </div>
 	    <div class="col-6">
@@ -447,17 +507,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''""''}">
 			</div>
 	    </div>
-	    <#if (tableNameList)?has_content>                                            
-			<div class="col-6">
+
+		
+		<#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>   
+	         <div class="col-6">
 				<div class="col-inner-form full-form-fields">
-					<label for="autocompleteTableSelect" >Autocomplete Table : </label>
-                    <select id="autocompleteTableSelect" name="autocompleteTableSelect" placeholder="Select for autocomplete table" class="form-control" onchange="addEditAutocomplete.createQuery();"/>   
-						<option>Select</option>
-                       	<#list tableNameList as tableName>
-							<option>${tableName}</option>
-                        </#list>
-					</select>
-				</div>
+	                <label for="flammableState" style="white-space:nowrap">Autocomplete Table</label>
+	                <div class="search-cover">
+	                    <input class="form-control" id="tableAutocomplete" type="text">
+	                  	<i class="fa fa-search" aria-hidden="true"></i>
+	                </div>
+	               	<input type="hidden" id="autocompleteTable" name="autocompleteTable">
+	           	</div>
 			</div>
 		</#if>
 			
@@ -513,28 +574,60 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	const acId = "${(autocompleteVO.autocompleteId)!''''}";
 
 	let addEditAutocomplete;
+	let tableAutocomplete;
+	
 	$(function() {
 	    addEditAutocomplete = new AddEditAutocomplete();
 	    addEditAutocomplete.loadAutocompletDetails();
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+	    
 	    savedAction("autocomplete-manage-details", acId);
 	    hideShowActionButtons();
-	     if(acId==""){
+	    
+	    if(acId==""){
             let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
         }else{
             addEditAutocomplete.getEntityRoles();
         }
+        
+        
+        tableAutocomplete = $("#tableAutocomplete").autocomplete({
+	        autocompleteId: "table-autocomplete",
+	        prefetch : true,
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                renderStr = "<p>"+item.tableName+"</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },
+	        additionalParamaters: {},
+	        extractText: function(item) {
+	            return item.tableName;
+	        },
+	        select: function(item) {
+	            $("#tableAutocomplete").blur();
+	            $("#autocompleteTable").val(item.tableName);
+	            addEditAutocomplete.createQuery(item.tableName);
+	        },     
+	    });
+	    
 	});
 </script>
-<script src="/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
+<script src="${(contextPath)!''''}/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
 CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
   SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
-  SET @fromString  = ' FROM autocomplete_details au ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = au.ac_id ");
+  SET @fromString  = ' FROM jq_autocomplete_details au ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = au.ac_id ");
   SET @whereString = ' ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -582,7 +675,7 @@ BEGIN
 END;
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,acQuery,autocompleteTypeId', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,acQuery,autocompleteTypeId', 2);
 
-REPLACE INTO autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")', 2);
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from jq_resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")', 2);

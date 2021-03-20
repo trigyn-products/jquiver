@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_role_master_modules_association")
+@Table(name = "jq_role_master_modules_association")
 public class JwsRoleMasterModulesAssociation {
 
 	@Id

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import com.trigyn.jws.dbutils.entities.UserRole;
 
 @Entity
-@Table(name = "jws_dynamic_rest_role_association")
+@Table(name = "jq_dynamic_rest_role_association")
 @NamedQuery(name = "JwsDynamicRestRoleAssociation.findAll", query = "SELECT j FROM JwsDynamicRestRoleAssociation j")
 public class JwsDynamicRestRoleAssociation implements Serializable {
 

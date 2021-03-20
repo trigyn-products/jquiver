@@ -110,33 +110,33 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return resultSet;
 	}
 
-	public List<String> getAllTablesListInSchema() {
-		String			query		= "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schemaName";
-		List<String>	resultSet	= new ArrayList<>();
-		try (Connection connection = dataSource.getConnection();) {
-			String				schemaName		= connection.getCatalog();
-			Map<String, Object>	parameterMap	= new HashMap<>();
-			parameterMap.put("schemaName", schemaName);
-			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
-		} catch (SQLException a_exc) {
-			logger.error("Error while fetching data from DB ", a_exc);
-		}
-		return resultSet;
-	}
-
-	public List<String> getAllViewsListInSchema() {
-		String			query		= "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = :schemaName";
-		List<String>	resultSet	= new ArrayList<>();
-		try (Connection connection = dataSource.getConnection();) {
-			String				schemaName		= connection.getCatalog();
-			Map<String, Object>	parameterMap	= new HashMap<>();
-			parameterMap.put("schemaName", schemaName);
-			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
-		} catch (SQLException a_exc) {
-			logger.error("Error while fetching data from DB ", a_exc);
-		}
-		return resultSet;
-	}
+	//	public List<String> getAllTablesListInSchema() {
+	//		String			query		= "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schemaName";
+	//		List<String>	resultSet	= new ArrayList<>();
+	//		try (Connection connection = dataSource.getConnection();) {
+	//			String				schemaName		= connection.getCatalog();
+	//			Map<String, Object>	parameterMap	= new HashMap<>();
+	//			parameterMap.put("schemaName", schemaName);
+	//			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+	//		} catch (SQLException a_exc) {
+	//			logger.error("Error while fetching data from DB ", a_exc);
+	//		}
+	//		return resultSet;
+	//	}
+	//
+	//	public List<String> getAllViewsListInSchema() {
+	//		String			query		= "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = :schemaName";
+	//		List<String>	resultSet	= new ArrayList<>();
+	//		try (Connection connection = dataSource.getConnection();) {
+	//			String				schemaName		= connection.getCatalog();
+	//			Map<String, Object>	parameterMap	= new HashMap<>();
+	//			parameterMap.put("schemaName", schemaName);
+	//			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+	//		} catch (SQLException a_exc) {
+	//			logger.error("Error while fetching data from DB ", a_exc);
+	//		}
+	//		return resultSet;
+	//	}
 
 	public List<Map<String, Object>> getTableInformationByName(String tableName) {
 		String						query		= "select COLUMN_NAME as columnName, COLUMN_KEY as columnKey, DATA_TYPE as dataType, EXTRA as additionalInfo, "

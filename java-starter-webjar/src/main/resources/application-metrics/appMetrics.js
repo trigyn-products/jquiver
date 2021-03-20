@@ -172,7 +172,7 @@ class ApplicationMetrics {
 			tabData = tabData + '<div class="tab">';
 						for(let counter = 0; counter < details.length; counter++) {
 							let tabVal = details[counter];
-							tabData = tabData + '<button class="tablinks" id= "'+tabVal+'" onclick="openTab(event, \'' + tabVal.trim() +'\')">'+tabVal +'<img src="/webjars/1.0/images/s-information1.svg"></button>';
+							tabData = tabData + '<button class="tablinks" id= "'+tabVal+'" onclick="openTab(event, \'' + tabVal.trim() +'\')">'+tabVal +'<img src="'+contextPath+'/webjars/1.0/images/s-information1.svg"></button>';
 						}
 			tabData = tabData + '</div>'
 			tabData = tabData + '</div>'
@@ -201,6 +201,18 @@ class ApplicationMetrics {
 				document.getElementById(details[counter]).click();
 				break;
 			}
+		}
+	}
+	
+	createSystemEnvironment = function(data){
+		for (const property in data) {
+			$("#sys-env-content").append('<div class=""><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
+		}
+	}
+	
+	createSystemProperties = function(data){
+		for (const property in data) {
+			$("#sys-prop-content").append('<div class=""><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
 		}
 	}
 	
@@ -241,6 +253,12 @@ class ApplicationMetrics {
 	    
 	    this.createHttpTraceDetails(this.applicationDetails["http-trace-metrics"]);
 	    setInterval(this.createHttpTraceDetails.bind(), 1000 * 60);
+	    
+	   	this.createSystemEnvironment(this.applicationDetails["system-env-map"]);
+	    setInterval(this.createSystemEnvironment.bind(), 1000 * 60);
+	    
+	   	this.createSystemProperties(this.applicationDetails["system-properties"]);
+	    setInterval(this.createSystemProperties.bind(), 1000 * 60);
     }            
 	
 	millisToMinutesAndSeconds(millis) {

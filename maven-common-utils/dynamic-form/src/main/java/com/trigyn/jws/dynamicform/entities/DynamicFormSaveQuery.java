@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dynamic_form_save_queries")
+@Table(name = "jq_dynamic_form_save_queries")
 @NamedQuery(name = "DynamicFormSaveQuery.findAll", query = "SELECT d FROM DynamicFormSaveQuery d")
 public class DynamicFormSaveQuery implements Serializable {
 	private static final long	serialVersionUID	= 1L;

@@ -15,7 +15,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_entity_role_association")
+@Table(name = "jq_entity_role_association")
 public class JwsEntityRoleAssociation {
 
 	@Id

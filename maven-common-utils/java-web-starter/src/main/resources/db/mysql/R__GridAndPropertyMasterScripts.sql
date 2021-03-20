@@ -1,17 +1,17 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('26f2589f-09fa-11eb-a894-f48e38ab8cd7', 'grid-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -19,7 +19,12 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.gridUtils'')}</h2> 
 		<div class="float-right">
-		<form id="addEditGridForm" action="/cf/df" method="post" class="margin-r-5 pull-left">
+		<form id="addEditGridForm" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
+		Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
 	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
 	            <button type="submit" class="btn btn-primary">Add Grid Details</button>
@@ -36,7 +41,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 		<div id="divGridDetailsListing"></div>
 
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityName" name="entityName" value="grid_details">
+    <input type="hidden" id="entityName" name="entityName" value="jq_grid_details">
 	<input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="grid">
@@ -53,6 +58,9 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 			location.href = contextPath+"/cf/home";
 	}
 	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
 		let formElement = $("#addEditGridForm")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("grid-details-form", formDataJson);
@@ -68,15 +76,40 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 50, minWidth: 115, align: "center", render: editGridDetails, dataIndx: "action" }
+	        { title: "Action", width: 50, minWidth: 115, align: "center", render: editGridDetails, dataIndx: "action", sortable: false }
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "gridId",
+        	sortDir: "up",
+    	};
 		let grid = $("#divGridDetailsListing").grid({
 	      gridId: "gridDetailsListing",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_gridTypeId":"str_1"}
 	  });
 	  
 	});
 	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"gridDetailsListing"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"gridDetailsListing" 
+                    ,"cr_gridTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divGridDetailsListing" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+        
 	function gridType(uiObject){
 		const gridTypeId = uiObject.rowData.gridTypeId;
 		if(gridTypeId === 1){
@@ -115,28 +148,42 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
 ('8a80cb8174bebc3c0174bec1892c0000', 'grid-details-form', 'Form to add edit grid details', 'SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName , grid_column_names AS gridColumnName
-, query_type AS queryType FROM grid_details WHERE grid_id="${primaryId}"', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+, query_type AS queryType FROM jq_grid_details WHERE grid_id="${primaryId}"', '<head>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
-	<div class="topband">
-		<#if (resultSet)?? && (resultSet)?has_content>
-		    <h2 class="title-cls-name float-left">Edit Grid Details</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">Add Grid Details</h2> 
-        </#if> 
+	<div class="row topband">
+        <div class="col-8">
+			<#if (resultSet)?? && (resultSet)?has_content>
+			    <h2 class="title-cls-name float-left">Edit Grid Details</h2> 
+	        <#else>
+	            <h2 class="title-cls-name float-left">Add Grid Details</h2> 
+	        </#if>
+     	</div>
+        
+        <div class="col-4">
+	        <#if (resultSet)?? && (resultSet)?has_content>   
+		        <#assign ufAttributes = {
+		            "entityType": "Grid Utils",
+		            "entityId": "gridId",
+		            "entityName": "gridName"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+		    </#if>
+		 </div>
+         
 		<div class="clearfix"></div>		
 	</div>
 		
@@ -194,7 +241,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		</div>
 		
 		<input type="hidden" id="primaryKey" name="primaryKey">
-		<input type="hidden" id="entityName" name="entityName" value="grid_details">
+		<input type="hidden" id="entityName" name="entityName" value="jq_grid_details">
 		<!-- Your form fields end -->
 		
 	</form>	
@@ -253,7 +300,10 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
       		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
 		</#if>      	
-      	
+		
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
 		savedAction("grid-details-form", isEdit);
 		hideShowActionButtons();
 	});   
@@ -320,7 +370,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		        async : false,
 		        type : "POST",
 		        contentType : "application/json",
-		        url : "/cf/ser", 
+		        url : contextPath+"/cf/ser", 
 		        data : JSON.stringify(entityRoles),
 		        success : function(data) {
 			    }
@@ -330,7 +380,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			$.ajax({
 		        async : false,
 		        type : "GET",
-		        url : "/cf/ler", 
+		        url : contextPath+"/cf/ler", 
 		        data : {
 		        	entityId:$("#gridId").val(),
 		        	moduleId:$("#moduleId").val(),
@@ -347,8 +397,8 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 </script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
 
 
-REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'REPLACE INTO grid_details (
+REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'REPLACE INTO jq_grid_details (
    grid_id
   ,grid_name
   ,grid_description
@@ -375,8 +425,8 @@ BEGIN
   SET @resultQuery = CONCAT(@resultQuery, ', jpm.property_value AS propertyValue, jpm.last_modified_date AS lastModifiedDate ');
   SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
 
-  SET @fromString  = ' FROM jws_property_master AS jpm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jws_module_version AS jmv ON jmv.entity_id = jpm.property_master_id ");
+  SET @fromString  = ' FROM jq_property_master AS jpm ';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jpm.property_master_id ");
   SET @whereString = ' WHERE jpm.is_deleted = 0 ';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -400,37 +450,37 @@ BEGIN
 END;
 
 
-REPLACE INTO grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("propertyMasterListingGrid", 'Property Master Listing', 'Property Master Listing', 'propertyMasterListing'
 ,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2);
 
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.applicationConfiguration'')}</h2> 
 		<div class="float-right">
-			<form id="addEditProperty" action="/cf/df" method="post" class="margin-r-5 pull-left">
+			<form id="addEditProperty" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
                 <input type="hidden" name="propertyMasterId" id="propertyMasterId" value=""/>
                 <button type="submit" class="btn btn-primary"> Add Property </button>
             </form>
 
-            <form id="addEditMailConfiguration" action="/cf/df" method="post" class="margin-r-5 pull-left">
+            <form id="addEditMailConfiguration" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
                 <input type="hidden" name="ownerId" id="ownerId" value=""/>
                 <input type="hidden" name="ownerType" id="ownerType" value=""/>
@@ -450,7 +500,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </div>
 
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityName" name="entityName" value="jws_property_master">
+    <input type="hidden" id="entityName" name="entityName" value="jq_property_master">
 	<input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="propertyMaster">
@@ -460,7 +510,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 <script>
-	contextPath = "";
+	contextPath = "${(contextPath)!''''}";
 	let grid;
 	$(function () {
 	    localStorage.removeItem("imporatableData");
@@ -482,12 +532,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord}
+			{ title: "Modified Date", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center"  },
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
 		];
-	
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "propertyName",
+        	sortDir: "up",
+    	};	
 		grid = $("#propertyMasterListingGrid").grid({
 	      gridId: "propertyMasterListingGrid",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel
 	  	});
 	
 	});
@@ -526,19 +582,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 
 
-REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
-('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'SELECT * FROM jws_property_master WHERE property_master_id = "${propertyMasterId}" 
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'SELECT * FROM jq_property_master WHERE property_master_id = "${propertyMasterId}" 
 ', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -600,7 +656,7 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			</div>
 			
 			<input type="hidden" id="primaryKey" name="primaryKey">
-			<input type="hidden" id="entityName" name="entityName" value="jws_property_master">
+			<input type="hidden" id="entityName" name="entityName" value="jq_property_master">
 		</div>
 		
 		
@@ -652,7 +708,6 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 		  url : contextPath+"/cf/sdf",
 		  data : formData,
           success : function(data) {
-			updatePropertyMaster();
           	isDataSaved = true;
 			showMessage("Information saved successfully", "success");
 			enableVersioning(formData);
@@ -661,8 +716,29 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 			showMessage("Error occurred while saving", "error");
 	      },
      	});
+     	refreshMailConfiguration();
      	return isDataSaved;
 	}
+	
+	function refreshMailConfiguration(){
+		$.ajax({
+			type : "POST",
+        	async: false,
+        	url : contextPath+"/cf/rp",
+        	data : {
+            	ownerId: $("#ownerId").val(),
+            	ownerType: $("#ownerType").val(),
+            	propertyName: $("#propertyName").val(),
+            	propertyValue: $("#propertyValue").val(),
+        	},
+        	success : function(data) {
+	
+        	},
+        	error : function(xhr, error){
+            	showMessage("Error occurred while updating property configuration", "error");
+        	},
+      	});
+  	}
 	
 	function updatePropertyMaster(){
 		$.ajax({
@@ -723,9 +799,9 @@ REPLACE INTO dynamic_form (form_id, form_name, form_description, form_select_que
 </script>
 	', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
   
-REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '
-REPLACE INTO jws_property_master (
+REPLACE INTO jq_property_master (
    property_master_id
   ,owner_type
   ,owner_id
@@ -748,5 +824,12 @@ REPLACE INTO jws_property_master (
   ,${formData?api.getFirst("appVersion")}
   ,''${formData?api.getFirst("comment")}''
 );', 1, NULL);
+
+
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+VALUES ("customResourceBundleListingGrid", 'Custom DB Resource Bundle Listing', 'Custom DB Resource Bundle Listing', 'jq_customResourceBundleListingView'
+,'resourceKey,languageName,resourceBundleText', 1, 2);
+
+
 
 SET FOREIGN_KEY_CHECKS=1;

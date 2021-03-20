@@ -15,7 +15,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_property_master")
+@Table(name = "jq_property_master")
 public class PropertyMaster implements Serializable {
 
 	private static final long	serialVersionUID	= -6641076236442355786L;

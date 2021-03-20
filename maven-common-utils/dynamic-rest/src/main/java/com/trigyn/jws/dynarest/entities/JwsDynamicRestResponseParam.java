@@ -12,7 +12,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jws_dynamic_rest_response_params")
+@Table(name = "jq_dynamic_rest_response_params")
 @NamedQuery(name = "JwsDynamicRestResponseParam.findAll", query = "SELECT j FROM JwsDynamicRestResponseParam j")
 public class JwsDynamicRestResponseParam implements Serializable {
 	private static final long		serialVersionUID		= 1L;

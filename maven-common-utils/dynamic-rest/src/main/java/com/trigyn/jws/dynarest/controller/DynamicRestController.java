@@ -43,7 +43,7 @@ public class DynamicRestController {
 	@ResponseBody
 	public ResponseEntity<?> callDynamicEntity(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) {
-		String requestUri = httpServletRequest.getRequestURI();
+		String requestUri = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		if (requestUri.startsWith("/japi/")) {
 			requestUri = requestUri.replaceFirst("/japi/", "");
 		} else {
@@ -99,7 +99,7 @@ public class DynamicRestController {
 	@PostMapping("/file/api/**")
 	public ResponseEntity<?> callDynamicFile(@RequestParam("files") MultipartFile[] files,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-		String requestUri = httpServletRequest.getRequestURI();
+		String requestUri = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		requestUri = requestUri.replaceFirst("/file/api/", "");
 		RestApiDetails		restApiDetails	= jwsService.getRestApiDetails(requestUri);
 		Map<String, Object>	requestParams	= new HashMap<String, Object>();

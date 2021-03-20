@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import org.apache.commons.text.StringEscapeUtils;
 
 @Entity
-@Table(name = "autocomplete_details")
+@Table(name = "jq_autocomplete_details")
 public class Autocomplete {
 
 	@Id

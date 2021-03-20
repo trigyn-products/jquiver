@@ -1,13 +1,13 @@
 SET FOREIGN_KEY_CHECKS=0;
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('42bf58ce-09fa-11eb-a894-f48e38ab8cd7', 'home', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<script src="${(contextPath)!''''}/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <div class="container">
     <div class="page-header homepageheader">
@@ -23,8 +23,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <div class="list-group custom-list-home">
     
         <div class="home_block col-12">
-        <a href="../cf/mg" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/manage_master.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/mg" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/manage_master.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.masterGenerator'')}</span></h5>                   
@@ -37,8 +37,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </div>
         
         <div class="home_block col-12">
-        <a href="../cf/gd" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/grid.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/gd" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/grid.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.gridUtils'')}</span></h5>
@@ -52,8 +52,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/te" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/template.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/te" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/template.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
@@ -67,8 +67,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/rb" class="list-group-item list-group-item-action">
-            <div class="home_list_icon m_icon"><img src="/webjars/1.0/images/database.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/rb" class="list-group-item list-group-item-action">
+            <div class="home_list_icon m_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/database.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
@@ -82,8 +82,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/adl" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/autotype.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/adl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/autotype.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.typeAheadAutocomplete'')}</h5>
@@ -97,8 +97,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/fucl" class="list-group-item list-group-item-action">
-           	<div class="home_list_icon"><img src="/webjars/1.0/images/upload_management.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/fucl" class="list-group-item list-group-item-action">
+           	<div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/upload_management.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1"> <span>${messageSource.getMessage(''jws.fileUploadConfig'')}</span></h5>
@@ -112,8 +112,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/dfl" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/daynamicreport.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/dfl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/daynamicreport.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.formBuilder'')}</h5>
@@ -127,8 +127,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/dynl" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/API_listing_icon.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/dynl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/API_listing_icon.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.restAPIBuilder'')}</h5>
@@ -142,8 +142,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/mul" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/Menu_icon.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/mul" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/Menu_icon.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.siteLayout'')}</h5>
@@ -157,8 +157,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                         
         
         <div class="home_block col-12">
-        <a href="../cf/dbm" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/dashboard.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/dbm" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/dashboard.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.dashboard'')}</h5>
@@ -171,8 +171,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </div>
         
         <div class="home_block col-12">
-        <a href="../cf/nl" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/notification.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/nl" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/notification.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.notification'')}</h5>
@@ -186,8 +186,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/um" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/user_management.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/um" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/user_management.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.userManagement'')}</h5>
@@ -200,8 +200,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </div>
         
         <div class="home_block col-12">
-        <a href="../cf/scm" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/security_manager.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/scm" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/security_manager.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.securityManagement'')}</h5>
@@ -214,8 +214,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         </div>
         
         <div class="home_block col-12">
-        <a href="../cf/pml" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/application_configuration.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/pml" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/application_configuration.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.applicationConfiguration'')}</h5>
@@ -229,8 +229,8 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         
         
         <div class="home_block col-12">
-        <a href="../cf/help" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="/webjars/1.0/images/user_help.svg"></div> 
+        <a href="${(contextPath)!''''}/cf/help" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/user_help.svg"></div> 
             <div class="home_list_content">
                 <div class="d-flex w-100 justify-content-between">
                     <h5 class="mb-1">${messageSource.getMessage(''jws.helpManuals'')}</h5>
@@ -244,7 +244,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 		
 	    <div class="home_block col-12">
 			<div class="cm-iconboxwrap">
-	            <a href="../cf/vimp">
+	            <a href="${(contextPath)!''''}/cf/vimp">
 		            <div class="cm-importicon">
 		                <div class="btn cm-impobtn outline"><i class="fa fa-download"></i> Import</div>
 		            </div>
@@ -253,7 +253,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
                 <div class="home_list_content">
                      <small class="text-muted">Manage export and import of configurations.</small>
                 </div>
-	            <a href="../cf/vexp">
+	            <a href="${(contextPath)!''''}/cf/vexp">
 		            <div class="cm-exporticon">
 		                <div class="btn cm-expobtn outline">Export<i class="fa fa-upload"></i></div>
 		            </div>
@@ -271,18 +271,18 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>   
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>   
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <script>
 
@@ -293,6 +293,11 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.templating'')}</h2> 
         <div class="float-right">
+        	Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
             <#if environment == "dev">
                 <input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="Download Template" type="button">
                 <input id="uploadTemplate" class="btn btn-primary" onclick= "uploadTemplate();" name="uploadTemplate" value="Upload Template" type="button">
@@ -319,7 +324,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     <input type="hidden" id="vmMasterId" name="vmMasterId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-	<input type="hidden" id="entityName" name="entityName" value="template_master">
+	<input type="hidden" id="entityName" name="entityName" value="jq_template_master">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="template">
@@ -332,6 +337,9 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         location.href = contextPath+"/cf/home";
     }
     $(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
     	let formElement = $("#formFMRedirect")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
 		sessionStorage.setItem("template-manage-details", formDataJson);
@@ -346,11 +354,19 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
             { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Action", width: 50, minWidth: 115, align: "center", render: editTemplate, dataIndx: "action" }
+            { title: "Action", width: 50, minWidth: 115, align: "center", render: editTemplate, dataIndx: "action", sortable: false }
         ];
+        let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "updatedDate",
+        	sortDir: "down",
+        };
+        
      let grid = $("#divTemplateGrid").grid({
           gridId: "templateListingGrid",
-          colModel: colM
+          colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_templateTypeId":"str_1"}
       });
     });
     
@@ -387,7 +403,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     function downloadTemplateById(thisObj){
 	  	let templateId = thisObj.id;
 	  	$.ajax({
-			url:"/cf/dtbi",
+			url:contextPath+"/cf/dtbi",
 			type:"POST",
 	        data:{
 	        	templateId : templateId,
@@ -405,7 +421,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  	let templateId = thisObj.id;
 		let templateName = $("#"+templateId).attr("name");
 	  	$.ajax({
-			url:"/cf/utdbi",
+			url:contextPath+"/cf/utdbi",
 			type:"POST",
 	        data:{
 	        	templateName : templateName,
@@ -436,10 +452,28 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
       	$("#revisionForm").submit();
     }
     
+    function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"templateListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"templateListingGrid"
+                    ,"cr_templateTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divTemplateGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+        
     <#if environment == "dev">
         function downloadTemplate(){
             $.ajax({
-                url:"/cf/dtl",
+                url:contextPath+"/cf/dtl",
                 type:"POST",
                 success : function(data) {
 				  showMessage("Templates downloaded successfully", "success");
@@ -452,7 +486,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
         }
         function uploadTemplate(){
             $.ajax({
-                url:"/cf/utd",
+                url:contextPath+"/cf/utd",
                 type:"POST",
                 success : function(data) {
 				  showMessage("Template uploaded successfully", "success");
@@ -466,32 +500,39 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     </#if>
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('4d91fbd8-09fa-11eb-a894-f48e38ab8cd7', 'template-manage-details', '<head>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/monaco/require.js"></script>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 
 </head>
 <div class="container">
 
-	<div class="topband">
-		<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>
-		    <h2 class="title-cls-name float-left">Edit Template Details</h2> 
-        <#else>
-            <h2 class="title-cls-name float-left">Add Template Details</h2> 
-        </#if> 
-        <div class="float-right">
-                                             
-        <span onclick="templateMaster.backToTemplateListingPage();">
-        	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-        </span>              
-        </div>
+	<div class="row topband">
+        <div class="col-8">
+			<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>
+			    <h2 class="title-cls-name float-left">Edit Template Details</h2> 
+	        <#else>
+	            <h2 class="title-cls-name float-left">Add Template Details</h2> 
+	        </#if> 
+	    </div>
+       
+        <div class="col-4">   
+	        <#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>                                     
+		        <#assign ufAttributes = {
+		            "entityType": "Templating",
+		            "entityId": "templateId",
+		            "entityName": "vmName"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	        </#if>
+	    </div>
                               
         <div class="clearfix"></div>                         
     </div>
@@ -500,6 +541,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	<div class="row">
 	    	<div class="col-9">
 				<div class="col-inner-form full-form-fields">
+					 <input type="hidden" id="templateId" name="templateId" value="${(templateDetails.templateId)!0}"/>
 					 <label for="vmName"><span class="asteriskmark">*</span>Template Name </label>                                                                                                                                       
 					 <input type="text" class="form-control" value="${(templateDetails.templateName)!}" maxlength="100" name="vmName" id="vmName">                                                                                                                       
 				</div>
@@ -512,8 +554,15 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	        </div>
 		</div>
 	</div>
+    
+    <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+		<h3 class="titlename method-sign-info">
+		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">FTL Parameters and Macros</label>
+	    </h3>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+    </div>
          
-	<div class="row">                                                                                                
+	<div class="row margin-t-b">                                                                                                
 		<div class="col-12">
 			<div class="html_script">
 				<div class="grp_lblinp">
@@ -578,26 +627,30 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
 		}
+		
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
 		savedAction("template-manage-details", isEdit);
 		hideShowActionButtons();
 	});
 </script>
-<script src="/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+<script src="${(contextPath)!''''}/webjars/1.0/template/template.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
  
 
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('8ba1a465-09fa-11eb-a894-f48e38ab8cd7', 'menu-module-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -651,11 +704,17 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        { title: "Sequence Number", width: 100, align: "center", dataIndx: "sequence", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Inside Menu", width: 100, align: "center", dataIndx: "isInsideMenu", align: "left", halign: "center", render: formatIsInsideMenu},
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editModule}
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editModule, sortable: false}
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "sequence",
+        	sortDir: "down",
+    	};
 		let grid = $("#divModuleListing").grid({
 	      gridId: "moduleListingGrid",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel
 	  });
 	});
   
@@ -688,19 +747,19 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
  
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('89ee344b-03f6-11eb-a183-e454e805e22f', 'module-manage-details', '<head>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
-    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 
 </head>
 
@@ -726,51 +785,14 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 
 		<div class="row">
 			<input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''''}">
-			<div class="col-3">
+			<div class="col-8">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
 					<input type="text"  id = "moduleName" name = "moduleName" value = "${(moduleDetailsVO?api.getModuleName())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
 
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
-					<select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
-						<#if (moduleTargetLookupVOList)??>
-							<#list moduleTargetLookupVOList as moduleTargetLookupVO>
-									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? 
-										&& (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
-										<option value="${moduleTargetLookupVO?api.getLookupId()}" selected>${moduleTargetLookupVO?api.getDescription()!''''}</option>
-									<#else>
-										<option value="${moduleTargetLookupVO?api.getLookupId()}">${moduleTargetLookupVO?api.getDescription()!''''}</option>
-									</#if>
-							</#list>
-						</#if>
-					</select>
-				</div>
-			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
-						<div class="search-cover">
-						<input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
-						<i class="fa fa-search" aria-hidden="true"></i>
-				</div>
-				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
-					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
-					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="200" class="form-control">
-				</div>
-			</div>
-			
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="contextType">${messageSource.getMessage("jws.includeInMenu")}</label>
 					<div class="onoffswitch">
@@ -788,8 +810,45 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Type</label>
+					<select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
+						<#if (moduleTargetLookupVOList)??>
+							<#list moduleTargetLookupVOList as moduleTargetLookupVO>
+									<#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? 
+										&& (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
+										<option value="${moduleTargetLookupVO?api.getLookupId()}" selected>${moduleTargetLookupVO?api.getDescription()!''''}</option>
+									<#else>
+										<option value="${moduleTargetLookupVO?api.getLookupId()}">${moduleTargetLookupVO?api.getDescription()!''''}</option>
+									</#if>
+							</#list>
+						</#if>
+					</select>
+				</div>
+			</div>
+
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
+						<div class="search-cover">
+						<input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
+						<i class="fa fa-search" aria-hidden="true"></i>
+				</div>
+				<input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''''}" name="targetTypeNameId" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>Module URL</label>
+					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
+					<input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''''}" maxlength="200" class="form-control">
+				</div>
+			</div>
+			
 			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
 					<select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
@@ -807,7 +866,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 
-			<div class="col-3">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
 					<#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
@@ -818,7 +877,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 				</div>
 			</div>
 
-		<div class="col-3">
+		<div class="col-4">
 			<input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
         	<@templateWithoutParams "role-autocomplete"/> 
         </div>
@@ -874,6 +933,7 @@ $(function() {
     }
 	let autocompleteIdByType = addEditModule.getAutocompleteId();
     autocomplete = $(''#targetTypeName'').autocomplete({
+    	contextPath: contextPath,
         autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
@@ -901,44 +961,66 @@ $(function() {
 	<#if (!(moduleDetailsVO?api.getModuleId())??)>
         let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
+    <#else>
+    	addEditModule.getEntityRoles();
     </#if>
 });
 
 </script>
-<script src="/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+<script src="${(contextPath)!''''}/webjars/1.0/menu/addEditModule.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('9378ee23-09fa-11eb-a894-f48e38ab8cd7', 'home-page', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<title>JQuiver</title>
+<script src="${(contextPath)!''''}/webjars/1.0/home/home.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<title><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></title>
 </head>
 	<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
-		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="/cf/home">JQuiver</a>
-        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
-			<i class="fa fa-bars" aria-hidden="true"></i>
-		</span>
+		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''''}/cf/home"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+        <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
+	        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
+				<i class="fa fa-bars" aria-hidden="true"></i>
+			</span>
+		</#if>
         <span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">×</span>
+        
         <ul class="navbar-nav px-3 float-right">
-            <#if loggedInUserName?? && loggedInUserName != "anonymous">
-                <li class="nav-item text-nowrap">
-                    <div class="row margin-r-5 profile-tray">
-                        <ul>
-                            <li> <a class="nav-link cm-userid" href="/cf/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> ${loggedInUserName}</a></li>
-                            <li><a class="nav-link signout-icon" href="/logout"> <i class="fa fa-sign-out" aria-hidden="true"></i></a></li>
-                        </ul>
-                    </div>
-                </li>
-            </#if>
-        </ul>
+			<li class="nav-item text-nowrap">
+				<div class="row margin-r-5 profile-tray">
+					<ul>
+            			<li>
+            				<a class="nav-link " href="${(contextPath)!''''}/view/jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1" target="_blank">
+							<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</a>
+						</li>
+						<li>
+            				<a class="nav-link " href="${(contextPath)!''''}/view/health" target="_blank">
+							<i class="fa fa-heartbeat" aria-hidden="true"></i>
+							</a>
+						</li>
+            			<#if loggedInUserName?? && loggedInUserName != "anonymous">
+                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''''}/cf/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> ${loggedInUserName}</a></li>
+                            <li><a class="nav-link signout-icon" href="${(contextPath)!''''}/logout"> <i class="fa fa-sign-out" aria-hidden="true"></i></a></li>
+                        <#elseif loggedInUserName?? && loggedInUserName == "anonymous" && isAuthEnabled?c == "true" >
+                        	<li>
+                        		<a class="nav-link signout-icon" href="${(contextPath)!''''}/cf/login">
+                        			<img src="${(contextPath)!''''}/webjars/1.0/images/login.png" class="login-img-cls">
+                        		</a>
+                        	</li>
+            			</#if>
+        			</ul>
+                  </div>
+             </li>
+          </ul>
 	</nav>
 
 <div class="container-fluid ">
@@ -961,7 +1043,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 											<#list moduleDetailsVOList as moduleDetailsVOChild>
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
 													<li>
-														<a href = "/view/${moduleDetailsVOChild?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''''}</a> 
+														<a href = "${(contextPath)!''''}/view/${moduleDetailsVOChild?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''''}</a> 
 													</li>
 												</#if>
 											</#list>
@@ -971,7 +1053,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 							<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
 								<li class="nav-item">
 									<span data-feather="file"></span>
-									<a href = "/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVO?api.getModuleName()!''''}</a>
+									<a href = "${(contextPath)!''''}/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVO?api.getModuleName()!''''}</a>
 								</li>
 							</#if>
 						
@@ -992,7 +1074,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 <footer class="page-footer font-small blue pt-4">
     <div class="footer bg-dark">
         <div class="text-center">
-            <small>Copyright &copy; JQuiver</small>
+            <small>Copyright &copy; Trigyn Technologies</small>
             <small class="float-right">${(jquiverVersion)!''1.0.0''}</small>
         </div>
     </div>
@@ -1006,15 +1088,12 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	  const homePage = new HomePage();
 	  homePageFn = homePage.fn;
 	  homePageFn.collapsableMenu();
-	  let noOfModules = $("#menuUL li").length;
-	  if(noOfModules == 0){
-		$("#openbtni").hide();
-	  }
+	  $("input").attr("autocomplete", "off");
 	});
 
 
 </script>
-<script src="/webjars/1.0/home/home.js"></script>
+
 
 
 <#assign gaAttributes = {
@@ -1028,16 +1107,16 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 ', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('99a707e5-09fa-11eb-a894-f48e38ab8cd7', 'error-page', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 
 </head>
 
@@ -1075,7 +1154,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
     </div>
 
      <div class="col-4">
-             <img class="errorImg" src="/webjars/1.0/images/error1.jpg">
+             <img class="errorImg" src="${(contextPath)!''''}/webjars/1.0/images/error1.jpg">
      </div>
 
 	</div>
@@ -1089,19 +1168,19 @@ function showHideErrorInfo(){
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('9ea3cd47-09fa-11eb-a894-f48e38ab8cd7', 'config-home-page', '<head>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<script src="/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
-    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -1187,7 +1266,7 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 
 </div>
 <script>
-const contextPath = "${(contextPath)!''''}";
+contextPath = "${(contextPath)!''''}";
 let autocomplete;
 
 $(function() {
@@ -1201,6 +1280,7 @@ $(function() {
     }
 	let autocompleteIdByType = getTargeTypeNames();
     autocomplete = $(''#targetTypeName'').autocomplete({
+    	contextPath: contextPath,
         autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
@@ -1299,7 +1379,7 @@ function saveEntityRoleAssociation (moduleId){
     	async : false,
         type : "POST",
         contentType : "application/json",
-        url : "/cf/ser", 
+        url : contextPath+"/cf/ser", 
         data : JSON.stringify(entityRoles),
         success : function(data) {
 		
@@ -1310,7 +1390,7 @@ function saveEntityRoleAssociation (moduleId){
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO autocomplete_details(
+REPLACE INTO jq_autocomplete_details(
    ac_id
   ,ac_description
   ,ac_select_query
@@ -1319,28 +1399,27 @@ REPLACE INTO autocomplete_details(
    'revisionAutocomplete'
   ,'List module version detail by entity id'
   ,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
-  FROM jws_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
-    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jws_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName) ORDER BY jmv.updated_date ASC'
+  FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
+    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName) ORDER BY jmv.updated_date DESC '
   ,2
 );
 
 
 
-SET FOREIGN_KEY_CHECKS=1;
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('9edd802d-1851-11eb-a842-f48e38ab8cd7', 'revision-details','<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<script src="/webjars/1.0/monaco/require.js"></script>
-<script src="/webjars/1.0/monaco/min/vs/loader.js"></script>
-<script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-<script src="/webjars/1.0/typeahead/typeahead.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<script src="${(contextPath)!''''}/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 
 </head>
 <div class="pg-revision-history">
@@ -1394,7 +1473,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 						</#if>
 						<span onclick="copyJsonData()"  class="grid_action_icons pull-left">
 	
-	                        <span class="cm-iconsvg"><img src="/webjars/1.0/images/text-push-right-1.svg"></span>
+	                        <span class="cm-iconsvg"><img src="${(contextPath)!''''}/webjars/1.0/images/text-push-right-1.svg"></span>
 	                    </span>
 					</div>
 				</div>
@@ -1442,7 +1521,7 @@ $(function(){
 	isImport = "${(isImport)!''''}";
 	isNonVersioningModule = "${(isNonVersioningModule)!''''}";
 	
-	if(isNonVersioningModule == "false") {
+	if(isImport == "false" || isNonVersioningModule == "false") {
 		getUpdatedData();
 	} else {
 		nonVersioningFetchURL = "${(nonVersioningFetchURL)!''''}";
@@ -1457,6 +1536,7 @@ $(function(){
 	  setJsonEditorContent();
 	  getUpdatedData();
         autocomplete = $(''#revisionAutocomplete'').autocomplete({
+        contextPath: contextPath,
         autocompleteId: ''revisionAutocomplete'',
         prefetch : true,
         enableClearText : true,
@@ -1865,7 +1945,7 @@ function saveUpdatedJson(){
 		},
 				
 		error : function(xhr, error){
-			showMessage("Error occurred while fetching data", "error");
+			showMessage("Error occurred while saving data", "error");
 		},
 	        	
 	});
@@ -1881,73 +1961,23 @@ function backToPreviousPage(){
 
 
 
-DROP PROCEDURE IF EXISTS homePageListing;
-CREATE PROCEDURE homePageListing(moduleId varchar(100), moduleName varchar(500),
-moduleURL varchar(500), roleName varchar(100), forCount INT, 
-limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @resultQuery = ' SELECT jr.role_id AS roleId, ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, jr.role_name AS roleName';
-  SET @fromString  = ' FROM  jws_role AS jr';
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_role_association AS mra ON jr.role_id = mra.role_id AND mra.is_deleted = 0  ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing AS ml ON mra.module_id = ml.module_id ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n ON mli18n.module_id = ml.module_id AND mli18n.language_id = 1 ');
-  SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
-  SET @whereString = ' WHERE jr.is_active = 1 ';
-  
-  
-  IF NOT moduleName IS NULL THEN
-    SET @moduleName= REPLACE(moduleName,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
-  END IF;
-  
-  IF NOT moduleURL IS NULL THEN
-    SET @moduleURL= REPLACE(moduleURL,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND ml.module_url LIKE ''%',@moduleURL,'%'''); 
-  END IF;
-  
-  IF NOT roleName IS NULL THEN
-    SET @roleName= REPLACE(roleName,"'","''");
-    SET @whereString = CONCAT(@whereString, 'AND jr.role_name LIKE ''%',@roleName,'%''');  
- END IF;
 
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY jr.role_priority DESC');
-  END IF;
-    
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
-  END IF;
-  
-  
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
-
-
-REPLACE INTO grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
+REPLACE INTO jq_grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
 ) VALUES ('homePageListingGrid','Home Page Listing','Home Page Listing','homePageListing' 
-  ,'moduleId,moduleName,moduleURL,roleName', 2 , 2);
+  ,'moduleId,moduleName,moduleURL,roleName,rolePriority', 2 , 2);
   
-REPLACE INTO  template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>
-<script src="/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -1995,12 +2025,21 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Role Name", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center",},
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editHomePage}
+	        { title: "Role Name", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center",
+	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Role Priority", width: 100, align: "center", dataIndx: "rolePriority", align: "left", halign: "center",
+	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editHomePage, sortable: false}
 		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "rolePriority",
+        	sortDir: "down",
+    	};
 		let grid = $("#divConfigHomeListing").grid({
 	      gridId: "homePageListingGrid",
-	      colModel: colM
+	      colModel: colM,
+          dataModel: dataModel
 	  });
 	});
   
@@ -2036,7 +2075,144 @@ REPLACE INTO  template_master (template_id, template_name, template, updated_by,
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
 
-REPLACE INTO autocomplete_details(
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+('0d6041fd-7ffd-11eb-971b-f48e38ab8cd7', 'user-favorite-template', '<head>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
+</head>
+        <div class="row"> 
+            <div class="col-2">
+                <div class="fav-image" data-hover="&#9733" onclick="addRemoveFav()">&#9734;</div>         
+            </div>
+            <div class="col-10 float-right">
+                <div class="col-inner-form full-form-fields">
+                    <div class="search-cover">
+                    	<input class="form-control" id="rbAutocompletePF" type="text">
+                    	<i class="fa fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>          
+        </div>
+<script>
+contextPath = "${(contextPath)!''''}";	
+let autocompletePF;
+
+	$(function () {
+        let imageName;
+        autocompletePF = $("#rbAutocompletePF").autocomplete({
+            autocompleteId: "user-preference-entity-autocomplete",
+            prefetch : true,
+            enableClearText: true,
+            render: function(item) {
+                var renderStr = "";
+                imageName = getImageNameByType(item.entityType);
+                if(item.emptyMsg == undefined || item.emptyMsg === ""){
+                   renderStr = ''<div class="user-favorite-img-cls"><img src="/webjars/1.0/images/''+imageName+''.svg"><p>''+item.entityName+''</p></div>'';
+                }else{
+                    renderStr = item.emptyMsg;	
+                }	    				        
+                return renderStr;
+            },
+            additionalParamaters: {languageId: 1},
+            extractText: function(item) {
+                return item.entityName;
+            },
+            select: function(item) {
+                submitForm(item);
+                $("#rbAutocompletePF").blur();
+            }, 
+            resetDependentInput: function(){ 
+
+            },
+        });
+    });
+    
+     function getImageNameByType(entityType){
+        switch(entityType) {
+	        case "Grid Utils":
+	            return "grid";
+	        case "Templating":
+	            return "template";
+	        case "TypeAhead Autocomplete":
+	            return "autotype";
+	        case "File Bin":
+	            return "upload_management";
+	        case "Form Builder":
+	            return "daynamicreport";    
+	        case "REST API Builder":
+	            return "API_listing_icon";
+	        case "Dashboard":
+	            return "dashboard";  
+	        case "Dashlet":
+	            return "dashboard";
+	        default:
+            	return "daynamicreport";           
+        }
+    }
+
+    function addRemoveFav(){
+	    $(".fav-image").toggleClass("fav-imageFill");
+        let isChecked = $(".fav-image").hasClass("fav-imageFill");
+        let entityIdVar = "${innerTemplateObj.entityId}";
+        let entityNameVar = "${innerTemplateObj.entityName}";
+        $.ajax({
+			url:contextPath+"/api/user-favorite-entity",
+			type:"POST",
+	        data:{
+                entityType: "${innerTemplateObj.entityType}",
+                entityId: $("#"+entityIdVar).val().trim(),
+                entityName: $("#"+entityNameVar).val().trim(),
+                isChecked: isChecked,
+	        }, 
+			success : function(data) {
+				autocompletePF.resetAutocomplete();
+				showMessage("Successfully updated favorite", "success");
+			},
+			error : function(xhr, error){
+				showMessage("Error occurred while updating favorite", "error");
+			}, 
+	    }); 
+	}
+
+    function getSavedEntity(){
+        let entityIdVar = "${innerTemplateObj.entityId}";
+        let entityNameVar = "${innerTemplateObj.entityName}";
+         $.ajax({
+			url:contextPath+"/api/user-favorite-entity-by-type",
+			type:"POST",
+	        data:{
+                entityType: "${innerTemplateObj.entityType}",
+                entityId: $("#"+entityIdVar).val().trim(),
+                entityName: $("#"+entityNameVar).val().trim(),
+	        }, 
+			success : function(isFavorite) {
+                if(isFavorite.trim() == 1){
+                    $(".fav-image").addClass("fav-imageFill");
+                }
+			},
+			error : function(xhr, error){
+			  showMessage("Error occurred while updating favorite", "error");
+			}, 
+	    }); 
+    }
+    
+    function submitForm(selectedEntity){
+        let form = $(JSON.parse(selectedEntity.formData));
+        $("body").append(form);
+        let formId = form[0].id;
+        $("#"+formId).find("input").each(function(index,inputElem){
+            if($(inputElem).attr("name") !== "formId"){
+                $(inputElem).val(selectedEntity.entityId);
+            }
+        })
+        $("#"+formId).submit();
+    }
+</script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+
+REPLACE INTO jq_autocomplete_details(
    ac_id
   ,ac_description
   ,ac_select_query
@@ -2044,27 +2220,76 @@ REPLACE INTO autocomplete_details(
 ) VALUES (
    'home-page-role'
   ,'Role autocomplete for home page'
-  ,'SELECT jr.role_id AS roleId, jr.role_name AS roleName FROM jws_role AS jr
+  ,'SELECT jr.role_id AS roleId, jr.role_name AS roleName FROM jq_role AS jr
 WHERE jr.role_name LIKE CONCAT("%", :searchText, "%")  
 AND jr.is_active = 1 
 AND jr.role_id NOT IN (SELECT mra.role_id FROM module_role_association AS mra WHERE mra.is_deleted = 0)'
-  ,1
+  ,2
 );
 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_autocomplete_details(ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('user-preference-entity-autocomplete', '', 
+'SELECT jqfe.favorite_id AS favoriteId, jqfe.entity_type AS entityType, jqfe.entity_id AS entityId,
+jqfe.entity_name AS entityName, jmm.auxiliary_data AS formData
+FROM jq_user_favorite_entity AS jqfe
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = jqfe.entity_type
+WHERE jqfe.user_email_id = :loggedInUserName AND jqfe.entity_name LIKE CONCAT("%", :searchText, "%")
+ORDER BY entity_type, entity_name ASC '
+, 1);
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('table-autocomplete', 'table autocomplete', 'SELECT TABLE_NAME AS tableName FROM information_schema.TABLES WHERE table_schema = (SELECT DATABASE())
+ AND TABLE_NAME LIKE CONCAT("%", :searchText, "%") AND TABLE_TYPE ="BASE TABLE"
+ AND CASE WHEN (SELECT (property_value) FROM jq_property_master WHERE property_name = "version") NOT LIKE "%SNAPSHOT%" 
+ THEN TABLE_NAME NOT LIKE "jq_%" ELSE 1 END AND TABLE_NAME NOT IN("flyway_schema_history", "persistent_logins")'
+, 2); 
+
+REPLACE INTO jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, is_home_page) VALUES
+('4f81625d-c3f1-47ec-88d4-e85be439df19', 'jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1', NULL, 5, '8a80cb8175513bc80175514206ef0000', NULL, 0, 0);
+
+REPLACE INTO jq_module_listing_i18n (module_id, language_id, module_name) VALUES
+('4f81625d-c3f1-47ec-88d4-e85be439df19', 1, 'JQuiver Help Manual');
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('d8146692-97e8-4cd4-97c0-412ff7a1513f', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
 ('2eaea3fc-54c5-11eb-9e7a-f48e38ab8cd7', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
 ('ec8750ed-3500-42c0-a925-14b822338273', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('586d1b73-c333-47a0-b3d0-93d383cdcf29', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0),
 ('329eb2de-54c5-11eb-9e7a-f48e38ab8cd7', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
 ('e3413a71-1707-4620-a17e-032fc4f3ba37', '55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
 
 
-REPLACE INTO jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('776c0d05-9339-4a3a-b28b-b42224d3f438', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
 ('369e53f3-54c5-11eb-9e7a-f48e38ab8cd7', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
 ('7b7c93fb-702e-475e-8279-036f4321a7a3', 'homePageListingGrid', 'Home Page Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
+
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('024a85dc-7b39-11eb-9439-0242ac130002', 'customResourceBundleListingGrid', 'Custom DB Resource Bundle Listing', '07067149-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('024a85dc-7b39-11eb-9439-0242ac130001', 'customResourceBundleListingGrid', 'Custom DB Resource Bundle Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
+('024a85dc-7b39-11eb-9439-0242ac130012', 'customResourceBundleListingGrid', 'Custom DB Resource Bundle Listing', '07067149-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0);
+
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('b338e1c2-1c92-4f15-88f7-9521dea66522', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('cbc3293f-d7ab-4d93-8c95-a032aef8812c', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('f381799b-ba9a-4a9a-948a-50f86e7b6a81', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('17a65a59-082d-4ece-9702-0e0117be17bd', '0d6041fd-7ffd-11eb-971b-f48e38ab8cd7', 'user-favorite-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('3a301779-a9cd-4434-aef3-cdc0973914d3', '0d6041fd-7ffd-11eb-971b-f48e38ab8cd7', 'user-favorite-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('9d5d82b2-0737-4f5f-b0ed-f4d25069955a', '0d6041fd-7ffd-11eb-971b-f48e38ab8cd7', 'user-favorite-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('0495ca99-39b9-454d-9857-d683b6a00790', 'table-autocomplete', 'table-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('5c0232e5-5d03-4c90-bbbd-6a1c6b6f7492', 'table-autocomplete', 'table-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('a795f8c0-d65f-422f-a5ed-e036654f0cb6', 'table-autocomplete', 'table-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+
+
+SET FOREIGN_KEY_CHECKS=1;

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -96,22 +95,24 @@ public class MasterCreatorService {
 
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
 		Map<String, Object>		templateMap			= new HashMap<>();
-		List<String>			tables				= dynamicFormDAO.getAllTablesListInSchema();
-		List<String>			views				= dynamicFormDAO.getAllViewsListInSchema();
+		//		List<String>			tables				= dynamicFormDAO.getAllTablesListInSchema();
+		//		List<String>			views				= dynamicFormDAO.getAllViewsListInSchema();
 		List<ModuleDetailsVO>	moduleListingVOList	= moduleService.getAllParentModules("");
-		String					uri					= httpServletRequest.getRequestURI();
-		String					url					= httpServletRequest.getRequestURL().toString();
-		StringBuilder			urlPrefix			= new StringBuilder();
+		String					uri					= httpServletRequest.getRequestURI()
+				.substring(httpServletRequest.getContextPath().length());
+		;
+		String			url			= httpServletRequest.getRequestURL().toString();
+		StringBuilder	urlPrefix	= new StringBuilder();
 		url = url.replace(uri, "");
 		urlPrefix.append(url).append("/view/");
 
 		templateMap.put("urlPrefix", urlPrefix);
 
-		if (!CollectionUtils.isEmpty(views)) {
-			tables.addAll(views);
-		}
-		templateMap.put("tables", tables);
-		templateMap.put("tables", tables);
+		//		if (!CollectionUtils.isEmpty(views)) {
+		//			tables.addAll(views);
+		//		}
+		//		templateMap.put("tables", tables);
+		//		templateMap.put("tables", tables);
 		templateMap.put("moduleListingVOList", moduleListingVOList);
 
 		return menuService.getTemplateWithSiteLayout("master-creator", templateMap);
@@ -216,7 +217,7 @@ public class MasterCreatorService {
 		Gson			gson			= new Gson();
 		JsonParser		parser			= new JsonParser();
 		JsonObject		object			= (JsonObject) parser.parse(menuDetails);		// response will be the json
-																						// String
+																	// String
 		ModuleDetailsVO	moduleDetailsVO	= gson.fromJson(object, ModuleDetailsVO.class);
 		moduleDetailsVO.setIsInsideMenu(Constant.IS_INSIDE_MENU);
 

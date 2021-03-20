@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "module_listing_i18n")
+@Table(name = "jq_module_listing_i18n")
 @NamedQuery(name = "ModuleListingI18n.findAll", query = "SELECT m FROM ModuleListingI18n m")
 public class ModuleListingI18n implements Serializable {
 	private static final long	serialVersionUID	= 1L;

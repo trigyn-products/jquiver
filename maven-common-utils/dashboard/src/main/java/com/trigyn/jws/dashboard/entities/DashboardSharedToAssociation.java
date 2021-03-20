@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dashboard_shared_to_association")
+@Table(name = "jq_dashboard_shared_to_association")
 public class DashboardSharedToAssociation implements Serializable {
 
 	private static final long				serialVersionUID		= 1L;

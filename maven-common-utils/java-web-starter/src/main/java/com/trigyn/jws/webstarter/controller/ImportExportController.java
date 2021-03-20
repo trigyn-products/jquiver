@@ -66,6 +66,9 @@ public class ImportExportController {
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -92,6 +95,9 @@ public class ImportExportController {
 			return menuService.getTemplateWithSiteLayout("import-config", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -118,8 +124,10 @@ public class ImportExportController {
 			return jsonString;
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
-			return null;
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			return "fail:" + a_exception.getMessage();
 		}
 	}
 
@@ -155,12 +163,15 @@ public class ImportExportController {
 			return gson.toJson(crcMap);
 		} catch (Exception exception) {
 			logger.error("Error ", exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
 		}
 	}
 
-	@RequestMapping(value = "/importConfig",method = RequestMethod.POST)
+	@RequestMapping(value = "/importConfig", method = RequestMethod.POST)
 	@ResponseBody
 	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
@@ -169,21 +180,23 @@ public class ImportExportController {
 			String	moduleType		= request.getParameter("moduleType");
 
 			return importService.importConfig(imporatableData, importId, moduleType);
-		} catch (Exception e) {
-			return "fail:"+e.getMessage();
+		} catch (Exception exception) {
+			logger.error("Error ", exception);
+			return "fail:" + exception.getMessage();
 		}
 	}
 
-	@RequestMapping(value = "/importAll",method = RequestMethod.POST)
+	@RequestMapping(value = "/importAll", method = RequestMethod.POST)
 	@ResponseBody
 	public String importAll(HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
 			String	imporatableData	= request.getParameter("imporatableData");
 			String	importedIdList	= request.getParameter("importedIdList");
-	
+
 			return importService.importAll(imporatableData, importedIdList);
-		} catch (Exception e) {
-			return "fail:"+e.getMessage();
+		} catch (Exception exception) {
+			logger.error("Error ", exception);
+			return "fail:" + exception.getMessage();
 		}
 	}
 

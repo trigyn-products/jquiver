@@ -48,8 +48,18 @@ public class MenuCrudController {
 	private RequestMappingHandlerMapping	handlerMapping	= null;
 
 	@GetMapping(value = "/mul", produces = MediaType.TEXT_HTML_VALUE)
-	public String moduleListingPage() throws Exception {
-		return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
+	public String moduleListingPage(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
+		}
+
 	}
 
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
@@ -62,7 +72,8 @@ public class MenuCrudController {
 			List<ModuleTargetLookupVO>	moduleTargetLookupVOList	= moduleService.getAllModuleLookUp();
 			List<UserRoleVO>			userRoleVOs					= moduleService.getAllUserRoles();
 			Integer						defaultSequence				= moduleService.getModuleMaxSequence();
-			String						uri							= a_httHttpServletRequest.getRequestURI();
+			String						uri							= a_httHttpServletRequest.getRequestURI()
+					.substring(a_httHttpServletRequest.getContextPath().length());
 			String						url							= a_httHttpServletRequest.getRequestURL()
 					.toString();
 			StringBuilder				urlPrefix					= new StringBuilder();
@@ -78,6 +89,9 @@ public class MenuCrudController {
 			return menuService.getTemplateWithSiteLayout("module-manage-details", templateMap);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -102,19 +116,13 @@ public class MenuCrudController {
 		}
 	}
 
-	@GetMapping(value = "/cmurl")
-	@ResponseBody
-	public String checkModuleURL(@RequestHeader(name = "module-url", required = false) String moduleURL)
-			throws Exception {
-		return moduleService.getModuleIdByURL(moduleURL);
-	}
-
 	@GetMapping(value = "/ced", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public Map<String, Object> getExistingData(@RequestHeader(name = "module-name", required = false) String moduleName,
 			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
 			@RequestHeader(name = "sequence", required = true) Integer sequence,
-			@RequestHeader(name = "module-url", required = false) String moduleURL) throws Exception {
-		return moduleService.getExistingModuleData(moduleName, parentModuleId, sequence, moduleURL);
+			@RequestHeader(name = "module-url", required = false) String moduleURL,
+			@RequestHeader(name = "module-id", required = false) String moduleId) throws Exception {
+		return moduleService.getExistingModuleData(moduleId, moduleName, parentModuleId, sequence, moduleURL);
 	}
 
 	@PostMapping(value = "/sm")
@@ -148,6 +156,9 @@ public class MenuCrudController {
 			return menuService.getTemplateWithSiteLayout("config-home-page-listing", templateMap);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -169,6 +180,9 @@ public class MenuCrudController {
 			return menuService.getTemplateWithSiteLayout("config-home-page", templateMap);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

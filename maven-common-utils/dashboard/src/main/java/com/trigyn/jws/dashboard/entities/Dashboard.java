@@ -21,7 +21,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "dashboard")
+@Table(name = "jq_dashboard")
 public class Dashboard implements Serializable {
 
 	private static final long					serialVersionUID			= 1L;

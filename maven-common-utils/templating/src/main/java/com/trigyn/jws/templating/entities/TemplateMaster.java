@@ -15,7 +15,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "template_master")
+@Table(name = "jq_template_master")
 public class TemplateMaster implements Serializable {
 
 	private static final long	serialVersionUID	= -5210067567698574574L;

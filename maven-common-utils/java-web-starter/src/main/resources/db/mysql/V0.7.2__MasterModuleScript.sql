@@ -1,7 +1,7 @@
 
-DROP TABLE IF EXISTS `master_module_role_association`;
-DROP TABLE IF EXISTS `master_module`;
-CREATE TABLE `master_module` (
+DROP TABLE IF EXISTS `jq_master_module_role_association`;
+DROP TABLE IF EXISTS `jq_master_module`;
+CREATE TABLE `jq_master_module` (
   `master_module_id` varchar(50) NOT NULL,
   `master_module_name` varchar(100) NOT NULL,
   `grid_details_id` varchar(50) NOT NULL,

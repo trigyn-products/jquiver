@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,6 +40,12 @@ public class ApplicationMetricsService {
 		for (MemoryPoolMXBean memoryPool : memoryPools) {
 			jvmMemoryPoolMap.put(memoryPool.getName(), memoryPool.getUsage());
 		}
+
+		Map<String, String>	systemEnvMap		= System.getenv();
+		Properties			systemProperties	= System.getProperties();
+
+		actuatorMap.put("system-env-map", systemEnvMap);
+		actuatorMap.put("system-properties", systemProperties);
 
 		actuatorMap.put("memory-pool-metric", jvmMemoryPoolMap);
 

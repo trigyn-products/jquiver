@@ -99,7 +99,7 @@ public class ResourceBundleService {
 
 				}
 				iResourceBundleRepository.saveAll(resourceBundleList);
-				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, "resource_bundle",
+				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, "jq_resource_bundle",
 						sourceTypeId);
 			}
 		} catch (Exception a_exception) {

@@ -26,7 +26,7 @@ public class ModuleVersionDAO extends DBConnection {
 
 	private final static String	HQL_QUERY_TO_GET_CHECKSUM_BY_ENTITY_ID_AND_ENTITY_NAME	= "SELECT jmv.moduleJsonChecksum AS moduleJsonChecksum FROM JwsModuleVersion jmv WHERE jmv.entityId=:entityId AND jmv.entityName=:entityName ORDER BY jmv.versionId DESC ";
 
-	private final static String	HQL_QUERY_TO_DELETE_OLD_RECORDS							= "DELETE FROM jws_module_version WHERE entity_id=:entityId AND entity_name=:entityName "
+	private final static String	HQL_QUERY_TO_DELETE_OLD_RECORDS							= "DELETE FROM jq_module_version WHERE entity_id=:entityId AND entity_name=:entityName "
 			+ " ORDER BY version_id ASC LIMIT 1 ";
 
 	private final static String	HQL_QUERY_TO_GET_VERSION_ID_COUNT						= "SELECT COUNT(jmv.moduleVersionId) FROM JwsModuleVersion AS jmv "

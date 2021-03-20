@@ -1,2 +1,2 @@
-UPDATE jws_dynamic_rest_details SET jws_service_logic = "com.trigyn.jws.dynarest.service.DynaRest" WHERE jws_platform_id = 1;
-DELETE FROM jws_property_master WHERE property_name = "dynarest-class-file-path";
+UPDATE jq_dynamic_rest_details SET jws_service_logic = "com.trigyn.jws.dynarest.service.DynaRest" WHERE jws_platform_id = 1;
+DELETE FROM jq_property_master WHERE property_name = "dynarest-class-file-path";

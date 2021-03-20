@@ -11,7 +11,19 @@ import com.trigyn.jws.dynamicform.entities.FileUpload;
 @Repository
 public interface FileUploadRepository extends JpaRepositoryImplementation<FileUpload, String> {
 
-	@Query(QueryStore.QUERY_TO_GET_FILE_DETAILS)
-	List<FileUpload> findAllByIds(List<String> fileIdList);
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_DETAILS_ID_BY_FILE_UPLOAD_ID)
+	FileUpload findFileBinIdByUploadId(String fileUploadId);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_FILE_DETAILS_BY_FILE_UPLOAD_ID)
+	List<FileUpload> findAllByFileUploadIds(List<String> fileUploadIdList);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_BIN_ID_AND_ASSOC_ID)
+	List<FileUpload> findAllFilesByConfigId(String fileBinId, String fileAssociationId);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_ASSOC_ID)
+	List<FileUpload> findAllByFileAssociationId(String fileAssociationId);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_BIN_ID)
+	List<FileUpload> findAllByFileBinId(String fileBinId);
 
 }

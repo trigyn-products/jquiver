@@ -192,7 +192,7 @@ AddEditDashboard.prototype.fn = {
 		        async : false,
 		        type : "POST",
 		        contentType : "application/json",
-		        url : "/cf/ser", 
+		        url :  contextPath+"/cf/ser", 
 		        data : JSON.stringify(entityRoles),
 		        success : function(data) {
 			    }
@@ -202,7 +202,7 @@ AddEditDashboard.prototype.fn = {
 			$.ajax({
 		        async : false,
 		        type : "GET",
-		        url : "/cf/ler", 
+		        url :  contextPath+"/cf/ler", 
 		        data : {
 		        	entityId:dashboardId,
 		        	moduleId:$("#moduleId").val(),

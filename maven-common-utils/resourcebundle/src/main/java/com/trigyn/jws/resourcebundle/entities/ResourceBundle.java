@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import org.apache.commons.text.StringEscapeUtils;
 
 @Entity
-@Table(name = "resource_bundle")
+@Table(name = "jq_resource_bundle")
 public class ResourceBundle implements Serializable {
 
 	private static final long	serialVersionUID	= 7131861420493139106L;

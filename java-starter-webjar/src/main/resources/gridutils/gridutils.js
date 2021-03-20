@@ -46,6 +46,7 @@
                 flexHeight: true,
                 dataModel: options.dataModel,
                 colModel: options.colModel,
+                additionalParameters: options.additionalParameters,
                 pageModel: { type: "remote", rPP: 10, strRpp: "{0}" },
                 numberCell: { show: false },
                 selectionModel: {type: 'row', swipe: false },
@@ -55,7 +56,10 @@
                 resizable: false,
                 showTop : false,
                 dragColumns: {enabled: options.draggableColumns},
-                load: function(event, ui) {options.loadCallback(event, ui)}
+                load: function(event, ui) {
+                	options.loadCallback(event, ui);
+                	$('input').attr('autocomplete', 'off');
+                }
             }
             
          
@@ -67,6 +71,7 @@
             const grid = $(this.element).pqGrid(pqGridObject);
             return grid;
         }
+        
     }
 
     $.fn.grid = function(options) {

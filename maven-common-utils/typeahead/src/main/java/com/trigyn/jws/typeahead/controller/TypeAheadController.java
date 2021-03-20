@@ -32,7 +32,7 @@ public class TypeAheadController {
 	@ApiOperation(value = "Get count of autocomplete data by autocomplete id.")
 	@PostMapping(value = "/autocomplete-data", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@Authorized(moduleName = Constants.AUTOCOMPLETE)
-	public List<Map<String, Object>> getAutocompleteData(HttpServletRequest request) {
+	public List<Map<String, Object>> getAutocompleteData(HttpServletRequest request) throws Exception {
 		AutocompleteParams autocompleteParams = new AutocompleteParams(request);
 		return typeAheadService.getAutocompleteData(autocompleteParams);
 	}

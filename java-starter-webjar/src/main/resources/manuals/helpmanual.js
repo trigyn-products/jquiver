@@ -14,8 +14,12 @@ class HelpManual {
                 data : {
                     manualId: manualId
                 },
-                success : function(data) {
-                    context.helpManualDetails = data;
+                success : function(helpManualArray) {
+                	helpManualArray.forEach((manualDetails, index, helpManualArray) =>{
+                		manualDetails.entry_content = manualDetails.entry_content.replaceAll("/cf/files/", contextPath+"/cf/files/") ;
+                		return manualDetails;
+                	});
+                    context.helpManualDetails = helpManualArray;
                 }
             });
         }
@@ -65,7 +69,7 @@ class HelpManual {
     }
     
     saveManualDetails = function(fileIds) {
-    	if(fileIds.length > 0) {
+    	if(fileIds !== undefined && fileIds.length > 0) {
     		$.ajax({
 			  type : "POST",
 			  async: false,

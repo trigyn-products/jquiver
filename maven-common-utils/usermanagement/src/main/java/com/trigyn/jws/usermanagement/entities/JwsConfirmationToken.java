@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_confirmation_token")
+@Table(name = "jq_confirmation_token")
 public class JwsConfirmationToken {
 
 	@Id

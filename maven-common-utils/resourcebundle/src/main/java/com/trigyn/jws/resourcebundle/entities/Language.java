@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "language")
+@Table(name = "jq_language")
 public class Language implements Serializable {
 
 	private static final long		serialVersionUID	= 4495981831880458994L;

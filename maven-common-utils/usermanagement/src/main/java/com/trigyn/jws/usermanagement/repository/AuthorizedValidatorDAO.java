@@ -67,7 +67,7 @@ public class AuthorizedValidatorDAO extends DBConnection {
 	public Long hasAccessToDynamicRest(String requestUri, String requestMethod, List<String> roleNames) {
 		Query query = getCurrentSession().createQuery(
 				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
-						+ " INNER JOIN jdrd.jwsRequestTypeDetail jrtd ON jdrd.jwsDynamicRestTypeId = jrtd.jwsRequestTypeDetailsId INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
+						+ " INNER JOIN jdrd.jwsRequestTypeDetail jrtd  INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
 						+ " AND  jdrd.jwsDynamicRestUrl=:requestUri AND  jrtd.jwsRequestType=:requestMethod");
 		query.setParameter("requestUri", requestUri);
 		query.setParameter("requestMethod", requestMethod);
@@ -106,11 +106,76 @@ public class AuthorizedValidatorDAO extends DBConnection {
 		Query query = getCurrentSession().createQuery(
 				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN ModuleListing ml ON jera.entityId= ml.moduleId "
 						+ " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
-						+ " AND  ml.moduleUrl=:moduleUrl ");
+						+ " AND  ml.moduleUrl = :moduleUrl ");
 		query.setParameter("moduleUrl", moduleUrl);
 		query.setParameter("isActive", Constants.ISACTIVE);
 		query.setParameterList("roleNames", roleNames);
 		Long count = (Long) query.uniqueResult();
 		return count;
 	}
+
+	public Long hasAccessToEntity(String moduleName, String entityId, List<String> roleNames) {
+
+		Query query = getCurrentSession().createQuery(
+				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN JwsMasterModules AS jmm ON jmm.moduleId = jera.moduleId AND jmm.moduleName = :moduleName"
+						+ " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive = :isActive AND jr.roleName IN (:roleNames)"
+						+ " AND  jera.entityId =:entityId ");
+		query.setParameter("moduleName", moduleName);
+		query.setParameterList("roleNames", roleNames);
+		query.setParameter("isActive", Constants.ISACTIVE);
+		query.setParameter("entityId", entityId);
+		Long count = (Long) query.uniqueResult();
+		return count;
+
+	}
+
+	public String getSiteLayoutModuleNameByUrl(String moduleUrl) {
+		Query query = getCurrentSession().createQuery(
+				" SELECT mlI18n.moduleName FROM ModuleListing ml INNER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = 1 "
+						+ " WHERE ml.moduleUrl LIKE :moduleUrl ");
+		query.setParameter("moduleUrl", moduleUrl);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
+	public String getGridNameByGridId(String gridId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT gd.gridName FROM GridDetails gd WHERE gd.gridId = :gridId ");
+		query.setParameter("gridId", gridId);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
+	public String getDynamicFormNameById(String dynamicFormId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT df.formName FROM DynamicForm df WHERE df.formId = :dynamicFormId ");
+		query.setParameter("dynamicFormId", dynamicFormId);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
+	public String getDashboardNameById(String dashboarId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT db.dashboardName FROM Dashboard db WHERE db.dashboardId = :dashboarId ");
+		query.setParameter("dashboarId", dashboarId);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
+	public String getFileBinIdByFileUploadId(String fileUploadId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT fu.fileBinId FROM FileUpload fu WHERE fu.fileUploadId = :fileUploadId ");
+		query.setParameter("fileUploadId", fileUploadId);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
+	public String getManualNameById(String manualId) {
+		Query query = getCurrentSession()
+				.createQuery(" SELECT mt.name FROM ManualType mt WHERE mt.manualId = :manualId ");
+		query.setParameter("manualId", manualId);
+		String count = (String) query.uniqueResult();
+		return count;
+	}
+
 }

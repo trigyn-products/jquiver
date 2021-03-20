@@ -62,10 +62,11 @@ public class DynamicFormCrudService {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 			dynamicForm.setFormBody("<#noparse>" + dynamicForm.getFormBody() + "</#noparse>");
 			dynamicForm.setFormSelectQuery("<#noparse>" + dynamicForm.getFormSelectQuery() + "</#noparse>");
-		} else {
-			List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
-			templateMap.put("tables", tables);
 		}
+		//		else {
+		//			List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
+		//			templateMap.put("tables", tables);
+		//		}
 		templateMap.put("dynamicForm", dynamicForm);
 		return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
 	}
@@ -106,7 +107,7 @@ public class DynamicFormCrudService {
 		}
 
 		DynamicFormVO dynamicFormVO = convertEntityToVO(dynamicForm);
-		moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), "dynamic_form",
+		moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), "jq_dynamic_form",
 				sourceTypeId);
 
 		return dynamicForm.getFormId();

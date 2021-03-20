@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_master_modules")
+@Table(name = "jq_master_modules")
 public class JwsMasterModules {
 
 	@Id

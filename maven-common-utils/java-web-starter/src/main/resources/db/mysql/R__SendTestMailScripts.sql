@@ -1,8 +1,8 @@
 SET FOREIGN_KEY_CHECKS=0;
 
  
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
-('193d770c-1217-11eb-980f-802bf9ae2eda', 'mail-configuration-form', 'Mail configuration form', 'select *, (SELECT COUNT(*) FROM failed_mail_history) as totalFailedMails from jws_property_master where property_name = "mail-configuration"', '<head>
+replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+('193d770c-1217-11eb-980f-802bf9ae2eda', 'mail-configuration-form', 'Mail configuration form', 'select *, (SELECT COUNT(*) FROM failed_mail_history) as totalFailedMails FROM jq_property_master where property_name = "mail-configuration"', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -584,30 +584,30 @@ input:checked + .slider:before {
 </script>', 'admin', NOW(), NULL, NULL, 1);
   
   
-REPLACE INTO dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('a209c7b9-242d-11eb-9c67-f48e38ab8cd7', '193d770c-1217-11eb-980f-802bf9ae2eda', '
-UPDATE jws_property_master SET
+UPDATE jq_property_master SET
 last_modified_date = NOW()
 WHERE property_master_id = "mail-configuration";', 1, NULL);
 
-replace into jws_dynamic_rest_details
+replace into jq_dynamic_rest_details
 (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
 ('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfirationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2);
 
 
-replace into jws_dynamic_rest_dao_details
+replace into jq_dynamic_rest_dao_details
 (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
-(24, 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'saveMailConfigDetailsJson', 'REPLACE INTO jws_property_master (property_master_id,owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
+(24, 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'saveMailConfigDetailsJson', 'REPLACE INTO jq_property_master (property_master_id,owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (''9d08d633-1f4b-11eb-947d-f48e38ab9348'',''system'', ''system'', ''mail-configuration'', :saveMailConfigDetailsJson, 0, NOW(), ''admin'', 1.00, ''mail Config Details'');', 1, 2);
 
-REPLACE INTO grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
-('failedMailsGrid', 'Failed mails listing', 'Failed mail listing grid', 'mail_history_data', '*', 1);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
+('failedMailsGrid', 'Failed mails listing', 'Failed mail listing grid', 'jq_mail_history_data', '*', 1);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175b1d5710175b1d938fb0000', 'mailTemplate', 'This is test mail body template', 'admin', 'admin', NOW(), NULL, 1);
 
- DROP TABLE IF EXISTS `failed_mail_history`;
-CREATE TABLE `failed_mail_history` (
+DROP TABLE IF EXISTS jq_failed_mail_history;
+CREATE TABLE jq_failed_mail_history (
   `failed_mail_id` varchar(100) NOT NULL, 
   `mail_sent_to` varchar(200) NOT NULL,
   `mail_sent_by` varchar(150) NOT NULL,
@@ -616,8 +616,8 @@ CREATE TABLE `failed_mail_history` (
   PRIMARY KEY (`failed_mail_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE OR REPLACE  VIEW  mail_history_data  AS
+CREATE OR REPLACE VIEW jq_mail_history_data  AS
 SELECT failed_mail_id  as failed_mail_id,mail_sent_by as mail_sent_by,date_format(`mail_failed_time`,"%d %b %Y") AS `mail_failed_time`,mail_sent_to as mail_sent_to
-from failed_mail_history;
+FROM jq_failed_mail_history;
 
 SET FOREIGN_KEY_CHECKS=1;

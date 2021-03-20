@@ -1,9 +1,9 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
-('8a80cb817570ad44017570b0991c0000', 'application-metrics', '<script src="/webjars/1.0/application-metrics/appMetrics.js"></script>
-<script src="/webjars/1.0/chartjs/chart.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/importExport/export.css" />
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+('8a80cb817570ad44017570b0991c0000', 'application-metrics', '<script src="${(contextPath)!''''}/webjars/1.0/application-metrics/appMetrics.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/chartjs/chart.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/importExport/export.css" />
 <div class="pg-app-matrix">
    <div class="container">
       <div class="topband">
@@ -72,6 +72,54 @@ replace into template_master (template_id, template_name, template, updated_by, 
             </div>
          </div>
       </div>
+      
+	<div class="row">
+         <div class="col-6">
+            <div class="bs-example">
+               <div class="accordion" id="sysEnvironmentAccord">
+                  <div class="card">
+                     <div class="card-header" id="headingTwo">
+                        <h2 class="mb-0">
+                           <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sysEnvironmentDiv">System Environment<i class="fa fa-plus"></i> </button>
+                        </h2>
+                     </div>
+                     <div id="sysEnvironmentDiv" class="collapse show" aria-labelledby="headingTwo" data-parent="#sysEnvironmentDiv">
+                        <div class="card-body">
+                           <div id="thread-metrics-content">
+							<div id="sys-env-content">
+							</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+         <div class="col-6">
+            <div class="bs-example">
+               <div class="accordion" id="sysPropertiesAccord">
+                  <div class="card">
+                     <div class="card-header" id="headingTwo">
+                        <h2 class="mb-0">
+                           <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#sysPropertiesDiv">System Properties<i class="fa fa-plus"></i> </button>
+                        </h2>
+                     </div>
+                     <div id="sysPropertiesDiv" class="collapse show" aria-labelledby="headingTwo" data-parent="#sysPropertiesDiv">
+                        <div class="card-body">
+                           <div id="thread-metrics-content">
+							<div id="sys-prop-content">
+							</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         
+	</div>
+	
       <div class="row">
          <div class="col-6">
             <div class="bs-example">
@@ -131,7 +179,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
    </div>
 </div>
 <script>
-    let contextPath = "${contextPath}";
+    contextPath = "${contextPath}";
     let appMetrics = new ApplicationMetrics();
 
  $(document).ready(function(){
@@ -168,36 +216,36 @@ replace into template_master (template_id, template_name, template, updated_by, 
             appMetrics.initDetails();
         }
     });
-</script>', 'admin', 'admin', NOW(), NULL, 1);
+</script>', 'admin', 'admin', NOW(), NULL, 2);
 
-replace into jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
+replace into jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
 ('8a80cb817570ad44017570b099650002', '8a80cb817570ad44017570b0991c0000', 'application-metrics', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570ad44017570b099650003', '8a80cb817570ad44017570b0991c0000', 'application-metrics', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570ad44017570b61ca50009', '8a80cb817570ad44017570b0991c0000', 'application-metrics', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
+replace into jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
 ('8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', 1, 'getJvmMetrics', 'Method to get JVM metrics', 2, 7, 'com.trigyn.jws.applicationmetrics.service.ApplicationMetricsService', 1, 0, 2);
 
-replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
-(28, '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'noparam', 'select 1;', 1, 1);
+replace into jq_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
+(28, '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'noparam', 'select 1;', 1, 2);
 
-replace into module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu) VALUES
-('8a80cb817570ad44017570b156c40004', 'health', NULL, 5, '8a80cb817570ad44017570b0991c0000', NULL, 1);
+replace into jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu) VALUES
+('8a80cb817570ad44017570b156c40004', 'health', NULL, 5, '8a80cb817570ad44017570b0991c0000', NULL, 0);
 
-replace into module_listing_i18n (module_id, language_id, module_name) VALUES ('8a80cb817570ad44017570b156c40004', 1, 'application-metrics');
+replace into jq_module_listing_i18n (module_id, language_id, module_name) VALUES ('8a80cb817570ad44017570b156c40004', 1, 'application-metrics');
 
-replace into jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
+replace into jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
 ('8a80cb817570b939017570baa17f0001', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570b939017570baa17f0002', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570b939017570baa1800003', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
-replace into jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
+replace into jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
 ('8a80cb817570b939017570baa17f0001', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570b939017570baa17f0002', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570b939017570baa1800003', '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
 
-UPDATE jws_dynamic_rest_details SET
+UPDATE jq_dynamic_rest_details SET
 jws_service_logic = 'com.trigyn.jws.applicationmetrics.service.ApplicationMetricsService'
 WHERE jws_method_name = 'getJvmMetrics';
 

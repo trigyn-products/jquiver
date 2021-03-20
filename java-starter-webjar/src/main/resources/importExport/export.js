@@ -1,11 +1,14 @@
 	class ImportExportConfig {
-		constructor(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap) {
+		constructor(systemConfigIncludeList, customConfigExcludeList, gridID, 
+				colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey) {
 			this.systemConfigIncludeList = systemConfigIncludeList;
 			this.customConfigExcludeList = customConfigExcludeList;
 			this.gridID = gridID;
 			this.colM = colM;
 			this.moduleType = moduleType;
 			this.exportableDataListMap = exportableDataListMap;
+			this.isSelectTypeApplicable = isSelectTypeApplicable;
+			this.additionalParameterKey = additionalParameterKey;
 		}
 		
 		getSystemConfigIncludeList() {
@@ -32,11 +35,20 @@
 			return this.exportableDataListMap;
 		}
 		
+		getIsSelectTypeApplicable() {
+			return this.isSelectTypeApplicable;
+		}
+		
+		getAdditionalParameterKey() {
+			return this.additionalParameterKey;
+		}
+		
 		getGrid(sortIndex) {
-			let grid = $("#"+this.moduleType+"").grid({
+			let grid= $("#"+this.moduleType+"").grid({
 	      		gridId: this.gridID,
 	      		colModel: this.colM,
 	            dataModel: {
+	            	url: contextPath+"/cf/pq-grid-data",
 	                sortIndx: sortIndex,
 	                sortDir: "up"
 	            }
@@ -88,6 +100,9 @@
 	    	tablinks[i].className = tablinks[i].className.replace(" active", "");
 	  	}
 	  	
+	  	let isSelectTypeApplicable;
+	  	let additionalParameterKey;
+	  	let additionalParameterValue;
 	  	var exportObj = map.get(moduleType);
 		if(moduleType != "ApplicationConfiguration") {
 			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
@@ -111,6 +126,7 @@
 					}
 					
 				}
+				let grid = null;
 				let sortIndex = 1;
 				if(moduleType == "Grid") {
 					colM = [
@@ -127,6 +143,20 @@
 				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_gridTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "Templates") {
 					colM = [
 						{ title: "Action", width: 50, maxWidth: 20, align: "center", render: updateExportTemplateFormatter, dataIndx: "" },
@@ -141,6 +171,20 @@
 			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 2;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_templateTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "ResourceBundle") {
 					colM = [
 						{ title: "Action", width: 10, maxWidth: 20, align: "center", render: updateRBRenderer, dataIndx: "" },
@@ -152,6 +196,33 @@
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "templateTypeId";
+					if(selectedType == 1) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: "customResourceBundleListingGrid",
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_resourceKey":"str_jws"}
+				 		 });
+					} else if(selectedType == 2) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            }
+				 		 });
+					}
+					
 				} else if(moduleType == "Autocomplete") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportAutocompleteFormatter, dataIndx: "" },
@@ -163,6 +234,20 @@
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_autocompleteTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "Notification") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateNotificationRenderer, dataIndx: "" },
@@ -175,6 +260,8 @@
 				          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "Dashboard") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashboardRenderer, dataIndx: "" },
@@ -190,6 +277,20 @@
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_dashboardType":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "Dashlets") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashletRenderer, dataIndx: "" },
@@ -209,6 +310,20 @@
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
 					sortIndex = 2;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_dashletTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "DynamicForm") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynamicFormRenderer, dataIndx: "" },
@@ -223,10 +338,24 @@
 						{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
 						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
 					];
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_formTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "FileManager") {
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateFileManagerRenderer, dataIndx: "" },
-							{ title: "File Config Id", width: 130, dataIndx: "fileUploadConfigId", align: "left", halign: "center", 
+							{ title: "File Bin Id", width: 130, dataIndx: "fileBinId", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 					        { title: "File Type Supported", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -235,6 +364,8 @@
 							{ title: "No Of Files", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "DynaRest") {
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
@@ -246,6 +377,20 @@
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 2;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_jws_dynamic_rest_type_id":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "Permission") {
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updatePermissionRenderer, dataIndx: "" },
@@ -259,6 +404,8 @@
 						        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 5, 3;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "SiteLayout") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateSiteLayoutRenderer, dataIndx: "" },
@@ -269,6 +416,8 @@
 								filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 2;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "ApplicationConfiguration") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
@@ -286,6 +435,8 @@
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
 					];
 					sortIndex = 4;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "ManageUsers") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateUsersRenderer, dataIndx: "" },
@@ -299,6 +450,8 @@
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				} else if(moduleType == "ManageRoles") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateRolesRenderer, dataIndx: "" },
@@ -310,21 +463,50 @@
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
+				} else if(moduleType == "HelpManual") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateHelpManualRenderer, dataIndx: "" },
+						{ title: "Manual Name", width: 130, align: "center", dataIndx: "name", align: "left", halign: "center",
+					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					];
+					sortIndex = 1;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_is_system_manual":"str_"+selectedType}
+				 		 });
+					}
 				}
-				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
+				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, 
+						colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
 				map.set(moduleType, exportObj);
 
-				let grid = $("#"+moduleType+"").grid({
-		      		gridId: gridID,
-		      		colModel: colM,
-		      		height:300,
-		            dataModel: {
-		                sortIndx: sortIndex,
-		                sortDir: "up"
-		            }
-		 		 });	
+				if(grid == null	) {
+					grid= $("#"+moduleType+"").grid({
+			      		gridId: gridID,
+			      		colModel: colM,
+			      		height:300,
+			            dataModel: {
+			            	url: contextPath+"/cf/pq-grid-data",
+			                sortIndx: sortIndex,
+			                sortDir: "up"
+			            }
+			 		 });
+				} 
 			}
 		}
+		let gridNew = $("#"+moduleType+"").pqGrid();
+        gridNew.pqGrid( "refreshDataAndView" ); 
 		
 	  	document.getElementById(moduleType).style.display = "block";
 	  	if(evt != null) {
@@ -469,7 +651,7 @@
 	
 	// no system var
 	function updateFileManagerRenderer(uiObject) {
-		const id = uiObject.rowData.fileUploadConfigId;
+		const id = uiObject.rowData.fileBinId;
 		const name = uiObject.rowData.fileTypeSupported;
 		const version = "NA";
 		const isSystemVariable =  1;
@@ -567,6 +749,20 @@
 		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
 		
 	}
+	
+	function updateHelpManualRenderer(uiObject) {
+		const id = uiObject.rowData.manual_id;
+		const name = uiObject.rowData.name;
+		const version = "NA";
+		const isSystemVariable =  uiObject.rowData.is_system_manual;
+		const moduleType = "HelpManual";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
 
 	function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable) {
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
@@ -651,6 +847,85 @@
 		$("#nextTabBtn").show();
 	}
 
+    function changeType() {
+        selectedType = $("#typeSelect").val();   
+        let postData;
+        map.forEach(function callback(value, key, map) {
+			if(key != "htmlTableJSON") {
+				let moduleType 	= key;
+				let gridID		= map.get(key).getGridID();
+				
+				if(moduleType == "Grid") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_gridTypeId":"str_"+selectedType}
+			        }
+				} else if(moduleType == "Templates") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_templateTypeId":"str_"+selectedType}
+			        }
+				} else if(moduleType == "Autocomplete") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_autocompleteTypeId":"str_"+selectedType}
+			        }
+				} else if(moduleType == "Dashboard") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_dashboardType":"str_"+selectedType}
+			        }
+				} else if(moduleType == "Dashlets") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_dashletTypeId":"str_"+selectedType}
+			        }
+				} else if(moduleType == "DynamicForm") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_formTypeId":"str_"+selectedType}
+			        }
+				} else if(moduleType == "DynaRest") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_jws_dynamic_rest_type_id":"str_"+selectedType}
+			        }
+				} else if(moduleType == "HelpManual") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_is_system_manual":"str_"+selectedType}
+			        }
+				} else if(moduleType == "ResourceBundle") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else if(selectedType == 1) {
+			        	postData = {gridId:"customResourceBundleListingGrid"}
+					} else {
+						postData = {gridId:"resourceBundleListingGrid" ,"cr_resourceKey":"str_jws" }
+			        }
+				}
+				
+				if(gridID != null && moduleType != null && postData != null && postData.gridId != null) {
+			        let gridNew = $("#"+moduleType+"").pqGrid();
+			        gridNew.pqGrid( "option", "dataModel.postData", postData);
+			        gridNew.pqGrid( "refreshDataAndView" );  
+				}
+
+			}
+		});
+
+        
+        
+    }
+      
 	function deselectAll(){
 		isDeselectedAll = true;
 		map.forEach(function callback(value, key, map) {
@@ -765,7 +1040,7 @@
         if(isDataAvailableForExport == true) {
     		$.ajax({
     			type : "POST",
-    			url : "/cf/ecd",
+    			url : contextPath+"/cf/ecd",
     			async: false,
     		     contentType: "application/json",
     		     data : JSON.stringify(out),
@@ -776,7 +1051,7 @@
     				} else {
     					$("#exportFormDiv")
         				.html(
-        						"<form name='exportForm' method='post' id='exportForm' action='/cf/downloadExport'> "
+        						"<form name='exportForm' method='post' id='exportForm' action='"+contextPath+"/cf/downloadExport'> "
         								+ "<input type='hidden' id='filePath' name='filePath' value='"
         								+ data
         								+ "'/>"
@@ -797,6 +1072,6 @@
 	}
 
 	function backToPreviousPage(){
-		location.href = "/cf/home";
+		location.href = contextPath+"/cf/home";
 	}
 	

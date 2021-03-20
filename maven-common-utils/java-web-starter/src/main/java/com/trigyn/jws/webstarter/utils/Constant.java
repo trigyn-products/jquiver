@@ -29,6 +29,8 @@ public final class Constant {
 	public static final String	FOLDER_EXPORT_TYPE				= "FOLDER";
 	public static final String	EXPORTTEMPPATH					= "exportTempPath";
 	public static final String	IMPORTTEMPPATH					= "importTempPath";
+	public static final String	HELP_MANUAL_DIRECTORY_NAME		= "HelpManual";
+	public static final String	FILE_UPLOAD_DIRECTORY_NAME		= "FileBin";
 
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
@@ -49,7 +51,8 @@ public final class Constant {
 		TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"), RESOURCEBUNDLE("ResourceBundle"), DASHBOARD("Dashboard"),
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
-		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles");
+		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
+		HELPMANUAL("HelpManual");
 
 		final String moduleType;
 
@@ -63,10 +66,10 @@ public final class Constant {
 	}
 
 	public enum EntityNameModuleTypeEnum {
-		TEMPLATES("template_master"), AUTOCOMPLETE("autocomplete_details"), RESOURCEBUNDLE("resource_bundle"),
-		DASHBOARD("dashboard"), DASHLET("dashlet"), DASHLETS("dashlet"), DYNAREST("jws_dynamic_rest_details"),
-		DYNAMICFORM("dynamic_form"), GRID("grid_details"), NOTIFICATION("generic_user_notification"),
-		APPLICATIONCONFIGURATION("jws_property_master");
+		TEMPLATES("jq_template_master"), AUTOCOMPLETE("jq_autocomplete_details"), RESOURCEBUNDLE("jq_resource_bundle"),
+		DASHBOARD("jq_dashboard"), DASHLET("jq_dashlet"), DASHLETS("jq_dashlet"), DYNAREST("jq_dynamic_rest_details"),
+		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
+		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type");
 
 		final String tableName;
 

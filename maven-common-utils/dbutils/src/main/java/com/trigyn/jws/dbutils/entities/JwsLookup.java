@@ -15,11 +15,11 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
- * The persistent class for the jws_lookup database table.
+ * The persistent class for the jq_lookup database table.
  * 
  */
 @Entity
-@Table(name = "jws_lookup")
+@Table(name = "jq_lookup")
 @NamedQuery(name = "JwsLookup.findAll", query = "SELECT j FROM JwsLookup j")
 public class JwsLookup implements Serializable {
 	private static final long	serialVersionUID	= 1L;

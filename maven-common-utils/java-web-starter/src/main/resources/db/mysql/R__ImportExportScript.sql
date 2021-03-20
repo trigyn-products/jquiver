@@ -1,16 +1,17 @@
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175bbf5d00175bbf6b3dc0000', 'import-config', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
-</script><script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />       
-<script src="/webjars/1.0/importExport/import.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
+</script><script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />       
+<script src="${(contextPath)!''''}/webjars/1.0/importExport/import.js"></script> 
 </head>
 <div class="pg-import-config">
 <div class="container">
@@ -64,7 +65,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
 		<input id="importAllBtn" class="btn btn-primary" style="float: right;" name="importAllBtn"
 			value="Import All" type="button" onclick="importAll()">
 
-		<form action="/cf/cmv" method="POST" id="revisionForm">
+		<form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
 		    <input type="hidden" id="entityName" name="entityName">
 		    <input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
@@ -81,8 +82,9 @@ replace into template_master (template_id, template_name, template, updated_by, 
    </div>
    </div>
 <script>
+	contextPath = "${contextPath}";
 	var accepted_file_endings = ["zip"];
-
+	
 	var zipFileJsonDataMap = new Map();
 	var imporatableData;
 	let idList = new Array();
@@ -124,22 +126,22 @@ replace into template_master (template_id, template_name, template, updated_by, 
     	}
     });
     
-</script>', 'admin', 'admin', NOW(), NULL, 1);
+</script>', 'admin', 'admin', NOW(), NULL, 2);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175bbf5d00175bbf8be160005', 'export-config', '<head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
-</script><script src="/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" href="/webjars/1.0/importExport/export.css" />
-<script src="/webjars/1.0/importExport/export.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
+</script><script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/importExport/export.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/importExport/export.js"></script> 
 </head>
 
 <div class="pg-export-config">
@@ -149,9 +151,16 @@ replace into template_master (template_id, template_name, template, updated_by, 
     <div class="cm-card">
 	<div class="topband cm-card-header">
 		<h2 class="title-cls-name float-left">Export Configuration</h2>
-		<span onclick="backToPreviousPage();" class="float-right">
-			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-		</span>	
+		<div class="float-right">
+        	Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
+            <span onclick="backToPreviousPage();" >
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+            </span>	
+        </div>
 		<div class="clearfix"></div>	
 	</div>
 	
@@ -169,7 +178,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                             	${(moduleVO.masterModuleName)}  <div class="jws-count-wrap">	
                                     Selected:	
                                 <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}"></span>	
-                                <img src="/webjars/1.0/images/s-information1.svg">	
+                                <img src="${(contextPath)!''''}/webjars/1.0/images/s-information1.svg">	
                                 </div>	
                             </button>
                         <#else>
@@ -178,7 +187,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
                             	${(moduleVO.masterModuleName)} <div class="jws-count-wrap">	
                                     Selected:	
                                 <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}" ></span>	
-                                <img src="/webjars/1.0/images/s-information1.svg">	
+                                <img src="${(contextPath)!''''}/webjars/1.0/images/s-information1.svg">	
                                 </div>	
                             	</button>
                         </#if>
@@ -250,7 +259,8 @@ replace into template_master (template_id, template_name, template, updated_by, 
 </div>
 <script>
 let isDeselectedAll = false;
-
+let selectedType = 1;
+contextPath = "${contextPath}";
 $(function () {
 	    localStorage.removeItem("imporatableData");
 	    localStorage.removeItem("importedIdList");
@@ -347,7 +357,8 @@ $(function () {
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
 					];				
 
-				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, moduleType, exportableDataListMap);
+				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, colM, 
+						moduleType, exportableDataListMap, false, "");
 
 				exportObj.getGrid(1);
 				map.set(moduleType, exportObj);
@@ -358,12 +369,13 @@ $(function () {
 	</#if>
 });
 
-</script>', 'admin', 'admin', NOW(), NULL, 1);
+</script>', 'admin', 'admin', NOW(), NULL, 2);
 
 
-replace into jws_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+replace into jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('8a80cb8175bbf5d00175bbf6b4ba0002', '8a80cb8175bbf5d00175bbf6b3dc0000', 'import-config', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0), 
 ('8a80cb8175bbf5d00175bbf6b4ba0003', '8a80cb8175bbf5d00175bbf6b3dc0000', 'import-config', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0), 
 ('8a80cb8175bbf5d00175bbf8be5d0007', '8a80cb8175bbf5d00175bbf8be160005', 'export-config', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0), 
 ('8a80cb8175bbf5d00175bbf8be5d0008', '8a80cb8175bbf5d00175bbf8be160005', 'export-config', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0), 
 ('8a80cb8175bbf5d00175bbf8be5e0009', '8a80cb8175bbf5d00175bbf8be160005', 'export-config', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+

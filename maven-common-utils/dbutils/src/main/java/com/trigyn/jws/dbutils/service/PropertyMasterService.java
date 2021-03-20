@@ -31,8 +31,8 @@ public class PropertyMasterService {
 	public String getDateFormatByName(String ownerType, String ownerId, String propertyName, String formatName)
 			throws Exception {
 		Gson				gson			= new Gson();
-		String				jwsDateFormat	= propertyMasterDAO.findPropertyMasterValue(ownerType, ownerId,
-				propertyName);
+		String				jwsDateFormat	= propertyMasterDetails.getPropertyValueFromPropertyMaster(ownerId,
+				ownerType, propertyName);
 		Map<Object, Object>	dateFormatMap	= gson.fromJson(jwsDateFormat, Map.class);
 		String				dbDateFormat	= (String) dateFormatMap.get(formatName);
 		return dbDateFormat;

@@ -34,6 +34,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
+import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.gridutils.entities.GridDetails;
@@ -48,13 +49,14 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.webstarter.dao.CrudQueryStore;
 import com.trigyn.jws.webstarter.dao.ImportExportCrudDAO;
 import com.trigyn.jws.webstarter.utils.Constant;
+import com.trigyn.jws.webstarter.utils.FileUploadExportModule;
 import com.trigyn.jws.webstarter.utils.FileUtil;
+import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
 import com.trigyn.jws.webstarter.xml.DynaRestXMLVO;
-import com.trigyn.jws.webstarter.xml.FileManagerXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
@@ -68,36 +70,42 @@ import com.trigyn.jws.webstarter.xml.UserXMLVO;
 @Transactional(readOnly = false)
 public class ExportService {
 
-	private final static Logger	logger							= LogManager.getLogger(ExportService.class);
+	private final static Logger				logger							= LogManager.getLogger(ExportService.class);
 
 	@Autowired
-	private ImportExportCrudDAO	importExportCrudDAO				= null;
+	private ImportExportCrudDAO				importExportCrudDAO				= null;
 
 	@Autowired
-	private TemplateModule		templateDownloadUploadModule	= null;
+	private TemplateModule					templateDownloadUploadModule	= null;
 
 	@Autowired
 	@Qualifier("dynamic-form")
-	private DynamicFormModule	dynamicFormDownloadUploadModule	= null;
+	private DynamicFormModule				dynamicFormDownloadUploadModule	= null;
 
 	@Autowired
 	@Qualifier("dashlet")
-	private DashletModule		dashletDownloadUploadModule		= null;
+	private DashletModule					dashletDownloadUploadModule		= null;
 
 	@Autowired
-	private DashboardCrudService	dashboardCrudService	= null;
+	private DashboardCrudService			dashboardCrudService			= null;
 
 	@Autowired
-	private PropertyMasterDAO	propertyMasterDAO				= null;
+	private PropertyMasterDAO				propertyMasterDAO				= null;
 
-	private Map<String, String>	moduleListMap					= null;
+	private Map<String, String>				moduleListMap					= null;
 
 	@Autowired
-	private IUserDetailsService	detailsService					= null;
+	private IUserDetailsService				detailsService					= null;
 
-	private String				version							= null;
+	@Autowired
+	private HelpManualImportExportModule	helpManualImportExportModule	= null;
 
-	private String				userName						= null;
+	@Autowired
+	private FileUploadExportModule			fileUploadExportModule			= null;
+
+	private String							version							= null;
+
+	private String							userName						= null;
 
 	public List<Map<String, Object>> getAllCustomEntity() {
 		return importExportCrudDAO.getAllCustomEntity();
@@ -216,7 +224,8 @@ public class ExportService {
 			return downloadDashboardExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.DASHBOARD.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.FILEMANAGER.getModuleType())) {
-			return retrieveFileManagerExportData(customConfigExcludeList, moduleType,
+			return retrieveFileManagerExportData(systemConfigIncludeList, customConfigExcludeList,
+					downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.FILEMANAGER.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DYNAREST.getModuleType())) {
 			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
@@ -246,6 +255,10 @@ public class ExportService {
 			return downloadDynamicFormExportData(systemConfigIncludeList, customConfigExcludeList,
 					downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.DYNAMICFORM.getModuleType().toUpperCase()));
+		} else if (moduleType.equals(Constant.MasterModuleType.HELPMANUAL.getModuleType())) {
+			return downloadHelpManualExportData(systemConfigIncludeList, customConfigExcludeList,
+					downloadFolderLocation, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.HELPMANUAL.getModuleType().toUpperCase()));
 		} else {
 			return null;
 		}
@@ -356,11 +369,12 @@ public class ExportService {
 				if (!exportedList.contains(((Dashboard) obj).getDashboardId())) {
 					throw new Exception("Data mismatch while exporting Dashboard.");
 				}
-				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(((Dashboard) obj).getDashboardId());
+				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService
+						.findDashboardRoleByDashboardId(((Dashboard) obj).getDashboardId());
 				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
 					((Dashboard) obj).setDashboardRoles(dashletRoleAssociation);
 				}
-				
+
 				dashboardXMLVO.getDashboardDetails().add(((Dashboard) obj).getObject());
 			}
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
@@ -368,26 +382,30 @@ public class ExportService {
 		return dashboardXMLVO;
 	}
 
-	private XMLVO retrieveFileManagerExportData(List<String> customConfigExcludeList, String moduleType,
+	private XMLVO retrieveFileManagerExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String downloadFolderLocation, String moduleType,
 			List<String> exportedList) throws Exception {
 		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
 				CrudQueryStore.HQL_QUERY_TO_FETCH_FILE_MANAGER_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
 				null);
 
-		validate(exportableList, exportedList, "File Manager");
+		validate(exportableList, exportedList, "File Bin");
 
-		FileManagerXMLVO fileManagerXMLVO = null;
 		if (exportableList != null && !exportableList.isEmpty()) {
-			fileManagerXMLVO = new FileManagerXMLVO();
 			for (Object obj : exportableList) {
-				if (!exportedList.contains(((FileUploadConfig) obj).getFileUploadConfigId())) {
-					throw new Exception("Data mismatch while exporting File Manager.");
+				if (!exportedList.contains(((FileUploadConfig) obj).getFileBinId())) {
+					throw new Exception("Data mismatch while exporting File Bin.");
 				}
-				fileManagerXMLVO.getFileUploadDetails().add(((FileUploadConfig) obj).getObject());
+				fileUploadExportModule.exportData(((FileUploadConfig) obj), downloadFolderLocation);
 			}
-			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+			XMLUtil.generateMetadataXML(null, fileUploadExportModule.getModuleDetailsMap(),
+					downloadFolderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME, version, userName,
+					"");
 		}
-		return fileManagerXMLVO;
+
+		return null;
+
 	}
 
 	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
@@ -589,6 +607,31 @@ public class ExportService {
 							+ com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME,
 					version, userName, "");
 		}
+		return null;
+	}
+
+	private XMLVO downloadHelpManualExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String downloadFolderLocation, String moduleType,
+			List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_HELP_MANUAL_DATA_FOR_EXPORT, systemConfigIncludeList, 2,
+				customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList, "Help Manual");
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((ManualType) obj).getManualId())) {
+					throw new Exception("Data mismatch while exporting Help Manual.");
+				}
+				helpManualImportExportModule.exportData(((ManualType) obj), downloadFolderLocation);
+			}
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+			XMLUtil.generateMetadataXML(null, helpManualImportExportModule.getModuleDetailsMap(),
+					downloadFolderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME, version, userName,
+					"");
+		}
+
 		return null;
 	}
 

@@ -17,6 +17,8 @@ import com.trigyn.jws.dbutils.utils.CustomCharacterEscapeHandler;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ExportModule;
+import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
+import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
 import com.trigyn.jws.dbutils.vo.xml.Settings;
@@ -55,6 +57,12 @@ public class XMLUtil {
 					module.setDashlet((DashletExportVO) map.get("moduleObject"));
 				} else if (map.get("moduleObject") instanceof DynamicFormExportVO) {
 					module.setDynamicForm((DynamicFormExportVO) map.get("moduleObject"));
+				} else if (map.get("moduleObject") instanceof DynamicFormExportVO) {
+					module.setDynamicForm((DynamicFormExportVO) map.get("moduleObject"));
+				} else if (map.get("moduleObject") instanceof HelpManualTypeExportVO) {
+					module.setHelpManual((HelpManualTypeExportVO) map.get("moduleObject"));
+				} else if (map.get("moduleObject") instanceof FileUploadConfigExportVO) {
+					module.setFileBin((FileUploadConfigExportVO) map.get("moduleObject"));
 				}
 
 				exportModuleList.add(module);
@@ -89,7 +97,6 @@ public class XMLUtil {
 
 	public static void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws JAXBException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());
-		;
 
 		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

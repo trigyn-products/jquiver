@@ -12,7 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 
 @Entity
-@Table(name = "jws_user")
+@Table(name = "jq_user")
 public class JwsUser {
 
 	@Id
@@ -46,6 +46,9 @@ public class JwsUser {
 	@Column(name = "registered_by")
 	private Integer	registeredBy		= null;
 
+    @Column(name = "failed_attempt")
+    private int failedAttempt = 0;
+     
 	public String getUserId() {
 		return userId;
 	}
@@ -118,6 +121,14 @@ public class JwsUser {
 		this.registeredBy = registeredBy;
 	}
 
+	public int getFailedAttempt() {
+		return failedAttempt;
+	}
+
+	public void setFailedAttempt(int failedAttempt) {
+		this.failedAttempt = failedAttempt;
+	}
+
 	public JwsUser getObject() {
 		JwsUser user = new JwsUser();
 
@@ -130,6 +141,7 @@ public class JwsUser {
 		user.setRegisteredBy(registeredBy);
 		user.setSecretKey(secretKey);
 		user.setUserId(userId);
+		user.setFailedAttempt(failedAttempt);
 		return user;
 	}
 
@@ -142,7 +154,7 @@ public class JwsUser {
 		jwsUser.setEmail(userData.getEmail());
 		jwsUser.setIsActive(userData.getIsActive());
 		jwsUser.setPassword(userData.getPassword());
+		jwsUser.setFailedAttempt(userData.getFailedAttempt());
 		return jwsUser;
 	}
-
 }

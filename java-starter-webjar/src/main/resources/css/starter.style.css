@@ -64,6 +64,10 @@ box-shadow: 0px 0px 5px 0px rgba(230,230,230,0.2); */
 	height: 100% !important;
 }
 
+@supports (-moz-appearance:none) {
+   body { height:100%; }
+}
+
 .topband {
 	margin: 0px 0 10px;
 	border-bottom: 1px solid #ccc;
@@ -360,7 +364,7 @@ div.pq-grid * {
 
 .rich-autocomplete {
 	font-size: 13px !important;
-	height: 30px;
+	height: 34px !important;
 	border-radius: 3px;
 }
 .rich-autocomplete .rich-autocomplete-list{max-height:125px !important;}
@@ -1033,7 +1037,7 @@ th {
 
 .search-cover .fa-search {
 	position: absolute;
-	top: 7px;
+	top: 9px;
 	left: 7px;
 	color: #999;
 }
@@ -1610,6 +1614,7 @@ p.divdeform {
 	border: 2px solid #666;
 	color: #666;
 	text-align: center;
+	font-weight:bold;
 }
 
 .addeditmodal {
@@ -1792,7 +1797,7 @@ p.divdeform {
 
 .addeditmodal {
 	width: 100% !important;
-	height: auto !important;
+	height: 375px !important;
 	overflow: auto;
 }
 
@@ -2758,7 +2763,7 @@ div.pq-grid tr:hover {
 	color: #627f94;
 	cursor: pointer !important;
 	position: absolute;
-	z-index: 111;
+	z-index: 100;
 }
 
 .pg-form-dropzone .dropzone .dz-preview .dz-details {
@@ -2936,7 +2941,13 @@ th {
 }
 
 .pg-form-dropzone .dropzone .fileupload-actions.fa-eye {
-	right: 40px;
+	right: 61px;
+	top: 8px;
+	font-size: 14px !important;
+}
+
+.pg-form-dropzone .dropzone .fileupload-actions.fa-info {
+	right: 70px;
 	top: 8px;
 	font-size: 14px !important;
 }
@@ -2955,6 +2966,12 @@ th {
 
 .pg-form-dropzone .dropzone .fileupload-actions.fa-close {
 	right: 10px;
+	top: 8px;
+	font-size: 14px !important;
+}
+
+.pg-form-dropzone .dropzone .fileupload-actions.fa-copy {
+	right: 94px;
 	top: 8px;
 	font-size: 14px !important;
 }
@@ -3327,7 +3344,7 @@ th {
 .autocomplete-clear-txt {
 	position: absolute;
 	right: 6px;
-	top: 6px;
+	top: 8px;
 	color: #999;
 	cursor: pointer;
 }
@@ -3471,6 +3488,7 @@ div.rich-autocomplete .rich-autocomplete-list .rich-autocomplete-list-item-empty
 .profile-tray .cm-userid {
 	font-size: 14px;
 	font-weight: 500;
+	margin-top: -4px;
 }
 
 .profile-tray i {
@@ -3493,7 +3511,7 @@ div.rich-autocomplete .rich-autocomplete-list .rich-autocomplete-list-item-empty
 .profile-tray li {
 	display: inline-block;
 	list-style: none;
-	padding: 0 6px;
+	padding: 5px 6px;
 	position: relative;
 }
 
@@ -3576,4 +3594,331 @@ div.rich-autocomplete .rich-autocomplete-list .rich-autocomplete-list-item-empty
 
 
 
+.editor-preview-active img {
+	width: 100%;
+	height: auto;
+	display: block;
+	margin-bottom: 20px;
+	margin-bottom: 10px;
+}
 
+
+.typeSelectDropDown {
+	padding: 6px;
+	position: relative;
+	margin-top: 0;
+	outline: none;
+	top: 2px;
+	color: #005da3;
+	border: 1px solid #005da3;
+	border-radius: 5px;
+}
+
+#fileUploadMaster .fileupload {
+	height: 200px !important;
+}
+
+#fileUploadMaster .filepreviewcontainer{ 
+    height: 200px !important;
+    max-height: 200px !important;
+}
+
+.file-validator-title + .switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 18px;
+  top: -9px;
+}
+
+.file-validator-title + .switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.file-validator-title + .switch > .slider {
+  position: absolute;
+  cursor: pointer;
+  top: -10px;
+  left: 9px;
+  right: -7px;
+  bottom: 0px;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.file-validator-title + .switch > .slider:before {
+  position: absolute;
+  content: "";
+  height: 15px;
+  width: 15px;
+  left: 4px;
+  bottom: 7px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3 !important;
+}
+
+input:focus +  .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+
+/* Rounded sliders */
+.file-validator-title + .switch > .slider.round {
+  border-radius: 34px;
+}
+
+.file-validator-title + .switch > .slider.round:before {
+  border-radius: 50%;
+}
+
+.file-slider-span-cls{
+	float: right;
+}
+
+.file-slider-div-cls{
+    margin-top: 10px;
+}
+
+
+.select-validator-label{
+	left: 79;
+}
+
+.upload-validator-label{
+	left: 7;
+}
+
+.view-validator-label{
+	left: 23;
+}
+
+.delete-validator-label{
+	left: 12;
+}
+
+@-moz-document url-prefix() { 
+  
+	.file-slider-span-cls {
+    	top: -27px;
+		right: -8px;
+		position: relative;
+  	}
+  
+	.file-validator-title + .switch{
+		top: 3px !important;
+	}
+}
+
+
+ .fav-image {
+	background-repeat: no-repeat;
+	width: 33px;
+	height: 33px;			    
+	border: 0px solid black;
+	outline: 0;
+	cursor: pointer;
+	background-color: #fff;
+	border-radius: 25px;
+	background-position-x: center;
+	font-size: 29px;
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	float: right;
+    margin-top: 0px;
+    margin-right: -18px;
+}
+
+.fav-image:hover{
+	font-size: 0px;
+	background-color: #fff;
+}
+			
+.fav-image:hover:after{
+    content: attr(data-hover);
+    font-size: 29px;
+}
+
+.fav-imageFill {
+    background-color: #EEDC82;	
+ }
+ 
+.user-favorite-img-cls img{
+    height: 75%;
+    float: left;
+    margin: 0px 0px 0px -6px;
+}
+
+.user-favorite-img-cls p{
+    margin-left: 30px;;
+}
+
+
+.topband .col-8 .title-cls-name{
+	margin-left: -11px;
+}
+
+.pq-grid-title-row > td {
+	cursor:pointer;
+}
+
+
+
+
+input.pq-grid-hd-search-field[type=text]{
+	background: url(/webjars/1.0/images/Search.png)no-repeat 100%;
+	background-size: 10 px;
+	background-color: #ffffff;
+	-webkit-transition: all 0.5s ease-in;
+	-moz-transition: all 0.5s ease-in;
+	-ms-transition: all 0.5s ease-in;
+	-o-transition: all 0.5s ease-in;
+	transition: all 0.5s ease-in;
+	background-position: 3% 4px;
+}
+ 
+input.pq-grid-hd-search-field[type=text]:focus{
+    background-image: none;
+}
+
+
+.alert-success.jws-alert-div:before{
+	content: "\f058";
+	color: #d4edda;
+	display: inline-block;
+    font: normal normal normal 15px/1 FontAwesome;
+    font-size: inherit;
+    margin: -20px 0 0 0;
+    position: absolute;
+    left: -57px;
+    background: #3C763D;
+    padding: 21px;
+    border-radius: 5px 0px 0px 5px;
+    min-height: 70px;
+    max-height: 200px;
+}
+
+.alert-warning.jws-alert-div:before{
+    content: "\f071";
+    color: #fff3cd;
+	display: inline-block;
+    font: normal normal normal 15px/1 FontAwesome;
+    font-size: inherit;
+    margin: -20px 0 0 0;
+    position: absolute;
+    left: -57px;
+    background: #f0ad4e;
+    padding: 21px;
+    border-radius: 5px 0px 0px 5px;
+    min-height: 70px;
+    max-height: 200px;
+}
+
+ .alert-danger.jws-alert-div:before{
+	content: "\f056";
+	color: #f8d7da;
+	display: inline-block;
+    font: normal normal normal 15px/1 FontAwesome;
+    font-size: inherit;
+    margin: -21px 0 0 0;
+    position: absolute;
+    left: -57px;
+    background: #d9534f;
+    padding: 21px;
+    border-radius: 5px 0px 0px 5px;
+    min-height: 70px;
+    max-height: 200px;
+
+	}
+.alert-info.jws-alert-div:before{
+	content: "\f05a";
+	color: #d1ecf1;
+	display: inline-block;
+    font: normal normal normal 15px/1 FontAwesome;
+    font-size: inherit;
+    margin: -20px 0 0 0;
+    position: absolute;
+    left: -57px;
+    background: #5bc0de;
+    padding: 21px;
+    border-radius: 5px 0px 0px 5px;
+    min-height: 70px;
+    max-height: 200px;
+	
+}
+
+
+.manual-clear-txt {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    color: #999;
+    cursor: pointer;
+}
+
+.macro-img-cls{
+	height: 10px;
+}
+
+
+.login-img-cls{
+	height: 18px;
+	filter: invert(100%);
+	margin-top: -5px;
+}
+
+.pg-app-matrix #sys-env-content label {
+	font-size: 15px;
+	font-weight: 600;
+	color: #495057;
+	width: 76%;
+	position: relative;
+}
+
+.pg-app-matrix #sys-env-content label:after {
+	content: ": ";
+	position: absolute;
+	left: 95%;
+}
+
+
+.pg-app-matrix #sys-prop-content label {
+	font-size: 15px;
+	font-weight: 600;
+	color: #495057;
+	width: 76%;
+	position: relative;
+}
+
+.card-body{
+	max-height: 350px;
+    overflow-y: scroll;
+}
+    
+.pg-app-matrix #sys-prop-content label:after {
+	content: ": ";
+	position: absolute;
+	left: 95%;
+}
+
+.dropzone-disable-message-cls{
+    color: #fb3344;
+}
+
+.dropzone-disable-img-cls{
+	filter: grayscale(1);
+}

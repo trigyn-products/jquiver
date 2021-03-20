@@ -20,6 +20,13 @@ class AddEditAutocomplete{
 					wordWrapMinified: true,
 					wrappingIndent: "indent"
 	        	});
+	        	context.sqlQuery.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+					typeOfAction('autocomplete-manage-details', $("#savedAction").find("button"), 
+						addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);
+				});
+				context.sqlQuery.onDidChangeModelContent( function (){
+    				$('#errorMessage').hide();
+				});
 	        	$("#contentDiv").remove();
     	});
 	}
@@ -98,7 +105,7 @@ class AddEditAutocomplete{
 	        async : false,
 	        type : "POST",
 	        contentType : "application/json",
-	        url : "/cf/ser", 
+	        url :  contextPath+"/cf/ser", 
 	        data : JSON.stringify(entityRoles),
 	        success : function(data) {
 		    }
@@ -108,7 +115,7 @@ class AddEditAutocomplete{
 		$.ajax({
 	        async : false,
 	        type : "GET",
-	        url : "/cf/ler", 
+	        url :  contextPath+"/cf/ler", 
 	        data : {
 	        	entityId:$("#autoId").val(),
 	        	moduleId:$("#moduleId").val(),
@@ -124,7 +131,7 @@ class AddEditAutocomplete{
 	
 	createQuery = function(){
 		const context = this;
-	  	let tableName = $("#autocompleteTableSelect").find(":selected").val();
+	  	let tableName = $("#autocompleteTable").val();
 	    $.ajax({
 	    	type: "POST",
 	        url: contextPath+"/cf/cnbtn",
@@ -135,6 +142,10 @@ class AddEditAutocomplete{
 	  			context.sqlQuery.setValue("SELECT "+ data[0].columnName + " FROM " + tableName);
 	        }
         });
+    }
+    
+    hideErrorMessage = function(){
+    	$('#errorMessage').hide();
     }
     
 }

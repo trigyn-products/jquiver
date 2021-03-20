@@ -42,7 +42,8 @@ public class DynarestCrudController {
 		Map<String, Object>	modelMap	= new HashMap<>();
 		String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
-		String			uri			= httpServletRequest.getRequestURI();
+		String			uri			= httpServletRequest.getRequestURI()
+				.substring(httpServletRequest.getContextPath().length());
 		String			url			= httpServletRequest.getRequestURL().toString();
 		StringBuilder	urlPrefix	= new StringBuilder();
 		url = url.replace(uri, "");

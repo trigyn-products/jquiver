@@ -27,8 +27,8 @@ public class FileUploadConfigService {
 	@Autowired
 	private PropertyMasterService		propertyMasterService		= null;
 
-	public FileUploadConfig getFileUploadConfigById(String fileConfigId) throws Exception {
-		return fileUploadConfigRepository.getFileUploadConfig(fileConfigId);
+	public FileUploadConfig getFileUploadConfigByBinId(String fileBinId) throws Exception {
+		return fileUploadConfigRepository.getFileUploadConfig(fileBinId);
 	}
 
 	public void saveFileUploadConfig(FileUploadConfig fileUploadConfig) throws Exception {
@@ -36,8 +36,10 @@ public class FileUploadConfigService {
 	}
 
 	public FileUploadConfigVO convertFileUploadEntityToVO(FileUploadConfig entity) {
-		FileUploadConfigVO config = new FileUploadConfigVO(entity.getFileUploadConfigId(), entity.getFileTypSupported(),
-				entity.getMaxFileSize(), entity.getNoOfFiles(), entity.getIsDeleted());
+		FileUploadConfigVO config = new FileUploadConfigVO(entity.getFileBinId(), entity.getFileTypSupported(),
+				entity.getMaxFileSize(), entity.getNoOfFiles(), entity.getSelectQueryContent(),
+				entity.getUploadQueryContent(), entity.getViewQueryContent(), entity.getDeleteQueryContent(),
+				entity.getIsDeleted());
 		return config;
 
 	}
@@ -45,7 +47,7 @@ public class FileUploadConfigService {
 	public FileUploadConfig convertFileUploadVOToEntity(FileUploadConfigVO vo) {
 		FileUploadConfig config = new FileUploadConfig();
 		config.setFileTypSupported(vo.getFileTypSupported());
-		config.setFileUploadConfigId(vo.getFileUploadConfigId());
+		config.setFileBinId(vo.getFileBinId());
 		config.setIsDeleted(vo.getIsDeleted());
 		config.setMaxFileSize(vo.getMaxFileSize());
 		config.setNoOfFiles(vo.getNoOfFiles());
@@ -56,7 +58,7 @@ public class FileUploadConfigService {
 
 	public String getFileUploadJson(String entityId) throws Exception {
 
-		FileUploadConfig	fileUploadConfig	= getFileUploadConfigById(entityId);
+		FileUploadConfig	fileUploadConfig	= getFileUploadConfigByBinId(entityId);
 		String				jsonString			= "";
 
 		if (fileUploadConfig != null) {

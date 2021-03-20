@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "module_target_lookup")
+@Table(name = "jq_module_target_lookup")
 @NamedQuery(name = "ModuleTargetLookup.findAll", query = "SELECT m FROM ModuleTargetLookup m")
 public class ModuleTargetLookup implements Serializable {
 	private static final long	serialVersionUID	= 1L;

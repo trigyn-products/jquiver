@@ -6,11 +6,11 @@ import java.util.Objects;
 import javax.persistence.*;
 
 /**
- * The persistent class for the jws_lookup_i18n database table.
+ * The persistent class for the jq_lookup_i18n database table.
  * 
  */
 @Entity
-@Table(name = "jws_lookup_i18n")
+@Table(name = "jq_lookup_i18n")
 @NamedQuery(name = "JwsLookupI18n.findAll", query = "SELECT j FROM JwsLookupI18n j")
 public class JwsLookupI18n implements Serializable {
 	private static final long	serialVersionUID	= 1L;

@@ -4,8 +4,8 @@ function backToPreviousPage() {
 	location.href = contextPath+"/cf/home";
 }
 
-function populateFields(element){
-    let selectedTable = element.value;
+function populateFields(tableName){
+    let selectedTable = tableName;
     $.ajax({
         url  : contextPath + "/cf/mtd",
         type : 'GET',
@@ -181,6 +181,10 @@ function createMaster() {
         type: 'POST',
         success: function(data) {
             showMessage("Master modules created successfully", "success");
+            setTimeout(function(){
+            	backToPreviousPage(); 
+            }, 1500);
+            
         },
 		error : function(xhr, error){
 			showMessage("Error occurred while creating master", "error");

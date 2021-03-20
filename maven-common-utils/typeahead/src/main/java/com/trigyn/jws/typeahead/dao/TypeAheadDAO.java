@@ -17,21 +17,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.typeahead.model.AutocompleteParams;
 
 @Repository
 public class TypeAheadDAO extends DBConnection {
 
-	private final static Logger logger = LogManager.getLogger(TypeAheadDAO.class);
+	private final static Logger	logger			= LogManager.getLogger(TypeAheadDAO.class);
+
+	@Autowired
+	private IUserDetailsService	detailsService	= null;
 
 	@Autowired
 	public TypeAheadDAO(DataSource dataSource) {
 		super(dataSource);
 	}
 
-	private static final String AUTOCOMPLETE_QUERY_SELECTOR = "SELECT ac_select_query FROM autocomplete_details WHERE ac_id = :ac_id";
+	private static final String AUTOCOMPLETE_QUERY_SELECTOR = "SELECT ac_select_query FROM jq_autocomplete_details WHERE ac_id = :ac_id";
 
-	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) {
+	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams) throws Exception {
 		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
 		sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
 		String						list		= (String) sqlQuery.uniqueResult();
@@ -41,9 +46,9 @@ public class TypeAheadDAO extends DBConnection {
 
 	private List<Map<String, Object>> getAutocompleteDetails(String a_autocompleteQuery,
 			AutocompleteParams a_autocompleteParams) {
-
-		boolean	is_LimitPresent	= true;
-		Integer	startIndex		= a_autocompleteParams.getStartIndex();
+		UserDetailsVO	detailsVO		= detailsService.getUserDetails();
+		boolean			is_LimitPresent	= true;
+		Integer			startIndex		= a_autocompleteParams.getStartIndex();
 		if (startIndex.intValue() == -1) {
 			is_LimitPresent = false;
 		}
@@ -61,6 +66,7 @@ public class TypeAheadDAO extends DBConnection {
 		namedParameters.put("searchText", escapeSql(a_autocompleteParams.getSearchText()));
 		namedParameters.put("startIndex", a_autocompleteParams.getStartIndex());
 		namedParameters.put("pageSize", a_autocompleteParams.getPageSize());
+		namedParameters.put("loggedInUserName", detailsVO.getUserName());
 		List<Map<String, Object>> displayList = namedParameterJdbcTemplate.queryForList(a_autocompleteQuery,
 				namedParameters);
 
@@ -107,19 +113,19 @@ public class TypeAheadDAO extends DBConnection {
 		return data;
 	}
 
-	public List<String> getAllTablesListInSchema() {
-		String			query		= "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schemaName";
-		List<String>	resultSet	= new ArrayList<>();
-		try (Connection connection = dataSource.getConnection();) {
-			String				schemaName		= connection.getCatalog();
-			Map<String, Object>	parameterMap	= new HashMap<>();
-			parameterMap.put("schemaName", schemaName);
-			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
-		} catch (SQLException a_exc) {
-			logger.error("Error while fetching data from DB ", a_exc);
-		}
-		return resultSet;
-	}
+	//	public List<String> getAllTablesListInSchema() {
+	//		String			query		= "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = :schemaName";
+	//		List<String>	resultSet	= new ArrayList<>();
+	//		try (Connection connection = dataSource.getConnection();) {
+	//			String				schemaName		= connection.getCatalog();
+	//			Map<String, Object>	parameterMap	= new HashMap<>();
+	//			parameterMap.put("schemaName", schemaName);
+	//			resultSet = namedParameterJdbcTemplate.queryForList(query, parameterMap, String.class);
+	//		} catch (SQLException a_exc) {
+	//			logger.error("Error while fetching data from DB ", a_exc);
+	//		}
+	//		return resultSet;
+	//	}
 
 	public List<Map<String, Object>> getColumnNamesByTableName(String tableName) {
 		StringBuilder				query		= new StringBuilder(

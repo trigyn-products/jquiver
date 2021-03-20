@@ -9,7 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dashlet_configuration")
+@Table(name = "jq_dashlet_configuration")
 public class DashletConfiguration implements Serializable {
 
 	private static final long		serialVersionUID	= 1L;

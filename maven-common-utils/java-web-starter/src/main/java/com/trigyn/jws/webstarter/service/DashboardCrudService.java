@@ -143,7 +143,7 @@ public class DashboardCrudService {
 		}
 		dashboardEntity.setDashboardRoles(roleAssociations);
 		dashboardEntity.setDashboardDashlets(dashletAssociations);
-		moduleVersionService.saveModuleVersion(dashboardVO, null, dashboardEntity.getDashboardId(), "dashboard",
+		moduleVersionService.saveModuleVersion(dashboardVO, null, dashboardEntity.getDashboardId(), "jq_dashboard",
 				sourceTypeId);
 		return dashboardEntity.getDashboardId();
 	}
@@ -245,7 +245,7 @@ public class DashboardCrudService {
 				}
 			}
 			dashlet.setProperties(properties);
-			moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "dashlet", sourceTypeId);
+			moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "jq_dashlet", sourceTypeId);
 
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			if (environment.equalsIgnoreCase("dev")) {

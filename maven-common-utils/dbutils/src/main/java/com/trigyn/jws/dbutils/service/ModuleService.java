@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -129,23 +131,57 @@ public class ModuleService {
 		return moduleListing.getModuleId();
 	}
 
-	public Map<String, Object> getExistingModuleData(String moduleName, String parentModuleId, Integer sequence,
-			String moduleURL) throws Exception {
+	public Map<String, Object> getExistingModuleData(String moduleId, String moduleName, String parentModuleId,
+			Integer sequence, String moduleURL) throws Exception {
 		Map<String, Object>	moduleDetailsMap	= new HashMap<>();
-		String				moduleId			= getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID,
+		String				moduleIdDB			= getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID,
 				Constant.DEFAULT_LANGUAGE_ID);
-		if (!StringUtils.isBlank(moduleId)) {
-			moduleDetailsMap.put("moduleIdName", moduleId);
+		if (!StringUtils.isBlank(moduleIdDB)) {
+			moduleDetailsMap.put("moduleIdName", moduleIdDB);
 		}
-		moduleId = getModuleIdBySequence(parentModuleId, sequence);
-		if (!StringUtils.isBlank(moduleId)) {
-			moduleDetailsMap.put("moduleIdSequence", moduleId);
+		moduleIdDB = getModuleIdBySequence(parentModuleId, sequence);
+		if (!StringUtils.isBlank(moduleIdDB)) {
+			moduleDetailsMap.put("moduleIdSequence", moduleIdDB);
 		}
 
 		if (!StringUtils.isBlank(moduleURL) && !moduleURL.equals(Constant.GROUP_MODULE_URL)) {
-			moduleId = getModuleIdByURL(moduleURL);
-			if (!StringUtils.isBlank(moduleId)) {
-				moduleDetailsMap.put("moduleIdURL", moduleId);
+			StringBuilder	newURL				= new StringBuilder();
+			List<String>	pathVariableList	= new ArrayList<>();
+			if (moduleURL.indexOf("/**") != -1) {
+				moduleURL = moduleURL.substring(0, moduleURL.lastIndexOf("/**"));
+			}
+
+			if (moduleURL.indexOf("/") != -1) {
+				pathVariableList = Stream.of(moduleURL.split("/")).map(urlElement -> new String(urlElement))
+						.collect(Collectors.toList());
+			}
+
+			List<ModuleDetailsVO> moduleDetailsVOList = getAllModuleId(moduleId);
+			if (CollectionUtils.isEmpty(pathVariableList) == false) {
+				for (String pathVariable : pathVariableList) {
+					newURL = new StringBuilder(pathVariable);
+					for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
+						if (moduleDetailsVO.getModuleURL().matches(".*\\b" + newURL + "\\b.*")
+								|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
+							System.out.println("exist");
+							moduleIdDB = moduleDetailsVO.getModuleId();
+						}
+					}
+				}
+			} else {
+				List<ModuleDetailsVO> moduleDetailsVOs = getAllModuleId(moduleId);
+				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOs) {
+					if (moduleDetailsVO.getModuleURL().matches(".*\\b" + moduleURL + "\\b.*")
+							|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
+						System.out.println("exist");
+						moduleIdDB = moduleDetailsVO.getModuleId();
+					}
+				}
+			}
+
+			// moduleId = getModuleIdByURL(moduleURL);
+			if (!StringUtils.isBlank(moduleIdDB)) {
+				moduleDetailsMap.put("moduleIdURL", moduleIdDB);
 			}
 		}
 		return moduleDetailsMap;
@@ -164,8 +200,12 @@ public class ModuleService {
 
 	}
 
-	public String getModuleIdByURL(String moduleURL) throws Exception {
-		return iModuleListingRepository.getModuleIdByURL(moduleURL);
+	public List<ModuleDetailsVO> getAllModuleId(String moduleId) throws Exception {
+		return iModuleListingRepository.getAllModuleId(moduleId);
+	}
+
+	public List<ModuleDetailsVO> getModuleIdByURL(String moduleUrl, String moduleId) throws Exception {
+		return iModuleListingRepository.getModuleIdByURL(moduleUrl, moduleId);
 	}
 
 	private ModuleListing convertModuleVOToEntitity(ModuleDetailsVO moduleDetailsVO) {
@@ -235,8 +275,8 @@ public class ModuleService {
 		return targetTypeMapList;
 	}
 
-	public Map<String, Object> getModuleTargetTypeName(String moduleURL) throws Exception {
-		ModuleDetailsVO		moduleDetailsVO		= iModuleListingRepository.getTargetTypeDetails(moduleURL);
+	public Map<String, Object> getModuleTargetByURL(String moduleURL) throws Exception {
+		ModuleDetailsVO		moduleDetailsVO		= iModuleListingRepository.getTargetTypeByURL(moduleURL);
 		Map<String, Object>	moduleDetailsMap	= getContextNameDetailsByType(moduleDetailsVO);
 		return moduleDetailsMap;
 	}
@@ -253,6 +293,34 @@ public class ModuleService {
 			}
 		}
 		return moduleDetailsMap;
+	}
+
+	public List<Map<String, Object>> getModuleTargetTypeURL(String moduleURL) throws Exception {
+		List<ModuleDetailsVO>		moduleDetailsVOList	= iModuleListingRepository.getTargetTypeURL(moduleURL);
+		List<Map<String, Object>>	moduleDetailsList	= getContextNameDetails(moduleDetailsVOList);
+		return moduleDetailsList;
+	}
+
+	private List<Map<String, Object>> getContextNameDetails(List<ModuleDetailsVO> moduleDetailsVOList)
+			throws Exception {
+		List<Map<String, Object>> moduleDetailsList = new ArrayList<>();
+		if (CollectionUtils.isEmpty(moduleDetailsVOList) == false) {
+
+			for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
+				Map<String, Object>			moduleDetailsMap	= new HashMap<>();
+				List<Map<String, Object>>	targetTypeList		= moduleDAO
+						.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
+				moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
+				if (!CollectionUtils.isEmpty(targetTypeList)) {
+					moduleDetailsMap.put("moduleUrl", moduleDetailsVO.getModuleURL());
+					moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
+					moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
+				}
+				moduleDetailsList.add(moduleDetailsMap);
+
+			} // End of forLoop
+		}
+		return moduleDetailsList;
 	}
 
 	public Integer getModuleMaxSequence() throws Exception {

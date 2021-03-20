@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,9 @@ public class MultiHttpSecurityConfig {
 	@Autowired
 	private JwtRequestFilter				jwtRequestFilter			= null;
 
+	@Autowired
+	private ServletContext					servletContext				= null;
+
 	// @Bean
 	// public AuthenticationManager authenticationManagerBean() throws Exception {
 	// return super.authenticationManagerBean();
@@ -81,6 +85,11 @@ public class MultiHttpSecurityConfig {
 	@ConditionalOnMissingBean
 	public AuthenticationSuccessHandler authenticationSuccessHandler() {
 		return new CustomAuthSuccessHandler();
+	}
+
+	@Bean
+	public CustomLoginFailureHandler loginFailureHandler() {
+		return new CustomLoginFailureHandler();
 	}
 
 	@Bean
@@ -155,9 +164,10 @@ public class MultiHttpSecurityConfig {
 									"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/authenticate")
 							.permitAll()
 							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
-									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
-							.permitAll().antMatchers("/cf/**", "/view/**").authenticated().and().csrf().disable()
-							.formLogin().loginPage("/cf/login").usernameParameter("email").permitAll()
+									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/cf/**",
+									"/", "/view/**")
+							.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
+							.usernameParameter("email").permitAll().failureHandler(loginFailureHandler())
 							.successHandler(customAuthSuccessHandler).and().rememberMe()
 							.rememberMeParameter("remember-me").tokenRepository(tokenRepository()).and().logout()
 							.addLogoutHandler(customLogoutSuccessHandler).deleteCookies("JSESSIONID")
@@ -175,9 +185,9 @@ public class MultiHttpSecurityConfig {
 							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
 									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
 							.denyAll().antMatchers("/webjars/**").permitAll().antMatchers("/login/**", "/logout/**")
-							.permitAll().antMatchers("/cf/**", "/view/**").authenticated().and().oauth2Login()
-							.loginPage("/cf/login").permitAll().successHandler(customAuthSuccessHandler).and().logout()
-							.addLogoutHandler(customLogoutSuccessHandler).and().csrf().disable();
+							.permitAll().and().oauth2Login().loginPage("/cf/login").permitAll()
+							.failureHandler(loginFailureHandler()).successHandler(customAuthSuccessHandler).and()
+							.logout().addLogoutHandler(customLogoutSuccessHandler).and().csrf().disable();
 				}
 			} else {
 				http.authorizeRequests()
@@ -186,7 +196,7 @@ public class MultiHttpSecurityConfig {
 						.denyAll()
 						.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
 								"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
-						.denyAll().antMatchers("/cf/**").permitAll().and().csrf().disable();
+						.denyAll().antMatchers("/cf/**", "/view/**", "/").permitAll().and().csrf().disable();
 			}
 
 		}
@@ -224,8 +234,8 @@ public class MultiHttpSecurityConfig {
 			return CommonOAuth2Provider.GITHUB.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
 		} else if (client.equals("office365")) {
 
-			String redirectUri = String.format("%s/login/oauth2/code/office365",
-					applicationSecurityDetails.getBaseUrl());
+			String redirectUri = String.format("%s%s/login/oauth2/code/office365",
+					applicationSecurityDetails.getBaseUrl(), servletContext.getContextPath());
 			return ClientRegistration.withRegistrationId("office365").clientId(clientId).clientSecret(clientSecret)
 					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid")
 					.redirectUriTemplate(redirectUri)

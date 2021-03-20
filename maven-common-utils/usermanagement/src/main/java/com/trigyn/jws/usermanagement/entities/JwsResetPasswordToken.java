@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jws_reset_password_token")
+@Table(name = "jq_reset_password_token")
 public class JwsResetPasswordToken {
 
 	@Id

@@ -16,7 +16,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_module_version")
+@Table(name = "jq_module_version")
 @NamedQuery(name = "JwsModuleVersion.findAll", query = "SELECT j FROM JwsModuleVersion j")
 public class JwsModuleVersion implements Serializable {
 

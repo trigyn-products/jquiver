@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
+import com.trigyn.jws.usermanagement.vo.SiteLayoutVO;
 
 @Repository
 public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEntityRoleAssociation, String> {
@@ -31,5 +32,19 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 
 	@Query(" FROM JwsEntityRoleAssociation WHERE entityRoleId=:entityRoleID")
 	JwsEntityRoleAssociation getJwsEntityRoleAssociation(String entityRoleID);
+
+	@Query(" SELECT DISTINCT jera.entityName FROM JwsEntityRoleAssociation AS jera INNER JOIN JwsMasterModules AS jmm ON jmm.moduleId = jera.moduleId "
+			+ " AND jmm.moduleName = :moduleName WHERE jera.entityName = :entityName ")
+	String getEntityNameByEntityAndRoleId(String moduleName, String entityName);
+
+	@Query("SELECT new com.trigyn.jws.usermanagement.vo.SiteLayoutVO(ml.moduleUrl, COUNT(jera.roleId))  FROM JwsEntityRoleAssociation jera INNER JOIN ModuleListing ml ON jera.entityId= ml.moduleId "
+			+ " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId "
+			+ " INNER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = 1 "
+			+ "  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames) AND  ml.moduleUrl LIKE %:moduleUrl% ")
+	List<SiteLayoutVO> hasAccessToSiteLayout(String moduleUrl, List<String> roleNames, Integer isActive);
+
+	@Query("SELECT new com.trigyn.jws.usermanagement.vo.SiteLayoutVO(mlI18n.moduleName, ml.moduleUrl) FROM ModuleListing ml INNER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = 1 "
+			+ " WHERE ml.moduleUrl LIKE %:moduleUrl%  ")
+	List<SiteLayoutVO> getSiteLayoutNameByUrl(String moduleUrl);
 
 }

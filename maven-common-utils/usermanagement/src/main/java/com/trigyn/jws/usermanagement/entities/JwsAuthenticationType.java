@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jws_authentication_type")
+@Table(name = "jq_authentication_type")
 public class JwsAuthenticationType {
 
 	@Id

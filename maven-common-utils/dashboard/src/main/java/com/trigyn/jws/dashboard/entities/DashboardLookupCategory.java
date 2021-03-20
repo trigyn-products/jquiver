@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dashboard_lookup_category")
+@Table(name = "jq_dashboard_lookup_category")
 public class DashboardLookupCategory implements Serializable {
 
 	private static final long		serialVersionUID	= 2476117189188428307L;

@@ -12,7 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "jws_request_type_details")
+@Table(name = "jq_request_type_details")
 @NamedQuery(name = "JwsRequestTypeDetail.findAll", query = "SELECT j FROM JwsRequestTypeDetail j")
 public class JwsRequestTypeDetail implements Serializable {
 	private static final long			serialVersionUID		= 1L;

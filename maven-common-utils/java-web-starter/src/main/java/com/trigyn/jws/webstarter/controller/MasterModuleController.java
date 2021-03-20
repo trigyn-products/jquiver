@@ -1,14 +1,17 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,29 +65,46 @@ public class MasterModuleController {
 	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws IOException {
 		try {
-			String moduleUrl = httpServletRequest.getRequestURI();
+			String moduleUrl = httpServletRequest.getRequestURI()
+					.substring(httpServletRequest.getContextPath().length());
 			moduleUrl = moduleUrl.replaceFirst("/view/", "");
+			if (moduleUrl.indexOf("/") != -1) {
+				moduleUrl = moduleUrl.substring(0, moduleUrl.indexOf("/"));
+			}
 			return loadTemplate(httpServletRequest, moduleUrl);
-		} catch (NullPointerException a_exception) {
-			logger.error("Error ", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
 		return null;
 	}
 
 	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl) throws Exception {
+		StringBuilder queryString = new StringBuilder();
+		if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
+			queryString.append("?").append(httpServletRequest.getQueryString());
+		}
 		if ("".equals(moduleUrl)) {
 			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
 		}
-		Map<String, Object> moduleDetailsMap = moduleService.getModuleTargetTypeName(moduleUrl);
-		if (!CollectionUtils.isEmpty(moduleDetailsMap)) {
-			Map<String, Object>	parameterMap	= validateAndProcessRequestParams(httpServletRequest);
-			Integer				targetLookupId	= Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
-			String				templateName	= moduleDetailsMap.get("targetTypeName").toString();
-			String				targetTypeId	= moduleDetailsMap.get("targetTypeId").toString();
+		Map<String, Object> moduleDetailsMap = getModuleDetails(moduleUrl, httpServletRequest);
+		if (CollectionUtils.isEmpty(moduleDetailsMap) == true) {
+			StringBuilder moduleUrlWithParam = new StringBuilder(moduleUrl).append(queryString);
+			moduleDetailsMap = moduleService.getModuleTargetByURL(moduleUrlWithParam.toString());
+		}
+		if (CollectionUtils.isEmpty(moduleDetailsMap) == false) {
+			Map<String, Object>	parameterMap		= validateAndProcessRequestParams(httpServletRequest);
+			List<String>		pathVariableList	= getPathVariables(httpServletRequest);
+			if (CollectionUtils.isEmpty(pathVariableList) == false) {
+				pathVariableList.remove(0);
+			}
+			parameterMap.put("pathVariableList", pathVariableList);
+			Integer	targetLookupId	= Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
+			String	templateName	= moduleDetailsMap.get("targetTypeName").toString();
+			String	targetTypeId	= moduleDetailsMap.get("targetTypeId").toString();
 			if (targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
 				return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
 			} else if (targetLookupId.equals(Constant.TargetLookupId.DASHBOARD.getTargetLookupId())) {
@@ -118,6 +138,53 @@ public class MasterModuleController {
 			requestParams.put(requestParamKey, httpServletRequest.getParameter(requestParamKey));
 		}
 		return requestParams;
+	}
+
+	private Map<String, Object> getModuleDetails(String requestUrl, HttpServletRequest httpServletRequest)
+			throws Exception {
+		Map<String, Object>			moduleDetailsMap	= new HashMap<>();
+
+		StringBuilder				moduleUrl			= new StringBuilder();
+		List<String>				pathVariableList	= getPathVariables(httpServletRequest);
+
+		List<Map<String, Object>>	moduleDetailsList	= moduleService.getModuleTargetTypeURL(requestUrl);
+		if (CollectionUtils.isEmpty(moduleDetailsList) == false) {
+
+			for (String pathVariable : pathVariableList) {
+				if (StringUtils.isBlank(moduleUrl) == false) {
+					moduleUrl.append("/");
+				}
+				moduleUrl.append(pathVariable);
+				moduleUrl.append("/**");
+				for (Map<String, Object> moduleDetailsMapDB : moduleDetailsList) {
+					String moduleUrlDB = (String) moduleDetailsMapDB.get("moduleUrl");
+					if (StringUtils.isBlank(moduleUrlDB) == false && moduleUrlDB.equals(moduleUrl.toString())) {
+						moduleDetailsMap.putAll(moduleDetailsMapDB);
+						break;
+					}
+				}
+				moduleUrl.delete(moduleUrl.indexOf("/**"), moduleUrl.length());
+			}
+
+			if (CollectionUtils.isEmpty(pathVariableList) == true) {
+				moduleDetailsMap.putAll(moduleDetailsList.get(0));
+			}
+
+		}
+		return moduleDetailsMap;
+	}
+
+	private List<String> getPathVariables(HttpServletRequest httpServletRequest) {
+		List<String>	pathVariableList	= new ArrayList<>();
+		String			moduleUrl			= httpServletRequest.getRequestURI()
+				.substring(httpServletRequest.getContextPath().length());
+		moduleUrl = moduleUrl.replaceFirst("/view/", "");
+
+		if (moduleUrl.indexOf("/") != -1) {
+			pathVariableList = Stream.of(moduleUrl.split("/")).map(urlElement -> new String(urlElement))
+					.collect(Collectors.toList());
+		}
+		return pathVariableList;
 	}
 
 }

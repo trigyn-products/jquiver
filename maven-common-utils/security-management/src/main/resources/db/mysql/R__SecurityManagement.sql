@@ -1,33 +1,16 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('c15e2e2a-2fb4-11eb-a009-f48e38ab8cd7', 'system', 'system', 'ddos-excluded-extensions', 'jpeg, jpg, png, woff2, svg, gif, ico, css, js', 0, NOW(), 'admin', 1.00, 'Excluded extensions for DDOS attack');
-
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('c6c14bcd-2fb4-11eb-a009-f48e38ab8cd7', 'system', 'system', 'ddos-refresh-interval', 30, 0, NOW(), 'admin', 1.00, 'DDOS refresh interval in seconds');
-
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('f5cf07dc-2fb4-11eb-a009-f48e38ab8cd7', 'system', 'system', 'blocked-ip-address', '', 0, NOW(), 'admin', 1.00, 'List of blocked ip address');
-
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('f9cb8796-2fb4-11eb-a009-f48e38ab8cd7', 'system', 'system', 'ddos-page-count', 30, 0, NOW(), 'admin', 1.00, 'DDOS page count');
-
-REPLACE INTO jws_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
-VALUES ('f406bf3a-37bd-11eb-a23b-f48e38ab8cd7', 'system', 'system', 'ddos-site-count', 50, 0, NOW(), 'admin', 1.00, 'DDOS site count');
-
-
-
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('fb0f0174-33b3-11eb-a009-f48e38ab8cd7', 'jws-securtity-configuration', '
 <head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''''}/webjars/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="pg-sec-mgmt">
@@ -49,7 +32,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 </div>    
 <script>
 
-let contextPath = "${contextPath}";
+contextPath = "${contextPath}";
   
   $(function(){
   $("#tabs").tabs();
@@ -59,7 +42,7 @@ let contextPath = "${contextPath}";
   });
  
    function getTabData(tabElement){ 
-  	let url = tabElement.getAttribute("data-target");
+  	let url = contextPath+tabElement.getAttribute("data-target");
   	
   	  $.ajax({
       type: "POST",
@@ -82,13 +65,13 @@ let contextPath = "${contextPath}";
 </script>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(),2);
 
 
-REPLACE INTO template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('fc06d995-2fd7-11eb-a009-f48e38ab8cd7', 'distributed-denial-of-service-configuration', '
 <head>
-    <script src="/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-    <script src="/webjars/1.0/typeahead/typeahead.js"></script>
-    <link rel="stylesheet" href="/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+    <script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+    <script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 	
 <div class="row">
@@ -200,7 +183,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 			     		
 		     },
 		     success: function(data) {
-             	location.href="/cf/login"
+             	location.href=contextPath+"/cf/login"
              }   
         });
     }
@@ -258,7 +241,7 @@ REPLACE INTO template_master (template_id, template_name, template, updated_by, 
 	}
     
     function backToPreviousPage(){ 
-    	location.href="/cf/home";
+    	location.href=contextPath+"/cf/home";
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 

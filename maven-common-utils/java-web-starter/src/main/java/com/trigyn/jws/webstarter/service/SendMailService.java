@@ -26,6 +26,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,15 +59,15 @@ public class SendMailService {
 
 		String				jsonString				= propertyMasterService
 				.findPropertyMasterValue("mail-configuration");
-		Map<String, String>	mailMap					= new Gson().fromJson(jsonString,
-				new TypeToken<Map<String, String>>() {
+		Map<String, Object>	mailMap					= new Gson().fromJson(jsonString,
+				new TypeToken<Map<String, Object>>() {
 															}.getType());
 		Authenticator		authenticator			= null;
 		Session				session					= null;
 		Properties			prop					= new Properties();
-		String				stmpPort				= mailMap.get("smtpPort");
-		String				smtpSecurityProtocal	= mailMap.get("smtpSecurityProtocal");
-		prop.setProperty("mail.smtp.host", mailMap.get("smtpHost"));
+		String				stmpPort				= (String) mailMap.get("smtpPort");
+		String				smtpSecurityProtocal	= (String) mailMap.get("smtpSecurityProtocal");
+		prop.setProperty("mail.smtp.host", (String) mailMap.get("smtpHost"));
 		prop.setProperty("mail.smtp.port", stmpPort);
 
 		if (smtpSecurityProtocal != null && smtpSecurityProtocal != "") {
@@ -80,12 +81,12 @@ public class SendMailService {
 			}
 		}
 
-		String smtpAuth = mailMap.get("isAuthenticated");
+		Boolean smtpAuth = mailMap.get("isAuthenticated") != null ? (Boolean) mailMap.get("isAuthenticated") : null;
 
-		if (smtpAuth != null && smtpAuth != "" && smtpAuth.equals("true")) {
-			prop.put("mail.smtp.auth", Boolean.TRUE);
-			prop.setProperty("mail.smtp.user", mailMap.get("userName"));
-			prop.setProperty("mail.smtp.password", mailMap.get("password"));
+		if (smtpAuth != null && Boolean.TRUE.equals(smtpAuth)) {
+			prop.put("mail.smtp.auth", smtpAuth);
+			prop.setProperty("mail.smtp.user", (String) mailMap.get("userName"));
+			prop.setProperty("mail.smtp.password", (String) mailMap.get("password"));
 			class SMTPAuthenticator extends javax.mail.Authenticator {
 				String	username	= "";
 				String	password	= "";
@@ -100,7 +101,7 @@ public class SendMailService {
 				}
 			}
 
-			authenticator	= new SMTPAuthenticator(mailMap.get("userName"), mailMap.get("password"));
+			authenticator	= new SMTPAuthenticator((String) mailMap.get("userName"), (String) mailMap.get("password"));
 			session			= Session.getInstance(prop, authenticator);
 		} else {
 			session = Session.getDefaultInstance(prop, null);
@@ -112,11 +113,29 @@ public class SendMailService {
 		MimeMultipart		mimeMultipart			= new MimeMultipart();
 		BodyPart			messageBodyPart			= new MimeBodyPart();
 		String				mailBody				= "";
-		String				fromMailId				= mail.getMailFrom();
-		String				fromMailName			= mail.getMailFromName();
-		Boolean				isReplyToDifferentMail	= mail.getIsReplyToDifferentMail();
-		InternetAddress		replyToDifferentEmailId	= mail.getReplyToDifferentMailId();
-		InternetAddress[]	mailToList				= mail.getInternetAddressToArray();
+		String				fromMailId				= StringUtils.isBlank(mail.getMailFrom()) == true
+				? (String) mailMap.get("mailFrom")
+				: mail.getMailFrom();
+
+		String				fromMailName			= StringUtils.isBlank(mail.getMailFromName()) == true
+				? (String) mailMap.get("mailFromName")
+				: mail.getMailFromName();
+
+		Boolean				isReplyToDifferentMail	= mail.getIsReplyToDifferentMail() == null
+				? (Boolean) mailMap.get("isReplyToDifferentMail")
+				: mail.getIsReplyToDifferentMail();
+
+		InternetAddress[]	mailToList				= mail.getInternetAddressToArray() == null
+				? (InternetAddress[]) mailMap.get("internetAddressToArray")
+				: mail.getInternetAddressToArray();
+
+		InternetAddress		replyToDifferentEmailId	= null;
+		if (mail.getReplyToDifferentMailId() != null) {
+			replyToDifferentEmailId = mail.getReplyToDifferentMailId();
+		} else if (mailMap.get("replyToDifferentMailId") != null) {
+			replyToDifferentEmailId = InternetAddress.parse((String) mailMap.get("replyToDifferentMailId"))[0];
+		}
+
 		InternetAddress[]	ccList					= mail.getInternetAddressCCArray();
 		InternetAddress[]	bccList					= mail.getInternetAddressBCCArray();
 		Boolean				isMailFooterRequired	= mail.getIsMailFooterEnabled();
@@ -137,6 +156,13 @@ public class SendMailService {
 					// Added below hard coded mail id if users entered invalid email address
 					message.setReplyTo(InternetAddress.parse("inVallidOrNoREPLYTOMailId@required.com"));
 					throw new Exception("Invalid/No Reply to  Emailid entered " + replyToDifferentEmailId);
+				}
+			} else {
+				if (replyToDifferentEmailId != null && replyToDifferentEmailId.toString().equals(fromMailId)) {
+					message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+				} else {
+					message.setReplyTo(
+							new javax.mail.Address[] { new javax.mail.internet.InternetAddress("noreply@trigyn.com") });
 				}
 			}
 
@@ -258,7 +284,7 @@ public class SendMailService {
 		return result;
 	}
 
-	// Email and with json string of properties send test mail call     
+	// Email and with json string of properties send test mail call
 	@Async
 	public CompletableFuture<Boolean> sendTestMail(Email mail, String jsonString) throws Exception {
 
@@ -339,9 +365,9 @@ public class SendMailService {
 			replyToDifferentEmailId = (mail.getReplyToDifferentMailId());
 		}
 
-		InternetAddress[]	mailToList				= null;
+		InternetAddress[] mailToList = null;
 		if (mail.getInternetAddressToArray() != null) {
-			mailToList				= mail.getInternetAddressToArray();
+			mailToList = mail.getInternetAddressToArray();
 		} else if (mailMap.get("internetAddressToArray") != "" && mailMap.get("internetAddressToArray") != null) {
 			mailToList = InternetAddress.parse(mailMap.get("internetAddressToArray"));
 		} else {
@@ -350,11 +376,12 @@ public class SendMailService {
 			throw new Exception("To mail id missing  ");
 		}
 
-//		if (mailMap.get("internetAddressToArray") != "" && mailMap.get("internetAddressToArray") != null) {
-//			mailToList = InternetAddress.parse(mailMap.get("internetAddressToArray"));
-//		} else {
-//			mailToList = mail.getInternetAddressToArray();
-//		}
+		// if (mailMap.get("internetAddressToArray") != "" &&
+		// mailMap.get("internetAddressToArray") != null) {
+		// mailToList = InternetAddress.parse(mailMap.get("internetAddressToArray"));
+		// } else {
+		// mailToList = mail.getInternetAddressToArray();
+		// }
 		InternetAddress[] ccList = null;
 
 		if (mailMap.get("internetAddressCCArray") != null && mailMap.get("internetAddressCCArray") != "") {

@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity(name = "master_module")
+@Entity(name = "jq_master_module")
 public class MasterModule {
 
 	@Id

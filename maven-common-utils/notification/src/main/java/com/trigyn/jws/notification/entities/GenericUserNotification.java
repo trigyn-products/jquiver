@@ -20,7 +20,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "generic_user_notification")
+@Table(name = "jq_generic_user_notification")
 public class GenericUserNotification {
 
 	@GeneratedValue(generator = "inquisitive-uuid")

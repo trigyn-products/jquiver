@@ -18,7 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "module_listing")
+@Table(name = "jq_module_listing")
 @NamedQuery(name = "ModuleListing.findAll", query = "SELECT m FROM ModuleListing m")
 public class ModuleListing implements Serializable {
 	private static final long			serialVersionUID		= 1L;

@@ -86,7 +86,7 @@ public class GridUtilsDAO extends DBConnection {
 
 	public GridDetails getGridDetails(String gridId) {
 
-		String sql = "SELECT * FROM grid_details WHERE grid_id = ?";
+		String sql = "SELECT * FROM jq_grid_details WHERE grid_id = ?";
 		return jdbcTemplate.queryForObject(sql, new Object[] { gridId },
 				(rs, rowNum) -> new GridDetails(rs.getString("grid_id"), rs.getString("grid_name"),
 						rs.getString("grid_description"), rs.getString("grid_table_name"),

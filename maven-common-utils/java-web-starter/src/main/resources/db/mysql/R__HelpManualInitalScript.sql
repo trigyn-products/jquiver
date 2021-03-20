@@ -1,8 +1,8 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-replace into resource_bundle VALUES ("jws.helpManuals", 1, "Help Manuals");
+replace into jq_resource_bundle VALUES ("jws.helpManuals", 1, "Help Manuals");
 
-replace into jws_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
+replace into jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
 (1003, 'get-manual-details', 1, 'manualDetails', 'Get manual details', 2, 7, 'function myFunction(requestDetails, daoResults) {
     return daoResults["manualEnitityDetails"];
 }
@@ -25,15 +25,15 @@ myFunction(requestDetails, daoResults);', 3, 0, 2),
 
 myFunction(requestDetails, daoResults);', 3, 0, 2);
 
-replace into jws_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
-(21, 1003, 'manualEnitityDetails', 'select manual_type, entry_name, entry_content, sort_index, manual_entry_id from manual_entry where manual_type = :manualId order by sort_index asc', 1, 1), 
-(23, 1004, 'manualTypes', 'select * from manual_type;', 1, 1), 
-(26, 1005, 'manualDetails', 'select * from manual_entry where manual_type = :manualType and entry_name = :entryName', 1, 1), 
-(27, 1005, 'sequence', 'select * from manual_entry where manual_type = :manualType and sort_index = :sortIndex', 2, 1);
+replace into jq_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
+(21, 1003, 'manualEnitityDetails', 'select manual_type, entry_name, entry_content, sort_index, manual_entry_id from jq_manual_entry where manual_type = :manualId order by sort_index asc', 1, 1), 
+(23, 1004, 'manualTypes', 'select * from jq_manual_type;', 1, 1), 
+(26, 1005, 'manualDetails', 'select * from jq_manual_entry where manual_type = :manualType and entry_name = :entryName', 1, 1), 
+(27, 1005, 'sequence', 'select * from jq_manual_entry where manual_type = :manualType and sort_index = :sortIndex', 2, 1);
 
-replace into dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
-('8a80cb81754acbf701754ae3d1c2000c', 'manual-entry-form', 'manual-entry Form', 'SELECT me.manual_entry_id, manual_type, entry_name, entry_content, sort_index, GROUP_CONCAT(mefa.file_upload_id) as fileIds FROM manual_entry as me 
-left outer join manual_entry_file_association as mefa
+replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+('8a80cb81754acbf701754ae3d1c2000c', 'manual-entry-form', 'manual-entry Form', 'SELECT me.manual_entry_id, manual_type, entry_name, entry_content, sort_index, GROUP_CONCAT(mefa.file_upload_id) as fileIds FROM jq_manual_entry as me 
+left outer join jq_manual_entry_file_association as mefa
 on me.manual_entry_id = mefa.manual_entry_id
 WHERE me.manual_entry_id = "${manualentryid}"
 group by me.manual_entry_id', '<head>
@@ -243,10 +243,10 @@ group by me.manual_entry_id', '<head>
     }
 </script>', 'admin', NOW(), NULL, NULL, 1);
 
-replace into dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
+replace into jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('8a80cb817554cb5f017555b246110006', '8a80cb81754acbf701754ae3d1c2000c', 'select 1;', 1, NULL);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb81754acbf701754ae3d1dd000e', 'manual-entry-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -355,7 +355,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
     }
 </script>', 'admin', 'admin', NOW(), NULL, 1);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175479e47017547d34a8d001c', 'manual-type-template', '<head>
 <link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
@@ -500,7 +500,7 @@ replace into template_master (template_id, template_name, template, updated_by, 
     }
 </script>', 'admin', 'admin', NOW(), NULL, 1);
 
-replace into template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175513bc80175514206ef0000', 'manual-display', '<script src="/webjars/1.0/manuals/helpmanual.js"></script>
 <link rel="stylesheet" href="/webjars/1.0/markdown/highlight/github.min.css" />
 <script src="/webjars/1.0/markdown/highlight/highlight.min.js"></script>
@@ -514,7 +514,10 @@ replace into template_master (template_id, template_name, template, updated_by, 
                 <h2 id="title" class="title-cls-name float-left help-manual-title"></h2>
                 <div class="cm-searchwithicon">
                         <div class="form-group has-search clearfix"> <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">   
+                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
+                                                        <span id="manualSearchClear" onclick="clearManualSearch()" class="manual-clear-txt">
+                    			<i class="fa fa-times" aria-hidden="true"></i>
+                			</span>    
                         </div>
                           <div id="cm-errormsg-div" class="" style="display: none;">
                  <div class="cm-empty-data clearfix">
@@ -620,10 +623,15 @@ function search(event, value) {
             $("#manual-container").hide();
         }
 }
+
+function clearManualSearch (){
+	$("#searchInputField").val("");
+	search("", ""); 
+}
     </script>', 'admin', 'admin', NOW(), NULL, 1);
 
-replace into grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
-('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1), 
-('manual-typeGrid', 'manual-typeGrid', 'manual-type Listing', 'manual_type', 'manual_id,name,is_system_manual', 1);
+replace into jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type) VALUES
+('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'jq_manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1), 
+('manual-typeGrid', 'manual-typeGrid', 'manual-type Listing', 'jq_manual_type', 'manual_id,name,is_system_manual', 1);
 
 SET FOREIGN_KEY_CHECKS=1;

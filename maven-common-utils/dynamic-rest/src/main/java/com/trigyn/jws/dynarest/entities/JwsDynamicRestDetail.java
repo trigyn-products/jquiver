@@ -20,7 +20,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "jws_dynamic_rest_details")
+@Table(name = "jq_dynamic_rest_details")
 @NamedQuery(name = "JwsDynamicRestDetail.findAll", query = "SELECT j FROM JwsDynamicRestDetail j")
 public class JwsDynamicRestDetail implements Serializable {
 

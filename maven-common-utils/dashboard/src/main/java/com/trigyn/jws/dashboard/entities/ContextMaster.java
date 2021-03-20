@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "context_master")
+@Table(name = "jq_context_master")
 public class ContextMaster implements Serializable {
 
 	private static final long	serialVersionUID		= -7620849431138092706L;

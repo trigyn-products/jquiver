@@ -1,1 +1,1 @@
-ALTER TABLE template_master ADD COLUMN template_type_id INT(11) DEFAULT 1;
+ALTER TABLE jq_template_master ADD COLUMN template_type_id INT(11) DEFAULT 1;
