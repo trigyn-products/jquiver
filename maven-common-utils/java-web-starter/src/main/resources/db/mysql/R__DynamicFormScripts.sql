@@ -68,8 +68,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center"},
 				{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter, sortable: false}
 			];
 			let dataModel = {

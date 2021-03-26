@@ -208,10 +208,14 @@ public class DynamicFormService {
 		}
 	}
 
-	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails) {
+	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails,
+			String moduleURL) {
 		Map<String, String>	templatesMap	= new HashMap<>();
 		Map<String, Object>	parameters		= new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
+		if (StringUtils.isBlank(moduleURL) == false) {
+			parameters.put("moduleURL", moduleURL);
+		}
 		try {
 			TemplateVO	templateVO	= templateService.getTemplateByName("system-form-html-template");
 			String		template	= templateEngine.processTemplateContents(templateVO.getTemplate(),
@@ -242,6 +246,7 @@ public class DynamicFormService {
 			String	columnName	= info.get("tableColumnName").toString();
 			String	dataType	= info.get("dataType").toString();
 			String	columnKey	= info.get("columnKey").toString();
+			String	columnType	= info.get("columnType").toString();
 			insertValuesJoiner = createInsertQuery(insertValuesJoiner, tableName, columnName, dataType, columnKey);
 			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
 				insertJoiner.add(columnName);
@@ -251,9 +256,10 @@ public class DynamicFormService {
 			String	columnName	= info.get("tableColumnName").toString();
 			String	dataType	= info.get("dataType").toString();
 			String	columnKey	= info.get("columnKey").toString();
+			String	columnType	= info.get("columnType").toString();
 			if (StringUtils.isBlank(columnKey) || columnKey.equals(PRIMARY_KEY) == false) {
 				insertJoiner.add(columnName);
-				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false);
+				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType);
 			}
 
 		}
@@ -269,10 +275,11 @@ public class DynamicFormService {
 			String	columnName	= info.get("tableColumnName").toString();
 			String	dataType	= info.get("dataType").toString();
 			String	columnKey	= info.get("columnKey").toString();
+			String	columnType	= info.get("columnType").toString();
 			if ("PRI".equals(columnKey)) {
-				joinQueryBuilder(updateWhereQuery, columnName, dataType, true);
+				joinQueryBuilder(updateWhereQuery, columnName, dataType, true, columnType);
 			} else {
-				joinQueryBuilder(updateQuery, columnName, dataType, true);
+				joinQueryBuilder(updateQuery, columnName, dataType, true, columnType);
 			}
 		}
 		StringBuilder updateQueryBuilder = new StringBuilder(updateQuery.toString());
@@ -312,8 +319,9 @@ public class DynamicFormService {
 	}
 
 	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType,
-			boolean showColumnName) {
-		String formFieldName = columnName.replace("_", "");
+			boolean showColumnName, String columnType) {
+		String			formFieldName	= columnName.replace("_", "");
+		StringBuilder	formFieldVal	= new StringBuilder();
 		if (dataType.contains(VARCHAR) || dataType.contains(TEXT)) {
 			String value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
@@ -321,7 +329,12 @@ public class DynamicFormService {
 			String value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
 		} else if (dataType.contains(DATE) || dataType.contains(TIMESTAMP)) {
-			insertValuesJoiner.add(showColumnName ? columnName + " = NOW()" : "" + "NOW()");
+			if (columnType.equals("hidden") == false) {
+				formFieldVal.append("STR_TO_DATE(:").append(formFieldName).append(", \"%d-%b-%Y\") ");
+			} else {
+				formFieldVal.append("NOW()");
+			}
+			insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
@@ -37,8 +37,8 @@ import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.gridutils.dao.GridUtilsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.gridutils.utility.Constants;
+import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
-import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -93,19 +93,30 @@ public class MasterCreatorService {
 	@Autowired
 	private DynamicFormCrudService			dynamicFormCrudService			= null;
 
+	@Autowired
+	private ResourceBundleDAO				resourceBundleDAO				= null;
+
+	@Autowired
+	private PropertyMasterDetails			propertyMasterDetails			= null;
+
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
 		Map<String, Object>		templateMap			= new HashMap<>();
 		//		List<String>			tables				= dynamicFormDAO.getAllTablesListInSchema();
 		//		List<String>			views				= dynamicFormDAO.getAllViewsListInSchema();
+		String					jQuiverVersion		= propertyMasterDetails.getSystemPropertyValue("version");
 		List<ModuleDetailsVO>	moduleListingVOList	= moduleService.getAllParentModules("");
 		String					uri					= httpServletRequest.getRequestURI()
 				.substring(httpServletRequest.getContextPath().length());
-		;
-		String			url			= httpServletRequest.getRequestURL().toString();
-		StringBuilder	urlPrefix	= new StringBuilder();
+		String					url					= httpServletRequest.getRequestURL().toString();
+		StringBuilder			urlPrefix			= new StringBuilder();
 		url = url.replace(uri, "");
 		urlPrefix.append(url).append("/view/");
 
+		if (StringUtils.isBlank(jQuiverVersion) == false && jQuiverVersion.contains("SNAPSHOT")) {
+			templateMap.put("isDev", true);
+		} else {
+			templateMap.put("isDev", false);
+		}
 		templateMap.put("urlPrefix", urlPrefix);
 
 		//		if (!CollectionUtils.isEmpty(views)) {
@@ -124,17 +135,20 @@ public class MasterCreatorService {
 				"profile");
 		Map<String, Object>	createdMasterDetails	= new HashMap<>();
 		Map<String, Object>	formData				= processFormData(inputDetails.getFirst("formData"));
-
-		DynamicForm			dynamicForm				= createDynamicFormDetails(inputDetails, formData);
-		GridDetails			gridDetails				= createGridDetailsInfo(formData);
-		TemplateMaster		templateMaster			= saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(),
-				dynamicForm.getFormId(), formData);
-
 		Integer				insideMenu				= formData.get("isMenuAddActive") == null ? 0
 				: Integer.parseInt((String) formData.get("isMenuAddActive"));
 		ModuleDetailsVO		menuData				= new ModuleDetailsVO();
+
 		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			menuData = processMenu(inputDetails.getFirst("menuDetails"));
+		}
+
+		DynamicForm		dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleURL());
+		GridDetails		gridDetails		= createGridDetailsInfo(formData);
+		TemplateMaster	templateMaster	= saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(),
+				dynamicForm.getFormId(), formData);
+
+		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			insertIntoMenu(menuData, templateMaster);
 		}
 
@@ -217,9 +231,10 @@ public class MasterCreatorService {
 		Gson			gson			= new Gson();
 		JsonParser		parser			= new JsonParser();
 		JsonObject		object			= (JsonObject) parser.parse(menuDetails);		// response will be the json
-																	// String
+		// String
 		ModuleDetailsVO	moduleDetailsVO	= gson.fromJson(object, ModuleDetailsVO.class);
 		moduleDetailsVO.setIsInsideMenu(Constant.IS_INSIDE_MENU);
+		moduleDetailsVO.setIncludeLayout(Constant.INCLUDE_LAYOUT);
 
 		return moduleDetailsVO;
 	}
@@ -237,7 +252,7 @@ public class MasterCreatorService {
 	}
 
 	private DynamicForm createDynamicFormDetails(MultiValueMap<String, String> inputDetails,
-			Map<String, Object> formData) throws Exception {
+			Map<String, Object> formData, String moduleURL) throws Exception {
 		String						tableName			= formData.get("selectTable").toString();
 		String						primaryKey			= formData.get("primaryKey").toString();
 		String						moduleName			= formData.get("moduleName") + "-form";
@@ -252,7 +267,7 @@ public class MasterCreatorService {
 
 		}
 		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey);
-		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(tableName, formDetails);
+		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(tableName, formDetails, moduleURL);
 		String				saveQuery			= dynamicFormDetails.get("save-template");
 		String				htmlTemplate		= dynamicFormDetails.get("form-template");
 		DynamicForm			dynamicForm			= new DynamicForm();
@@ -276,22 +291,12 @@ public class MasterCreatorService {
 		String	displayName		= map.get("displayName").toString();
 		if (i18nResourceKey.isBlank() == false) {
 			Boolean keyAlreadyExist = resourceBundleService.checkResourceKeyExist(i18nResourceKey);
-			if (keyAlreadyExist) {
-
-			} else {
-				List<ResourceBundleVO>	dbResourceList		= new ArrayList<ResourceBundleVO>();
-				ResourceBundleVO		resourceBundleVO	= new ResourceBundleVO();
-				resourceBundleVO.setLanguageId(1);
-				resourceBundleVO.setResourceKey(i18nResourceKey);
-				resourceBundleVO.setText(displayName);
-				dbResourceList.add(resourceBundleVO);
-				resourceBundleService.saveResourceBundleDetails(dbResourceList, 1);
-
-			}
+			resourceBundleDAO.addResourceBundle(i18nResourceKey, Constant.DEFAULT_LANGUAGE_ID, displayName);
 		}
 	}
 
-	private Map<String, String> generateHtmlTemplate(String tableName, List<Map<String, Object>> formDetails) {
+	private Map<String, String> generateHtmlTemplate(String tableName, List<Map<String, Object>> formDetails,
+			String moduleURL) {
 		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(tableName);
 
 		Iterator					itr				= tableDetails.iterator();
@@ -304,18 +309,29 @@ public class MasterCreatorService {
 				itr.remove();
 			} else {
 				for (Map<String, Object> formDetailsMap : formDetails) {
-					String colName = (String) formDetailsMap.get("column");
+					String	colName			= (String) formDetailsMap.get("column");
+					String	i18nResourceKey	= (String) formDetailsMap.get("i18nResourceKey");
+					String	displayName		= (String) formDetailsMap.get("displayName");
 					if (StringUtils.isNotBlank(colName) && colName.equals(columnName)) {
 						Boolean hiddenValue = (Boolean) formDetailsMap.get("hidden");
 						if (hiddenValue != null && hiddenValue.equals(true)) {
 							columnDetails.put("columnType", "hidden");
 						}
+						if (StringUtils.isBlank(i18nResourceKey) == false) {
+							columnDetails.put("i18NPresent", true);
+							columnDetails.put("fieldName", i18nResourceKey);
+						} else {
+							columnDetails.put("i18NPresent", false);
+							columnDetails.put("fieldName", displayName);
+						}
+
 					}
 
 				}
 			}
 		}
-		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails);
+		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails,
+				moduleURL);
 		return templateDetails;
 	}
 
@@ -330,7 +346,7 @@ public class MasterCreatorService {
 		StringJoiner	whereClause	= new StringJoiner(" AND ");
 		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
 		for (String key : primaryKeys) {
-			String value = key + " = " + "\\\"${" + key.replaceAll("_", "") + "}\\\"";
+			String value = key + " = " + "\\\"${(" + key.replaceAll("_", "") + ")!''}\\\"";
 			whereClause.add(value.replace("\\", ""));
 		}
 		selectQuery.append(whereClause.toString());
@@ -359,6 +375,11 @@ public class MasterCreatorService {
 		List<String>				primaryKeysIds		= Lists.newArrayList(primaryKey.split(",")).stream()
 				.map(element -> element.replaceAll("_", "")).collect(Collectors.toList());
 		HashMap<String, Object>		details				= new HashMap<String, Object>();
+
+		for (Map<String, Object> map : gridDetails) {
+			saveResourseKey(map);
+		}
+
 		for (String ids : primaryKeysIds) {
 			details.put(ids, "");
 		}

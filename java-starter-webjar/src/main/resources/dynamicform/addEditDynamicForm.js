@@ -24,6 +24,9 @@ class AddEditDynamicForm {
 					typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
 						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
 				});
+	        	dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(dashletSQLEditor,"sqlContainer","sqlEditor");
+	            });
 				dashletSQLEditor.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});
@@ -46,6 +49,9 @@ class AddEditDynamicForm {
 					typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
 						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
 				});
+	        	dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(dashletHTMLEditor,"htmlContainer","htmlEditor");
+	            });
 				dashletHTMLEditor.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});
@@ -124,6 +130,9 @@ class AddEditDynamicForm {
 				typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
 						 addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );
 			});
+        	dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+                resizeMonacoEditor(dashletSAVESQLEditor,"daoContainer_"+index,"saveSqlEditor_"+index);
+            });
 			dashletSAVESQLEditor.onDidChangeModelContent( function (){
     			$('#errorMessage').hide();
 			});	

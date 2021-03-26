@@ -30,6 +30,24 @@ public class JwsMasterModules {
 	@Column(name = "module_type_id")
 	private Integer	moduleTypeId	= null;
 
+	@Column(name = "sequence")
+	private Integer	sequence	= null;
+
+	@Column(name = "grid_details_id")
+	private String	gridDetailsId		= null;
+
+	@Column(name = "module_type")
+	private String	moduleType			= null;
+
+	@Column(name = "is_perm_supported")
+	private Integer	isPermSupported	= null;
+
+	@Column(name = "is_entity_perm_supported")
+	private Integer	isEntityPermSupported	= null;
+
+	@Column(name = "is_imp_exp_supported")
+	private Integer	isImpExpSupported	= null;
+	
 	public String getModuleId() {
 		return moduleId;
 	}
@@ -62,15 +80,6 @@ public class JwsMasterModules {
 		this.auxiliaryData = auxiliaryData;
 	}
 
-	public JwsMasterModules getObject() {
-		JwsMasterModules obj = new JwsMasterModules();
-		obj.setAuxiliaryData(auxiliaryData != null ? auxiliaryData.trim() : auxiliaryData);
-		obj.setIsSystemModule(isSystemModule);
-		obj.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
-		obj.setModuleName(moduleName != null ? moduleName.trim() : moduleName);
-		return obj;
-	}
-
 	public Integer getModuleTypeId() {
 		return moduleTypeId;
 	}
@@ -78,4 +87,60 @@ public class JwsMasterModules {
 	public void setModuleTypeId(Integer moduleTypeId) {
 		this.moduleTypeId = moduleTypeId;
 	}
+
+	public Integer getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(Integer sequence) {
+		this.sequence = sequence;
+	}
+
+	public String getGridDetailsId() {
+		return gridDetailsId;
+	}
+
+	public void setGridDetailsId(String gridDetailsId) {
+		this.gridDetailsId = gridDetailsId;
+	}
+
+	public String getModuleType() {
+		return moduleType;
+	}
+
+	public void setModuleType(String moduleType) {
+		this.moduleType = moduleType;
+	}
+
+	public Integer getIsPermSupported() {
+		return isPermSupported;
+	}
+
+	public void setIsPermSupported(Integer isPermSupported) {
+		this.isPermSupported = isPermSupported;
+	}
+
+	public Integer getIsImpExpSupported() {
+		return isImpExpSupported;
+	}
+
+	public void setIsImpExpSupported(Integer isImpExpSupported) {
+		this.isImpExpSupported = isImpExpSupported;
+	}
+
+	public JwsMasterModules getObject() {
+		JwsMasterModules obj = new JwsMasterModules();
+		obj.setAuxiliaryData(auxiliaryData != null ? auxiliaryData.trim() : auxiliaryData);
+		obj.setIsSystemModule(isSystemModule);
+		obj.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
+		obj.setModuleName(moduleName != null ? moduleName.trim() : moduleName);
+		obj.setModuleTypeId(moduleTypeId);
+		obj.setSequence(sequence);
+		obj.setGridDetailsId(gridDetailsId != null ? gridDetailsId.trim() : gridDetailsId);
+		obj.setModuleType(moduleType != null ? moduleType.trim() : moduleType);
+		obj.setIsPermSupported(isPermSupported);
+		obj.setIsImpExpSupported(isImpExpSupported);
+		return obj;
+	}
+
 }

@@ -99,11 +99,11 @@ public class ResourceBundleService {
 
 				}
 				iResourceBundleRepository.saveAll(resourceBundleList);
-				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, "jq_resource_bundle",
-						sourceTypeId);
+				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey,
+						"jq_resource_bundle", sourceTypeId);
 			}
 		} catch (Exception a_exception) {
-			logger.error("Error occurred while saving resource bundle data ",a_exception);
+			logger.error("Error occurred while saving resource bundle data ", a_exception);
 			throw new RuntimeException("Error ocurred while saving resource bundle data");
 		}
 	}
@@ -131,31 +131,16 @@ public class ResourceBundleService {
 		return resourceBundleVO;
 	}
 
-	@Transactional(readOnly = false)
-	public void deleteDbResourceEntry(ResourceBundleVO dbresource) throws Exception {
-		try {
-			dbResourceDAO.deleteResourceEntry(dbresource, null);
-		} catch (Exception a_excep) {
-			logger.error("Error ocurred while deleting an entry from resource bundle", a_excep);
-			throw new RuntimeException("Error ocurred while deleting an entry from resource bundle");
+	public String findTextByKeyAndLanguageId(String resourceBundleKey, Integer languageId) throws Exception {
+		if (languageId == null) {
+			languageId = Constant.DEFAULT_LANGUAGE_ID;
 		}
+		return iResourceBundleRepository.findMessageByKeyAndLanguageId(resourceBundleKey, languageId,
+				Constant.DEFAULT_LANGUAGE_ID, Constant.RecordStatus.INSERTED.getStatus());
 	}
 
-	public ResourceBundleVO checkResourceData(String resKey, String langId) throws Exception {
-		try {
-			List<ResourceBundleVO>	resData		= dbResourceDAO.checkResourceData(resKey, langId);
-			ResourceBundleVO		editData	= null;
-			for (ResourceBundleVO resMap : resData) {
-				editData = new ResourceBundleVO();
-				editData.setResourceKey(resMap.getResourceKey());
-				editData.setText(resMap.getText());
-				editData.setLanguageId(resMap.getLanguageId());
-			}
-			return editData;
-		} catch (Exception a_excep) {
-			logger.error("Error ocurred while fetching resource bundle data", a_excep);
-			throw new RuntimeException("Error ocurred while fetching resource bundle data");
-		}
+	public Map<String, String> getResourceBundleData(String localeId, List<String> keyList) throws Exception {
+		return dbResourceDAO.getResourceBundleData(localeId, keyList);
 	}
 
 }

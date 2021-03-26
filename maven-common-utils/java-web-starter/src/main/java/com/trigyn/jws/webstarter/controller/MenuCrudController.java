@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +120,7 @@ public class MenuCrudController {
 	@GetMapping(value = "/ced", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public Map<String, Object> getExistingData(@RequestHeader(name = "module-name", required = false) String moduleName,
 			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
-			@RequestHeader(name = "sequence", required = true) Integer sequence,
+			@RequestHeader(name = "sequence", required = false) Integer sequence,
 			@RequestHeader(name = "module-url", required = false) String moduleURL,
 			@RequestHeader(name = "module-id", required = false) String moduleId) throws Exception {
 		return moduleService.getExistingModuleData(moduleId, moduleName, parentModuleId, sequence, moduleURL);
@@ -165,34 +166,25 @@ public class MenuCrudController {
 
 	}
 
-	@PostMapping(value = "/chp", produces = { MediaType.TEXT_HTML_VALUE })
-	public String configHomePage(@RequestParam(value = "module-id") String moduleId,
-			@RequestParam(value = "role-id") String roleId, @RequestParam(value = "role-name") String roleName,
-			HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
-		try {
-			Map<String, Object>			templateMap			= new HashMap<>();
-			ModuleDetailsVO				moduleDetailsVO		= moduleService.getModuleDetails(moduleId);
-			List<ModuleTargetLookupVO>	targetLookupVOList	= moduleService.getAllModuleLookUp();
-			templateMap.put("roleId", roleId);
-			templateMap.put("roleName", roleName);
-			templateMap.put("moduleDetailsVO", moduleDetailsVO);
-			templateMap.put("targetLookupVOList", targetLookupVOList);
-			return menuService.getTemplateWithSiteLayout("config-home-page", templateMap);
-		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
-			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
-				return null;
-			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
-			return null;
-		}
-	}
-
 	@PostMapping(value = "/schm")
 	@ResponseBody
 	public String saveConfigHomeModule(HttpServletRequest a_httHttpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
+		logger.debug("Inside MenuCrudController.saveConfigHomeModule()");
 		return moduleService.saveConfigHomePage(a_httHttpServletRequest);
+	}
+
+	@PostMapping(value = "/vchm")
+	@ResponseBody
+	public Boolean validateConfigHomeModule(HttpServletRequest a_httHttpServletRequest,
+			HttpServletResponse httpServletResponse) throws Exception {
+		String	moduleId	= a_httHttpServletRequest.getParameter("moduleId");
+		String	roleId		= a_httHttpServletRequest.getParameter("roleId");
+		String	moduleIdDB	= moduleService.findModuleIdByRoleId(roleId, moduleId);
+		if (StringUtils.isBlank(moduleIdDB) == false && moduleIdDB.equals(moduleId) == false) {
+			return true;
+		}
+		return false;
 	}
 
 	@GetMapping(value = "/gprm")

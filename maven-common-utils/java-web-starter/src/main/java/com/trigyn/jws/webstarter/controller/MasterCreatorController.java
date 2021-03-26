@@ -12,26 +12,33 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.webstarter.service.MasterCreatorService;
 
 @RestController
 @RequestMapping("/cf")
+@PreAuthorize("hasPermission('module','Master Generator')")
 public class MasterCreatorController {
 
 	private final static Logger		logger					= LogManager.getLogger(MasterCreatorController.class);
 
 	@Autowired
 	private MasterCreatorService	masterCreatorService	= null;
+
+	@Autowired
+	private ModuleService			moduleService			= null;
 
 	@GetMapping(value = "/mg", produces = MediaType.TEXT_HTML_VALUE)
 	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -77,5 +84,12 @@ public class MasterCreatorController {
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
+	}
+
+	@GetMapping(value = "/vmsd", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public Map<String, Object> getExistingData(@RequestHeader(name = "module-name", required = false) String moduleName,
+			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
+			@RequestHeader(name = "module-url", required = false) String moduleURL) throws Exception {
+		return moduleService.getExistingModuleData(null, moduleName, parentModuleId, null, moduleURL);
 	}
 }

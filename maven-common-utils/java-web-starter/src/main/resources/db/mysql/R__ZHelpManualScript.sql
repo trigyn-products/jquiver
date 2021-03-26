@@ -472,8 +472,15 @@ replace into jq_template_master (template_id, template_name, template, updated_b
                 <option value="1" selected>Custom</option>                   
                 <option value="2">System</option>                 
             </select>
-            <button type="submit" class="btn btn-primary" onclick="createNew()"> Create New Manual </button>
-
+            <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+        		<#list loggedInUserRoleList as loggedInUserRole>
+            		<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>  
+            			<button type="submit" class="btn btn-primary" onclick="createNew()"> Create New Manual </button>
+						<#break>
+        			</#if>
+        		</#list>
+    		</#if>
+					
             <span onclick="backToWelcomePage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
             </span> 
@@ -523,6 +530,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 <form id="viewManualForm" action="${(contextPath)!''''}/cf/manual" method="get" target="_blank">
   <input id="manualType" name="mt" type="hidden">
 </form>
+
 
     <form id="viewManualEntry" action="${(contextPath)!''''}/cf/ehme" method="post">
     	<input type="hidden" name="mt" id="manualTypeListing" />

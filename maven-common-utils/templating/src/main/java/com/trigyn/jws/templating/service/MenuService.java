@@ -182,4 +182,22 @@ public class MenuService {
 		return templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 				templateMap);
 	}
+
+	public String getDashletWithoutLayout(String templateName, String template, Map<String, Object> templateParamMap)
+			throws Exception {
+		logger.debug("Inside MenuService.getTemplateWithoutLayout(template{}, templateParamMap{})", template,
+				templateParamMap);
+		Map<String, Object> templateMap = new HashMap<>();
+		if (templateParamMap != null) {
+			templateMap.putAll(templateParamMap);
+		}
+		String	enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"enable-google-analytics");
+		String	googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"google-analytics-key");
+		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
+		templateMap.put("googleAnalyticsKey", googleAnalyticsKey);
+		templateMap.put("pageName", templateName);
+		return templateEngine.processTemplateContents(template, templateName, templateMap);
+	}
 }

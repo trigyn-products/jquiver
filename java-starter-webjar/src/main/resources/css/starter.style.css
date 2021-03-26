@@ -178,7 +178,7 @@ table.pq-td-border-right>tbody>tr>.pq-grid-cell {
 
 .onoffswitch {
 	position: relative;
-	width: 98px;
+	width: 60px;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -204,13 +204,13 @@ table.pq-td-border-right>tbody>tr>.pq-grid-cell {
 	right: 34px;
 }
 
-.onoffswitch.yesno-cls .onoffswitch-inner:before {
+/* .onoffswitch.yesno-cls .onoffswitch-inner:before {
 	content: "Yes"
 }
 
 .onoffswitch.yesno-cls .onoffswitch-inner:after {
 	content: "No"
-}
+} */
 
 .onoffswitch-inner {
 	display: block;
@@ -233,15 +233,15 @@ table.pq-td-border-right>tbody>tr>.pq-grid-cell {
 }
 
 .onoffswitch-inner:before {
-	content: "Enable";
-	padding-left: 11px;
+	content: "";
+	padding-left: 1px;
 	background-color: #0A59A5;
 	color: #FFFFFF;
 }
 
 .onoffswitch-inner:after {
-	content: "Disable";
-	padding-right: 11px;
+	content: "";
+	padding-right: 1px;
 	background-color: #EEEEEE;
 	color: #999999;
 	text-align: right;
@@ -255,7 +255,7 @@ table.pq-td-border-right>tbody>tr>.pq-grid-cell {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	right: 64px;
+	/* right: 64px; */
 	border: 2px solid #0A59A5;
 	border-radius: 20px;
 	transition: all 0.3s ease-in 0s;
@@ -517,6 +517,11 @@ div.pq-grid * {
 	height: 350px;
 	position: relative;
 	background-color: white;
+}
+
+
+#htmlContainer {
+    overflow-y:hidden;
 }
 
 .editor {
@@ -3788,7 +3793,7 @@ input.pq-grid-hd-search-field[type=text]{
 	-ms-transition: all 0.5s ease-in;
 	-o-transition: all 0.5s ease-in;
 	transition: all 0.5s ease-in;
-	background-position: 3% 4px;
+	background-position: 2px 3px;
 }
  
 input.pq-grid-hd-search-field[type=text]:focus{
@@ -3921,4 +3926,14 @@ input.pq-grid-hd-search-field[type=text]:focus{
 
 .dropzone-disable-img-cls{
 	filter: grayscale(1);
+}
+
+.addeditconfigmodal{
+	width: 100% !important;
+	height: 275px !important;
+	overflow: auto;	
+}
+
+.capitalize-txt-cls{
+	text-transform: capitalize;
 }

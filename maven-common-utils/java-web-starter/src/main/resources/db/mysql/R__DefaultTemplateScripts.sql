@@ -218,30 +218,55 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     <#if (columnDetails)??>
     	<div class="row">
     	<#list columnDetails as columnDetailsList>
-			<#if columnDetailsList?api.get(''columnType'') != "hidden">
+			<#if (columnDetailsList.columnType) != "hidden">
 	    		<div class="col-3">
 					<div class="col-inner-form full-form-fields">
-						<#if columnDetailsList?api.get(''columnType'') != "textarea" && columnDetailsList?api.get(''columnType'') != "datetime">
-					            <label for="${columnDetailsList?api.get(''columnName'')}" style="white-space:nowrap"><span class="asteriskmark">*</span>
-					              ${columnDetailsList?api.get("fieldName")!""}
-					            </label>
-							<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>" maxlength="${columnDetailsList?api.get(''columnSize'')!""}" class="form-control">
-			            <#elseif columnDetailsList?api.get(''columnType'') == "datetime">
-			                    <span class="asteriskmark">*</span>
-			                    <label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-			                    <span>
-									<input id="${columnDetailsList?api.get("columnName")!""}" name="${columnDetailsList?api.get("columnName")!""}" class="form-control" placeholder="${columnDetailsList?api.get("fieldName")!""}" />
-			                        <button id="${columnDetailsList?api.get("columnName")!""}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
-								</span>
-						<#else>
-							<span class="asteriskmark">*</span>
-							<label for="${columnDetailsList?api.get("columnName")!""}">${columnDetailsList?api.get("fieldName")!""}</label>
-							<textarea class="form-control" rows="15" cols="90" data-type="text" title="${columnDetailsList?api.get("fieldName")!""}" id="${columnDetailsList?api.get("columnName")!""}" placeholder="${columnDetailsList?api.get("fieldName")!""}" name="${columnDetailsList?api.get("columnName")!""}" style="height:80px"><#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse></textarea>
+						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
+							
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
+						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse>
+						            </label>
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" class="form-control">
+				            <#elseif (columnDetailsList.columnType) == "datetime">
+				                    <span class="asteriskmark">*</span>
+				                    <label for="${(columnDetailsList.columnName)}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse></label>
+				                    <span>
+										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse> />
+				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+									</span>
+							<#else>
+								<span class="asteriskmark">*</span>
+								<label for="${(columnDetailsList.columnName)!""}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse></label>
+								<textarea class="form-control" rows="15" cols="90" data-type="text" <#noparse>/></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse> name="${(columnDetailsList.columnName)!""}" style="height:80px"><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+							</#if>
+							
+						<#else>	
+							
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
+						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						            	${columnDetailsList?api.get(''fieldName'')!''''}
+						            </label>
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" class="form-control">
+				            <#elseif (columnDetailsList.columnType) == "datetime">
+				                    <span class="asteriskmark">*</span>
+				                    <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''''}</label>
+				                    <span>
+										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder="${(columnDetailsList.fieldName)!''''}">
+				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+									</span>
+							<#else>
+								<span class="asteriskmark">*</span>
+								<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''''}</label>
+								<textarea class="form-control" rows="15" cols="90" data-type="text" <#noparse>/></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''''}" name="${(columnDetailsList.columnName)}" style="height:80px"><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+							</#if>
+							
 						</#if>
+						
 					</div>
 				</div>
 			<#else>
-				<input type="${columnDetailsList?api.get(''columnType'')}" data-type="${columnDetailsList?api.get(''dataType'')}" id="${columnDetailsList?api.get(''columnName'')}" name="${columnDetailsList?api.get(''columnName'')}"  value="<#noparse>${resultSetObject?api.get(''</#noparse>${columnDetailsList?api.get(''tableColumnName'')}<#noparse>'')!""}</#noparse>">	
+				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>">
 			</#if>
     	</#list>
     	</div>
@@ -283,10 +308,10 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     // setting value on edit.
     <#if (columnDetails)??>
         <#list columnDetails as columnDetailsList>
-        <#if columnDetailsList?api.get(''columnType'') == "datetime">
+        <#if (columnDetailsList.columnType) == "datetime">
         Calendar.setup({
-			trigger    : "${columnDetailsList?api.get("columnName")!""}-trigger",
-			inputField : "${columnDetailsList?api.get("columnName")!""}",
+			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
+			inputField : "${(columnDetailsList.columnName)!""}",
 			dateFormat : "%d-%b-%Y",
 			weekNumbers: true,
             showTime: 12,
@@ -304,7 +329,15 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     <#noparse>
       <#if (resultSet)??>
       	<#list resultSet as resultSetList>
-      		
+    </#noparse>  		
+      		<#if (columnDetails)??>
+    	        <#list columnDetails as columnDetailsList>
+                    <#if (columnDetailsList.columnType) == "datetime">
+                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate(''<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName)}<#noparse>)}</#noparse>'',false),"%d-%b-%Y"));
+                    </#if>
+                </#list>    
+            </#if>
+    <#noparse>	
       	</#list>
       </#if>
     </#noparse>
@@ -329,16 +362,9 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 			return false;
 		}
 		$("#errorMessage").hide();
-		let formIdObj = new Object();
-		formIdObj["name"] = "formId";
-		formIdObj["value"] = formId;
-		formIdObj["valueType"] = "varchar";
-		formData.push(formIdObj);
-		formIdObj = new Object();
-		formIdObj["name"] = "isEdit";
-		formIdObj["value"] = isEdit + "";
-		formIdObj["valueType"] = "int";
-		formData.push(formIdObj);
+		formData.push({"name": "formId", "value": formId, "valueType": "varchar"});
+		formData.push({"name": "isEdit", "value": (isEdit + ""), "valueType": "int"});
+		
 		$.ajax({
 		  type : "POST",
 		  async: false,
@@ -377,8 +403,13 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     
 	//Code go back to previous page
 	function backToPreviousPage() {
-		location.href = contextPath+"/cf/home";
+		<#if moduleURL?? && moduleURL?has_content>
+			location.href = contextPath+"/view/${(moduleURL)!''''}";
+		<#else>
+			location.href = contextPath+"/cf/home";
+		</#if>
 	}
+	
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 
@@ -438,8 +469,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     //Add all columns that needs to be displayed in the grid
         let colM = [
           <#list gridDetails as gridInfo>
-            { title: "${gridInfo?api.get("displayName")}", hidden : ${gridInfo?api.get("hidden")?c}, width: 130, dataIndx: "${gridInfo?api.get("column")}", align: "left", align: "left", halign: "center",
+          	<#if (gridInfo.i18nResourceKey)?? && (gridInfo.i18nResourceKey)?has_content>
+            	{ title: "<#noparse><@resourceBundle</#noparse> "${(gridInfo.i18nResourceKey)!''''}" <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            <#else>
+            	{ title: "${(gridInfo.displayName)!''''}", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            </#if>
           </#list>
             { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
@@ -459,7 +495,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
     function manageRecord(uiObject) {
         let rowIndx = uiObject.rowIndx;
-        return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>''.toString();
+        return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>"jws.edit"<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>''.toString();
     }
     
     //Add logic to navigate to create new record

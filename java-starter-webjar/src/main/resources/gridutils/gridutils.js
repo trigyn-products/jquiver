@@ -58,7 +58,7 @@
                 dragColumns: {enabled: options.draggableColumns},
                 load: function(event, ui) {
                 	options.loadCallback(event, ui);
-                	$('input').attr('autocomplete', 'off');
+                	disableInputSuggestion();
                 }
             }
             

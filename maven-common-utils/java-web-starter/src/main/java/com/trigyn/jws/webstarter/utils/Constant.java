@@ -91,4 +91,7 @@ public final class Constant {
 	public static final Integer	MASTER_SOURCE_VERSION_TYPE			= 1;
 	public static final Integer	REVISION_SOURCE_VERSION_TYPE		= 2;
 	public static final Integer	IMPORT_SOURCE_VERSION_TYPE			= 3;
+
+	public static final Integer	INCLUDE_LAYOUT						= 1;
+	public static final Integer	EXCLUDE_LAYOUT						= 0;
 }

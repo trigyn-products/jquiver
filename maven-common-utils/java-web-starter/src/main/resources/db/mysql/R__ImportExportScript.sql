@@ -173,18 +173,18 @@ replace into jq_template_master (template_id, template_name, template, updated_b
                  <#if (moduleVOList)??> 
                  <#list moduleVOList as moduleVO> 
                         <#if moduleVO.moduleType == "ApplicationConfiguration"> 
-                            <button class="tablinks active" id= "${moduleVO.masterModuleId}" 
+                            <button class="tablinks active" id= "${moduleVO.moduleId}" 
                             	onclick="openTab(event, ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">
-                            	${(moduleVO.masterModuleName)}  <div class="jws-count-wrap">	
+                            	${(moduleVO.moduleName)}  <div class="jws-count-wrap">	
                                     Selected:	
                                 <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}"></span>	
                                 <img src="${(contextPath)!''''}/webjars/1.0/images/s-information1.svg">	
                                 </div>	
                             </button>
                         <#else>
-                            <button class="tablinks" id= "${moduleVO.masterModuleId}" 
+                            <button class="tablinks" id= "${moduleVO.moduleId}" 
                             	onclick="openTab(event, ''${moduleVO.gridDetailsId}'', ''${moduleVO.moduleType}'')">
-                            	${(moduleVO.masterModuleName)} <div class="jws-count-wrap">	
+                            	${(moduleVO.moduleName)} <div class="jws-count-wrap">	
                                     Selected:	
                                 <span id="selectedCount_${moduleVO.moduleType}"></span> / <span id="totalCount_${moduleVO.moduleType}" ></span>	
                                 <img src="${(contextPath)!''''}/webjars/1.0/images/s-information1.svg">	
@@ -312,16 +312,17 @@ $(function () {
 	let moduleType;
 	let systemConfigIncludeList=[];
 	let customConfigExcludeList=[];
-	let exportableDataListMap = new Map();
+	let exportableDataListMap;
 	<#if (moduleVOList)??> 
 		<#list moduleVOList as moduleVO> 
-			 moduleName="${moduleVO.masterModuleName}";
-			 moduleID="${moduleVO.masterModuleId}";
+			 moduleName="${moduleVO.moduleName}";
+			 moduleID="${moduleVO.moduleId}";
 			 gridID="${moduleVO.gridDetailsId}";
 			 
 			 moduleType = "${moduleVO.moduleType}";
 			
 			exportObj = map.get(moduleType);
+			exportableDataListMap = new Map();
 			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
 				if(exportObj != null) {
 					systemConfigIncludeList=exportObj.getSystemConfigIncludeList();

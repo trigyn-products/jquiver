@@ -597,6 +597,42 @@ REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name,
 ('bd4bc2cb-d843-4600-a304-7cc7a8528ec9', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
 ('c4d4dbf6-256f-4e1d-9bff-b8159620ac4c', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
 
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('0476a8e6-8dfb-11eb-9688-f48e38ab8cd7', '3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('0c125048-8dfb-11eb-9688-f48e38ab8cd7', '3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('10046f32-8dfb-11eb-9688-f48e38ab8cd7', '3d97273b-eadf-11ea-a036-e454e805e22f', 'Dashboards', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('13b68c56-8dfb-11eb-9688-f48e38ab8cd7', '76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('176a6f5a-8dfb-11eb-9688-f48e38ab8cd7', '76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('1b6b26e7-8dfb-11eb-9688-f48e38ab8cd7', '76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('211a54b9-8dfb-11eb-9688-f48e38ab8cd7', '09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('25b4a22f-8dfb-11eb-9688-f48e38ab8cd7', '09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('29fb6b4a-8dfb-11eb-9688-f48e38ab8cd7', '09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('2dc6374f-8dfb-11eb-9688-f48e38ab8cd7', '31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('320e8044-8dfb-11eb-9688-f48e38ab8cd7', '31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('3639eceb-8dfb-11eb-9688-f48e38ab8cd7', '31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('3a311ac2-8dfb-11eb-9688-f48e38ab8cd7', '44cb330d-eadf-11ea-a036-e454e805e22f', 'Dashlets', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('3e71557b-8dfb-11eb-9688-f48e38ab8cd7', '44cb330d-eadf-11ea-a036-e454e805e22f', 'Dashlets', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('420bb52e-8dfb-11eb-9688-f48e38ab8cd7', '44cb330d-eadf-11ea-a036-e454e805e22f', 'Dashlets', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('469c22ff-8dfb-11eb-9688-f48e38ab8cd7', '0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('4d86c897-8dfb-11eb-9688-f48e38ab8cd7', '0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('52efd1f0-8dfb-11eb-9688-f48e38ab8cd7', '0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('5747c1af-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('5b4438cd-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('5f4414d1-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+
 SET FOREIGN_KEY_CHECKS=1;
 
 

@@ -28,6 +28,7 @@ class AddEditModule {
 		moduleDetails.targetLookupId = $("#targetLookupType").find(":selected").val();
 		moduleDetails.targetTypeId = $("#targetTypeNameId").val();
 		moduleDetails.isInsideMenu =  $("#isInsideMenu").val();
+		moduleDetails.includeLayout =  $("#includeLayout").val();
 		
 		$.ajax({
 				type : "POST",
@@ -154,6 +155,9 @@ class AddEditModule {
 	    	$("#moduleURL").attr('disabled','disabled');
 	    	$("#parentModuleName").attr('disabled','disabled');
 	    	if(isEditFlag === undefined){
+		    	$("#includeLayout").val(0);
+		    	$("#includeLayoutCheckbox").prop('checked', false);
+		    	$("#includeLayoutCheckbox").prop('disabled',true);
 	    		context.getSequenceByGroup();
 	    	}
     	}else{
@@ -161,9 +165,13 @@ class AddEditModule {
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
 	    	if(isEditFlag === undefined){
+		    	$("#includeLayout").val(1);
+		    	$("#includeLayoutCheckbox").prop('checked', true);
+		    	$("#includeLayoutCheckbox").prop('disabled',false);
 	    		$("#moduleURL").val("");
 	    		$("#targetTypeName").val("");
 	    		$("#targetTypeNameId").val("");
+	    		autocomplete.resetAutocomplete();
 	    	}
 	    	$("#parentModuleName").prop('disabled',false);
 	    	autocomplete.options.autocompleteId = context.getAutocompleteId();
@@ -259,6 +267,15 @@ class AddEditModule {
    			$("#parentModuleName").prop('disabled',true);
    		}
    		
+   	}
+   	
+   	includeLayout = function(){
+   		let includeLayout = $("#includeLayoutCheckbox").prop("checked");
+   		if(includeLayout){
+   			$("#includeLayout").val(1);
+   		}else{
+   			$("#includeLayout").val(0);
+   		}
    	}
    	
     backToModuleListingPage = function() {

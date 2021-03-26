@@ -544,7 +544,7 @@ If include in menu enabled then sequence number is unique in selected parent mod
 You can create module for any one of the following context type:
 * Dashboard
 * Form Builder
-* REST API Builder
+* REST API
 * Template
 * Root
 Except for the Root as a context type, context name autocomplete will be enabled. From context name you can select any entity created from the respective context type master.
@@ -590,13 +590,13 @@ Example to include Dynamic Form in the site layout:
 Example to include REST API in the site layout:
 
 
-**Step 1:** Configure new record in REST API master(You can refer REST API Builder help manual for more information on how to create/manage REST API)
+**Step 1:** Configure new record in REST API master(You can refer REST API help manual for more information on how to create/manage REST API)
 ![](/cf/files/717c32c4-be30-47d7-b55e-25e11b20b195)
  
 **Step 2:** Enter Module name and enable include in menu radio button.
 ![](/cf/files/59ad8aa2-fcbe-4ff8-85b4-b92fb09d2b81)
 
-**Step 3:** Select REST API Builder as a context type.
+**Step 3:** Select REST API as a context type.
 ![](/cf/files/fc522253-f73a-4980-a43b-c096d82e6081) 
 
 **Step 4:** Enter method name that you have created in step 1.
@@ -1035,7 +1035,7 @@ Rest API lets you write API''s in below languages :
 
 Follow the steps below to create a REST API dynamically.
 
-**Step 1: **Visit the REST API Builder module on Jquiver home.
+**Step 1: **Visit the REST API module on Jquiver home.
  ![](/cf/files/40281694762864a50176288c66620001)
 
 **Step 2 : **Click on Add REST API, it will open up a form to add/edit REST API
@@ -1797,7 +1797,15 @@ In the above example of delete query, we are providing restriction on deleting f
 
 Steps to initialize and use file component in your template or form:
 
-**Step 1: ** Create HTML element
+
+**Step 1: ** Include following CSS and JS files in your template:
+```
+    <link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.css" />
+    <script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/fileupload/fileupload.js"></script>
+```
+
+**Step 2: ** Create HTML element
 ```
 	<div class="col-3">
 		<div class="col-inner-form full-form-fields">
@@ -1809,7 +1817,7 @@ Steps to initialize and use file component in your template or form:
 	</div>
 ```							
 							
-**Step 2: **  While initializing file component, use file Bin Id as **fileBinId**. If there are no configuration found for provided id then system will use **default ** configuration id.
+**Step 3: **  While initializing file component, use file Bin Id as **fileBinId**. If there are no configuration found for provided id then system will use **default ** configuration id.
 If createFileBin is true then only file component will be created otherwise file component will not be created but you can use other function like getSelectedFileIds to get fileUploadId of uploaded files.
 
 ```
@@ -1822,8 +1830,10 @@ If createFileBin is true then only file component will be created otherwise file
         deletecallback: fileDeleteSuccess.bind(this)
     });
 ```
-		
-**Step 3: ** Create success and delete callback function if required
+
+Note: Initialize file bin component before ready function. 
+
+**Step 4: ** Create success and delete callback function if required
 ```
 
     function fileUploadSuccess(fileId){
@@ -1836,8 +1846,8 @@ If createFileBin is true then only file component will be created otherwise file
 ```
 
 Function available for all file bin components:
-* getSelectedFileIds - List of fileUploadId
-* deleteFileFromServerById - Delete file from Server
+* getSelectedFileIds - List of uploaded file id
+* deleteFileFromServerById - Delete file from the server
 * viewFileEvent - View Uploaded File
 
  

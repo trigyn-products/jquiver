@@ -31,6 +31,9 @@ class TemplateEngine {
 			context.editor.onDidChangeModelContent( function (){
     			$('#errorMessage').hide();
 			});
+			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+                resizeMonacoEditor(context.editor,"htmlContainer", "htmlEditor");
+            });
     	});
     }
     

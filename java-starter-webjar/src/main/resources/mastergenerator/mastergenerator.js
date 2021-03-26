@@ -39,8 +39,9 @@ function createTable(columns) {
         $(trElement).append("<td><input id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>");
         let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
         $(trElement).append("<td><label id='tcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
-        $(trElement).append("<td><input id='tdisplay_"+iCounter+"' disabled type='text' onchange='updateGridDetailsDisplayName(this)' value='"+displayName+"'></td>");
-        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' onchange='updateGridDetailsI18nResourceKey(this)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tdisplay_"+iCounter+"' disabled type='text' onchange='updateGridDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
+        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'></td>");
 
         $("#listingDetailsTable").append(trElement);
     }
@@ -51,11 +52,13 @@ function createTable(columns) {
         $(trElement).append("<td><input id='fhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
         let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
         $(trElement).append("<td><label id='fcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
-        $(trElement).append("<td><input id='fdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this)' value='"+displayName+"'></td>");
-        $(trElement).append("<td><input id='fdisplay_"+iCounter+"_i18n' disabled type='text' onchange='updateFormDetailsI18nResourceKey(this)' placeholder='I18N Resource Key'></td>");
-
+        $(trElement).append("<td><input id='fdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='fdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
+		$(trElement).append("<td><input id='fdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'></td>");
+		 
         $("#formDetailsTable").append(trElement);
     }
+    disableInputSuggestion();
 }
 
 function addRemoveToGridDetails(element){
@@ -116,46 +119,185 @@ function addRemoveToFormDetails(element){
     }
 }
 
-function updateFormDetailsI18nResourceKey(element){
-	const counter = element.id.split("_")[1];
+function updateGridDetailsI18nResourceKey(elementId){
+	const counter = elementId.split("_")[1];
+	const resourceKey = $("#"+elementId).val().trim();
+	
+	getMultilingualData(elementId);
+	$.each(gridDetails, function(iCounter, gridElement){
+		if(gridElement.index == counter){
+			gridElement.i18nResourceKey = resourceKey;
+		}
+	});
+	enableDisableFormInput(elementId);
+	updateResourceKeyMap(elementId, resourceKey);
+}
+
+
+function updateFormDetailsI18nResourceKey(elementId){
+	const counter = elementId.split("_")[1];
+	const resourceKey = $("#"+elementId).val().trim();
+	
+	getMultilingualData(elementId);	
 	$.each(formDetails, function(iCounter, formElement){
   		if(formElement.index == counter){
-  			formElement.i18nResourceKey = element.value;
+  			formElement.i18nResourceKey = $("#"+elementId).val().trim();
   		}
 	});
+	updateResourceKeyMap(elementId, resourceKey);
 }
 
-function updateFormDetailsDisplayName(element){
-	const counter = element.id.split("_")[1];
+function updateGridDetailsDisplayName(elementId){
+	const counter = elementId.split("_")[1];
+	const displayText = $("#"+elementId).val().trim();
+	const resourceKey = $("#"+elementId+"_i18n").val().trim();
+	
+	$("#"+elementId+"_hd").val(displayText);
+	$.each(gridDetails, function(iCounter, gridElement){
+  		if(gridElement.index == counter){
+  			gridElement.displayName = displayText
+  			if(resourceKey !== ""){
+  				resourceKeyMap.set(resourceKey, displayText);
+  			}
+  		}
+	});
+	
+	updateFormI18N(elementId, resourceKey, displayText);
+}
+
+
+function updateFormDetailsDisplayName(elementId){
+	const counter = elementId.split("_")[1];
+	const displayText = $("#"+elementId).val().trim();
+	const resourceKey = $("#"+elementId+"_i18n").val().trim();
+	
+	$("#"+elementId+"_hd").val(displayText);
 	$.each(formDetails, function(iCounter, formElement){
   		if(formElement.index == counter){
-  			formElement.displayName = element.value;
+  			formElement.displayName = displayText;
+  			if(resourceKey !== ""){
+  				resourceKeyMap.set(resourceKey, displayText);
+  			}
   		}
 	});
 }
 
-function updateGridDetailsI18nResourceKey(element){
-	const counter = element.id.split("_")[1];
-	$.each(gridDetails, function(iCounter, gridElement){
-  		if(gridElement.index == counter){
-  			gridElement.i18nResourceKey = element.value;
-  		}
+
+function getMultilingualData(elementId){
+	const initialId = elementId.split("_")[0];
+	const counter = elementId.split("_")[1];
+	const displayId = initialId+"_"+counter;
+	const resourceKey = $("#"+elementId).val().trim();
+	
+	if(resourceKeyMap.get(resourceKey) !== undefined){
+		$("#"+displayId).val(resourceKeyMap.get(resourceKey));
+		if(existingKey.some(key => key = resourceKey)){
+			$("#"+displayId).prop("disabled", true);
+		}else{
+			enableDisableFormInput(elementId);
+		}
+	}else{
+		if(resourceKey !== ""){
+			$.ajax({
+		        url: contextPath+ "/cf/rtbkl",
+		        type: 'POST',
+		        async: false,
+		        data: {
+		        	resourceBundleKey : resourceKey,
+		        },
+		        success: function(data) {
+		        	if(data !== undefined && data.trim() !== ""){
+		        		$("#"+displayId).val(data);
+		        		$("#"+displayId).prop("disabled", true);
+		        		existingKey.push(resourceKey);
+		        	}else {
+		        		let initialVal = $("#"+displayId+"_hd").val().trim();
+		        		$("#"+displayId).val(initialVal);
+		        		$("#"+displayId).prop("disabled", false);
+		        		if($("#isDev").val() == "false" && resourceKey.startsWith("jws.") == true){
+		        			showMessage("I18N key can not starts with jws.", "error");
+		        			return false;
+		        		}
+		        	}
+		        	if(initialId === "tdisplay"){
+		        		updateGridDetailsDisplayName(displayId);
+		        	}else{
+		        		updateFormDetailsDisplayName(displayId);
+		        	}
+		        	resourceKeyMap.set(resourceKey, $("#"+displayId).val());
+		        },
+				error : function(xhr, error){
+					showMessage("Error occurred while fetching multilingual text", "error");
+			   	},
+						
+		    });
+	    }else{
+	    	$("#"+displayId).prop("disabled", false);
+	    }
+	}
+}
+
+function updateResourceKeyMap(elementId, resourceKey){
+	let previousKey = $("#"+elementId).data("previous-key");
+	let keyUsed = false;
+	$('input[id$="_i18n"]').each(function(index, element){
+		if($(this).attr("id") !== elementId && $(this).val() === previousKey){
+			keyUsed = true;
+		}
+	});
+	if(keyUsed == false && previousKey !== resourceKey){
+		resourceKeyMap.delete(previousKey);
+	}
+	$("#"+elementId).data("previous-key", resourceKey);
+}
+
+function enableDisableFormInput(elementId){
+	const previousKey = $("#"+elementId).data("previous-key").trim();
+	const resourceKey = $("#"+elementId).val().trim();
+	
+	let iCounter = 0;	
+	$('input[id$="_i18n"]').each(function(index, element){
+		let i18nId = $(this).attr("id");
+		let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
+		let i18nKey = $(this).val().trim();
+		if(existingKey.some(key => key = i18nKey) == false && previousKey !== "" && i18nKey === previousKey){
+			if(iCounter != 0){
+				$("#"+displayId).prop("disabled", false);
+			}
+			iCounter += 1;
+		}
+	});
+	
+	iCounter = 0;
+	$('input[id$="_i18n"]').each(function(index, element){
+		let i18nId = $(this).attr("id");
+		let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
+		if(resourceKey !== "" && $(this).val().trim() === resourceKey){
+			if(iCounter != 0){
+				$("#"+displayId).prop("disabled", true);
+			}
+			iCounter += 1;
+		}
+		
 	});
 }
 
-function updateGridDetailsDisplayName(element){
-	const counter = element.id.split("_")[1];
-	$.each(gridDetails, function(iCounter, gridElement){
-  		if(gridElement.index == counter){
-  			gridElement.displayName = element.value;
-  		}
-	});
+function updateFormI18N(elementId, resourceKey, displayText){
+	let selectedDisplayId = elementId + "_i18n";
+	$('input[id$="_i18n"]').each(function(index, element){
+		if(resourceKey !== "" && $(this).attr("id") !== selectedDisplayId && $(this).val() === resourceKey){
+			let i18nId = $(this).attr("id");
+			let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
+			$("#"+displayId).val(displayText);
+			$("#"+displayId).prop("disabled", true);
+		}
+	})
 }
+
 
 function createMaster() {
 	let isValidData = validateForm();
 	if(isValidData === false){
-		$('#errorMessage').show();
 		return false;
 	}
 	menuDetails["moduleName"]=$("#menuDisplayName").val();
@@ -181,9 +323,6 @@ function createMaster() {
         type: 'POST',
         success: function(data) {
             showMessage("Master modules created successfully", "success");
-            setTimeout(function(){
-            	backToPreviousPage(); 
-            }, 1500);
             
         },
 		error : function(xhr, error){
@@ -196,35 +335,92 @@ function createMaster() {
 
 function validateForm(){
 	$('#errorMessage').hide();
-	if(gridDetails.length === 0){
-		$('#errorMessage').html("Please include at least one column in grid");
+	
+	if($("#showInMenu").prop("checked")){
+		if(validateSiteLayoutDetails() == false){
+			return false;
+		}
+	}
+	if(gridDetails.length >= 1){
+		let isColVisible = false;
+		gridDetails.forEach((element) => {
+    		if(element.hidden == false){
+    			isColVisible = true;
+    		}
+		});
+		if(isColVisible == false){
+			showMessage("Please mark at least one column as visible in grid", "error");
+			return false;
+		}
+	}else{
+		showMessage("Please include at least one column in grid", "error");
 		return false;
 	}
 	
-	if(formDetails.length === 0){
-		$('#errorMessage').html("Please include at least one column in form");
+	if(formDetails.length >= 1){
+		let isColVisible = false;
+		formDetails.forEach((element) => {
+    		if(element.hidden == false){
+    			isColVisible = true;
+    		}
+		});
+		if(isColVisible == false){
+			showMessage("Please mark at least one column as visible in form", "error");
+			return false;
+		}
+	}else{
+		showMessage("Please include at least one column as in form", "error");
 		return false;
 	}
 	
 	let isValid = true;
 	$.each(gridDetails, function(iCounter, gridElement){
-		if(gridElement.hidden === false && gridElement.displayName.trim() === "" &&
-			gridElement.i18nResourceKey.trim() === ""){
-			$('#errorMessage').html("Please enter valid display name or i18nResourceKey");
+		if(gridElement.hidden === false && gridElement.displayName.trim() === ""){
+			showMessage("Please enter valid display name", "error");
 			isValid = false;
 		}
 	});
 	
 	if(isValid === true){
 		$.each(formDetails, function(iCounter, formElement){
-			if(formElement.hidden === false && formElement.displayName.trim() === "" &&
-				formElement.i18nResourceKey.trim() === ""){
-				$('#errorMessage').html("Please enter valid display name or i18nResourceKey");
+			if(formElement.hidden === false && formElement.displayName.trim() === ""){
+				$('#errorMessage').html("Please enter valid display name", "error");
 				isValid = false;
 			}
 		});
 	}
 	return isValid;
+}
+
+function validateSiteLayoutDetails(){
+	 let isValid = true;
+	 $.ajax({
+        url: contextPath+ "/cf/ced",
+        type: 'GET',
+        async: false,
+        headers: {
+        	"module-name": $("#menuDisplayName").val().trim(),
+        	"parent-module-id": $("#parentModuleName").val(),
+        	"module-url": $("#moduleURL").val().trim(),
+        	"module-id": uuidv4(),
+        },
+        success: function(data) {
+        	if(data !== undefined && data !== ""){
+	        	if(data.moduleIdName !== undefined && data.moduleIdName !== ""){
+	        		isValid = false;
+	        		showMessage("Module Name already exist", "error");
+	        	}else if(data.moduleIdURL !== undefined &&  data.moduleIdURL !== ""){
+	        		isValid = false;
+	        		showMessage("Module URL already exist", "error");
+	        	}
+        	}
+        },
+		error : function(xhr, error){
+			showMessage("Error occurred while creating master", "error");
+	   	},
+				
+    });	
+	return isValid;	
 }
 
 function capitalizeFirstLetter(string) {

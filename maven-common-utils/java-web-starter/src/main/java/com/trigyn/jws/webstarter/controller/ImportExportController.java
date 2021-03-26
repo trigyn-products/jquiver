@@ -15,6 +15,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,13 +29,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.templating.service.MenuService;
-import com.trigyn.jws.webstarter.entities.MasterModule;
+import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 @RequestMapping("/cf")
+@PreAuthorize("hasPermission('module','Import/Export')")
 public class ImportExportController {
 
 	private final static Logger	logger				= LogManager.getLogger(ImportExportController.class);
@@ -55,7 +57,7 @@ public class ImportExportController {
 	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object>			vmTemplateData		= new HashMap<>();
-			List<MasterModule>			moduleVOList		= masterModuleService.getModules();
+			List<JwsMasterModules>			moduleVOList		= masterModuleService.getModules();
 			List<Map<String, Object>>	customEntities		= exportService.getAllCustomEntity();
 			List<Map<String, Object>>	customEntityCount	= exportService.getCustomEntityCount();
 			List<Map<String, Object>>	allEntityCount		= exportService.getAllEntityCount();

@@ -10,13 +10,12 @@
 
         loadServerPages = function ( searchTerm, pageNumber, pageSize) {
             const context = this;
-            let contextPathLocal = context.options.contextPath == undefined ? "" : context.options.contextPath;
             var deferred = $.Deferred();
             var searchval = $.trim($(this.element).val());
             if(this.options.prefetch || searchval !== ""){
                 $.ajax({
                     type: "POST",
-                    url:  contextPathLocal+"/cf/autocomplete-data",
+                    url:  contextPath+"/cf/autocomplete-data",
                     data: { 
                             searchText: searchval,
                             autocompleteId : context.options.autocompleteId,
@@ -75,7 +74,18 @@
 	        return this.selectedObject;
         }
         
+        setSelectedObject = function(item){
+        	if(item !== undefined){
+	        	this.selectedObject = item;
+	        	let value = this.options.extractText(item);
+        		$(this.element).val(value);
+        		$(this.element).blur();
+        		$(this.element).keyup();
+        	}
+        }
+        
         resetAutocomplete = function(){
+        	this.selectedObject = {};
         	$(this.element).val("");
         	$(this.element).blur();
         	$(this.element).keyup();
@@ -87,6 +97,7 @@
         const context = this;
         $(this.element).richAutocomplete({
             loadPage: function (searchTerm, pageNumber, pageSize) {
+//                context.selectedObject = {};
                 return context.loadServerPages(searchTerm, pageNumber, pageSize);
             },
             paging: options.paging,
@@ -94,11 +105,15 @@
             items: options.items,
             pageSize: options.pageSize,
             emptyRender: options.emptyRender,
-            select: options.select,
+            select: function (item) {
+            	context.setSelectedObject(item);
+            	return options.select(item);
+            },
             render: options.render,
             extractText: options.extractText,
             selectedObjectData: options.selectedObjectData
         });
+        
         let placeholderVal = $.trim($(this.element).prop("placeholder"));
         if(placeholderVal === "" && this.options.prefetch === false){
         	$(this.element).prop("placeholder","Please type to search");
@@ -116,7 +131,6 @@
         }
         
     }
-
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
         constructor(element, options, selectedItems) {

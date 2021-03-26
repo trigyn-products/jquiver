@@ -35,6 +35,9 @@ class FileBinMaster {
 	        	context.selectValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 				});
+				context.selectValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.selectValidator,"selectValidator_container","selectValidator");
+	            });
 		    	context.selectValidator.onDidChangeModelContent( function (){
 		    		$("#errorMessage").hide();
 				});
@@ -61,6 +64,9 @@ class FileBinMaster {
 	        	context.uploadValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 				});
+				context.uploadValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.uploadValidator,"uploadValidator_container","uploadValidator");
+	            });
 		    	context.uploadValidator.onDidChangeModelContent( function (){
 		    		$("#errorMessage").hide();
 				});
@@ -87,6 +93,9 @@ class FileBinMaster {
 	        	context.viewValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 				});
+				context.viewValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.viewValidator,"viewValidator_container","viewValidator");
+	            });
 		    	context.viewValidator.onDidChangeModelContent( function (){
 		    		$("#errorMessage").hide();
 				});
@@ -114,6 +123,9 @@ class FileBinMaster {
 	        	context.deleteValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 				});
+				context.deleteValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.editor,"deleteValidator_container","deleteValidator");
+	            });
 		    	context.deleteValidator.onDidChangeModelContent( function (event){
 		    		$("#errorMessage").hide();
 				});
@@ -188,10 +200,13 @@ class FileBinMaster {
 			url : contextPath+"/api/file-bin-default-queries",
 			async: false,
 	        success : function(data) {
-				$.each(data, function(index, element){
-					if($("#"+element.selectorId).text().trim() === ""){
-    					$("#"+element.selectorId).text(element.defaultQuery);
-    				}
+           	 	let defaultQueries = JSON.parse(data[0].defaultQuery.replace(/(\r\n|\n|\r)/gm,""));
+				$.each(defaultQueries, function(index, queryObj){
+					$.each(queryObj, function(key, value) {
+						if($("#"+key).text().trim() === ""){
+    						$("#"+key).text(value);
+    					}
+					});
 				})
 			},
 		    error : function(xhr, error){

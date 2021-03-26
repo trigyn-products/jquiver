@@ -24,6 +24,9 @@ class AddEditAutocomplete{
 					typeOfAction('autocomplete-manage-details', $("#savedAction").find("button"), 
 						addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);
 				});
+				context.sqlQuery.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.sqlQuery,"sqlContainer", "sqlEditor");
+	            });
 				context.sqlQuery.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});

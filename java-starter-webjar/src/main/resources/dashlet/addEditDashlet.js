@@ -28,6 +28,9 @@ AddEditDashlet.prototype.fn = {
 			    	typeOfAction('dashlet-manage-details',  $("#savedAction").find("button"), 
 			    		addEditDashletFn.saveDashlet.bind(addEditDashletFn),addEditDashletFn.backToDashletListing);
 				});
+	        	dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(dashletSQLEditor,"sqlContainer", "sqlEditor");
+	            });
 		    	dashletSQLEditor.onDidChangeModelContent( function (){
 		    		$('#errorMessage').hide();
 				});
@@ -48,6 +51,9 @@ AddEditDashlet.prototype.fn = {
 			    	typeOfAction('dashlet-manage-details',  $("#savedAction").find("button"), 
 			    		addEditDashletFn.saveDashlet.bind(addEditDashletFn),addEditDashletFn.backToDashletListing);
 				});
+	        	dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(dashletHTMLEditor,"htmlContainer", "htmlEditor");
+	            });
 		    	dashletHTMLEditor.onDidChangeModelContent( function (){
 		    		$('#errorMessage').hide();
 				});
@@ -136,6 +142,7 @@ AddEditDashlet.prototype.fn = {
 				success : function(data) {
 					$("#dashletId").val(data);
 					isDataSaved = true;
+					context.saveEntityRoleAssociation(data);
 					showMessage("Information saved successfully", "success");
 		       	},
 	        
@@ -432,6 +439,47 @@ AddEditDashlet.prototype.fn = {
 			});
 		}
     },
+    
+    saveEntityRoleAssociation : function(dashletId){
+		let roleIds =[];
+		let entityRoles = new Object();
+		entityRoles.entityName = $("#dashletName").val().trim();
+		entityRoles.moduleId=$("#moduleId").val();
+		entityRoles.entityId= dashletId;
+		 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+			 roleIds.push(val.id);
+	     	
+	     });
+		
+		entityRoles.roleIds=roleIds;
+		
+		$.ajax({
+	        async : false,
+	        type : "POST",
+	        contentType : "application/json",
+	        url :  contextPath+"/cf/ser", 
+	        data : JSON.stringify(entityRoles),
+	        success : function(data) {
+		    }
+	    });
+	},
+	
+	getEntityRoles : function(){
+		$.ajax({
+	        async : false,
+	        type : "GET",
+	        url :  contextPath+"/cf/ler", 
+	        data : {
+	        	entityId:$("#dashletId").val(),
+	        	moduleId:$("#moduleId").val(),
+	        },
+	        success : function(data) {
+	            $.each(data, function(key,val){
+	            	multiselect.setSelectedObject(val);
+	            });
+		    }
+	    });
+	},
    
 	backToDashletListing : function() {
 		location.href = contextPath+"/cf/dlm";

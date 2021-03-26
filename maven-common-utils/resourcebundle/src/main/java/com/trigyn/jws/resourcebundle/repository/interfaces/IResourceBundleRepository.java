@@ -23,4 +23,8 @@ public interface IResourceBundleRepository extends JpaRepository<ResourceBundle,
 
 	@Query(QueryStore.JPA_QUERY_TO_CHECK_RESOURCE_KEY_EXIST)
 	String checkResourceKeyExist(String resourceBundleKey);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_TEXT_BY_KEY_AND_LANGUAGE_ID)
+	String findMessageByKeyAndLanguageId(String resourceBundleKey, Integer languageId, Integer defaultLanguageId,
+			Integer isDeleted);
 }

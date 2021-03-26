@@ -73,13 +73,15 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 			entities.add(httpTraceEntity);
 			requestInformation.put(request.getRequestURL().toString(), entities);
 
+			String modifiedRequestURL = getModifiedRequestURL(request.getRequestURL().toString());
+			requestJson.addProperty("updated-request-url", modifiedRequestURL);
 			Long			time				= new Date().getTime()
 					- sessionInfo.get(request.getRequestURL().toString());
 			HttpTraceEntity	httpTraceEntity1	= new HttpTraceEntity(requestJson.toString(), responseJson.toString(),
 					auxJsonObject.toString(), strDate, time, time, time);
 
-			if (timeInfo.get(request.getRequestURL().toString()) != null) {
-				HttpTraceEntity	httpTraceEnt	= timeInfo.get(request.getRequestURL().toString());
+			if (timeInfo.get(modifiedRequestURL) != null) {
+				HttpTraceEntity	httpTraceEnt	= timeInfo.get(modifiedRequestURL);
 				Long			minTime			= httpTraceEnt.getMinRequestDuration();
 				Long			maxTime			= httpTraceEnt.getMaxRequestDuration();
 
@@ -96,10 +98,33 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 						auxJsonObject.toString(), strDate, minTime, maxTime, avgTime);
 
 			}
-			timeInfo.put(request.getRequestURL().toString(), httpTraceEntity1);
+			timeInfo.put(modifiedRequestURL, httpTraceEntity1);
 		}
 	}
 
+	private String getModifiedRequestURL(String requestURL) {
+		String modifiedRequestURL = requestURL;
+		
+		if(requestURL.contains("/view/")) {
+			modifiedRequestURL = requestURL.substring(0, requestURL.lastIndexOf("/view/"));
+			modifiedRequestURL = modifiedRequestURL.concat("/view");
+		} else if(requestURL.contains("/api/")) {
+			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/api/"));
+			modifiedRequestURL = modifiedRequestURL.concat("/api");
+		} else if(requestURL.contains("/files/")) {
+			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/files/"));
+			modifiedRequestURL = modifiedRequestURL.concat("/files");
+		} else if(requestURL.contains("/aet?")) {
+			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/aet?"));
+			modifiedRequestURL = modifiedRequestURL.concat("/aet");
+		} else if(requestURL.contains("/aea?")) {
+			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/aea?"));
+			modifiedRequestURL = modifiedRequestURL.concat("/aea");
+		}
+		
+		return modifiedRequestURL;
+	}
+	
 	public static LinkedHashMap<String, LinkedList<HttpTraceEntity>> getRequestInformation() {
 		return requestInformation;
 	}

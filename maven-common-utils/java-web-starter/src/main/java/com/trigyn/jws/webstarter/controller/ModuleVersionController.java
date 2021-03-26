@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
@@ -25,6 +27,8 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @RequestMapping("/cf")
 public class ModuleVersionController {
 
+	private final static Logger		logger					= LogManager.getLogger(ModuleVersionController.class);
+
 	@Autowired
 	private ModuleVersionService	moduleVersionService	= null;
 
@@ -38,8 +42,15 @@ public class ModuleVersionController {
 	private ModuleService			moduleService			= null;
 
 	@PostMapping(value = "/smv", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-	public void saveModuleVersioning(@RequestBody MultiValueMap<String, String> formData) throws Exception {
-		revisionService.saveModuleVersioning(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
+	public Boolean saveModuleVersioning(@RequestBody MultiValueMap<String, String> formData) throws Exception {
+		logger.debug("Inside ModuleVersionControllersaveModuleVersioning(formData - {})", formData);
+		try {
+			revisionService.saveModuleVersioning(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
+			return true;
+		} catch (Exception exception) {
+			logger.error("Error occurred while saving versioning information", exception);
+		}
+		return false;
 	}
 
 	@PostMapping(value = "/cmv", produces = { MediaType.TEXT_HTML_VALUE })

@@ -85,4 +85,8 @@ public class PropertyMasterDetails {
 		PropertyMasterKeyVO propertyMasterKey = new PropertyMasterKeyVO(ownerId, ownerType, propertyName);
 		this.propertyMasterDetails.put(propertyMasterKey, propertyValue);
 	}
+
+	public Map<PropertyMasterKeyVO, String> getAllProperties() {
+		return this.propertyMasterDetails;
+	}
 }

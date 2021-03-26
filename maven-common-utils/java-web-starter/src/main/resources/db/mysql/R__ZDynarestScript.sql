@@ -202,7 +202,7 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	    <div class="col-4">   
 		 	<#if (resultSet)?? && (resultSet)?has_content>  
 				<#assign ufAttributes = {
-			    	"entityType": "REST API Builder",
+			    	"entityType": "REST API",
 			        "entityId": "dynarestUrl",
 			        "entityName": "dynarestMethodName"
 			    }>
@@ -225,7 +225,7 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 					<span class="asteriskmark">*</span><label for="dynarestUrl">REST URL </label>
 					<span><label id="urlPrefixLabel" style="background: lightgrey;" class="float-right"></label></span>
 					<span id="dynarestURLSapn">
-						<input id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" onchange="dynarest.hideErrorMessage();" placeholder="REST URL" />
+						<input type="text" id="dynarestUrl" name= "dynarestUrl" class="dynarestUrl form-control" onchange="dynarest.hideErrorMessage();"  maxlength="256" placeholder="REST URL" />
 					</span>
 				</div>
 			</div>
@@ -234,8 +234,8 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestMethodName">REST Method Name</label>
 					<span id="dynarestMethodNameSpan">
-                              <input class="form-control" id="dynarestMethodName" onchange="updateMethodName()"  name= "dynarestMethodName" placeholder="Method Name" />
-                       </span>
+                    	<input type="text" class="form-control" id="dynarestMethodName" onchange="updateMethodName()"  name= "dynarestMethodName" maxlength="512" placeholder="Method Name" />
+                    </span>
 				</div>
 			</div>
 
@@ -243,8 +243,8 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 				<div class="col-inner-form full-form-fields">
 					<label for="dynarestMethodDescription">REST Method Description</label>
 					<span id="dynarestMethodDescriptionSpan">
-                              <input class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
-                       </span>
+                    	<input type="text" class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
+                    </span>
 				</div>
 			</div>
 

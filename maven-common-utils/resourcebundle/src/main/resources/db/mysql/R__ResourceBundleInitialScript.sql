@@ -197,7 +197,8 @@ REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.u
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.selectFileSQL', 1, 'Select SQL');
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.viewFileSQL', 1, 'View Validator SQL');
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.deleteFileSQL', 1, 'Delete Validator SQL');
-
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.edit', 1, 'Edit Record');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.includeLayout', 1, 'Include Layout');
 
 
 SET FOREIGN_KEY_CHECKS=1;

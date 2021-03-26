@@ -4,7 +4,6 @@ class HomePage {
     }
 }
 
-
 HomePage.prototype.fn = {
 		
 	openNavigation :function() {
@@ -91,9 +90,26 @@ HomePage.prototype.fn = {
 			}
 		});
 	}
+	
 
 }
-	
+
+const resourceBundleData = function(resourceKeys) {
+	let resourceBundleDataMap;
+	$.ajax({
+		async : false,
+		type : "POST",
+		cache : false,
+		url : contextPath+'/cf/getResourceBundleData',
+		data : {
+			resourceKeys : resourceKeys,
+		},
+		success : function(data) {
+			resourceBundleDataMap = data;
+		}
+	});
+	return resourceBundleDataMap;
+}	
 const uuidv4 =  function() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     let r = Math.random() * 16 | 0;
@@ -291,6 +307,70 @@ const generateHashCode = function(inputStr) {
   }
   return hash;
 }
+
+const disableInputSuggestion = function(){
+	$("input[type=text], input[type=email], input[type=tel], input[type=number], input[type=password], input[type=search]").attr("autocomplete", "off");
+}
+
+const resizeMonacoEditor = function(monacoEditorObj, containerName, childContainerName){
+	debugger;
+	if("Escape" === containerName) {
+		$('.ace-editor').width(1108).height(350);
+	}
+    if (document.fullscreenElement || document.webkitFullscreenElement
+       || document.mozFullScreenElement || document.msFullscreenElement) {
+
+        $('.ace-editor').width(1108).height(350);
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+    } else {
+        let element = document.getElementById(containerName);
+        let height = screen.height;
+        let width = $(window).width();
+           
+        $('#'+childContainerName).width(width).height(height);
+        let func = function(){
+        	onFullScreenChange(monacoEditorObj, containerName, childContainerName);
+        };
+        if (element.requestFullscreen) {
+        	document.removeEventListener("fullscreenchange", func);
+            element.requestFullscreen();
+            document.addEventListener("fullscreenchange", func, false);
+        } else if (element.mozRequestFullScreen) {
+        	document.removeEventListener("mozfullscreenchange", func);
+            element.mozRequestFullScreen();
+            document.addEventListener("mozfullscreenchange", func, false);
+        } else if (element.webkitRequestFullscreen) {
+        	document.removeEventListener("webkitfullscreenchange", func);
+            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            document.addEventListener("webkitfullscreenchange", func, false);
+        } else if (element.msRequestFullscreen) {
+        	document.removeEventListener("msfullscreenchange", func);
+            element.msRequestFullscreen();
+            document.addEventListener("msfullscreenchange", func, false);
+        }
+    }
+
+    monacoEditorObj.layout();
+};
+
+
+const onFullScreenChange = function(monacoEditorObj, containerName, childContainerName) {
+  var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+
+  if(fullscreenElement == null) {
+	  $('#'+childContainerName).width(1108).height(350);
+      $('#'+containerName).css("overflow-y","hidden");
+      monacoEditorObj.layout();
+  }
+};
 
 Array.prototype.formatSerializedArray = function() {
 	for(let counter = 0; counter < this.length; ++counter) {

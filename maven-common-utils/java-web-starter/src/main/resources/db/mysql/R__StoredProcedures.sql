@@ -33,6 +33,10 @@ VALUES ("propertyMasterListing", 'Property master listing', 'Property master lis
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
 VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
 ,'fileBinId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
+
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+VALUES ("propertyMasterListingGrid", 'Property Master Listing', 'Property Master Listing', 'propertyMasterListing'
+,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2);
  
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
@@ -947,14 +951,14 @@ moduleURL varchar(500), parentModuleName varchar(500), sequence varchar(100), is
 limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
   SET @resultQuery = ' SELECT ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, COALESCE(mli18nParent.module_name, mli18nParent2.module_name) AS parentModuleName'
-    ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu ';
+    ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu, ml.is_home_page AS isHomePage ';
   SET @fromString  = ' FROM jq_module_listing AS ml ';
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing AS mlParent ON ml.parent_id = mlParent.module_id ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18nParent ON mlParent.module_id = mli18nParent.module_id AND mli18nParent.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18nParent2 ON mlParent.module_id = mli18nParent2.module_id AND mli18nParent2.language_id = 1 ');
-  SET @whereString = ' WHERE ml.is_home_page = 0 ';
+  SET @whereString = ' WHERE (ml.is_home_page IN (0,1) OR  ml.is_home_page IS NULL) ';
   
   
   IF NOT moduleName IS NULL THEN
@@ -998,7 +1002,7 @@ BEGIN
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY ml.sequence ASC');
+      SET @orderBy = CONCAT(' ORDER BY ml.last_modified_date DESC');
   END IF;
     
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));

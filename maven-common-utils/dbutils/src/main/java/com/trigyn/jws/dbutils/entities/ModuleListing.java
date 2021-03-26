@@ -2,6 +2,7 @@ package com.trigyn.jws.dbutils.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,6 +17,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "jq_module_listing")
@@ -41,6 +44,9 @@ public class ModuleListing implements Serializable {
 	@Column(name = "is_inside_menu")
 	private Integer						isInsideMenu			= null;
 
+	@Column(name = "include_layout")
+	private Integer						includeLayout			= null;
+
 	@Column(name = "is_home_page")
 	private Integer						isHomePage				= null;
 
@@ -59,6 +65,10 @@ public class ModuleListing implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "target_lookup_id", insertable = false, updatable = false)
 	private ModuleTargetLookup			moduleTargetLookup		= null;
+
+	@JsonIgnore
+	@Column(name = "last_modified_date")
+	private Date						updatedDate				= null;
 
 	public ModuleListing() {
 	}
@@ -130,6 +140,14 @@ public class ModuleListing implements Serializable {
 
 	public void setIsInsideMenu(Integer isInsideMenu) {
 		this.isInsideMenu = isInsideMenu;
+	}
+
+	public Integer getIncludeLayout() {
+		return includeLayout;
+	}
+
+	public void setIncludeLayout(Integer includeLayout) {
+		this.includeLayout = includeLayout;
 	}
 
 	public Integer getTargetLookupId() {
@@ -214,9 +232,18 @@ public class ModuleListing implements Serializable {
 		this.isHomePage = isHomePage;
 	}
 
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
+	}
+
 	public ModuleListing getObject() {
 		ModuleListing moduleListing = new ModuleListing();
 		moduleListing.setIsInsideMenu(isInsideMenu);
+		moduleListing.setIncludeLayout(includeLayout);
 		moduleListing.setIsHomePage(isHomePage);
 		moduleListing.setModuleId(moduleId != null ? moduleId.trim() : moduleId);
 		moduleListing.setModuleUrl(moduleUrl != null ? moduleUrl.trim() : moduleUrl);
@@ -244,13 +271,15 @@ public class ModuleListing implements Serializable {
 			moduleListing.setModuleRoleAssociations(null);
 
 		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
+		moduleListing.setUpdatedDate(updatedDate);
 		return moduleListing;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(isHomePage, isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations,
-				moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId);
+		return Objects.hash(includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns,
+				moduleRoleAssociations, moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId,
+				updatedDate);
 	}
 
 	@Override
@@ -265,23 +294,27 @@ public class ModuleListing implements Serializable {
 			return false;
 		}
 		ModuleListing other = (ModuleListing) obj;
-		return Objects.equals(isHomePage, other.isHomePage) && Objects.equals(isInsideMenu, other.isInsideMenu)
-				&& Objects.equals(moduleId, other.moduleId)
+		return Objects.equals(includeLayout, other.includeLayout) && Objects.equals(isHomePage, other.isHomePage)
+				&& Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
 				&& Objects.equals(moduleListingI18ns, other.moduleListingI18ns)
 				&& Objects.equals(moduleRoleAssociations, other.moduleRoleAssociations)
 				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup)
 				&& Objects.equals(moduleUrl, other.moduleUrl) && Objects.equals(parentId, other.parentId)
 				&& Objects.equals(sequence, other.sequence) && Objects.equals(targetLookupId, other.targetLookupId)
-				&& Objects.equals(targetTypeId, other.targetTypeId);
+				&& Objects.equals(targetTypeId, other.targetTypeId) && Objects.equals(updatedDate, other.updatedDate);
 	}
 
 	@Override
 	public String toString() {
-		return "ModuleListing [moduleId=" + moduleId + ", moduleUrl=" + moduleUrl + ", parentId=" + parentId
-				+ ", sequence=" + sequence + ", isInsideMenu=" + isInsideMenu + ", isHomePage=" + isHomePage
-				+ ", targetLookupId=" + targetLookupId + ", targetTypeId=" + targetTypeId + ", moduleListingI18ns="
-				+ moduleListingI18ns + ", moduleRoleAssociations=" + moduleRoleAssociations + ", moduleTargetLookup="
-				+ moduleTargetLookup + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("ModuleListing [moduleId=").append(moduleId).append(", moduleUrl=").append(moduleUrl)
+				.append(", parentId=").append(parentId).append(", sequence=").append(sequence).append(", isInsideMenu=")
+				.append(isInsideMenu).append(", includeLayout=").append(includeLayout).append(", isHomePage=")
+				.append(isHomePage).append(", targetLookupId=").append(targetLookupId).append(", targetTypeId=")
+				.append(targetTypeId).append(", moduleListingI18ns=").append(moduleListingI18ns)
+				.append(", moduleRoleAssociations=").append(moduleRoleAssociations).append(", moduleTargetLookup=")
+				.append(moduleTargetLookup).append(", updatedDate=").append(updatedDate).append("]");
+		return builder.toString();
 	}
 
 }

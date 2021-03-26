@@ -49,6 +49,7 @@ class HelpManual {
 	  $("#previewContent").css('display', 'none');
 	  $('#previews').html("");
 	  $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+	  $("#previews").scrollTop(0);
 	  event.currentTarget.className += " active";
     }
     

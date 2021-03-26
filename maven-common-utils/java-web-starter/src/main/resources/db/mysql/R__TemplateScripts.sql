@@ -52,36 +52,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         
         
         <div class="home_block col-12">
-        <a href="${(contextPath)!''''}/cf/te" class="list-group-item list-group-item-action">
-            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/template.svg"></div> 
-            <div class="home_list_content">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
-                 
-                </div>
-                <p class="mb-1">Built using Freemarker templating engine </p>
-                <small class="text-muted">Generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</small>
-            </div>
-        </a>
-        </div>
-        
-        
-        <div class="home_block col-12">
-        <a href="${(contextPath)!''''}/cf/rb" class="list-group-item list-group-item-action">
-            <div class="home_list_icon m_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/database.svg"></div> 
-            <div class="home_list_content">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
-                     
-                </div>
-                <p class="mb-1">Built using Spring interceptors and Locale Resolvers</p>
-                <small class="text-muted">Any web application with users all around the world, i18n or L10n is important for better user interaction, so handle all these from the admin panel by storing it in database.</small>
-            </div>
-        </a>
-        </div>
-        
-        
-        <div class="home_block col-12">
         <a href="${(contextPath)!''''}/cf/adl" class="list-group-item list-group-item-action">
             <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/autotype.svg"></div> 
             <div class="home_list_content">
@@ -106,6 +76,21 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                 </div>
                 <p class="mb-1">Built using freemarker, supports pq-grid </p>
                 <small>Configure file upload</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''''}/cf/te" class="list-group-item list-group-item-action">
+            <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/template.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.templating'')}</h5>
+                 
+                </div>
+                <p class="mb-1">Built using Freemarker templating engine </p>
+                <small class="text-muted">Generates HTML web pages, e-mails, configuration files, etc. from template files and the data your application provides</small>
             </div>
         </a>
         </div>
@@ -154,7 +139,23 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             </div>
         </a>
         </div>
-                        
+        
+        
+                
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''''}/cf/rb" class="list-group-item list-group-item-action">
+            <div class="home_list_icon m_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/database.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage(''jws.multilingual'')}</h5>
+                     
+                </div>
+                <p class="mb-1">Built using Spring interceptors and Locale Resolvers</p>
+                <small class="text-muted">Any web application with users all around the world, i18n or L10n is important for better user interaction, so handle all these from the admin panel by storing it in database.</small>
+            </div>
+        </a>
+        </div>                
+
         
         <div class="home_block col-12">
         <a href="${(contextPath)!''''}/cf/dbm" class="list-group-item list-group-item-action">
@@ -169,6 +170,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             </div>
         </a>
         </div>
+        
         
         <div class="home_block col-12">
         <a href="${(contextPath)!''''}/cf/nl" class="list-group-item list-group-item-action">
@@ -199,6 +201,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         </a>
         </div>
         
+        
         <div class="home_block col-12">
         <a href="${(contextPath)!''''}/cf/scm" class="list-group-item list-group-item-action">
             <div class="home_list_icon"><img src="${(contextPath)!''''}/webjars/1.0/images/security_manager.svg"></div> 
@@ -212,6 +215,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             </div>
         </a>
         </div>
+        
         
         <div class="home_block col-12">
         <a href="${(contextPath)!''''}/cf/pml" class="list-group-item list-group-item-action">
@@ -352,8 +356,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
             { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
             filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
-            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center"},
             { title: "Action", width: 50, minWidth: 115, align: "center", render: editTemplate, dataIndx: "action", sortable: false }
         ];
         let dataModel = {
@@ -659,7 +662,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.siteLayout'')}</h2> 
 		<div class="float-right">
 		<span>
-  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Configure Default Page" type="button" onclick="configHomePage(this)">
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Set Default Page" type="button" onclick="configHomePage(this)">
 		</span>
 		<span>
   		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="Add Module" type="button" onclick="submitForm();">
@@ -704,12 +707,11 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	        { title: "Sequence Number", width: 100, align: "center", dataIndx: "sequence", align: "left", halign: "center",
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Inside Menu", width: 100, align: "center", dataIndx: "isInsideMenu", align: "left", halign: "center", render: formatIsInsideMenu},
+	        { title: "Default Module", width: 100, align: "center", dataIndx: "isHomePage", align: "left", halign: "center", render: formatIsHomePage},
           { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editModule, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "sequence",
-        	sortDir: "down",
     	};
 		let grid = $("#divModuleListing").grid({
 	      gridId: "moduleListingGrid",
@@ -726,9 +728,17 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
   	function formatIsInsideMenu(uiObject){
   		const isInsideMenu = uiObject.rowData.isInsideMenu;
   		if(isInsideMenu == 1){
-  			return "Yes";
+  			return ''<input type="checkbox" disabled tabindex="-1" checked>'';
   		}
-  		return "No";
+  		return ''<input type="checkbox" disabled tabindex="-1">'';
+  	}
+  	
+  	function formatIsHomePage(uiObject){
+  		const isHomePage = uiObject.rowData.isHomePage;
+  		if(isHomePage == 1){
+  			return ''<input type="checkbox" disabled tabindex="-1" checked>'';
+  		}
+  		return ''<input type="checkbox" disabled tabindex="-1">'';
   	}
   	
   	function submitForm(sourceElement) {
@@ -785,13 +795,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 		<div class="row">
 			<input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''''}">
-			<div class="col-8">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
 					<input type="text"  id = "moduleName" name = "moduleName" value = "${(moduleDetailsVO?api.getModuleName())!''''}" maxlength="100" class="form-control">
 				</div>
 			</div>
-
+		</div>
+		
+				
+		<div class="row">	
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="contextType">${messageSource.getMessage("jws.includeInMenu")}</label>
@@ -809,6 +822,41 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 					</div>
 				</div>
 			</div>
+			
+						
+			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+					<select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
+						<option value="">Root</option>
+						<#if (moduleListingVOList)??>
+							<#list moduleListingVOList as moduleListingVO>
+									<#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
+										<option value="${moduleListingVO?api.getModuleId()}" selected>${moduleListingVO?api.getModuleName()!''''}</option>
+									<#else>
+										<option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''''}</option>
+									</#if>
+							</#list>
+						</#if>
+					</select>
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
+					<#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
+						<input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''''}" maxlength="100" class="form-control">
+					<#else>
+						<input type="number"  id = "sequence" name = "sequence" value = "${(defaultSequence)!''''}" maxlength="100" class="form-control">
+					</#if>
+				</div>
+			</div>
+			
+		</div>
+		
+		<div class="row">
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
@@ -830,7 +878,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="targetTypeName" style="white-space:nowrap">Context Name</label>
+					<label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>Context Name</label>
 						<div class="search-cover">
 						<input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
 						<i class="fa fa-search" aria-hidden="true"></i>
@@ -847,36 +895,28 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				</div>
 			</div>
 			
-			<input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''''}">
+		</div>
+		
+		<div class="row">
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
-					<select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
-						<option value="">Root</option>
-						<#if (moduleListingVOList)??>
-							<#list moduleListingVOList as moduleListingVO>
-									<#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
-										<option value="${moduleListingVO?api.getModuleId()}" selected>${moduleListingVO?api.getModuleName()!''''}</option>
-									<#else>
-										<option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''''}</option>
-									</#if>
-							</#list>
+					<label for="contextType">${messageSource.getMessage("jws.includeLayout")}</label>
+					<div class="onoffswitch">
+						<input type="hidden" id="includeLayout" name="includeLayout" value="${(moduleDetailsVO?api.getIncludeLayout())!''0''}">
+						<#if (moduleDetailsVO?api.getIncludeLayout())?? && moduleDetailsVO?api.getIncludeLayout() == 1>
+							<input type="checkbox" id="includeLayoutCheckbox" onchange="addEditModule.includeLayout();" checked name="includeLayoutCheckbox" class="onoffswitch-checkbox">
+						<#else>
+							<input type="checkbox" id="includeLayoutCheckbox" onchange="addEditModule.includeLayout();" name="includeLayoutCheckbox" class="onoffswitch-checkbox">
 						</#if>
-					</select>
+						<label class="onoffswitch-label" for="includeLayoutCheckbox">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
 				</div>
 			</div>
-
-			<div class="col-4">
-				<div class="col-inner-form full-form-fields">
-					<label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
-					<#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
-						<input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''''}" maxlength="100" class="form-control">
-					<#else>
-						<input type="number"  id = "sequence" name = "sequence" value = "${(defaultSequence)!''''}" maxlength="100" class="form-control">
-					</#if>
-				</div>
-			</div>
-
+			
+			
 		<div class="col-4">
 			<input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
         	<@templateWithoutParams "role-autocomplete"/> 
@@ -933,7 +973,6 @@ $(function() {
     }
 	let autocompleteIdByType = addEditModule.getAutocompleteId();
     autocomplete = $(''#targetTypeName'').autocomplete({
-    	contextPath: contextPath,
         autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
@@ -1088,7 +1127,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	  const homePage = new HomePage();
 	  homePageFn = homePage.fn;
 	  homePageFn.collapsableMenu();
-	  $("input").attr("autocomplete", "off");
+	  disableInputSuggestion();
 	});
 
 
@@ -1280,7 +1319,6 @@ $(function() {
     }
 	let autocompleteIdByType = getTargeTypeNames();
     autocomplete = $(''#targetTypeName'').autocomplete({
-    	contextPath: contextPath,
         autocompleteId: autocompleteIdByType,
         render: function(item) {
         	var renderStr ='''';
@@ -1536,7 +1574,6 @@ $(function(){
 	  setJsonEditorContent();
 	  getUpdatedData();
         autocomplete = $(''#revisionAutocomplete'').autocomplete({
-        contextPath: contextPath,
         autocompleteId: ''revisionAutocomplete'',
         prefetch : true,
         enableClearText : true,
@@ -1978,6 +2015,13 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+    
 </head>
 
 <div class="container">
@@ -1986,7 +2030,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.configHomePageListing'')}</h2> 
 		<div class="float-right">
 		 <!-- <span>
-  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Add Default Page" type="button" onclick="submitForm()">
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Add Default Page" type="button" onclick="editHomePage()">
 		</span> -->
 
 
@@ -2000,24 +2044,49 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		
 		<div id="divConfigHomeListing"></div>
 
+		<form id="edit-home-page" class="modal addeditconfigmodal">
+		    <div class="topband">
+		        <h2 id="title" class="title-cls-name float-left">Set Home Page for </h2> 
+		        <div class="clearfix"></div>        
+		    </div>
+		    <div class="row">
+		       <div class="col-12">
+			        <div class="col-inner-form full-form-fields">
+			            <input type="hidden" id="roleId" name="roleId">
+			            <input type="hidden" id="oldModuleId" name="module-id">
+			            <input type="hidden" id="moduleId" name="module-id">
+			            <input type="hidden" id="moduleName" name="module-name">
+			            <label for="flammableState" style="white-space:nowrap">Module Name</label>
+			            <div class="search-cover">
+							<input class="form-control" id="slAutocomplete" type="text">
+							<i class="fa fa-search" aria-hidden="true"></i>
+			            </div>
+			         </div>
+			    </div>
+		    </div>
+		    
+		    
+		    <div class="row" style="margin-top: 20px;">
+		        <div class="col-12">
+		            <div class="float-right">
+		                <input id="setDefaultBtn" class="btn btn-primary" name="setDefaultBtn" onclick="setToDefault()" value="Set To Default" type="button">
+		                <input id="saveBtn" class="btn btn-primary" name="saveBtn" onclick="saveHomeModule()" value="Save" type="button">
+		                <input id="backBtn" class="btn btn-secondary" name="backBtn" onclick="closeForm()" value="Cancel" type="button">
+		            </div>
+		        </div>
+		    </div>
+		</form>
 </div>
 
 
-
-<form action="${(contextPath)!''''}/cf/chp" method="POST" id="configHomeForm">
-	<input type="hidden" id="moduleId" name="module-id">
-	<input type="hidden" id="roleId" name="role-id">
-	<input type="hidden" id="roleName" name="role-name">
-</form>
 <script>
 	contextPath = "${(contextPath)!''''}";
+	let slAutocomplete;
+	
 	function backToModuleListingPage() {
 		location.href = contextPath+"/cf/mul";
 	}
 	$(function () {
-		let formElement = $("#configHomeForm")[0].outerHTML;
-		let formDataJson = JSON.stringify(formElement);
-		sessionStorage.setItem("module-manage-details", formDataJson);
 		let colM = [
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 	        { title: "", width: 130, align: "center", dataIndx: "roleId", align: "left", halign: "center", hidden : true },
@@ -2029,7 +2098,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Role Priority", width: 100, align: "center", dataIndx: "rolePriority", align: "left", halign: "center",
 	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editHomePage, sortable: false}
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: formatActionCol, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -2041,35 +2110,133 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	      colModel: colM,
           dataModel: dataModel
 	  });
+	  
+	  	slAutocomplete = $("#slAutocomplete").autocomplete({
+	        autocompleteId: "site-layout-url-autocomplete",
+	        prefetch : false,
+	        render: function(item) {
+	            var renderStr ="";
+	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	                renderStr = "<p>"+item.text+"</p>";
+	            }else{
+	                renderStr = item.emptyMsg;    
+	            }                                
+	            return renderStr;
+	        },
+	        additionalParamaters: {languageId: 1},
+	        extractText: function(item) {
+	            return item.text;
+	        },
+	        select: function(item) {
+	            slAutocomplete.setSelectedObject(item);
+	            $("#slAutocomplete").blur(); 
+	        },     
+		});
+		
 	});
   
-  	function editHomePage(uiObject) {
+  	function formatActionCol(uiObject) {
 		const roleId = uiObject.rowData.roleId;
 		const moduleId = uiObject.rowData.moduleId;
+		const moduleName = uiObject.rowData.moduleName;
 		const roleName = uiObject.rowData.roleName;
 		if(moduleId !== null){ 
-			return ''<span id="''+roleId+''" data-module-id="''+moduleId+''" data-role-name="''+roleName+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
+			return ''<span id="''+roleId+''" data-module-id="''+moduleId+''" data-module-name="''+moduleName+''" data-role-name="''+roleName+''" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
 		}
-		return ''<span id="''+roleId+''" data-role-name="''+roleName+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
+		return ''<span id="''+roleId+''" data-role-name="''+roleName+''" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
 	}
   
-  	
-  	function submitForm(sourceElement) {
-		let roleId;
+	function editHomePage(sourceElement) {
 		let moduleId;
+		let moduleName;
 		let roleName;
-		if(sourceElement !== undefined){
-			roleId = sourceElement.id
-		}
+		let roleId = sourceElement.id;
+		let selectedModuleObj = new Object();
+		
 		moduleId = $("#"+roleId).data("module-id");
+		moduleName = $("#"+roleId).data("module-name");
 		roleName = $("#"+roleId).data("role-name");
+		
+		$("#moduleId").val("");
+		$("#oldModuleId").val("");
+		$("#moduleName").val("");
 		if(moduleId !== undefined){ 
 			$("#moduleId").val(moduleId);
+			$("#oldModuleId").val(moduleId);
+			$("#moduleName").val(moduleName);
 		}
 		$("#roleId").val(roleId);
 		$("#roleName").val(roleName);
-		$("#configHomeForm").submit();
+		$("#title").text("Set Home Page for " + roleName);
+		$("#edit-home-page").modal();
+		
+		selectedModuleObj.moduleId = moduleId;
+		selectedModuleObj.text = moduleName;
+		slAutocomplete.setSelectedObject(selectedModuleObj);	
+	}  	
+  	
+  	function closeForm() {
+        $.modal.close();
+    }
+    
+    function setToDefault(){ 
+    	slAutocomplete.resetAutocomplete();
+    }
+    
+    function saveHomeModule(){
+    	let selectedModuleObj = slAutocomplete.getSelectedObject();
+		let moduleId = selectedModuleObj["moduleId"];
+		let roleId = $("#roleId").val();
+		let oldModuleId = $("#oldModuleId").val();
+		
+		$.ajax({
+			type : "POST",
+			url : contextPath+"/cf/schm",
+			async: false,
+			data : {
+				oldModuleId: oldModuleId,
+				moduleId : moduleId,
+				roleId : roleId,
+			},
+			success : function(moduleId) {
+				$("#moduleId").val(moduleId);
+				$("#errorMessage").hide();
+				showMessage("Information saved successfully", "success");
+				closeForm();
+				$("#divConfigHomeListing").pqGrid("refreshDataAndView");
+			},
+		        
+		    error : function(xhr, error){
+		    	showMessage("Error occurred while saving", "error");
+		    },
+		        	
+		});
 	}
+	
+	function validateModule(){ 
+		let moduleId = $("#moduleId").val();
+		let roleId = $("#roleId").val();
+		$.ajax({
+			type : "POST",
+			url : contextPath+"/cf/vchm",
+			async: false,
+			data : {
+				moduleId : moduleId,
+				roleId : roleId,
+			},
+			success : function(moduleId) {
+				showMessage("Information saved successfully", "success");
+			},
+		        
+		    error : function(xhr, error){
+		    	showMessage("Error occurred while saving", "error");
+		    },
+		        	
+		});
+	
+	}
+    
+    
 	
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
@@ -2103,7 +2270,7 @@ let autocompletePF;
 	$(function () {
         let imageName;
         autocompletePF = $("#rbAutocompletePF").autocomplete({
-            autocompleteId: "user-preference-entity-autocomplete",
+            autocompleteId: "user-favorite-entity-autocomplete",
             prefetch : true,
             enableClearText: true,
             render: function(item) {
@@ -2142,7 +2309,7 @@ let autocompletePF;
 	            return "upload_management";
 	        case "Form Builder":
 	            return "daynamicreport";    
-	        case "REST API Builder":
+	        case "REST API":
 	            return "API_listing_icon";
 	        case "Dashboard":
 	            return "dashboard";  
@@ -2229,14 +2396,14 @@ AND jr.role_id NOT IN (SELECT mra.role_id FROM module_role_association AS mra WH
 
 
 REPLACE INTO jq_autocomplete_details(ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('user-preference-entity-autocomplete', '', 
+('user-favorite-entity-autocomplete', '', 
 'SELECT jqfe.favorite_id AS favoriteId, jqfe.entity_type AS entityType, jqfe.entity_id AS entityId,
 jqfe.entity_name AS entityName, jmm.auxiliary_data AS formData
 FROM jq_user_favorite_entity AS jqfe
 LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = jqfe.entity_type
 WHERE jqfe.user_email_id = :loggedInUserName AND jqfe.entity_name LIKE CONCAT("%", :searchText, "%")
 ORDER BY entity_type, entity_name ASC '
-, 1);
+, 2);
 
 REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
 ('table-autocomplete', 'table autocomplete', 'SELECT TABLE_NAME AS tableName FROM information_schema.TABLES WHERE table_schema = (SELECT DATABASE())
@@ -2244,6 +2411,14 @@ REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac
  AND CASE WHEN (SELECT (property_value) FROM jq_property_master WHERE property_name = "version") NOT LIKE "%SNAPSHOT%" 
  THEN TABLE_NAME NOT LIKE "jq_%" ELSE 1 END AND TABLE_NAME NOT IN("flyway_schema_history", "persistent_logins")'
 , 2); 
+
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+('site-layout-url-autocomplete', 'Site layout', 'SELECT jml.module_id AS moduleId, jmli18n.module_name AS text
+FROM jq_module_listing AS jml
+INNER JOIN jq_module_listing_i18n AS jmli18n ON jmli18n.module_id = jml.module_id AND jmli18n.language_id = :languageId
+WHERE jmli18n.module_name LIKE CONCAT("%", :searchText, "%")', 2);
+
 
 REPLACE INTO jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, is_home_page) VALUES
 ('4f81625d-c3f1-47ec-88d4-e85be439df19', 'jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1', NULL, 5, '8a80cb8175513bc80175514206ef0000', NULL, 0, 0);
@@ -2276,9 +2451,9 @@ REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name,
 
 
 REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
-('b338e1c2-1c92-4f15-88f7-9521dea66522', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
-('cbc3293f-d7ab-4d93-8c95-a032aef8812c', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
-('f381799b-ba9a-4a9a-948a-50f86e7b6a81', 'user-preference-entity-autocomplete', 'user-preference-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+('b338e1c2-1c92-4f15-88f7-9521dea66522', 'user-favorite-entity-autocomplete', 'user-favorite-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('cbc3293f-d7ab-4d93-8c95-a032aef8812c', 'user-favorite-entity-autocomplete', 'user-favorite-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('f381799b-ba9a-4a9a-948a-50f86e7b6a81', 'user-favorite-entity-autocomplete', 'user-favorite-entity-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
 
 REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('17a65a59-082d-4ece-9702-0e0117be17bd', '0d6041fd-7ffd-11eb-971b-f48e38ab8cd7', 'user-favorite-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
@@ -2291,5 +2466,9 @@ REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, 
 ('a795f8c0-d65f-422f-a5ed-e036654f0cb6', 'table-autocomplete', 'table-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
 
 
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('0becc4b4-5a23-4c38-a425-138ce13461ad', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('13e30281-e279-4cb7-abf6-dd6d8cea0243', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('62699ec3-7a9f-468a-ae2c-98ba0d529e9f', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
 
 SET FOREIGN_KEY_CHECKS=1;

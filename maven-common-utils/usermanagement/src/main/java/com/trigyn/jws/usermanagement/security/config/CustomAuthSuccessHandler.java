@@ -11,13 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
 import com.trigyn.jws.usermanagement.service.JwsUserService;
@@ -25,33 +26,33 @@ import com.trigyn.jws.usermanagement.service.JwsUserService;
 @Transactional
 public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 
-	private static Set<LoginSuccessEventListener>	loginListener			= new HashSet<LoginSuccessEventListener>();
+	private final static Logger						logger				= LogManager
+			.getLogger(CustomAuthSuccessHandler.class);
+
+	private static Set<LoginSuccessEventListener>	loginListener		= new HashSet<LoginSuccessEventListener>();
 
 	@Autowired
-	private PropertyMasterDetails					propertyMasterDetails	= null;
+	private JwsUserService							userService			= null;
 
 	@Autowired
-	private ServletContext							servletContext			= null;
+	private ServletContext							servletContext		= null;
 
 	@Autowired
-	private JwsUserService			userService						= null;
-
-	@Autowired
-	private UserManagementDAO								userManagementDAO					= null;
+	private UserManagementDAO						userManagementDAO	= null;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		UserInformation userInformation = (UserInformation) authentication.getPrincipal();
 
-		System.out.println("Logged in successfully: " + userInformation.getUsername() + " at - " + new Date());
+		logger.debug("Logged in successfully: " + userInformation.getUsername() + " at - " + new Date());
 		HttpSession httpSession = request.getSession(false);
-		System.out.println("Before: " + httpSession.getMaxInactiveInterval());
+		logger.debug("Before: " + httpSession.getMaxInactiveInterval());
 		httpSession.setMaxInactiveInterval(0);
-		System.out.println("After: " + httpSession.getMaxInactiveInterval());
+		logger.debug("After: " + httpSession.getMaxInactiveInterval());
 
 		StringBuilder	defaultUrl		= new StringBuilder().append(servletContext.getContextPath())
-				.append(propertyMasterDetails.getSystemPropertyValue("default-redirect-url"));
+				.append("/cf/home");
 		String			redirectUrl		= defaultUrl.toString();
 		SavedRequest	savedRequest	= (SavedRequest) httpSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
 		if (savedRequest != null) {
@@ -62,7 +63,7 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 		JwsUser user = userService.findUserByEmail(userInformation.getUsername());
 		user.setFailedAttempt(0);
 		userManagementDAO.updateUserData(user);
-		
+
 		for (LoginSuccessEventListener logInSuccessEventListner : loginListener) {
 			logInSuccessEventListner.onLogin(userInformation);
 		}

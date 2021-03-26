@@ -9,7 +9,7 @@ public final class QueryStore {
 	public static final String	JPA_QUERY_TO_GET_MODULE_BY_MODULE_ID				= "SELECT new com.trigyn.jws.dbutils.vo.ModuleDetailsVO "
 			+ " (ml.moduleId AS moduleId, COALESCE(mlI18n.moduleName, mlI18nDef.moduleName) AS moduleName "
 			+ ", ml.moduleUrl AS moduleURL, ml.parentId AS parentModuleId, COALESCE(mlI18nP.moduleName, mlI18nPDef.moduleName) AS parentModuleName "
-			+ ", ml.sequence AS sequence, ml.isInsideMenu AS isInsideMenu, ml.targetLookupId AS targetLookupId, mtl.description AS targetLookupDesc, ml.targetTypeId AS targetTypeId) "
+			+ ", ml.sequence AS sequence, ml.isInsideMenu AS isInsideMenu, ml.includeLayout AS includeLayout, ml.targetLookupId AS targetLookupId, mtl.description AS targetLookupDesc, ml.targetTypeId AS targetTypeId) "
 			+ " FROM ModuleListing AS ml " + " LEFT OUTER JOIN ModuleListing AS mlp ON mlp.moduleId = ml.parentId "
 			+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18n ON mlI18n.id.languageId = :languageId "
 			+ " LEFT OUTER JOIN ml.moduleListingI18ns AS mlI18nDef ON mlI18nDef.id.languageId = :defaultLanguageId "
@@ -82,11 +82,11 @@ public final class QueryStore {
 			+ " FROM ModuleTargetLookup AS mtl " + " WHERE mtl.lookupId = :targetTypeId ORDER BY description ASC ";
 
 	public static final String	JPA_QUERY_TO_GET_TARGET_TYPE_BY_URL					= "SELECT  new com.trigyn.jws.dbutils.vo.ModuleDetailsVO( "
-			+ " ml.targetLookupId AS targetLookupId, ml.targetTypeId AS targetTypeId )" + " FROM ModuleListing AS ml "
-			+ " WHERE ml.moduleUrl = :moduleURL ";
+			+ " ml.moduleUrl AS moduleUrl, ml.targetLookupId AS targetLookupId, ml.targetTypeId AS targetTypeId, ml.includeLayout AS includeLayout )"
+			+ " FROM ModuleListing AS ml " + " WHERE ml.moduleUrl = :moduleURL ";
 
 	public static final String	JPA_QUERY_TO_GET_TARGET_TYPE_FOR_URL				= "SELECT  new com.trigyn.jws.dbutils.vo.ModuleDetailsVO( "
-			+ " ml.moduleUrl AS moduleUrl, ml.targetLookupId AS targetLookupId, ml.targetTypeId AS targetTypeId )"
+			+ " ml.moduleUrl AS moduleUrl, ml.targetLookupId AS targetLookupId, ml.targetTypeId AS targetTypeId, ml.includeLayout AS includeLayout )"
 			+ " FROM ModuleListing AS ml " + " WHERE ml.moduleUrl LIKE %:moduleURL% ";
 
 	public static final String	JPA_QUERY_TO_GET_LOOKUP_DETAILS						= "SELECT new com.trigyn.jws.dbutils.vo.LookupDetailsVO "
@@ -102,5 +102,8 @@ public final class QueryStore {
 			+ " INNER JOIN ml.moduleRoleAssociations AS mra ON mra.roleId IN (:roleIdList) AND mra.isDeleted = 0 "
 			+ " INNER JOIN JwsRole AS jr ON jr.roleId = mra.roleId AND jr.isActive = 1"
 			+ " WHERE ml.isHomePage = :isHomePage ORDER BY jr.rolePriority DESC ";
+
+	public static final String	JPA_QUERY_TO_MODULE_ROLE_BY_ID						= "SELECT mra.moduleId AS moduleId "
+			+ " FROM ModuleRoleAssociation AS mra " + " WHERE mra.roleId <> :roleId AND mra.moduleId = :moduleId ";
 
 }

@@ -26,6 +26,8 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.spi.PropertyMasterKeyVO;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -64,6 +66,9 @@ public class TemplatingUtils {
 
 	@Autowired
 	private IUserDetailsService		detailsService			= null;
+
+	@Autowired
+	private PropertyMasterDetails	propertyMasterDetails	= null;
 
 	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap)
 			throws Exception {
@@ -106,11 +111,14 @@ public class TemplatingUtils {
 
 	private void addTemplateProperties(Map<String, Object> modelMap) {
 		logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap{})", modelMap);
-		String contextPath = servletContext.getContextPath();
+		String								contextPath			= servletContext.getContextPath();
+		Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
+		Locale								locale				= localeResolver.resolveLocale(getRequest());
+
 		modelMap.put("contextPath", contextPath);
-		Locale locale = localeResolver.resolveLocale(getRequest());
 		modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
 		modelMap.put("dynamicTemplate", dynamicTemplate);
+		modelMap.put("systemProperties", propertyMasterMap);
 
 		UserDetailsVO detailsVO = detailsService.getUserDetails();
 		if (detailsVO != null) {

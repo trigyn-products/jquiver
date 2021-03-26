@@ -67,6 +67,9 @@ class DynamicRest {
 	        	context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
 				});
+				context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(context.serviceLogicContent,"htmlContainer","htmlEditor");
+	            });
 				context.serviceLogicContent.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});
@@ -139,10 +142,14 @@ class DynamicRest {
 	        	saveUpdateEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 					typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
 				});
+	        	saveUpdateEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {
+	                resizeMonacoEditor(saveUpdateEditor,"saveSqlContainer_"+index,"saveSqlEditor_"+index);
+	            });
 				saveUpdateEditor.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});
 	        	context.updateVariableSeq();
+	        	disableInputSuggestion();
     	});
 	}
 	

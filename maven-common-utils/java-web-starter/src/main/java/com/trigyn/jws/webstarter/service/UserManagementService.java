@@ -26,6 +26,7 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -187,7 +188,7 @@ public class UserManagementService {
 
 		List<JwsMasterModulesVO>	masterModulesVO	= new ArrayList<>();
 		List<JwsMasterModules>		masterModules	= new ArrayList<>();
-		masterModules = jwsmasterModuleRepository.findAll();
+		masterModules = jwsmasterModuleRepository.findAllModulesForPermission(1);
 
 		for (JwsMasterModules jwsMasterModule : masterModules) {
 			masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));
@@ -251,7 +252,7 @@ public class UserManagementService {
 				if (userData.getForcePasswordChange() == 1 && userData.getIsSendMail() == true) {
 					Email email = new Email();
 					forcePasswordAndMail(userData, jwsUser, email);
-				} else if(userData.getIsSendMail() == true) {
+				} else if (userData.getIsSendMail() == true) {
 					Email email = new Email();
 					sendMailForUserUpdate(jwsUser.getUserId(), userData.getEmail(), email);
 				}
@@ -285,6 +286,11 @@ public class UserManagementService {
 					}
 				}
 			}
+			
+			List<String> roleIds = userData.getRoleIds();
+			if(roleIds.contains(Constants.AUTHENTICATED_ROLE_ID) && roleIds.size() > 1) {
+				roleIds.remove(Constants.AUTHENTICATED_ROLE_ID);
+			}
 
 			for (String roleId : userData.getRoleIds()) {
 				Date					currentDate			= new Date();
@@ -294,6 +300,19 @@ public class UserManagementService {
 				userRoleAssociation.setUpdatedDate(currentDate);
 				userRoleRepository.save(userRoleAssociation);
 			}
+		}
+	}
+
+	public void saveUserProdifleData(JwsUserVO userData) throws Exception {
+		JwsUser jwsUser = new JwsUser();
+		if (userData.getIsProfilePage()) {
+			jwsUser = jwsUserRepository.findByUserId(userData.getUserId());
+			jwsUser.setFirstName(userData.getFirstName());
+			jwsUser.setLastName(userData.getLastName());
+			if (jwsUser.getIsActive() == Constants.ISACTIVE) {
+				jwsUser.setFailedAttempt(0);
+			}
+			jwsUserRepository.save(jwsUser);
 		}
 	}
 
@@ -327,7 +346,7 @@ public class UserManagementService {
 			Email email = new Email();
 			userData.setEmail(jwsUser.getEmail());
 			forcePasswordAndMail(userData, jwsUser, email);
-		} else if(userData.getIsSendMail() == true) {
+		} else if (userData.getIsSendMail() == true) {
 			Email email = new Email();
 			sendMailForUserUpdate(jwsUser.getUserId(), userData.getEmail(), email);
 		}
@@ -568,7 +587,7 @@ public class UserManagementService {
 		System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 	}
-	
+
 	private void sendMailForUserUpdate(String userId, String emailId, Email email) throws Exception {
 
 		Map<String, Object> mailDetails = new HashMap<>();
@@ -681,7 +700,7 @@ public class UserManagementService {
 
 		List<JwsMasterModulesVO>	masterModulesVO	= new ArrayList<>();
 		List<JwsMasterModules>		masterModules	= new ArrayList<>();
-		masterModules = jwsmasterModuleRepository.findAll();
+		masterModules = jwsmasterModuleRepository.findAllModulesForEntityLevelPermission(1);
 
 		for (JwsMasterModules jwsMasterModule : masterModules) {
 			masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));

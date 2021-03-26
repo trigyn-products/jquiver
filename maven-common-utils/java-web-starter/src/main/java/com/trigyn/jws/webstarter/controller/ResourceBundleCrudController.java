@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
@@ -32,6 +34,7 @@ import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping(value = "/cf")
+@PreAuthorize("hasPermission('module','Miltilingual')")
 public class ResourceBundleCrudController {
 
 	private final static Logger		logger					= LogManager.getLogger(ResourceBundleCrudController.class);
@@ -128,6 +131,16 @@ public class ResourceBundleCrudController {
 		List<ResourceBundleVO>					resourceBundleList	= objectMapper.readValue(modifiedContent,
 				resourceBundleType);
 		resourceBundleService.saveResourceBundleDetails(resourceBundleList, Constant.REVISION_SOURCE_VERSION_TYPE);
+	}
+
+	@PostMapping(value = "/rtbkl")
+	public String getTextByKeyAndLanguageId(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		String	resourceBundleKey	= a_httpServletRequest.getParameter("resourceBundleKey");
+		Integer	languageId			= StringUtils.isBlank(a_httpServletRequest.getParameter("languageId")) == false
+				? Integer.parseInt(a_httpServletRequest.getParameter("languageId"))
+				: null;
+		return resourceBundleService.findTextByKeyAndLanguageId(resourceBundleKey, languageId);
 	}
 
 }

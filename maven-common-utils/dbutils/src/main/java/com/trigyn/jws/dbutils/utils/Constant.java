@@ -11,6 +11,9 @@ public final class Constant {
 	public static final Integer	IS_INSIDE_MENU						= 1;
 	public static final Integer	IS_NOT_INSIDE_MENU					= 0;
 
+	public static final Integer	INCLUDE_LAYOUT						= 1;
+	public static final Integer	EXCLUDE_LAYOUT						= 0;
+
 	public static final Integer	IS_HOME_PAGE						= 1;
 	public static final Integer	IS_NOT_HOME_PAGE					= 0;
 

@@ -3,6 +3,7 @@ package com.trigyn.jws.webstarter.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import com.trigyn.jws.security.service.SecurityManagementService;
 
 @RestController
 @RequestMapping(value = "/cf")
+@PreAuthorize("hasPermission('module','Security Management')")
 public class JwsSecurityManagementController {
 
 	@Autowired

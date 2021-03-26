@@ -214,14 +214,23 @@ public class ModuleService {
 		if (!StringUtils.isBlank(moduleDetailsVO.getModuleId())) {
 			moduleListing.setModuleId(moduleDetailsVO.getModuleId());
 		}
+
 		if (!StringUtils.isBlank(moduleDetailsVO.getParentModuleId())) {
 			moduleListing.setParentId(moduleDetailsVO.getParentModuleId());
 		}
+
 		if (moduleDetailsVO.getIsInsideMenu().equals(Constant.IS_INSIDE_MENU)) {
 			moduleListing.setIsInsideMenu(moduleDetailsVO.getIsInsideMenu());
 		} else {
 			moduleListing.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
 		}
+
+		if (moduleDetailsVO.getIncludeLayout().equals(Constant.EXCLUDE_LAYOUT)) {
+			moduleListing.setIncludeLayout(moduleDetailsVO.getIncludeLayout());
+		} else {
+			moduleListing.setIncludeLayout(Constant.INCLUDE_LAYOUT);
+		}
+
 		moduleListing.setSequence(moduleDetailsVO.getSequence());
 		moduleListing.setModuleUrl(moduleDetailsVO.getModuleURL());
 		moduleListing.setIsHomePage(Constant.IS_NOT_HOME_PAGE);
@@ -288,6 +297,7 @@ public class ModuleService {
 					.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
 			moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 			if (!CollectionUtils.isEmpty(targetTypeList)) {
+				moduleDetailsMap.put("includeLayout", moduleDetailsVO.getIncludeLayout());
 				moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
 				moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
 			}
@@ -313,6 +323,7 @@ public class ModuleService {
 				moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 				if (!CollectionUtils.isEmpty(targetTypeList)) {
 					moduleDetailsMap.put("moduleUrl", moduleDetailsVO.getModuleURL());
+					moduleDetailsMap.put("includeLayout", moduleDetailsVO.getIncludeLayout());
 					moduleDetailsMap.put("targetTypeId", targetTypeList.get(0).get("targetTypeId"));
 					moduleDetailsMap.put("targetTypeName", targetTypeList.get(0).get("targetTypeName"));
 				}
@@ -345,49 +356,47 @@ public class ModuleService {
 
 	public String saveConfigHomePage(HttpServletRequest a_httHttpServletRequest) {
 		String			moduleId			= a_httHttpServletRequest.getParameter("moduleId");
-		Integer			targetLookupTypeId	= a_httHttpServletRequest.getParameter("targetLookupTypeId") != null
-				? Integer.parseInt(a_httHttpServletRequest.getParameter("targetLookupTypeId"))
-				: null;
-		String			targetTypeId		= a_httHttpServletRequest.getParameter("targetTypeId");
-		String			homePageUrl			= a_httHttpServletRequest.getParameter("homePageUrl");
+		String			oldModuleId			= a_httHttpServletRequest.getParameter("oldModuleId");
+
 		ModuleListing	moduleListing		= new ModuleListing();
+		ModuleListing	oldModuleListing	= new ModuleListing();
 
-		if (!StringUtils.isBlank(moduleId)) {
-			moduleListing.setModuleId(moduleId);
+		if (StringUtils.isBlank(moduleId) == false) {
+			moduleListing = iModuleListingRepository.getModuleListing(moduleId);
+			moduleListing.setIsHomePage(Constant.IS_HOME_PAGE);
+			iModuleListingRepository.saveAndFlush(moduleListing);
 		}
-
-		moduleListing.setModuleUrl(homePageUrl);
-		moduleListing.setTargetLookupId(targetLookupTypeId);
-		moduleListing.setTargetTypeId(targetTypeId);
-		moduleListing.setIsHomePage(Constant.IS_HOME_PAGE);
-		iModuleListingRepository.saveAndFlush(moduleListing);
-
-		moduleId = moduleListing.getModuleId();
-
-		ModuleListingI18n	moduleListingI18n	= new ModuleListingI18n();
-		ModuleListingI18nPK	moduleListingI18nPK	= new ModuleListingI18nPK();
-		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());
-		moduleListingI18nPK.setLanguageId(Constant.DEFAULT_LANGUAGE_ID);
-		moduleListingI18n.setId(moduleListingI18nPK);
-		moduleListingI18n.setModuleName(homePageUrl);
-		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());
-		iModuleListingI18nRepository.save(moduleListingI18n);
+		if (StringUtils.isBlank(oldModuleId) == false && oldModuleId.equals(moduleId) == false) {
+			oldModuleListing = iModuleListingRepository.getModuleListing(oldModuleId);
+			oldModuleListing.setIsHomePage(Constant.IS_NOT_HOME_PAGE);
+			iModuleListingRepository.saveAndFlush(oldModuleListing);
+		}
 
 		UserDetailsVO			detailsVO				= detailsService.getUserDetails();
 		String					loggedInUserId			= detailsVO.getUserName();
 		Date					date					= new Date();
 		String					roleId					= a_httHttpServletRequest.getParameter("roleId");
 		ModuleRoleAssociation	moduleRoleAssociation	= new ModuleRoleAssociation();
-		if (!StringUtils.isBlank(roleId)) {
+		if (StringUtils.isBlank(roleId) == false) {
 			moduleRoleAssociation.setRoleId(roleId);
-			moduleRoleAssociation.setModuleId(moduleId);
 			moduleRoleAssociation.setUpdatedBy(loggedInUserId);
 			moduleRoleAssociation.setUpdatedDate(date);
-			moduleRoleAssociation.setIsDeleted(Constant.RecordStatus.INSERTED.getStatus());
+			if (StringUtils.isBlank(moduleId) == false) {
+				moduleRoleAssociation.setModuleId(moduleId);
+				moduleRoleAssociation.setIsDeleted(Constant.RecordStatus.INSERTED.getStatus());
+			} else {
+				moduleRoleAssociation.setModuleId(oldModuleId);
+				moduleRoleAssociation.setIsDeleted(Constant.RecordStatus.DELETED.getStatus());
+			}
 			roleAssociationRepository.save(moduleRoleAssociation);
 		}
 
 		return moduleListing.getModuleId();
+	}
+
+	public String findModuleIdByRoleId(String roleId, String moduleId) throws Exception {
+		String mouduleIdDB = roleAssociationRepository.findModuleIdByRoleId(roleId, moduleId);
+		return mouduleIdDB;
 	}
 
 	public ModuleListing getModuleListing(String moduleId) throws Exception {

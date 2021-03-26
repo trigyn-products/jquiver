@@ -329,6 +329,7 @@
 				    });
 
 				      fileUpload.showSelectedFiles(selectedFiles, this, fileUpload.options.renderer);
+				      fileUpload.loadSelectedFiles();
 				   	}
 				});
 			  },

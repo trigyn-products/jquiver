@@ -130,7 +130,6 @@ let autocompleteCT;
 let multiselect;
 $(function () {
     autocomplete = $(''#rbAutocomplete'').autocomplete({
-        contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : false,
         render: function(item) {
@@ -152,7 +151,6 @@ $(function () {
     }, {key: "jws.action", languageId: 1, text: "Action"});
     
 	autocompletePF = $(''#rbAutocompletePF'').autocomplete({
-		contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : true,
         render: function(item) {
@@ -174,7 +172,6 @@ $(function () {
     });
 	
     multiselect = $(''#rbMultiselect'').multiselect({
-    	contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
         render: function(item) {
@@ -236,7 +233,6 @@ $(function () {
 	});
 	
 	autocompleteCT = $(''#rbAutocompleteCT'').autocomplete({
-		contextPath: contextPath,
         autocompleteId: "resourcesAutocomplete",
 		prefetch : true,
 		enableClearText: true,
@@ -334,7 +330,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             <a href="${(contextPath)!''''}/cf/da"> 
 				<input id="demoAutocomplete" class="btn btn-primary" name="demoAutocomplete" value="Demo" type="button">
 			</a>
-			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete Details" type="button">
+			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete" type="button">
 			<span onclick="backToWelcomePage();">
   		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
   		 </span>	
@@ -472,9 +468,9 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		<div class="row topband">
 			<div class="col-8">
 				<#if (autocompleteVO.autocompleteId)??>
-				    <h2 class="title-cls-name float-left">Edit Autocomplete Details</h2> 
+				    <h2 class="title-cls-name float-left">Edit Autocomplete</h2> 
 		        <#else>
-		            <h2 class="title-cls-name float-left">Add Autocomplete Details</h2>  
+		            <h2 class="title-cls-name float-left">Add Autocomplete</h2>  
 		        </#if>
 		    </div>
 	    
@@ -620,59 +616,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	});
 </script>
 <script src="${(contextPath)!''''}/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
-
-DROP PROCEDURE IF EXISTS autocompleteListing;
-CREATE PROCEDURE autocompleteListing (autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
-  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
-  SET @fromString  = ' FROM jq_autocomplete_details au ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = au.ac_id ");
-  SET @whereString = ' ';
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-  IF NOT autocompleteId IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND au.ac_id LIKE ''%',autocompleteId,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE au.ac_id LIKE ''%',autocompleteId,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT autocompleteDescription IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND au.ac_description LIKE ''%',autocompleteDescription,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE au.ac_description LIKE ''%',autocompleteDescription,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT acQuery IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND au.ac_select_query LIKE ''%',acQuery,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE au.ac_select_query LIKE ''%',acQuery,'%''');
-    END IF;  
-  END IF;
-  
-  SET @groupByString = ' GROUP BY au.ac_id ';
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY ac_id DESC');
-  END IF;
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('select count(*) from ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
 
 
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,acQuery,autocompleteTypeId', 2);

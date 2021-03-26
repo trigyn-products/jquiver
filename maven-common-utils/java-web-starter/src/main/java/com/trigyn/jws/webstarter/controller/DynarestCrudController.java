@@ -23,7 +23,7 @@ import com.trigyn.jws.webstarter.service.DynarestCrudService;
 
 @RestController
 @RequestMapping("/cf")
-@PreAuthorize("hasPermission('module','REST API Builder')")
+@PreAuthorize("hasPermission('module','REST API')")
 public class DynarestCrudController {
 
 	private final static Logger	logger				= LogManager.getLogger(DynarestCrudController.class);

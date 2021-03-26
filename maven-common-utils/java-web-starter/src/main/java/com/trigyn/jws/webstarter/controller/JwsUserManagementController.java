@@ -1,4 +1,4 @@
-package com.trigyn.jws.webstarter.controller;
+	package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.FailureHandler;
 import org.springframework.boot.devtools.restart.Restarter;
-import org.springframework.boot.devtools.restart.FailureHandler.Outcome;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +45,7 @@ import com.trigyn.jws.webstarter.service.UserManagementService;
 
 @RestController
 @RequestMapping(value = "/cf")
+@PreAuthorize("hasPermission('module','User Management')")
 public class JwsUserManagementController {
 
 	private final static Logger			logger						= LogManager
@@ -180,6 +181,13 @@ public class JwsUserManagementController {
 		return true;
 	}
 
+	@PostMapping(value = "/supd")
+	public Boolean saveUserProdifle(@RequestBody JwsUserVO userData) throws Exception {
+
+		userManagementService.saveUserProdifleData(userData);
+		return true;
+	}
+
 	@PostMapping(value = "/surap")
 	public Boolean saveUserRolesAndPolicies(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
@@ -298,7 +306,7 @@ public class JwsUserManagementController {
 				logger.error("Error ", a_exception);
 			}
 			Restarter.getInstance().restart(new FailureHandler() {
-				
+
 				@Override
 				public Outcome handle(Throwable failure) {
 					logger.error("Error while restarting the server : ", failure);
@@ -306,7 +314,6 @@ public class JwsUserManagementController {
 				}
 			});
 		}).start();
-
 
 	}
 

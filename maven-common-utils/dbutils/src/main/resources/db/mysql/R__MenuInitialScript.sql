@@ -44,7 +44,7 @@ REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (6,'Root');
 
 REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (1,'Dashboard');
 REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (2,'Form Builder');
-REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (3,'REST API Builder');
+REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (3,'REST API');
 REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (4,'Model and View');
 REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (5,'Template');
 

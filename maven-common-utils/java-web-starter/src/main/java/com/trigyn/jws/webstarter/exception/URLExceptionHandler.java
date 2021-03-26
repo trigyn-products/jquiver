@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
-import com.trigyn.jws.dbutils.repository.ModuleDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -26,7 +25,7 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
-import com.trigyn.jws.webstarter.controller.MasterModuleController;
+import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 public class URLExceptionHandler implements ErrorController {
@@ -38,13 +37,10 @@ public class URLExceptionHandler implements ErrorController {
 	private IModuleListingRepository	iModuleListingRepository	= null;
 
 	@Autowired
-	private ModuleDAO					moduleDAO					= null;
+	private MasterModuleService			masterModuleService			= null;
 
 	@Autowired
 	private MenuService					menuService					= null;
-
-	@Autowired
-	private MasterModuleController		masterModuleController		= null;
 
 	@Autowired
 	private IUserDetailsService			userDetails					= null;
@@ -95,7 +91,7 @@ public class URLExceptionHandler implements ErrorController {
 					if (!CollectionUtils.isEmpty(homePageURLList)) {
 						for (String homePageURL : homePageURLList) {
 							if (StringUtils.isBlank(fallbackTemplate) && !StringUtils.isBlank(homePageURL)) {
-								fallbackTemplate = masterModuleController.loadTemplate(httpServletRequest, homePageURL);
+								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL);
 							}
 						}
 					}

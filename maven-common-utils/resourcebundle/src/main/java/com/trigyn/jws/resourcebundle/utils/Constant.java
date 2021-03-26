@@ -7,6 +7,7 @@ public final class Constant {
 	}
 
 	public static final Integer	DEFAULT_LANGUAGE_ID	= 1;
+	public static final String	DEFAULT_LOCALE		= "en_US";
 	public static final String	LOCALE_ID			= "userLocale";
 
 	public enum RecordStatus {

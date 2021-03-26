@@ -416,46 +416,6 @@ REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_i
 
 
 
-DROP PROCEDURE IF EXISTS propertyMasterListing;
-CREATE PROCEDURE propertyMasterListing(ownerType VARCHAR(100), ownerId VARCHAR(150)
-, propertyName VARCHAR(150), propertyValue VARCHAR(250), modifiedBy VARCHAR(50), appVersion DECIMAL(7,4), comments TEXT
-,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @resultQuery = ' SELECT jpm.owner_type AS ownerType, jpm.owner_id AS ownerId, jpm.property_name AS propertyName '; 
-  SET @resultQuery = CONCAT(@resultQuery, ', jpm.property_value AS propertyValue, jpm.last_modified_date AS lastModifiedDate ');
-  SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
-
-  SET @fromString  = ' FROM jq_property_master AS jpm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jpm.property_master_id ");
-  SET @whereString = ' WHERE jpm.is_deleted = 0 ';
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-  SET @groupByString = ' GROUP BY propertyMasterId ';
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY lastModifiedDate DESC');
-  END IF;
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
-
-
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("propertyMasterListingGrid", 'Property Master Listing', 'Property Master Listing', 'propertyMasterListing'
-,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2);
-
-
-
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8174bf3b360174bf78e6780003', 'property-master-listing', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -643,7 +603,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>Property Value</label>
-					<input type="text" id="propertyValue" name="propertyValue" value="" maxlength="100" required class="form-control">
+					<textarea id="propertyValue" name="propertyValue" rows="4" required class="form-control">${(resultSetObject?api.get("property_value"))!""}</textarea>
 				</div>
 			</div>
 
@@ -651,7 +611,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="comment" style="white-space:nowrap">Comments</label>
-					<textarea id="comment" name="comment" value="" maxlength="100" class="form-control"></textarea>
+					<textarea id="comment" name="comment" value="" rows="4" maxlength="100" class="form-control"></textarea>
 				</div>
 			</div>
 			
@@ -782,13 +742,23 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         		$("#ownerType").val(''${resultSetList?api.get("owner_type")}'');
         		$("#propertyName").val(''${resultSetList?api.get("property_name")}'');
 				<#outputformat "RTF">
-					$("#propertyValue").val(''${resultSetList?api.get("property_value")}'');
+					
 				</#outputformat>
         		$("#comment").val(''${resultSetList?api.get("comments")}'');
         		$("#appVersion").val(''${resultSetList?api.get("app_version")}'');
         	</#list>
         <#else>
 			const generatedPrimaryKey = uuidv4();
+			let version = 0;
+            <#list systemProperties as key, value>
+                <#if key.propertyName == "version">
+                    version = "${value}".substring(8, 13).trim();
+                </#if>
+            </#list>
+            let arr = version.split("."); // Split the string using dot as separator
+            arr.pop(); // Remove the last element
+
+            $("#appVersion").val(arr.join("."));
 			$("#propertyMasterId").val(generatedPrimaryKey);
 			$("#primaryKey").val(generatedPrimaryKey);
         </#if>

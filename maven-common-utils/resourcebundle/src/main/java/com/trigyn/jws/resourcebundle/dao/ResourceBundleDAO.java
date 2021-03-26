@@ -1,21 +1,18 @@
 package com.trigyn.jws.resourcebundle.dao;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
-import com.trigyn.jws.resourcebundle.vo.LanguageVO;
-import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
+import com.trigyn.jws.resourcebundle.utils.Constant;
 
 @Repository
 public class ResourceBundleDAO extends DBConnection {
@@ -25,75 +22,42 @@ public class ResourceBundleDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	public void deleteResourceEntry(ResourceBundleVO dbresource, LanguageVO languageVO) throws Exception {
+	public void addResourceBundle(String resourceBundleKey, Integer languageId, String text) throws Exception {
+		NativeQuery query = getCurrentSession().createSQLQuery(QueryStore.SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE);
+		query.setParameter("resourceBundleKey", resourceBundleKey);
+		query.setParameter("languageId", languageId);
+		query.setParameter("text", text);
+		query.executeUpdate();
+	}
 
-		List<LanguageVO> languageVOList = getLanguageIdByLanguageName(languageVO);
-		for (LanguageVO language : languageVOList) {
-			dbresource.setLanguageId(language.getLanguageId());
+	public final static String QUERY_TO_GET_I18N_DATA_FOR_KEY = "SELECT rb.resource_key AS id, COALESCE( (SELECT rb1.text FROM jq_resource_bundle    AS rb1 "
+			+ "JOIN jq_language AS lang ON  lang.language_id = rb1.language_id AND lang.language_code LIKE :localeId  "
+			+ "WHERE rb1.resource_key = rb.resource_key) ,  rb.text) AS value FROM jq_resource_bundle    rb "
+			+ "LEFT OUTER JOIN jq_language ON rb.language_id = jq_language.language_id "
+			+ "WHERE jq_language.language_code LIKE :defaultLocaleId  " + "AND ( rb.resource_key IN (:keyInitials))";
+
+	public Map<String, String> getResourceBundleData(String localeId, List<String> keyInitials) throws Exception {
+
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put("localeId", localeId + "%");
+		namedParameters.put("defaultLocaleId", Constant.DEFAULT_LOCALE);
+		namedParameters.put("keyInitials", keyInitials);
+		List<Map<String, Object>>	resultSet	= namedParameterJdbcTemplate
+				.queryForList(QUERY_TO_GET_I18N_DATA_FOR_KEY, namedParameters);
+
+		Map<String, String>			result		= new HashMap<String, String>();
+
+		for (Map<String, Object> each : resultSet) {
+			if (localeId.equals(Constant.DEFAULT_LOCALE)) {
+				result.put(each.get("id").toString(), each.get("value").toString());
+			} else {
+				String	originalString	= StringEscapeUtils.unescapeHtml4(each.get("value").toString());
+				String	convertedTOUTF8	= new String(originalString.getBytes("UTF8"), "UTF8");
+				result.put(each.get("id").toString(), convertedTOUTF8);
+			}
 		}
-		jdbcTemplate.update(QueryStore.SQL_QUERY_TO_DELETE_RESOURCE_BUNDLE,
-				new Object[] { dbresource.getText(), dbresource.getLanguageId(), dbresource.getResourceKey() });
-	}
-
-	public void saveOrUpdateRecord(ResourceBundleVO dbresource) throws Exception {
-
-		List<ResourceBundleVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_MESSAGE_DETAILS,
-				new Object[] { dbresource.getLanguageId(), dbresource.getResourceKey() },
-				new RowMapper<ResourceBundleVO>() {
-					public ResourceBundleVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-						ResourceBundleVO resource = new ResourceBundleVO();
-						resource.setLanguageId(rs.getInt("languageId"));
-						resource.setResourceKey(rs.getString("resourceKey"));
-						resource.setText(rs.getString("text"));
-						return resource;
-					}
-				});
-		if (listDbresource.isEmpty()) {
-			jdbcTemplate.update(QueryStore.SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE, dbresource.getLanguageId(),
-					dbresource.getResourceKey(), dbresource.getText());
-		} else {
-			jdbcTemplate.update(QueryStore.SQL_QUERY_TO_UPDATE_RESOURCE_BUNDLE,
-					new Object[] { dbresource.getText(), dbresource.getResourceKey(), dbresource.getLanguageId() });
-		}
+		return result;
 
 	}
 
-	private List<LanguageVO> getLanguageIdByLanguageName(LanguageVO languageVO) throws Exception {
-
-		List<LanguageVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_LANGAUGE_ID_BY_NAME,
-				new Object[] { languageVO.getLanguageName() }, new RowMapper<LanguageVO>() {
-					public LanguageVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-						LanguageVO resource = new LanguageVO();
-						resource.setLanguageId(rs.getInt("languageId"));
-						return resource;
-					}
-				});
-		return listDbresource;
-	}
-
-	public List<ResourceBundleVO> checkResourceData(String resKey, String langId) throws Exception {
-
-		List<ResourceBundleVO> listDbresource = jdbcTemplate.query(QueryStore.SQL_QUERY_TO_GET_MESSAGE_DETAILS,
-				new Object[] { resKey, langId }, new RowMapper<ResourceBundleVO>() {
-					public ResourceBundleVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-						ResourceBundleVO resource = new ResourceBundleVO();
-						resource.setResourceKey(rs.getString("resourceKey"));
-						resource.setLanguageId(rs.getInt("languageId"));
-						return resource;
-					}
-				});
-
-		return listDbresource;
-
-	}
-
-	public List<ResourceBundleVO> getLanguageIdAndText(String resourceKey) throws Exception {
-		Map<String, String> namedParameters = new HashMap<String, String>();
-		namedParameters.put("resourceKey", resourceKey);
-		List<ResourceBundleVO> dataList = namedParameterJdbcTemplate.query(
-				QueryStore.SQL_QUERY_TO_GET_MESSAGE_DETAILS_BY_RESOURCE_KEY, namedParameters,
-				new BeanPropertyRowMapper<ResourceBundleVO>(ResourceBundleVO.class));
-		return dataList;
-
-	}
 }

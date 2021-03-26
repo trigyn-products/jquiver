@@ -621,19 +621,18 @@ WHERE fug.file_bin_id = :fileBinId
 
 
 REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments ) VALUES
-('74248905-db1b-4f47-bcf4-2d6894d90f33', 'system', 'system', 'file-bin-select-query', 'SELECT jfu.file_association_id AS fileAssociationId, jfu.file_bin_id AS fileBinId, jfu.file_path  
+('f07d3931-8d6e-11eb-9f5b-f48e38ab8cd7', 'system', 'system', 'file-bin-default-queries', 
+'[{"selectValidator_query": "SELECT jfu.file_association_id AS fileAssociationId, jfu.file_bin_id AS fileBinId, jfu.file_path  
 AS filePath, jfu.file_upload_id AS fileUploadId, jfu.original_file_name AS originalFileName, 
 jfu.physical_file_name AS physicalFileName  
 FROM jq_file_upload_config AS fug  
 INNER JOIN jq_file_upload AS jfu ON fug.file_bin_id = jfu.file_bin_id 
 WHERE fug.file_bin_id = :fileBinId AND jfu.file_association_id = :fileAssociationId 
-<#if loggedInUserName != "admin@jquiver.com">
+<#if loggedInUserName != ''admin@jquiver.com''>
     AND jfu.updated_by = :loggedInUserName
-</#if>', 0, NOW(), 'admin', 1.0000, 'selectValidator_query');
+</#if>"},
 
-
-REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments ) VALUES
-('e56d9df8-7cd7-11eb-971b-f48e38ab8cd7', 'system', 'system', 'file-bin-upload-query', 'SELECT COUNT(DISTINCT fug.file_bin_id) AS isAllowed
+{"uploadValidator_query":"SELECT COUNT(DISTINCT fug.file_bin_id) AS isAllowed
 FROM jq_file_upload_config AS fug 
 INNER JOIN jq_entity_role_association AS jera ON jera.entity_id = fug.file_bin_id 
 AND jera.is_active = 1
@@ -642,21 +641,21 @@ jmm.module_name = :moduleName
 INNER JOIN jq_user_role_association AS jura ON jura.role_id = jera.role_id 
 INNER JOIN jq_user AS jw ON jw.user_id = jura.user_id AND jw.email = :loggedInUserName
 LEFT OUTER JOIN jq_file_upload AS jfu ON fug.file_bin_id = jfu.file_bin_id
-WHERE fug.file_bin_id = :fileBinId', 0, NOW(), 'admin', 1.0000, 'uploadValidator_query');
+WHERE fug.file_bin_id = :fileBinId" }
 
-
-REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments ) VALUES
-('ec37bbbb-7cd7-11eb-971b-f48e38ab8cd7', 'system', 'system', 'file-bin-view-query', 'SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
-<#if loggedInUserName != "admin@jquiver.com">
+,{"viewValidator_query": "SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
+<#if loggedInUserName != ''admin@jquiver.com''>
     AND jfu.updated_by = :loggedInUserName
-</#if>', 0, NOW(), 'admin', 1.0000, 'viewValidator_query');
+</#if>" }
 
-
-REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments ) VALUES
-('f0c81394-7cd7-11eb-971b-f48e38ab8cd7', 'system', 'system', 'file-bin-delete-query', 'SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
-<#if loggedInUserName != "admin@jquiver.com">
+,{"deleteValidator_query": "SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
+<#if loggedInUserName != ''admin@jquiver.com''>
     AND jfu.updated_by = :loggedInUserName
-</#if>', 0, NOW(), 'admin', 1.0000, 'deleteValidator_query');
+</#if>"}]', 0, NOW(), 'admin', 1.41, '');
+
+
+DELETE FROM jq_property_master WHERE property_master_id IN 
+("92b31712-692d-11eb-9737-f48e38ab8cd7","74248905-db1b-4f47-bcf4-2d6894d90f33","e56d9df8-7cd7-11eb-971b-f48e38ab8cd7", "ec37bbbb-7cd7-11eb-971b-f48e38ab8cd7", "f0c81394-7cd7-11eb-971b-f48e38ab8cd7");
 
 
 REPLACE INTO jq_dynamic_rest_details
@@ -671,8 +670,7 @@ REPLACE INTO jq_dynamic_rest_dao_details
 (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (120, 'a1938aa4-bb8f-4c10-901f-66c614bedd40', 'fileBinQueryList', 'SELECT jpm.property_value AS defaultQuery, jpm.comments AS selectorId 
 FROM jq_property_master AS jpm 
-WHERE jpm.property_name IN ("file-bin-select-query", "file-bin-upload-query", 
-"file-bin-view-query", "file-bin-delete-query")', 1, 1);
+WHERE jpm.property_name = "file-bin-default-queries"', 1, 1);
 
 
 REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES

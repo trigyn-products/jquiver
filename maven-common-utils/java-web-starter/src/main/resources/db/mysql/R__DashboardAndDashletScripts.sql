@@ -709,6 +709,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			</div>	
 		</div>
 	</div>
+	
+	<div class="row">
+		<div class="col-3">
+			<input id="moduleId" value="19aa8996-80a2-11eb-971b-f48e38ab8cd7" name="moduleId"  type="hidden">
+	       	<@templateWithoutParams "role-autocomplete"/> 
+	    </div>
+    </div>
 	 
 	<div class="row margin-t-10">
 		<div class="col-12">
@@ -767,6 +774,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		}
+		
+		if(dashletId == ""){
+            let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+        }else{
+            addEditDashletFn.getEntityRoles();
+        }
+        
 		savedAction("dashlet-manage-details", dashletId);
 		hideShowActionButtons();
 	});

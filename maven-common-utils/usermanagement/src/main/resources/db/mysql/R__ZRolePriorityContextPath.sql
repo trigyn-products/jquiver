@@ -50,7 +50,7 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
 				
-				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+				<label for="isActive"><span class="asteriskmark">*</span>Status</label>
 	            <div class="onoffswitch">
 	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" />
 	                <label class="onoffswitch-label" for="isActive">
@@ -187,7 +187,7 @@ $(function () {
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "Role Priority", width: 160, align: "center", dataIndx: "role_priority", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Is Active", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center", render: roleStatus },
+        { title: "Status", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center", render: roleStatus },
         { title: "Action", width: 30, minWidth: 115, align: "center", render: editRole, dataIndx: "action", sortable: false }
 	];
 	let dataModel = {
@@ -404,7 +404,7 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
 		  </#if>
 		  <div class="col-3">
     		<div class="col-inner-form full-form-fields">
-				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+				<label for="isActive"><span class="asteriskmark">*</span>Status</label>
 	            <div class="onoffswitch">
 	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0">
 	                <label class="onoffswitch-label" for="isActive">
@@ -423,7 +423,8 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
          		              ${role?api.getRoleName()}
          		            </label>
          		           <div class="onoffswitch">
-				                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox" id="${role?api.getRoleId()}" value="0" />
+				                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox roleList" id="${role?api.getRoleId()}" value="0"  
+				                	onchange="uncheckAuthenticated();"/>
 				                <label class="onoffswitch-label" for="${role?api.getRoleId()}">
 				                    <span class="onoffswitch-inner"></span>
 				                    <span class="onoffswitch-switch"></span>
@@ -493,8 +494,10 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
   	savedAction("add-edit-user", isEdit);
 	hideShowActionButtons();
      // disable authenticated role
+     if(isEdit.trim() == ""){ 
         $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
      	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
+     }
      
      
     // setting value on edit.
@@ -523,6 +526,24 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
   });
   
   
+function uncheckAuthenticated(){ 
+	let isRoleChecked = false;
+let isChecked;
+$(".roleList").each(function(){
+	let roleId = $(this).attr("id");
+	isChecked = $("#"+roleId).prop("checked");
+	if(isChecked==true) {
+            isRoleChecked = true;
+        }
+    });
+if(isRoleChecked) {
+ $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",false);
+} else {
+ $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+}
+    $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
+}
+  
   function disableIsActive(){ 
 	if($("#forcePasswordChange").prop("checked")){
 		$("#isActive").prop("disabled",true);
@@ -548,31 +569,37 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
     let userData = new Object();
     userData.userId = $("#userId").val();
     userData.firstName =  $("#firstName").val().trim();
-     userData.lastName =  $("#lastName").val().trim();
-    userData.email = $("#email").val().trim();
-    userData.roleIds = [];
+    userData.lastName =  $("#lastName").val().trim();
     userData.isProfilePage = isProfilePage;
-    userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
-    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
-    $.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
-      userData.roleIds.push(value.id);
-    });
-    userData.isSendMail = $("#isSendMail").is(":checked");
+    <#if isProfilePage == false >
+	    userData.email = $("#email").val().trim();
+    	userData.roleIds = [];
+	    userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+	    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+	    $.each($("input[name=''rolesAssigned'']:checked"),function(key,value){
+	      userData.roleIds.push(value.id);
+	    });
+	    userData.isSendMail = $("#isSendMail").is(":checked");
+	</#if>
     
+	    $.ajax({
+			type : "POST",
+	    	contentType : "application/json",
+			<#if isProfilePage == false >
+				url : contextPath+"/cf/sud",
+			<#else>	
+				url : contextPath+"/cf/supd",
+			</#if>
+			data : JSON.stringify(userData),
+			success: function(data) {
+				showMessage("Information saved successfully", "success");
+			},
+			error: function(data) {
+				showMessage("Error occurred while saving details", "error");
+			},
+		});
+		return true;
     
-		$.ajax({
-		     		type : "POST",
-            contentType : "application/json",
-		     		url : contextPath+"/cf/sud",
-		     		data : JSON.stringify(userData),
-		            success: function(data) {
-		              showMessage("Information saved successfully", "success");
-		            },
-				 	error: function(data) {
-		      			showMessage("Error occurred while saving details", "error");
-		      	  	},
-		     	});
-		     	return true;
 	}
 	
     function checkEmailIdExist(){
@@ -805,6 +832,7 @@ let oAuthArray = [];
         if(element.checked) {
             $("#authTypeDiv").show();
 			$("#authType").val(2);
+			changeAuthentication();
         } else {
             $("#authTypeDiv").hide();
             $("#props").html("");
@@ -823,8 +851,12 @@ let oAuthArray = [];
         $("#props").html("");
          if(authType == 2){
             $.each(parsedProperties, function(key,val){  
-                    $("#props").append(''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''"><span class="asteriskmark">*</span>''+val.textValue
-                    +'' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'');
+                    let propertyElem = ''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''">'';
+                    if(val.required == true){
+                    	propertyElem = propertyElem + ''<span class="asteriskmark">*</span>'';
+                    }
+                    propertyElem = propertyElem + val.textValue + '' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'';
+                     $("#props").append(propertyElem);
                     $("#"+val.name).prop("checked",val.value).trigger("change");
                
                  
@@ -971,8 +1003,10 @@ let oAuthArray = [];
     function verificationChange(){ 
     	if($("#verificationStep").val() == 2){ 
     		$("#enableRegex").prop("checked",false).trigger("change");
+    		$("#enableRegex").prop("disabled",true);
     	}else{
-    		$("#enableRegex").prop("checked",true).trigger("change"); 
+    		$("#enableRegex").prop("checked",true).trigger("change");
+    		$("#enableRegex").prop("disabled",false); 
     	}
     }
     function restartServer(){
@@ -1043,17 +1077,18 @@ let oAuthArray = [];
 		            success: function(data) {
 			            if(inputId == "regexPattern"){ 
 		                    $.each(data, function (key, value) {
-			 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for="''+key+''">''+key+''<label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
+			 					$("#enableRegex").closest("div.row").append(''<div class="childElement col-3 col-inner-form full-form-fields"><label for="''+key+''" class="capitalize-txt-cls">''+key+''</label><input type="text"  id="''+key+''" name="''+key+''" class="form-control" value="''+value+''"></div>'');
 							});
 						}else if(inputId == "verification-mode"){
-							 $("#enableVerificationStep").closest("div.row").append(''<div class="col-3 col-inner-form full-form-fields"><label for="verificationStep">Verification Type<label><select id="verificationStep" onchange="verificationChange();" class="form-control"></select></div>'');
+							 $("#enableVerificationStep").closest("div.row").append(''<div class="col-3 col-inner-form full-form-fields"><label for="verificationStep">Verification Type</label><select id="verificationStep" onchange="verificationChange();" class="form-control"></select></div>'');
 							 $.each(data, function (key, value) {
                                  $("#enableVerificationStep").closest("div.row").find("#verificationStep").append(''<option value="''+value.value+''">''+value.name+''</option>'')
                                }); 
                              $("#enableVerificationStep").prop("disabled",true);	  
 						} else if(thisObj.id=="enableDynamicForm"){
-							$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap">Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
-							$("#enableDynamicForm").closest("div.row").append(''<div id="templateDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="templateNameAC" style="white-space:nowrap">Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName"><input type="hidden" id="templateId" value= "" name="templateId" ></div></div>'');
+							$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap"><span class="asteriskmark">*</span>Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
+							$("#enableDynamicForm").closest("div.row").append(''<div id="templateDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="templateNameAC" style="white-space:nowrap"><span class="asteriskmark">*</span>Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName"><input type="hidden" id="templateId" value= "" name="templateId" ></div></div>'');
+							disableInputSuggestion();
 							if(data.formId !== undefined){
 								$("#formId").val(data.formId);
 								$("#formName").val(data.formName);
@@ -1097,7 +1132,6 @@ let oAuthArray = [];
     	savedForm.targetTypeId = formDetails.formId;
     	savedForm.targetTypeName = formDetails.formName;
     	autocomplete = $(''#dynamicFormName'').autocomplete({
-    		contextPath: contextPath,
 	        autocompleteId: "dynamicForms",
 	        render: function(item) {
 	        	var renderStr ='''';
@@ -1130,7 +1164,6 @@ let oAuthArray = [];
     	savedTemplate.targetTypeId = templateDetails.templateId;
     	savedTemplate.targetTypeName = templateDetails.templateName;
     	autocomplete = $(''#templateNameAC'').autocomplete({
-    		contextPath: contextPath,
 	        autocompleteId: "templateListing",
 	        render: function(item) {
 	        	var renderStr ='''';
@@ -1996,7 +2029,6 @@ contextPath = "${(contextPath)!''''}";
 let multiselect;
 $(function () {	
 	multiselect = $("#rolesMultiselect").multiselect({
-		contextPath: contextPath,	
         autocompleteId: "rolesAutocomplete",
         multiselectItem: $("#rolesMultiselect_selectedOptions"),
         render: function(item) {
@@ -2371,7 +2403,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		</#if>
 		<div class="col-3">
     	<div class="col-inner-form full-form-fields">
-				<label for="isActive"><span class="asteriskmark">*</span>Is Active</label>
+				<label for="isActive"><span class="asteriskmark">*</span>Status</label>
 	            <div class="onoffswitch">
 	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" onchange="saveRolesAndPolicy();">
 	                <label class="onoffswitch-label" for="isActive">
@@ -2567,3 +2599,8 @@ REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name
 ('813a8274-88aa-11eb-8dcd-0242ac130003', '00d03ee9f-2b4d-11eb-96fd-f48e38ab9123', 'user-updated-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
 ('849d563a-88aa-11eb-8dcd-0242ac130003', '00d03ee9f-2b4d-11eb-96fd-f48e38ab9123', 'user-updated-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+
+DELETE FROM jq_user_role_association WHERE user_role_id = '9e3d2c83-0c63-11eb-9cf5-f48e38ab9348';
+UPDATE jq_user SET force_password_change = 1 WHERE email="admin@trigyn.com";    
+

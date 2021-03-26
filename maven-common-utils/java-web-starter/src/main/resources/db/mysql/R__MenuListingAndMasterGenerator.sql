@@ -78,8 +78,8 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                         <th>Included</th>
                         <th>Hidden</th>
                         <th>Column Name</th>
-                        <th>Display Name</th>
                         <th>I18N Resource Key</th>
+                        <th>Display Name</th>
                     </tr>
                 </table>
             </div>
@@ -151,8 +151,8 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                         <th>Included</th>
                         <th>Hidden</th>
                         <th>Column Name</th>
-                        <th>Display Name</th>
                         <th>I18N Resource Key</th>
+                        <th>Display Name</th>
                     </tr>
                 </table>
             
@@ -161,7 +161,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
         </div>
 	
-	
+	<input id="isDev" type="hidden" value="${(isDev)?c!''''}">
 	
 	<@templateWithoutParams "role-autocomplete"/> 
 		
@@ -202,6 +202,8 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     $("#showInMenu").prop("checked",false);
 	$("#showInMenu").trigger("change");
 	let tableAutocomplete;
+	let resourceKeyMap = new Map();
+	let existingKey = new Array();
 	
 	$(function() {
 	

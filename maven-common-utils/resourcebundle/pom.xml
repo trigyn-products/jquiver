@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.4.1-SNAPSHOT</version>
+		<version>1.4.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>resourcebundle</artifactId>
-	<version>1.4.1-SNAPSHOT</version>
+	<version>1.4.2-SNAPSHOT</version>
 	<name>resourcebundle</name>
 	<description>DB resource bundle</description>
 
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>1.4.1-SNAPSHOT</version>
+			<version>1.4.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

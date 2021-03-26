@@ -58,34 +58,66 @@ class ApplicationMetrics {
 	}
 	
 	createThreadDetails = function(data) {
+		debugger;
 		if(data == undefined) {
 			data = appMetrics.applicationDetails["thread-metrics"]
 		}
 		
-		let labels = Object.keys(data);
+//		let labels = Object.keys(data);
+		let labels = new Array();
+		let pointValues = new Array();
+		
+		for(let counter = 0; counter < Object.keys(data).length; counter++) {
+			let key = Object.keys(data)[counter];
+			let pointValue = data[Object.keys(data)[counter]];
+			if(key != "TOTAL_THREAD_COUNT" && pointValue !=0) {
+		    	labels.push(key);
+			    pointValues.push(pointValue);
+		    }
+		}
+		
 		let datasets = new Array();
 		let dataValue = {
 			  label: "Thread status",
-		      backgroundColor: "rgba(54, 162, 235, 1)",
-		      borderColor: "rgba(54, 162, 235, 1)",
-		      pointColor: "rgba(54, 162, 235, 1)",
+		      backgroundColor: [
+	              '#66CCFF',
+	              '#FFFF66',
+                  '#99CC00',
+	              '#2aebbe',
+	              '#f57fd9',
+                  '#d1eb2a',
+				],
 		    }
-		let pointValues = new Array();
-		for(let counter = 0; counter < Object.keys(data).length; counter++) {
-			let pointValue = data[Object.keys(data)[counter]];
-		    pointValues.push(pointValue);
-		}
+//		let pointValues = new Array();
+//		for(let counter = 0; counter < Object.keys(data).length; counter++) {
+//			let pointValue = data[Object.keys(data)[counter]];
+//		    pointValues.push(pointValue);
+//		}
 		dataValue["data"] = pointValues;
 		datasets.push(dataValue);
+		
 		let chartData = {labels: labels, datasets: datasets}
 		var ctx = document.getElementById("thread-metrics-chart").getContext("2d");
 		let threadDetailsChart = new Chart(ctx, {
-			type: "bar",
+			type: "doughnut",
 			data: chartData,
 			options: {
-				animation: false
+				animation: false,
+				/*legend: {
+		            display: false
+		         },*/
+				legend: {
+		    		position: 'right',
+		    		labels: {		    			
+		                fontColor: '#333',
+		                fontStyle: 'bold'
+		            }
+		        }
 			}
 		});
+		
+		
+		
 	}
 	
 	createMemoryPoolDetails = function(data) {
@@ -184,9 +216,9 @@ class ApplicationMetrics {
 			tabData = tabData + "<div><div id='responseDetails-head'>Response Status  </div>" +"<span id='responseDetails'></span></div>";
 			tabData = tabData + "<div><div id='auxilaryDetails-head'>Method Description  </div>" +"<span id='auxilaryDetails'></span></div>";
 			tabData = tabData + "<div><div id='requestTimestamp-head'>Time  </div>"+"<span id='requestTimestamp'></span></div>";
-			tabData = tabData + "<div><div id='requestMinTime-head'>Min Time (in min/sec)  </div>"+"<span id='requestMinTime'></span></div>";
-			tabData = tabData + "<div><div id='requestMaxTime-head'>Max Time (in min/sec)  </div>"+"<span id='requestMaxTime'></span></div>";
-			tabData = tabData + "<div><div id='requestAvgTime-head'>Average Time (in min/sec)  </div>"+"<span id='requestAvgTime'></span></div>";
+			tabData = tabData + "<div><div id='requestMinTime-head'>Min Time (in min:sec.ms)  </div>"+"<span id='requestMinTime'></span></div>";
+			tabData = tabData + "<div><div id='requestMaxTime-head'>Max Time (in min:sec.ms)  </div>"+"<span id='requestMaxTime'></span></div>";
+			tabData = tabData + "<div><div id='requestAvgTime-head'>Average Time (in min:sec.ms)  </div>"+"<span id='requestAvgTime'></span></div>";
 			tabData = tabData + "</div> ";
 			tabData = tabData +  "</div>";
 			tabData = tabData + '</div>';
@@ -261,11 +293,16 @@ class ApplicationMetrics {
 	    setInterval(this.createSystemProperties.bind(), 1000 * 60);
     }            
 	
-	millisToMinutesAndSeconds(millis) {
-		  var minutes = Math.floor(millis / 60000);
-		  var seconds = ((millis % 60000) / 1000).toFixed(0);
-		  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-		}
+	millisToMinutesAndSeconds(duration) {
+		let milliseconds = (duration % 1000) / 100;
+		let seconds = Math.floor((duration / 1000) % 60);
+		let minutes = Math.floor((duration / (1000 * 60)) % 60);
+		    
+		minutes = (minutes < 10) ? "0" + minutes : minutes;
+		seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+		return minutes + ":" + seconds + "." + milliseconds;
+	}
 
 }
 function openTab(evt, url) {
@@ -284,7 +321,7 @@ function openTab(evt, url) {
 	$("#requestMaxTime").html("");
 	$("#requestAvgTime").html("");
 	if(urldetails != null) {
-		var requestURL = JSON.parse(urldetails["httpRequestDetails"])["request-url"];
+		var requestURL = JSON.parse(urldetails["httpRequestDetails"])["updated-request-url"];
 		$("#requestDetails").append(requestURL);
 		
 		var methodDesc = JSON.parse(urldetails["auxillaryDetails"])["method-description"];

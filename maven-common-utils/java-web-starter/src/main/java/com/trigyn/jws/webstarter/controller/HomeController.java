@@ -24,6 +24,7 @@ import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
+import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 @RequestMapping("/cf")
@@ -44,7 +45,7 @@ public class HomeController {
 	private JwsRoleRepository			jwsRoleRepository			= null;
 
 	@Autowired
-	private MasterModuleController		masterModuleController		= null;
+	private MasterModuleService			masterModuleService			= null;
 
 	@GetMapping(value = "/home", produces = MediaType.TEXT_HTML_VALUE)
 	public String homePage(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -58,7 +59,7 @@ public class HomeController {
 			if (!CollectionUtils.isEmpty(homePageURLList)) {
 				for (String homePageURL : homePageURLList) {
 					if (!StringUtils.isBlank(homePageURL)) {
-						return masterModuleController.loadTemplate(httpServletRequest, homePageURL);
+						return masterModuleService.loadTemplate(httpServletRequest, homePageURL);
 					}
 				}
 			}
