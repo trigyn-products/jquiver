@@ -654,32 +654,28 @@ Step to configure role based home page:
 
 **Step 5:  **Once role has been created navigate to Site Layout.
 
-**Step 6:  **Click on Configure Default Page
+**Step 6:  **Click on Set Default Page
 ![](/cf/files/0a7a4f60-8819-43fd-aa85-90a02bb042ba)
 
 **Step 7:  **Edit newly created role
 ![](/cf/files/4daeff56-7cbc-4f9b-ba29-3c60021ec634)
 
-**Step 8:  **Select context type
-![](/cf/files/29f15fe9-bd19-4f4a-a4c9-ec198a9b078b) 
+**Step 8:  **Select module name
+![](/cf/files/29f15fe9-bd19-4f4a-a4c9-ec198a9b078b)
 
- 
-**Step 9:  **Select context name using autocomplete
+**Step 9:  **Click on save button
 ![](/cf/files/9656a918-91c6-4352-8dbb-07860e404e53)
 
-**Step 10:  **Provide unique URL. Click on save button
-![](/cf/files/fc7c2308-b17f-41b8-befc-64a383f45572)
+**Step 10:  **Now go back to User Management. 
 
-**Step 11:  **Now go back to User Management. 
-
-**Step 12:  **Click on Manage Users.
+**Step 11:  **Click on Manage Users.
 ![](/cf/files/ecbb9c05-228b-4a0d-b65c-202891905318)
 
 
-**Step 13:  **Edit any user details.
+**Step 12:  **Edit any user details.
 ![](/cf/files/44c3eaa9-82a7-4c66-8ba5-af20ab5ff087) 
 
-**Step 14:  **Enable newly created role and save the details
+**Step 13:  **Enable newly created role and save the details
 ![](/cf/files/ecb167a8-bb55-4c23-be00-32b88e8903d1) 
 
 
@@ -700,6 +696,15 @@ Suppose you have above configuration in place and Joe has all three roles so whe
 Steps to create module url with path variables:
 
 **Step 1: ** Create new template and access the path variables using freemarker list directives:
+
+<#noparse>
+<#if pathVariableList?? && pathVariableList?size != 0>
+	<#list pathVariableList as pathVariable>
+    	${pathVariable?cap_first}
+	</#list>
+</#if>
+</#noparse>
+
 ![](/cf/files/b92c317e-d2fd-44b5-a972-9ca18af4705d)
 
 **Step 2: ** Create new module in Site layout and save Module URL with path variables
@@ -709,7 +714,7 @@ Example:
 ![](/cf/files/c41a3346-5a70-4c56-b015-76f527c389cd)
 
 ** Validations: **
-
+  
 * Except for Root as context type, Module URL must be unique.
 * If Include In Menu is enable and if Parent module is Root then Sequence must be unique at parent level or else if Parent module is other than Root then Sequence shoud be unique in that particular group. 
 ', 5, NOW(), 'admin@jquiver.com');
@@ -791,8 +796,9 @@ There are many methods available in menu service to process a template. Call app
 | -------- | -------- | -------- | -------- |
 | getTemplateWithSiteLayout     | Template name and Template Parameters     | Yes     | To display template with layout     |
 | getTemplateWithSiteLayoutWithoutProcess     | Template name and Template Parameters     | Yes     | To display template content without processing it.    |
-| getDashletTemplateWithLayout     | Dashlet name and Template Parameters     | Yes     | To display dashlet with layout     |
 | getTemplateWithoutLayout     | Template name and Template Parameters     | No     | To display template without layout     |
+| getDashletWithLayout     | Dashlet name and Template Parameters     | Yes     | To display dashlet with layout     |
+| getDashletWithoutLayout     | Dashlet name, Dashlet Content and Template Parameters     | No     | To display dashlet without layout     |
 
 
 
@@ -923,10 +929,68 @@ If the primary key is of varchar type then `UUID()` is used as primary key, if a
 For new record  primaryId should be blank, for edit it should contain the value.
 
 
+To enable captcha in any form add following piece of code in html and JS ready function:
+```
+<div class="col-3">
+	<p>
+		<img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''''}/cf/captcha/<#noparse>${formId}</#noparse>_captcha">
+		<span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+		<label for="captcha" class="sr-only">Enter Captcha</label>
+		<input type="text" id="formCaptcha" name="formCaptcha" class="form-control" placeholder="Enter Captcha"  >
+	</p>  
+</div>
+```
 
-# File Upload Manager
+```
+$("#reloadCaptcha").click(function(event){
+	$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+    $("#formCaptcha").val("");
+});
+```
 
+In case of invalid captcha application will return **412** Precondition failed HTTP status code.
 
+```
+	function saveData(){
+		let isDataSaved = false;
+		let formData = validateData();	
+		if(formData === undefined){
+			$("#errorMessage").html("All fields are mandatory");
+			$("#errorMessage").show();
+			return false;
+		}
+		$("#errorMessage").hide();
+		formData.push({"name": "formId", "value": formId, "valueType": "varchar"});
+		formData.push({"name": "isEdit", "value": (isEdit + ""), "valueType": "int"});
+		
+		$.ajax({
+		  type : "POST",
+		  async: false,
+		  url : contextPath+"/cf/psdf",
+		  data : {
+		  	formData: JSON.stringify(formData),
+		  	formId: formId
+		  },
+          success : function(data) {
+			isDataSaved = true;
+            $("#reloadCaptcha").trigger("click");
+			showMessage("Information saved successfully", "success");
+		  },
+	      error : function(xhr, error){
+            if(xhr.status == 412){
+                showMessage("Invalid Captcha", "error");
+                $("#reloadCaptcha").trigger("click");
+            }  
+            else{
+			    showMessage("Error occurred while saving", "error");
+            }
+	      },
+		});
+		return isDataSaved;
+	}
+```
+
+**Note: **Make sure name attribute of input type is **formCaptcha** and src of img element is **<#noparse>${(contextPath)!''''}/cf/captcha/${formId}_captcha</#noparse>**
 
 ', 8, NOW(), 'admin@jquiver.com');
 
@@ -1383,6 +1447,7 @@ let autocomplete;
 $(function () {
     autocomplete = $(''#rbAutocomplete'').autocomplete({
         autocompleteId: "resourcesAutocomplete",
+		pageSize: 10,//Default page size is 10
 		prefetch : false,
         render: function(item) {
         	var renderStr ='''';
@@ -1403,7 +1468,14 @@ $(function () {
         select: function(item) {
             $("#rbAutocomplete").blur();
         }, 	
+		resetAutocomplete: function(){ 
+        	//This function will be executed onblur or when user click on clear text button
+        	//Code to reset dependent JavaScript variables, input fields etc.
+        }, 
     }, {key: "jws.action", languageId: 1, text: "Action"});
+    
+    //You can set default value using setSelectedObject function
+    autcomplete.setSelectedObject({key: "jws.action", languageId: 1, text: "Action"});
 });
 
 //User can reset any autocomplete component by calling resetAutocomplete function
@@ -1438,6 +1510,7 @@ let autocompletePF;
 $(function () {
 	autocompletePF = $(''#rbAutocompletePF'').autocomplete({
         autocompleteId: "resourcesAutocomplete",
+		pageSize: 10,//Default page size is 10
 		prefetch : true,
         render: function(item) {
         	var renderStr ='''';
@@ -1455,6 +1528,10 @@ $(function () {
         select: function(item) {
             $("#rbAutocompletePF").blur();
         }, 	
+		resetAutocomplete: function(){ 
+        	//This function will be executed onblur or when user click on clear text button
+        	//Code to reset dependent JavaScript variables, input fields etc.
+        },         
     });
 });    
  </script>   
@@ -1540,6 +1617,7 @@ let autocompleteCT;
 $(function () {
  	autocompleteCT = $(''#rbAutocompleteCT'').autocomplete({
         autocompleteId: "resourcesAutocomplete",
+		pageSize: 10,//Default page size is 10
 		prefetch : true,
 		enableClearText: true,
         render: function(item) {
@@ -1558,7 +1636,8 @@ $(function () {
         select: function(item) {
             $("#rbAutocompleteCT").blur();
         },
-		resetDependentInput: function(){ 
+		resetAutocomplete: function(){ 
+        	//This function will be executed onblur or when user click on clear text button
         	//Code to reset dependent JavaScript variables, input fields etc.
         },  	
     });
@@ -2285,6 +2364,93 @@ Add the page as a Favorite
 	6. Rest API
 	7. Dashboard
 	8. Dashlet
+	
+**Calendar**
+There can be many a conditions, that you need to add to a calendar component available in JQuiver.
+Following are some, which we are explaining how to handle.
+
+If you have calendar in any of your form or template, then following has to be taken care.
+
+**Step 1:**
+Import following js into your form/template
+<#noparse>
+```
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+```
+</#noparse>
+
+**Step 2:**
+Below code snippet has to be added, to define the calendar component. This will allow you to define the date format, time format, input field on which calendar is declared etc.
+```
+fromDateCal = Calendar.setup({
+			trigger    : "validfrom-trigger",
+			inputField : "validfrom",
+			dateFormat : "%d-%b-%Y",
+			weekNumbers: true,
+            showTime: 12,
+            min : Calendar.dateToInt(new Date()),
+			onSelect   : function() { 
+				let selectedDate = this.selection.get();
+				let date = Calendar.intToDate(selectedDate);
+				date = Calendar.printDate(date, "%d-%b-%Y %H:%M:%S");
+				$("#"+this.inputField.id).val(date);
+				this.hide();
+                if(fromDateCal.selection.sel <= Calendar.dateToInt(new Date())){
+                    tillDateCal.args.bottomBar = true;
+                }else{
+                    tillDateCal.args.bottomBar = false;
+                }
+                tillDateCal.args.min = Calendar.intToDate(fromDateCal.selection.sel);
+                tillDateCal.redraw();
+                $("#errorMessage").hide();
+			},            
+		});
+```
+
+In the above example, we have also explained how to set any value on the calendar, on select of any other criteria. That is, if you want to preset a default value on the calendar, depending on the data input on another field dynamically, it can be handled in  "onSelect".
+
+**Step 3:**
+Define the ui component on which the calendar has to be set. make sure to link the id properly.
+```
+<label for="validfrom">Valid from</label>
+<span>
+			<input id="validfrom" data-type="varchar" onkeyup="validateFromDate()" name="validfrom" class="form-control" placeholder="Valid from" autocomplete="off"/>
+			<button id="validfrom-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+</span>
+```
+
+**Step 4:**
+Provide validations, if required as below
+```
+function validateFromDate(){
+        let currentDate = Calendar.printDate(new Date(), "%d-%b-%Y %H:%M:%S");
+        let fromDate = Calendar.intToDate(Calendar.parseDate($("#validfrom").val()), false);
+        let fromDateInt = Calendar.dateToInt(fromDate);
+        if(isEdit == 0 && fromDateInt < Calendar.dateToInt(new Date())){
+            $("#errorMessage").html("Valid from must be greater than " + currentDate);
+            $("#errorMessage").show();
+            return false;
+        }
+        $("#errorMessage").hide();
+        return true;
+}
+```
+
+# Keyboard Shortcuts
+**Monaco Editor Shortcuts**
+
+**Ctrl + S**  Save editor content
+**Ctrl + Shift + M**  Editor Enter/Exit Full Screen
+Above shortcuts are available in following modules:
+
+* TypeAhead/Autocomplete
+* File Bin
+* Templating
+* Form Builder
+* REST API
+* Dashlet
+
 ', 18, NOW(), 'admin@jquiver.com');
 
 /*************************************************Others - Start****************************************************************/
@@ -2502,9 +2668,9 @@ REPLACE INTO jq_file_upload(file_upload_id, file_bin_id, file_path, original_fil
 ('4daeff56-7cbc-4f9b-ba29-3c60021ec634', 'helpManual', '/images', 'Role_Based_Home_Page_Step_5.png', 'b329c929-edb7-41e9-905a-49c0e409df14', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e'), 
 ('29f15fe9-bd19-4f4a-a4c9-ec198a9b078b', 'helpManual', '/images', 'Role_Based_Home_Page_Step_6.png', '29f61697-ac85-49f6-90c7-3b4aeb3595b9', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e'), 
 ('9656a918-91c6-4352-8dbb-07860e404e53', 'helpManual', '/images', 'Role_Based_Home_Page_Step_7.png', '376a790c-076e-49b5-a912-d0ce63239e15', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e'), 
-('fc7c2308-b17f-41b8-befc-64a383f45572', 'helpManual', '/images', 'Role_Based_Home_Page_Step_8.png', '1bf19787-2268-4524-a34b-bcd50a706e7f', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e'), 
-('ecbb9c05-228b-4a0d-b65c-202891905318', 'helpManual', '/images', 'Role_Based_Home_Page_Step_9.png', 'a41d3d1a-ff19-45b0-ac86-3f3a6dbc5870', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e');
+('ecbb9c05-228b-4a0d-b65c-202891905318', 'helpManual', '/images', 'Role_Based_Home_Page_Step_8.png', 'a41d3d1a-ff19-45b0-ac86-3f3a6dbc5870', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e');
 
+DELETE FROM jq_file_upload WHERE file_upload_id = 'fc7c2308-b17f-41b8-befc-64a383f45572';
 
 REPLACE INTO jq_file_upload(file_upload_id, file_bin_id, file_path, original_file_name, physical_file_name, updated_by, last_update_ts, file_association_id) VALUES
 ('93d0e859-4726-41ea-af6d-743258cbecd1', 'helpManual', '/images', 'Site_Layout_Group_Step_1.PNG', '82d226ad-56b6-4d48-9cbc-c08c393bff10', 'admin@jquiver.com', NOW(), '68613ad7-8596-4c48-94e6-f752ab53eb4e'),

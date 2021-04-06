@@ -777,7 +777,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             </div>
         </div>
         <div id="authTypeDiv" class="col-3 float-left col-inner-form full-form-fields">
-        <label for="authType"><span class="asteriskmark">*</span>Authentication Types</label>
+        <label for="authType"><span class="asteriskmark">*</span>Authentication Type</label>
          <select id="authType" class="form-control" onchange="changeAuthentication();">
         <#list authenticationTypesVO as authenticationType>
             <option
@@ -850,7 +850,8 @@ let oAuthArray = [];
         }
         $("#props").html("");
          if(authType == 2){
-            $.each(parsedProperties, function(key,val){  
+            $.each(parsedProperties, function(key,val){ 
+            	if(val.name !== "enablePasswordExpiry"){ 
                     let propertyElem = ''<div class="row"><div class="col-3 float-left col-inner-form full-form-fields"><label for="''+val.name+''">'';
                     if(val.required == true){
                     	propertyElem = propertyElem + ''<span class="asteriskmark">*</span>'';
@@ -858,12 +859,18 @@ let oAuthArray = [];
                     propertyElem = propertyElem + val.textValue + '' </label> <div class="onoffswitch"><input type="checkbox" name="'' +val.name+'' " class="onoffswitch-checkbox" id="'' +val.name+''" onchange="addInputFields(this);" /><label class="onoffswitch-label" for="'' +val.name+''"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>'';
                      $("#props").append(propertyElem);
                     $("#"+val.name).prop("checked",val.value).trigger("change");
-               
+               }
                  
                     setTimeout(function () {
                         if(val.name=="enableVerificationStep"){
                             $("#verificationStep").val(val.selectedValue);
                             selectedVerificationType = val.selectedValue;
+                            if(selectedVerificationType !== "2") {
+                                $("#enablePasswordExpiry").show();
+                            }
+                        }
+                        if(val.name=="enablePasswordExpiry"){
+                            $("#passwordExpiry").val(val.selectedValue);
                         }
                     }, 100);
                 });    
@@ -903,7 +910,8 @@ let oAuthArray = [];
         if(properties!= undefined && properties != ""){
           parsedProperties = JSON.parse(properties);
         }
-       
+       let isPasswordCaptchaEnabled = false;
+        
         $.each(parsedProperties, function(key,val){
             if(authenticationTypeId == 2){
                 if(val.type=="boolean"){
@@ -911,6 +919,18 @@ let oAuthArray = [];
                 }  
                 if(val.name=="enableVerificationStep"){
                     val.selectedValue = $("#verificationStep").val();
+                    if(val.selectedValue !== "2") {
+                        isPasswordCaptchaEnabled = true;
+                    }
+                }
+                if(val.name=="enablePasswordExpiry"){
+                    if(isPasswordCaptchaEnabled == true) {
+                        val.value = true;
+                        val.selectedValue = $("#passwordExpiry").val();
+                    } else {
+                        val.value = false;
+                        val.selectedValue = "30";        
+                    }                    
                 }
             }else if(authenticationTypeId == 4){
                  let selectedValue = $("#oauth").val();
@@ -1008,6 +1028,12 @@ let oAuthArray = [];
     		$("#enableRegex").prop("checked",true).trigger("change");
     		$("#enableRegex").prop("disabled",false); 
     	}
+
+        if($("#verificationStep").val() !== "2"){ 
+    		$("#enablePasswordExpiry").show();
+    	} else {
+            $("#enablePasswordExpiry").hide();
+        }
     }
     function restartServer(){
      	
@@ -1081,10 +1107,12 @@ let oAuthArray = [];
 							});
 						}else if(inputId == "verification-mode"){
 							 $("#enableVerificationStep").closest("div.row").append(''<div class="col-3 col-inner-form full-form-fields"><label for="verificationStep">Verification Type</label><select id="verificationStep" onchange="verificationChange();" class="form-control"></select></div>'');
+							 $("#enableVerificationStep").closest("div.row").append(''<div class="col-3 col-inner-form full-form-fields" id="enablePasswordExpiry"><label for="passwordExpiry">Password Expiry</label><select id="passwordExpiry" class="form-control"><option value="30">30</option><option value="45">45</option><option value="60">60</option><option value="75">75</option><option value="90">90</option></select></div>'');
 							 $.each(data, function (key, value) {
                                  $("#enableVerificationStep").closest("div.row").find("#verificationStep").append(''<option value="''+value.value+''">''+value.name+''</option>'')
                                }); 
                              $("#enableVerificationStep").prop("disabled",true);	  
+                             $("#enablePasswordExpiry").hide();
 						} else if(thisObj.id=="enableDynamicForm"){
 							$("#enableDynamicForm").closest("div.row").append(''<div id="dynamicFormDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="dynamicFormName" style="white-space:nowrap"><span class="asteriskmark">*</span>Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName"><input type="hidden" id="formId" value= "" name="formId" ></div></div>'');
 							$("#enableDynamicForm").closest("div.row").append(''<div id="templateDiv" class="col-3"><div class="col-inner-form full-form-fields">	<label for="templateNameAC" style="white-space:nowrap"><span class="asteriskmark">*</span>Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="form-control"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName"><input type="hidden" id="templateId" value= "" name="templateId" ></div></div>'');
@@ -2164,8 +2192,8 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
         		<div class="alert alert-danger" role="alert">${invalidCaptcha} </div>
         	</#if>
         	<p>
-          		<label for="password" class="sr-only">Enter System generated Password</label>
-         	 	<input type="text" id="password" name="password" class="form-control" placeholder="Enter System generated Password" required autofocus>
+          		<label for="password" class="sr-only">Enter Current Password</label>
+         	 	<input type="text" id="password" name="password" class="form-control" placeholder="Enter Current Password" required autofocus>
         	</p>
         	<p>
           		<label for="newPassword" class="sr-only">Enter New Password</label>
@@ -2183,6 +2211,7 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
         	
         	 <button class="btn btn-lg btn-primary btn-block" type="submit">Change password</button>
 			 <input type="hidden" id="tokenId" name ="tokenId" value="${tokenId}">
+			 <input type="hidden" id="icp" name ="icp" value="${(icp)!''''}">
 	   </form>
 	</div>
 	</div>	</div>		   
@@ -2599,6 +2628,20 @@ REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name
 ('813a8274-88aa-11eb-8dcd-0242ac130003', '00d03ee9f-2b4d-11eb-96fd-f48e38ab9123', 'user-updated-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
 ('849d563a-88aa-11eb-8dcd-0242ac130003', '00d03ee9f-2b4d-11eb-96fd-f48e38ab9123', 'user-updated-mail', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
+
+
+Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
+('dabf24e8-9222-11eb-93f6-f48e38ab8cd7', 'confirm-account-mail-subject', 'Account Confirmation',
+'admin','admin',now(), 2);
+
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('df946aa8-9222-11eb-93f6-f48e38ab8cd7', 'dabf24e8-9222-11eb-93f6-f48e38ab8cd7', 'confirm-account-mail-subject', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1, 0);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('e3b090f4-9222-11eb-93f6-f48e38ab8cd7', 'dabf24e8-9222-11eb-93f6-f48e38ab8cd7', 'confirm-account-mail-subject', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+REPLACE INTO jq_entity_role_association  (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES 
+('e84213c5-9222-11eb-93f6-f48e38ab8cd7', 'dabf24e8-9222-11eb-93f6-f48e38ab8cd7', 'confirm-account-mail-subject', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 0);
+
+
 
 
 DELETE FROM jq_user_role_association WHERE user_role_id = '9e3d2c83-0c63-11eb-9cf5-f48e38ab9348';

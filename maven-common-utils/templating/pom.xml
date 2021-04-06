@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.4.2-SNAPSHOT</version>
+		<version>1.4.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>templating</artifactId>
 	<name>templating</name>
@@ -29,25 +29,25 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.4.2-SNAPSHOT</version>
+			<version>1.4.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>resourcebundle</artifactId>
-			<version>1.4.2-SNAPSHOT</version>
+			<version>1.4.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>webjars</artifactId>
-			<version>1.2.16</version>
+			<version>1.2.18</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>usermanagement</artifactId>
-			<version>1.4.2-SNAPSHOT</version>
+			<version>1.4.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

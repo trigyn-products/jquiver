@@ -222,32 +222,30 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 	    		<div class="col-3">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
-							
 							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
 						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse>
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" class="form-control">
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> ''${(columnDetailsList.fieldName)!''''}'' <#noparse>/>"</#noparse> class="form-control">
 				            <#elseif (columnDetailsList.columnType) == "datetime">
 				                    <span class="asteriskmark">*</span>
 				                    <label for="${(columnDetailsList.columnName)}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse></label>
 				                    <span>
-										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse> />
+										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> ''${(columnDetailsList.fieldName)!''''}'' <#noparse>/></#noparse> />
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
 							<#else>
 								<span class="asteriskmark">*</span>
 								<label for="${(columnDetailsList.columnName)!""}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse></label>
-								<textarea class="form-control" rows="15" cols="90" data-type="text" <#noparse>/></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''''}" <#noparse>/></#noparse> name="${(columnDetailsList.columnName)!""}" style="height:80px"><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+								<textarea class="form-control" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> ''${(columnDetailsList.fieldName)!''''}'' <#noparse>/>"</#noparse> name="${(columnDetailsList.columnName)!""}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
 							</#if>
 							
 						<#else>	
-							
 							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
 						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						            	${columnDetailsList?api.get(''fieldName'')!''''}
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" class="form-control">
+								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''''}" class="form-control">
 				            <#elseif (columnDetailsList.columnType) == "datetime">
 				                    <span class="asteriskmark">*</span>
 				                    <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''''}</label>
@@ -258,15 +256,13 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 							<#else>
 								<span class="asteriskmark">*</span>
 								<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''''}</label>
-								<textarea class="form-control" rows="15" cols="90" data-type="text" <#noparse>/></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''''}" name="${(columnDetailsList.columnName)}" style="height:80px"><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
+								<textarea class="form-control" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''''}" name="${(columnDetailsList.columnName)}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
 							</#if>
-							
 						</#if>
-						
 					</div>
 				</div>
 			<#else>
-				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>">
+				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" >
 			</#if>
     	</#list>
     	</div>
@@ -470,14 +466,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         let colM = [
           <#list gridDetails as gridInfo>
           	<#if (gridInfo.i18nResourceKey)?? && (gridInfo.i18nResourceKey)?has_content>
-            	{ title: "<#noparse><@resourceBundle</#noparse> "${(gridInfo.i18nResourceKey)!''''}" <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
+            	{ title: "<#noparse><@resourceBundle</#noparse> ''${(gridInfo.i18nResourceKey)!''''}'' <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             <#else>
             	{ title: "${(gridInfo.displayName)!''''}", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             </#if>
           </#list>
-            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+            { title: "<#noparse><@resourceBundle</#noparse> ''jws.action'' <#noparse>/></#noparse>", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
     
     	let dataModel = {
@@ -495,7 +491,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
     function manageRecord(uiObject) {
         let rowIndx = uiObject.rowIndx;
-        return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>"jws.edit"<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>''.toString();
+        return ''<span id="''+rowIndx+''" onclick="createNew(this)" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>''jws.edit''<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>''.toString();
     }
     
     //Add logic to navigate to create new record

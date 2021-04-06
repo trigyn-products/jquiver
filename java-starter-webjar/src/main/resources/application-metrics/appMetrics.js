@@ -1,4 +1,6 @@
-class ApplicationMetrics {
+
+	let selectedHttpTraceTab;
+	class ApplicationMetrics {
 		
 	gcOptions = {
 	    animation: false,
@@ -58,7 +60,6 @@ class ApplicationMetrics {
 	}
 	
 	createThreadDetails = function(data) {
-		debugger;
 		if(data == undefined) {
 			data = appMetrics.applicationDetails["thread-metrics"]
 		}
@@ -213,9 +214,7 @@ class ApplicationMetrics {
 			tabData = tabData + "<div id='http-trace-url-details'> " ;
 			tabData = tabData + "<div id='httpDetails'>";
 			tabData = tabData + "<div><div id='requestDetails-head'>Request URL  </div>"+"<span id='requestDetails'></span></div>";
-			tabData = tabData + "<div><div id='responseDetails-head'>Response Status  </div>" +"<span id='responseDetails'></span></div>";
-			tabData = tabData + "<div><div id='auxilaryDetails-head'>Method Description  </div>" +"<span id='auxilaryDetails'></span></div>";
-			tabData = tabData + "<div><div id='requestTimestamp-head'>Time  </div>"+"<span id='requestTimestamp'></span></div>";
+			tabData = tabData + "<div><div id='requestTimestamp-head'>Last Access Time  </div>"+"<span id='requestTimestamp'></span></div>";
 			tabData = tabData + "<div><div id='requestMinTime-head'>Min Time (in min:sec.ms)  </div>"+"<span id='requestMinTime'></span></div>";
 			tabData = tabData + "<div><div id='requestMaxTime-head'>Max Time (in min:sec.ms)  </div>"+"<span id='requestMaxTime'></span></div>";
 			tabData = tabData + "<div><div id='requestAvgTime-head'>Average Time (in min:sec.ms)  </div>"+"<span id='requestAvgTime'></span></div>";
@@ -229,7 +228,10 @@ class ApplicationMetrics {
 		$("#http-trace-metrics-content").append(component);
 
 		for(let counter = 0; counter < details.length; counter++) {
-			if(counter == 0) {
+			if(selectedHttpTraceTab != null || selectedHttpTraceTab !== undefined) {
+				document.getElementById(selectedHttpTraceTab).click();
+				break;
+			} else if(counter == 0) {
 				document.getElementById(details[counter]).click();
 				break;
 			}
@@ -306,6 +308,7 @@ class ApplicationMetrics {
 
 }
 function openTab(evt, url) {
+	selectedHttpTraceTab = url;
   	var i, tablinks;
   	tablinks = document.getElementsByClassName("tablinks");
   	for (i = 0; i < tablinks.length; i++) {
@@ -323,12 +326,6 @@ function openTab(evt, url) {
 	if(urldetails != null) {
 		var requestURL = JSON.parse(urldetails["httpRequestDetails"])["updated-request-url"];
 		$("#requestDetails").append(requestURL);
-		
-		var methodDesc = JSON.parse(urldetails["auxillaryDetails"])["method-description"];
-		$("#auxilaryDetails").append(methodDesc);
-		
-		var responseStatus = JSON.parse(urldetails["httpResponseDetails"])["response-status"];
-		$("#responseDetails").append(responseStatus);
 		
 		$("#requestTimestamp").append(urldetails["requestTimestamp"]);
 

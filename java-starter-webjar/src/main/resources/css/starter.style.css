@@ -3143,7 +3143,7 @@ th {
 }
 
 #httpDetails div>div {
-	width: 25%;
+	width: 30%;
 	display: inline-block;
 	position: relative;
 	float: left;
@@ -3317,6 +3317,7 @@ th {
 
 .pg-revision-history span.grid_action_icons {
 	margin-left: 8px;
+	margin-top: 4px;
 }
 
 @media (min-width: 768px) {
@@ -3936,4 +3937,8 @@ input.pq-grid-hd-search-field[type=text]:focus{
 
 .capitalize-txt-cls{
 	text-transform: capitalize;
+}
+
+.failed-mail-slider-cls{
+    float: right;
 }

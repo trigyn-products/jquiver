@@ -58,7 +58,8 @@
 							dropzone.emit("addedfile", file);
 							dropzone.emit("complete", file);
 		       				dropzone.files.push(file);
-							let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right'></i>");
+		       				let viewTxt = resourceBundleData("jws.viewFile");
+							let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right' title='"+viewTxt["jws.viewFile"]+"'></i>");
 						    let fileId = data[iCounter]["fileId"];
 	  		  				viewButton.addEventListener("click", function(event) {
 	  		  					context.viewFileEvent(event, fileId)
@@ -97,7 +98,8 @@
 							dropzone.emit("addedfile", file);
 							dropzone.emit("complete", file);
 		       				dropzone.files.push(file);
-							let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right'></i>");
+		       				let viewTxt = resourceBundleData("jws.viewFile");
+							let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right' title='"+viewTxt["jws.viewFile"]+"'></i>");
 						    let fileId = data[iCounter]["fileId"];
 	  		  				viewButton.addEventListener("click", function(event) {
 	  		  					context.viewFileEvent(event, fileId)
@@ -290,7 +292,8 @@
 		  		  	fileObj.id = JSON.parse(data.xhr.response)["fileIds"][0];
 		  		  	showMessage("File uploaded successfully", "success");
 		  		  	console.log(JSON.parse(data.xhr.response)["fileIds"]);
-		  		  	var viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right'></i>");
+		  		  	let viewTxt = resourceBundleData("jws.viewFile");
+		  		  	let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right' title='"+viewTxt["jws.viewFile"]+"'></i>");
 		  		  	let fileId = JSON.parse(data.xhr.response)["fileIds"][0];
 		  		  	viewButton.addEventListener("click", function(e) {
 		  		  		fileUpload.viewFileEvent(e, fileId)
@@ -320,7 +323,8 @@
 			            formData.append("fileAssociationId", options.fileAssociationId);
 			        });
 			      this.on("addedfile", function(file) {
-				        let removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-close float-left'></i>");
+			      		let deleteTxt = resourceBundleData("jws.deleteFile");
+				        let removeButton = Dropzone.createElement("<i class='fileupload-actions fa fa-close float-left'  title='"+deleteTxt["jws.deleteFile"]+"'></i>");
 				        let _this = this;
 				        removeButton.addEventListener("click", function(e) {
 				        	fileUpload.removeFileEvent(e, _this, file)

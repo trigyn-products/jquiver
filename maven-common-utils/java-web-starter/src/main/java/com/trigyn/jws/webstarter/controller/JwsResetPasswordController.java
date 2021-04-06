@@ -1,15 +1,11 @@
 package com.trigyn.jws.webstarter.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.InternetAddress;
@@ -22,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +37,6 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsResetPasswordTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
-import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.SendMailService;
@@ -121,8 +117,9 @@ public class JwsResetPasswordController {
 					TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 					return templatingUtils.processTemplateContents(templateVO.getTemplate(),
 							templateVO.getTemplateName(), mapDetails);
+				} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+					session.removeAttribute("resetCaptcha");
 				}
-
 				existingUser.setIsActive(Constants.INACTIVE);
 				userRepository.save(existingUser);
 				JwsResetPasswordToken	resetPassword	= new JwsResetPasswordToken();
@@ -131,20 +128,21 @@ public class JwsResetPasswordController {
 				resetPassword.setPasswordResetTime(Calendar.getInstance());
 				resetPassword.setUserId(existingUser.getUserId());
 				String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
-				resetPassword.setResetPasswordUrl(baseURL+"/cf/resetPassword?token=" + tokenId);
+				resetPassword.setResetPasswordUrl(baseURL + "/cf/resetPassword?token=" + tokenId);
 				resetPassword.setIsResetUrlExpired(Boolean.FALSE);
 				resetPasswordTokenRepository.save(resetPassword);
 
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
-				
-//				email.setMailFrom("admin@jquiver.com");
-				Map<String, Object> mailDetails = new HashMap<>();
-				TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("reset-password-mail-subject");
-				String		subject	= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-						subjectTemplateVO.getTemplateName(), mailDetails);
+
+				// email.setMailFrom("admin@jquiver.com");
+				Map<String, Object>	mailDetails			= new HashMap<>();
+				TemplateVO			subjectTemplateVO	= templatingService
+						.getTemplateByName("reset-password-mail-subject");
+				String				subject				= templatingUtils.processTemplateContents(
+						subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 				email.setSubject(subject);
-				
+
 				mailDetails.put("baseURL", baseURL);
 				mailDetails.put("tokenId", tokenId);
 				TemplateVO	templateVO	= templatingService.getTemplateByName("reset-password-mail");
@@ -247,12 +245,18 @@ public class JwsResetPasswordController {
 						mapDetails.put("invalidCaptcha", "Please verify captcha!");
 						viewName = "jws-password-reset-page";
 					} else {
-
+						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+							session.removeAttribute("createCaptcha");
+						}
 						String	encodedPassword	= passwordEncoder.encode(password);
 						JwsUser	user			= userRepository.findByEmailIgnoreCase(resetEmailId);
 						user.setIsActive(Constants.ISACTIVE);
 						user.setPassword(encodedPassword);
 						userRepository.save(user);
+
+						if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+							mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
+						}
 
 						resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(), tokenId);
 						mapDetails.put("resetPasswordSuccess",
@@ -279,17 +283,20 @@ public class JwsResetPasswordController {
 
 	@GetMapping(value = "/changePassword")
 	@ResponseBody
-	public String changePasswordPage(@RequestParam("token") String tokenId, HttpServletResponse response)
-			throws Exception {
+	public String changePasswordPage(@RequestParam("token") String tokenId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 
-		Map<String, Object> mapDetails = new HashMap<>();
+		String				isChangePassword	= request.getParameter("icp");
+		Map<String, Object>	mapDetails			= new HashMap<>();
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			userConfigService.getConfigurableDetails(mapDetails);
 			if (StringUtils.isNotBlank(tokenId)) {
 
 				JwsUser jwsUser = userRepository.findByUserId(tokenId);
-				if (jwsUser != null && jwsUser.getForcePasswordChange() == 1) {
+				if (jwsUser != null
+						&& (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
 					mapDetails.put("tokenId", tokenId);
+					mapDetails.put("icp", isChangePassword);
 				} else {
 					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
 					return null;
@@ -314,8 +321,9 @@ public class JwsResetPasswordController {
 	public String updatePasswordPage(HttpServletRequest request, HttpServletResponse response, HttpSession session)
 			throws Exception {
 
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		String				viewName	= null;
+		Map<String, Object>	mapDetails			= new HashMap<>();
+		String				viewName			= null;
+		String				isChangePassword	= request.getParameter("icp");
 
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			userConfigService.getConfigurableDetails(mapDetails);
@@ -325,35 +333,55 @@ public class JwsResetPasswordController {
 			mapDetails.put("tokenId", tokenId);
 			JwsUser jwsUser = userRepository.findByUserId(tokenId);
 
-			if (jwsUser != null && jwsUser.getForcePasswordChange() == Constants.ISACTIVE) {
-				if (BCrypt.checkpw(oldPassword, jwsUser.getPassword())) {
-					if (userManagementService.validatePassword(newPassword)) {
+			if (jwsUser != null
+					&& (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
+				BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+				if (bcrypt.matches(newPassword, jwsUser.getPassword())) {
+					viewName = "jws-change-password";
+					mapDetails.put("errorMessage", "Old Password and new password cannot be same");
+				} else {
+					if (BCrypt.checkpw(oldPassword, jwsUser.getPassword())) {
+						if (userManagementService.validatePassword(newPassword)) {
 
-						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-								&& session.getAttribute("updateCaptcha") != null && !(request.getParameter("captcha")
-										.toString().equals(session.getAttribute("updateCaptcha").toString()))) {
-							mapDetails.put("invalidCaptcha", "Please verify captcha!");
-							viewName = "jws-change-password";
+							if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+									&& session.getAttribute("updateCaptcha") != null
+									&& !(request.getParameter("captcha").toString()
+											.equals(session.getAttribute("updateCaptcha").toString()))) {
+								mapDetails.put("invalidCaptcha", "Please verify captcha!");
+								mapDetails.put("icp", isChangePassword);
+								viewName = "jws-change-password";
+							} else {
+								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+									session.removeAttribute("updateCaptcha");
+								}
+								jwsUser.setIsActive(Constants.ISACTIVE);
+								jwsUser.setPassword(passwordEncoder.encode(newPassword));
+								jwsUser.setForcePasswordChange(Constants.INACTIVE);
+								jwsUser.setLastPasswordUpdatedDate(new Date());
+								userRepository.save(jwsUser);
+
+								if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+									mapDetails.put("authenticationType",
+											applicationSecurityDetails.getAuthenticationType());
+								}
+
+								mapDetails.put("resetPasswordSuccess",
+										"Congratulations.You have successfully updated your password.");
+								viewName = "jws-login";
+							}
 						} else {
-							jwsUser.setIsActive(Constants.ISACTIVE);
-							jwsUser.setPassword(passwordEncoder.encode(newPassword));
-							jwsUser.setForcePasswordChange(Constants.INACTIVE);
-							userRepository.save(jwsUser);
-							mapDetails.put("resetPasswordSuccess",
-									"Congratulations.You have successfully updated your password.");
-							viewName = "jws-login";
+							viewName = "jws-change-password";
+							mapDetails.put("icp", isChangePassword);
+							mapDetails.put("errorMessage",
+									"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
 						}
 					} else {
 						viewName = "jws-change-password";
+						mapDetails.put("icp", isChangePassword);
 						mapDetails.put("errorMessage",
-								"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
+								"Check System generated Password or ask admin to change the password");
 					}
-				} else {
-					viewName = "jws-change-password";
-					mapDetails.put("errorMessage",
-							"Check System generated Password or ask admin to change the password");
 				}
-
 			} else {
 				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
 				return null;

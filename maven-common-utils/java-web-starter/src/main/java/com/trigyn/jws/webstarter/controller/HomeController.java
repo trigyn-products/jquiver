@@ -59,7 +59,7 @@ public class HomeController {
 			if (!CollectionUtils.isEmpty(homePageURLList)) {
 				for (String homePageURL : homePageURLList) {
 					if (!StringUtils.isBlank(homePageURL)) {
-						return masterModuleService.loadTemplate(httpServletRequest, homePageURL);
+						return masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
 					}
 				}
 			}

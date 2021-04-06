@@ -68,7 +68,10 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 				&& !(request.getParameter("captcha").equals(session.getAttribute("loginCaptcha").toString()))) {
 
 			throw new InvalidLoginException("Please verify captcha!");
+		} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+			session.removeAttribute("loginCaptcha");
 		}
+
 		if (mapDetails.get("enableGoogleAuthenticator").toString().equalsIgnoreCase("true")) {
 
 			user.setPassword(

@@ -224,15 +224,17 @@ input:checked + .slider:before {
           <input type="text" id="internetAddressToArray" name="internetAddressToArray" placeholder="Comma seperated email addresses" value=""  required class="form-control">
         </div>
       </div>
-      <div class="col-3">
-      <div class="col-inner-form full-form-fields">
-        <label for="noOfFailedMails" style="white-space:nowrap; margin-bottom:20px;">
-                    <span class="asteriskmark">*</span>No of failed emails (between 10 and 100):
-                </label>
-                <input type="range" id="noOfFailedMails" name="noOfFailedMails" value="50" min="10" max="100" onchange="showSelectedValue(this.value)">
-                <span id="noOfFailedMailsValue" class="no-of-files-counter"></span>
-      </div>
-    </div>
+    
+    <div class="col-4">
+		<div class="col-inner-form full-form-fields">
+			<label for="noOfFailedMails" style="white-space:nowrap">
+    	        <span class="asteriskmark">*</span>No of failed emails (between 10 and 100):
+            </label>
+            <input type="hidden" id="noOfFailedMails" name="noOfFailedMails">
+            <p class="failed-mail-slider-cls"><span id="failedMailsSliderSpan" class="no-of-files-counter"></span></p>
+		    <div class="file-slider-div-cls" id="failedMailsSliderDiv"></div>
+		</div>
+	</div>
       
       
     </div>
@@ -270,11 +272,24 @@ input:checked + .slider:before {
   let formId = "${formId}";
   let edit = 0;
     var saveMailConfigDetailsJson=[]; 
-    function showSelectedValue(value){
-        $("#noOfFailedMailsValue").html(value);
-        $("#noOfFailedMailsValue").show();
-    }
   
+  	function initializeFailedMaillider(){
+    	let context = this;
+    	$("#failedMailsSliderDiv").slider({
+           	orientation:"horizontal",
+           	min:10,
+           	max:100,
+           	value:$("#noOfFailedMails").val() == "" ? 32 : $("#noOfFailedMails").val(),
+			slide: function( event, ui ) {
+				$("#failedMailsSliderSpan").text(ui.value);
+            	$("#noOfFailedMails").val(ui.value);
+           }	
+       });
+       let fileCount = $("#failedMailsSliderDiv").slider("value");
+       $("#failedMailsSliderSpan").text(fileCount);
+       $("#noOfFailedMails").val(fileCount);
+    }
+    
     function sendMail(){
 
     if(validateFields() == false){
@@ -352,7 +367,7 @@ input:checked + .slider:before {
 	    $.ajax({
 	    	type : "POST",
 	      	async: false,
-	      	url : contextPath+"/api/mailConfirationDetails",
+	      	url : contextPath+"/api/mailConfigurationDetails",
 	      	data : {
 	      		saveMailConfigDetailsJson : saveMailConfigDetailsJson
 	      	},
@@ -496,7 +511,7 @@ input:checked + .slider:before {
     
     
   
-  $(function() {      
+  $(function() {  
          <#if (resultSet)??>
           <#list resultSet as resultSetList>
             $("#mailConfigJson").val(''${resultSetList?api.get("property_value")}'');       
@@ -530,7 +545,7 @@ input:checked + .slider:before {
     $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
         $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
         $("#noOfFailedMails").val(jsonObject.failedMailCounter);
-        $("#noOfFailedMailsValue").html(jsonObject.failedMailCounter);
+        $("#failedMailsSliderSpan").html(jsonObject.failedMailCounter);
         if(jsonObject.isAuthenticated ==true){
             $("#isSmtpAutheticatedId").prop("checked", true);
             $("#userName").val(jsonObject.userName);
@@ -575,6 +590,7 @@ input:checked + .slider:before {
           edit = 1;
         </#if>
         
+        initializeFailedMaillider();
         disableEanbleTextBoxes();
           var colM = [
           { dataIndx: "failed_mail_id",hidden: true },
@@ -622,12 +638,12 @@ last_modified_date = NOW()
 WHERE property_master_id = "mail-configuration";', 1, NULL);
 
 
-replace into jq_dynamic_rest_details
+REPLACE INTO  jq_dynamic_rest_details
 (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
-('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfirationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2);
+('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2);
 
 
-replace into jq_dynamic_rest_dao_details
+REPLACE INTO  jq_dynamic_rest_dao_details
 (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (24, 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'saveMailConfigDetailsJson', 'REPLACE INTO jq_property_master (property_master_id,owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)
 VALUES (''9d08d633-1f4b-11eb-947d-f48e38ab9348'',''system'', ''system'', ''mail-configuration'', :saveMailConfigDetailsJson, 0, NOW(), ''admin'', 1.00, ''mail Config Details'');', 1, 2);
@@ -637,8 +653,13 @@ REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_n
 ('failedMailsGrid', 'Failed mails listing', 'Failed mail listing grid', 'jq_mail_history_data', '*', 1,2);
 
 
-replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb8175b1d5710175b1d938fb0000', 'mailTemplate', 'This is test mail body template', 'admin', 'admin', NOW(), NULL, 2);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active) VALUES
+('43fe08ff-920a-11eb-93f6-f48e38ab8cd7', 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1), 
+('48d8404b-920a-11eb-93f6-f48e38ab8cd7', 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
+('4cc0defe-920a-11eb-93f6-f48e38ab8cd7', 'a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
 
 SET FOREIGN_KEY_CHECKS=1;

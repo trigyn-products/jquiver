@@ -37,7 +37,7 @@ public class MasterModuleController {
 			if (moduleUrl.indexOf("/") != -1) {
 				moduleUrl = moduleUrl.substring(0, moduleUrl.indexOf("/"));
 			}
-			return masterModuleService.loadTemplate(httpServletRequest, moduleUrl);
+			return masterModuleService.loadTemplate(httpServletRequest, moduleUrl, httpServletResponse);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

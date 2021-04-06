@@ -163,7 +163,6 @@ public class ModuleService {
 					for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
 						if (moduleDetailsVO.getModuleURL().matches(".*\\b" + newURL + "\\b.*")
 								|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
-							System.out.println("exist");
 							moduleIdDB = moduleDetailsVO.getModuleId();
 						}
 					}
@@ -173,7 +172,6 @@ public class ModuleService {
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOs) {
 					if (moduleDetailsVO.getModuleURL().matches(".*\\b" + moduleURL + "\\b.*")
 							|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
-						System.out.println("exist");
 						moduleIdDB = moduleDetailsVO.getModuleId();
 					}
 				}
@@ -367,17 +365,26 @@ public class ModuleService {
 			iModuleListingRepository.saveAndFlush(moduleListing);
 		}
 		if (StringUtils.isBlank(oldModuleId) == false && oldModuleId.equals(moduleId) == false) {
-			oldModuleListing = iModuleListingRepository.getModuleListing(oldModuleId);
-			oldModuleListing.setIsHomePage(Constant.IS_NOT_HOME_PAGE);
-			iModuleListingRepository.saveAndFlush(oldModuleListing);
+			oldModuleListing = iModuleListingRepository.getModuleListingByRole(oldModuleId);
+			if (oldModuleListing != null) {
+				oldModuleListing.setIsHomePage(Constant.IS_NOT_HOME_PAGE);
+				iModuleListingRepository.saveAndFlush(oldModuleListing);
+			}
 		}
 
+		return moduleListing.getModuleId();
+	}
+
+	public void saveModuleRoleAssociation(HttpServletRequest a_httHttpServletRequest) {
+		String					moduleId				= a_httHttpServletRequest.getParameter("moduleId");
+		String					oldModuleId				= a_httHttpServletRequest.getParameter("oldModuleId");
 		UserDetailsVO			detailsVO				= detailsService.getUserDetails();
 		String					loggedInUserId			= detailsVO.getUserName();
 		Date					date					= new Date();
 		String					roleId					= a_httHttpServletRequest.getParameter("roleId");
 		ModuleRoleAssociation	moduleRoleAssociation	= new ModuleRoleAssociation();
-		if (StringUtils.isBlank(roleId) == false) {
+		if (StringUtils.isBlank(roleId) == false
+				&& (StringUtils.isBlank(moduleId) == false || StringUtils.isBlank(oldModuleId) == false)) {
 			moduleRoleAssociation.setRoleId(roleId);
 			moduleRoleAssociation.setUpdatedBy(loggedInUserId);
 			moduleRoleAssociation.setUpdatedDate(date);
@@ -390,8 +397,6 @@ public class ModuleService {
 			}
 			roleAssociationRepository.save(moduleRoleAssociation);
 		}
-
-		return moduleListing.getModuleId();
 	}
 
 	public String findModuleIdByRoleId(String roleId, String moduleId) throws Exception {

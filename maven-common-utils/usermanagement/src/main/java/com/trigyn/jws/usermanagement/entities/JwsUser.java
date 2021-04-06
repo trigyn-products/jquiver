@@ -1,5 +1,7 @@
 package com.trigyn.jws.usermanagement.entities;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 
 @Entity
@@ -19,36 +22,40 @@ public class JwsUser {
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "user_id")
-	private String	userId				= null;
+	private String	userId					= null;
 
 	@Column(name = "first_name")
-	private String	firstName			= null;
+	private String	firstName				= null;
 
 	@Column(name = "last_name")
-	private String	lastName			= null;
+	private String	lastName				= null;
 
 	@Column(name = "email")
-	private String	email				= null;
+	private String	email					= null;
 
 	@Column(name = "force_password_change")
-	private Integer	forcePasswordChange	= null;
+	private Integer	forcePasswordChange		= null;
 	// system generated password
 
 	@Column(name = "password")
-	private String	password			= null;
+	private String	password				= null;
 
 	@Column(name = "is_active")
-	private Integer	isActive			= null;
+	private Integer	isActive				= null;
 
 	@Column(name = "secret_key")
-	private String	secretKey			= null;
+	private String	secretKey				= null;
 
 	@Column(name = "registered_by")
-	private Integer	registeredBy		= null;
+	private Integer	registeredBy			= null;
 
-    @Column(name = "failed_attempt")
-    private int failedAttempt = 0;
-     
+	@Column(name = "failed_attempt")
+	private int		failedAttempt			= 0;
+
+	@JsonIgnore
+	@Column(name = "last_password_updated_date")
+	private Date	lastPasswordUpdatedDate	= null;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -129,6 +136,14 @@ public class JwsUser {
 		this.failedAttempt = failedAttempt;
 	}
 
+	public Date getLastPasswordUpdatedDate() {
+		return lastPasswordUpdatedDate;
+	}
+
+	public void setLastPasswordUpdatedDate(Date lastPasswordUpdatedDate) {
+		this.lastPasswordUpdatedDate = lastPasswordUpdatedDate;
+	}
+
 	public JwsUser getObject() {
 		JwsUser user = new JwsUser();
 
@@ -142,6 +157,7 @@ public class JwsUser {
 		user.setSecretKey(secretKey);
 		user.setUserId(userId);
 		user.setFailedAttempt(failedAttempt);
+		user.setLastPasswordUpdatedDate(lastPasswordUpdatedDate);
 		return user;
 	}
 
@@ -155,6 +171,7 @@ public class JwsUser {
 		jwsUser.setIsActive(userData.getIsActive());
 		jwsUser.setPassword(userData.getPassword());
 		jwsUser.setFailedAttempt(userData.getFailedAttempt());
+		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
 		return jwsUser;
 	}
 }

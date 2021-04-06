@@ -91,7 +91,8 @@ public class URLExceptionHandler implements ErrorController {
 					if (!CollectionUtils.isEmpty(homePageURLList)) {
 						for (String homePageURL : homePageURLList) {
 							if (StringUtils.isBlank(fallbackTemplate) && !StringUtils.isBlank(homePageURL)) {
-								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL);
+								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL,
+										httpServletResponse);
 							}
 						}
 					}

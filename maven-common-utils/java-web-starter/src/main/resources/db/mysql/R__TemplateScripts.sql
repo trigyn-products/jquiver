@@ -562,7 +562,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		<h3 class="titlename method-sign-info">
 		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">FTL Parameters and Macros</label>
 	    </h3>
-		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
     </div>
          
 	<div class="row margin-t-b">                                                                                                
@@ -576,8 +576,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			</div>
 		</div>
 	</div>
-	  <input id="moduleId" value="1b0a2e40-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
-      <@templateWithoutParams "role-autocomplete"/> 
+	  
+	  	<div class="row">
+			<div class="col-3"> 
+	  			<input id="moduleId" value="1b0a2e40-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+      			<@templateWithoutParams "role-autocomplete"/>
+      		</div>
+      	</div> 
                
 		<div class="row margin-t-10">
 			<div class="col-12">
@@ -927,7 +932,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		<div class="row">
 			<div class="col-12">
 				<div id="buttons" class="pull-right">
-					<div class="btn-group dropdown custom-grp-btn">
+					<div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
                             <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''module-manage-details'', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
@@ -974,6 +979,7 @@ $(function() {
 	let autocompleteIdByType = addEditModule.getAutocompleteId();
     autocomplete = $(''#targetTypeName'').autocomplete({
         autocompleteId: autocompleteIdByType,
+        enableClearText : true,
         render: function(item) {
         	var renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
@@ -993,7 +999,10 @@ $(function() {
         select: function(item) {
             $("#targetTypeName").blur();
             $("#targetTypeNameId").val(item.targetTypeId)
-        }, 	
+        },
+		resetAutocomplete: function(autocompleteObj){ 
+        	$("#targetTypeNameId").val("");
+        },	 	
     }, selectedTargetDetails);
       addEditModule.getTargeTypeNames(''isAddEdit'');
 	  hideShowActionButtons();
@@ -1037,21 +1046,25 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				<div class="row margin-r-5 profile-tray">
 					<ul>
             			<li>
-            				<a class="nav-link " href="${(contextPath)!''''}/view/jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1" target="_blank">
+            				<a class="nav-link " href="${(contextPath)!''''}/view/jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1" title="<@resourceBundleWithDefault ''jws.helpManual'' ''Help Manual''/>" target="_blank">
 							<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</a>
 						</li>
 						<li>
-            				<a class="nav-link " href="${(contextPath)!''''}/view/health" target="_blank">
+            				<a class="nav-link " href="${(contextPath)!''''}/view/health" title="<@resourceBundleWithDefault ''jws.appMetrics'' ''Application Metrics''/>" target="_blank">
 							<i class="fa fa-heartbeat" aria-hidden="true"></i>
 							</a>
 						</li>
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
                         	<li><a class="nav-link cm-userid" href="${(contextPath)!''''}/cf/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> ${loggedInUserName}</a></li>
-                            <li><a class="nav-link signout-icon" href="${(contextPath)!''''}/logout"> <i class="fa fa-sign-out" aria-hidden="true"></i></a></li>
+                            <li>
+                            	<a class="nav-link signout-icon" href="${(contextPath)!''''}/logout" title="<@resourceBundleWithDefault ''jws.logout'' ''Logout''/>"> 
+                            		<i class="fa fa-sign-out" aria-hidden="true"></i>
+                            	</a>
+                            </li>
                         <#elseif loggedInUserName?? && loggedInUserName == "anonymous" && isAuthEnabled?c == "true" >
                         	<li>
-                        		<a class="nav-link signout-icon" href="${(contextPath)!''''}/cf/login">
+                        		<a class="nav-link signout-icon" href="${(contextPath)!''''}/cf/login" title="<@resourceBundleWithDefault ''jws.login'' ''Login''/>">
                         			<img src="${(contextPath)!''''}/webjars/1.0/images/login.png" class="login-img-cls">
                         		</a>
                         	</li>
@@ -1339,7 +1352,7 @@ $(function() {
         select: function(item) {
             $("#targetTypeName").blur();
             $("#targetTypeNameId").val(item.targetTypeId)
-        }, 	
+        }, 
     }, selectedTargetDetails);
     
 });
@@ -1515,16 +1528,17 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	                    </span>
 					</div>
 				</div>
-				
-				<div class="col-12" id="diffEditor_0">
-					<div class="html_script">
-						<div class="grp_lblinp">
-							<div id="jsonContainer_0" class="ace-editor-container">
-								<div id="jsonEditor_0" class="ace-editor"></div>
-							</div>
+		</div>
+		<div class="row">		
+			<div class="col-12" id="diffEditor_0">
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="jsonContainer_0" class="ace-editor-container">
+							<div id="jsonEditor_0" class="ace-editor"></div>
 						</div>
-					</div>	
-				</div>
+					</div>
+				</div>	
+			</div>
 		</div>
 	
 		<div class="col-12">
@@ -1607,7 +1621,7 @@ $(function(){
 			getUpdatedData();
 			getJsonData(item.moduleVersionId);
         },
-        resetDependentInput: function(){ 
+        resetAutocomplete: function(){ 
         	$("#selectedDateTime").val("");
 			$("#moduleVersionId").val("");	
         }, 	
@@ -2053,7 +2067,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		       <div class="col-12">
 			        <div class="col-inner-form full-form-fields">
 			            <input type="hidden" id="roleId" name="roleId">
-			            <input type="hidden" id="oldModuleId" name="module-id">
+			            <input type="hidden" id="oldModuleId" name="old-module-id">
 			            <input type="hidden" id="moduleId" name="module-id">
 			            <input type="hidden" id="moduleName" name="module-name">
 			            <label for="flammableState" style="white-space:nowrap">Module Name</label>
@@ -2114,11 +2128,14 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	  	slAutocomplete = $("#slAutocomplete").autocomplete({
 	        autocompleteId: "site-layout-url-autocomplete",
 	        prefetch : false,
+	        enableClearText : true,
 	        render: function(item) {
 	            var renderStr ="";
-	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+	            if(item.emptyMsg == undefined || item.emptyMsg === "")
+	            {
 	                renderStr = "<p>"+item.text+"</p>";
-	            }else{
+	            }else
+	            {
 	                renderStr = item.emptyMsg;    
 	            }                                
 	            return renderStr;
@@ -2128,9 +2145,12 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	            return item.text;
 	        },
 	        select: function(item) {
-	            slAutocomplete.setSelectedObject(item);
+	        	$("#moduleId").val(item.moduleId);
 	            $("#slAutocomplete").blur(); 
-	        },     
+	        },
+	        resetAutocomplete: function(autocompleObj){ 
+	        	$("#moduleId").val("");
+	        }     
 		});
 		
 	});
@@ -2185,32 +2205,36 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
     
     function saveHomeModule(){
     	let selectedModuleObj = slAutocomplete.getSelectedObject();
-		let moduleId = selectedModuleObj["moduleId"];
+		let moduleId = $("#moduleId").val().trim();
 		let roleId = $("#roleId").val();
-		let oldModuleId = $("#oldModuleId").val();
+		let oldModuleId = $("#oldModuleId").val().trim();
 		
-		$.ajax({
-			type : "POST",
-			url : contextPath+"/cf/schm",
-			async: false,
-			data : {
-				oldModuleId: oldModuleId,
-				moduleId : moduleId,
-				roleId : roleId,
-			},
-			success : function(moduleId) {
-				$("#moduleId").val(moduleId);
-				$("#errorMessage").hide();
-				showMessage("Information saved successfully", "success");
-				closeForm();
-				$("#divConfigHomeListing").pqGrid("refreshDataAndView");
-			},
-		        
-		    error : function(xhr, error){
-		    	showMessage("Error occurred while saving", "error");
-		    },
-		        	
-		});
+		if(moduleId !== "" || oldModuleId !== ""){
+			$.ajax({
+				type : "POST",
+				url : contextPath+"/cf/schm",
+				async: false,
+				data : {
+					oldModuleId: oldModuleId,
+					moduleId : moduleId,
+					roleId : roleId,
+				},
+				success : function(moduleId) {
+					$("#moduleId").val(moduleId);
+					$("#errorMessage").hide();
+					showMessage("Information saved successfully", "success");
+					closeForm();
+					$("#divConfigHomeListing").pqGrid("refreshDataAndView");
+				},
+			        
+			    error : function(xhr, error){
+			    	showMessage("Error occurred while saving", "error");
+			    },
+			        	
+			});
+		}else{ 
+			showMessage("Please select valid Module Name", "error");
+		}
 	}
 	
 	function validateModule(){ 
@@ -2291,9 +2315,6 @@ let autocompletePF;
                 submitForm(item);
                 $("#rbAutocompletePF").blur();
             }, 
-            resetDependentInput: function(){ 
-
-            },
         });
     });
     

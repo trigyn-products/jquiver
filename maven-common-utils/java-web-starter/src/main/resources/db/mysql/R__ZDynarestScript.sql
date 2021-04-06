@@ -327,8 +327,14 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<input type="hidden" id="primaryKey" name="primaryKey">
 	<input type="hidden" id="entityName" name="entityName" value="jq_dynamic_rest_details">
     </form>
-    <input id="moduleId" value="47030ee1-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
-    <@templateWithoutParams "role-autocomplete"/>
+   	
+   	<div class="row">
+		<div class="col-3"> 
+    		<input id="moduleId" value="47030ee1-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    		<@templateWithoutParams "role-autocomplete"/>
+    	</div>
+    </div>
+    
     <div class="row">
 		<div class="col-12">
 			<div class="float-right">

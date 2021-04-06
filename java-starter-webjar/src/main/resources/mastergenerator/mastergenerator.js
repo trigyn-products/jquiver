@@ -26,9 +26,11 @@ function resetObjects(){
     gridDetails = new Array();
     formDetails = new Array();
     menuDetails = new Object();
+    resourceKeyMap = new Map();
     $("#menuDisplayName").val("");
 	$("#parentModuleName").val("");
 	$("#moduleURL").val("");
+	$("#moduleName").val("");
 }
 
 function createTable(columns) {
@@ -39,22 +41,22 @@ function createTable(columns) {
         $(trElement).append("<td><input id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>");
         let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
         $(trElement).append("<td><label id='tcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
-        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
         $(trElement).append("<td><input id='tdisplay_"+iCounter+"' disabled type='text' onchange='updateGridDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
-        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'></td>");
+        $(trElement).append("<input id='tdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
 
         $("#listingDetailsTable").append(trElement);
     }
 
     for(let iCounter = 0; iCounter < columns.length; ++iCounter) {
         let trElement = $("<tr class='details'></tr>");
-        $(trElement).append("<td><input id='fenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
-        $(trElement).append("<td><input id='fhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
+        $(trElement).append("<td><input id='tfenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
+        $(trElement).append("<td><input id='tfhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
         let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
-        $(trElement).append("<td><label id='fcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
-        $(trElement).append("<td><input id='fdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
-        $(trElement).append("<td><input id='fdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
-		$(trElement).append("<td><input id='fdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'></td>");
+        $(trElement).append("<td><label id='tfcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
+        $(trElement).append("<td><input id='tfdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tfdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
+		$(trElement).append("<input id='tfdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
 		 
         $("#formDetailsTable").append(trElement);
     }
@@ -102,17 +104,17 @@ function updateFormDetails(element){
 
 function addRemoveToFormDetails(element){
 	const counter = element.id.split("_")[1];
-    $("#fhidden_"+counter).prop("disabled", !element.checked);
-    $("#fdisplay_"+counter).prop("disabled", !element.checked);
-    $("#fdisplay_"+counter+"_i18n").prop("disabled", !element.checked);
+    $("#tfhidden_"+counter).prop("disabled", !element.checked);
+    $("#tfdisplay_"+counter).prop("disabled", !element.checked);
+    $("#tfdisplay_"+counter+"_i18n").prop("disabled", !element.checked);
 
     if(element.checked) {
         let details = new Object();
         details["index"] = counter;
-        details["displayName"] = $("#fdisplay_"+counter).val();
-        details["hidden"] = $("#fhidden_"+counter).prop("checked");
-        details["column"] = $("#fcolumn_"+counter).html().trim();
-        details["i18nResourceKey"] = $("#fdisplay_"+counter+"_i18n").val().trim();
+        details["displayName"] = $("#tfdisplay_"+counter).val();
+        details["hidden"] = $("#tfhidden_"+counter).prop("checked");
+        details["column"] = $("#tfcolumn_"+counter).html().trim();
+        details["i18nResourceKey"] = $("#tfdisplay_"+counter+"_i18n").val().trim();
         formDetails.push(details);
     } else {
         removeByAttribute(formDetails, "index", counter);
@@ -123,14 +125,13 @@ function updateGridDetailsI18nResourceKey(elementId){
 	const counter = elementId.split("_")[1];
 	const resourceKey = $("#"+elementId).val().trim();
 	
-	getMultilingualData(elementId);
 	$.each(gridDetails, function(iCounter, gridElement){
 		if(gridElement.index == counter){
 			gridElement.i18nResourceKey = resourceKey;
 		}
 	});
-	enableDisableFormInput(elementId);
-	updateResourceKeyMap(elementId, resourceKey);
+	getMultilingualData(elementId);
+	$("#"+elementId).data("previous-key", resourceKey);
 }
 
 
@@ -138,13 +139,13 @@ function updateFormDetailsI18nResourceKey(elementId){
 	const counter = elementId.split("_")[1];
 	const resourceKey = $("#"+elementId).val().trim();
 	
-	getMultilingualData(elementId);	
 	$.each(formDetails, function(iCounter, formElement){
   		if(formElement.index == counter){
   			formElement.i18nResourceKey = $("#"+elementId).val().trim();
   		}
 	});
-	updateResourceKeyMap(elementId, resourceKey);
+	getMultilingualData(elementId);	
+	$("#"+elementId).data("previous-key", resourceKey);
 }
 
 function updateGridDetailsDisplayName(elementId){
@@ -156,13 +157,9 @@ function updateGridDetailsDisplayName(elementId){
 	$.each(gridDetails, function(iCounter, gridElement){
   		if(gridElement.index == counter){
   			gridElement.displayName = displayText
-  			if(resourceKey !== ""){
-  				resourceKeyMap.set(resourceKey, displayText);
-  			}
   		}
 	});
-	
-	updateFormI18N(elementId, resourceKey, displayText);
+	getMultilingualData(elementId+"_i18n", displayText);
 }
 
 
@@ -175,26 +172,63 @@ function updateFormDetailsDisplayName(elementId){
 	$.each(formDetails, function(iCounter, formElement){
   		if(formElement.index == counter){
   			formElement.displayName = displayText;
-  			if(resourceKey !== ""){
-  				resourceKeyMap.set(resourceKey, displayText);
-  			}
   		}
 	});
+	getMultilingualData(elementId+"_i18n", displayText);
 }
 
-
-function getMultilingualData(elementId){
-	const initialId = elementId.split("_")[0];
-	const counter = elementId.split("_")[1];
-	const displayId = initialId+"_"+counter;
-	const resourceKey = $("#"+elementId).val().trim();
-	
-	if(resourceKeyMap.get(resourceKey) !== undefined){
-		$("#"+displayId).val(resourceKeyMap.get(resourceKey));
-		if(existingKey.some(key => key = resourceKey)){
-			$("#"+displayId).prop("disabled", true);
+function updateOtherElements(resourceKey){
+	let resourceObj = resourceKeyMap.get(resourceKey);
+	let elementIdArray = resourceObj["elementIds"];
+	let resourceTxt = resourceObj["i18nText"];
+	elementIdArray.sort((a, b) => a > b ? 1: -1);
+	for(let iCounter = 0; iCounter < elementIdArray.length; iCounter++){
+		let displayId = elementIdArray[iCounter];
+		displayId = displayId.substring(0, displayId.lastIndexOf("_"));
+		let dCounter = displayId.split("_")[1];
+		$("#"+displayId).val(resourceTxt);
+		if(iCounter == 0){
+			$("#"+displayId).prop("disabled", false);
 		}else{
-			enableDisableFormInput(elementId);
+			$("#"+displayId).prop("disabled", true);
+		}
+		
+		if(displayId.startsWith("tdisplay")){
+			gridDetails[dCounter].displayName = resourceTxt;
+		}else{
+			formDetails[dCounter].displayName = resourceTxt;
+		}
+	} 
+}
+
+function getMultilingualData(elementId, resourceTxt){
+	const displayId = elementId.substring(0, elementId.lastIndexOf("_"));
+	const resourceKey = $("#"+elementId).val().trim();
+	const previousKey = $("#"+elementId).data("previous-key");
+	
+	let oldKeyObj = resourceKeyMap.get(previousKey);
+	if(oldKeyObj !== undefined && resourceKey !== previousKey){
+		let oldElementIds = resourceKeyMap.get(previousKey)["elementIds"];
+		oldElementIds = oldElementIds.filter(element => element !== elementId);
+		resourceKeyMap.get(previousKey)["elementIds"] = oldElementIds;
+		if(oldElementIds.length == 0){
+			resourceKeyMap.delete(previousKey);
+		}else if(oldKeyObj.existingKey === false){
+			updateOtherElements(previousKey);
+		}
+	}
+	
+	let i18nObj = resourceKeyMap.get(resourceKey);
+	if(resourceTxt !== undefined){
+		i18nObj["i18nText"] = resourceTxt;
+		updateOtherElements(resourceKey);
+	}else if(i18nObj !== undefined){
+		$("#"+displayId).val(i18nObj["i18nText"]);
+		resourceKeyMap.get(resourceKey)["elementIds"].push(elementId);
+		if(i18nObj.existingKey === false){
+			updateOtherElements(resourceKey);
+		}else{
+			$("#"+displayId).prop("disabled", true);
 		}
 	}else{
 		if(resourceKey !== ""){
@@ -206,25 +240,7 @@ function getMultilingualData(elementId){
 		        	resourceBundleKey : resourceKey,
 		        },
 		        success: function(data) {
-		        	if(data !== undefined && data.trim() !== ""){
-		        		$("#"+displayId).val(data);
-		        		$("#"+displayId).prop("disabled", true);
-		        		existingKey.push(resourceKey);
-		        	}else {
-		        		let initialVal = $("#"+displayId+"_hd").val().trim();
-		        		$("#"+displayId).val(initialVal);
-		        		$("#"+displayId).prop("disabled", false);
-		        		if($("#isDev").val() == "false" && resourceKey.startsWith("jws.") == true){
-		        			showMessage("I18N key can not starts with jws.", "error");
-		        			return false;
-		        		}
-		        	}
-		        	if(initialId === "tdisplay"){
-		        		updateGridDetailsDisplayName(displayId);
-		        	}else{
-		        		updateFormDetailsDisplayName(displayId);
-		        	}
-		        	resourceKeyMap.set(resourceKey, $("#"+displayId).val());
+					updateResourceKeyMap(data, elementId, displayId, resourceKey);
 		        },
 				error : function(xhr, error){
 					showMessage("Error occurred while fetching multilingual text", "error");
@@ -237,63 +253,33 @@ function getMultilingualData(elementId){
 	}
 }
 
-function updateResourceKeyMap(elementId, resourceKey){
-	let previousKey = $("#"+elementId).data("previous-key");
-	let keyUsed = false;
-	$('input[id$="_i18n"]').each(function(index, element){
-		if($(this).attr("id") !== elementId && $(this).val() === previousKey){
-			keyUsed = true;
+function updateResourceKeyMap(data, elementId, displayId, resourceKey){
+	let i18nObj = new Object();
+	let elementIdArray = new Array();
+	elementIdArray.push(elementId);
+	i18nObj["elementIds"] = elementIdArray;
+		        	
+	if(data !== undefined && data.trim() !== ""){
+		$("#"+displayId).val(data);
+		$("#"+displayId).prop("disabled", true);
+		i18nObj["existingKey"] = true;
+		i18nObj["i18nText"] = data;
+		resourceKeyMap.set(resourceKey, i18nObj);
+	}else {
+		let initialVal = $("#"+displayId+"_hd").val().trim();
+		$("#"+displayId).val(initialVal);
+		$("#"+displayId).prop("disabled", false);
+		        		
+		if($("#isDev").val() == "false" && resourceKey.startsWith("jws.") == true){
+			$("#"+elementId).val("");
+			showMessage("I18N key can not starts with jws.", "error");
+			return false;
 		}
-	});
-	if(keyUsed == false && previousKey !== resourceKey){
-		resourceKeyMap.delete(previousKey);
+		i18nObj["existingKey"] = false;
+		i18nObj["i18nText"] = initialVal;
+		resourceKeyMap.set(resourceKey, i18nObj);
 	}
-	$("#"+elementId).data("previous-key", resourceKey);
 }
-
-function enableDisableFormInput(elementId){
-	const previousKey = $("#"+elementId).data("previous-key").trim();
-	const resourceKey = $("#"+elementId).val().trim();
-	
-	let iCounter = 0;	
-	$('input[id$="_i18n"]').each(function(index, element){
-		let i18nId = $(this).attr("id");
-		let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
-		let i18nKey = $(this).val().trim();
-		if(existingKey.some(key => key = i18nKey) == false && previousKey !== "" && i18nKey === previousKey){
-			if(iCounter != 0){
-				$("#"+displayId).prop("disabled", false);
-			}
-			iCounter += 1;
-		}
-	});
-	
-	iCounter = 0;
-	$('input[id$="_i18n"]').each(function(index, element){
-		let i18nId = $(this).attr("id");
-		let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
-		if(resourceKey !== "" && $(this).val().trim() === resourceKey){
-			if(iCounter != 0){
-				$("#"+displayId).prop("disabled", true);
-			}
-			iCounter += 1;
-		}
-		
-	});
-}
-
-function updateFormI18N(elementId, resourceKey, displayText){
-	let selectedDisplayId = elementId + "_i18n";
-	$('input[id$="_i18n"]').each(function(index, element){
-		if(resourceKey !== "" && $(this).attr("id") !== selectedDisplayId && $(this).val() === resourceKey){
-			let i18nId = $(this).attr("id");
-			let displayId = i18nId.split("_")[0] + "_" + i18nId.split("_")[1];
-			$("#"+displayId).val(displayText);
-			$("#"+displayId).prop("disabled", true);
-		}
-	})
-}
-
 
 function createMaster() {
 	let isValidData = validateForm();
@@ -305,9 +291,8 @@ function createMaster() {
 	menuDetails["moduleURL"]=$("#moduleURL").val();
 	
 	let roleIds =[];
-	 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
-		 roleIds.push(val.id);
-    	
+	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+		roleIds.push(val.id);
     });
 	
     let formData = $("#createMasterForm").serialize();
@@ -323,6 +308,9 @@ function createMaster() {
         type: 'POST',
         success: function(data) {
             showMessage("Master modules created successfully", "success");
+            setTimeout(function(){
+            	backToPreviousPage();
+            }, 1500);
             
         },
 		error : function(xhr, error){
@@ -369,7 +357,7 @@ function validateForm(){
 			return false;
 		}
 	}else{
-		showMessage("Please include at least one column as in form", "error");
+		showMessage("Please include at least one column in form", "error");
 		return false;
 	}
 	
@@ -394,14 +382,20 @@ function validateForm(){
 
 function validateSiteLayoutDetails(){
 	 let isValid = true;
+	 let moduleName = $("#menuDisplayName").val().trim();
+	 let moduleUrl = $("#moduleURL").val().trim();
+	 if(moduleName === "" || moduleUrl === ""){
+	 	showMessage("Module Name and Module URL cannot be blank", "error");
+	 	return false;
+	 }
 	 $.ajax({
         url: contextPath+ "/cf/ced",
         type: 'GET',
         async: false,
         headers: {
-        	"module-name": $("#menuDisplayName").val().trim(),
+        	"module-name": moduleName,
         	"parent-module-id": $("#parentModuleName").val(),
-        	"module-url": $("#moduleURL").val().trim(),
+        	"module-url": moduleUrl,
         	"module-id": uuidv4(),
         },
         success: function(data) {
@@ -423,9 +417,6 @@ function validateSiteLayoutDetails(){
 	return isValid;	
 }
 
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 var removeByAttribute = function(arr, attr, value){
     var i = arr.length;

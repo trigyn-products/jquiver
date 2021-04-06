@@ -194,7 +194,7 @@ WHERE fuc.file_bin_id = "${fileBinId}" AND is_deleted = 0;', '<head>
 		<h3 class="titlename method-sign-info">
 		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="sqlParameter">SQL/FTL Parameters</label>
 	    </h3>
-		<span id="sqlParameter">fileBinId, fileUploadId, fileAssociationId, moduleName, loggedInUserName<span>
+		<span id="sqlParameter">fileBinId, fileUploadId, fileAssociationId, moduleName, loggedInUserName, loggedInUserRoleList{}<span>
     </div>
     
 	<div class="row margin-t-b">
@@ -292,8 +292,14 @@ WHERE fuc.file_bin_id = "${fileBinId}" AND is_deleted = 0;', '<head>
             <textarea id="deleteValidator_query" name="deleteValidator_query" style="display: none"></textarea>
       </#if>
 	   
-      <input id="moduleId" value="248ffd91-7760-11eb-94ed-f48e38ab8cd7" name="moduleId"  type="hidden">
-      <@templateWithoutParams "role-autocomplete"/> 
+      
+	<div class="row">
+		<div class="col-3">	
+      		<input id="moduleId" value="248ffd91-7760-11eb-94ed-f48e38ab8cd7" name="moduleId"  type="hidden">
+      		<@templateWithoutParams "role-autocomplete"/>
+      </div>
+	</div>
+	 
   </form>
 	<div class="row">
 		<div class="col-12">
@@ -433,7 +439,6 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
     });
     
     $(function () {
-        dropzoneElement.loadSelectedFiles();
         dropZone.getSelectedFiles();
     });
 
@@ -445,8 +450,9 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
     function fileConfigRenderer(fileObj) {
         let fileUploadId = fileObj["id"];
         let fileName = fileObj["name"];
-        let actionElem = "<div><i class=''fileupload-actions fa fa-copy float-right'' onclick=\\"copyFilePath(''"+fileUploadId+"'')\\"></i>" + 
-        	"<i class=''fileupload-actions fa fa-info float-right'' onclick=\\"fileName(''"+fileName+"'')\\"></i></div>";
+        let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+        let actionElem = "<div><span  title=''"+btnTxt["jws.copyFilePath"]+"''><i class=''fileupload-actions fa fa-copy float-right''  onclick=\\"copyFilePath(''"+fileUploadId+"'')\\"></i></span>" + 
+        	"<span  title=''"+btnTxt["jws.fileName"]+"''><i class=''fileupload-actions fa fa-info float-right'' onclick=\\"fileName(''"+fileName+"'')\\"></i></span></div>";
         return actionElem;
 	}
 	
@@ -576,8 +582,8 @@ INNER JOIN jq_file_upload AS jfu ON fug.file_bin_id = jfu.file_bin_id
 WHERE fug.file_bin_id = :fileBinId AND jfu.file_association_id = :fileAssociationId
 <#if loggedInUserName != "admin@jquiver.com">
     AND jfu.updated_by = :loggedInUserName
-</#if>'
-, 
+</#if> 
+ORDER BY jfu.last_update_ts DESC, jfu.original_file_name ASC' , 
 
 /* Help Manual - UPLOAD Query start */
 'SELECT COUNT(DISTINCT fug.file_bin_id) AS isAllowed
@@ -628,9 +634,12 @@ jfu.physical_file_name AS physicalFileName
 FROM jq_file_upload_config AS fug  
 INNER JOIN jq_file_upload AS jfu ON fug.file_bin_id = jfu.file_bin_id 
 WHERE fug.file_bin_id = :fileBinId AND jfu.file_association_id = :fileAssociationId 
-<#if loggedInUserName != ''admin@jquiver.com''>
-    AND jfu.updated_by = :loggedInUserName
-</#if>"},
+<#list loggedInUserRoleList as loggedInUserRole>
+    <#if loggedInUserRole != \\"ADMIN\\">
+        AND jfu.updated_by = :loggedInUserName
+    </#if>
+</#list>
+ORDER BY jfu.last_update_ts DESC, jfu.original_file_name ASC"},
 
 {"uploadValidator_query":"SELECT COUNT(DISTINCT fug.file_bin_id) AS isAllowed
 FROM jq_file_upload_config AS fug 
@@ -644,14 +653,18 @@ LEFT OUTER JOIN jq_file_upload AS jfu ON fug.file_bin_id = jfu.file_bin_id
 WHERE fug.file_bin_id = :fileBinId" }
 
 ,{"viewValidator_query": "SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
-<#if loggedInUserName != ''admin@jquiver.com''>
-    AND jfu.updated_by = :loggedInUserName
-</#if>" }
+<#list loggedInUserRoleList as loggedInUserRole>
+    <#if loggedInUserRole != \\"ADMIN\\">
+        AND jfu.updated_by = :loggedInUserName
+    </#if>
+</#list>" }
 
 ,{"deleteValidator_query": "SELECT COUNT(*) AS isAllowed FROM jq_file_upload AS jfu WHERE jfu.file_upload_id = :fileUploadId 
-<#if loggedInUserName != ''admin@jquiver.com''>
-    AND jfu.updated_by = :loggedInUserName
-</#if>"}]', 0, NOW(), 'admin', 1.41, '');
+<#list loggedInUserRoleList as loggedInUserRole>
+    <#if loggedInUserRole != \\"ADMIN\\">
+        AND jfu.updated_by = :loggedInUserName
+    </#if>
+</#list>"}]', 0, NOW(), 'admin', 1.41, '');
 
 
 DELETE FROM jq_property_master WHERE property_master_id IN 

@@ -171,6 +171,7 @@ public class MenuCrudController {
 	public String saveConfigHomeModule(HttpServletRequest a_httHttpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
 		logger.debug("Inside MenuCrudController.saveConfigHomeModule()");
+		moduleService.saveModuleRoleAssociation(a_httHttpServletRequest);
 		return moduleService.saveConfigHomePage(a_httHttpServletRequest);
 	}
 

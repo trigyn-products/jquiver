@@ -200,5 +200,15 @@ REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.d
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.edit', 1, 'Edit Record');
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.includeLayout', 1, 'Include Layout');
 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.helpManual', 1, 'Help Manual');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.appMetrics', 1, 'Application Metrics');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.login', 1, 'Login');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.logout', 1, 'Logout');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.clearTxt', 1, 'Clear Text');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.moduleUrl', 1, 'Module URL');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.deleteFile', 1, 'Delete File');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.viewFile', 1, 'View File');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.copyFilePath', 1, 'Copy File Path');
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.fileName', 1, 'File Name');
 
 SET FOREIGN_KEY_CHECKS=1;

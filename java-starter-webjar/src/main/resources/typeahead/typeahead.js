@@ -62,6 +62,7 @@
             	this.options.prefetch = false;
             }
             this.initWithValues(selectedItem);
+            this.resetAutocompleteOnBlur();
         }
         
         initWithValues = function(item){
@@ -79,7 +80,6 @@
 	        	this.selectedObject = item;
 	        	let value = this.options.extractText(item);
         		$(this.element).val(value);
-        		$(this.element).blur();
         		$(this.element).keyup();
         	}
         }
@@ -87,8 +87,25 @@
         resetAutocomplete = function(){
         	this.selectedObject = {};
         	$(this.element).val("");
-        	$(this.element).blur();
         	$(this.element).keyup();
+        	if(typeof this.options.resetAutocomplete !== undefined && typeof this.options.resetAutocomplete === "function"){
+        		this.options.resetAutocomplete(this);
+        	}
+        }
+        
+        resetAutocompleteOnBlur = function(){
+            let context = this;
+            $(this.element).blur(context, function(autocompleteObj){
+            	let isSelected = false;
+   				for(let key in autocompleteObj.data.selectedObject){
+    				if(autocompleteObj.data.selectedObject[key] === $(autocompleteObj.data.element).val()){
+    					isSelected = true;
+    				}
+				}
+				if(isSelected == false){
+					autocompleteObj.data.resetAutocomplete();
+				}
+			})
         }
         
     }
@@ -97,7 +114,6 @@
         const context = this;
         $(this.element).richAutocomplete({
             loadPage: function (searchTerm, pageNumber, pageSize) {
-//                context.selectedObject = {};
                 return context.loadServerPages(searchTerm, pageNumber, pageSize);
             },
             paging: options.paging,
@@ -106,31 +122,29 @@
             pageSize: options.pageSize,
             emptyRender: options.emptyRender,
             select: function (item) {
-            	context.setSelectedObject(item);
-            	return options.select(item);
-            },
+				context.setSelectedObject(item);
+				return options.select(item);
+			},
             render: options.render,
             extractText: options.extractText,
             selectedObjectData: options.selectedObjectData
         });
-        
         let placeholderVal = $.trim($(this.element).prop("placeholder"));
         if(placeholderVal === "" && this.options.prefetch === false){
         	$(this.element).prop("placeholder","Please type to search");
         }
         if(this.options.enableClearText === true){
         	let elementId =  $(this.element).attr("id");
-        	let clearTxt = $('<span id="'+elementId+'_clearTxt" class="autocomplete-clear-txt" ><i class="fa fa-times" aria-hidden="true"></i></span>');
+        	let titleTxt = resourceBundleData("jws.clearTxt");
+        	let clearTxt = $('<span id="'+elementId+'_clearTxt" class="autocomplete-clear-txt"  title="'+titleTxt["jws.clearTxt"]+'"><i class="fa fa-times" aria-hidden="true"></i></span>');
         	clearTxt.insertAfter(this.element);
         	$("#"+elementId+"_clearTxt").bind("click", function(){
-        		let inputId = this.id.split("_")[0];
-        		$("#"+inputId).val("");
-				$("#"+inputId).keyup();
-				context.options.resetDependentInput();
+				context.resetAutocomplete();
         	});
         }
         
     }
+
     class Multiselect extends TypeAhead {
         selectedObjects = new Array();
         constructor(element, options, selectedItems) {
@@ -409,7 +423,7 @@
                 return "<p>No Records found</p>";
             },
             select: function(item) {
-        
+
             },
             render: function(item) {
         
@@ -421,6 +435,7 @@
                 this.selectedObject.push(item);
                 return this.selectedObject;
             },
+
             multiselectItem: Object,
             debounce: 500,
             duplicateCheckRule: function(list, obj) {

@@ -290,7 +290,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		<h3 class="titlename method-sign-info">
 		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
 	    </h3>
-		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoleList {}, templateWithoutParams{}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
     </div>
                
         <div class="row margin-t-b">  
@@ -327,9 +327,15 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>Save/Update Script</h3>
 				<div id = "saveScriptContainer"></div>
 			</div>
-		</div>        
-   		<input id="moduleId" value="30a0ff61-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
-     	 <@templateWithoutParams "role-autocomplete"/> 
+		</div>
+		
+		<div class="row">
+			<div class="col-3">        
+   				<input id="moduleId" value="30a0ff61-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+     	 		<@templateWithoutParams "role-autocomplete"/>
+     	 	</div>
+     	 </div>
+     	  
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -396,9 +402,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
      <#if !(dynamicForm?api.getFormId())??>
     	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         multiselect.setSelectedObject(defaultAdminRole);
-    
-    </#if>
-    
     	tableAutocomplete = $("#tableAutocomplete").autocomplete({
 	        autocompleteId: "table-autocomplete",
 	        prefetch : true,
@@ -421,6 +424,9 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	            loadTableTemplate(item.tableName);
 	        },     
 	    });
+    </#if>
+    
+
     
   });
 

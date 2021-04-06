@@ -50,6 +50,9 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	@Query(" FROM ModuleListing WHERE moduleId=:moduleId")
 	ModuleListing getModuleListing(String moduleId);
 
+	@Query("FROM ModuleListing ml WHERE moduleId = :moduleId AND moduleId NOT IN(SELECT mra.moduleId FROM ModuleRoleAssociation AS mra WHERE mra.moduleId = :moduleId AND mra.isDeleted = 0)")
+	ModuleListing getModuleListingByRole(String moduleId);
+
 	@Query(QueryStore.JPA_QUERY_TO_GET_HOME_PAGE_URL_BY_ROLE_IDS)
 	List<String> getModuleURLByRoleId(List<String> roleIdList, Integer isHomePage);
 

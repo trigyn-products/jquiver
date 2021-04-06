@@ -157,7 +157,6 @@ group by me.manual_entry_id', '<head>
     
     let isEdit = 0;
     <#if (resultSet)?? && resultSet?has_content>
-     	dropzoneElement.loadSelectedFiles();
         isEdit = 1;
     <#else>
     	dropzoneElement.disableDropZone("Please save help manual first");

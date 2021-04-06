@@ -253,8 +253,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     		<div class="clearfix"></div>
      	</div>
 	 
-	 <input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
-    <@templateWithoutParams "role-autocomplete"/>
+	 	<div class="row">
+			<div class="col-3">   
+	 			<input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    			<@templateWithoutParams "role-autocomplete"/>
+    		</div>
+    	</div>	
+		
 		<div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -680,7 +685,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		<h3 class="titlename method-sign-info">
 		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
 	    </h3>
-		<span id="ftlParameter">loggedInUserName, loggedInUserRoles{}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
+		<span id="ftlParameter">loggedInUserName, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}<span>
     </div>
     
 	<div class="row margin-t-b">

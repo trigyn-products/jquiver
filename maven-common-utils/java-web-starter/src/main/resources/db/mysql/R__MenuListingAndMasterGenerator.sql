@@ -113,14 +113,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             <div class="col-4">
 
 				<div class="col-inner-form full-form-fields">
-					<label for="menuDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.displayName")}</label>
+					<label for="menuDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.moduleName")}</label>
 					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
 				</div>
 			</div>
 
             <div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="moduleURL" style="white-space:nowrap">URL</label>
+					<label for="moduleURL" style="white-space:nowrap">${messageSource.getMessage("jws.moduleUrl")}</label>
 					<span><label style="background: lightgrey;" class="float-right">${(urlPrefix)!''''}<label></span>
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
 				</div>
@@ -163,7 +163,11 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	
 	<input id="isDev" type="hidden" value="${(isDev)?c!''''}">
 	
-	<@templateWithoutParams "role-autocomplete"/> 
+	<div class="row">
+		<div class="col-4"> 
+			<@templateWithoutParams "role-autocomplete"/>
+		</div>
+	</div> 
 		
 		
 	</form>
@@ -203,7 +207,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	$("#showInMenu").trigger("change");
 	let tableAutocomplete;
 	let resourceKeyMap = new Map();
-	let existingKey = new Array();
 	
 	$(function() {
 	
@@ -227,7 +230,11 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	            $("#tableAutocomplete").blur();
 	            $("#selectTable").val(item.tableName);
 	            populateFields(item.tableName);
-	        },     
+	        }, 
+			resetAutocomplete: function(autocompleteObj){
+                $(".details").remove();
+                resetObjects();
+            },       
 	    });
 	    
 	    let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};

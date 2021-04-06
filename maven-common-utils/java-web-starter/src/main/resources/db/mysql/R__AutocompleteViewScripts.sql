@@ -520,7 +520,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			
 	</div>
 	
-	<div class="row">
+		<div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+			<h3 class="titlename method-sign-info">
+		    	<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL Parameters</label>
+	    	</h3>
+			<span id="ftlParameter">loggedInUserName, searchText, additionalParamaters {}<span>
+		</div>
+		
+	<div class="row margin-t-b">
 	<div class="col-12">
 		<div class="sql_script">
 			<div class="grp_lblinp">
@@ -537,8 +544,12 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
    <input type="hidden" name="autocompleteQuery" id="acSelectQuery">
    
   </form>
-  <input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
-    <@templateWithoutParams "role-autocomplete"/>
+  <div class="row">
+	<div class="col-3">   
+  		<input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+  		<@templateWithoutParams "role-autocomplete"/>
+  	</div>
+  </div>
   <div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -589,29 +600,30 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
             addEditAutocomplete.getEntityRoles();
         }
         
-        
-        tableAutocomplete = $("#tableAutocomplete").autocomplete({
-	        autocompleteId: "table-autocomplete",
-	        prefetch : true,
-	        render: function(item) {
-	            var renderStr ="";
-	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
-	                renderStr = "<p>"+item.tableName+"</p>";
-	            }else{
-	                renderStr = item.emptyMsg;    
-	            }                                
-	            return renderStr;
-	        },
-	        additionalParamaters: {},
-	        extractText: function(item) {
-	            return item.tableName;
-	        },
-	        select: function(item) {
-	            $("#tableAutocomplete").blur();
-	            $("#autocompleteTable").val(item.tableName);
-	            addEditAutocomplete.createQuery(item.tableName);
-	        },     
-	    });
+        <#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>
+	        tableAutocomplete = $("#tableAutocomplete").autocomplete({
+		        autocompleteId: "table-autocomplete",
+		        prefetch : true,
+		        render: function(item) {
+		            var renderStr ="";
+		            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+		                renderStr = "<p>"+item.tableName+"</p>";
+		            }else{
+		                renderStr = item.emptyMsg;    
+		            }                                
+		            return renderStr;
+		        },
+		        additionalParamaters: {},
+		        extractText: function(item) {
+		            return item.tableName;
+		        },
+		        select: function(item) {
+		            $("#tableAutocomplete").blur();
+		            $("#autocompleteTable").val(item.tableName);
+		            addEditAutocomplete.createQuery(item.tableName);
+		        },     
+		    });
+		</#if>
 	    
 	});
 </script>

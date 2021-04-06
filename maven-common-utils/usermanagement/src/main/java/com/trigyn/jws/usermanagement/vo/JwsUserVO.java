@@ -1,6 +1,7 @@
 package com.trigyn.jws.usermanagement.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,8 @@ public class JwsUserVO implements Serializable {
 	private Boolean				isSendMail			= true;
 	
 	private int failedAttempt = 0;
+	
+	private Date				lastPasswordUpdatedDate			= null;
 	
 	public String getUserId() {
 		return userId;
@@ -83,19 +86,6 @@ public class JwsUserVO implements Serializable {
 		this.isActive = isActive;
 	}
 
-	public JwsUser convertVOToEntity(JwsUserVO userData) {
-
-		JwsUser jwsUser = new JwsUser();
-		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId()) ? userData.getUserId() : null);
-		jwsUser.setFirstName(userData.getFirstName());
-		jwsUser.setLastName(userData.getLastName());
-		jwsUser.setEmail(userData.getEmail());
-		jwsUser.setIsActive(userData.getIsActive());
-		jwsUser.setPassword(userData.getPassword());
-		jwsUser.setFailedAttempt(userData.getFailedAttempt());
-		return jwsUser;
-	}
-
 	public List<String> getRoleIds() {
 		return roleIds;
 	}
@@ -142,6 +132,28 @@ public class JwsUserVO implements Serializable {
 
 	public void setFailedAttempt(int failedAttempt) {
 		this.failedAttempt = failedAttempt;
+	}
+
+	public Date getLastPasswordUpdatedDate() {
+		return lastPasswordUpdatedDate;
+	}
+
+	public void setLastPasswordUpdatedDate(Date lastPasswordUpdatedDate) {
+		this.lastPasswordUpdatedDate = lastPasswordUpdatedDate;
+	}
+
+	public JwsUser convertVOToEntity(JwsUserVO userData) {
+
+		JwsUser jwsUser = new JwsUser();
+		jwsUser.setUserId(StringUtils.isNotEmpty(userData.getUserId()) ? userData.getUserId() : null);
+		jwsUser.setFirstName(userData.getFirstName());
+		jwsUser.setLastName(userData.getLastName());
+		jwsUser.setEmail(userData.getEmail());
+		jwsUser.setIsActive(userData.getIsActive());
+		jwsUser.setPassword(userData.getPassword());
+		jwsUser.setFailedAttempt(userData.getFailedAttempt());
+		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
+		return jwsUser;
 	}
 
 }

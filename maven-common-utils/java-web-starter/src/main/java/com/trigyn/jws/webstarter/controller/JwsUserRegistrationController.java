@@ -23,7 +23,6 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -238,7 +237,7 @@ public class JwsUserRegistrationController {
 
 					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
 					mailDetails.put("baseURL", baseURL);
-					
+
 					mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
 					TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
 					String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
@@ -254,6 +253,9 @@ public class JwsUserRegistrationController {
 					mapDetails.put("lastName", user.getLastName().trim());
 					mapDetails.put("errorPassword",
 							"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers!");
+				}
+				if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+					session.removeAttribute("registerCaptcha");
 				}
 			} else {
 

@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -55,7 +57,8 @@ public class MasterModuleService {
 		return masterModules;
 	}
 
-	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl) throws Exception {
+	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl,
+			HttpServletResponse httpServletResponse) throws Exception {
 		StringBuilder queryString = new StringBuilder();
 		if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
 			queryString.append("?").append(httpServletRequest.getQueryString());
@@ -68,11 +71,11 @@ public class MasterModuleService {
 			StringBuilder moduleUrlWithParam = new StringBuilder(moduleUrl).append(queryString);
 			moduleDetailsMap = moduleService.getModuleTargetByURL(moduleUrlWithParam.toString());
 		}
-		return renderTemplate(httpServletRequest, moduleDetailsMap);
+		return renderTemplate(httpServletRequest, moduleDetailsMap, httpServletResponse);
 	}
 
-	public String renderTemplate(HttpServletRequest httpServletRequest, Map<String, Object> moduleDetailsMap)
-			throws Exception {
+	public String renderTemplate(HttpServletRequest httpServletRequest, Map<String, Object> moduleDetailsMap,
+			HttpServletResponse httpServletResponse) throws Exception {
 		if (CollectionUtils.isEmpty(moduleDetailsMap) == false) {
 			Map<String, Object>	parameterMap		= validateAndProcessRequestParams(httpServletRequest);
 			List<String>		pathVariableList	= getPathVariables(httpServletRequest);
@@ -97,7 +100,7 @@ public class MasterModuleService {
 				templateMap.put("templateName", templateName);
 				String template = dashletService.getDashletUI(userId, false, targetTypeId, roleIdList, false);
 				if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
-					return menuService.getDashletTemplateWithLayout(template, templateMap);
+					return menuService.getDashletWithLayout(template, templateMap);
 				}
 				return menuService.getDashletWithoutLayout(templateName, template, templateMap);
 			} else if (targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())) {
@@ -108,6 +111,7 @@ public class MasterModuleService {
 				return template;
 			}
 		}
+		httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
 		return null;
 	}
 
@@ -121,14 +125,14 @@ public class MasterModuleService {
 
 	private Map<String, Object> getModuleDetails(String requestUrl, HttpServletRequest httpServletRequest)
 			throws Exception {
-		Map<String, Object>	moduleDetailsMap	= new HashMap<>();
+		Map<String, Object>			moduleDetailsMap	= new HashMap<>();
 
-		StringBuilder		moduleUrl			= new StringBuilder();
-		List<String>		pathVariableList	= getPathVariables(httpServletRequest);
+		StringBuilder				moduleUrl			= new StringBuilder();
+		List<String>				pathVariableList	= getPathVariables(httpServletRequest);
 
+		List<Map<String, Object>>	moduleDetailsList	= moduleService.getModuleTargetTypeURL(requestUrl);
 		for (String pathVariable : pathVariableList) {
 
-			List<Map<String, Object>> moduleDetailsList = moduleService.getModuleTargetTypeURL(requestUrl);
 			if (CollectionUtils.isEmpty(moduleDetailsList) == false) {
 				if (StringUtils.isBlank(moduleUrl) == false) {
 					moduleUrl.append("/");
@@ -147,12 +151,12 @@ public class MasterModuleService {
 
 		}
 		if (CollectionUtils.isEmpty(pathVariableList) == true) {
-			Map<String, Object> moduleDetailsList = moduleService.getModuleTargetByURL(requestUrl);
-			if (CollectionUtils.isEmpty(moduleDetailsList) == true) {
+			Map<String, Object> moduleDetails = moduleService.getModuleTargetByURL(requestUrl);
+			if (CollectionUtils.isEmpty(moduleDetails) == true) {
 				moduleUrl.append(requestUrl).append("/**");
-				moduleDetailsList = moduleService.getModuleTargetByURL(moduleUrl.toString());
+				moduleDetails = moduleService.getModuleTargetByURL(moduleUrl.toString());
 			}
-			moduleDetailsMap.putAll(moduleDetailsList);
+			moduleDetailsMap.putAll(moduleDetails);
 		}
 		return moduleDetailsMap;
 	}
@@ -161,7 +165,8 @@ public class MasterModuleService {
 		List<String>	pathVariableList	= new ArrayList<>();
 		String			moduleUrl			= httpServletRequest.getRequestURI()
 				.substring(httpServletRequest.getContextPath().length());
-		moduleUrl = moduleUrl.replaceFirst("/view/", "");
+		moduleUrl	= moduleUrl.replaceFirst("/view/", "");
+		moduleUrl	= moduleUrl.replaceFirst("/cf/", "");
 
 		if (moduleUrl.indexOf("/") != -1) {
 			pathVariableList = Stream.of(moduleUrl.split("/")).map(urlElement -> new String(urlElement))

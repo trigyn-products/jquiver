@@ -27,7 +27,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
             </select>
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
 	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
-	            <button type="submit" class="btn btn-primary">Add Grid Details</button>
+	            <button type="submit" class="btn btn-primary">Add Grid</button>
         	</form>
 
          <span onclick="backToWelcomePage();">
@@ -167,9 +167,9 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 	<div class="row topband">
         <div class="col-8">
 			<#if (resultSet)?? && (resultSet)?has_content>
-			    <h2 class="title-cls-name float-left">Edit Grid Details</h2> 
+			    <h2 class="title-cls-name float-left">Edit Grid</h2> 
 	        <#else>
-	            <h2 class="title-cls-name float-left">Add Grid Details</h2> 
+	            <h2 class="title-cls-name float-left">Add Grid</h2> 
 	        </#if>
      	</div>
         
@@ -245,8 +245,13 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 		<!-- Your form fields end -->
 		
 	</form>	
-	<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
-      <@templateWithoutParams "role-autocomplete"/> 
+	
+	<div class="row">
+		<div class="col-4">   
+			<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+    		<@templateWithoutParams "role-autocomplete"/>
+    	</div>
+    </div> 
 	
 	<div class="row">
 		<div class="col-12">

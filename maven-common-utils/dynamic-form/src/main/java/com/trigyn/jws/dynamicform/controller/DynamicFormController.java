@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -42,10 +44,12 @@ public class DynamicFormController {
 
 	@PostMapping(value = "/psdf")
 	@Authorized(moduleName = Constants.DYNAMICFORM)
-	public Boolean saveDynamicForm(HttpServletRequest httpServletRequest) throws Exception {
-		List<Map<String, String>> formData = new Gson().fromJson(httpServletRequest.getParameter("formData"),
+	public Boolean saveDynamicForm(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResonse)
+			throws Exception {
+		List<Map<String, String>>	formData	= new Gson().fromJson(httpServletRequest.getParameter("formData"),
 				List.class);
-		return dynamicFormService.saveDynamicForm(formData);
+		HttpSession					httpSession	= httpServletRequest.getSession();
+		return dynamicFormService.saveDynamicForm(formData, httpSession, httpServletResonse);
 	}
 
 	private Map<String, Object> processRequestParams(HttpServletRequest httpServletRequest) {

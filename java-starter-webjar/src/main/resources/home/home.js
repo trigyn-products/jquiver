@@ -372,6 +372,13 @@ const onFullScreenChange = function(monacoEditorObj, containerName, childContain
   }
 };
 
+const capitalizeFirstLetter = function(inputStr){
+	let updatedStr = inputStr.toLowerCase().replace(/^[\u00C0-\u1FFF\u2C00-\uD7FF\w]|\s[\u00C0-\u1FFF\u2C00-\uD7FF\w]/g, function(letter) {
+	    return letter.toUpperCase();
+	});
+	return updatedStr;
+}
+
 Array.prototype.formatSerializedArray = function() {
 	for(let counter = 0; counter < this.length; ++counter) {
 		if(this[counter]["valueType"] == undefined){
