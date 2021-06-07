@@ -46,8 +46,7 @@ public class FileController {
 	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object>	modelMap	= new HashMap<>();
-			String				environment	= propertyMasterService.findPropertyMasterValue("system", "system",
-					"profile");
+			String				environment	= propertyMasterService.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("file-upload-config-listing", modelMap);
 		} catch (Exception a_exception) {
@@ -61,26 +60,23 @@ public class FileController {
 	}
 
 	@PostMapping(value = "/fuj")
-	public String getLastUpdatedFileJsonData(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedFileJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return fileUploadConfigService.getFileUploadJson(entityId);
 	}
 
 	@PostMapping(value = "/sfuc")
-	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveFileUploadConfig(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String				modifiedContent		= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper		objectMapper		= new ObjectMapper();
 		FileUploadConfigVO	fileUploadConfigVO	= objectMapper.readValue(modifiedContent, FileUploadConfigVO.class);
-		FileUploadConfig	fileUploadConfig	= fileUploadConfigService
-				.convertFileUploadVOToEntity(fileUploadConfigVO);
+		FileUploadConfig	fileUploadConfig	= fileUploadConfigService.convertFileUploadVOToEntity(fileUploadConfigVO);
 		fileUploadConfigService.saveFileUploadConfig(fileUploadConfig);
 	}
 
 	@PostMapping(value = "/gqc")
-	public String getQueryContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public String getQueryContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String	fileBinId	= a_httpServletRequest.getParameter("fileBinId");
 		Gson	gson		= new Gson();
 		return gson.toJson(fileUploadConfigService.getFileUploadConfigByBinId(fileBinId));

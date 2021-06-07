@@ -44,8 +44,7 @@ public class HelpManualCrudController {
 	}
 
 	@GetMapping(value = "manual", produces = MediaType.TEXT_HTML_VALUE)
-	public String showManual(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String showManual(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			String				manualType		= httpServletRequest.getParameter("mt");
 			Map<String, Object>	parameterMap	= new HashMap<>();

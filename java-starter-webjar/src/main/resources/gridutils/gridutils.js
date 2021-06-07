@@ -59,6 +59,11 @@
                 load: function(event, ui) {
                 	options.loadCallback(event, ui);
                 	disableInputSuggestion();
+                	ui.colModel.forEach((column, index) => {
+					    if(column.sortable == false){
+					        $("tr.pq-grid-title-row td[pq-col-indx="+column.leftPos+"]").addClass("pq-grid-col-cusror")  
+					    }
+					})
                 }
             }
             

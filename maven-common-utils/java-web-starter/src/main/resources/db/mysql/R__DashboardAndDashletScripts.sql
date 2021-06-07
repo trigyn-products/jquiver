@@ -4,12 +4,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 </head>
 
 <div class="container">
@@ -43,7 +45,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	<input type="hidden" id="dashboardIdView" name="dashboardId">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
- 	<input type="hidden" id="entityName" name="entityName" value="dashboard">
+ 	<input type="hidden" id="entityName" name="entityName" value="jq_dashboard">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
@@ -70,13 +72,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 			{ title: "${messageSource.getMessage(''jws.createdBy'')}", hidden: true, width: 100, dataIndx: "createdBy", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
-			{ title: "${messageSource.getMessage(''jws.lastUpdatedDate'')}", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
+			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center", render: formatCreatedDate },
+			{ title: "${messageSource.getMessage(''jws.lastUpdatedDate'')}", width: 100, dataIndx: "lastUpdatedTs" , align: "left", halign: "center", render: formatLastUpdatedDate },
 			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashboard, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "lastUpdatedDate",
+        	sortIndx: "lastUpdatedTs",
         	sortDir: "down",
     	};	
 		let grid = $("#dashboardMasterGrid").grid({
@@ -104,6 +106,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         let gridNew = $( "#dashboardMasterGrid" ).pqGrid();
         gridNew.pqGrid( "option", "dataModel.postData", postData);
         gridNew.pqGrid( "refreshDataAndView" );  
+    }
+    
+    function formatCreatedDate(uiObject){
+        const createdDate = uiObject.rowData.createdDate;
+        return formatDate(createdDate);
+    }
+     
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
     }
       
 	function editDashboard(uiObject) {
@@ -315,12 +327,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 <script>
   contextPath = "${(contextPath)!''''}";
 </script>
@@ -338,6 +352,9 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
 				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
 			</#if>
+			<a href="${(contextPath)!''''}/cf/ad"> 
+				<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
+			</a>
 			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage(''jws.createNewDashlet'')}" type="button" onclick="dashletListing.submitForm(this)">
     		<span onclick="dashletListing.backToDashboarListing();">
     	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage(''jws.back'')}" type="button">
@@ -355,7 +372,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	<input type="hidden" id="dashletId" name="dashlet-id">
 </form>
 <form action="${(contextPath)!''''}/cf/cmv" method="POST" id="revisionForm">
-	<input type="hidden" id="entityName" name="entityName" value="dashlet">
+	<input type="hidden" id="entityName" name="entityName" value="jq_dashlet">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
@@ -380,16 +397,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage(''jws.createdBy'')}", hidden: true, width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center"},
+			{ title: "${messageSource.getMessage(''jws.createdDate'')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center", render: formatCreatedDate},
 			{ title: "${messageSource.getMessage(''jws.updatedBy'')}", hidden: true, width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center"},
+			{ title: "${messageSource.getMessage(''jws.updatedDate'')}", width: 100, dataIndx: "lastUpdatedTs" , align: "left", halign: "center", render: formatLastUpdatedDate},
 			{ title: "${messageSource.getMessage(''jws.status'')}", width: 80, dataIndx: "status" , align: "left", halign: "center", render: dashletStatus},
 			{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashlet, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "updatedDate",
+        	sortIndx: "lastUpdatedTs",
         	sortDir: "down",
     	};
 		let grid = $("#divdDashletMasterGrid").grid({
@@ -436,7 +453,17 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			return ''Inactive'';
 		}
 	}
-
+	
+	function formatCreatedDate(uiObject){
+        const createdDate = uiObject.rowData.createdDate;
+        return formatDate(createdDate);
+    }
+    
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
 	function editDashlet(uiObject) {
 		const dashletId = uiObject.rowData.dashletId;
 		const dashletName = uiObject.rowData.dashletName;
@@ -478,30 +505,29 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/dashboard/dashboard.css" />
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
-
+<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script>
 
 <div class="container">
 
-	<div class="topband">
-		<div class="row topband">
-			<div class="col-8">
-				<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
-				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
-		        <#else>
-		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
-		        </#if> 
-		     </div>
+	<div class="row topband">
+		<div class="col-8">
+			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+			    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
+		    <#else>
+		        <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
+		    </#if> 
+		</div>
         
-	        <div class="col-4">
-		        <#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
-			        <#assign ufAttributes = {
-			            "entityType": "Dashlet",
-			            "entityId": "dashletId",
-			            "entityName": "dashletName"
-			        }>
-			        <@templateWithParams "user-favorite-template" ufAttributes />
-		        </#if>
-		      </div>
+	    <div class="col-4">
+			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+				<#assign ufAttributes = {
+			    	"entityType": "Dashlet",
+			        "entityId": "dashletId",
+			        "entityName": "dashletName"
+			     }>
+			 	<@templateWithParams "user-favorite-template" ufAttributes />
+		     </#if>
+		 </div>
 		
 		<div class="clearfix"></div>		
 	</div>
@@ -563,6 +589,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			</div>
 		</div>
 								
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+	        	<label for="flammableState" style="white-space:nowrap">Datasource</label>
+	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
+	        		<option id="defaultConnection" value="">Default Connection</option>
+	        	</select>
+           	</div>
+		</div>
 								
 		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
@@ -591,6 +625,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				</div>
 			</div>
 		</div>
+		
 	</div>
 	
 	<div class="row">
@@ -744,6 +779,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		</div>
 	</div>
 		
+	<input type="hidden" id="dataSourceId" value="${(dashletVO.dataSourceId)!''''}">	
 	<textarea id="htmlContent" style="display: none">
 	   	${(dashletVO.dashletBody)!""}
 	</textarea>
@@ -783,8 +819,11 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		if(dashletId == ""){
             let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);
+            getAllDatasource(0);
         }else{
+           	$("#dataSource").attr("disabled", true);
             addEditDashletFn.getEntityRoles();
+            getAllDatasource(1);
         }
         
 		savedAction("dashlet-manage-details", dashletId);

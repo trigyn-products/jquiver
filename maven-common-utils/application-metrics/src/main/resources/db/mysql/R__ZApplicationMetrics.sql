@@ -223,14 +223,14 @@ replace into jq_entity_role_association (entity_role_id, entity_id, entity_name,
 ('8a80cb817570ad44017570b099650003', '8a80cb817570ad44017570b0991c0000', 'application-metrics', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'admin', 1), 
 ('8a80cb817570ad44017570b61ca50009', '8a80cb817570ad44017570b0991c0000', 'application-metrics', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1);
 
-replace into jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
-('8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', 1, 'getJvmMetrics', 'Method to get JVM metrics', 2, 7, 'com.trigyn.jws.applicationmetrics.service.ApplicationMetricsService', 1, 0, 2);
+replace into jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
+('8dd0e053-1955-11eb-a4c1-e454e805e22f', 'application-metrics-details', 1, 'getJvmMetrics', 'Method to get JVM metrics', 2, 7, 'com.trigyn.jws.applicationmetrics.service.ApplicationMetricsService', 1, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 replace into jq_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (28, '8dd0e053-1955-11eb-a4c1-e454e805e22f', 'noparam', 'select 1;', 1, 2);
 
-replace into jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu) VALUES
-('8a80cb817570ad44017570b156c40004', 'health', NULL, 5, '8a80cb817570ad44017570b0991c0000', NULL, 0);
+replace into jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, module_type_id) VALUES
+('8a80cb817570ad44017570b156c40004', 'health', NULL, 5, '8a80cb817570ad44017570b0991c0000', NULL, 0, 2);
 
 replace into jq_module_listing_i18n (module_id, language_id, module_name) VALUES ('8a80cb817570ad44017570b156c40004', 1, 'application-metrics');
 

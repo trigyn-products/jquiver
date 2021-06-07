@@ -495,9 +495,9 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     }
 
     //Code go back to previous page
-    function backToWelcomePage() {
+	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
-    }
+	}
 </script>', 'admin', 'admin', NOW(), NULL, 1);
 
 replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES

@@ -131,34 +131,29 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 			return false;
 		}
 		JwsDynamicRestDaoDetail other = (JwsDynamicRestDaoDetail) obj;
-		return Objects.equals(jwsDaoDetailsId, other.jwsDaoDetailsId)
-				&& Objects.equals(jwsDaoQueryTemplate, other.jwsDaoQueryTemplate)
+		return Objects.equals(jwsDaoDetailsId, other.jwsDaoDetailsId) && Objects.equals(jwsDaoQueryTemplate, other.jwsDaoQueryTemplate)
 				&& Objects.equals(jwsDynamicRestDetail, other.jwsDynamicRestDetail)
 				&& Objects.equals(jwsResultVariableName, other.jwsResultVariableName);
 	}
 
 	@Override
 	public String toString() {
-		return "JwsDynamicRestDaoDetail [jwsDaoDetailsId=" + jwsDaoDetailsId + ", jwsDaoQueryTemplate="
-				+ jwsDaoQueryTemplate + ", jwsResultVariableName=" + jwsResultVariableName + ", jwsDynamicRestDetail="
-				+ jwsDynamicRestDetail + "]";
+		return "JwsDynamicRestDaoDetail [jwsDaoDetailsId=" + jwsDaoDetailsId + ", jwsDaoQueryTemplate=" + jwsDaoQueryTemplate
+				+ ", jwsResultVariableName=" + jwsResultVariableName + ", jwsDynamicRestDetail=" + jwsDynamicRestDetail + "]";
 	}
 
 	public JwsDynamicRestDaoDetail getObject() {
 		JwsDynamicRestDaoDetail dynaRest = new JwsDynamicRestDaoDetail();
 		dynaRest.setJwsDaoDetailsId(jwsDaoDetailsId);
 		if (jwsDaoQueryTemplate != null) {
-			dynaRest.setJwsDaoQueryTemplate(
-					StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate.trim() + "]]>"));
+			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate.trim() + "]]>"));
 		} else {
 			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate + "]]>"));
 		}
 
-		dynaRest.setJwsDynamicRestDetailId(
-				jwsDynamicRestDetailId != null ? jwsDynamicRestDetailId.trim() : jwsDynamicRestDetailId);
+		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId != null ? jwsDynamicRestDetailId.trim() : jwsDynamicRestDetailId);
 		dynaRest.setJwsQuerySequence(jwsQuerySequence);
-		dynaRest.setJwsResultVariableName(
-				jwsResultVariableName != null ? jwsResultVariableName.trim() : jwsResultVariableName);
+		dynaRest.setJwsResultVariableName(jwsResultVariableName != null ? jwsResultVariableName.trim() : jwsResultVariableName);
 		dynaRest.setQueryType(queryType);
 		return dynaRest;
 	}

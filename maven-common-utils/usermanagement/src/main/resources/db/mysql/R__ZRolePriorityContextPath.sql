@@ -344,6 +344,9 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/fileupload/fileupload.js"></script>
 </head>
 
 <div class="container">
@@ -480,6 +483,14 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
 			</div>
 		</div>
     </#if>
+    <div class="row">
+		<div class="col-4">
+            <div id="fileUploadMaster" class="col-8 fileupload dropzone"></div>
+        </div>
+        <div class="col-4">
+            <img style="width:150px; height:200px;" id="profilePicImg" />
+        </div>
+        </div>
   </form>
 	
 </div>
@@ -489,6 +500,39 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
 	let isEdit = "${jwsUser?api.getUserId()!''''}";
 	contextPath = "${contextPath}";
   
+  	let profilePicDropZone = $(".fileupload").fileUpload({
+        fileBinId : "profilePic",
+        fileAssociationId: "${jwsUser?api.getUserId()!''''}",
+        createFileBin : true,
+        successcallback: onUploadProfilePic.bind(this),
+        deletecallback: onDeleteProfilePic.bind(this)
+    });
+	function onUploadProfilePic(a_file) {
+        $("#profilePicImg").attr("src", contextPath + "/cf/files/" + a_file);
+		document.getElementById("iClass").style.display = "none";
+	    document.getElementById("profileImg").style.display = "inline";
+        $("#profileImg").attr("src", contextPath + "/cf/files/" + a_file);
+    }
+
+    function onDeleteProfilePic(a_file) {
+        $("#profilePicImg").attr("src", "");
+	    if(document.getElementById("iClass") != null) {
+			document.getElementById("iClass").style.display = "inline";
+	    }
+        if(document.getElementById("profileImg") != null) {
+	    	document.getElementById("profileImg").style.display = "none";
+        }
+    }
+
+   <#if !isProfilePage && ("${jwsUser?api.getUserId()!''''}" != "${loggedInUserId!''''}")>
+        profilePicDropZone.disableDropZone("You are not authorized");
+    </#if>
+ 
+    var profilePicFileIds = profilePicDropZone.getSelectedFileIds();
+    if(profilePicFileIds.length > 0) {
+        $("#profilePicImg").attr("src", contextPath + "/cf/files/" + profilePicFileIds[0]);
+    }
+    
   $(function(){
   
   	savedAction("add-edit-user", isEdit);
@@ -741,7 +785,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 <div class="container">
-
 	
 <div class="cm-card">
 <div class="topband cm-card-header">
@@ -1044,7 +1087,7 @@ let oAuthArray = [];
 			     		
 		     		},
 		            success: function(data) {
-                           location.href=contextPath+"/cf/home";
+	 location.href = contextPath+"/cf/home";
                            var millisecondsToWait = 2000;
 							setTimeout(function() {
 								showMessage("Server is restarting.", "warn");
@@ -1266,7 +1309,7 @@ let oAuthArray = [];
 	}	
 	
 	function backToHomePage(){ 
-		location.href = contextPath+"/cf/home";
+	 location.href = contextPath+"/cf/home";
 	}
 	
 	function changeOAuth(){
@@ -2541,8 +2584,18 @@ function saveRolesAndPolicy(){
 
 ','aar.dev@trigyn.com','aar.dev@trigyn.com',now(),2);
 
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ('roleGrid','role listing','List of roles','jq_role','*', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+ 
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ('jwsUserListingGrid','user listing','List of users','jq_user','*', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ('manageEntityRoleGrid','manage entity roles listing','Entities and role association','manageEntityRoleListing','entityName,moduleId',2, 'aar.dev@trigyn.com', NOW(), NOW());
+  
 REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId FROM  jq_role WHERE  role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1', 2);
+('rolesAutocomplete',' List of roles','SELECT role_name AS roleName, role_id AS roleId 
+FROM jq_role WHERE role_name LIKE CONCAT("%", :searchText, "%") AND is_active=1 LIMIT :startIndex, :pageSize', 2);
 
 
 Replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 

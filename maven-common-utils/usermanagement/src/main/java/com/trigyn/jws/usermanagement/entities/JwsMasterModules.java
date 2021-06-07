@@ -16,38 +16,38 @@ public class JwsMasterModules {
 	@GeneratedValue(generator = "inquisitive-uuid")
 	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "module_id")
-	private String	moduleId		= null;
+	private String	moduleId				= null;
 
 	@Column(name = "module_name")
-	private String	moduleName		= null;
+	private String	moduleName				= null;
 
 	@Column(name = "is_system_module")
-	private Integer	isSystemModule	= null;
+	private Integer	isSystemModule			= null;
 
 	@Column(name = "auxiliary_data")
-	private String	auxiliaryData	= null;
+	private String	auxiliaryData			= null;
 
 	@Column(name = "module_type_id")
-	private Integer	moduleTypeId	= null;
+	private Integer	moduleTypeId			= null;
 
 	@Column(name = "sequence")
-	private Integer	sequence	= null;
+	private Integer	sequence				= null;
 
 	@Column(name = "grid_details_id")
-	private String	gridDetailsId		= null;
+	private String	gridDetailsId			= null;
 
 	@Column(name = "module_type")
-	private String	moduleType			= null;
+	private String	moduleType				= null;
 
 	@Column(name = "is_perm_supported")
-	private Integer	isPermSupported	= null;
+	private Integer	isPermSupported			= null;
 
 	@Column(name = "is_entity_perm_supported")
 	private Integer	isEntityPermSupported	= null;
 
 	@Column(name = "is_imp_exp_supported")
-	private Integer	isImpExpSupported	= null;
-	
+	private Integer	isImpExpSupported		= null;
+
 	public String getModuleId() {
 		return moduleId;
 	}

@@ -26,9 +26,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -99,6 +101,9 @@ public class MasterCreatorService {
 	@Autowired
 	private PropertyMasterDetails			propertyMasterDetails			= null;
 
+	@Autowired
+	private IUserDetailsService				detailsService					= null;
+
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
 		Map<String, Object>		templateMap			= new HashMap<>();
 		//		List<String>			tables				= dynamicFormDAO.getAllTablesListInSchema();
@@ -131,8 +136,7 @@ public class MasterCreatorService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Map<String, Object> initMasterCreationScript(MultiValueMap<String, String> inputDetails) throws Exception {
-		String				environment				= propertyMasterService.findPropertyMasterValue("system", "system",
-				"profile");
+		String				environment				= propertyMasterService.findPropertyMasterValue("system", "system", "profile");
 		Map<String, Object>	createdMasterDetails	= new HashMap<>();
 		Map<String, Object>	formData				= processFormData(inputDetails.getFirst("formData"));
 		Integer				insideMenu				= formData.get("isMenuAddActive") == null ? 0
@@ -143,10 +147,10 @@ public class MasterCreatorService {
 			menuData = processMenu(inputDetails.getFirst("menuDetails"));
 		}
 
-		DynamicForm		dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleURL());
+		DynamicForm		dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleURL(), inputDetails.get("dbProductName").toString());
 		GridDetails		gridDetails		= createGridDetailsInfo(formData);
-		TemplateMaster	templateMaster	= saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(),
-				dynamicForm.getFormId(), formData);
+		TemplateMaster	templateMaster	= saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(), dynamicForm.getFormId(),
+				formData);
 
 		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			insertIntoMenu(menuData, templateMaster);
@@ -187,8 +191,7 @@ public class MasterCreatorService {
 		jwsDynamicEntity.setEntityName(dynamicForm.getFormName());
 		jwsDynamicEntity.setRoleIds(roleIds);
 		String dynamicModuleId = jwsMasterModulesRepository
-				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.DYNAMICFORM.getModuleName())
-				.getModuleId();
+				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.DYNAMICFORM.getModuleName()).getModuleId();
 		jwsDynamicEntity.setModuleId(dynamicModuleId);
 		userManagementService.deleteAndSaveEntityRole(jwsDynamicEntity);
 
@@ -197,8 +200,7 @@ public class MasterCreatorService {
 		jwsGridEntity.setEntityName(gridDetails.getGridName());
 		jwsGridEntity.setRoleIds(roleIds);
 		String gridModuleId = jwsMasterModulesRepository
-				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.GRIDUTILS.getModuleName())
-				.getModuleId();
+				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.GRIDUTILS.getModuleName()).getModuleId();
 		jwsGridEntity.setModuleId(gridModuleId);
 		userManagementService.deleteAndSaveEntityRole(jwsGridEntity);
 
@@ -207,8 +209,7 @@ public class MasterCreatorService {
 		jwsTemplateEntity.setEntityName(templateMaster.getTemplateName());
 		jwsTemplateEntity.setRoleIds(roleIds);
 		String templateModuleId = jwsMasterModulesRepository
-				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.TEMPLATING.getModuleName())
-				.getModuleId();
+				.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.TEMPLATING.getModuleName()).getModuleId();
 		jwsTemplateEntity.setModuleId(templateModuleId);
 		userManagementService.deleteAndSaveEntityRole(jwsTemplateEntity);
 
@@ -218,8 +219,7 @@ public class MasterCreatorService {
 			jwsMenuEntity.setEntityName(menuData.getModuleName());
 			jwsMenuEntity.setRoleIds(roleIds);
 			String menuModuleId = jwsMasterModulesRepository
-					.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.SITELAYOUT.getModuleName())
-					.getModuleId();
+					.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.SITELAYOUT.getModuleName()).getModuleId();
 			jwsMenuEntity.setModuleId(menuModuleId);
 			userManagementService.deleteAndSaveEntityRole(jwsMenuEntity);
 		}
@@ -251,14 +251,17 @@ public class MasterCreatorService {
 		return masterDetailsMap;
 	}
 
-	private DynamicForm createDynamicFormDetails(MultiValueMap<String, String> inputDetails,
-			Map<String, Object> formData, String moduleURL) throws Exception {
+	private DynamicForm createDynamicFormDetails(MultiValueMap<String, String> inputDetails, Map<String, Object> formData, String moduleURL, String dbProductName)
+			throws Exception {
 		String						tableName			= formData.get("selectTable").toString();
+		String						dataSourceId		= null;
+		if(formData.get("dataSourceId") != null) {
+			dataSourceId = formData.get("dataSourceId").toString();
+		}
 		String						primaryKey			= formData.get("primaryKey").toString();
 		String						moduleName			= formData.get("moduleName") + "-form";
 		String						description			= formData.get("moduleName") + " Form";
-		List<String>				formDetailsString	= new ObjectMapper()
-				.convertValue(inputDetails.get("formDetails"), List.class);
+		List<String>				formDetailsString	= new ObjectMapper().convertValue(inputDetails.get("formDetails"), List.class);
 
 		String						jsonString			= formDetailsString.get(0).toString();
 		List<Map<String, Object>>	formDetails			= new ObjectMapper().readValue(jsonString, List.class);
@@ -267,7 +270,7 @@ public class MasterCreatorService {
 
 		}
 		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey);
-		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(tableName, formDetails, moduleURL);
+		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(dataSourceId, dbProductName, tableName, formDetails, moduleURL);
 		String				saveQuery			= dynamicFormDetails.get("save-template");
 		String				htmlTemplate		= dynamicFormDetails.get("form-template");
 		DynamicForm			dynamicForm			= new DynamicForm();
@@ -277,6 +280,7 @@ public class MasterCreatorService {
 		dynamicForm.setFormName(moduleName);
 		dynamicForm.setCreatedBy("admin");
 		dynamicForm.setCreatedDate(new Date());
+		dynamicForm.setDatasourceId(dataSourceId);
 		dynamicFormDAO.saveDynamicFormData(dynamicForm);
 		DynamicFormSaveQuery dynamicFormSaveQuery = new DynamicFormSaveQuery();
 		dynamicFormSaveQuery.setSequence(1);
@@ -295,13 +299,12 @@ public class MasterCreatorService {
 		}
 	}
 
-	private Map<String, String> generateHtmlTemplate(String tableName, List<Map<String, Object>> formDetails,
-			String moduleURL) {
-		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(tableName);
+	private Map<String, String> generateHtmlTemplate(String dataSourceId, String dbProductName, String tableName, List<Map<String, Object>> formDetails, String moduleURL) {
+		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(dataSourceId,tableName);
 
 		Iterator					itr				= tableDetails.iterator();
-		Set<String>					matchedColumns	= formDetails.stream()
-				.map(column -> column.get("column").toString()).collect(Collectors.toSet());
+		Set<String>					matchedColumns	= formDetails.stream().map(column -> column.get("column").toString())
+				.collect(Collectors.toSet());
 		while (itr.hasNext()) {
 			Map<String, Object>	columnDetails	= (Map<String, Object>) itr.next();
 			String				columnName		= columnDetails.get("tableColumnName").toString();
@@ -330,13 +333,11 @@ public class MasterCreatorService {
 				}
 			}
 		}
-		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails,
-				moduleURL);
+		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, moduleURL, dataSourceId, dbProductName);
 		return templateDetails;
 	}
 
-	private String generateSelectQueryForForm(String tableName, List<Map<String, Object>> formDetails,
-			String primaryKey) {
+	private String generateSelectQueryForForm(String tableName, List<Map<String, Object>> formDetails, String primaryKey) {
 		StringBuilder	selectQuery	= new StringBuilder("SELECT ");
 		StringJoiner	columns		= new StringJoiner(",");
 		for (Map<String, Object> details : formDetails) {
@@ -346,7 +347,7 @@ public class MasterCreatorService {
 		StringJoiner	whereClause	= new StringJoiner(" AND ");
 		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
 		for (String key : primaryKeys) {
-			String value = key + " = " + "\\\"${(" + key.replaceAll("_", "") + ")!''}\\\"";
+			String value = key + " = " + "'${" + key.replaceAll("_", "") + "}'";
 			whereClause.add(value.replace("\\", ""));
 		}
 		selectQuery.append(whereClause.toString());
@@ -355,19 +356,25 @@ public class MasterCreatorService {
 	}
 
 	private GridDetails createGridDetailsInfo(Map<String, Object> formData) throws Exception {
-		String		moduleName	= formData.get("moduleName") + "Grid".replaceAll("-", "");
-		String		description	= formData.get("moduleName") + " Listing";
-		String		tableName	= formData.get("selectTable").toString();
-		String		columns		= formData.get("columns").toString();
-		GridDetails	details		= new GridDetails(moduleName, moduleName, description, tableName, columns,
-				Constants.queryImplementationType.VIEW.getType());
+		UserDetailsVO	detailsVO	= detailsService.getUserDetails();
+		String			moduleName	= formData.get("moduleName") + "Grid".replaceAll("-", "");
+		String			description	= formData.get("moduleName") + " Listing";
+		String			tableName	= formData.get("selectTable").toString();
+		String			columns		= formData.get("columns").toString();
+		Date			date		= new Date();
+		String						dataSourceId		= null;
+		if(formData.get("dataSourceId") != null) {
+			dataSourceId = formData.get("dataSourceId").toString();
+		}
+
+		GridDetails		details		= new GridDetails(moduleName, moduleName, description, tableName, columns,
+				Constants.queryImplementationType.VIEW.getType(), Constants.CUSTOM_GRID, detailsVO.getUserName(), date, dataSourceId, null, date);
 		return gridUtilsDAO.saveGridDetails(details);
 	}
 
-	private TemplateMaster saveTemplateMasterDetails(MultiValueMap<String, String> inputDetails, String gridId,
-			String formId, Map<String, Object> formData) throws Exception {
-		List<String>				gridDetailsString	= new ObjectMapper()
-				.convertValue(inputDetails.get("gridDetails"), List.class);
+	private TemplateMaster saveTemplateMasterDetails(MultiValueMap<String, String> inputDetails, String gridId, String formId,
+		Map<String, Object> formData) throws Exception {
+		List<String>				gridDetailsString	= new ObjectMapper().convertValue(inputDetails.get("gridDetails"), List.class);
 		String						moduleName			= formData.get("moduleName") + "-template";
 		String						jsonString			= gridDetailsString.get(0).toString();
 		List<Map<String, Object>>	gridDetails			= new ObjectMapper().readValue(jsonString, List.class);
@@ -393,8 +400,8 @@ public class MasterCreatorService {
 		templateMap.put("primaryKeyObject", new ObjectMapper().writeValueAsString(details));
 		templateMap.put("pageTitle", formData.getOrDefault("menuDisplayName", "Page Title"));
 		TemplateVO		templateVO		= dbTemplatingService.getTemplateByName("system-listing-template");
-		String			template		= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), templateMap);
+		String			template		= templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+				templateMap);
 		TemplateMaster	templateMaster	= new TemplateMaster();
 		templateMaster.setTemplateName(moduleName);
 		templateMaster.setTemplate(template);
@@ -406,6 +413,10 @@ public class MasterCreatorService {
 
 	public List<Map<String, Object>> getTableDetails(String tableName) {
 		return dynamicFormDAO.getTableInformationByName(tableName);
+	}
+
+	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId) {
+		return dynamicFormDAO.getTableDetailsByTableName(additionalDataSourceId, tableName);
 	}
 
 }

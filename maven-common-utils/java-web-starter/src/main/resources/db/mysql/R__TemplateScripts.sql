@@ -279,14 +279,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 ('1dff39e8-001f-11eb-97bf-e454e805e22f', 'template-listing', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>   
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
 <script>
 
@@ -337,9 +339,9 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 </form>
 <script>
     contextPath = "${(contextPath)!''''}";
-    function backToWelcomePage() {
+	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
-    }
+	}
     $(function () {
 		$("#typeSelect").each(function () {
 	        $(this).val($(this).find("option[selected]").val());
@@ -350,14 +352,14 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		
         let colM = [
             { title: "", hidden: true, sortable : false, dataIndx: "templateId" },
-            { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
-            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Created By", width: 100, align: "center",  sortable : true, dataIndx: "createdBy", align: "left", halign: "center",
-            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
-            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center"},
-            { title: "Action", width: 50, minWidth: 115, align: "center", render: editTemplate, dataIndx: "action", sortable: false }
+            { title: "Template Name", width: 190, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Created By", width: 100, align: "center", hidden: true,  sortable : true, dataIndx: "createdBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Updated By", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Last Updated Date", width: 100, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center", render: formatLastUpdatedDate},
+            { title: "Action", width: 50, maxWidth: 145, align: "center", render: editTemplate, dataIndx: "action", sortable: false }
         ];
         let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -382,6 +384,11 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		}
 	}
 	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.updatedDate;
+        return formatDate(lastUpdatedTs);
+    }
+    
     function editTemplate(uiObject) {
         const templateId = uiObject.rowData.templateId;
 		const templateName = uiObject.rowData.templateName;
@@ -666,6 +673,11 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.siteLayout'')}</h2> 
 		<div class="float-right">
+        	Show:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">All</option>                   
+                <option value="1" selected>Custom</option>                   
+                <option value="2">System</option>                 
+            </select>
 		<span>
   		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Set Default Page" type="button" onclick="configHomePage(this)">
 		</span>
@@ -695,7 +707,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 <script>
 	contextPath = "${(contextPath)!''''}";
 	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
+        location.href = contextPath+"/cf/home";
 	}
 	$(function () {
 		let formElement = $("#formMuRedirect")[0].outerHTML;
@@ -704,16 +716,16 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		let colM = [
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 	        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Parent Module Name", width: 200, align: "center", dataIndx: "parentModuleName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Sequence Number", width: 100, align: "center", dataIndx: "sequence", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Inside Menu", width: 100, align: "center", dataIndx: "isInsideMenu", align: "left", halign: "center", render: formatIsInsideMenu},
 	        { title: "Default Module", width: 100, align: "center", dataIndx: "isHomePage", align: "left", halign: "center", render: formatIsHomePage},
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editModule, sortable: false}
+          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editModule, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -721,10 +733,29 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		let grid = $("#divModuleListing").grid({
 	      gridId: "moduleListingGrid",
 	      colModel: colM,
-          dataModel: dataModel
+          dataModel: dataModel,
+          additionalParameters: {"cr_moduleTypeId":"str_1"}
 	  });
 	});
   
+    function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"moduleListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"moduleListingGrid"
+                    ,"cr_moduleTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divModuleListing" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+       
   	function editModule(uiObject) {
 		const moduleId = uiObject.rowData.moduleId;
 		return ''<span id="''+moduleId+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>''.toString();
@@ -1032,8 +1063,8 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <title><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></title>
 </head>
-	<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
-		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''''}/cf/home"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+		<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
+		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''''}/"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
         <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
 	        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
 				<i class="fa fa-bars" aria-hidden="true"></i>
@@ -1056,7 +1087,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 							</a>
 						</li>
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
-                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''''}/cf/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> ${loggedInUserName}</a></li>
+                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:none;" aria-hidden="true"></i><img style="width:20px; height:20px;" style="display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
                             	<a class="nav-link signout-icon" href="${(contextPath)!''''}/logout" title="<@resourceBundleWithDefault ''jws.logout'' ''Logout''/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>
@@ -1126,14 +1157,15 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <footer class="page-footer font-small blue pt-4">
     <div class="footer bg-dark">
         <div class="text-center">
-            <small>Copyright &copy; Trigyn Technologies</small>
-            <small class="float-right">${(jquiverVersion)!''1.0.0''}</small>
+            <small>Copyright &copy; <a href = "https://www.trigyn.com/" target="_blank">Trigyn Technologies</a></small>
+            <small class="float-right"><a href = "${(contextPath)!''''}/view/team" target="_blank">${(jquiverVersion)!''1.0.0''}</a></small>
         </div>
     </div>
 </footer>
 <script>
 	const contextPathHome = "${contextPath}";
 	let homePageFn;
+	let jqJSDateFormat;
 	
 	$(function() {
 		  
@@ -1141,7 +1173,41 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	  homePageFn = homePage.fn;
 	  homePageFn.collapsableMenu();
 	  disableInputSuggestion();
+	  
+	  <#list systemProperties as key, value>
+        <#if key.propertyName == "jws-date-format">
+            jqJSDateFormat = JSON.stringify(${value});
+        	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
+      	</#if>
+      </#list>
+      retrieveProfilePic();
+      
 	});
+
+    function retrieveProfilePic() {
+        $.ajax({
+			type : "GET",
+	    	contentType : "application/json",
+			url : contextPathHome+"/api/retrieveProfilePic",
+            success: function(data) {
+				if(data == undefined || data.length==0) {
+	                if(document.getElementById("iClass") != null) {
+						document.getElementById("iClass").style.display = "inline";
+	                }
+                    if(document.getElementById("profileImg") != null) {
+	                    document.getElementById("profileImg").style.display = "none";
+                    }
+				} else {
+	                $("#profileImg").attr("src", contextPathHome + "/cf/files/" + data[0].fileUploadId);
+					document.getElementById("iClass").style.display = "none";
+	                document.getElementById("profileImg").style.display = "inline";
+	            }
+			},
+			error: function(data) {
+				showMessage("Error occurred while retrieving details", "error");
+			},
+		});
+    }
 
 
 </script>
@@ -1156,7 +1222,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 }>
 <@templateWithParams "google-analytics-template" gaAttributes />
 
-', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+', 'admin@jquiver.com', 'admin@jquiver.com', NOW(), NULL, 2);
 
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
@@ -1441,21 +1507,13 @@ function saveEntityRoleAssociation (moduleId){
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO jq_autocomplete_details(
-   ac_id
-  ,ac_description
-  ,ac_select_query
-  ,ac_type_id
-) VALUES (
-   'revisionAutocomplete'
-  ,'List module version detail by entity id'
-  ,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
-  FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
-    AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName) ORDER BY jmv.updated_date DESC '
-  ,2
-);
-
-
+REPLACE INTO jq_autocomplete_details(ac_id,ac_description,ac_select_query,ac_type_id,created_by, created_date, last_updated_ts)  
+VALUES ('revisionAutocomplete','List module version detail by entity id'
+,'SELECT jmv.module_version_id AS moduleVersionId, jmv.version_id AS versionId, DATE_FORMAT(jmv.updated_date,:dateFormat) AS updatedDate
+ FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName AND DATE_FORMAT(jmv.updated_date, :dateFormat) LIKE CONCAT("%", :searchText, "%")
+ AND jmv.version_id <> (SELECT MAX(jmv.version_id)  FROM jq_module_version AS jmv WHERE jmv.entity_id = :entityId AND jmv.entity_name = :entityName) ORDER BY jmv.updated_date DESC 
+ LIMIT :startIndex, :pageSize '
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 
@@ -2013,9 +2071,8 @@ function backToPreviousPage(){
 
 
 
-REPLACE INTO jq_grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
-) VALUES ('homePageListingGrid','Home Page Listing','Home Page Listing','homePageListing' 
-  ,'moduleId,moduleName,moduleURL,roleName,rolePriority', 2 , 2);
+REPLACE INTO jq_grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ('homePageListingGrid','Home Page Listing','Home Page Listing','homePageListing','moduleId,moduleName,moduleURL,roleName,rolePriority', 2, 2, 'aar.dev@trigyn.com', NOW(), NOW());
   
 REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('55b93b76-54a5-11eb-9e7a-f48e38ab8cd7', 'config-home-page-listing', '<head>
@@ -2105,14 +2162,14 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 	        { title: "", width: 130, align: "center", dataIndx: "roleId", align: "left", halign: "center", hidden : true },
 	        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Role Name", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center",
-	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Role Priority", width: 100, align: "center", dataIndx: "rolePriority", align: "left", halign: "center",
-	         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-          { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: formatActionCol, sortable: false}
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+          	{ title: "${messageSource.getMessage(''jws.action'')}", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: formatActionCol, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -2301,7 +2358,7 @@ let autocompletePF;
                 var renderStr = "";
                 imageName = getImageNameByType(item.entityType);
                 if(item.emptyMsg == undefined || item.emptyMsg === ""){
-                   renderStr = ''<div class="user-favorite-img-cls"><img src="/webjars/1.0/images/''+imageName+''.svg"><p>''+item.entityName+''</p></div>'';
+                   renderStr = ''<div class="user-favorite-img-cls"><img src="${(contextPath)!''''}/webjars/1.0/images/''+imageName+''.svg"><p>''+item.entityName+''</p></div>'';
                 }else{
                     renderStr = item.emptyMsg;	
                 }	    				        
@@ -2388,64 +2445,180 @@ let autocompletePF;
     }
     
     function submitForm(selectedEntity){
-        let form = $(JSON.parse(selectedEntity.formData));
+     	let form = $(JSON.parse(selectedEntity.formData));
         $("body").append(form);
-        let formId = form[0].id;
-        $("#"+formId).find("input").each(function(index,inputElem){
+       	$(form).attr("action", contextPath+$(form).attr("action"));
+        //let formId = form[0].id;
+        $(form).find("input").each(function(index,inputElem){
             if($(inputElem).attr("name") !== "formId"){
                 $(inputElem).val(selectedEntity.entityId);
             }
         })
-        $("#"+formId).submit();
+        $(form).submit();
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO jq_autocomplete_details(
-   ac_id
-  ,ac_description
-  ,ac_select_query
-  ,ac_type_id
-) VALUES (
-   'home-page-role'
-  ,'Role autocomplete for home page'
-  ,'SELECT jr.role_id AS roleId, jr.role_name AS roleName FROM jq_role AS jr
-WHERE jr.role_name LIKE CONCAT("%", :searchText, "%")  
-AND jr.is_active = 1 
-AND jr.role_id NOT IN (SELECT mra.role_id FROM module_role_association AS mra WHERE mra.is_deleted = 0)'
-  ,2
-);
+
+REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
+('52203478-5dc4-4823-999e-cea88ae10cad', 'jq-team-template', '<head>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+
+</head>
+<div class="container text-center">
+    <div class="row  align-items-center justify-content-center" >
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/adchowdhury/" target="_blank">
+                <img class="team-img" width="150px" src="${(contextPath)!''''}/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0" alt="aNIRUDDHA" title="The Architect"/>
+            </a>
+        </div>
+    </div>
+
+	<br>
+    <div class="row  align-items-center justify-content-center" >
+		<div class="col-3">
+            <a href="https://www.linkedin.com/in/abde17/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/756de33e-b86a-11eb-9690-f48e38ab8cd7" alt="Abhay Desai" title="Sr Software Engineer"/>
+            </a>
+        </div>
+        
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/akram-bhasha-mohammad-80778841/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/1f4e7749-3365-400a-98de-2716a1de01fc" alt="Akram Bhasha" title="Sr Technical Analyst"/>
+            </a>
+        </div>
+        
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/aman-prasad-0bba71bb/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/4efc83a2-4ef9-40bd-a60b-a5d639d1bea5" alt="Aman Prasad" title="Sr Technical Analyst"/>
+            </a>
+        </div>
+	
+		<div class="col-3">
+            <a href="https://www.linkedin.com/in/amit-jadhav-3308782b/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/bc03c67f-a5a0-4063-8ef4-c50ed8f076f3" alt="Amit Jadhav" title="Lead Consutant- UI"/>
+            </a>
+        </div>
+	</div>
+	
+	<br>
+	<div class="row  align-items-center justify-content-center" >
+		<div class="col-3">
+            <a href="https://www.linkedin.com/in/mini-pillai-b01807112/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4" alt="Mini Pillai" title="Sr Technical Analyst"/>
+            </a>
+        </div>
+
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/ravi-gowda-9a5a6aa9" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/e3dd0b7c-242a-47b3-9a36-c23ef378b10f" alt="Ravi Gowda" title="Sr Software Engineer"/>
+            </a>
+        </div>
+        
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/satishchandra-pandey-4b490031/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/6b268691-ddfc-4d3f-9abd-bbc88bbfe974" alt="Satish Pandey" title="Sr Technical Analyst"/>
+            </a>
+        </div>
+        
+        <div class="col-3">
+            <a href="https://www.linkedin.com/in/satyawan-sawant-06925212a/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''''}/cf/files/c91b58b7-0a29-45c1-960d-3648821d4547" alt="Satyawan Sawant" title="Designer- UI"/>
+            </a>
+        </div>
+    </div>
+    
+</div>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
+
+REPLACE INTO jq_autocomplete_details(ac_id,ac_description,ac_select_query,ac_type_id, created_by, created_date, last_updated_ts)
+VALUES ('home-page-role','Role autocomplete for home page'
+,'SELECT jr.role_id AS roleId, jr.role_name AS roleName FROM jq_role AS jr 
+ WHERE jr.role_name LIKE CONCAT("%", :searchText, "%") 
+ AND jr.is_active = 1 
+ AND jr.role_id NOT IN (SELECT mra.role_id FROM module_role_association AS mra WHERE mra.is_deleted = 0)
+ LIMIT :startIndex, :pageSize'
+,2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
-REPLACE INTO jq_autocomplete_details(ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+REPLACE INTO jq_autocomplete_details(ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) VALUES
 ('user-favorite-entity-autocomplete', '', 
 'SELECT jqfe.favorite_id AS favoriteId, jqfe.entity_type AS entityType, jqfe.entity_id AS entityId,
 jqfe.entity_name AS entityName, jmm.auxiliary_data AS formData
 FROM jq_user_favorite_entity AS jqfe
 LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = jqfe.entity_type
 WHERE jqfe.user_email_id = :loggedInUserName AND jqfe.entity_name LIKE CONCAT("%", :searchText, "%")
-ORDER BY entity_type, entity_name ASC '
-, 2);
+ORDER BY entity_type, entity_name ASC 
+LIMIT :startIndex, :pageSize'
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('table-autocomplete', 'table autocomplete', 'SELECT TABLE_NAME AS tableName FROM information_schema.TABLES WHERE table_schema = (SELECT DATABASE())
- AND TABLE_NAME LIKE CONCAT("%", :searchText, "%") AND TABLE_TYPE ="BASE TABLE"
- AND CASE WHEN (SELECT (property_value) FROM jq_property_master WHERE property_name = "version") NOT LIKE "%SNAPSHOT%" 
- THEN TABLE_NAME NOT LIKE "jq_%" ELSE 1 END AND TABLE_NAME NOT IN("flyway_schema_history", "persistent_logins")'
-, 2); 
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) VALUES
+('table-autocomplete', 'table autocomplete', '<#if dbProductName == "default"> 
+SELECT TABLE_NAME AS tableName  
+FROM information_schema.TABLES  
+WHERE table_schema = (SELECT DATABASE())  
+AND TABLE_NAME LIKE CONCAT("%", :searchText, "%") AND TABLE_TYPE ="BASE TABLE" 
+AND CASE WHEN (SELECT (property_value) FROM jq_property_master WHERE property_name = "version") NOT LIKE "%SNAPSHOT%"  
+THEN TABLE_NAME NOT LIKE "jq_%" ELSE 1 END AND TABLE_NAME NOT IN("flyway_schema_history", "persistent_logins") 
+ORDER BY tableName
+LIMIT :startIndex, :pageSize 
+
+<#elseif dbProductName == "mariadb">
+SELECT TABLE_NAME AS tableName  
+FROM information_schema.TABLES  
+WHERE table_schema = (SELECT DATABASE())  
+AND TABLE_NAME LIKE CONCAT("%", :searchText, "%") AND TABLE_TYPE ="BASE TABLE"
+ORDER BY tableName 
+LIMIT :startIndex, :pageSize 
+
+<#elseif dbProductName == "mysql">
+SELECT TABLE_NAME AS tableName  
+FROM information_schema.TABLES  
+WHERE table_schema = (SELECT DATABASE())  
+AND TABLE_NAME LIKE CONCAT("%", :searchText, "%") AND TABLE_TYPE ="BASE TABLE" 
+ORDER BY tableName
+LIMIT :startIndex, :pageSize 
+
+<#elseif dbProductName == "postgresql">
+SELECT table_name AS "tableName"
+FROM information_schema.tables
+WHERE table_schema = ''public''
+AND table_catalog = current_database()
+AND table_type =''BASE TABLE''
+ORDER BY "tableName"
+OFFSET :startIndex LIMIT :pageSize
+
+<#elseif dbProductName == "sqlserver">
+SELECT TABLE_NAME AS tableName  
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = ''BASE TABLE'' AND TABLE_CATALOG = DB_NAME()
+ORDER BY tableName
+OFFSET :startIndex ROWS FETCH NEXT :pageSize ROWS ONLY
+
+<#elseif dbProductName == "oracle:thin">
+select object_name as "tableName" from all_objects t where object_type = ''TABLE'' and owner = :dataSourceUserName order by object_name 
 
 
-REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
+</#if>' 
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) VALUES
 ('site-layout-url-autocomplete', 'Site layout', 'SELECT jml.module_id AS moduleId, jmli18n.module_name AS text
 FROM jq_module_listing AS jml
 INNER JOIN jq_module_listing_i18n AS jmli18n ON jmli18n.module_id = jml.module_id AND jmli18n.language_id = :languageId
-WHERE jmli18n.module_name LIKE CONCAT("%", :searchText, "%")', 2);
+WHERE jmli18n.module_name LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
-REPLACE INTO jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, is_home_page) VALUES
-('4f81625d-c3f1-47ec-88d4-e85be439df19', 'jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1', NULL, 5, '8a80cb8175513bc80175514206ef0000', NULL, 0, 0);
+REPLACE INTO jq_module_listing (module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, is_home_page, module_type_id) VALUES
+('4f81625d-c3f1-47ec-88d4-e85be439df19', 'jqhm?mt=07cf45ae-2987-11eb-a9be-e454e805e22f&sl=1', NULL, 5, '8a80cb8175513bc80175514206ef0000', NULL, 0, 0, 2);
 
 REPLACE INTO jq_module_listing_i18n (module_id, language_id, module_name) VALUES
 ('4f81625d-c3f1-47ec-88d4-e85be439df19', 1, 'JQuiver Help Manual');
+
+REPLACE INTO jq_module_listing(module_id, module_url, parent_id, target_lookup_id, target_type_id, sequence, is_inside_menu, include_layout, is_home_page, last_modified_date, module_type_id) VALUES
+('8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725', 'team', NULL, 5, '52203478-5dc4-4823-999e-cea88ae10cad', NULL, 0, 1, 0, NOW(), 2);
+
+REPLACE INTO jq_module_listing_i18n(module_id, language_id, module_name) VALUES
+('8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725', 1, 'jquiver-developer');
 
 REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('d8146692-97e8-4cd4-97c0-412ff7a1513f', 'home-page-role', 'home-page-role', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e37c55f6-5638-482e-be02-85cc69e5709c', 1, 0), 
@@ -2491,5 +2664,28 @@ REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, 
 ('0becc4b4-5a23-4c38-a425-138ce13461ad', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
 ('13e30281-e279-4cb7-abf6-dd6d8cea0243', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
 ('62699ec3-7a9f-468a-ae2c-98ba0d529e9f', 'site-layout-url-autocomplete', 'site-layout-url-autocomplete', '91a81b68-0ece-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('094f191c-ab00-4801-8ce6-996858fc099d', '52203478-5dc4-4823-999e-cea88ae10cad', 'jq-team-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('9583cb59-b84a-4d23-8ff0-0abbe54b896a', '52203478-5dc4-4823-999e-cea88ae10cad', 'jq-team-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('d3a1d4ca-26ee-4639-8a8f-c21db1498adf', '52203478-5dc4-4823-999e-cea88ae10cad', 'jq-team-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('8526c66c-4cc6-4280-84ca-f1a62d382287', '8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725', 'jquiver-developer', 'c6cc466a-0ed3-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('b8f4012c-f075-49ae-95fe-86898c608202', '8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725', 'jquiver-developer', 'c6cc466a-0ed3-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0), 
+('dbfc6290-9678-4ac1-b78c-d33e6f55d82d', '8dc8f8b5-0f2c-40fe-8148-b90f8c2e3725', 'jquiver-developer', 'c6cc466a-0ed3-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), '111415ae-0980-11eb-9a16-f48e38ab9348', 1, 0);
+
+REPLACE INTO jq_file_upload(file_upload_id, file_bin_id, file_path, original_file_name, physical_file_name, updated_by, last_update_ts, file_association_id) VALUES
+('0cad6a17-9f5f-4d25-b983-b8b691a144d0', 'default', '/images', 'ADC.png', 'd750854d-92fd-4486-a9f8-13949b05fa16', 'admin@jquiver.com', NOW(), 'default'), 
+('1f4e7749-3365-400a-98de-2716a1de01fc', 'default', '/images', 'Akram-Bhasha.jfif', '7b505847-580a-46af-9368-db7c1f46d0ec', 'admin@jquiver.com', NOW(), 'default'),
+('4efc83a2-4ef9-40bd-a60b-a5d639d1bea5', 'default', '/images', 'Aman-Prasad.png', '293dc7a1-39ff-4192-bf80-9b06b8d1dffc', 'admin@jquiver.com', NOW(), 'default'), 
+('6b268691-ddfc-4d3f-9abd-bbc88bbfe974', 'default', '/images', 'Satish-Pandey.jpg', '6a42bf98-8a8d-4be6-897a-559b256dfe28', 'admin@jquiver.com', NOW(), 'default'), 
+('756de33e-b86a-11eb-9690-f48e38ab8cd7', 'default', '/images', 'Abhay-Desai.png', '33283eb3-e224-40e8-aa6c-9ba48cebaaba', 'admin@jquiver.com', NOW(), 'default'),
+('bc03c67f-a5a0-4063-8ef4-c50ed8f076f3', 'default', '/images', 'Amit-Jadhav.jpg', 'b7b9c9fd-3bbc-46d3-bf59-d5e343f2e332', 'admin@jquiver.com', NOW(), 'default'), 
+('c91b58b7-0a29-45c1-960d-3648821d4547', 'default', '/images', 'Satyawan-Sawant.jpg', '9eb15762-540b-42b1-948b-29242ffcb20e', 'admin@jquiver.com', NOW(), 'default'), 
+('e3dd0b7c-242a-47b3-9a36-c23ef378b10f', 'default', '/images', 'Ravi-Gowda.png', '6b7d7cb1-8b51-4626-8135-6181fcb88fe5', 'admin@jquiver.com', NOW(), 'default'),
+('fa498f47-ba98-4f07-bb61-efc2508b21f4', 'default', '/images', 'Mini-Pillai.jpg', '960c885c-b4d9-4ea5-a58d-4cbd95ce82f6', 'admin@jquiver.com', NOW(), 'default');
 
 SET FOREIGN_KEY_CHECKS=1;

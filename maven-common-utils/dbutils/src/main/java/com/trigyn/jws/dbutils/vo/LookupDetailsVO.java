@@ -111,15 +111,14 @@ public class LookupDetailsVO implements Serializable {
 		}
 		LookupDetailsVO other = (LookupDetailsVO) obj;
 		return Objects.equals(languageId, other.languageId) && Objects.equals(lookupId, other.lookupId)
-				&& Objects.equals(lookupName, other.lookupName)
-				&& Objects.equals(recordDescription, other.recordDescription)
+				&& Objects.equals(lookupName, other.lookupName) && Objects.equals(recordDescription, other.recordDescription)
 				&& Objects.equals(recordId, other.recordId);
 	}
 
 	@Override
 	public String toString() {
-		return "LookupDetailsVO [lookupId=" + lookupId + ", lookupName=" + lookupName + ", recordId=" + recordId
-				+ ", languageId=" + languageId + ", recordDescription=" + recordDescription + "]";
+		return "LookupDetailsVO [lookupId=" + lookupId + ", lookupName=" + lookupName + ", recordId=" + recordId + ", languageId="
+				+ languageId + ", recordDescription=" + recordDescription + "]";
 	}
 
 }

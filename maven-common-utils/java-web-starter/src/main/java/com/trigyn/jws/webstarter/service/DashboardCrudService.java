@@ -44,8 +44,7 @@ import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 @Transactional(readOnly = false)
 public class DashboardCrudService {
 
-	private final static Logger						logger							= LogManager
-			.getLogger(DashboardCrudService.class);
+	private final static Logger						logger							= LogManager.getLogger(DashboardCrudService.class);
 
 	@Autowired
 	private DashboardCrudDAO						dashboardCrudDAO				= null;
@@ -143,8 +142,7 @@ public class DashboardCrudService {
 		}
 		dashboardEntity.setDashboardRoles(roleAssociations);
 		dashboardEntity.setDashboardDashlets(dashletAssociations);
-		moduleVersionService.saveModuleVersion(dashboardVO, null, dashboardEntity.getDashboardId(), "jq_dashboard",
-				sourceTypeId);
+		moduleVersionService.saveModuleVersion(dashboardVO, null, dashboardEntity.getDashboardId(), "jq_dashboard", sourceTypeId);
 		return dashboardEntity.getDashboardId();
 	}
 
@@ -152,18 +150,17 @@ public class DashboardCrudService {
 		Dashboard	dashboardEntity	= new Dashboard();
 		Date		date			= new Date();
 
-		if (dashboardVO.getDashboardId() != null && !dashboardVO.getDashboardId().isBlank()
-				&& !dashboardVO.getDashboardId().isEmpty()) {
+		if (dashboardVO.getDashboardId() != null && !dashboardVO.getDashboardId().isBlank() && !dashboardVO.getDashboardId().isEmpty()) {
 			dashboardEntity.setDashboardId(dashboardVO.getDashboardId());
 		}
 		dashboardEntity.setDashboardName(dashboardVO.getDashboardName());
 		dashboardEntity.setContextId(dashboardVO.getContextId());
 		dashboardEntity.setIsExportable(dashboardVO.getIsExportable());
 		dashboardEntity.setIsDraggable(dashboardVO.getIsDraggable());
-		dashboardEntity.setLastUpdatedDate(date);
+		dashboardEntity.setLastUpdatedTs(date);
 		dashboardEntity.setCreatedBy(userId);
 		dashboardEntity.setCreatedDate(date);
-		dashboardEntity.setLastUpdatedDate(date);
+		dashboardEntity.setLastUpdatedTs(date);
 		return dashboardEntity;
 	}
 
@@ -191,8 +188,7 @@ public class DashboardCrudService {
 		return dashboardVO;
 	}
 
-	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation)
-			throws Exception {
+	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
 		dashboardCrudDAO.saveDashboardDashletAssociation(dashboardDashletAssociation);
 	}
 
@@ -226,19 +222,15 @@ public class DashboardCrudService {
 	}
 
 	@Transactional(readOnly = false)
-	public String saveDashlet(String userId, DashletVO dashletVO, Integer sourceTypeId) throws Exception {
-		if (StringUtils.isBlank(userId)) {
-			userId = userDetailsService.getUserDetails().getUserId();
-		}
-		Dashlet dashlet = convertDashletVOToEntity(userId, dashletVO);
+	public String saveDashlet(DashletVO dashletVO, Integer sourceTypeId) throws Exception {
+		Dashlet dashlet = convertDashletVOToEntity(dashletVO);
 		dashlet = iDashletRepository.save(dashlet);
 		dashletVO.setDashletId(dashlet.getDashletId());
 		List<DashletProperties> properties = new ArrayList<>();
 		try {
 			if (!CollectionUtils.isEmpty(dashletVO.getDashletPropertVOList())) {
 				for (DashletPropertyVO dashletPropertyVO : dashletVO.getDashletPropertVOList()) {
-					DashletProperties dashletProperties = convertDashletPropertyVOtoEntity(dashlet.getDashletId(),
-							dashletPropertyVO);
+					DashletProperties dashletProperties = convertDashletPropertyVOtoEntity(dashlet.getDashletId(), dashletPropertyVO);
 					// dashboardCrudDAO.saveDashletProperties(dashletProperties);
 					iDashletPropertiesRepository.saveAndFlush(dashletProperties);
 					properties.add(dashletProperties);
@@ -249,8 +241,7 @@ public class DashboardCrudService {
 
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			if (environment.equalsIgnoreCase("dev")) {
-				String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
-						"template-storage-path");
+				String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 				downloadUploadModule.downloadCodeToLocal(dashlet, downloadFolderLocation);
 			}
 
@@ -261,15 +252,23 @@ public class DashboardCrudService {
 		return dashlet.getDashletId();
 	}
 
-	public Dashlet convertDashletVOToEntity(String userId, DashletVO dashletVO) throws Exception {
+	public Dashlet convertDashletVOToEntity(DashletVO dashletVO) throws Exception {
 		Dashlet	dashlet	= new Dashlet();
 		Date	date	= new Date();
+		String	userId	= userDetailsService.getUserDetails().getUserName();
 
 		try {
-			if (dashletVO.getDashletId() != null && !dashletVO.getDashletId().isBlank()
-					&& !dashletVO.getDashletId().isEmpty()) {
+			if (dashletVO.getDashletId() != null && !dashletVO.getDashletId().isBlank() && !dashletVO.getDashletId().isEmpty()) {
 				dashlet.setDashletId(dashletVO.getDashletId());
+				dashlet.setUpdatedBy(userId);
+			} else {
+				dashlet.setCreatedBy(userId);
+				dashlet.setCreatedDate(date);
 			}
+			if (StringUtils.isBlank(dashletVO.getDataSourceId()) == false) {
+				dashlet.setDatasourceId(dashletVO.getDataSourceId());
+			}
+
 			dashlet.setDashletName(dashletVO.getDashletName());
 			dashlet.setDashletTitle(dashletVO.getDashletTitle());
 			dashlet.setXCoordinate(dashletVO.getxCoordinate());
@@ -281,10 +280,7 @@ public class DashboardCrudService {
 			dashlet.setDashletBody(dashletVO.getDashletBody());
 			dashlet.setShowHeader(dashletVO.getShowHeader());
 			dashlet.setContextId(dashletVO.getContextId());
-			dashlet.setCreatedBy(userId);
-			dashlet.setCreatedDate(date);
-			dashlet.setUpdatedBy(userId);
-			dashlet.setUpdatedDate(date);
+			dashlet.setLastUpdatedTs(date);
 			dashlet.setIsActive(dashletVO.getIsActive());
 		} catch (Exception a_excep) {
 			logger.error("Error ocurred.", a_excep);
@@ -293,8 +289,7 @@ public class DashboardCrudService {
 		return dashlet;
 	}
 
-	public DashletProperties convertDashletPropertyVOtoEntity(String dashletId, DashletPropertyVO dashletPropertyVO)
-			throws Exception {
+	public DashletProperties convertDashletPropertyVOtoEntity(String dashletId, DashletPropertyVO dashletPropertyVO) throws Exception {
 		DashletProperties dashletProperties = new DashletProperties();
 		try {
 			if (dashletPropertyVO.getPropertyId() != null && !dashletPropertyVO.getPropertyId().isBlank()
@@ -313,16 +308,13 @@ public class DashboardCrudService {
 			dashletProperties.setIsDeleted(dashletPropertyVO.getIsDeleted());
 			return dashletProperties;
 		} catch (Exception a_excep) {
-			logger.error("Error occurred while converting instance of DashletPropertyVO to DashletProperties entity.",
-					a_excep);
-			throw new RuntimeException(
-					"Error occurred while converting instance of DashletPropertyVO to DashletProperties entity.");
+			logger.error("Error occurred while converting instance of DashletPropertyVO to DashletProperties entity.", a_excep);
+			throw new RuntimeException("Error occurred while converting instance of DashletPropertyVO to DashletProperties entity.");
 		}
 	}
 
 	public void downloadDashlets(String dashletId) throws Exception {
-		String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
-				"template-storage-path");
+		String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		if (!StringUtils.isBlank(dashletId)) {
 			Dashlet dashlet = dashboardCrudDAO.findDashletByDashletId(dashletId);
 			downloadUploadModule.downloadCodeToLocal(dashlet, downloadFolderLocation);

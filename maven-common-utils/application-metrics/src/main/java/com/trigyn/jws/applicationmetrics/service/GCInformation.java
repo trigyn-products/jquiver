@@ -40,8 +40,7 @@ public class GCInformation {
 	private static GarbageCollectorMXBean getGCMBean() {
 		try {
 			MBeanServer				server	= ManagementFactory.getPlatformMBeanServer();
-			GarbageCollectorMXBean	bean	= ManagementFactory.newPlatformMXBeanProxy(server, GC_BEAN_NAME,
-					GarbageCollectorMXBean.class);
+			GarbageCollectorMXBean	bean	= ManagementFactory.newPlatformMXBeanProxy(server, GC_BEAN_NAME, GarbageCollectorMXBean.class);
 			return bean;
 		} catch (RuntimeException a_re) {
 			logger.error(a_re);

@@ -185,21 +185,21 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('ec26a648-09ab-11eb-a027-f48e38ab8cd7', 'system-form-html-template', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/css/starter.style.css" />
 <#if (columnDetails)??>
 	<#list columnDetails as columnDetailsList>
         <#if columnDetailsList?api.get(''columnType'') == "datetime">
-<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/jscal2.css" />
-<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/border-radius.css" />
-<link rel="stylesheet" type="text/css" href="${(contextPath)!''''}/webjars/1.0/JSCal2/css/steel/steel.css" />
-<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
-<script type="text/javascript" src="${(contextPath)!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/JSCal2/js/lang/en.js"></script>
         	<#break>
         </#if>
 	</#list>
@@ -428,16 +428,16 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('d3cb061d-0743-11eb-9926-e454e805e22f', 'system-listing-template', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''''}</#noparse>/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
@@ -459,21 +459,21 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 </div>
 
 <script>
-    contextPath = "${contextPath}";
+    contextPath = <#noparse>"${(contextPath)!''''}"</#noparse>;
     let primaryKeyDetails = ${primaryKeyObject};
     $(function () {
     //Add all columns that needs to be displayed in the grid
         let colM = [
           <#list gridDetails as gridInfo>
           	<#if (gridInfo.i18nResourceKey)?? && (gridInfo.i18nResourceKey)?has_content>
-            	{ title: "<#noparse><@resourceBundle</#noparse> ''${(gridInfo.i18nResourceKey)!''''}'' <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
+            	{ title: "<#noparse><@resourceBundle</#noparse> ''${(gridInfo.i18nResourceKey)!''''}'' <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             <#else>
-            	{ title: "${(gridInfo.displayName)!''''}", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", align: "left", halign: "center",
+            	{ title: "${(gridInfo.displayName)!''''}", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             </#if>
           </#list>
-            { title: "<#noparse><@resourceBundle</#noparse> ''jws.action'' <#noparse>/></#noparse>", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+            	{ title: "<#noparse><@resourceBundle</#noparse> ''jws.action'' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
     
     	let dataModel = {

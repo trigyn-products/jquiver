@@ -765,7 +765,31 @@ Steps to create grid details.
 
 **Step 5 :- **Modify the col models accordingly in template, and pass the appropriate values in the grid initialization. 
 
-Parameters to be passed, gridId, additionalParams, colModels.', 6, NOW(), 'admin@jquiver.com');
+Parameters to be passed, gridId, additionalParams, colModels.
+
+**Passing parameters to grid **
+If you want to provide specific criteria to load a grid, following can be taken into consideration.
+
+```
+let grid = $("#divAutocompleteGrid").grid({
+	      gridId: "autocompleteListingGrid",
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_autocompleteTypeId":"str_1"}
+	  });
+```
+
+Here you can have to pass parameters to additionalParameters option, as below.
+str has to be appended as prefix to the value and cr to the column name.
+		The syntax will be "cr_<column_name>" : "str_<param_value>"
+		
+If any grid has to be loaded as per the logged in user data for a particular column, then below has to be done
+```
+additionalParameters: {"cr_createdBy":"str__loggedInUserName"}
+```
+Here createdBy will be the column name, at rest should be kept as it is and the system will take care of the need.
+
+', 6, NOW(), 'admin@jquiver.com');
 
 /****************************************************Grid Utils - End************************************************************/
 
@@ -878,7 +902,9 @@ References for Freemaker :- https://freemarker.apache.org/ ', 7, NOW(), 'admin@j
 /****************************************************Dynamic Form - Start********************************************************/
 
 REPLACE INTO jq_manual_entry(manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
-VALUES('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder In order to import this jar, add following dependency in your pom.xml
+VALUES('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder 
+
+In order to import this jar, add following dependency in your pom.xml
 
 ```
 <dependency>
@@ -992,6 +1018,34 @@ In case of invalid captcha application will return **412** Precondition failed H
 
 **Note: **Make sure name attribute of input type is **formCaptcha** and src of img element is **<#noparse>${(contextPath)!''''}/cf/captcha/${formId}_captcha</#noparse>**
 
+**How to handle custom exception messages**
+
+Rather than providing an if-else condition on error handling part, we JQuiver support handling of exception handling messages us	ing free marker.
+
+Below is an example of how this can be achieved in FTL. While creating a dynamic form, we provide the save update query using FTL. So in that part of dynamic form creation you can provide the messages as per the requirement.
+
+Syntax will be
+``` 
+<#stop "This will contain the exception message to be rendered"> 
+```
+
+Below is a code snippet, given as an example for reference.
+```
+<#if isEdit == 1>
+    UPDATE table_name SET column1 = :val1,client_key = :clientkey,WHERE column2 = :condition
+<#else>
+    <#stop "Message">
+</#if>
+```
+
+Once this is done, in the error handler of ajax call, check the responseText of xhr object. This will contain your exception message provided in the "stop" command.
+i.e;
+```
+error : function(xhr, error){
+			showMessage(xhr.responseText, "error");
+},
+```
+This will display your message.
 ', 8, NOW(), 'admin@jquiver.com');
 
 /****************************************************Dynamic Form - End**********************************************************/
@@ -1366,6 +1420,24 @@ function getFileConfigDetails(requestDetails, daoResults) {
 getFileConfigDetails(requestDetails, daoResults);
 ```
 
+**How to handle custom exception messages**
+
+Rather than providing an if-else condition on error handling part, we JQuiver support handling of exception handling messages using free marker.
+
+Below is an example of how this can be achieved in this module. While creating a dynamic rest api, choose FTL as the platform and in Service Logic/Package Name section, you can provide the below FTL as per the requirement.
+
+``` 
+<#stop "This will contain the exception message to be rendered">
+```
+Once this is done, in the error handler of ajax call, check the responseText of xhr object. This will contain your exception message provided in the "stop" command.
+i.e;
+```
+error : function(xhr, error){
+			showMessage(xhr.responseText, "error");
+},
+```
+This will display your message.
+
 ', 10, NOW(), 'admin@jquiver.com');
 
 /*****************************************************REST API - End*************************************************************/
@@ -1450,7 +1522,7 @@ $(function () {
 		pageSize: 10,//Default page size is 10
 		prefetch : false,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
     		{
         		renderStr = ''<p>''+item.text+''</p>'';
@@ -1513,7 +1585,7 @@ $(function () {
 		pageSize: 10,//Default page size is 10
 		prefetch : true,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -1621,7 +1693,7 @@ $(function () {
 		prefetch : true,
 		enableClearText: true,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -1677,7 +1749,7 @@ $(function () {
         autocompleteId: "resourcesAutocomplete",
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === '''')
     		{
         		renderStr = ''<p>''+item.text+''</p>'';
@@ -1762,7 +1834,7 @@ $(function () {
             }],
 
             render: function(item) {
-                var renderStr ="";
+                let renderStr ="";
                 if(item.emptyMsg == undefined || item.emptyMsg === ''''){
                     renderStr = "<p>"+item.languageName+"</p>";
                 }else{

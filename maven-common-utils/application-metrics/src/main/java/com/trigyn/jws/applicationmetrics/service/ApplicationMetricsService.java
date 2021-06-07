@@ -31,11 +31,10 @@ public class ApplicationMetricsService {
 	}
 
 	public Map<String, Object> getJvmMetrics(HttpServletRequest a_httpServletRequest, Map<String, Object> daoResultSets,
-			UserDetailsVO userDetails) {
+		UserDetailsVO userDetails) {
 		Map<String, Object>		actuatorMap			= new HashMap<String, Object>();
 
-		List<MemoryPoolMXBean>	memoryPools			= new ArrayList<MemoryPoolMXBean>(
-				ManagementFactory.getMemoryPoolMXBeans());
+		List<MemoryPoolMXBean>	memoryPools			= new ArrayList<MemoryPoolMXBean>(ManagementFactory.getMemoryPoolMXBeans());
 		Map<String, Object>		jvmMemoryPoolMap	= new HashMap<String, Object>();
 		for (MemoryPoolMXBean memoryPool : memoryPools) {
 			jvmMemoryPoolMap.put(memoryPool.getName(), memoryPool.getUsage());
@@ -89,8 +88,7 @@ public class ApplicationMetricsService {
 		DecimalFormat		df				= new DecimalFormat("0.00");
 		df.setRoundingMode(RoundingMode.UP);
 
-		OperatingSystemMXBean	operatingSystemMXBean	= (OperatingSystemMXBean) ManagementFactory
-				.getOperatingSystemMXBean();
+		OperatingSystemMXBean	operatingSystemMXBean	= (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 		RuntimeMXBean			runtimeMXBean			= ManagementFactory.getRuntimeMXBean();
 		long					upTime					= runtimeMXBean.getUptime();
 		long					startTime				= runtimeMXBean.getStartTime();

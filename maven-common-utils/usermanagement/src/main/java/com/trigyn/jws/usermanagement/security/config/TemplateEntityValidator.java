@@ -17,8 +17,7 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Component
 public class TemplateEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(TemplateEntityValidator.class);
+	private final static Logger					logger							= LogManager.getLogger(TemplateEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -27,8 +26,7 @@ public class TemplateEntityValidator implements EntityValidator {
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
 
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
-			ProceedingJoinPoint a_joinPoint) {
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
 		logger.debug(
 				"Inside TemplateEntityValidator.hasAccessToEntity(templateName - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
 				a_joinPoint.getArgs()[0].toString(), reqObject, roleNames, a_joinPoint);
@@ -44,15 +42,12 @@ public class TemplateEntityValidator implements EntityValidator {
 	}
 
 	@Override
-	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside TemplateEntityValidator.getEntityName(templateName - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
+	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside TemplateEntityValidator.getEntityName(templateName - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
 				a_joinPoint.getArgs()[0].toString(), reqObject, roleNameList, a_joinPoint);
 
 		String templateName = a_joinPoint.getArgs()[0].toString();
-		return entityRoleAssociationRepository
-				.getEntityNameByEntityAndRoleId(Constants.Modules.TEMPLATING.getModuleName(), templateName);
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.TEMPLATING.getModuleName(), templateName);
 	}
 
 }

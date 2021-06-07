@@ -7,7 +7,6 @@ import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociationPK;
 
 @Repository
-public interface IDashboardDashletAssociationRepository
-		extends JpaRepository<DashboardDashletAssociation, DashboardDashletAssociationPK> {
+public interface IDashboardDashletAssociationRepository extends JpaRepository<DashboardDashletAssociation, DashboardDashletAssociationPK> {
 
 }

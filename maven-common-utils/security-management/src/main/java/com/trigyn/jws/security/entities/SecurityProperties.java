@@ -105,8 +105,7 @@ public class SecurityProperties implements Serializable {
 	@Override
 	public String toString() {
 		return "SecurityProperties [securityPropertiesId=" + securityPropertiesId + ", securityTypeId=" + securityTypeId
-				+ ", securityPropertyName=" + securityPropertyName + ", securityPropertyValue=" + securityPropertyValue
-				+ "]";
+				+ ", securityPropertyName=" + securityPropertyName + ", securityPropertyValue=" + securityPropertyValue + "]";
 	}
 
 }

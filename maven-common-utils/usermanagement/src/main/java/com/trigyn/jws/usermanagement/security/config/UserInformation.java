@@ -50,9 +50,7 @@ public class UserInformation implements UserDetails, OAuth2User, OidcUser {
 		this.password			= user.getPassword();
 		this.fullName			= user.getFirstName() + " " + user.getLastName();
 		this.active				= (user.getIsActive() != null) ? (user.getIsActive() == 1 ? true : false) : false;
-		this.isDefaultPassword	= (user.getForcePasswordChange() != null)
-				? (user.getForcePasswordChange() == 1 ? true : false)
-				: false;
+		this.isDefaultPassword	= (user.getForcePasswordChange() != null) ? (user.getForcePasswordChange() == 1 ? true : false) : false;
 
 		for (JwsRoleVO jwsRoleVO : roleVOs) {
 			SimpleGrantedAuthority authority = new SimpleGrantedAuthority(jwsRoleVO.getRoleName());

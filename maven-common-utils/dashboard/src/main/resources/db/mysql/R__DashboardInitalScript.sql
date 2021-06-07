@@ -392,7 +392,7 @@ DELETE FROM jq_template_master WHERE template_id = '46154204-1062-11eb-a867-f48e
 
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO jq_dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, dashlet_query, is_active, created_by, created_date, updated_by, updated_date, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header,dashlet_query_checksum,dashlet_body_checksum, dashlet_type_id) VALUES
+REPLACE INTO jq_dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, dashlet_query, is_active, created_by, created_date, updated_by, last_updated_ts, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header,dashlet_query_checksum,dashlet_body_checksum, dashlet_type_id) VALUES
 ('09b78b43-eade-11ea-a036-e454e805e22f', 'Grids', 'Grids', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.gridCount}</#list></#if> used in application</div>', 'SELECT COUNT(gd.grid_id) AS gridCount FROM jq_grid_details AS gd', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
 ('0eb8adc4-eade-11ea-a036-e454e805e22f', 'Notification', 'Notification', '<div class="jws-dashlet-view"> Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.notificationCount}</#list></#if> used in application</div>', 'SELECT COUNT(gun.notification_id) AS notificationCount FROM jq_generic_user_notification AS gun ', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 0, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
 ('31c9ffa9-eadf-11ea-a036-e454e805e22f', 'Templates', 'Templates', '<div class="jws-dashlet-view">Total of <#if resultSet?? && resultSet?has_content><#list resultSet as queryOutput>${queryOutput.templateCount}</#list></#if> used in application</div>', 'SELECT COUNT(tm.template_id) AS templateCount FROM jq_template_master AS tm WHERE tm.updated_date > STR_TO_DATE("${startDate}","%d-%b-%Y") AND tm.updated_date <= STR_TO_DATE("${endDate}","%d-%b-%Y")', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 3, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2), 
@@ -462,9 +462,9 @@ REPLACE INTO jq_dashlet (dashlet_id, dashlet_title, dashlet_name, dashlet_body, 
 	function backToDashboarListing() {
 		location.href = contextPath+"/cf/dbm";
 	}
-</script>', 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(updated_date,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM jq_dashlet', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2);
+</script>', 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(last_updated_ts,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM jq_dashlet', 1, 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 6, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1,null,null, 2);
 
-REPLACE INTO jq_dashlet(dashlet_id, dashlet_name, dashlet_title, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header, dashlet_query, dashlet_body, created_by, created_date, updated_by, updated_date, is_active, dashlet_query_checksum, dashlet_body_checksum, dashlet_type_id) VALUES
+REPLACE INTO jq_dashlet(dashlet_id, dashlet_name, dashlet_title, x_coordinate, y_coordinate, dashlet_width, dashlet_height, context_id, show_header, dashlet_query, dashlet_body, created_by, created_date, updated_by, last_updated_ts, is_active, dashlet_query_checksum, dashlet_body_checksum, dashlet_type_id) VALUES
 ('76ad58a3-afa3-4efd-a872-9a78a9e01a94', 'All Modules', 'Modules', 0, 0, 6, 3, 'a0bb79ce-eadd-11ea-a036-e454e805e22f', 1, 'Select 1', '<script src="${(contextPath)!''''}/webjars/1.0/chartjs/chart.js"></script>
 <div class="jws-dashlet-view">
       <div class="row">
@@ -548,7 +548,7 @@ function createModuleChart(data){
 }
 </script>', 'aar.dev@trigyn.com', NOW(), 'aar.dev@trigyn.com', NOW(), 1, NULL, NULL, 2);
 
-REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
+REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
 ('8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashlet-module-details', 1, 'dashletmoduleDetails', 'Get all modules details for dashlet', 2, 7, 'function dashletmoduleDetails(requestDetails, daoResults) {
     var moduleDetails = new Object();
     moduleDetails.templates = daoResults["templateDetails"];
@@ -560,7 +560,7 @@ REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, 
     return moduleDetails;
 }
 
-dashletmoduleDetails(requestDetails, daoResults);', 3, 0, 2);
+dashletmoduleDetails(requestDetails, daoResults);', 3, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 REPLACE INTO jq_dynamic_rest_dao_details(jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
@@ -581,7 +581,8 @@ FROM jq_dashlet AS dl', 5, 1),
 FROM jq_generic_user_notification AS gun', 6, 1);
 
 
-REPLACE into jq_dashboard (dashboard_id, dashboard_name, context_id, dashboard_type, created_by, created_date, last_updated_date, is_deleted, is_draggable, is_exportable) VALUES
+
+REPLACE into jq_dashboard (dashboard_id, dashboard_name, context_id, dashboard_type, created_by, created_date, last_updated_ts, is_deleted, is_draggable, is_exportable) VALUES
 ('ab7202bf-eadd-11ea-a036-e454e805e22f', 'Java Stater Usages', (SELECT context_id FROM jq_context_master where context_description='jws'), 2, 'admin', NOW(), NOW(), 0, 1, 0);
 
 REPLACE INTO jq_dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
@@ -591,6 +592,8 @@ REPLACE INTO jq_dashlet_properties (property_id, dashlet_id, placeholder_name, d
 REPLACE INTO jq_dashlet_properties (property_id, dashlet_id, placeholder_name, display_name, type_id, value, default_value, configuration_script, is_deleted, to_display, sequence) VALUES
 ('e7af6a9e-9b32-4c06-bcb5-d107723b3fcf', '3d97273b-eadf-11ea-a036-e454e805e22f', 'startDate', 'Start Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '05-11-2018', NULL, 0, 1, 0),
 ('9d3d7bc9-8b06-4b08-95b2-7d0a786381ab', '3d97273b-eadf-11ea-a036-e454e805e22f', 'endDate', 'End Date', '368747b0-1e8b-11e8-8d69-000d3a173cc5', '', '05-10-2019', NULL, 0, 1, 1);
+
+REPLACE INTO jq_dashboard_dashlet_association (dashboard_id, dashlet_id) VALUES ('ab7202bf-eadd-11ea-a036-e454e805e22f','76ad58a3-afa3-4efd-a872-9a78a9e01a94');
 
 REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
 ('9e36a1b9-ad7e-4f0f-b5c5-f2f925f9ef57', '91f4ce5c-4e85-11eb-9c1c-f48e38ab8cd7', 'decimal', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
@@ -631,6 +634,11 @@ REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name,
 ('5747c1af-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
 ('5b4438cd-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
 ('5f4414d1-8dfb-11eb-9688-f48e38ab8cd7', '37dbbc8d-eadf-11ea-a036-e454e805e22f', 'DB resource bundles', '19aa8996-80a2-11eb-971b-f48e38ab8cd7', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
+
+REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('223a075e-9fb8-11eb-a295-f48e38ab8cd7', '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashlet-module-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('26abd782-9fb8-11eb-a295-f48e38ab8cd7', '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashlet-module-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0), 
+('2abfbe51-9fb8-11eb-a295-f48e38ab8cd7', '8f4d6b36-167e-4d69-a6e7-1f88423f451a', 'dashlet-module-details', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'e9caf125-648e-42f8-a05d-c4bb21f100f8', 1, 0);
 
 
 SET FOREIGN_KEY_CHECKS=1;

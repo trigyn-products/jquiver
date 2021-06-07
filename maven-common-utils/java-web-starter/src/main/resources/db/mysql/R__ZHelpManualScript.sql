@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('8a80cb81754acbf701754ae3d1c2000c', 'manual-entry-form', 'manual-entry Form', 'SELECT me.manual_entry_id, manual_type, entry_name, entry_content, sort_index, GROUP_CONCAT(mefa.file_upload_id) as fileIds FROM jq_manual_entry as me 
 left outer join jq_manual_entry_file_association as mefa
 on me.manual_entry_id = mefa.manual_entry_id
@@ -248,7 +248,7 @@ group by me.manual_entry_id', '<head>
     function backToPreviousPage() {
         $("#viewManualEntry").submit();
     }
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2, NOW());
 
 replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
 ('8a80cb81754acbf701754ae3d1dd000e', 'manual-entry-template', '<head>
@@ -715,9 +715,9 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     }
 
     //Code go back to previous page
-    function backToWelcomePage() {
+	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
-    }
+	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
 replace into jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
@@ -800,7 +800,7 @@ $("#title").html(manualTypes.find(manual => {
 manual.getManualEntities("${mt!''''}");
 for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
     let data = manual.helpManualDetails[counter];
-    $("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks'' onclick=''manual.loadManualPreview(event, this)''>" + "<img src=''${(contextPath)!''''}/webjars/1.0/images/s-information1.svg'' >" + data["entry_name"]  + "</button>");
+    $("#tabs").append("<button id=''" + data["manual_entry_id"] + "'' class=''tablinks''  onclick=''manual.loadManualPreview(event, this)''>" + "<img src=''${(contextPath)!''''}/webjars/1.0/images/s-information1.svg'' >" + data["entry_name"]  + "</button>");
     let simplemde = new SimpleMDE({
         initialValue: manual.helpManualDetails[counter]["entry_content"],
         renderingConfig: {
@@ -857,18 +857,19 @@ function clearManualSearch(){
 }
     </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) VALUES
-('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'jq_manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1, 2), 
-('manual-typeGrid', 'manual-typeGrid', 'manual-type Listing', 'jq_manual_type', 'manual_id,name,is_system_manual', 1, 2);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) VALUES
+('manual-entryGrid', 'manual-entryGrid', 'manual-entry Listing', 'jq_manual_entry', 'manual_entry_id,manual_type,entry_name,entry_content,sort_index,last_modified_on,last_updated_by', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW()), 
+('manual-typeGrid', 'manual-typeGrid', 'manual-type Listing', 'jq_manual_type', 'manual_id,name,is_system_manual', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
+REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
 ('9a8197cc-f505-40a3-b2a0-94bac583d648', 'manual-entry-sequence', 1, 'getMaxManualSequnece', '', 1, 7, '<#if manualSequenceDetailsList?? && manualSequenceDetailsList?size != 0>
     <#list manualSequenceDetailsList as manualSequenceDetails>
         <#if (manualSequenceDetails.sortIndex)?? && (manualSequenceDetails.sortIndex)?has_content>
         	${manualSequenceDetails.sortIndex}
         </#if>
     </#list>
-</#if>', 2, 0, 2);
+</#if>', 2, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
 
 
 REPLACE INTO jq_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES

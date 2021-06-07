@@ -5,6 +5,7 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,10 +20,6 @@ import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
 import com.trigyn.jws.usermanagement.service.JwsUserService;
 
-/**
- * @author Mini.Pillai
- *
- */
 public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	@Autowired
@@ -33,6 +30,9 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 
 	@Autowired
 	private UserManagementDAO		userManagementDAO		= null;
+
+	@Autowired
+	private ServletContext			servletContext			= null;
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -54,7 +54,11 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 						if (user.getFailedAttempt() == maxFailedCount) {
 							exception = new InvalidLoginException("Account Locked. Please contact Admin.");
 						} else {
-							exception = new InvalidLoginException("Login failed. Invalid credentials.");
+							String msg = exception.getMessage();
+							if (msg.startsWith("?")) {
+								msg = "Login failed. Bad credentials.";
+							}
+							exception = new InvalidLoginException(msg);
 						}
 					} else {
 						exception = new InvalidLoginException("Account Locked. Please contact Admin.");

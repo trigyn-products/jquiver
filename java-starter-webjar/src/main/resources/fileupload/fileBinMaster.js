@@ -10,6 +10,7 @@ class FileBinMaster {
     
     loadFinBinDetails = function(){
     	let context = this;
+    	loadDefaultTab("filebin-default-template", context.updateFileBinTemplate);
     	context.initializeFileSlider();
     	if(edit == 1){
     		context.getEntityRoles();
@@ -399,6 +400,15 @@ class FileBinMaster {
 	}
 
 
+    updateFileBinTemplate = function(){ 
+		let fileBinId = $("#fileBinId").val().trim();
+		if(fileBinId !== ""){
+			let jsFileBinId = $("pre span").filter(function() { return ($(this).text() === '\"yourFileBinId\"') });
+			
+			$(jsFileBinId).text('"'+fileBinId+'"');
+		}
+	}
+	
 	backToPreviousPage = function() {
 		location.href = contextPath+"/cf/fucl";
 	}

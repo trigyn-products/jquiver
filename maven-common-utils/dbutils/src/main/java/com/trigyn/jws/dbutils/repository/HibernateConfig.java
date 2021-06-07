@@ -37,8 +37,8 @@ public class HibernateConfig {
 		hibernateProperties.put("hibernate.show_sql", "false");
 		hibernateProperties.put("hibernate.format_sql", "false");
 		hibernateProperties.put("hibernate.id.new_generator_mappings", "false");
-		return new LocalSessionFactoryBuilder(dataSource).scanPackages("app.*", "com.*")
-				.addProperties(hibernateProperties).buildSessionFactory();
+		return new LocalSessionFactoryBuilder(dataSource).scanPackages("app.*", "com.*").addProperties(hibernateProperties)
+				.buildSessionFactory();
 	}
 
 	@Bean

@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dashboard.entities.Dashlet;
@@ -34,14 +35,12 @@ public class DashletDAO extends DBConnection {
 		return dashletPropertyEntity;
 	}
 
-	public DashletConfiguration saveDashletConfiguration(DashletConfiguration dashletConfigurationEntity)
-			throws Exception {
+	public DashletConfiguration saveDashletConfiguration(DashletConfiguration dashletConfigurationEntity) throws Exception {
 		getCurrentSession().saveOrUpdate(dashletConfigurationEntity);
 		return dashletConfigurationEntity;
 	}
 
-	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden)
-			throws Exception {
+	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden) throws Exception {
 		StringBuilder stringBuilder = new StringBuilder(
 				"FROM DashletProperties AS dp WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted");
 		if (!includeHidden) {
@@ -72,8 +71,9 @@ public class DashletDAO extends DBConnection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Map<String, String>> getDashletData(String selectionQuery) throws Exception {
-		List<Map<String, String>> list = null;
+	public List<Map<String, String>> getDashletData(String dataSourceId, String selectionQuery) throws Exception {
+		List<Map<String, String>>	list			= null;
+		JdbcTemplate				jdbcTemplate	= updateJdbcTemplateDataSource(dataSourceId);
 		list = (List<Map<String, String>>) (Object) jdbcTemplate.queryForList(selectionQuery);
 		return list;
 	}
@@ -97,8 +97,7 @@ public class DashletDAO extends DBConnection {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId)
-			throws Exception {
+	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId) throws Exception {
 		String	sql		= "SELECT COALESCE(dc.xCoordinate,dsh.xCoordinate) AS xCoordinate,COALESCE(dc.yCoordinate,dsh.yCoordinate) AS yCoordinate "
 				+ "FROM Dashlet dsh LEFT OUTER JOIN DashletConfiguration dc ON dsh.dashletId = dc.id.dashletId "
 				+ "AND dc.id.userId=:userId where dsh.dashletId=:dashletId AND dc.id.dashboardId=:dashboardId ";
@@ -129,8 +128,7 @@ public class DashletDAO extends DBConnection {
 	}
 
 	public List<Dashlet> getAllDashlets(Integer dashletTypeId) throws Exception {
-		Query query = getCurrentSession()
-				.createQuery("FROM Dashlet WHERE isActive =:isActive AND dashletTypeId = :dashletTypeId ");
+		Query query = getCurrentSession().createQuery("FROM Dashlet WHERE isActive =:isActive AND dashletTypeId = :dashletTypeId ");
 		query.setParameter("isActive", Constants.DashletStatus.ACTIVE.getDashletStatus());
 		query.setParameter("dashletTypeId", dashletTypeId);
 		List<Dashlet> dashlets = (List<Dashlet>) query.getResultList();

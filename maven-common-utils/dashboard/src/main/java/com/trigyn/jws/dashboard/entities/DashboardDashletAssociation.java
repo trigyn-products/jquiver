@@ -76,8 +76,7 @@ public class DashboardDashletAssociation implements Serializable {
 			return false;
 		}
 		DashboardDashletAssociation other = (DashboardDashletAssociation) obj;
-		return Objects.equals(dashboard, other.dashboard) && Objects.equals(dashlet, other.dashlet)
-				&& Objects.equals(id, other.id);
+		return Objects.equals(dashboard, other.dashboard) && Objects.equals(dashlet, other.dashlet) && Objects.equals(id, other.id);
 	}
 
 	@Override

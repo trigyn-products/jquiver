@@ -20,10 +20,8 @@ public class AutocompleteParams {
 	public AutocompleteParams(HttpServletRequest request) {
 		this.searchText		= request.getParameter("searchText");
 		this.autocompleteId	= request.getParameter("autocompleteId");
-		this.startIndex		= request.getParameter("startIndex") == null ? -1
-				: Integer.parseInt(request.getParameter("startIndex"));
-		this.pageSize		= request.getParameter("pageSize") == null ? -1
-				: Integer.parseInt(request.getParameter("pageSize"));
+		this.startIndex		= request.getParameter("startIndex") == null ? -1 : Integer.parseInt(request.getParameter("startIndex"));
+		this.pageSize		= request.getParameter("pageSize") == null ? -1 : Integer.parseInt(request.getParameter("pageSize"));
 		this.criteriaParams	= request.getParameter("additionalParamaters") == null ? new HashMap<String, Object>()
 				: new Gson().fromJson(request.getParameter("additionalParamaters"), Map.class);
 	}
@@ -39,8 +37,7 @@ public class AutocompleteParams {
 			return new HashMap<>();
 		} else {
 			for (String reqParamKey : criteriaParams.keySet()) {
-				Object		reqParamValue	= this.criteriaParams.get(reqParamKey) == null ? null
-						: this.criteriaParams.get(reqParamKey);
+				Object		reqParamValue	= this.criteriaParams.get(reqParamKey) == null ? null : this.criteriaParams.get(reqParamKey);
 				String[]	keySets			= reqParamKey.split("_");
 				if (reqParamValue != null && keySets.length <= 1) {
 					createParameterDetails(parameterMap, reqParamKey, reqParamValue);

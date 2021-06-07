@@ -34,20 +34,17 @@ public class UserConfigService {
 		String		regexPropertyName				= "enableRegex";
 		String		enableRegistrationPropertyName	= "enableRegistration";
 		if (applicationSecurityDetails.getAuthenticationType() != null) {
-			Integer					authType			= Integer
-					.parseInt(applicationSecurityDetails.getAuthenticationType());
+			Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
 			mapDetails.put("authType", String.valueOf(authType));
-			JwsAuthenticationType	authenticationType	= authenticationTypeRepository.findById(authType)
+			JwsAuthenticationType authenticationType = authenticationTypeRepository.findById(authType)
 					.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
 			if (StringUtils.isNotBlank(authenticationType.getAuthenticationProperties())) {
-				JSONArray	jsonArray						= new JSONArray(
-						authenticationType.getAuthenticationProperties());
+				JSONArray	jsonArray						= new JSONArray(authenticationType.getAuthenticationProperties());
 				String		verificationStepPropertyName	= "enableVerificationStep";
 				captchaPropertyName			= "enableCaptcha";
 				authenticatorPropertyName	= "enableGoogleAuthenticator";
 
-				jsonObjectCaptcha			= getJsonObjectFromPropertyValue(jsonObjectCaptcha, jsonArray,
-						verificationStepPropertyName);
+				jsonObjectCaptcha			= getJsonObjectFromPropertyValue(jsonObjectCaptcha, jsonArray, verificationStepPropertyName);
 				if (jsonObjectCaptcha != null && jsonObjectCaptcha.getString("value").equalsIgnoreCase("true")) {
 					if (jsonObjectCaptcha.get("selectedValue") != null
 							&& Integer.parseInt(jsonObjectCaptcha.get("selectedValue").toString()) == 2) {
@@ -61,9 +58,9 @@ public class UserConfigService {
 						mapDetails.put(captchaPropertyName, Boolean.FALSE);
 						mapDetails.put(authenticatorPropertyName, Boolean.FALSE);
 					}
-				} else if(authType != null && authType==4) {
+				} else if (authType != null && authType == 4) {
 					mapDetails.put(captchaPropertyName, Boolean.FALSE);
-					mapDetails.put(authenticatorPropertyName, Boolean.TRUE);
+					mapDetails.put(authenticatorPropertyName, Boolean.FALSE);
 				} else {
 					mapDetails.put(captchaPropertyName, Boolean.FALSE);
 					mapDetails.put(authenticatorPropertyName, Boolean.FALSE);
@@ -71,8 +68,7 @@ public class UserConfigService {
 				jsonObjectRegex = getJsonObjectFromPropertyValue(jsonObjectCaptcha, jsonArray, regexPropertyName);
 				if (jsonObjectRegex != null && jsonObjectRegex.getString("value").equalsIgnoreCase("true")) {
 					mapDetails.put(regexPropertyName, Boolean.TRUE);
-					String		propertyMasterRegex		= propertyMasterService.findPropertyMasterValue("system",
-							"system", "regexPattern");
+					String		propertyMasterRegex		= propertyMasterService.findPropertyMasterValue("system", "system", "regexPattern");
 					JSONObject	jsonPropertyMasterRegex	= new JSONObject(propertyMasterRegex);
 					mapDetails.put("expression", jsonPropertyMasterRegex.getString("expression"));
 				} else {
@@ -104,8 +100,7 @@ public class UserConfigService {
 		}
 	}
 
-	public JSONObject getJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray, String propertyName)
-			throws JSONException {
+	public JSONObject getJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray, String propertyName) throws JSONException {
 		for (int i = 0; i < jsonArray.length(); i++) {
 			jsonObject = jsonArray.getJSONObject(i);
 			if (jsonObject.get("name").toString().equalsIgnoreCase(propertyName)) {

@@ -3,6 +3,7 @@ package com.trigyn.jws.webstarter.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,15 @@ import com.trigyn.jws.usermanagement.security.config.UserInformation;
 public class JwsWelcomeController {
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService		menuService		= null;
+
+	@Autowired
+	private ServletContext	servletContext	= null;
 
 	@GetMapping()
 	@ResponseBody
 	public void welcome(HttpServletResponse httpServletResponse) throws Exception {
-		httpServletResponse.sendRedirect("/cf/login");
+		httpServletResponse.sendRedirect(servletContext.getContextPath() + "/cf/home");
 	}
 
 	@GetMapping("/welcome")

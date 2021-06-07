@@ -17,8 +17,7 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Component
 public class DynamicFormEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(DynamicFormEntityValidator.class);
+	private final static Logger					logger							= LogManager.getLogger(DynamicFormEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -29,15 +28,12 @@ public class DynamicFormEntityValidator implements EntityValidator {
 	private String								primaryKeyName					= "formId";
 
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside DynamicFormEntityValidator.hasAccessToEntity(formId - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside DynamicFormEntityValidator.hasAccessToEntity(formId - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
 				reqObject.getParameter(primaryKeyName), reqObject, roleNames, a_joinPoint);
 
 		boolean	hasAccess	= false;
-		Long	count		= authorizedValidatorDAO
-				.hasAccessToCurrentDynamicForm(reqObject.getParameter(primaryKeyName), roleNames);
+		Long	count		= authorizedValidatorDAO.hasAccessToCurrentDynamicForm(reqObject.getParameter(primaryKeyName), roleNames);
 		if (count > 0) {
 			hasAccess = true;
 		}
@@ -45,16 +41,14 @@ public class DynamicFormEntityValidator implements EntityValidator {
 	}
 
 	@Override
-	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside DynamicFormEntityValidator.getEntityName(formId - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
+	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside DynamicFormEntityValidator.getEntityName(formId - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
 				reqObject.getParameter(primaryKeyName), reqObject, roleNameList, a_joinPoint);
 
 		String	dynamicFormId	= reqObject.getParameter(primaryKeyName);
 		String	dynamicFormName	= authorizedValidatorDAO.getDynamicFormNameById(dynamicFormId);
-		return entityRoleAssociationRepository
-				.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICFORM.getModuleName(), dynamicFormName);
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICFORM.getModuleName(),
+				dynamicFormName);
 	}
 
 }

@@ -1,3 +1,5 @@
+ SET FOREIGN_KEY_CHECKS=0;
+ 
  REPLACE INTO jq_master_modules(module_id, module_name, is_system_module, auxiliary_data, module_type_id) VALUES
  
 ('4461bbae-8c8f-11eb-8dcd-0242ac130003', 'Master Generator', 1, '', 11),
@@ -92,3 +94,17 @@
  REPLACE INTO jq_master_modules(module_id, module_name, sequence, is_system_module, grid_details_id, module_type, is_perm_supported, is_entity_perm_supported, is_imp_exp_supported) VALUES
 ('12ec53b3-5669-11eb-9e7a-f48e38ab8cd7', 'Permission', 18, 1, 'manageEntityPermissionListing', 'Permission', 0, 0, 1),
 ('aa3e68ac-8d42-11eb-98cc-9840bb1e8144', 'Manage Users', 19, 1, 'jwsUserListingGrid', 'ManageUsers', 0, 0, 1);
+
+
+UPDATE jq_dynamic_rest_details SET created_by='admin';
+UPDATE jq_template_master SET created_by='admin', updated_by='admin';
+UPDATE jq_dashlet SET created_by='admin', updated_by='admin';
+UPDATE jq_dynamic_rest_details SET created_by='admin';
+UPDATE jq_dynamic_form SET created_by='admin';
+UPDATE jq_grid_details SET created_by='admin';
+UPDATE jq_entity_role_association SET last_updated_by='admin';
+UPDATE jq_autocomplete_details SET created_by='admin', last_updated_by='admin';
+update jq_dynamic_form SET last_updated_by='admin';
+UPDATE jq_file_upload_config SET created_by='admin', last_updated_by='admin';
+
+SET FOREIGN_KEY_CHECKS=1;

@@ -27,7 +27,7 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 @Service
 public class CustomOidcUserService extends OidcUserService {
 
-	private final static Logger	logger				= LogManager.getLogger(CustomOidcUserService.class);
+	private final static Logger					logger							= LogManager.getLogger(CustomOidcUserService.class);
 
 	@Autowired
 	private JwsUserRepository					jwsUserRepository				= null;
@@ -58,8 +58,8 @@ public class CustomOidcUserService extends OidcUserService {
 
 	private OidcUser processOAuth2User(OAuth2UserRequest userRequest, OidcUser oidcUser) {
 
-		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
-				.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(), oidcUser.getAttributes());
+		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(),
+				oidcUser.getAttributes());
 
 		if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
 			throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");

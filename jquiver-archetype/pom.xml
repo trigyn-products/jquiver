@@ -4,7 +4,7 @@
 
 	<groupId>com.trigyn</groupId>
 	<artifactId>jquiver</artifactId>
-	<version>1.8-SNAPSHOT</version>
+	<version>1.9-SNAPSHOT</version>
 	<packaging>maven-archetype</packaging>
 	<description>JQuiver</description>
 	<name>jquiver</name>

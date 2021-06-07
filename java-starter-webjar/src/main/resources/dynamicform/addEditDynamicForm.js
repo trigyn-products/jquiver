@@ -56,6 +56,19 @@ class AddEditDynamicForm {
     				$('#errorMessage').hide();
 				});
 	        	$("#htmlContent").remove();
+	        	
+	        	if(formId != "") {
+					$.ajax({
+						type : "POST",
+						url : contextPath+"/cf/gfhc",
+						data : {formId: formId},
+						success : function(formBody) {
+							if(formBody !== undefined && formBody !== ""){
+				    			dashletHTMLEditor.setValue(formBody);
+				    		}
+						}
+					});
+				}
     	});
 
 		let formId = $("#formId").val();
@@ -86,11 +99,9 @@ class AddEditDynamicForm {
 	addSaveQueryEditor(element, data){
 		let context = this;
 		let formQueryId;
-		let formBody;
 		let formSaveQuery;
 		
 		if(data != undefined){
-			formBody = data.formBody.trim();
 			formSaveQuery = data.formSaveQuery.trim();
 		}
     		
@@ -103,9 +114,7 @@ class AddEditDynamicForm {
 				parentElement = $(element).parent().parent().parent().parent();
 			}
 			
-    		if(formBody != undefined){
-    			dashletHTMLEditor.setValue(formBody);
-    		}
+    		
     		let daoContainer = $('<div id="daoContainer_'+index+'"><div class="row"><div id="actionButtonDiv_'+index+'"class="col-12 margin-t-25 float-right"><div class="btn-icons float-right"><input type="button" id="addEditor_'+index+'" value="Add" class="margin-r-5 btn btn-primary" onclick="addEdit.addSaveQueryEditor(this);"><input type="button" id="removeTemplate_'+index+'"  value="Remove" class="btn btn-secondary" onclick="addEdit.removeSaveQueryEditor(this);"></div></div></div><div id="container_'+index+'" class="html_script" style="margin-top: 10px;"><div class="grp_lblinp"><div id="saveSqlContainer_'+index+'" class="ace-editor-container"><div id="saveSqlEditor_'+index+'" class="ace-editor"></div></div></div></div></div>');
 
 			if(parentElement != undefined) {

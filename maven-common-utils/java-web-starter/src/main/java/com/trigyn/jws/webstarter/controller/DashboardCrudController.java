@@ -35,9 +35,13 @@ import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Dashboard')")
+@Api(tags = "Perform all dashboard related operation")
 public class DashboardCrudController {
 
 	private final static Logger		logger					= LogManager.getLogger(DashboardCrudController.class);
@@ -49,6 +53,7 @@ public class DashboardCrudController {
 	private MenuService				menuService				= null;
 
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
+	@ApiOperation(value = "Dashboard Listing")
 	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
@@ -63,16 +68,16 @@ public class DashboardCrudController {
 	}
 
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId,
-			HttpServletResponse httpServletResponse) throws IOException {
+	@ApiOperation(value = "Add edit Dashboard")
+	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			Map<String, Object>	templateMap	= new HashMap<>();
 			Dashboard			dashboard	= new Dashboard();
 			List<UserRoleVO>	userRoleVOs	= dashboardCrudService.getAllUserRoles();
 			if (!StringUtils.isBlank(dashboardId)) {
 				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
-				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService
-						.findDashboardRoleByDashboardId(dashboardId);
+				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService.findDashboardRoleByDashboardId(dashboardId);
 				if (!CollectionUtils.isEmpty(dashletRoleAssociation)) {
 					dashboard.setDashboardRoles(dashletRoleAssociation);
 				}
@@ -97,16 +102,16 @@ public class DashboardCrudController {
 
 	@PostMapping(value = "/sdb")
 	@ResponseBody
-	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
-			@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
+	public String saveDashboard(@RequestBody DashboardVO dashboardVO, @RequestHeader(value = "user-id", required = false) String userId)
+			throws Exception {
 		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
 		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
 		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
 
 	@PostMapping(value = "/sdbv")
-	public void saveDashboardByVersion(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public void saveDashboardByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		DashboardVO		dashboardVO		= objectMapper.readValue(modifiedContent, DashboardVO.class);

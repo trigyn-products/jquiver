@@ -68,8 +68,8 @@ public class ModuleService {
 
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception {
 		if (!StringUtils.isBlank(moduleId)) {
-			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId,
-					Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
+			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId, Constant.DEFAULT_LANGUAGE_ID,
+					Constant.DEFAULT_LANGUAGE_ID);
 
 			if (moduleDetailsVO != null) {
 				Integer targetLookupId = moduleDetailsVO.getTargetLookupId();
@@ -88,20 +88,19 @@ public class ModuleService {
 		List<String>	roleIdList	= detailsVO.getRoleIdList();
 
 		if (roleIdList.contains("ADMIN")) {
-			return iModuleListingRepository.getAllModulesDetails(Constant.IS_NOT_HOME_PAGE,
-					Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
+			return iModuleListingRepository.getAllModulesDetails(Constant.IS_NOT_HOME_PAGE, Constant.DEFAULT_LANGUAGE_ID,
+					Constant.DEFAULT_LANGUAGE_ID);
 		} else {
-			return iModuleListingRepository.getRoleSpecificModulesDetails(Constant.IS_NOT_HOME_PAGE,
-					Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID, roleIdList,
-					"c6cc466a-0ed3-11eb-94b2-f48e38ab9348");
+			return iModuleListingRepository.getRoleSpecificModulesDetails(Constant.IS_NOT_HOME_PAGE, Constant.DEFAULT_LANGUAGE_ID,
+					Constant.DEFAULT_LANGUAGE_ID, roleIdList, "c6cc466a-0ed3-11eb-94b2-f48e38ab9348");
 		}
 	}
 
 	public List<ModuleDetailsVO> getAllParentModules(String moduleId) throws Exception {
 		List<ModuleDetailsVO>	parentModulesList	= new ArrayList<>();
 		List<ModuleDetailsVO>	parentModuleVOs		= new ArrayList<>();
-		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.IS_NOT_HOME_PAGE,
-				Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID, Constant.IS_INSIDE_MENU);
+		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.IS_NOT_HOME_PAGE, Constant.DEFAULT_LANGUAGE_ID,
+				Constant.DEFAULT_LANGUAGE_ID, Constant.IS_INSIDE_MENU);
 		if (!StringUtils.isBlank(moduleId)) {
 			for (ModuleDetailsVO moduleDetailsVO : parentModulesList) {
 				if (!moduleDetailsVO.getModuleId().equals(moduleId)) {
@@ -131,11 +130,10 @@ public class ModuleService {
 		return moduleListing.getModuleId();
 	}
 
-	public Map<String, Object> getExistingModuleData(String moduleId, String moduleName, String parentModuleId,
-			Integer sequence, String moduleURL) throws Exception {
+	public Map<String, Object> getExistingModuleData(String moduleId, String moduleName, String parentModuleId, Integer sequence,
+		String moduleURL) throws Exception {
 		Map<String, Object>	moduleDetailsMap	= new HashMap<>();
-		String				moduleIdDB			= getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID,
-				Constant.DEFAULT_LANGUAGE_ID);
+		String				moduleIdDB			= getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
 		if (!StringUtils.isBlank(moduleIdDB)) {
 			moduleDetailsMap.put("moduleIdName", moduleIdDB);
 		}
@@ -152,8 +150,7 @@ public class ModuleService {
 			}
 
 			if (moduleURL.indexOf("/") != -1) {
-				pathVariableList = Stream.of(moduleURL.split("/")).map(urlElement -> new String(urlElement))
-						.collect(Collectors.toList());
+				pathVariableList = Stream.of(moduleURL.split("/")).map(urlElement -> new String(urlElement)).collect(Collectors.toList());
 			}
 
 			List<ModuleDetailsVO> moduleDetailsVOList = getAllModuleId(moduleId);
@@ -243,8 +240,7 @@ public class ModuleService {
 	private ModuleListingI18n convertModuleVOToI18nEntitity(ModuleDetailsVO moduleDetailsVO) {
 		ModuleListingI18n	moduleListingI18n	= new ModuleListingI18n();
 		ModuleListingI18nPK	moduleListingI18nPK	= new ModuleListingI18nPK();
-		if (moduleDetailsVO.getModuleId() != null && !moduleDetailsVO.getModuleId().isBlank()
-				&& !moduleDetailsVO.getModuleId().isEmpty()) {
+		if (moduleDetailsVO.getModuleId() != null && !moduleDetailsVO.getModuleId().isBlank() && !moduleDetailsVO.getModuleId().isEmpty()) {
 			moduleListingI18nPK.setModuleId(moduleDetailsVO.getModuleId());
 		}
 		moduleListingI18nPK.setLanguageId(Constant.DEFAULT_LANGUAGE_ID);
@@ -291,8 +287,8 @@ public class ModuleService {
 	private Map<String, Object> getContextNameDetailsByType(ModuleDetailsVO moduleDetailsVO) throws Exception {
 		Map<String, Object> moduleDetailsMap = new HashMap<>();
 		if (moduleDetailsVO != null) {
-			List<Map<String, Object>> targetTypeList = moduleDAO
-					.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
+			List<Map<String, Object>> targetTypeList = moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(),
+					moduleDetailsVO.getTargetTypeId());
 			moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 			if (!CollectionUtils.isEmpty(targetTypeList)) {
 				moduleDetailsMap.put("includeLayout", moduleDetailsVO.getIncludeLayout());
@@ -309,15 +305,14 @@ public class ModuleService {
 		return moduleDetailsList;
 	}
 
-	private List<Map<String, Object>> getContextNameDetails(List<ModuleDetailsVO> moduleDetailsVOList)
-			throws Exception {
+	private List<Map<String, Object>> getContextNameDetails(List<ModuleDetailsVO> moduleDetailsVOList) throws Exception {
 		List<Map<String, Object>> moduleDetailsList = new ArrayList<>();
 		if (CollectionUtils.isEmpty(moduleDetailsVOList) == false) {
 
 			for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
 				Map<String, Object>			moduleDetailsMap	= new HashMap<>();
-				List<Map<String, Object>>	targetTypeList		= moduleDAO
-						.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
+				List<Map<String, Object>>	targetTypeList		= moduleDAO.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(),
+						moduleDetailsVO.getTargetTypeId());
 				moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 				if (!CollectionUtils.isEmpty(targetTypeList)) {
 					moduleDetailsMap.put("moduleUrl", moduleDetailsVO.getModuleURL());
@@ -383,8 +378,7 @@ public class ModuleService {
 		Date					date					= new Date();
 		String					roleId					= a_httHttpServletRequest.getParameter("roleId");
 		ModuleRoleAssociation	moduleRoleAssociation	= new ModuleRoleAssociation();
-		if (StringUtils.isBlank(roleId) == false
-				&& (StringUtils.isBlank(moduleId) == false || StringUtils.isBlank(oldModuleId) == false)) {
+		if (StringUtils.isBlank(roleId) == false && (StringUtils.isBlank(moduleId) == false || StringUtils.isBlank(oldModuleId) == false)) {
 			moduleRoleAssociation.setRoleId(roleId);
 			moduleRoleAssociation.setUpdatedBy(loggedInUserId);
 			moduleRoleAssociation.setUpdatedDate(date);
@@ -421,9 +415,8 @@ public class ModuleService {
 			ModuleDetailsVO	vo				= convertModuleEntityToVO(module);
 			Gson			gson			= new Gson();
 			ObjectMapper	objectMapper	= new ObjectMapper();
-			String			dbDateFormat	= propertyMasterService.getDateFormatByName(
-					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
-					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+			String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+					Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
 					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
 			DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
 			objectMapper.setDateFormat(dateFormat);

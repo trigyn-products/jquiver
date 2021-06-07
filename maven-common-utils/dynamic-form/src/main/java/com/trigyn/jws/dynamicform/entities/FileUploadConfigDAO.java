@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
@@ -23,17 +24,19 @@ public class FileUploadConfigDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	public List<Map<String, Object>> executeQueries(String query, Map<String, Object> parameterMap) {
+	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 		return namedParameterJdbcTemplate.queryForList(query, parameterMap);
 	}
 
-	public List<FileUpload> executeSelectQuery(String query, Map<String, Object> parameterMap) {
-		return namedParameterJdbcTemplate.query(query, parameterMap,
-				new BeanPropertyRowMapper<FileUpload>(FileUpload.class));
+	public List<FileUpload> executeSelectQuery(String dataSourceId, String query, Map<String, Object> parameterMap) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
+		return namedParameterJdbcTemplate.query(query, parameterMap, new BeanPropertyRowMapper<FileUpload>(FileUpload.class));
 	}
 
-	public Map<String, String> validateFileQuery(String queryString, Map<String, Object> parameterMap) {
-		Map<String, String> resultSetMetadataMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	public Map<String, String> validateFileQuery(String dataSourceId, String queryString, Map<String, Object> parameterMap) {
+		Map<String, String>			resultSetMetadataMap		= new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		NamedParameterJdbcTemplate	namedParameterJdbcTemplate	= updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 		namedParameterJdbcTemplate.query(queryString, parameterMap, new ResultSetExtractor<Integer>() {
 
 			@Override

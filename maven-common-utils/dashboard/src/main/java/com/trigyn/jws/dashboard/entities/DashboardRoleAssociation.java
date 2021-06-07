@@ -71,8 +71,7 @@ public class DashboardRoleAssociation implements Serializable {
 			return false;
 		}
 		DashboardRoleAssociation other = (DashboardRoleAssociation) obj;
-		return Objects.equals(dashboard, other.dashboard) && Objects.equals(id, other.id)
-				&& Objects.equals(userRole, other.userRole);
+		return Objects.equals(dashboard, other.dashboard) && Objects.equals(id, other.id) && Objects.equals(userRole, other.userRole);
 	}
 
 	@Override

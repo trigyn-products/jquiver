@@ -43,7 +43,7 @@ public class ModuleVersionController {
 
 	@PostMapping(value = "/smv", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Boolean saveModuleVersioning(@RequestBody MultiValueMap<String, String> formData) throws Exception {
-		logger.debug("Inside ModuleVersionControllersaveModuleVersioning(formData - {})", formData);
+		logger.debug("Inside ModuleVersionController.saveModuleVersioning(formData: {})", formData);
 		try {
 			revisionService.saveModuleVersioning(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
 			return true;
@@ -54,43 +54,46 @@ public class ModuleVersionController {
 	}
 
 	@PostMapping(value = "/cmv", produces = { MediaType.TEXT_HTML_VALUE })
-	public String compareModuleVersion(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String compareModuleVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		logger.debug("Inside ModuleVersionController.compareModuleVersion()");
 		Map<String, Object> templateMap = revisionService.getModuleVersioningData(a_httpServletRequest);
 		return menuService.getTemplateWithSiteLayout("revision-details", templateMap);
 	}
 
 	@PostMapping(value = "/mj")
-	public String getModuleJsonById(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public String getModuleJsonById(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		logger.debug("Inside ModuleVersionController.getModuleJsonById()");
 		String moduleVersionId = a_httpServletRequest.getParameter("moduleVersionId");
 		return moduleVersionService.getModuleJsonById(moduleVersionId);
 	}
 
 	@PostMapping(value = "/uj")
-	public String getLastUpdatedJsonData(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		logger.debug("Inside ModuleVersionController.getLastUpdatedJsonData()");
 		String	entityId	= a_httpServletRequest.getParameter("entityId");
 		String	entityName	= a_httpServletRequest.getParameter("entityName");
 		return moduleVersionService.getLastUpdatedJsonData(entityId, entityName);
 	}
 
 	@PostMapping(value = "/suj")
-	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		logger.debug("Inside ModuleVersionController.getLastUpdatedJsonData()");
 		revisionService.saveUpdatedContent(a_httpServletRequest);
 	}
 
 	@PostMapping(value = "/muj")
-	public String getLastUpdatedSitelayoutJsonData(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedSitelayoutJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		logger.debug("Inside ModuleVersionController.getLastUpdatedSitelayoutJsonData()");
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return moduleService.getModuleListingJson(entityId);
 	}
 
 	@PostMapping(value = "/sml")
-	public void saveSiteLayout(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveSiteLayout(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
+		logger.debug("Inside ModuleVersionController.saveSiteLayout()");
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		ModuleListing	moduleListing	= objectMapper.readValue(modifiedContent, ModuleListing.class);

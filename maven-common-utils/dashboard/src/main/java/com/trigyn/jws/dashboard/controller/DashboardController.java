@@ -48,10 +48,8 @@ public class DashboardController {
 	private IUserDetailsService	userDetails				= null;
 
 	@GetMapping(value = "/gdbc", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public List<DashboardDashletVO> getDashletByContextId(
-			@RequestHeader(value = "context-id", required = true) String contextId,
-			@RequestHeader(value = "dashboardId", required = false) String dashboardId)
-			throws NumberFormatException, Exception {
+	public List<DashboardDashletVO> getDashletByContextId(@RequestHeader(value = "context-id", required = true) String contextId,
+		@RequestHeader(value = "dashboardId", required = false) String dashboardId) throws NumberFormatException, Exception {
 		return dashboardServiceImpl.getDashletsByContextId(contextId, dashboardId);
 	}
 
@@ -59,7 +57,7 @@ public class DashboardController {
 	@ResponseBody
 	@Authorized(moduleName = com.trigyn.jws.usermanagement.utils.Constants.DASHBOARD)
 	public String dashlets(@RequestParam(value = "dashboardId") String dashboardId,
-			@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
+		@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
 		List<String> roleIdList = new ArrayList<>();
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
@@ -71,8 +69,7 @@ public class DashboardController {
 
 	@PostMapping(value = "/sdc")
 	public void saveDashletCoordinates(@RequestHeader(value = "user-id", required = false) String userId,
-			@RequestParam(value = "dashboardId") String dashboardId,
-			@RequestParam(value = "dashlets[]") String[] dashlets) throws Exception {
+		@RequestParam(value = "dashboardId") String dashboardId, @RequestParam(value = "dashlets[]") String[] dashlets) throws Exception {
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId = detailsVO.getUserId();
@@ -82,9 +79,8 @@ public class DashboardController {
 
 	@PostMapping(value = "/rdc")
 	public String refreshDashletContent(@RequestHeader(value = "user-id", required = false) String userId,
-			@RequestParam(value = "dashletId") String dashletId,
-			@RequestParam(value = "paramArray[]") String[] paramArray,
-			@RequestParam(value = "dashboardId") String dashboardId) throws Exception {
+		@RequestParam(value = "dashletId") String dashletId, @RequestParam(value = "paramArray[]") String[] paramArray,
+		@RequestParam(value = "dashboardId") String dashboardId) throws Exception {
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId = detailsVO.getUserId();
@@ -94,22 +90,19 @@ public class DashboardController {
 
 	@PostMapping(value = "/oc")
 	public String openDashletConfig(@RequestHeader(value = "user-id", required = false) String userId,
-			@RequestParam(value = "dashboardId") String dashboardId,
-			@RequestParam(value = "dashletId") String dashletId) throws Exception {
+		@RequestParam(value = "dashboardId") String dashboardId, @RequestParam(value = "dashletId") String dashletId) throws Exception {
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId = detailsVO.getUserId();
 		}
-		Map<String, Object>	templateDetails		= dashletService.getDashletConfigDetails(userId, dashboardId,
-				dashletId);
+		Map<String, Object>	templateDetails		= dashletService.getDashletConfigDetails(userId, dashboardId, dashletId);
 		TemplateVO			configTemplateVO	= templatingService.getTemplateByName("dashlet-configuration");
-		return templateEngine.processTemplateContents(configTemplateVO.getTemplate(),
-				configTemplateVO.getTemplateName(), templateDetails);
+		return templateEngine.processTemplateContents(configTemplateVO.getTemplate(), configTemplateVO.getTemplateName(), templateDetails);
 	}
 
 	@PostMapping(value = "/sc")
-	public void saveConfiguration(@RequestBody MultiValueMap<String, String> formData,
-			HttpServletRequest a_httpServletRequest) throws NumberFormatException, Exception {
+	public void saveConfiguration(@RequestBody MultiValueMap<String, String> formData, HttpServletRequest a_httpServletRequest)
+			throws NumberFormatException, Exception {
 		UserDetailsVO	detailsVO	= userDetails.getUserDetails();
 		String			userId		= detailsVO.getUserId();
 		String			dashboardId	= formData.getFirst("dashboardId");

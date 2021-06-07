@@ -33,8 +33,8 @@ public class JwsResponseCodeDetail implements Serializable {
 	public JwsResponseCodeDetail() {
 	}
 
-	public JwsResponseCodeDetail(Integer jwsResponseCodeId, String jwsResponseCodeDescription,
-			Integer jwsResponseStatusCode, List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
+	public JwsResponseCodeDetail(Integer jwsResponseCodeId, String jwsResponseCodeDescription, Integer jwsResponseStatusCode,
+			List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
 		this.jwsResponseCodeId				= jwsResponseCodeId;
 		this.jwsResponseCodeDescription		= jwsResponseCodeDescription;
 		this.jwsResponseStatusCode			= jwsResponseStatusCode;
@@ -73,16 +73,14 @@ public class JwsResponseCodeDetail implements Serializable {
 		this.jwsDynamicRestResponseParams = jwsDynamicRestResponseParams;
 	}
 
-	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(
-			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().add(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsResponseCodeDetail(this);
 
 		return jwsDynamicRestResponseParam;
 	}
 
-	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(
-			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().remove(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsResponseCodeDetail(null);
 
@@ -91,8 +89,7 @@ public class JwsResponseCodeDetail implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jwsDynamicRestResponseParams, jwsResponseCodeDescription, jwsResponseCodeId,
-				jwsResponseStatusCode);
+		return Objects.hash(jwsDynamicRestResponseParams, jwsResponseCodeDescription, jwsResponseCodeId, jwsResponseStatusCode);
 	}
 
 	@Override
@@ -116,8 +113,8 @@ public class JwsResponseCodeDetail implements Serializable {
 	@Override
 	public String toString() {
 		return "JwsResponseCodeDetail [jwsResponseCodeId=" + jwsResponseCodeId + ", jwsResponseCodeDescription="
-				+ jwsResponseCodeDescription + ", jwsResponseStatusCode=" + jwsResponseStatusCode
-				+ ", jwsDynamicRestResponseParams=" + jwsDynamicRestResponseParams + "]";
+				+ jwsResponseCodeDescription + ", jwsResponseStatusCode=" + jwsResponseStatusCode + ", jwsDynamicRestResponseParams="
+				+ jwsDynamicRestResponseParams + "]";
 	}
 
 	public JwsResponseCodeDetail getObject() {

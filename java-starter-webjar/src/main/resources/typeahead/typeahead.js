@@ -21,7 +21,8 @@
                             autocompleteId : context.options.autocompleteId,
                             startIndex : pageNumber * pageSize,
                             pageSize : pageSize,
-                            additionalParamaters: JSON.stringify(context.options.additionalParamaters)
+                            additionalParamaters: JSON.stringify(context.options.additionalParamaters),
+                            requestParameters: JSON.stringify(context.options.requestParameters),
                         },
                     dataType: "json",
                     success: function (data) {
@@ -417,6 +418,7 @@
         
             },
             additionalParamaters: {},
+            requestParameters: {},
             paging: true,
             pageSize: 10,
             emptyRender: function() {
@@ -462,6 +464,7 @@
         
             },
             additionalParamaters: {},
+            requestParameters: {},
             paging: true,
             pageSize: 10,
             emptyRender: function() {

@@ -23,8 +23,8 @@ public class AuthorizedValidatorDAO extends DBConnection {
 
 	public Long hasAccessToCurrentDynamicForm(String formId, List<String> roleNames) {
 
-		Query query = getCurrentSession().createQuery(
-				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN DynamicForm df ON jera.entityId = df.formId "
+		Query query = getCurrentSession()
+				.createQuery(" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN DynamicForm df ON jera.entityId = df.formId "
 						+ " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
 						+ " AND  df.formId=:formId ");
 		query.setParameter("formId", formId);
@@ -37,8 +37,8 @@ public class AuthorizedValidatorDAO extends DBConnection {
 
 	public Long hasAccessToGridUtils(String gridId, List<String> roleNames, String moduleId) {
 
-		Query query = getCurrentSession().createQuery(
-				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN GridDetails gd ON jera.entityId = gd.gridId "
+		Query query = getCurrentSession()
+				.createQuery(" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN GridDetails gd ON jera.entityId = gd.gridId "
 						+ " INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
 						+ " AND  gd.gridId=:gridId AND jera.moduleId=:moduleId ");
 		query.setParameter("gridId", gridId);
@@ -139,40 +139,35 @@ public class AuthorizedValidatorDAO extends DBConnection {
 	}
 
 	public String getGridNameByGridId(String gridId) {
-		Query query = getCurrentSession()
-				.createQuery(" SELECT gd.gridName FROM GridDetails gd WHERE gd.gridId = :gridId ");
+		Query query = getCurrentSession().createQuery(" SELECT gd.gridName FROM GridDetails gd WHERE gd.gridId = :gridId ");
 		query.setParameter("gridId", gridId);
 		String count = (String) query.uniqueResult();
 		return count;
 	}
 
 	public String getDynamicFormNameById(String dynamicFormId) {
-		Query query = getCurrentSession()
-				.createQuery(" SELECT df.formName FROM DynamicForm df WHERE df.formId = :dynamicFormId ");
+		Query query = getCurrentSession().createQuery(" SELECT df.formName FROM DynamicForm df WHERE df.formId = :dynamicFormId ");
 		query.setParameter("dynamicFormId", dynamicFormId);
 		String count = (String) query.uniqueResult();
 		return count;
 	}
 
 	public String getDashboardNameById(String dashboarId) {
-		Query query = getCurrentSession()
-				.createQuery(" SELECT db.dashboardName FROM Dashboard db WHERE db.dashboardId = :dashboarId ");
+		Query query = getCurrentSession().createQuery(" SELECT db.dashboardName FROM Dashboard db WHERE db.dashboardId = :dashboarId ");
 		query.setParameter("dashboarId", dashboarId);
 		String count = (String) query.uniqueResult();
 		return count;
 	}
 
 	public String getFileBinIdByFileUploadId(String fileUploadId) {
-		Query query = getCurrentSession()
-				.createQuery(" SELECT fu.fileBinId FROM FileUpload fu WHERE fu.fileUploadId = :fileUploadId ");
+		Query query = getCurrentSession().createQuery(" SELECT fu.fileBinId FROM FileUpload fu WHERE fu.fileUploadId = :fileUploadId ");
 		query.setParameter("fileUploadId", fileUploadId);
 		String count = (String) query.uniqueResult();
 		return count;
 	}
 
 	public String getManualNameById(String manualId) {
-		Query query = getCurrentSession()
-				.createQuery(" SELECT mt.name FROM ManualType mt WHERE mt.manualId = :manualId ");
+		Query query = getCurrentSession().createQuery(" SELECT mt.name FROM ManualType mt WHERE mt.manualId = :manualId ");
 		query.setParameter("manualId", manualId);
 		String count = (String) query.uniqueResult();
 		return count;

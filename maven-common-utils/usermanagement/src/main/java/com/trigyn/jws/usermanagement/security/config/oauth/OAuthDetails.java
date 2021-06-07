@@ -23,8 +23,7 @@ public class OAuthDetails {
 	private JwsAuthenticationTypeRepository	authenticationTypeRepository	= null;
 
 	public OAuthDetails(JwsAuthenticationTypeRepository authenticationTypeRepository) throws JSONException {
-		JwsAuthenticationType	oAuthType	= authenticationTypeRepository
-				.findById(Constants.AuthType.OAUTH.getAuthType()).get();
+		JwsAuthenticationType	oAuthType	= authenticationTypeRepository.findById(Constants.AuthType.OAUTH.getAuthType()).get();
 		JSONObject				jsonObject	= null;
 		if (oAuthType.getAuthenticationProperties() != null) {
 			JSONArray jsonArray = new JSONArray(oAuthType.getAuthenticationProperties());
@@ -36,8 +35,7 @@ public class OAuthDetails {
 
 	}
 
-	public JSONObject getActiveOAuthJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray)
-			throws JSONException {
+	public JSONObject getActiveOAuthJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray) throws JSONException {
 		String propertyName = "selected";
 		for (int i = 0; i < jsonArray.length(); i++) {
 			jsonObject = jsonArray.getJSONObject(i);

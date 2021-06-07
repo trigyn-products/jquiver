@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.notification.service.NotificationService;
 
+
 @RestController
 @RequestMapping(value = "/cf")
 public class NotificationController {

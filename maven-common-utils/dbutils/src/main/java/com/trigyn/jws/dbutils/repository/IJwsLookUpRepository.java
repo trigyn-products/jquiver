@@ -13,6 +13,5 @@ import com.trigyn.jws.dbutils.vo.LookupDetailsVO;
 public interface IJwsLookUpRepository extends JpaRepositoryImplementation<JwsLookup, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS)
-	List<LookupDetailsVO> getLookUpDetailsByName(String lookupName, Integer languageId, Integer defaultLanguageId,
-			Integer isDeleted);
+	List<LookupDetailsVO> getLookUpDetailsByName(String lookupName, Integer languageId, Integer defaultLanguageId, Integer isDeleted);
 }

@@ -70,12 +70,15 @@ public class ModuleListing implements Serializable {
 	@Column(name = "last_modified_date")
 	private Date						updatedDate				= null;
 
+	@Column(name = "module_type_id ")
+	private Integer						moduleTypeId			= 1;
+
 	public ModuleListing() {
 	}
 
-	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
-			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
-			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu, String targetTypeId,
+			List<ModuleListingI18n> moduleListingI18ns, List<ModuleRoleAssociation> moduleRoleAssociations,
+			ModuleTargetLookup moduleTargetLookup) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -87,9 +90,9 @@ public class ModuleListing implements Serializable {
 		this.moduleTargetLookup		= moduleTargetLookup;
 	}
 
-	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
-			Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
-			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup) {
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu, Integer targetLookupId,
+			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns, List<ModuleRoleAssociation> moduleRoleAssociations,
+			ModuleTargetLookup moduleTargetLookup) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -240,6 +243,14 @@ public class ModuleListing implements Serializable {
 		this.updatedDate = updatedDate;
 	}
 
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setModuleTypeId(Integer moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
+
 	public ModuleListing getObject() {
 		ModuleListing moduleListing = new ModuleListing();
 		moduleListing.setIsInsideMenu(isInsideMenu);
@@ -272,14 +283,14 @@ public class ModuleListing implements Serializable {
 
 		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
 		moduleListing.setUpdatedDate(updatedDate);
+		moduleListing.setModuleTypeId(moduleTypeId);
 		return moduleListing;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns,
-				moduleRoleAssociations, moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId,
-				updatedDate);
+		return Objects.hash(includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations,
+				moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId, updatedDate);
 	}
 
 	@Override
@@ -298,22 +309,21 @@ public class ModuleListing implements Serializable {
 				&& Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
 				&& Objects.equals(moduleListingI18ns, other.moduleListingI18ns)
 				&& Objects.equals(moduleRoleAssociations, other.moduleRoleAssociations)
-				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup)
-				&& Objects.equals(moduleUrl, other.moduleUrl) && Objects.equals(parentId, other.parentId)
-				&& Objects.equals(sequence, other.sequence) && Objects.equals(targetLookupId, other.targetLookupId)
-				&& Objects.equals(targetTypeId, other.targetTypeId) && Objects.equals(updatedDate, other.updatedDate);
+				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup) && Objects.equals(moduleUrl, other.moduleUrl)
+				&& Objects.equals(parentId, other.parentId) && Objects.equals(sequence, other.sequence)
+				&& Objects.equals(targetLookupId, other.targetLookupId) && Objects.equals(targetTypeId, other.targetTypeId)
+				&& Objects.equals(updatedDate, other.updatedDate);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ModuleListing [moduleId=").append(moduleId).append(", moduleUrl=").append(moduleUrl)
-				.append(", parentId=").append(parentId).append(", sequence=").append(sequence).append(", isInsideMenu=")
-				.append(isInsideMenu).append(", includeLayout=").append(includeLayout).append(", isHomePage=")
-				.append(isHomePage).append(", targetLookupId=").append(targetLookupId).append(", targetTypeId=")
-				.append(targetTypeId).append(", moduleListingI18ns=").append(moduleListingI18ns)
-				.append(", moduleRoleAssociations=").append(moduleRoleAssociations).append(", moduleTargetLookup=")
-				.append(moduleTargetLookup).append(", updatedDate=").append(updatedDate).append("]");
+		builder.append("ModuleListing [moduleId=").append(moduleId).append(", moduleUrl=").append(moduleUrl).append(", parentId=")
+				.append(parentId).append(", sequence=").append(sequence).append(", isInsideMenu=").append(isInsideMenu)
+				.append(", includeLayout=").append(includeLayout).append(", isHomePage=").append(isHomePage).append(", targetLookupId=")
+				.append(targetLookupId).append(", targetTypeId=").append(targetTypeId).append(", moduleListingI18ns=")
+				.append(moduleListingI18ns).append(", moduleRoleAssociations=").append(moduleRoleAssociations)
+				.append(", moduleTargetLookup=").append(moduleTargetLookup).append(", updatedDate=").append(updatedDate).append("]");
 		return builder.toString();
 	}
 

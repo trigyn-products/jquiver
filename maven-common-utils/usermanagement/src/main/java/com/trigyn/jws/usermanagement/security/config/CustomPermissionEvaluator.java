@@ -27,8 +27,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		List<String> roleNames = new ArrayList<>();
 
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()
-				&& !(authentication instanceof AnonymousAuthenticationToken)) {
+		if (applicationSecurityDetails.getIsAuthenticationEnabled() && !(authentication instanceof AnonymousAuthenticationToken)) {
 			UserInformation userInformation = (UserInformation) authentication.getPrincipal();
 			roleNames.addAll(userInformation.getRoles());
 
@@ -38,8 +37,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
 		}
 
-		Long count = roleModuleRepository.checkModulePresentForCurrentRole(roleNames, permission.toString(),
-				Constants.ISACTIVE);
+		Long count = roleModuleRepository.checkModulePresentForCurrentRole(roleNames, permission.toString(), Constants.ISACTIVE);
 		if (count > 0) {
 			return true;
 		}
@@ -47,8 +45,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 	}
 
 	@Override
-	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
-			Object permission) {
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
 		// TODO Auto-generated method stub
 		return false;
 	}

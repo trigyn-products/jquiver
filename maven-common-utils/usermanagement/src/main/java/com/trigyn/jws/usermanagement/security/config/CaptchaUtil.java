@@ -153,8 +153,7 @@ public final class CaptchaUtil {
 
 		char[]			charArray			= CHARACTERS.toCharArray();
 		char[]			numberCharArray		= CHARACTER_NUMBERS.toCharArray();
-		String			captchaStr			= RandomStringUtils.random(6, 0, CHARACTERS.length(), true, true, charArray)
-				.toUpperCase();
+		String			captchaStr			= RandomStringUtils.random(6, 0, CHARACTERS.length(), true, true, charArray).toUpperCase();
 
 		List<Integer>	digits				= new ArrayList<Integer>();
 		String			digitStr			= "";
@@ -174,10 +173,8 @@ public final class CaptchaUtil {
 		}
 
 		if (digits.isEmpty()) {
-			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(4)),
-					RandomStringUtils.random(1, numberCharArray));
-			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(1)),
-					RandomStringUtils.random(1, numberCharArray));
+			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(4)), RandomStringUtils.random(1, numberCharArray));
+			captchaStr	= captchaStr.replace(Character.toString(captchaStr.charAt(1)), RandomStringUtils.random(1, numberCharArray));
 		}
 
 		return captchaStr;

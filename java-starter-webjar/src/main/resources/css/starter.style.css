@@ -3786,7 +3786,7 @@ input:checked + .slider:before {
 
 
 input.pq-grid-hd-search-field[type=text]{
-	background: url(/webjars/1.0/images/Search.png)no-repeat 100%;
+	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7OHOkAAAAEZ0FNQQAAsY8L/GEFAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA4UlEQVQoU3WPP85EUBTFz7zCBiQsQKLRCqUoVJZgPbYgbEOisAQaJEoSCo3Gnx7j3snkyzeZ+VXv3Hvevec+rhvclGWJtm2x7zsURYFt29A0jVoMG5MkYeF5HmRZxjAMyPMchmHA933uoSiKK45j8v/jOI4rDMNrmibWgtbRpE+EEDBNE1VVvTRlonXfoKzbtvFbkKBM3+i6js2EsCyLg5/nyYU34zii73u4rsuar86yDE3TcCaaQAaaJkkSX63r+stIP+7rUNc11nWFqqpwHAfLsiCKIgRB8Gf8xTzPSNMUT9vth5gvHOmBAAAAAElFTkSuQmCC') no-repeat 100%;
 	background-size: 10 px;
 	background-color: #ffffff;
 	-webkit-transition: all 0.5s ease-in;
@@ -3941,4 +3941,117 @@ input.pq-grid-hd-search-field[type=text]:focus{
 
 .failed-mail-slider-cls{
     float: right;
+}
+
+
+.pq-grid-col-cusror{
+	cursor: default !important;
+}
+
+.default-previews {
+	/* 	Uncomment this to have horizontal scroll bar
+		overflow: scroll; 
+	*/
+	max-height: 300px;
+	max-width: 100%;
+}
+
+.pg-manual-display .default-previews {
+	background-color: #f8f9fa;
+	padding: 20px 15px 0;
+}
+
+.cm-right-wrapper .default-previews img {
+	width: 100%;
+	height: auto;
+	display: block;
+	margin-bottom: 20px;
+	margin-bottom: 10px;
+}
+
+
+.cm-right-wrapper .default-previews {
+	height: 296px;
+	max-height: 300px;
+	overflow-x: scroll;
+}
+
+.pg-manual-display .cm-right-wrapper .default-previews {
+	overflow-x: hidden;
+	height: 430px;
+}
+
+
+.pg-manual-display .default-previews {
+	background-color: #ffffff;
+	border: 1px solid #ccc;
+	border-left: none;
+}
+
+.team-img{
+	text-align: center;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
+	border: 1px solid black;
+	cursor: pointer;
+}
+
+.team-img:hover{
+	-webkit-box-shadow: rgba(0,0,0,0.8) 0px 0 10px;
+	-moz-box-shadow: rgba(0,0,0,0.8) 0 0 10px;
+	box-shadow: rgba(0,0,0,0.8) 0 0 10px;
+} 
+
+.footer a:link {
+  color: #0277bd;
+  background-color: transparent;
+  text-decoration: none;
+}
+.footer a:visited {
+  color: #0277bd;
+  background-color: transparent;
+  text-decoration: none;
+}
+.footer a:hover {
+  color: #FFFACD;
+  background-color: transparent;
+  text-decoration: underline;
+}
+.footer a:active {
+  color: #FFFACD;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+.horz-tabs {
+	border: 1px solid #e5e5e5;
+	background-color: white;
+}
+
+.horz-tabs button {
+	display: block;
+	background-color: inherit;
+	color: black;
+	padding: 22px 16px;
+	width: 100%;
+	border: none;
+	outline: none;
+	text-align: left;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+
+/* Change background color of buttons on hover */
+
+.horz-tabs button:hover {
+	background-color: #e6e6e6;
+}
+
+
+/* Create an active/current "tab button" class */
+
+.horz-tabs tab-button.active {
+	background-color: #ccc;
 }

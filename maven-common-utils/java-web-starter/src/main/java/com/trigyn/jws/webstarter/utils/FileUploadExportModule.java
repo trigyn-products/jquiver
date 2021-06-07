@@ -41,50 +41,47 @@ public class FileUploadExportModule {
 			fileDirectory.mkdirs();
 		}
 
-		List<FileUpload>			fileUploads				= fileUploadRepository
-				.findAllByFileBinId(fileUploadConfig.getFileBinId());
+		List<FileUpload>			fileUploads				= fileUploadRepository.findAllByFileBinId(fileUploadConfig.getFileBinId());
 		List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
-			for (FileUpload fu : fileUploads) {
-				fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
-						fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
-						fu.getFileBinId(), fu.getFileAssociationId()));
+		for (FileUpload fu : fileUploads) {
+			fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(), fu.getOriginalFileName(),
+					fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(), fu.getFileBinId(), fu.getFileAssociationId()));
 
-				if (!new File(folderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME + File.separator
-						+ fileUploadConfig.getFileBinId()).exists()) {
-					File fileDirectory = new File(folderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME
-							+ File.separator + fileUploadConfig.getFileBinId());
-					fileDirectory.mkdirs();
+			if (!new File(folderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME + File.separator
+					+ fileUploadConfig.getFileBinId()).exists()) {
+				File fileDirectory = new File(folderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME + File.separator
+						+ fileUploadConfig.getFileBinId());
+				fileDirectory.mkdirs();
+			}
+
+			Path		downloadPath	= Paths.get(folderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME + File.separator
+					+ fileUploadConfig.getFileBinId());
+
+			Path		fileRoot		= Paths.get(fu.getFilePath());
+			Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
+			Resource	resource		= new UrlResource(filePath.toUri());
+			InputStream	in;
+			if (resource.exists() || resource.isReadable()) {
+				File newFile = resource.getFile();
+				in = new FileInputStream(newFile);
+			} else {
+				String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
+				in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
+				if (in == null) {
+					throw new RuntimeException("Could not read the file!");
 				}
-
-				Path		downloadPath	= Paths.get(folderLocation + File.separator
-						+ Constant.FILE_UPLOAD_DIRECTORY_NAME + File.separator + fileUploadConfig.getFileBinId());
-
-				Path		fileRoot		= Paths.get(fu.getFilePath());
-				Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
-				Resource	resource		= new UrlResource(filePath.toUri());
-				InputStream	in;
-				if (resource.exists() || resource.isReadable()) {
-					File newFile = resource.getFile();
-					in = new FileInputStream(newFile);
-				} else {
-					String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
-					in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
-					if (in == null) {
-						throw new RuntimeException("Could not read the file!");
-					}
-				}
-				Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
-				Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
+			}
+			Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
+			Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
 		}
 
-		FileUploadConfigExportVO	fileUploadConfigExportVO	= new FileUploadConfigExportVO(
-				fileUploadConfig.getFileBinId(), fileUploadConfig.getFileTypSupported(),
-				fileUploadConfig.getMaxFileSize(), fileUploadConfig.getNoOfFiles(),
+		FileUploadConfigExportVO	fileUploadConfigExportVO	= new FileUploadConfigExportVO(fileUploadConfig.getFileBinId(),
+				fileUploadConfig.getFileTypSupported(), fileUploadConfig.getMaxFileSize(), fileUploadConfig.getNoOfFiles(),
 				StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getSelectQueryContent().trim() + "]]>"),
 				StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getUploadQueryContent().trim() + "]]>"),
 				StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getViewQueryContent().trim() + "]]>"),
 				StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getDeleteQueryContent().trim() + "]]>"),
-				fileUploadConfig.getIsDeleted(), fileUploadConfig.getUpdatedBy(), fileUploadConfig.getUpdatedDate(),
+				fileUploadConfig.getIsDeleted(), fileUploadConfig.getLastUpdatedBy(), fileUploadConfig.getLastUpdatedTs(),
 				fileUploadExportVOList);
 
 		Map<String, Object>			map							= new HashMap<>();
@@ -94,27 +91,24 @@ public class FileUploadExportModule {
 
 	}
 
-	public FileUploadConfigImportEntity importData(String folderLocation, String uploadFileName, String uploadID,
-			Object importObject) {
+	public FileUploadConfigImportEntity importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) {
 		FileUploadConfigImportEntity	fileUploadConfigImportEntity	= null;
 
 		FileUploadConfigExportVO		fileUploadConfigVO				= (FileUploadConfigExportVO) importObject;
-		FileUploadConfig				fileUploadConfig				= new FileUploadConfig(
-				fileUploadConfigVO.getFileBinId(), fileUploadConfigVO.getFileTypSupported(),
-				fileUploadConfigVO.getMaxFileSize(), fileUploadConfigVO.getNoOfFiles(),
+		FileUploadConfig				fileUploadConfig				= new FileUploadConfig(fileUploadConfigVO.getFileBinId(),
+				fileUploadConfigVO.getFileTypSupported(), fileUploadConfigVO.getMaxFileSize(), fileUploadConfigVO.getNoOfFiles(),
 				fileUploadConfigVO.getSelectQueryContent(), fileUploadConfigVO.getUploadQueryContent(),
-				fileUploadConfigVO.getViewQueryContent(), fileUploadConfigVO.getDeleteQueryContent(),
-				fileUploadConfigVO.getIsDeleted(), fileUploadConfigVO.getUpdatedBy(),
-				fileUploadConfigVO.getUpdatedDate());
+				fileUploadConfigVO.getViewQueryContent(), fileUploadConfigVO.getDeleteQueryContent(), fileUploadConfigVO.getDataSourceId(),
+				fileUploadConfigVO.getIsDeleted(), fileUploadConfigVO.getCreatedBy(), fileUploadConfigVO.getCreatedDate(),
+				fileUploadConfigVO.getUpdatedBy(), fileUploadConfigVO.getUpdatedDate());
 
 		List<FileUploadExportVO>		fileUploadExportVOList			= fileUploadConfigVO.getFileUploadList();
 		List<FileUpload>				fileUploads						= new ArrayList<>();
 
 		if (fileUploadExportVOList != null) {
 			for (FileUploadExportVO fueVO : fileUploadExportVOList) {
-				FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
-						fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getFileBinId(),
-						fueVO.getFileAssociationId());
+				FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(), fueVO.getOriginalFileName(),
+						fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getFileBinId(), fueVO.getFileAssociationId());
 				fileUploads.add(fu);
 			}
 		}

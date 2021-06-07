@@ -6,35 +6,42 @@ import java.util.Date;
 import java.util.List;
 
 public class FileUploadConfigExportVO {
-	private String		fileBinId			= null;
+	private String						fileBinId			= null;
 
-	private String		fileTypSupported	= null;
+	private String						fileTypSupported	= null;
 
-	private BigDecimal	maxFileSize			= null;
+	private BigDecimal					maxFileSize			= null;
 
-	private Integer		noOfFiles			= null;
+	private Integer						noOfFiles			= null;
 
-	private String		selectQueryContent	= null;
+	private String						selectQueryContent	= null;
 
-	private String		uploadQueryContent	= null;
+	private String						uploadQueryContent	= null;
 
-	private String		viewQueryContent	= null;
+	private String						viewQueryContent	= null;
 
-	private String		deleteQueryContent	= null;
+	private String						deleteQueryContent	= null;
 
-	private Integer		isDeleted			= null;
+	private String						dataSourceId		= null;
 
-	private String		updatedBy			= null;
+	private Integer						isDeleted			= null;
 
-	private Date		updatedDate			= null;
+	private String						createdBy			= null;
 
-	private List<FileUploadExportVO> fileUploadList = new ArrayList<>();
+	private Date						createdDate			= null;
 
-	public FileUploadConfigExportVO() {}
-	
+	private String						updatedBy			= null;
+
+	private Date						updatedDate			= null;
+
+	private List<FileUploadExportVO>	fileUploadList		= new ArrayList<>();
+
+	public FileUploadConfigExportVO() {
+	}
+
 	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
-			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent,
-			Integer isDeleted, String updatedBy, Date updatedDate) {
+			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent, Integer isDeleted,
+			String updatedBy, Date updatedDate) {
 		this.fileBinId			= fileBinId;
 		this.fileTypSupported	= fileTypSupported;
 		this.maxFileSize		= maxFileSize;
@@ -49,8 +56,8 @@ public class FileUploadConfigExportVO {
 	}
 
 	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
-			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent,
-			Integer isDeleted, String updatedBy, Date updatedDate, List<FileUploadExportVO> fileUploadList) {
+			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent, Integer isDeleted,
+			String updatedBy, Date updatedDate, List<FileUploadExportVO> fileUploadList) {
 		this.fileBinId			= fileBinId;
 		this.fileTypSupported	= fileTypSupported;
 		this.maxFileSize		= maxFileSize;
@@ -129,6 +136,14 @@ public class FileUploadConfigExportVO {
 		this.deleteQueryContent = deleteQueryContent;
 	}
 
+	public String getDataSourceId() {
+		return dataSourceId;
+	}
+
+	public void setDataSourceId(String dataSourceId) {
+		this.dataSourceId = dataSourceId;
+	}
+
 	public Integer getIsDeleted() {
 		return isDeleted;
 	}
@@ -153,6 +168,22 @@ public class FileUploadConfigExportVO {
 		this.updatedDate = updatedDate;
 	}
 
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
 	public List<FileUploadExportVO> getFileUploadList() {
 		return fileUploadList;
 	}
@@ -160,5 +191,5 @@ public class FileUploadConfigExportVO {
 	public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
 		this.fileUploadList = fileUploadList;
 	}
-	
+
 }

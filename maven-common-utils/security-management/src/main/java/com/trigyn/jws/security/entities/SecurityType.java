@@ -89,8 +89,7 @@ public class SecurityType implements Serializable {
 
 	@Override
 	public String toString() {
-		return "SecurityManagement [securityTypeId=" + securityTypeId + ", securityName=" + securityName + ", isActive="
-				+ isActive + "]";
+		return "SecurityManagement [securityTypeId=" + securityTypeId + ", securityName=" + securityName + ", isActive=" + isActive + "]";
 	}
 
 }

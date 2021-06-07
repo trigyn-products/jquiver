@@ -3,6 +3,7 @@ package com.trigyn.jws.dynarest.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,11 +26,12 @@ import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import freemarker.core.StopException;
+
 @RestController
 public class DynamicRestController {
 
-	private static final Logger			LOGGER							= LogManager
-			.getLogger(DynamicRestController.class);
+	private static final Logger			LOGGER							= LogManager.getLogger(DynamicRestController.class);
 
 	private static final String			METHOD_SIGNATURE_MESSAGE		= "Make sure you have the method signature correct. Signature should be similar to : - public T methodName(HttpServletRequest request, Map<String, Object> requestParameters, Map<String, Object> resultSetParameters, UserDetailsVO, details) {}";
 
@@ -41,8 +43,7 @@ public class DynamicRestController {
 	@RequestMapping(value = { "/api/**", "/japi/**" })
 	@Authorized(moduleName = Constants.DYNAMICREST)
 	@ResponseBody
-	public ResponseEntity<?> callDynamicEntity(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) {
+	public ResponseEntity<?> callDynamicEntity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		String requestUri = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		if (requestUri.startsWith("/japi/")) {
 			requestUri = requestUri.replaceFirst("/japi/", "");
@@ -65,12 +66,12 @@ public class DynamicRestController {
 		requestParams = validateAndProcessRequestParams(httpServletRequest, restApiDetails);
 
 		try {
-			Map<String, Object>	queriesResponse	= jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
-					requestParams);
+			Map<String, Object>	queriesResponse	= jwsService.executeDAOQueries(restApiDetails.getDataSourceId(),
+					restApiDetails.getDynamicId(), requestParams);
 			Object				response		= null;
 			try {
-				response = jwsService.createSourceCodeAndInvokeServiceLogic(httpServletRequest, requestParams,
-						queriesResponse, restApiDetails);
+				response = jwsService.createSourceCodeAndInvokeServiceLogic(httpServletRequest, requestParams, queriesResponse,
+						restApiDetails);
 			} catch (IllegalArgumentException a_exception) {
 				LOGGER.error("Error occured while invoking the method ", a_exception);
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
@@ -81,24 +82,34 @@ public class DynamicRestController {
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
 			} catch (ClassNotFoundException a_exception) {
 				LOGGER.error("Error occured while invoking the method ", a_exception);
-				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(),
-						"The class was not found in the mentioned package.");
+				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "The class was not found in the mentioned package.");
 			}
 			buildResponseEntity(httpServletResponse, restApiDetails);
 			if (response instanceof ResponseEntity<?>) {
 				return (ResponseEntity<?>) response;
 			}
 			return new ResponseEntity<>(response, HttpStatus.OK);
-		} catch (Exception a_exception) {
-			LOGGER.error("Error occurred while processing request: ", a_exception);
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (StopException a_exception) {
+			return new ResponseEntity<>(a_exception.getMessageWithoutStackTop(), HttpStatus.EXPECTATION_FAILED);
+		} catch (Throwable a_throwable) {
+
+			LOGGER.error("Error occurred while processing request: ", a_throwable);
+			Objects.requireNonNull(a_throwable);
+		    Throwable rootCause = a_throwable;
+		    while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+		    	if(rootCause instanceof StopException) {
+		    		return new ResponseEntity<>(((StopException)rootCause).getMessageWithoutStackTop(), HttpStatus.EXPECTATION_FAILED);
+		    	}
+		        rootCause = rootCause.getCause();
+		    }
+			
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@PostMapping("/file/api/**")
-	public ResponseEntity<?> callDynamicFile(@RequestParam("files") MultipartFile[] files,
-			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+	public ResponseEntity<?> callDynamicFile(@RequestParam("files") MultipartFile[] files, HttpServletRequest httpServletRequest,
+		HttpServletResponse httpServletResponse) {
 		String requestUri = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		requestUri = requestUri.replaceFirst("/file/api/", "");
 		RestApiDetails		restApiDetails	= jwsService.getRestApiDetails(requestUri);
@@ -111,18 +122,16 @@ public class DynamicRestController {
 		requestParams = validateAndProcessRequestParams(httpServletRequest, restApiDetails);
 
 		try {
-			Map<String, Object>	queriesResponse	= jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
-					requestParams);
+			Map<String, Object>	queriesResponse	= jwsService.executeDAOQueries(restApiDetails.getDataSourceId(),
+					restApiDetails.getDynamicId(), requestParams);
 			FileInfo			fileInfo		= null;
 			try {
-				Object response = jwsService.invokeAndExecuteOnFileJava(files, httpServletRequest, queriesResponse,
-						restApiDetails);
+				Object response = jwsService.invokeAndExecuteOnFileJava(files, httpServletRequest, queriesResponse, restApiDetails);
 				if (response instanceof FileInfo) {
 					fileInfo = (FileInfo) response;
 				} else {
 					LOGGER.error("Error occured while getting the file response ");
-					httpServletResponse.sendError(HttpStatus.UNPROCESSABLE_ENTITY.value(),
-							FILE_METHOD_SIGNATURE_MESSAGE);
+					httpServletResponse.sendError(HttpStatus.UNPROCESSABLE_ENTITY.value(), FILE_METHOD_SIGNATURE_MESSAGE);
 				}
 			} catch (IllegalArgumentException a_exception) {
 				LOGGER.error("Error occured while invoking the method ", a_exception);
@@ -134,19 +143,16 @@ public class DynamicRestController {
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), FILE_METHOD_SIGNATURE_MESSAGE);
 			} catch (ClassNotFoundException a_exception) {
 				LOGGER.error("Error occured while invoking the method ", a_exception);
-				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(),
-						"The class was not found in the mentioned package.");
+				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "The class was not found in the mentioned package.");
 			}
 			return new ResponseEntity<>(fileInfo, HttpStatus.OK);
 		} catch (Exception a_exception) {
 			LOGGER.error("Error occurred while processing request: ", a_exception);
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest,
-			RestApiDetails restDetails) {
+	private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest, RestApiDetails restDetails) {
 		Map<String, Object> requestParams = new HashMap<>();
 		for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
 			requestParams.put(requestParamKey, httpServletRequest.getParameter(requestParamKey));

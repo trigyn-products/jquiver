@@ -79,8 +79,8 @@ public class ResourceBundleVO implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId)
-				.append(", text = ").append(text).append(", resourceKey = ").append(resourceKey).append(" }");
+		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId).append(", text = ").append(text)
+				.append(", resourceKey = ").append(resourceKey).append(" }");
 		return stringBuilder.toString();
 	}
 

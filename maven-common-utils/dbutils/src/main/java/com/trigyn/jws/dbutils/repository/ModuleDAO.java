@@ -27,8 +27,7 @@ public class ModuleDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	public List<Map<String, Object>> findTargetTypeDetails(Integer targetLookupId, String targetTypeId)
-			throws Exception {
+	public List<Map<String, Object>> findTargetTypeDetails(Integer targetLookupId, String targetTypeId) throws Exception {
 		List<Map<String, Object>>	targetTypeList	= null;
 		Map<String, Object>			inParamMap		= new HashMap<>();
 		inParamMap.put("targetLookupId", targetLookupId);

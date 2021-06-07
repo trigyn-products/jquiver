@@ -51,14 +51,13 @@ public class ModuleVersionService {
 	private PropertyMasterService			propertyMasterService	= null;
 
 	@Transactional(readOnly = false)
-	public void saveModuleVersion(Object entityData, Object parentEntityIdObj, Object entityIdObj, String entityName,
-			Integer sourceTypeId) throws Exception {
+	public void saveModuleVersion(Object entityData, Object parentEntityIdObj, Object entityIdObj, String entityName, Integer sourceTypeId)
+			throws Exception {
 		Gson			gson			= new Gson();
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		String			moduleJson		= null;
 		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
-				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
-				Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
 		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
 		objectMapper.setDateFormat(dateFormat);
 		try {

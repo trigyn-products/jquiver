@@ -210,7 +210,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		if (StringUtils.isBlank(queryContent) == false) {
 			requestParamMap.put("fileAssociationId", fileAssociationId);
 			String query = templatingUtils.processTemplateContents(queryContent, "fileViewQuery", requestParamMap);
-			fileUploadList = fileUploadConfigDAO.executeSelectQuery(query, requestParamMap);
+			fileUploadList = fileUploadConfigDAO.executeSelectQuery(null, query, requestParamMap);
 		} else {
 			fileUploadList = fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
 		}
@@ -220,15 +220,16 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	private List<FileInfo> convertFileUploadToFileInfo(List<FileUpload> fileUploads) {
 		List<FileInfo> fileInfos = fileUploads.stream().map(files -> {
-			String	filePath	= files.getFilePath() + "\\" + files.getPhysicalFileName();
+			String	filePath	= files.getFilePath() + File.separator + files.getPhysicalFileName();
 			File	file		= new File(filePath);
 			if (file.length() == 0) {
+				// Trying to read the file from the jar
 				InputStream	in			= FilesStorageServiceImpl.class.getResourceAsStream(filePath);
 				byte[]		byteArray	= null;
 				try {
 					byteArray = ByteStreams.toByteArray(in);
-				} catch (IOException exception) {
-
+				} catch (Throwable exception) {
+					logger.error("Error while retrieving the file", exception);
 				}
 				return new FileInfo(files.getFileUploadId(), files.getOriginalFileName(),
 						Long.valueOf(byteArray.length));
@@ -320,8 +321,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (StringUtils.isBlank(selectQuery) == false) {
 				String				query					= templatingUtils.processTemplateContents(selectQuery,
 						"fileViewQuery", requestParamMap);
-				Map<String, String>	resultSetMetadataMap	= fileUploadConfigDAO.validateFileQuery(query,
-						requestParamMap);
+				Map<String, String>	resultSetMetadataMap	= fileUploadConfigDAO.validateFileQuery(null,
+						query, requestParamMap);
 
 				if (CollectionUtils.isEmpty(resultSetMetadataMap) == false) {
 
@@ -365,8 +366,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 					String query = templatingUtils.processTemplateContents(validatorQueryMap.getValue(),
 							"fileViewQuery", parameterMap);
 					try {
-						Map<String, String> resultSetMetadataMap = fileUploadConfigDAO.validateFileQuery(query,
-								parameterMap);
+						Map<String, String> resultSetMetadataMap = fileUploadConfigDAO.validateFileQuery(null,
+								query, parameterMap);
 
 						if (CollectionUtils.isEmpty(resultSetMetadataMap) == false) {
 
@@ -427,7 +428,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			String						query		= templatingUtils.processTemplateContents(queryContent,
 					"fileViewQuery", parameterMap);
 			List<Map<String, Object>>	resultSet	= new ArrayList<>();
-			resultSet = fileUploadConfigDAO.executeQueries(query, parameterMap);
+			resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
 			return resultSet;
 		}
 		return null;

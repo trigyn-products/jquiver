@@ -27,9 +27,9 @@ public class ModuleDetailsVO implements Serializable {
 
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,
-			String parentModuleName, Integer sequence, Integer isInsideMenu, Integer includeLayout,
-			Integer targetLookupId, String targetLookupDesc, String targetTypeId) {
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+			Integer sequence, Integer isInsideMenu, Integer includeLayout, Integer targetLookupId, String targetLookupDesc,
+			String targetTypeId) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
 		this.moduleURL			= moduleURL;
@@ -49,8 +49,8 @@ public class ModuleDetailsVO implements Serializable {
 		this.moduleURL	= moduleURL;
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId,
-			String parentModuleName, Integer sequence, Long subModuleCount) {
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+			Integer sequence, Long subModuleCount) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
 		this.moduleURL			= moduleURL;
@@ -191,9 +191,8 @@ public class ModuleDetailsVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(includeLayout, isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId,
-				parentModuleName, roleIdList, sequence, subModuleCount, targetLookupDesc, targetLookupId,
-				targetLookupName, targetTypeId);
+		return Objects.hash(includeLayout, isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId, parentModuleName, roleIdList,
+				sequence, subModuleCount, targetLookupDesc, targetLookupId, targetLookupName, targetTypeId);
 	}
 
 	@Override
@@ -211,26 +210,22 @@ public class ModuleDetailsVO implements Serializable {
 		return Objects.equals(includeLayout, other.includeLayout) && Objects.equals(isInsideMenu, other.isInsideMenu)
 				&& Objects.equals(moduleId, other.moduleId) && Objects.equals(moduleName, other.moduleName)
 				&& Objects.equals(moduleURL, other.moduleURL) && Objects.equals(parentModuleId, other.parentModuleId)
-				&& Objects.equals(parentModuleName, other.parentModuleName)
-				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(sequence, other.sequence)
-				&& Objects.equals(subModuleCount, other.subModuleCount)
-				&& Objects.equals(targetLookupDesc, other.targetLookupDesc)
-				&& Objects.equals(targetLookupId, other.targetLookupId)
-				&& Objects.equals(targetLookupName, other.targetLookupName)
-				&& Objects.equals(targetTypeId, other.targetTypeId);
+				&& Objects.equals(parentModuleName, other.parentModuleName) && Objects.equals(roleIdList, other.roleIdList)
+				&& Objects.equals(sequence, other.sequence) && Objects.equals(subModuleCount, other.subModuleCount)
+				&& Objects.equals(targetLookupDesc, other.targetLookupDesc) && Objects.equals(targetLookupId, other.targetLookupId)
+				&& Objects.equals(targetLookupName, other.targetLookupName) && Objects.equals(targetTypeId, other.targetTypeId);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ModuleDetailsVO [moduleId=").append(moduleId).append(", moduleName=").append(moduleName)
-				.append(", moduleURL=").append(moduleURL).append(", parentModuleId=").append(parentModuleId)
-				.append(", parentModuleName=").append(parentModuleName).append(", sequence=").append(sequence)
-				.append(", isInsideMenu=").append(isInsideMenu).append(", includeLayout=").append(includeLayout)
-				.append(", targetLookupId=").append(targetLookupId).append(", targetLookupDesc=")
-				.append(targetLookupDesc).append(", targetLookupName=").append(targetLookupName)
-				.append(", targetTypeId=").append(targetTypeId).append(", subModuleCount=").append(subModuleCount)
-				.append(", roleIdList=").append(roleIdList).append("]");
+		builder.append("ModuleDetailsVO [moduleId=").append(moduleId).append(", moduleName=").append(moduleName).append(", moduleURL=")
+				.append(moduleURL).append(", parentModuleId=").append(parentModuleId).append(", parentModuleName=").append(parentModuleName)
+				.append(", sequence=").append(sequence).append(", isInsideMenu=").append(isInsideMenu).append(", includeLayout=")
+				.append(includeLayout).append(", targetLookupId=").append(targetLookupId).append(", targetLookupDesc=")
+				.append(targetLookupDesc).append(", targetLookupName=").append(targetLookupName).append(", targetTypeId=")
+				.append(targetTypeId).append(", subModuleCount=").append(subModuleCount).append(", roleIdList=").append(roleIdList)
+				.append("]");
 		return builder.toString();
 	}
 

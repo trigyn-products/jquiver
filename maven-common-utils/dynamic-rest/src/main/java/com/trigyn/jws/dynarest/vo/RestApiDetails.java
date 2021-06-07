@@ -22,11 +22,13 @@ public class RestApiDetails {
 
 	private String	methodType			= null;
 
+	private String	dataSourceId		= null;
+
 	public RestApiDetails() {
 	}
 
-	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
-			String methodDescription, String reponseType, String serviceLogic, Integer platformId, String methodType) {
+	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName, String methodDescription,
+			String reponseType, String serviceLogic, Integer platformId, String methodType, String dataSourceId) {
 		this.dynamicId			= dynamicId;
 		this.dynamicRestUrl		= dynamicRestUrl;
 		this.rbacId				= rbacId;
@@ -36,6 +38,7 @@ public class RestApiDetails {
 		this.serviceLogic		= serviceLogic;
 		this.platformId			= platformId;
 		this.methodType			= methodType;
+		this.dataSourceId		= dataSourceId;
 	}
 
 	public String getDynamicId() {
@@ -155,38 +158,48 @@ public class RestApiDetails {
 		return this;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (!(o instanceof RestApiDetails)) {
-			return false;
-		}
-		RestApiDetails restApiDetails = (RestApiDetails) o;
-		return Objects.equals(dynamicId, restApiDetails.dynamicId)
-				&& Objects.equals(dynamicRestUrl, restApiDetails.dynamicRestUrl)
-				&& Objects.equals(rbacId, restApiDetails.rbacId)
-				&& Objects.equals(methodName, restApiDetails.methodName)
-				&& Objects.equals(methodDescription, restApiDetails.methodDescription)
-				&& Objects.equals(reponseType, restApiDetails.reponseType)
-				&& Objects.equals(serviceLogic, restApiDetails.serviceLogic)
-				&& Objects.equals(platformId, restApiDetails.platformId)
-				&& Objects.equals(methodType, restApiDetails.methodType);
+	public String getDataSourceId() {
+		return dataSourceId;
+	}
+
+	public void setDataSourceId(String dataSourceId) {
+		this.dataSourceId = dataSourceId;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dynamicId, dynamicRestUrl, rbacId, methodName, methodDescription, reponseType, serviceLogic,
-				platformId, methodType);
+		return Objects.hash(dataSourceId, dynamicId, dynamicRestUrl, methodDescription, methodName, methodType, platformId, rbacId,
+				reponseType, serviceLogic);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		RestApiDetails other = (RestApiDetails) obj;
+		return Objects.equals(dataSourceId, other.dataSourceId) && Objects.equals(dynamicId, other.dynamicId)
+				&& Objects.equals(dynamicRestUrl, other.dynamicRestUrl) && Objects.equals(methodDescription, other.methodDescription)
+				&& Objects.equals(methodName, other.methodName) && Objects.equals(methodType, other.methodType)
+				&& Objects.equals(platformId, other.platformId) && Objects.equals(rbacId, other.rbacId)
+				&& Objects.equals(reponseType, other.reponseType) && Objects.equals(serviceLogic, other.serviceLogic);
 	}
 
 	@Override
 	public String toString() {
-		return "{" + " dynamicId='" + getDynamicId() + "'" + ", dynamicRestUrl='" + getDynamicRestUrl() + "'"
-				+ ", rbacId='" + getRbacId() + "'" + ", methodName='" + getMethodName() + "'" + ", methodDescription='"
-				+ getMethodDescription() + "'" + ", reponseType='" + getReponseType() + "'" + ", serviceLogic='"
-				+ getServiceLogic() + "'" + ", platformId='" + getPlatformId() + "'" + ", methodType='"
-				+ getMethodType() + "'" + "}";
+		StringBuilder builder = new StringBuilder();
+		builder.append("RestApiDetails [dynamicId=").append(dynamicId).append(", dynamicRestUrl=").append(dynamicRestUrl)
+				.append(", rbacId=").append(rbacId).append(", methodName=").append(methodName).append(", methodDescription=")
+				.append(methodDescription).append(", reponseType=").append(reponseType).append(", serviceLogic=").append(serviceLogic)
+				.append(", platformId=").append(platformId).append(", methodType=").append(methodType).append(", dataSourceId=")
+				.append(dataSourceId).append("]");
+		return builder.toString();
 	}
 
 }

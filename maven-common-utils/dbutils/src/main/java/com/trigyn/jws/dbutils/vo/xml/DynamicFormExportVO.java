@@ -1,6 +1,7 @@
 package com.trigyn.jws.dbutils.vo.xml;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class DynamicFormExportVO {
 
@@ -16,20 +17,23 @@ public class DynamicFormExportVO {
 
 	private String					htmlBodyFileName	= null;
 
+	private String					dataSourceId		= null;
+
 	private Map<Integer, String>	saveFileNameMap		= null;
 
 	public DynamicFormExportVO() {
 
 	}
 
-	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
-			String selectQueryFileName, String htmlBodyFileName, Map<Integer, String> saveFileNameMap) {
+	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId, String selectQueryFileName,
+			String htmlBodyFileName, String dataSourceId, Map<Integer, String> saveFileNameMap) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
 		this.formTypeId				= formTypeId;
 		this.selectQueryFileName	= selectQueryFileName;
 		this.htmlBodyFileName		= htmlBodyFileName;
+		this.dataSourceId			= dataSourceId;
 		this.saveFileNameMap		= saveFileNameMap;
 	}
 
@@ -87,6 +91,40 @@ public class DynamicFormExportVO {
 
 	public void setSaveFileNameMap(Map<Integer, String> saveFileNameMap) {
 		this.saveFileNameMap = saveFileNameMap;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(dataSourceId, formDescription, formId, formName, formTypeId, htmlBodyFileName, saveFileNameMap,
+				selectQueryFileName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DynamicFormExportVO other = (DynamicFormExportVO) obj;
+		return Objects.equals(dataSourceId, other.dataSourceId) && Objects.equals(formDescription, other.formDescription)
+				&& Objects.equals(formId, other.formId) && Objects.equals(formName, other.formName)
+				&& Objects.equals(formTypeId, other.formTypeId) && Objects.equals(htmlBodyFileName, other.htmlBodyFileName)
+				&& Objects.equals(saveFileNameMap, other.saveFileNameMap) && Objects.equals(selectQueryFileName, other.selectQueryFileName);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DynamicFormExportVO [formId=").append(formId).append(", formName=").append(formName).append(", formDescription=")
+				.append(formDescription).append(", formTypeId=").append(formTypeId).append(", selectQueryFileName=")
+				.append(selectQueryFileName).append(", htmlBodyFileName=").append(htmlBodyFileName).append(", dataSourceId=")
+				.append(dataSourceId).append(", saveFileNameMap=").append(saveFileNameMap).append("]");
+		return builder.toString();
 	}
 
 }

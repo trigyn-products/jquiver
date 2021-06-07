@@ -35,8 +35,8 @@ public class JwsDynamicRestResponseParam implements Serializable {
 	public JwsDynamicRestResponseParam() {
 	}
 
-	public JwsDynamicRestResponseParam(Integer jwsResponseParamId, String jwsResponseCodeMessage,
-			JwsDynamicRestDetail jwsDynamicRestDetail, JwsResponseCodeDetail jwsResponseCodeDetail) {
+	public JwsDynamicRestResponseParam(Integer jwsResponseParamId, String jwsResponseCodeMessage, JwsDynamicRestDetail jwsDynamicRestDetail,
+			JwsResponseCodeDetail jwsResponseCodeDetail) {
 		this.jwsResponseParamId		= jwsResponseParamId;
 		this.jwsResponseCodeMessage	= jwsResponseCodeMessage;
 		this.jwsDynamicRestDetail	= jwsDynamicRestDetail;
@@ -108,8 +108,7 @@ public class JwsDynamicRestResponseParam implements Serializable {
 	public JwsDynamicRestResponseParam getObject() {
 		JwsDynamicRestResponseParam dynaRest = new JwsDynamicRestResponseParam();
 		dynaRest.setJwsResponseCodeDetail(jwsResponseCodeDetail.getObject());
-		dynaRest.setJwsResponseCodeMessage(
-				jwsResponseCodeMessage != null ? jwsResponseCodeMessage.trim() : jwsResponseCodeMessage);
+		dynaRest.setJwsResponseCodeMessage(jwsResponseCodeMessage != null ? jwsResponseCodeMessage.trim() : jwsResponseCodeMessage);
 		dynaRest.setJwsResponseParamId(jwsResponseParamId);
 
 		return dynaRest;

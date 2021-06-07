@@ -15,6 +15,9 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 </head>
 <div class="pg-import-config">
 <div class="container">
+	<form id="homePageForm" action="${(contextPath)!''''}/cf/home" method="post">
+		<input type="hidden" name="isRedirect" value="true"/>
+	</form>
     <div class="cm-card">
 	<div class="topband cm-card-header">
 		<h2 class="title-cls-name float-left">Import Configuration</h2>
@@ -147,7 +150,6 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 <div class="pg-export-config">
 
 <div class="container">
-
     <div class="cm-card">
 	<div class="topband cm-card-header">
 		<h2 class="title-cls-name float-left">Export Configuration</h2>

@@ -18,8 +18,7 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Component
 public class HelManualEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(HelManualEntityValidator.class);
+	private final static Logger					logger							= LogManager.getLogger(HelManualEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -28,18 +27,15 @@ public class HelManualEntityValidator implements EntityValidator {
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
 
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside HelManualEntityValidator.hasAccessToEntity(manualType - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside HelManualEntityValidator.hasAccessToEntity(manualType - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
 				reqObject.getParameter("mt"), reqObject, roleNames, a_joinPoint);
 
 		String	manualType	= reqObject.getParameter("mt");
 		String	isNew		= reqObject.getParameter("ie");
 
 		boolean	hasAccess	= false;
-		Long	count		= authorizedValidatorDAO.hasAccessToEntity(Constants.Modules.HELPMANUAL.getModuleName(),
-				manualType, roleNames);
+		Long	count		= authorizedValidatorDAO.hasAccessToEntity(Constants.Modules.HELPMANUAL.getModuleName(), manualType, roleNames);
 		if (count > 0 || (StringUtils.isBlank(isNew) == false && isNew.equals("0"))) {
 			hasAccess = true;
 		}
@@ -47,16 +43,13 @@ public class HelManualEntityValidator implements EntityValidator {
 	}
 
 	@Override
-	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside HelManualEntityValidator.getEntityName(manualType - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
+	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside HelManualEntityValidator.getEntityName(manualType - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
 				reqObject.getParameter("mt"), reqObject, roleNameList, a_joinPoint);
 
 		String	manualType	= reqObject.getParameter("mt");
 		String	manualName	= authorizedValidatorDAO.getManualNameById(manualType);
-		return entityRoleAssociationRepository
-				.getEntityNameByEntityAndRoleId(Constants.Modules.HELPMANUAL.getModuleName(), manualName);
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.HELPMANUAL.getModuleName(), manualName);
 	}
 
 }

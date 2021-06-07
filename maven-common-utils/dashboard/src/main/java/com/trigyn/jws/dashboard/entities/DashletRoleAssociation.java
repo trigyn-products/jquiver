@@ -79,8 +79,7 @@ public class DashletRoleAssociation implements Serializable {
 			return false;
 		}
 		DashletRoleAssociation other = (DashletRoleAssociation) obj;
-		return Objects.equals(dashlet, other.dashlet) && Objects.equals(id, other.id)
-				&& Objects.equals(userRole, other.userRole);
+		return Objects.equals(dashlet, other.dashlet) && Objects.equals(id, other.id) && Objects.equals(userRole, other.userRole);
 	}
 
 	@Override

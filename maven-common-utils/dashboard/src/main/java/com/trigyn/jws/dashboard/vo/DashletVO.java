@@ -29,6 +29,8 @@ public class DashletVO implements Serializable {
 
 	private String					contextId				= null;
 
+	private String					dataSourceId			= null;
+
 	private Integer					showHeader				= null;
 
 	private Integer					isActive				= null;
@@ -42,27 +44,7 @@ public class DashletVO implements Serializable {
 	}
 
 	public DashletVO(String dashletId, String dashletTitle, String dashletName, String dashletBody, String dashletQuery,
-			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String contextId,
-			Integer showHeader, Integer isActive, List<String> roleIdList,
-			List<DashletPropertyVO> dashletPropertVOList) {
-		this.dashletId				= dashletId;
-		this.dashletTitle			= dashletTitle;
-		this.dashletName			= dashletName;
-		this.dashletBody			= dashletBody;
-		this.dashletQuery			= dashletQuery;
-		this.xCoordinate			= xCoordinate;
-		this.yCoordinate			= yCoordinate;
-		this.width					= width;
-		this.height					= height;
-		this.contextId				= contextId;
-		this.showHeader				= showHeader;
-		this.isActive				= isActive;
-		this.roleIdList				= roleIdList;
-		this.dashletPropertVOList	= dashletPropertVOList;
-	}
-
-	public DashletVO(String dashletId, String dashletTitle, String dashletName, String dashletBody, String dashletQuery,
-			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String contextId,
+			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, String contextId, String dataSourceId,
 			Integer showHeader, Integer isActive) {
 		this.dashletId		= dashletId;
 		this.dashletTitle	= dashletTitle;
@@ -74,6 +56,7 @@ public class DashletVO implements Serializable {
 		this.width			= width;
 		this.height			= height;
 		this.contextId		= contextId;
+		this.dataSourceId	= dataSourceId;
 		this.showHeader		= showHeader;
 		this.isActive		= isActive;
 	}
@@ -158,6 +141,14 @@ public class DashletVO implements Serializable {
 		this.contextId = contextId;
 	}
 
+	public String getDataSourceId() {
+		return dataSourceId;
+	}
+
+	public void setDataSourceId(String dataSourceId) {
+		this.dataSourceId = dataSourceId;
+	}
+
 	public Integer getShowHeader() {
 		return showHeader;
 	}
@@ -192,8 +183,8 @@ public class DashletVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, dashletBody, dashletId, dashletName, dashletPropertVOList, dashletQuery,
-				dashletTitle, height, roleIdList, showHeader, width, xCoordinate, yCoordinate);
+		return Objects.hash(contextId, dashletBody, dashletId, dashletName, dashletPropertVOList, dashletQuery, dashletTitle, dataSourceId,
+				height, isActive, roleIdList, showHeader, width, xCoordinate, yCoordinate);
 	}
 
 	@Override
@@ -210,20 +201,24 @@ public class DashletVO implements Serializable {
 		DashletVO other = (DashletVO) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(dashletBody, other.dashletBody)
 				&& Objects.equals(dashletId, other.dashletId) && Objects.equals(dashletName, other.dashletName)
-				&& Objects.equals(dashletPropertVOList, other.dashletPropertVOList)
-				&& Objects.equals(dashletQuery, other.dashletQuery) && Objects.equals(dashletTitle, other.dashletTitle)
-				&& Objects.equals(height, other.height) && Objects.equals(roleIdList, other.roleIdList)
-				&& Objects.equals(showHeader, other.showHeader) && Objects.equals(width, other.width)
-				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate);
+				&& Objects.equals(dashletPropertVOList, other.dashletPropertVOList) && Objects.equals(dashletQuery, other.dashletQuery)
+				&& Objects.equals(dashletTitle, other.dashletTitle) && Objects.equals(dataSourceId, other.dataSourceId)
+				&& Objects.equals(height, other.height) && Objects.equals(isActive, other.isActive)
+				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(showHeader, other.showHeader)
+				&& Objects.equals(width, other.width) && Objects.equals(xCoordinate, other.xCoordinate)
+				&& Objects.equals(yCoordinate, other.yCoordinate);
 	}
 
 	@Override
 	public String toString() {
-		return "DashletVO [dashletId=" + dashletId + ", dashletTitle=" + dashletTitle + ", dashletName=" + dashletName
-				+ ", dashletBody=" + dashletBody + ", dashletQuery=" + dashletQuery + ", xCoordinate=" + xCoordinate
-				+ ", yCoordinate=" + yCoordinate + ", width=" + width + ", height=" + height + ", contextId="
-				+ contextId + ", showHeader=" + showHeader + ", roleIdList=" + roleIdList + ", dashletPropertVOList="
-				+ dashletPropertVOList + "]";
+		StringBuilder builder = new StringBuilder();
+		builder.append("DashletVO [dashletId=").append(dashletId).append(", dashletTitle=").append(dashletTitle).append(", dashletName=")
+				.append(dashletName).append(", dashletBody=").append(dashletBody).append(", dashletQuery=").append(dashletQuery)
+				.append(", xCoordinate=").append(xCoordinate).append(", yCoordinate=").append(yCoordinate).append(", width=").append(width)
+				.append(", height=").append(height).append(", contextId=").append(contextId).append(", dataSourceId=").append(dataSourceId)
+				.append(", showHeader=").append(showHeader).append(", isActive=").append(isActive).append(", roleIdList=")
+				.append(roleIdList).append(", dashletPropertVOList=").append(dashletPropertVOList).append("]");
+		return builder.toString();
 	}
 
 }

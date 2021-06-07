@@ -33,16 +33,15 @@ public class HttpTraceEntity implements Serializable {
 
 	}
 
-	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails,
-			String requestTimestamp) {
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp) {
 		this.httpRequestDetails		= httpRequestDetails;
 		this.httpResponseDetails	= httpResponseDetails;
 		this.auxillaryDetails		= auxillaryDetails;
 		this.requestTimestamp		= requestTimestamp;
 	}
 
-	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails,
-			String requestTimestamp, Long minRequestDuration, Long maxRequestDuration, Long averageRequestDuration) {
+	public HttpTraceEntity(String httpRequestDetails, String httpResponseDetails, String auxillaryDetails, String requestTimestamp,
+			Long minRequestDuration, Long maxRequestDuration, Long averageRequestDuration) {
 		this.httpRequestDetails		= httpRequestDetails;
 		this.httpResponseDetails	= httpResponseDetails;
 		this.auxillaryDetails		= auxillaryDetails;

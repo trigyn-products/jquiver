@@ -32,8 +32,7 @@ public class DashletPropertyVO implements Serializable {
 	}
 
 	// Used to display dashlet property from config
-	public DashletPropertyVO(String dashletPropertyId, String displayName, String type, String value,
-			String defaultValue) {
+	public DashletPropertyVO(String dashletPropertyId, String displayName, String type, String value, String defaultValue) {
 		this.dashletPropertyId	= dashletPropertyId;
 		this.displayName		= displayName;
 		this.type				= type;
@@ -41,9 +40,8 @@ public class DashletPropertyVO implements Serializable {
 		this.defaultValue		= defaultValue;
 	}
 
-	public DashletPropertyVO(String dashletPropertyId, String placeholderName, String displayName, String type,
-			String value, String defaultValue, String configurationScript, Integer toDisplay, Integer sequence,
-			Integer isDeleted) {
+	public DashletPropertyVO(String dashletPropertyId, String placeholderName, String displayName, String type, String value,
+			String defaultValue, String configurationScript, Integer toDisplay, Integer sequence, Integer isDeleted) {
 		this.dashletPropertyId		= dashletPropertyId;
 		this.placeholderName		= placeholderName;
 		this.displayName			= displayName;
@@ -144,8 +142,8 @@ public class DashletPropertyVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(configurationScript, dashletPropertyId, defaultValue, displayName, isDeleted,
-				placeholderName, sequence, toDisplay, type, value);
+		return Objects.hash(configurationScript, dashletPropertyId, defaultValue, displayName, isDeleted, placeholderName, sequence,
+				toDisplay, type, value);
 	}
 
 	@Override
@@ -160,8 +158,7 @@ public class DashletPropertyVO implements Serializable {
 			return false;
 		}
 		DashletPropertyVO other = (DashletPropertyVO) obj;
-		return Objects.equals(configurationScript, other.configurationScript)
-				&& Objects.equals(dashletPropertyId, other.dashletPropertyId)
+		return Objects.equals(configurationScript, other.configurationScript) && Objects.equals(dashletPropertyId, other.dashletPropertyId)
 				&& Objects.equals(defaultValue, other.defaultValue) && Objects.equals(displayName, other.displayName)
 				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(placeholderName, other.placeholderName)
 				&& Objects.equals(sequence, other.sequence) && Objects.equals(toDisplay, other.toDisplay)
@@ -170,10 +167,9 @@ public class DashletPropertyVO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "DashletPropertyVO [dashletPropertyId=" + dashletPropertyId + ", placeholderName=" + placeholderName
-				+ ", displayName=" + displayName + ", type=" + type + ", value=" + value + ", defaultValue="
-				+ defaultValue + ", configurationScript=" + configurationScript + ", toDisplay=" + toDisplay
-				+ ", sequence=" + sequence + ", isDeleted=" + isDeleted + "]";
+		return "DashletPropertyVO [dashletPropertyId=" + dashletPropertyId + ", placeholderName=" + placeholderName + ", displayName="
+				+ displayName + ", type=" + type + ", value=" + value + ", defaultValue=" + defaultValue + ", configurationScript="
+				+ configurationScript + ", toDisplay=" + toDisplay + ", sequence=" + sequence + ", isDeleted=" + isDeleted + "]";
 	}
 
 }

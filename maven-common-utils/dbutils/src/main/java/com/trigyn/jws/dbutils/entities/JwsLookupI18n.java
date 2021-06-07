@@ -3,12 +3,15 @@ package com.trigyn.jws.dbutils.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
-/**
- * The persistent class for the jq_lookup_i18n database table.
- * 
- */
 @Entity
 @Table(name = "jq_lookup_i18n")
 @NamedQuery(name = "JwsLookupI18n.findAll", query = "SELECT j FROM JwsLookupI18n j")
@@ -88,15 +91,14 @@ public class JwsLookupI18n implements Serializable {
 			return false;
 		}
 		JwsLookupI18n other = (JwsLookupI18n) obj;
-		return Objects.equals(id, other.id) && Objects.equals(jwsLookup, other.jwsLookup)
-				&& Objects.equals(languageId, other.languageId)
+		return Objects.equals(id, other.id) && Objects.equals(jwsLookup, other.jwsLookup) && Objects.equals(languageId, other.languageId)
 				&& Objects.equals(recordDescription, other.recordDescription);
 	}
 
 	@Override
 	public String toString() {
-		return "JwsLookupI18n [id=" + id + ", languageId=" + languageId + ", recordDescription=" + recordDescription
-				+ ", jwsLookup=" + jwsLookup + "]";
+		return "JwsLookupI18n [id=" + id + ", languageId=" + languageId + ", recordDescription=" + recordDescription + ", jwsLookup="
+				+ jwsLookup + "]";
 	}
 
 }

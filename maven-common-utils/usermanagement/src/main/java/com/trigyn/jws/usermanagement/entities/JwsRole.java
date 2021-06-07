@@ -90,8 +90,7 @@ public class JwsRole {
 		return jwsRoleMasterModulesAssociation;
 	}
 
-	public void setJwsRoleMasterModulesAssociation(
-			List<JwsRoleMasterModulesAssociation> jwsRoleMasterModulesAssociation) {
+	public void setJwsRoleMasterModulesAssociation(List<JwsRoleMasterModulesAssociation> jwsRoleMasterModulesAssociation) {
 		this.jwsRoleMasterModulesAssociation = jwsRoleMasterModulesAssociation;
 	}
 

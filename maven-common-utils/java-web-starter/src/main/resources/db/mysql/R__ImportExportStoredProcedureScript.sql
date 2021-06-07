@@ -57,9 +57,9 @@ BEGIN
 END;
 
 
-REPLACE INTO jq_grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id
-) VALUES ('manageEntityPermissionListing','Import Export Permission Listing','Import Export Permission Listing','manageEntityPermissionListing' 
-,'entityName,moduleName,moduleId,roleName', 2 , 2);
+REPLACE INTO jq_grid_details(grid_id,grid_name,grid_description,grid_table_name,grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts)
+ VALUES ('manageEntityPermissionListing','Import Export Permission Listing','Import Export Permission Listing','manageEntityPermissionListing' 
+,'entityName,moduleName,moduleId,roleName', 2 , 2, 'mini.pillai@trigyn.com', NOW(), NOW());
 
   
 REPLACE INTO jq_entity_role_association(entity_role_id,entity_id,entity_name,module_id,role_id,last_updated_date,last_updated_by,is_active,module_type_id) 

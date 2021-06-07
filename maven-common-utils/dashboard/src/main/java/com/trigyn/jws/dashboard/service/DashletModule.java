@@ -68,8 +68,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		// "system", "template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		MetadataXMLVO						metadataXMLVO		= null;
-		String								version				= propertyMasterDAO.findPropertyMasterValue("system",
-				"system", "version");
+		String								version				= propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
 		UserDetailsVO						detailsVO			= detailsService.getUserDetails();
 		String								userName			= detailsVO.getUserName();
 		Map<String, Map<String, Object>>	moduleDetailsMap	= new HashMap<>();
@@ -101,8 +100,8 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			}
 
 			// query
-			String dashletQueryCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder,
-					dashlet.getDashletQuery(), dashlet.getDashletQueryChecksum(), ftlCustomExtension);
+			String dashletQueryCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dashlet.getDashletQuery(),
+					dashlet.getDashletQueryChecksum(), ftlCustomExtension);
 			if (dashletQueryCheckSum != null) {
 				isCheckSumChanged = true;
 				dashlet.setDashletQueryChecksum(dashletQueryCheckSum);
@@ -112,11 +111,10 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			if (isCheckSumChanged) {
 				iDashletRepository.save(dashlet);
 
-				DashletExportVO		dashletExportVO	= new DashletExportVO(dashlet.getDashletId(),
-						dashlet.getDashletName(), dashlet.getDashletTitle(), dashlet.getXCoordinate(),
-						dashlet.getYCoordinate(), dashlet.getWidth(), dashlet.getHeight(), dashlet.getContextId(),
-						dashlet.getShowHeader(), dashlet.getIsActive(), dashlet.getDashletTypeId(),
-						selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension);
+				DashletExportVO		dashletExportVO	= new DashletExportVO(dashlet.getDashletId(), dashlet.getDashletName(),
+						dashlet.getDashletTitle(), dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(),
+						dashlet.getHeight(), dashlet.getContextId(), dashlet.getShowHeader(), dashlet.getIsActive(),
+						dashlet.getDashletTypeId(), selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension);
 
 				Map<String, Object>	map				= new HashMap<>();
 				map.put("moduleName", dashletName);
@@ -142,8 +140,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
 		String	user				= "admin";
 		String	templateDirectory	= Constants.DASHLET_DIRECTORY_NAME;
-		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
-				Constants.TEMPORARY_STORAGE_PATH);
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", Constants.TEMPORARY_STORAGE_PATH);
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		File directory = new File(folderLocation);
 		if (!directory.exists()) {
@@ -213,14 +210,11 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 					File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 					Integer	filesPresent	= directoryFiles.length;
 					if (filesPresent == 2) {
-						File	selectFile		= new File(
-								currentDirectory.getAbsolutePath() + File.separator + selectQuery);
-						File	hmtlBodyFile	= new File(
-								currentDirectory.getAbsolutePath() + File.separator + htmlBody);
+						File	selectFile		= new File(currentDirectory.getAbsolutePath() + File.separator + selectQuery);
+						File	hmtlBodyFile	= new File(currentDirectory.getAbsolutePath() + File.separator + htmlBody);
 						if (!selectFile.exists() || !hmtlBodyFile.exists()) {
 							throw new Exception(
-									"selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet"
-											+ currentDirectoryName);
+									"selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet" + currentDirectoryName);
 						} else {
 							// set select
 							selectCheckSum = fileUtilities.generateFileChecksum(selectFile);
@@ -234,8 +228,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 							htmlCheckSum = fileUtilities.generateFileChecksum(hmtlBodyFile);
 							if (!htmlCheckSum.equalsIgnoreCase(dashlet.getDashletBodyChecksum())) {
 
-								dashlet.setDashletBody(
-										fileUtilities.readContentsOfFile(hmtlBodyFile.getAbsolutePath()));
+								dashlet.setDashletBody(fileUtilities.readContentsOfFile(hmtlBodyFile.getAbsolutePath()));
 								dashlet.setDashletBodyChecksum(htmlCheckSum);
 							}
 							iDashletRepository.save(dashlet);
@@ -285,8 +278,8 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			}
 
 			// query
-			String dashletQueryCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder,
-					dashlet.getDashletQuery(), dashlet.getDashletQueryChecksum(), ftlCustomExtension);
+			String dashletQueryCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dashlet.getDashletQuery(),
+					dashlet.getDashletQueryChecksum(), ftlCustomExtension);
 			if (dashletQueryCheckSum != null) {
 				isCheckSumChanged = true;
 				dashlet.setDashletQueryChecksum(dashletQueryCheckSum);
@@ -298,9 +291,9 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 			}
 
 			DashletExportVO		dashletExportVO	= new DashletExportVO(dashlet.getDashletId(), dashlet.getDashletName(),
-					dashlet.getDashletTitle(), dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(),
-					dashlet.getHeight(), dashlet.getContextId(), dashlet.getShowHeader(), dashlet.getIsActive(),
-					dashlet.getDashletTypeId(), selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension);
+					dashlet.getDashletTitle(), dashlet.getXCoordinate(), dashlet.getYCoordinate(), dashlet.getWidth(), dashlet.getHeight(),
+					dashlet.getContextId(), dashlet.getShowHeader(), dashlet.getIsActive(), dashlet.getDashletTypeId(),
+					selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension);
 
 			Map<String, Object>	map				= new HashMap<>();
 			map.put("moduleName", dashletName);
@@ -311,8 +304,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	}
 
 	@Override
-	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
-			throws Exception {
+	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
 		String			user				= "admin";
 		DashletExportVO	dashletExportVO		= (DashletExportVO) importObject;
 
@@ -374,12 +366,11 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 				File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 				Integer	filesPresent	= directoryFiles.length;
 				if (filesPresent == 2) {
-					File	selectFile		= new File(
-							currentDirectory.getAbsolutePath() + File.separator + selectQuery);
+					File	selectFile		= new File(currentDirectory.getAbsolutePath() + File.separator + selectQuery);
 					File	hmtlBodyFile	= new File(currentDirectory.getAbsolutePath() + File.separator + htmlBody);
 					if (!selectFile.exists() || !hmtlBodyFile.exists()) {
-						throw new Exception("selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet"
-								+ currentDirectoryName);
+						throw new Exception(
+								"selectQuery  file not and hmtlQueryfile are mandatory  for saving dashlet" + currentDirectoryName);
 					} else {
 						// set select
 						selectCheckSum = fileUtilities.generateFileChecksum(selectFile);
@@ -414,8 +405,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 
 	public void saveDashletVersioning(Dashlet dashlet) throws Exception {
 		DashletVO dashletVO = convertDashletEntityToVO(dashlet);
-		moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "jq_dashlet",
-				Constants.UPLOAD_SOURCE_VERSION_TYPE);
+		moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), "jq_dashlet", Constants.UPLOAD_SOURCE_VERSION_TYPE);
 	}
 
 	public DashletVO convertDashletEntityToVO(Dashlet dashlet) {

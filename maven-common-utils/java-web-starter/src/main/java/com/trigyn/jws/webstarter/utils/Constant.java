@@ -52,7 +52,7 @@ public final class Constant {
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
-		HELPMANUAL("HelpManual");
+		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource");
 
 		final String moduleType;
 
@@ -69,7 +69,8 @@ public final class Constant {
 		TEMPLATES("jq_template_master"), AUTOCOMPLETE("jq_autocomplete_details"), RESOURCEBUNDLE("jq_resource_bundle"),
 		DASHBOARD("jq_dashboard"), DASHLET("jq_dashlet"), DASHLETS("jq_dashlet"), DYNAREST("jq_dynamic_rest_details"),
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
-		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type");
+		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
+		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource");
 
 		final String tableName;
 

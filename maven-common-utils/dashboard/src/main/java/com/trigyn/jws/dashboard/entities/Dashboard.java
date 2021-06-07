@@ -50,8 +50,8 @@ public class Dashboard implements Serializable {
 
 	@JsonIgnore
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "last_updated_date")
-	private Date								lastUpdatedDate				= null;
+	@Column(name = "last_updated_ts")
+	private Date								lastUpdatedTs				= null;
 
 	@Column(name = "is_deleted")
 	private Integer								isDeleted					= 0;
@@ -75,9 +75,8 @@ public class Dashboard implements Serializable {
 
 	}
 
-	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType,
-			String createdBy, Date createdDate, Date lastUpdatedDate, Integer isDeleted, Integer isDraggable,
-			Integer isExportable, List<DashboardRoleAssociation> dashboardRoles,
+	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType, String createdBy, Date createdDate,
+			Date lastUpdatedTs, Integer isDeleted, Integer isDraggable, Integer isExportable, List<DashboardRoleAssociation> dashboardRoles,
 			List<DashboardDashletAssociation> dashboardDashlets) {
 		this.dashboardId		= dashboardId;
 		this.dashboardName		= dashboardName;
@@ -85,7 +84,7 @@ public class Dashboard implements Serializable {
 		this.dashboardType		= dashboardType;
 		this.createdBy			= createdBy;
 		this.createdDate		= createdDate;
-		this.lastUpdatedDate	= lastUpdatedDate;
+		this.lastUpdatedTs		= lastUpdatedTs;
 		this.isDeleted			= isDeleted;
 		this.isDraggable		= isDraggable;
 		this.isExportable		= isExportable;
@@ -141,12 +140,12 @@ public class Dashboard implements Serializable {
 		this.createdDate = createdDate;
 	}
 
-	public Date getLastUpdatedDate() {
-		return this.lastUpdatedDate;
+	public Date getLastUpdatedTs() {
+		return this.lastUpdatedTs;
 	}
 
-	public void setLastUpdatedDate(Date lastUpdatedDate) {
-		this.lastUpdatedDate = lastUpdatedDate;
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
 	}
 
 	public Integer getIsDeleted() {
@@ -209,9 +208,8 @@ public class Dashboard implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, createdBy, createdDate, dashboardDashlets, dashboardId, dashboardName,
-				dashboardRoleAssociations, dashboardRoles, dashboardType, isDeleted, isDraggable, isExportable,
-				lastUpdatedDate);
+		return Objects.hash(contextId, createdBy, createdDate, dashboardDashlets, dashboardId, dashboardName, dashboardRoleAssociations,
+				dashboardRoles, dashboardType, isDeleted, isDraggable, isExportable, lastUpdatedTs);
 	}
 
 	@Override
@@ -227,25 +225,22 @@ public class Dashboard implements Serializable {
 		}
 		Dashboard other = (Dashboard) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(createdBy, other.createdBy)
-				&& Objects.equals(createdDate, other.createdDate)
-				&& Objects.equals(dashboardDashlets, other.dashboardDashlets)
+				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(dashboardDashlets, other.dashboardDashlets)
 				&& Objects.equals(dashboardId, other.dashboardId) && Objects.equals(dashboardName, other.dashboardName)
 				&& Objects.equals(dashboardRoleAssociations, other.dashboardRoleAssociations)
-				&& Objects.equals(dashboardRoles, other.dashboardRoles)
-				&& Objects.equals(dashboardType, other.dashboardType) && Objects.equals(isDeleted, other.isDeleted)
-				&& Objects.equals(isDraggable, other.isDraggable) && Objects.equals(isExportable, other.isExportable)
-				&& Objects.equals(lastUpdatedDate, other.lastUpdatedDate);
+				&& Objects.equals(dashboardRoles, other.dashboardRoles) && Objects.equals(dashboardType, other.dashboardType)
+				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(isDraggable, other.isDraggable)
+				&& Objects.equals(isExportable, other.isExportable) && Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
 	}
 
 	@Override
 	public String toString() {
-		return "{" + " dashboardId='" + getDashboardId() + "'" + ", dashboardName='" + getDashboardName() + "'"
-				+ ", contextId='" + getContextId() + "'" + ", dashboardType='" + getDashboardType() + "'"
-				+ ", createdBy='" + getCreatedBy() + "'" + ", createdDate='" + getCreatedDate() + "'"
-				+ ", lastUpdatedDate='" + getLastUpdatedDate() + "'" + ", isDeleted='" + getIsDeleted() + "'"
-				+ ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
-				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets()
-				+ "'" + ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
+		return "{" + " dashboardId='" + getDashboardId() + "'" + ", dashboardName='" + getDashboardName() + "'" + ", contextId='"
+				+ getContextId() + "'" + ", dashboardType='" + getDashboardType() + "'" + ", createdBy='" + getCreatedBy() + "'"
+				+ ", createdDate='" + getCreatedDate() + "'" + ", lastUpdatedTs='" + getLastUpdatedTs() + "'" + ", isDeleted='"
+				+ getIsDeleted() + "'" + ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
+				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets() + "'"
+				+ ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
 	}
 
 	public Dashboard getObject() {
@@ -259,7 +254,7 @@ public class Dashboard implements Serializable {
 		dashboard.setIsDeleted(isDeleted);
 		dashboard.setIsDraggable(isDraggable);
 		dashboard.setIsExportable(isExportable);
-		dashboard.setLastUpdatedDate(lastUpdatedDate);
+		dashboard.setLastUpdatedTs(lastUpdatedTs);
 
 		List<DashboardDashletAssociation> dashboardDashletsOtr = new ArrayList<>();
 		if (dashboardDashlets != null && !dashboardDashlets.isEmpty()) {

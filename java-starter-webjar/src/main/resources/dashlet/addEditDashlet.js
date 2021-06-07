@@ -112,6 +112,7 @@ AddEditDashlet.prototype.fn = {
 			dashlet.width = $("#width").val();
 			dashlet.height = $("#height").val();
 			dashlet.contextId = $("#contextId").find(":selected").val();
+			dashlet.dataSourceId = $("#dataSource").find(":selected").val()
 			dashlet.dashletPropertVOList = dashletPropertVOList;
 
 			if (jQuery("#isActiveCheckbox").prop("checked")) {
@@ -135,9 +136,6 @@ AddEditDashlet.prototype.fn = {
 				async : false,
 				url :  contextPath+"/cf/sdl",
 	        	contentType : "application/json",
-	        	headers: {
-	          		"user-id": "admin"
-	        	},
 				data : JSON.stringify(dashlet),
 				success : function(data) {
 					$("#dashletId").val(data);

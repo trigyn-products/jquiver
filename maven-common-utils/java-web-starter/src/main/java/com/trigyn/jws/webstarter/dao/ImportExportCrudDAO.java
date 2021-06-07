@@ -23,8 +23,8 @@ public class ImportExportCrudDAO extends DBConnection {
 		super(dataSource);
 	}
 
-	public List<Object> getAllExportableData(String querySQL, List<String> includeSystemConfigList,
-			Integer systemConfigType, List<String> excludeCustomConfigList, Integer customConfigType) throws Exception {
+	public List<Object> getAllExportableData(String querySQL, List<String> includeSystemConfigList, Integer systemConfigType,
+		List<String> excludeCustomConfigList, Integer customConfigType) throws Exception {
 
 		Query query = getCurrentSession().createQuery(querySQL);
 		if (excludeCustomConfigList != null)
@@ -39,25 +39,24 @@ public class ImportExportCrudDAO extends DBConnection {
 		return query.list();
 	}
 
-	public List<Object> getExportableDataWithIntegerList(String querySQL, List<Integer> includeSystemConfigList,
-			Integer systemConfigType, List<Integer> excludeCustomConfigList, Integer customConfigType)
+	public List<Object> getExportableDataWithIntegerList(String querySQL, List<Integer> includeSystemConfigList, Integer systemConfigType,
+		List<Integer> excludeCustomConfigList, Integer customConfigType) throws Exception {
+
+		Query query = getCurrentSession().createQuery(querySQL);
+		if (excludeCustomConfigList != null)
+			query.setParameterList("excludeCustomConfigList", excludeCustomConfigList);
+		if (customConfigType != null)
+			query.setParameter("customConfigType", customConfigType);
+		if (includeSystemConfigList != null)
+			query.setParameterList("includeSystemConfigList", includeSystemConfigList);
+		if (systemConfigType != null)
+			query.setParameter("systemConfigType", systemConfigType);
+
+		return query.list();
+	}
+
+	public List<Object> getRBExportableData(String querySQL, List<String> includeSystemConfigList, List<String> excludeCustomConfigList)
 			throws Exception {
-
-		Query query = getCurrentSession().createQuery(querySQL);
-		if (excludeCustomConfigList != null)
-			query.setParameterList("excludeCustomConfigList", excludeCustomConfigList);
-		if (customConfigType != null)
-			query.setParameter("customConfigType", customConfigType);
-		if (includeSystemConfigList != null)
-			query.setParameterList("includeSystemConfigList", includeSystemConfigList);
-		if (systemConfigType != null)
-			query.setParameter("systemConfigType", systemConfigType);
-
-		return query.list();
-	}
-
-	public List<Object> getRBExportableData(String querySQL, List<String> includeSystemConfigList,
-			List<String> excludeCustomConfigList) throws Exception {
 
 		Query query = getCurrentSession().createQuery(querySQL);
 		if (excludeCustomConfigList != null)
@@ -94,36 +93,36 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION "
 				+ " SELECT df.form_id as id, df.form_description as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'DynamicForm' as enityType"
 				+ " FROM jq_dynamic_form df LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = df.form_id WHERE df.form_type_id = 1 GROUP BY df.form_id"
-				+ " UNION "
-				+ " SELECT fu.file_bin_id as id, fu.file_type_supported as name, 'NA' as versionID, 'FileManager' as enityType"
+				+ " UNION " + " SELECT fu.file_bin_id as id, fu.file_type_supported as name, 'NA' as versionID, 'FileManager' as enityType"
 				+ " FROM jq_file_upload_config fu LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = fu.file_bin_id GROUP BY fu.file_bin_id"
 				+ " UNION "
 				+ " SELECT dr.jws_dynamic_rest_id as id, dr.jws_dynamic_rest_url as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'DynaRest' as enityType"
 				+ " FROM jq_dynamic_rest_details dr LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = dr.jws_dynamic_rest_id "
-				+ " WHERE dr.jws_dynamic_rest_type_id = 1 GROUP BY dr.jws_dynamic_rest_id" 
-				+ " UNION "
+				+ " WHERE dr.jws_dynamic_rest_type_id = 1 GROUP BY dr.jws_dynamic_rest_id" + " UNION "
 				+ " SELECT mt.manual_id as id, mt.name as name, 'NA' as versionID, 'HelpManual' as enityType"
-				+ " FROM jq_manual_type mt WHERE mt.is_system_manual = 1 GROUP BY mt.manual_id" + "";
+				+ " FROM jq_manual_type mt WHERE mt.is_system_manual = 1 GROUP BY mt.manual_id"
+				+ " UNION "
+				+ " SELECT acd.client_id as id, acd.client_name as name, 'NA' as versionID, 'ApiClientDetails' as enityType"
+				+ " FROM jq_api_client_details acd "
+				+ " UNION "
+				+ " SELECT jad.additional_datasource_id as id, jad.datasource_name as name, 'NA' as versionID, 'AdditionalDatasource' as enityType"
+				+ " FROM jq_additional_datasource jad "
+				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
 	}
 
 	public List<Map<String, Object>> getCustomEntityCount() {
-		String querySQL = "SELECT count(*) as count, 'Grid' as enityType"
-				+ " FROM jq_grid_details gd WHERE gd.grid_type_id = 1" + " UNION "
-				+ " SELECT count(*) as count, 'Templates' as enityType"
-				+ " FROM jq_template_master tm WHERE tm.template_type_id = 1" + " UNION "
-				+ " SELECT count(*) as count, 'ResourceBundle' as enityType"
+		String querySQL = "SELECT count(*) as count, 'Grid' as enityType" + " FROM jq_grid_details gd WHERE gd.grid_type_id = 1" + " UNION "
+				+ " SELECT count(*) as count, 'Templates' as enityType" + " FROM jq_template_master tm WHERE tm.template_type_id = 1"
+				+ " UNION " + " SELECT count(*) as count, 'ResourceBundle' as enityType"
 				+ " FROM jq_resource_bundle rb WHERE rb.resource_key NOT LIKE 'jws.%'" + " UNION "
-				+ " SELECT count(*) as count, 'Autocomplete' as enityType"
-				+ " FROM jq_autocomplete_details au WHERE au.ac_type_id = 1" + " UNION "
-				+ " SELECT count(*) as count, 'Notification' as enityType" + " FROM jq_generic_user_notification gun"
-				+ " UNION " + " SELECT count(*) as count, 'Dashboard' as enityType"
-				+ " FROM jq_dashboard db WHERE db.dashboard_type = 1" + " UNION "
-				+ " SELECT count(*) as count, 'Dashlets' as enityType" + " FROM jq_dashlet dl WHERE dl.dashlet_type_id = 1"
-				+ " UNION " + " SELECT count(*) as count, 'DynamicForm' as enityType"
-				+ " FROM jq_dynamic_form df WHERE df.form_type_id = 1" + " UNION "
-				+ " SELECT count(*) as count, 'FileManager' as enityType" + " FROM jq_file_upload_config fu" + " UNION "
+				+ " SELECT count(*) as count, 'Autocomplete' as enityType" + " FROM jq_autocomplete_details au WHERE au.ac_type_id = 1"
+				+ " UNION " + " SELECT count(*) as count, 'Notification' as enityType" + " FROM jq_generic_user_notification gun"
+				+ " UNION " + " SELECT count(*) as count, 'Dashboard' as enityType" + " FROM jq_dashboard db WHERE db.dashboard_type = 1"
+				+ " UNION " + " SELECT count(*) as count, 'Dashlets' as enityType" + " FROM jq_dashlet dl WHERE dl.dashlet_type_id = 1"
+				+ " UNION " + " SELECT count(*) as count, 'DynamicForm' as enityType" + " FROM jq_dynamic_form df WHERE df.form_type_id = 1"
+				+ " UNION " + " SELECT count(*) as count, 'FileManager' as enityType" + " FROM jq_file_upload_config fu" + " UNION "
 				+ " SELECT count(*) as count, 'DynaRest' as enityType"
 				+ " FROM jq_dynamic_rest_details dr WHERE dr.jws_dynamic_rest_type_id = 1 " + " UNION "
 				+ " SELECT 0 as count, 'Permission' as enityType" + " FROM jq_role jr" + " UNION "
@@ -132,7 +131,10 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT 0 as count, 'ManageUsers' as enityType" + " FROM jq_user" + " UNION "
 				+ " SELECT 0 as count, 'ManageRoles' as enityType" + " FROM jq_role"
 				+ " UNION " + " SELECT count(*) as count, 'HelpManual' as enityType"
-				+ " FROM jq_manual_type WHERE is_system_manual = 1 " + "";
+				+ " FROM jq_manual_type WHERE is_system_manual = 1 " 
+				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
+				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
+				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
 	}
@@ -141,16 +143,14 @@ public class ImportExportCrudDAO extends DBConnection {
 		String querySQL = "SELECT count(*) as totalCount, 'Grid' as enityType" + " FROM jq_grid_details" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Templates' as enityType" + " FROM jq_template_master" + " UNION "
 				+ " SELECT count(*) as totalCount, 'ResourceBundle' as enityType" + " FROM jq_resource_bundle" + " UNION "
-				+ " SELECT count(*) as totalCount, 'Autocomplete' as enityType" + " FROM jq_autocomplete_details"
-				+ " UNION " + " SELECT count(*) as totalCount, 'Notification' as enityType"
-				+ " FROM jq_generic_user_notification gun" + " UNION "
+				+ " SELECT count(*) as totalCount, 'Autocomplete' as enityType" + " FROM jq_autocomplete_details" + " UNION "
+				+ " SELECT count(*) as totalCount, 'Notification' as enityType" + " FROM jq_generic_user_notification gun" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Dashboard' as enityType" + " FROM jq_dashboard" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Dashlets' as enityType" + " FROM jq_dashlet" + " UNION "
 				+ " SELECT count(*) as totalCount, 'DynamicForm' as enityType" + " FROM jq_dynamic_form" + " UNION "
 				+ " SELECT count(*) as totalCount, 'FileManager' as enityType" + " FROM jq_file_upload_config" + " UNION "
-				+ " SELECT count(*) as totalCount, 'DynaRest' as enityType" + " FROM jq_dynamic_rest_details"
-				+ " UNION " + " SELECT count(*) as totalCount, 'Permission' as enityType"
-				+ " FROM (SELECT jera.entity_role_id AS entityRoleId "
+				+ " SELECT count(*) as totalCount, 'DynaRest' as enityType" + " FROM jq_dynamic_rest_details" + " UNION "
+				+ " SELECT count(*) as totalCount, 'Permission' as enityType" + " FROM (SELECT jera.entity_role_id AS entityRoleId "
 				+ " FROM jq_entity_role_association AS jera LEFT OUTER JOIN jq_role AS jr ON jr.role_id = jera.role_id AND jr.is_active = 1 "
 				+ " LEFT OUTER JOIN jq_master_modules jmm ON jmm.module_id = jera.module_id "
 				+ " WHERE jera.is_active = 1 AND jera.module_type_id = 0) tableName " + " UNION "
@@ -159,7 +159,10 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " FROM jq_property_master" + " UNION " + " SELECT count(*) as totalCount, 'ManageUsers' as enityType"
 				+ " FROM jq_user" + " UNION " + " SELECT count(*) as totalCount, 'ManageRoles' as enityType"
 				+ " FROM jq_role" 
-				+ " UNION " + " SELECT count(*) as count, 'HelpManual' as enityType FROM jq_manual_type" + "";
+				+ " UNION " + " SELECT count(*) as count, 'HelpManual' as enityType FROM jq_manual_type" 
+				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
+				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
+				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
 	}

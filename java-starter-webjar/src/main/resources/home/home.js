@@ -309,11 +309,10 @@ const generateHashCode = function(inputStr) {
 }
 
 const disableInputSuggestion = function(){
-	$("input[type=text], input[type=email], input[type=tel], input[type=number], input[type=password], input[type=search]").attr("autocomplete", "off");
+	$("input[type=text], input[type=email], input[type=tel], input[type=number], input[type=search]").attr("autocomplete", "off");
 }
 
 const resizeMonacoEditor = function(monacoEditorObj, containerName, childContainerName){
-	debugger;
 	if("Escape" === containerName) {
 		$('.ace-editor').width(1108).height(350);
 	}
@@ -377,6 +376,11 @@ const capitalizeFirstLetter = function(inputStr){
 	    return letter.toUpperCase();
 	});
 	return updatedStr;
+}
+
+const formatDate = function(dateStr){
+    const formattedDate = Calendar.printDate(new Date(Date.parse(dateStr)),jqJSDateFormat);
+	return formattedDate;
 }
 
 Array.prototype.formatSerializedArray = function() {

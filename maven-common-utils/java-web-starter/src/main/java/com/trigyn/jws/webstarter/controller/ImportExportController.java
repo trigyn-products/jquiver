@@ -57,7 +57,7 @@ public class ImportExportController {
 	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object>			vmTemplateData		= new HashMap<>();
-			List<JwsMasterModules>			moduleVOList		= masterModuleService.getModules();
+			List<JwsMasterModules>		moduleVOList		= masterModuleService.getModules();
 			List<Map<String, Object>>	customEntities		= exportService.getAllCustomEntity();
 			List<Map<String, Object>>	customEntityCount	= exportService.getCustomEntityCount();
 			List<Map<String, Object>>	allEntityCount		= exportService.getAllEntityCount();
@@ -79,7 +79,7 @@ public class ImportExportController {
 	@RequestMapping(value = "/ecd")
 	@ResponseBody
 	public String exportConfigData(@RequestBody Map<String, String> map, HttpServletRequest request,
-			HttpServletResponse httpServletResponse) throws Exception {
+		HttpServletResponse httpServletResponse) throws Exception {
 		return exportService.exportConfigData(request, httpServletResponse, map);
 	}
 
@@ -135,8 +135,7 @@ public class ImportExportController {
 
 	@PostMapping(value = "/glv")
 	@ResponseBody
-	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Gson				gson				= new Gson();
 			String				inputData			= request.getParameter("imporatableData");

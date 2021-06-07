@@ -6,6 +6,7 @@ class AddEditAutocomplete{
 
 	loadAutocompletDetails = function(){
 		const context = this;
+
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
     	require(["vs/editor/editor.main"], function() {
         context.sqlQuery = monaco.editor.create(document.getElementById("sqlEditor"), {
@@ -30,7 +31,7 @@ class AddEditAutocomplete{
 				context.sqlQuery.onDidChangeModelContent( function (){
     				$('#errorMessage').hide();
 				});
-	        	$("#contentDiv").remove();
+//	        	$("#contentDiv").remove();
     	});
 	}
 	
@@ -135,18 +136,47 @@ class AddEditAutocomplete{
 	createQuery = function(){
 		const context = this;
 	  	let tableName = $("#autocompleteTable").val();
-	    $.ajax({
-	    	type: "POST",
-	        url: contextPath+"/cf/cnbtn",
-	        data: {
-	        	tableName: tableName
-	        },
-	        success: function(data) {
-	  			context.sqlQuery.setValue("SELECT "+ data[0].columnName + " FROM " + tableName);
-	        }
-        });
+	  	let additionalDataSourceId = $("#dataSource").find(":selected").val();
+	  	let productName = $("#dataSource").find(":selected").data("product-name");
+	  	
+	  	if(tableName !== ""){
+		    $.ajax({
+		    	type: "POST",
+		        url: contextPath+"/cf/cnbtn",
+		        data: {
+		        	tableName: tableName,
+		        	additionalDataSourceId: additionalDataSourceId
+		        },
+		        success: function(data) {
+		        	let limitQuery;
+		        	if(productName === "sqlserver"){
+		        		limitQuery = " ORDER BY (SELECT NULL) OFFSET :startIndex ROWS FETCH NEXT :pageSize ROWS ONLY ";
+		        	}else if(productName === "oracle:thin"){
+		        		limitQuery = " OFFSET :startIndex ROWS FETCH NEXT :pageSize ROWS ONLY ";
+		        	}else if(productName === "postgresql"){
+		        		limitQuery = " OFFSET :startIndex ROWS FETCH NEXT :pageSize ROWS ONLY ";
+		        	}else{
+		        		limitQuery = " LIMIT :startIndex, :pageSize";
+		        	}
+		  			context.sqlQuery.setValue("SELECT "+ data[0].columnName + " FROM " + tableName + limitQuery);
+		        }
+	        });
+        }else{
+        	context.sqlQuery.setValue("");
+        }
     }
     
+    updateAutocompleTemplate = function(){ 
+		let autocompleteId = $("#autoId").val().trim();
+		if(autocompleteId !== ""){
+			let htmlAutocompleteId = $("pre span").filter(function() { return ($(this).text() === '\"autocompleteId\"') });
+			let jsAutocompleteId = $("pre span").filter(function() { return ($(this).text() === '\"#autocompleteId\"') });
+			
+			$(htmlAutocompleteId).text('"'+autocompleteId+'"');
+			$(jsAutocompleteId).text('"#'+autocompleteId+'"');
+		}
+	}
+		
     hideErrorMessage = function(){
     	$('#errorMessage').hide();
     }

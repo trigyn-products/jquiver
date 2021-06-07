@@ -23,8 +23,7 @@ import com.trigyn.jws.usermanagement.vo.SiteLayoutVO;
 @Component
 public class SiteLayoutEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(SiteLayoutEntityValidator.class);
+	private final static Logger					logger							= LogManager.getLogger(SiteLayoutEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -33,8 +32,7 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
 
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
-			ProceedingJoinPoint a_joinPoint) {
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
 		logger.debug(
 				"Inside SiteLayoutEntityValidator.hasAccessToEntity(requestURI - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
 				reqObject.getRequestURI(), reqObject, roleNames, a_joinPoint);
@@ -64,11 +62,10 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 		return hasAccess;
 	}
 
-	private SiteLayoutVO hasAccessToSiteLayout(HttpServletRequest reqObject, String moduleUrlStr,
-			List<String> roleNames) {
+	private SiteLayoutVO hasAccessToSiteLayout(HttpServletRequest reqObject, String moduleUrlStr, List<String> roleNames) {
 		SiteLayoutVO		siteLayoutVO		= null;
-		List<SiteLayoutVO>	siteLayoutVOList	= entityRoleAssociationRepository.hasAccessToSiteLayout(moduleUrlStr,
-				roleNames, Constants.ISACTIVE);
+		List<SiteLayoutVO>	siteLayoutVOList	= entityRoleAssociationRepository.hasAccessToSiteLayout(moduleUrlStr, roleNames,
+				Constants.ISACTIVE);
 
 		StringBuilder		moduleUrl			= new StringBuilder();
 		List<String>		pathVariableList	= getPathVariables(reqObject);
@@ -94,10 +91,8 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 	}
 
 	@Override
-	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList,
-			ProceedingJoinPoint a_joinPoint) {
-		logger.debug(
-				"Inside SiteLayoutEntityValidator.getEntityName(requestURI - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
+	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList, ProceedingJoinPoint a_joinPoint) {
+		logger.debug("Inside SiteLayoutEntityValidator.getEntityName(requestURI - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
 				reqObject.getRequestURI(), reqObject, roleNameList, a_joinPoint);
 
 		String moduleUrl = reqObject.getRequestURI().substring(reqObject.getContextPath().length());
@@ -114,14 +109,12 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 			moduleName = siteLayoutVO.getModuleName();
 		} else {
 			if (reqObject.getQueryString() != null) {
-				StringBuilder moduleUrlStr = new StringBuilder(requestUrl).append("?")
-						.append(reqObject.getQueryString());
+				StringBuilder moduleUrlStr = new StringBuilder(requestUrl).append("?").append(reqObject.getQueryString());
 				moduleName = authorizedValidatorDAO.getSiteLayoutModuleNameByUrl(moduleUrlStr.toString());
 			}
 		}
 
-		return entityRoleAssociationRepository
-				.getEntityNameByEntityAndRoleId(Constants.Modules.SITELAYOUT.getModuleName(), moduleName);
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.SITELAYOUT.getModuleName(), moduleName);
 	}
 
 	private SiteLayoutVO getSiteLayoutName(HttpServletRequest reqObject, String moduleUrlStr) {
@@ -153,13 +146,11 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 
 	private List<String> getPathVariables(HttpServletRequest httpServletRequest) {
 		List<String>	pathVariableList	= new ArrayList<>();
-		String			moduleUrl			= httpServletRequest.getRequestURI()
-				.substring(httpServletRequest.getContextPath().length());
+		String			moduleUrl			= httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		moduleUrl = moduleUrl.replaceFirst("/view/", "");
 
 		if (moduleUrl.indexOf("/") != -1) {
-			pathVariableList = Stream.of(moduleUrl.split("/")).map(urlElement -> new String(urlElement))
-					.collect(Collectors.toList());
+			pathVariableList = Stream.of(moduleUrl.split("/")).map(urlElement -> new String(urlElement)).collect(Collectors.toList());
 		}
 		return pathVariableList;
 	}

@@ -30,8 +30,7 @@ public class JwsRequestTypeDetail implements Serializable {
 	public JwsRequestTypeDetail() {
 	}
 
-	public JwsRequestTypeDetail(Integer jwsRequestTypeDetailsId, String jwsRequestType,
-			List<JwsDynamicRestDetail> jwsDynamicRestDetails) {
+	public JwsRequestTypeDetail(Integer jwsRequestTypeDetailsId, String jwsRequestType, List<JwsDynamicRestDetail> jwsDynamicRestDetails) {
 		this.jwsRequestTypeDetailsId	= jwsRequestTypeDetailsId;
 		this.jwsRequestType				= jwsRequestType;
 		this.jwsDynamicRestDetails		= jwsDynamicRestDetails;
@@ -92,15 +91,14 @@ public class JwsRequestTypeDetail implements Serializable {
 			return false;
 		}
 		JwsRequestTypeDetail other = (JwsRequestTypeDetail) obj;
-		return Objects.equals(jwsDynamicRestDetails, other.jwsDynamicRestDetails)
-				&& Objects.equals(jwsRequestType, other.jwsRequestType)
+		return Objects.equals(jwsDynamicRestDetails, other.jwsDynamicRestDetails) && Objects.equals(jwsRequestType, other.jwsRequestType)
 				&& Objects.equals(jwsRequestTypeDetailsId, other.jwsRequestTypeDetailsId);
 	}
 
 	@Override
 	public String toString() {
-		return "JwsRequestTypeDetail [jwsRequestTypeDetailsId=" + jwsRequestTypeDetailsId + ", jwsRequestType="
-				+ jwsRequestType + ", jwsDynamicRestDetails=" + jwsDynamicRestDetails + "]";
+		return "JwsRequestTypeDetail [jwsRequestTypeDetailsId=" + jwsRequestTypeDetailsId + ", jwsRequestType=" + jwsRequestType
+				+ ", jwsDynamicRestDetails=" + jwsDynamicRestDetails + "]";
 	}
 
 	public JwsRequestTypeDetail getObject() {

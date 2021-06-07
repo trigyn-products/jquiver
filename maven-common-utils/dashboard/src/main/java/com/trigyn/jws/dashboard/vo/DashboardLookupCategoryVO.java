@@ -69,8 +69,7 @@ public class DashboardLookupCategoryVO implements Serializable {
 			return false;
 		}
 		DashboardLookupCategoryVO other = (DashboardLookupCategoryVO) obj;
-		return Objects.equals(lookupCategory, other.lookupCategory)
-				&& Objects.equals(lookupCategoryId, other.lookupCategoryId)
+		return Objects.equals(lookupCategory, other.lookupCategory) && Objects.equals(lookupCategoryId, other.lookupCategoryId)
 				&& Objects.equals(lookupDescription, other.lookupDescription);
 	}
 

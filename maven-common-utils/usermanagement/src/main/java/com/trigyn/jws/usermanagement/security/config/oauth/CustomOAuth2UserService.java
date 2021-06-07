@@ -26,7 +26,7 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-	private final static Logger	logger				= LogManager.getLogger(CustomOAuth2UserService.class);
+	private final static Logger					logger							= LogManager.getLogger(CustomOAuth2UserService.class);
 
 	@Autowired
 	private JwsUserRepository					jwsUserRepository				= null;
@@ -57,8 +57,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
 
-		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
-				.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(), oAuth2User.getAttributes());
+		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(),
+				oAuth2User.getAttributes());
 
 		if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
 			throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");

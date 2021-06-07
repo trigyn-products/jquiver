@@ -42,8 +42,7 @@ public class ResourceBundleDAO extends DBConnection {
 		namedParameters.put("localeId", localeId + "%");
 		namedParameters.put("defaultLocaleId", Constant.DEFAULT_LOCALE);
 		namedParameters.put("keyInitials", keyInitials);
-		List<Map<String, Object>>	resultSet	= namedParameterJdbcTemplate
-				.queryForList(QUERY_TO_GET_I18N_DATA_FOR_KEY, namedParameters);
+		List<Map<String, Object>>	resultSet	= namedParameterJdbcTemplate.queryForList(QUERY_TO_GET_I18N_DATA_FOR_KEY, namedParameters);
 
 		Map<String, String>			result		= new HashMap<String, String>();
 

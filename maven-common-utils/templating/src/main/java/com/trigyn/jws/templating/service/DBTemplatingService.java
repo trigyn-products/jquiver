@@ -67,8 +67,7 @@ public class DBTemplatingService {
 	public TemplateVO getVelocityDataById(String templateId) throws Exception {
 		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateId)
 				.orElseThrow(() -> new Exception("Template not found with id : " + templateId));
-		return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
-				templateMaster.getTemplate());
+		return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(), templateMaster.getTemplate());
 	}
 
 	public String checkVelocityData(String velocityName) throws Exception {
@@ -103,8 +102,7 @@ public class DBTemplatingService {
 
 			String		ftlCustomExtension	= ".tgn";
 			String		templateDirectory	= "Templates";
-			String		folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
-					"template-storage-path");
+			String		folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 			TemplateVO	templateVO			= new TemplateVO();
 			templateVO.setTemplate(templateData);
 			folderLocation = folderLocation + File.separator + templateDirectory;
@@ -117,8 +115,8 @@ public class DBTemplatingService {
 		}
 
 		TemplateMaster	templateMaster	= dbTemplatingRepository.saveAndFlush(templateDetails);
-		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(),
-				templateMaster.getTemplateName(), templateMaster.getTemplate());
+		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
+				templateMaster.getTemplate());
 		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "jq_template_master",
 				Constant.MASTER_SOURCE_VERSION_TYPE);
 
@@ -145,8 +143,7 @@ public class DBTemplatingService {
 
 	@Transactional(readOnly = false)
 	public void saveTemplate(TemplateVO templateVO) throws Exception {
-		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateVO.getTemplateId())
-				.orElse(new TemplateMaster());
+		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateVO.getTemplateId()).orElse(new TemplateMaster());
 		templateMaster.setTemplate(templateVO.getTemplate());
 		dbTemplatingRepository.save(templateMaster);
 		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "jq_template_master",
@@ -156,14 +153,12 @@ public class DBTemplatingService {
 	private void getTemplateContentsForDevEnvironment(String templateName, TemplateVO templateVO) throws Exception {
 		String	ftlCustomExtension	= ".tgn";
 		String	templateDirectory	= "Templates";
-		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
-				"template-storage-path");
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 
 		if (!new File(folderLocation).exists()) {
 			logger.warn("Templates not downloaded on system, downloading templates to system.");
-			String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
-					"template-storage-path");
+			String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 			templateModule.downloadCodeToLocal(null, downloadFolderLocation);
 			logger.info("Templates downloaded to local machine");
 		}

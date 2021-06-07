@@ -14,6 +14,7 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
+
 @Service
 @Transactional
 public class NotificationService {
@@ -43,8 +44,7 @@ public class NotificationService {
 		List<GenericUserNotification>	notificationData	= notificationDao.getNotificationData(contextName);
 		templateMap.put("notifications", notificationData);
 		if (!notificationData.isEmpty()) {
-			template = templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-					templateMap);
+			template = templateEngine.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), templateMap);
 		}
 		return template;
 	}

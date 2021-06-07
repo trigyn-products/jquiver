@@ -27,8 +27,7 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(DefaultUserDetailsServiceImpl.class);
+	private final static Logger					logger							= LogManager.getLogger(DefaultUserDetailsServiceImpl.class);
 
 	private JwsUserRepository					userRepository					= null;
 
@@ -36,8 +35,8 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
 	private UserConfigService					userConfigService				= null;
 
-	public DefaultUserDetailsServiceImpl(JwsUserRepository userRepository,
-			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
+	public DefaultUserDetailsServiceImpl(JwsUserRepository userRepository, JwsUserRoleAssociationRepository userRoleAssociationRepository,
+			UserConfigService userConfigService) {
 		this.userRepository					= userRepository;
 		this.userRoleAssociationRepository	= userRoleAssociationRepository;
 		this.userConfigService				= userConfigService;
@@ -47,8 +46,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		ServletRequestAttributes	sra			= (ServletRequestAttributes) RequestContextHolder
-				.getRequestAttributes();
+		ServletRequestAttributes	sra			= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		HttpServletRequest			request		= sra.getRequest();
 		HttpSession					session		= request.getSession();
 		Map<String, Object>			mapDetails	= new HashMap<>();
@@ -63,8 +61,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 			throw new UsernameNotFoundException("Not found!");
 		}
 
-		if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-				&& session.getAttribute("loginCaptcha") != null
+		if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && session.getAttribute("loginCaptcha") != null
 				&& !(request.getParameter("captcha").equals(session.getAttribute("loginCaptcha").toString()))) {
 
 			throw new InvalidLoginException("Please verify captcha!");
@@ -74,8 +71,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
 		if (mapDetails.get("enableGoogleAuthenticator").toString().equalsIgnoreCase("true")) {
 
-			user.setPassword(
-					new BCryptPasswordEncoder().encode(new TwoFactorGoogleUtil().getTOTPCode(user.getSecretKey())));
+			user.setPassword(new BCryptPasswordEncoder().encode(new TwoFactorGoogleUtil().getTOTPCode(user.getSecretKey())));
 		}
 
 		List<JwsRoleVO> rolesVOs = userRoleAssociationRepository.getUserRoles(Constants.ISACTIVE, user.getUserId());

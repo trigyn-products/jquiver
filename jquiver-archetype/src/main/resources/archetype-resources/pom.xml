@@ -14,7 +14,7 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<jws.version>1.4.2</jws.version>
+		<jws.version>1.4.3</jws.version>
 	</properties>
 
 	<dependencies>

@@ -44,21 +44,18 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 
 	public void deleteAllDashletFromDashboard(String dashboardId) throws Exception {
-		Query query = getCurrentSession()
-				.createQuery(CrudQueryStore.HQL_QUERY_ALL_DELETE_DASHLET_FROM_DASHBOARD.toString());
+		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_ALL_DELETE_DASHLET_FROM_DASHBOARD.toString());
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
 	}
 
 	public void deleteAllDashboardRoles(String dashboardId) throws Exception {
-		Query query = getCurrentSession()
-				.createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHBOARD_ROLES.toString());
+		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHBOARD_ROLES.toString());
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
 	}
 
-	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation)
-			throws Exception {
+	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
 		getCurrentSession().saveOrUpdate(dashboardDashletAssociation);
 	}
 

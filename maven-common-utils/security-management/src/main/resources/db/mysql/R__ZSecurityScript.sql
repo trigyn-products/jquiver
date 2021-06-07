@@ -1,7 +1,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
-('eb4b4344-901d-436b-82a3-cc07a8b2223c', 'saveDDOSDetails', 1, 'saveDDOSDetails', 'Save DDOS Details', 1, 7, 'com.trigyn.jws.security.service.SecurityManagementService', 1, 0, 2);
+REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
+('eb4b4344-901d-436b-82a3-cc07a8b2223c', 'saveDDOSDetails', 1, 'saveDDOSDetails', 'Save DDOS Details', 1, 7, 'com.trigyn.jws.security.service.SecurityManagementService', 1, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 

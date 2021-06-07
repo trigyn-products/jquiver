@@ -67,8 +67,8 @@ public final class Constants {
 	public final static String	HELPMANUAL				= "Help Manual";
 
 	public final static Integer	COMMON_MODULE_TYPE_ID	= 1;						// included templates or anonymous
-																					// templates
+															// templates
 	public final static Integer	DEFAULT_MODULE_TYPE_ID	= 0;						// rest all templates shown in
-																					// entityrole listing
+															// entityrole listing
 
 }

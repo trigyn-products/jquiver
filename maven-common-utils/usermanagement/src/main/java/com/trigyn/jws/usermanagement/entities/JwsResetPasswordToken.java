@@ -34,8 +34,8 @@ public class JwsResetPasswordToken {
 	@JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, insertable = false, updatable = false)
 	private JwsUser		user				= null;
 
-	public JwsResetPasswordToken(String tokenId, String resetPasswordUrl, String userId, JwsUser user,
-			Calendar passwordResetTime, Boolean isResetUrlExpired) {
+	public JwsResetPasswordToken(String tokenId, String resetPasswordUrl, String userId, JwsUser user, Calendar passwordResetTime,
+			Boolean isResetUrlExpired) {
 		super();
 		this.tokenId			= tokenId;
 		this.resetPasswordUrl	= resetPasswordUrl;

@@ -57,15 +57,15 @@ public class JwsApiRegistrationController {
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<AuthenticationResponse> loadCaptcha(HttpServletResponse httpServletResponse,
-			@RequestBody AuthenticationRequest authenticationRequest) throws Throwable {
+		@RequestBody AuthenticationRequest authenticationRequest) throws Throwable {
 
 		Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
 		if (authType == Constants.AuthType.DAO.getAuthType() || authType == Constants.AuthType.LDAP.getAuthType()) {
 			String decryptedText = CryptoUtils.decrypt(JWS_SALT, authenticationRequest.getPassword());
 
 			try {
-				authenticationManager.authenticate(
-						new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), decryptedText));
+				authenticationManager
+						.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), decryptedText));
 			} catch (BadCredentialsException exception) {
 				throw new Exception("Bad Credentials", exception);
 			}
@@ -75,15 +75,13 @@ public class JwsApiRegistrationController {
 
 			return new ResponseEntity<AuthenticationResponse>(new AuthenticationResponse(jwt), HttpStatus.OK);
 		} else {
-			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-					"You do not have enough privilege to access this module");
+			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/register")
-	public ResponseEntity<String> registerUser(HttpServletResponse httpServletResponse, @RequestBody JwsUserVO user)
-			throws Exception {
+	public ResponseEntity<String> registerUser(HttpServletResponse httpServletResponse, @RequestBody JwsUserVO user) throws Exception {
 
 		Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
 		if (authType == Constants.AuthType.DAO.getAuthType() || authType == Constants.AuthType.LDAP.getAuthType()) {
@@ -108,8 +106,7 @@ public class JwsApiRegistrationController {
 				return new ResponseEntity<String>("Necessary Parameters missing ", HttpStatus.PRECONDITION_FAILED);
 			}
 		} else {
-			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-					"You do not have enough privilege to access this module");
+			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
 			return null;
 		}
 

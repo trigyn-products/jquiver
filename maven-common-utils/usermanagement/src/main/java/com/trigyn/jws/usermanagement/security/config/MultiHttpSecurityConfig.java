@@ -62,7 +62,7 @@ public class MultiHttpSecurityConfig {
 	private OAuthDetails					oAuthDetails				= null;
 
 	private static List<String>				clients						= new ArrayList<>();	// Arrays.asList("google",
-																								// "facebook");
+																// "facebook");
 	@Autowired
 	private JwtRequestFilter				jwtRequestFilter			= null;
 
@@ -77,7 +77,7 @@ public class MultiHttpSecurityConfig {
 	@Bean
 	@ConditionalOnMissingBean
 	public UserDetailsService userDetailsService(JwsUserRepository userRepository,
-			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
+		JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
 		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository, userConfigService);
 	}
 
@@ -118,9 +118,8 @@ public class MultiHttpSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/japi/**") // <= Security only available for /japi/**
-					.authorizeRequests().antMatchers("/japi/register", "/japi/login", "/japi/error").permitAll()
-					.anyRequest().authenticated().and().csrf().disable().exceptionHandling()
-					.authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
+					.authorizeRequests().antMatchers("/japi/register", "/japi/login", "/japi/error").permitAll().anyRequest()
+					.authenticated().and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
 					.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}
@@ -134,13 +133,11 @@ public class MultiHttpSecurityConfig {
 			String authenticationType = applicationSecurityDetails.getAuthenticationType();
 			// auth.parentAuthenticationManager(null);
 			if (authenticationType == null) {
-				auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root"))
-						.roles("ADMIN");
+				auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
 			} else {
 				Integer authType = Integer.parseInt(authenticationType);
 				if (Constants.AuthType.INMEMORY.getAuthType() == authType) {
-					auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root"))
-							.roles("ADMIN");
+					auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
 				} else if (Constants.AuthType.DAO.getAuthType() == authType) {
 					auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
 				} else if (Constants.AuthType.LDAP.getAuthType() == authType) {
@@ -164,14 +161,11 @@ public class MultiHttpSecurityConfig {
 									"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/authenticate")
 							.permitAll()
 							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
-									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/cf/**",
-									"/", "/view/**")
-							.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
-							.usernameParameter("email").permitAll().failureHandler(loginFailureHandler())
-							.successHandler(customAuthSuccessHandler).and().rememberMe()
+									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/cf/**", "/", "/view/**")
+							.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login").usernameParameter("email").permitAll()
+							.failureHandler(loginFailureHandler()).successHandler(customAuthSuccessHandler).and().rememberMe()
 							.rememberMeParameter("remember-me").tokenRepository(tokenRepository()).and().logout()
-							.addLogoutHandler(customLogoutSuccessHandler).deleteCookies("JSESSIONID")
-							.invalidateHttpSession(true);
+							.addLogoutHandler(customLogoutSuccessHandler).deleteCookies("JSESSIONID").invalidateHttpSession(true);
 					// .and().sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry());
 
 				} else if (Constants.AuthType.LDAP.getAuthType() == authType) {
@@ -184,18 +178,18 @@ public class MultiHttpSecurityConfig {
 							.denyAll()
 							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
 									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
-							.denyAll().antMatchers("/webjars/**").permitAll().antMatchers("/login/**", "/logout/**")
-							.permitAll().and().oauth2Login().loginPage("/cf/login").permitAll()
-							.failureHandler(loginFailureHandler()).successHandler(customAuthSuccessHandler).and()
-							.logout().addLogoutHandler(customLogoutSuccessHandler).and().csrf().disable();
+							.denyAll().antMatchers("/webjars/**").permitAll().antMatchers("/login/**", "/logout/**").permitAll().and()
+							.oauth2Login().loginPage("/cf/login").permitAll().failureHandler(loginFailureHandler())
+							.successHandler(customAuthSuccessHandler).and().logout().addLogoutHandler(customLogoutSuccessHandler).and()
+							.csrf().disable();
 				}
 			} else {
 				http.authorizeRequests()
 						.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail", "/cf/resetPasswordPage",
 								"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/login")
 						.denyAll()
-						.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
-								"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
+						.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword", "/cf/updatePassword",
+								"/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
 						.denyAll().antMatchers("/cf/**", "/view/**", "/").permitAll().and().csrf().disable();
 			}
 
@@ -228,17 +222,15 @@ public class MultiHttpSecurityConfig {
 		if (client.equals("google")) {
 			return CommonOAuth2Provider.GOOGLE.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
 		} else if (client.equals("facebook")) {
-			return CommonOAuth2Provider.FACEBOOK.getBuilder(client).clientId(clientId).clientSecret(clientSecret)
-					.build();
+			return CommonOAuth2Provider.FACEBOOK.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
 		} else if (client.equals("github")) {
 			return CommonOAuth2Provider.GITHUB.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
 		} else if (client.equals("office365")) {
 
-			String redirectUri = String.format("%s%s/login/oauth2/code/office365",
-					applicationSecurityDetails.getBaseUrl(), servletContext.getContextPath());
+			String redirectUri = String.format("%s%s/login/oauth2/code/office365", applicationSecurityDetails.getBaseUrl(),
+					servletContext.getContextPath());
 			return ClientRegistration.withRegistrationId("office365").clientId(clientId).clientSecret(clientSecret)
-					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid")
-					.redirectUriTemplate(redirectUri)
+					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid").redirectUriTemplate(redirectUri)
 
 					.authorizationUri("https://login.microsoftonline.com/common/oauth2/authorize")
 					.tokenUri("https://login.microsoftonline.com/common/oauth2/token")

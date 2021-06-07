@@ -38,8 +38,7 @@ public class UserManagementDAO extends DBConnection {
 	}
 
 	public List<String> getRoleIdsByUserId(String userId) throws Exception {
-		Query query = getCurrentSession()
-				.createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId");
+		Query query = getCurrentSession().createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId");
 		query.setParameter("userId", userId);
 		List<String> roleIds = (List<String>) query.getResultList();
 		return roleIds;

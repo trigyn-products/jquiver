@@ -44,8 +44,7 @@ public class ResourceBundleService {
 	public Map<Integer, ResourceBundleVO> getResourceBundleVOMap(String resourceBundleKey) throws Exception {
 		try {
 			Map<Integer, ResourceBundleVO>	resourceBundleVOMap		= new HashMap<Integer, ResourceBundleVO>();
-			List<ResourceBundleVO>			resourceBundleVOList	= iResourceBundleRepository
-					.findResourceBundleByKey(resourceBundleKey);
+			List<ResourceBundleVO>			resourceBundleVOList	= iResourceBundleRepository.findResourceBundleByKey(resourceBundleKey);
 			if (!CollectionUtils.isEmpty(resourceBundleVOList)) {
 				for (ResourceBundleVO dbResource : resourceBundleVOList) {
 					resourceBundleVOMap.put(dbResource.getLanguageId(), dbResource);
@@ -71,8 +70,7 @@ public class ResourceBundleService {
 		Boolean keyAlreadyExist = true;
 		try {
 			String savedResourceBundleKey = iResourceBundleRepository.checkResourceKeyExist(resourceBundleKey);
-			if (resourceBundleKey == null
-					|| (resourceBundleKey != null && !resourceBundleKey.equals(savedResourceBundleKey))) {
+			if (resourceBundleKey == null || (resourceBundleKey != null && !resourceBundleKey.equals(savedResourceBundleKey))) {
 				keyAlreadyExist = false;
 			}
 			return keyAlreadyExist;
@@ -83,8 +81,7 @@ public class ResourceBundleService {
 	}
 
 	@Transactional(readOnly = false)
-	public void saveResourceBundleDetails(List<ResourceBundleVO> resourceBundleVOList, Integer sourceTypeId)
-			throws Exception {
+	public void saveResourceBundleDetails(List<ResourceBundleVO> resourceBundleVOList, Integer sourceTypeId) throws Exception {
 		try {
 			List<ResourceBundle> resourceBundleList = new ArrayList<>();
 
@@ -99,8 +96,7 @@ public class ResourceBundleService {
 
 				}
 				iResourceBundleRepository.saveAll(resourceBundleList);
-				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey,
-						"jq_resource_bundle", sourceTypeId);
+				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey, "jq_resource_bundle", sourceTypeId);
 			}
 		} catch (Exception a_exception) {
 			logger.error("Error occurred while saving resource bundle data ", a_exception);
@@ -108,8 +104,7 @@ public class ResourceBundleService {
 		}
 	}
 
-	private ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO)
-			throws Exception {
+	private ResourceBundle convertResourceBundleVOToEntity(String resourceBundleKey, ResourceBundleVO resourceBundleVO) throws Exception {
 		ResourceBundle		resourceBundle		= new ResourceBundle();
 		ResourceBundlePK	resourceBundlePK	= new ResourceBundlePK();
 		resourceBundlePK.setResourceKey(resourceBundleKey);
@@ -135,8 +130,8 @@ public class ResourceBundleService {
 		if (languageId == null) {
 			languageId = Constant.DEFAULT_LANGUAGE_ID;
 		}
-		return iResourceBundleRepository.findMessageByKeyAndLanguageId(resourceBundleKey, languageId,
-				Constant.DEFAULT_LANGUAGE_ID, Constant.RecordStatus.INSERTED.getStatus());
+		return iResourceBundleRepository.findMessageByKeyAndLanguageId(resourceBundleKey, languageId, Constant.DEFAULT_LANGUAGE_ID,
+				Constant.RecordStatus.INSERTED.getStatus());
 	}
 
 	public Map<String, String> getResourceBundleData(String localeId, List<String> keyList) throws Exception {

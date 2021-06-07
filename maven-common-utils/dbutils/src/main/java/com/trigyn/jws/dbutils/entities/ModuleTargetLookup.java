@@ -91,8 +91,7 @@ public class ModuleTargetLookup implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ModuleTargetLookup [lookupId=" + lookupId + ", description=" + description + ", moduleListings="
-				+ moduleListings + "]";
+		return "ModuleTargetLookup [lookupId=" + lookupId + ", description=" + description + ", moduleListings=" + moduleListings + "]";
 	}
 
 	public ModuleTargetLookup getObject() {

@@ -47,6 +47,8 @@ import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
+import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
+import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
@@ -58,6 +60,7 @@ import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.AdditionalDatasourceVO;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
@@ -85,8 +88,11 @@ import com.trigyn.jws.dynamicform.service.FileUploadConfigService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
+import com.trigyn.jws.dynarest.entities.ApiClientDetails;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
+import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
 import com.trigyn.jws.gridutils.dao.GridDetailsRepository;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.notification.dao.INotificationRepository;
@@ -128,6 +134,8 @@ import com.trigyn.jws.webstarter.vo.GridDetailsJsonVO;
 import com.trigyn.jws.webstarter.vo.HelpManual;
 import com.trigyn.jws.webstarter.vo.PropertyMasterJsonVO;
 import com.trigyn.jws.webstarter.vo.RestApiDetailsJsonVO;
+import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
+import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
 import com.trigyn.jws.webstarter.xml.DynaRestXMLVO;
@@ -144,8 +152,7 @@ import com.trigyn.jws.webstarter.xml.UserXMLVO;
 @Transactional
 public class ImportService {
 
-	private final static Logger						logger								= LogManager
-			.getLogger(ExportService.class);
+	private final static Logger						logger								= LogManager.getLogger(ExportService.class);
 
 	@Autowired
 	private ModuleVersionDAO						moduleVersionDAO					= null;
@@ -275,6 +282,12 @@ public class ImportService {
 	@Autowired
 	private FileUploadExportModule					fileUploadExportModule				= null;
 
+	@Autowired
+	private AdditionalDatasourceRepository			additionalDatasourceRepository		= null;
+
+	@Autowired
+	private IApiClientDetailsRepository				apiClientDetailsRepository			= null;
+
 	private String									unZipFilePath;
 
 	public Map<String, Object> importConfig(Part file) throws Exception {
@@ -343,36 +356,33 @@ public class ImportService {
 
 				if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.GRID.getModuleType().toLowerCase())) {
 					outputMap = getImportGridDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().toLowerCase())) {
 					outputMap = getImportAutocompleteDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toLowerCase())) {
 					outputMap = getImportRBDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.DASHBOARD.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.DASHBOARD.getModuleType().toLowerCase())) {
 					outputMap = getImportDashboardDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.NOTIFICATION.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.NOTIFICATION.getModuleType().toLowerCase())) {
 					outputMap = getImportNotificationDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.DYNAREST.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.DYNAREST.getModuleType().toLowerCase())) {
 					outputMap = getImportDynaRestDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 					outputMap = getImportPermissionDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
 					outputMap = getImportSiteLayoutDetails(outputMap, file);
 				} else if (fileName.toLowerCase()
 						.startsWith(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().toLowerCase())) {
 					outputMap = getImportAppConfigtDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
 					outputMap = getImportUsersDetails(outputMap, file);
-				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
 					outputMap = getImportRolesDetails(outputMap, file);
+				} else if (fileName.toLowerCase()
+						.startsWith(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())) {
+					outputMap = getApiClientDetails(outputMap, file);
+				} else if (fileName.toLowerCase()
+						.startsWith(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())) {
+					outputMap = getAdditionalDatasource(outputMap, file);
 				}
 			} else if (Constant.FOLDER_EXPORT_TYPE.equals(moduleType)) {
 				if (Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleName)) {
@@ -397,16 +407,13 @@ public class ImportService {
 
 		for (GridDetails grid : xmlVO.getGridDetails()) {
 			GridDetailsJsonVO vo = convertGridEntityToVO(grid);
-			updateOutputMap(outputMap, grid.getGridId(), vo, grid,
-					Constant.MasterModuleType.GRID.getModuleType().toLowerCase());
+			updateOutputMap(outputMap, grid.getGridId(), vo, grid, Constant.MasterModuleType.GRID.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportAutocompleteDetails(Map<String, Object> outputMap, File file)
-			throws Exception {
-		AutocompleteXMLVO xmlVO = (AutocompleteXMLVO) XMLUtil.unMarshaling(AutocompleteXMLVO.class,
-				file.getAbsolutePath());
+	private Map<String, Object> getImportAutocompleteDetails(Map<String, Object> outputMap, File file) throws Exception {
+		AutocompleteXMLVO xmlVO = (AutocompleteXMLVO) XMLUtil.unMarshaling(AutocompleteXMLVO.class, file.getAbsolutePath());
 
 		for (Autocomplete autocomplete : xmlVO.getAutocompleteDetails()) {
 			AutocompleteVO autocompleteVO = typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
@@ -418,8 +425,8 @@ public class ImportService {
 	}
 
 	private Map<String, Object> getImportRBDetails(Map<String, Object> outputMap, File file) throws Exception {
-		ResourceBundleXMLVO					xmlVO		= (ResourceBundleXMLVO) XMLUtil
-				.unMarshaling(ResourceBundleXMLVO.class, file.getAbsolutePath());
+		ResourceBundleXMLVO					xmlVO		= (ResourceBundleXMLVO) XMLUtil.unMarshaling(ResourceBundleXMLVO.class,
+				file.getAbsolutePath());
 
 		Map<String, List<ResourceBundleVO>>	map			= new TreeMap();
 		Map<String, List<ResourceBundle>>	entityMap	= new HashMap<>();
@@ -462,17 +469,15 @@ public class ImportService {
 		DashboardXMLVO xmlVO = (DashboardXMLVO) XMLUtil.unMarshaling(DashboardXMLVO.class, file.getAbsolutePath());
 
 		for (Dashboard dashboard : xmlVO.getDashboardDetails()) {
-			updateOutputMap(outputMap, dashboard.getDashboardId(),
-					dashboardCrudService.convertDashboarEntityToVO(dashboard), dashboard,
+			updateOutputMap(outputMap, dashboard.getDashboardId(), dashboardCrudService.convertDashboarEntityToVO(dashboard), dashboard,
 					Constant.MasterModuleType.DASHBOARD.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportNotificationDetails(Map<String, Object> outputMap, File file)
-			throws Exception {
-		GenericUserNotificationXMLVO xmlVO = (GenericUserNotificationXMLVO) XMLUtil
-				.unMarshaling(GenericUserNotificationXMLVO.class, file.getAbsolutePath());
+	private Map<String, Object> getImportNotificationDetails(Map<String, Object> outputMap, File file) throws Exception {
+		GenericUserNotificationXMLVO xmlVO = (GenericUserNotificationXMLVO) XMLUtil.unMarshaling(GenericUserNotificationXMLVO.class,
+				file.getAbsolutePath());
 
 		for (GenericUserNotification notification : xmlVO.getGenericUserNotificationDetails()) {
 			GenericUserNotificationJsonVO vo = convertNotificationEntityToVO(notification);
@@ -493,8 +498,7 @@ public class ImportService {
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportFileManagerDetails(Map<String, Object> outputMap, String filePath)
-			throws Exception {
+	private Map<String, Object> getImportFileManagerDetails(Map<String, Object> outputMap, String filePath) throws Exception {
 		String			dynamicFormFolderPath	= filePath + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO			= readMetaDataXML(dynamicFormFolderPath);
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
@@ -533,8 +537,7 @@ public class ImportService {
 	}
 
 	private Map<String, Object> getImportAppConfigtDetails(Map<String, Object> outputMap, File file) throws Exception {
-		PropertyMasterXMLVO xmlVO = (PropertyMasterXMLVO) XMLUtil.unMarshaling(PropertyMasterXMLVO.class,
-				file.getAbsolutePath());
+		PropertyMasterXMLVO xmlVO = (PropertyMasterXMLVO) XMLUtil.unMarshaling(PropertyMasterXMLVO.class, file.getAbsolutePath());
 
 		for (PropertyMaster propertyMaster : xmlVO.getApplicationConfiguration()) {
 			PropertyMasterJsonVO vo = convertPropertyMasterEntityToVO(propertyMaster);
@@ -549,8 +552,7 @@ public class ImportService {
 
 		for (JwsUser user : xmlVO.getUserDetails()) {
 			JwsUserVO vo = user.convertEntityToVO(user);
-			updateOutputMap(outputMap, user.getUserId(), vo, user,
-					Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase());
+			updateOutputMap(outputMap, user.getUserId(), vo, user, Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -560,8 +562,31 @@ public class ImportService {
 
 		for (JwsRole role : xmlVO.getRoleDetails()) {
 			JwsRoleVO vo = role.convertEntityToVO(role);
-			updateOutputMap(outputMap, role.getRoleName(), vo, role,
-					Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase());
+			updateOutputMap(outputMap, role.getRoleName(), vo, role, Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase());
+		}
+		return outputMap;
+	}
+
+	private Map<String, Object> getApiClientDetails(Map<String, Object> outputMap, File file) throws Exception {
+		ApiClientDetailsXMLVO xmlVO = (ApiClientDetailsXMLVO) XMLUtil.unMarshaling(ApiClientDetailsXMLVO.class,
+				file.getAbsolutePath());
+
+		for (ApiClientDetails apiClientDetails : xmlVO.getApiClientDetails()) {
+			ApiClientDetailsVO vo = apiClientDetails.convertEntityToVO(apiClientDetails);
+			updateOutputMap(outputMap, apiClientDetails.getClientId(), vo, apiClientDetails,
+					Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase());
+		}
+		return outputMap;
+	}
+
+	private Map<String, Object> getAdditionalDatasource(Map<String, Object> outputMap, File file) throws Exception {
+		AdditionalDatasourceXMLVO xmlVO = (AdditionalDatasourceXMLVO) XMLUtil
+				.unMarshaling(AdditionalDatasourceXMLVO.class, file.getAbsolutePath());
+
+		for (AdditionalDatasource additionalDS : xmlVO.getAdditionalDatasource()) {
+			AdditionalDatasourceVO vo = additionalDS.convertEntityToVO(additionalDS);
+			updateOutputMap(outputMap, additionalDS.getAdditionalDatasourceId(), vo, additionalDS,
+					Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -576,20 +601,17 @@ public class ImportService {
 			String				moduleID			= module.getModuleID();
 			TemplateExportVO	templateExportVO	= module.getTemplate();
 
-			TemplateMaster		template			= (TemplateMaster) templateDownloadUploadModule
-					.importData(templateFolderPath, moduleName, moduleID, templateExportVO);
+			TemplateMaster		template			= (TemplateMaster) templateDownloadUploadModule.importData(templateFolderPath,
+					moduleName, moduleID, templateExportVO);
 			template = template.getObject();
-			TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate());
+			TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(), template.getTemplate());
 
-			updateOutputMap(outputMap, moduleID, templateVO, template,
-					Constant.MasterModuleType.TEMPLATES.getModuleType().toLowerCase());
+			updateOutputMap(outputMap, moduleID, templateVO, template, Constant.MasterModuleType.TEMPLATES.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportDashletDetails(Map<String, Object> outputMap, String filePath)
-			throws Exception {
+	private Map<String, Object> getImportDashletDetails(Map<String, Object> outputMap, String filePath) throws Exception {
 		String			dashletFolderPath	= filePath + File.separator + Constants.DASHLET_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO		= readMetaDataXML(dashletFolderPath);
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
@@ -597,19 +619,17 @@ public class ImportService {
 			String			moduleID		= module.getModuleID();
 			DashletExportVO	dashletExportVO	= module.getDashlet();
 
-			Dashlet			dashlet			= (Dashlet) dashletDownloadUploadModule.importData(dashletFolderPath,
-					moduleName, moduleID, dashletExportVO);
+			Dashlet			dashlet			= (Dashlet) dashletDownloadUploadModule.importData(dashletFolderPath, moduleName, moduleID,
+					dashletExportVO);
 			dashlet = dashlet.getObject();
 			DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
 
-			updateOutputMap(outputMap, moduleID, dashletVO, dashlet,
-					Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase());
+			updateOutputMap(outputMap, moduleID, dashletVO, dashlet, Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportDynamicFormDetails(Map<String, Object> outputMap, String filePath)
-			throws Exception {
+	private Map<String, Object> getImportDynamicFormDetails(Map<String, Object> outputMap, String filePath) throws Exception {
 		String			dynamicFormFolderPath	= filePath + File.separator
 				+ com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO			= readMetaDataXML(dynamicFormFolderPath);
@@ -617,8 +637,8 @@ public class ImportService {
 			String				moduleName			= module.getModuleName();
 			String				moduleID			= module.getModuleID();
 			DynamicFormExportVO	dynamicFormExportVO	= module.getDynamicForm();
-			DynamicForm			dynamicForm			= (DynamicForm) dynamicFormDownloadUploadModule
-					.importData(dynamicFormFolderPath, moduleName, moduleID, dynamicFormExportVO);
+			DynamicForm			dynamicForm			= (DynamicForm) dynamicFormDownloadUploadModule.importData(dynamicFormFolderPath,
+					moduleName, moduleID, dynamicFormExportVO);
 			dynamicForm = dynamicForm.getObject();
 
 			DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
@@ -628,16 +648,15 @@ public class ImportService {
 		return outputMap;
 	}
 
-	private Map<String, Object> getImportHelpManualDetails(Map<String, Object> outputMap, String filePath)
-			throws Exception {
+	private Map<String, Object> getImportHelpManualDetails(Map<String, Object> outputMap, String filePath) throws Exception {
 		String			dynamicFormFolderPath	= filePath + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO			= readMetaDataXML(dynamicFormFolderPath);
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
 			String					moduleName			= module.getModuleName();
 			String					moduleID			= module.getModuleID();
 			HelpManualTypeExportVO	helpManualExportVO	= module.getHelpManual();
-			HelpManual				helpManual			= (HelpManual) helpManualImportExportModule
-					.importData(dynamicFormFolderPath, moduleName, moduleID, helpManualExportVO);
+			HelpManual				helpManual			= (HelpManual) helpManualImportExportModule.importData(dynamicFormFolderPath,
+					moduleName, moduleID, helpManualExportVO);
 
 			updateOutputMap(outputMap, moduleID, helpManualExportVO, helpManual,
 					Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase());
@@ -645,8 +664,8 @@ public class ImportService {
 		return outputMap;
 	}
 
-	private Map<String, Object> updateOutputMap(Map<String, Object> outputMap, String moduleID, Object jsonObj,
-			Object entity, String moduleType) throws Exception {
+	private Map<String, Object> updateOutputMap(Map<String, Object> outputMap, String moduleID, Object jsonObj, Object entity,
+		String moduleType) throws Exception {
 		Gson			gson			= new Gson();
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
@@ -703,8 +722,7 @@ public class ImportService {
 		for (Entry<String, Object> input : inputData.entrySet()) {
 			String key = input.getKey();
 
-			if (!key.equals("completeZipJsonData") && !key.equals("exportedFormatObject")
-					&& !key.equals("exportedModuleTypeObject")) {
+			if (!key.equals("completeZipJsonData") && !key.equals("exportedFormatObject") && !key.equals("exportedModuleTypeObject")) {
 				String value = (String) input.getValue();
 				crcMap.put(key, getLatestCRC(key, moduleTypeMap.get(key), value));
 			}
@@ -721,29 +739,34 @@ public class ImportService {
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())
+				|| moduleType.equalsIgnoreCase(
+						Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())) {
 			String existingJson = "";
 			/*
 			 * if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.
-			 * getModuleType().toLowerCase())) { existingJson =
-			 * fileUploadConfigService.getFileUploadJson(id); } else
+			 * getModuleType().toLowerCase())) { existingJson = fileUploadConfigService.getFileUploadJson(id); }
+			 * else
 			 */if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 				existingJson = userManagementService.getJwsEntityRoleAssociationJson(id);
-			} else if (moduleType
-					.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+			} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
 				existingJson = moduleService.getModuleListingJson(id);
-			} else if (moduleType
-					.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
+			} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
 				existingJson = userManagementService.getJwsUserJson(id);
-			} else if (moduleType
-					.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
+			} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
 				existingJson = userManagementService.getJwsRoleJson(id);
+			} else if (moduleType
+					.equalsIgnoreCase(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())) {
+				existingJson = getAdditionalDatasourceJson(id);
+			} else if (moduleType
+					.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())) {
+				existingJson = getApiClientDetailseJson(id);
 			}
 
 			isCheckSumUpdated = checkSumComparisonForNonVersioningModules(existingJson, importedJson);
 			if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
-					|| moduleType
-							.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
 				isCheckSumUpdated = true;
 			}
 		} else {
@@ -756,13 +779,11 @@ public class ImportService {
 
 	private Boolean checkSumComparison(String entityTypeId, String entityName, String importedJson) throws Exception {
 		String	moduleJsonChecksum	= moduleVersionService.generateJsonChecksum(importedJson);
-		Boolean	isDataUpdated		= moduleVersionService.compareChecksum(entityTypeId, entityName,
-				moduleJsonChecksum);
+		Boolean	isDataUpdated		= moduleVersionService.compareChecksum(entityTypeId, entityName, moduleJsonChecksum);
 		return isDataUpdated;
 	}
 
-	private Boolean checkSumComparisonForNonVersioningModules(String existingJson, String importedJson)
-			throws Exception {
+	private Boolean checkSumComparisonForNonVersioningModules(String existingJson, String importedJson) throws Exception {
 		String existingJsonChecksum = null;
 		if (existingJson != null) {
 			existingJsonChecksum = moduleVersionService.generateJsonChecksum(existingJson);
@@ -807,6 +828,10 @@ public class ImportService {
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(
+							Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())
+					|| moduleType
+							.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())
 					|| moduleType
 							.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
 				if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())) {
@@ -814,34 +839,41 @@ public class ImportService {
 					if (fileUploadConfig == null) {
 						version = "NE";
 					}
-				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
+				} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 					JwsEntityRoleAssociation role = userManagementService.findByEntityRoleID(entityID);
 					if (role == null) {
 						version = "NE";
 					}
-				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+				} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
 					ModuleListing module = moduleService.getModuleListing(entityID);
 					if (module == null) {
 						version = "NE";
 					}
-				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
+				} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
 					JwsUser user = userManagementService.getJwsUser(entityID);
 					if (user == null) {
 						version = "NE";
 					}
-				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
+				} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())) {
 					JwsRole role = userManagementService.getJwsRole(entityID);
 					if (role == null) {
 						version = "NE";
 					}
-				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
+				} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
 					ManualType manualType = iManualTypeRepository.findById(entityID).orElse(null);
 					if (manualType == null) {
+						version = "NE";
+					}
+				} else if (moduleType.equalsIgnoreCase(
+						Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())) {
+					AdditionalDatasource ads = additionalDatasourceRepository.findById(entityID).orElse(null);
+					if (ads == null) {
+						version = "NE";
+					}
+				} else if (moduleType
+						.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())) {
+					ApiClientDetails acd = apiClientDetailsRepository.findById(entityID).orElse(null);
+					if (acd == null) {
 						version = "NE";
 					}
 				}
@@ -894,15 +926,11 @@ public class ImportService {
 			Gson				g									= new Gson();
 			JSONObject			imporatableDataJson					= new JSONObject(imporatableData);
 
-			JSONObject			exportedModuleTypeObject			= (JSONObject) imporatableDataJson
-					.get("exportedModuleTypeObject");
-			Map<String, String>	moduleTypeMap						= g.fromJson(exportedModuleTypeObject.toString(),
-					Map.class);
+			JSONObject			exportedModuleTypeObject			= (JSONObject) imporatableDataJson.get("exportedModuleTypeObject");
+			Map<String, String>	moduleTypeMap						= g.fromJson(exportedModuleTypeObject.toString(), Map.class);
 
-			JSONObject			exportedFormatObject				= (JSONObject) imporatableDataJson
-					.get("exportedFormatObject");
-			Map<String, String>	entityStringMap						= g.fromJson(exportedFormatObject.toString(),
-					Map.class);
+			JSONObject			exportedFormatObject				= (JSONObject) imporatableDataJson.get("exportedFormatObject");
+			Map<String, String>	entityStringMap						= g.fromJson(exportedFormatObject.toString(), Map.class);
 
 			List<String>		importedIdList						= g.fromJson(importedIdJsonArray, List.class);
 			Collection<String>	moduleTypeList						= moduleTypeMap.values();
@@ -918,8 +946,7 @@ public class ImportService {
 				if (importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
 
 					if (Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)
-							&& moduleTypeList
-									.contains(Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase())) {
+							&& moduleTypeList.contains(Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase())) {
 						pendingDashboardEntityStringMap.put(importId, entityString);
 						continue;
 					}
@@ -968,8 +995,7 @@ public class ImportService {
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
-					|| moduleType
-							.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())))
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())))
 				tableName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();
 
 			Gson			g				= new Gson();
@@ -978,20 +1004,18 @@ public class ImportService {
 				GridDetails gridDetails = g.fromJson(entityString, GridDetails.class);
 				gridDetailsRepository.save(gridDetails);
 				GridDetailsJsonVO vo = convertGridEntityToVO(gridDetails);
-				moduleVersionService.saveModuleVersion(vo, null, gridDetails.getGridId(), tableName,
-						Constant.IMPORT_SOURCE_VERSION_TYPE);
+				moduleVersionService.saveModuleVersion(vo, null, gridDetails.getGridId(), tableName, Constant.IMPORT_SOURCE_VERSION_TYPE);
 			} else if (Constant.MasterModuleType.AUTOCOMPLETE.getModuleType().equalsIgnoreCase(moduleType)) {
 				Autocomplete	autocomplete	= g.fromJson(entityString, Autocomplete.class);
 				AutocompleteVO	autocompleteVO	= typeAheadService.convertEntityToVO(autocomplete.getAutocompleteId(),
 						autocomplete.getAutocompleteDesc(), autocomplete.getAutocompleteSelectQuery());
 				typeAheadRepository.save(autocomplete);
-				moduleVersionService.saveModuleVersion(autocompleteVO, null, autocomplete.getAutocompleteId(),
-						tableName, Constant.IMPORT_SOURCE_VERSION_TYPE);
+				moduleVersionService.saveModuleVersion(autocompleteVO, null, autocomplete.getAutocompleteId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
 			} else if (Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().equalsIgnoreCase(moduleType)) {
 				TypeReference<List<ResourceBundle>>	resourceBundleType	= new TypeReference<List<ResourceBundle>>() {
 																		};
-				List<ResourceBundle>				resourceBundleList	= objectMapper.readValue(entityString,
-						resourceBundleType);
+				List<ResourceBundle>				resourceBundleList	= objectMapper.readValue(entityString, resourceBundleType);
 
 				resourceBundleRepository.saveAll(resourceBundleList);
 
@@ -1033,8 +1057,7 @@ public class ImportService {
 			} else if (Constant.MasterModuleType.NOTIFICATION.getModuleType().equalsIgnoreCase(moduleType)) {
 				GenericUserNotification	notification	= g.fromJson(entityString, GenericUserNotification.class);
 
-				Long					existingObj		= notificationDao
-						.getNotificationDetailsCount(notification.getNotificationId());
+				Long					existingObj		= notificationDao.getNotificationDetailsCount(notification.getNotificationId());
 				if (existingObj == null || (existingObj != null && existingObj == 0)) {
 					notification.setCreatedBy(user);
 					notification.setCreationDate(date);
@@ -1047,8 +1070,7 @@ public class ImportService {
 				moduleVersionService.saveModuleVersion(vo, null, notification.getNotificationId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
 			} else if (Constant.MasterModuleType.DYNAREST.getModuleType().equalsIgnoreCase(moduleType)) {
-				JwsDynamicRestDetail			dynarest					= g.fromJson(entityString,
-						JwsDynamicRestDetail.class);
+				JwsDynamicRestDetail			dynarest					= g.fromJson(entityString, JwsDynamicRestDetail.class);
 
 				List<JwsDynamicRestDaoDetail>	jwsDynamicRestDaoDetails	= dynarest.getJwsDynamicRestDaoDetails();
 				dynarest.setJwsDynamicRestDaoDetails(null);
@@ -1061,18 +1083,16 @@ public class ImportService {
 				moduleVersionService.saveModuleVersion(vo, null, dynarest.getJwsDynamicRestId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
 			} else if (Constant.MasterModuleType.FILEMANAGER.getModuleType().equalsIgnoreCase(moduleType)) {
-				FileUploadConfigImportEntity	fileConfigImportEntity	= g.fromJson(entityString,
-						FileUploadConfigImportEntity.class);
+				FileUploadConfigImportEntity	fileConfigImportEntity	= g.fromJson(entityString, FileUploadConfigImportEntity.class);
 				FileUploadConfig				fileConfig				= fileConfigImportEntity.getFileUploadConfig();
 
-				fileConfig.setUpdatedBy(user);
-				fileConfig.setUpdatedDate(date);
+				fileConfig.setLastUpdatedBy(user);
+				fileConfig.setLastUpdatedTs(date);
 				if (fileConfig != null) {
 					fileUploadConfigRepository.save(fileConfig);
 				}
 
-				saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_UPLOAD_DIRECTORY_NAME,
-						fileConfig.getFileBinId());
+				saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_UPLOAD_DIRECTORY_NAME, fileConfig.getFileBinId());
 			} else if (Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
 				JwsEntityRoleAssociation role = g.fromJson(entityString, JwsEntityRoleAssociation.class);
 				role.setLastUpdatedBy(user);
@@ -1086,8 +1106,7 @@ public class ImportService {
 				module.setModuleListingI18ns(null);
 				moduleListingRepository.save(module);
 				iModuleListingI18nRepository.saveAll(moduleListingI18ns);
-			} else if (Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType()
-					.equalsIgnoreCase(moduleType)) {
+			} else if (Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().equalsIgnoreCase(moduleType)) {
 				PropertyMaster propertyMaster = g.fromJson(entityString, PropertyMaster.class);
 				propertyMasterRepository.save(propertyMaster);
 				PropertyMasterJsonVO vo = convertPropertyMasterEntityToVO(propertyMaster);
@@ -1109,8 +1128,7 @@ public class ImportService {
 				template.setUpdatedBy(user);
 				template.setUpdatedDate(date);
 				dbTemplatingRepository.saveAndFlush(template);
-				TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-						template.getTemplate());
+				TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(), template.getTemplate());
 				moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
 			} else if (Constant.MasterModuleType.DASHLET.getModuleType().equalsIgnoreCase(moduleType)) {
@@ -1122,7 +1140,7 @@ public class ImportService {
 					dashlet.setCreatedDate(date);
 				}
 				dashlet.setUpdatedBy(user);
-				dashlet.setUpdatedDate(date);
+				dashlet.setLastUpdatedTs(date);
 				dashletRepository.saveAndFlush(dashlet);
 				DashletVO dashletVO = dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
 				moduleVersionService.saveModuleVersion(dashletVO, null, dashlet.getDashletId(), tableName,
@@ -1153,6 +1171,14 @@ public class ImportService {
 				}
 				saveAndUploadFiles(helpManual.getFileUpload(), Constant.HELP_MANUAL_DIRECTORY_NAME,
 						helpManual.getManualType().getName());
+			} else if (Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().equalsIgnoreCase(moduleType)) {
+				AdditionalDatasource additionalDatasource = g.fromJson(entityString, AdditionalDatasource.class);
+				additionalDatasourceRepository.saveAndFlush(additionalDatasource);
+
+			} else if (Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
+				ApiClientDetails apiClientDetails = g.fromJson(entityString, ApiClientDetails.class);
+				apiClientDetailsRepository.saveAndFlush(apiClientDetails);
+
 			}
 		} catch (Exception exp) {
 			exp.printStackTrace();
@@ -1160,8 +1186,7 @@ public class ImportService {
 		}
 	}
 
-	private JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(
-			JwsEntityRoleAssociation entityRoleAssociation) {
+	private JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(JwsEntityRoleAssociation entityRoleAssociation) {
 		JwsEntityRoleAssociationVO vo = new JwsEntityRoleAssociationVO();
 		return vo.convertEntityToVO(entityRoleAssociation);
 	}
@@ -1226,11 +1251,8 @@ public class ImportService {
 		vo.setDynarestMethodDescription(dynaRest.getJwsMethodDescription());
 		vo.setDynarestMethodName(dynaRest.getJwsMethodName());
 		vo.setDynarestPlatformId(dynaRest.getJwsPlatformId() != null ? dynaRest.getJwsPlatformId().toString() : "");
-		vo.setDynarestProdTypeId(
-				dynaRest.getJwsResponseProducerTypeId() != null ? dynaRest.getJwsResponseProducerTypeId().toString()
-						: "");
-		vo.setDynarestRequestTypeId(
-				dynaRest.getJwsRequestTypeId() != null ? dynaRest.getJwsRequestTypeId().toString() : "");
+		vo.setDynarestProdTypeId(dynaRest.getJwsResponseProducerTypeId() != null ? dynaRest.getJwsResponseProducerTypeId().toString() : "");
+		vo.setDynarestRequestTypeId(dynaRest.getJwsRequestTypeId() != null ? dynaRest.getJwsRequestTypeId().toString() : "");
 		vo.setDynarestUrl(dynaRest.getJwsDynamicRestUrl());
 		vo.setEntityName("jq_dynamic_rest_details");
 		vo.setFormId("8a80cb81749ab40401749ac2e7360000");
@@ -1258,8 +1280,7 @@ public class ImportService {
 		return vo;
 	}
 
-	private void saveAndUploadFiles(List<FileUpload> fileUploadList, String parentFolderName, String moduleName)
-			throws Exception {
+	private void saveAndUploadFiles(List<FileUpload> fileUploadList, String parentFolderName, String moduleName) throws Exception {
 		LocalDate		localDate		= LocalDate.now();
 		Integer			year			= localDate.getYear();
 		Integer			month			= localDate.getMonthValue();
@@ -1274,8 +1295,8 @@ public class ImportService {
 		Path root = Paths.get(location.toString());
 
 		for (FileUpload fileUpload : fileUploadList) {
-			String manualPath = unZipFilePath + File.separator + parentFolderName + File.separator + moduleName
-					+ File.separator + fileUpload.getPhysicalFileName();
+			String manualPath = unZipFilePath + File.separator + parentFolderName + File.separator + moduleName + File.separator
+					+ fileUpload.getPhysicalFileName();
 			if (!new File(manualPath).exists()) {
 				throw new RuntimeException("File Not found!!: " + manualPath);
 			}
@@ -1288,4 +1309,49 @@ public class ImportService {
 			ifileUploadRepository.save(fileUpload);
 		}
 	}
+
+	public String getAdditionalDatasourceJson(String entityId) throws Exception {
+		AdditionalDatasource	ads		= additionalDatasourceRepository.findById(entityId).orElse(null);
+		String	jsonString	= "";
+		if (ads != null) {
+			ads = ads.getObject();
+
+			AdditionalDatasourceVO		vo				= ads.convertEntityToVO(ads);
+			Gson			gson			= new Gson();
+			ObjectMapper	objectMapper	= new ObjectMapper();
+			String			dbDateFormat	= propertyMasterService.getDateFormatByName(
+					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+			DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+			objectMapper.setDateFormat(dateFormat);
+			Map<String, Object> objectMap = objectMapper.convertValue(vo, TreeMap.class);
+			jsonString = gson.toJson(objectMap);
+
+		}
+		return jsonString;
+	}
+
+	public String getApiClientDetailseJson(String entityId) throws Exception {
+		ApiClientDetails	acd		= apiClientDetailsRepository.findById(entityId).orElse(null);
+		String	jsonString	= "";
+		if (acd != null) {
+			acd = acd.getObject();
+
+			ApiClientDetailsVO		vo				= acd.convertEntityToVO(acd);
+			Gson			gson			= new Gson();
+			ObjectMapper	objectMapper	= new ObjectMapper();
+			String			dbDateFormat	= propertyMasterService.getDateFormatByName(
+					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+			DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+			objectMapper.setDateFormat(dateFormat);
+			Map<String, Object> objectMap = objectMapper.convertValue(vo, TreeMap.class);
+			jsonString = gson.toJson(objectMap);
+
+		}
+		return jsonString;
+	}
+
 }

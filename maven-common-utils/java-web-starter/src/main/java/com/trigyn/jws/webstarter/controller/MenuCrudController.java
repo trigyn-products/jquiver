@@ -64,8 +64,8 @@ public class MenuCrudController {
 	}
 
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditModule(@RequestParam(value = "module-id") String moduleId,
-			HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
+	public String addEditModule(@RequestParam(value = "module-id") String moduleId, HttpServletRequest a_httHttpServletRequest,
+		HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object>			templateMap					= new HashMap<>();
 			ModuleDetailsVO				moduleDetailsVO				= moduleService.getModuleDetails(moduleId);
@@ -75,8 +75,7 @@ public class MenuCrudController {
 			Integer						defaultSequence				= moduleService.getModuleMaxSequence();
 			String						uri							= a_httHttpServletRequest.getRequestURI()
 					.substring(a_httHttpServletRequest.getContextPath().length());
-			String						url							= a_httHttpServletRequest.getRequestURL()
-					.toString();
+			String						url							= a_httHttpServletRequest.getRequestURL().toString();
 			StringBuilder				urlPrefix					= new StringBuilder();
 			url = url.replace(uri, "");
 			urlPrefix.append(url).append("/view/");
@@ -100,15 +99,15 @@ public class MenuCrudController {
 	}
 
 	@GetMapping(value = "/ltlm", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public List<Map<String, Object>> getTargetTypes(
-			@RequestHeader(value = "target-lookup-id", required = true) Integer targetLookupId) throws Exception {
+	public List<Map<String, Object>> getTargetTypes(@RequestHeader(value = "target-lookup-id", required = true) Integer targetLookupId)
+			throws Exception {
 		return moduleService.getTargetTypes(targetLookupId, null);
 	}
 
 	@GetMapping(value = "/cms")
 	@ResponseBody
 	public String checkSequenceNumber(@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
-			@RequestHeader(name = "sequence", required = true) Integer sequence) throws Exception {
+		@RequestHeader(name = "sequence", required = true) Integer sequence) throws Exception {
 		try {
 			return moduleService.getModuleIdBySequence(parentModuleId, sequence);
 		} catch (Exception a_exception) {
@@ -119,10 +118,10 @@ public class MenuCrudController {
 
 	@GetMapping(value = "/ced", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public Map<String, Object> getExistingData(@RequestHeader(name = "module-name", required = false) String moduleName,
-			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
-			@RequestHeader(name = "sequence", required = false) Integer sequence,
-			@RequestHeader(name = "module-url", required = false) String moduleURL,
-			@RequestHeader(name = "module-id", required = false) String moduleId) throws Exception {
+		@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
+		@RequestHeader(name = "sequence", required = false) Integer sequence,
+		@RequestHeader(name = "module-url", required = false) String moduleURL,
+		@RequestHeader(name = "module-id", required = false) String moduleId) throws Exception {
 		return moduleService.getExistingModuleData(moduleId, moduleName, parentModuleId, sequence, moduleURL);
 	}
 
@@ -138,8 +137,8 @@ public class MenuCrudController {
 
 	@GetMapping(value = "/dsp")
 	@ResponseBody
-	public Integer getMaxSequenceByParent(
-			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId) throws Exception {
+	public Integer getMaxSequenceByParent(@RequestHeader(name = "parent-module-id", required = false) String parentModuleId)
+			throws Exception {
 		return moduleService.getMaxSequenceByParent(parentModuleId);
 	}
 
@@ -168,8 +167,8 @@ public class MenuCrudController {
 
 	@PostMapping(value = "/schm")
 	@ResponseBody
-	public String saveConfigHomeModule(HttpServletRequest a_httHttpServletRequest,
-			HttpServletResponse httpServletResponse) throws Exception {
+	public String saveConfigHomeModule(HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse)
+			throws Exception {
 		logger.debug("Inside MenuCrudController.saveConfigHomeModule()");
 		moduleService.saveModuleRoleAssociation(a_httHttpServletRequest);
 		return moduleService.saveConfigHomePage(a_httHttpServletRequest);
@@ -177,8 +176,8 @@ public class MenuCrudController {
 
 	@PostMapping(value = "/vchm")
 	@ResponseBody
-	public Boolean validateConfigHomeModule(HttpServletRequest a_httHttpServletRequest,
-			HttpServletResponse httpServletResponse) throws Exception {
+	public Boolean validateConfigHomeModule(HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse)
+			throws Exception {
 		String	moduleId	= a_httHttpServletRequest.getParameter("moduleId");
 		String	roleId		= a_httHttpServletRequest.getParameter("roleId");
 		String	moduleIdDB	= moduleService.findModuleIdByRoleId(roleId, moduleId);

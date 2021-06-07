@@ -70,14 +70,13 @@ public class ContextMasterVO implements Serializable {
 		}
 		ContextMasterVO other = (ContextMasterVO) obj;
 		return Objects.equals(allowDashboardAddition, other.allowDashboardAddition)
-				&& Objects.equals(contextDescription, other.contextDescription)
-				&& Objects.equals(contextId, other.contextId);
+				&& Objects.equals(contextDescription, other.contextDescription) && Objects.equals(contextId, other.contextId);
 	}
 
 	@Override
 	public String toString() {
-		return "ContextMasterVO [contextId=" + contextId + ", contextDescription=" + contextDescription
-				+ ", allowDashboardAddition=" + allowDashboardAddition + "]";
+		return "ContextMasterVO [contextId=" + contextId + ", contextDescription=" + contextDescription + ", allowDashboardAddition="
+				+ allowDashboardAddition + "]";
 	}
 
 }

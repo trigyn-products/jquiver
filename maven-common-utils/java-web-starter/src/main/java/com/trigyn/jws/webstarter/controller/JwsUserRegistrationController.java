@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -106,45 +108,51 @@ public class JwsUserRegistrationController {
 	@Autowired
 	private ServletContext						servletContext					= null;
 
+	@Autowired
+	private IUserDetailsService			userDetails					= null;
+
 	@GetMapping("/login")
 	@ResponseBody
-	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response)
-			throws Exception {
+	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
 
-		Map<String, Object>	mapDetails	= new HashMap<>();
-
-		String				queryString	= request.getQueryString();
-		if (StringUtils.isNotEmpty(request.getQueryString())) {
-			mapDetails.put("queryString", queryString);
-			if (queryString.equalsIgnoreCase("error")) {
-				Exception excep = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-				if (excep.getCause() instanceof InvalidLoginException) {
-					mapDetails.put("exceptionMessage", excep.getMessage());
-				}
-			}
-		} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
-			Exception exc = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
-			if (exc != null && !exc.getMessage().isBlank()) {
-				mapDetails.put("queryString", "error");
-				mapDetails.put("exceptionMessage", exc.getMessage());
-			}
-			session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
-		}
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
-			if (Integer.parseInt(applicationSecurityDetails.getAuthenticationType()) == Constants.AuthType.OAUTH
-					.getAuthType() && oAuthDetails != null) {
-				mapDetails.put("client", oAuthDetails.getOAuthClient());
-			}
-			userConfigService.getConfigurableDetails(mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+		UserDetailsVO	userDetailsVO		= userDetails.getUserDetails();
+		if(userDetailsVO != null && !userDetailsVO.getUserName().equalsIgnoreCase("anonymous")) {
+			response.sendRedirect(servletContext.getContextPath() + "/cf/home");
 			return null;
-		}
-		TemplateVO templateVO = templatingService.getTemplateByName("jws-login");
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				mapDetails);
+		} else {
+			Map<String, Object>	mapDetails	= new HashMap<>();
 
+			String				queryString	= request.getQueryString();
+			if (StringUtils.isNotEmpty(request.getQueryString())) {
+				mapDetails.put("queryString", queryString);
+				if (queryString.equalsIgnoreCase("error")) {
+					Exception excep = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+					if (excep.getCause() instanceof InvalidLoginException) {
+						mapDetails.put("exceptionMessage", excep.getMessage());
+					}
+				}
+			} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
+				Exception exc = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+				if (exc != null && !exc.getMessage().isBlank()) {
+					mapDetails.put("queryString", "error");
+					mapDetails.put("exceptionMessage", exc.getMessage());
+				}
+				session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
+			}
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
+				if (Integer.parseInt(applicationSecurityDetails.getAuthenticationType()) == Constants.AuthType.OAUTH.getAuthType()
+						&& oAuthDetails != null) {
+					mapDetails.put("client", oAuthDetails.getOAuthClient());
+				}
+				userConfigService.getConfigurableDetails(mapDetails);
+			} else {
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
+			}
+			TemplateVO templateVO = templatingService.getTemplateByName("jws-login");
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
+		}
 	}
 
 	@GetMapping("/register")
@@ -153,12 +161,10 @@ public class JwsUserRegistrationController {
 		Map<String, Object>	mapDetails						= new HashMap<>();
 		String				enableRegistrationPropertyName	= "enableRegistration";
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			Integer					authType			= Integer
-					.parseInt(applicationSecurityDetails.getAuthenticationType());
+			Integer					authType			= Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
 			JwsAuthenticationType	authenticationType	= authenticationTypeRepository.findById(authType)
 					.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
-			JSONArray				jsonArray			= new JSONArray(
-					authenticationType.getAuthenticationProperties());
+			JSONArray				jsonArray			= new JSONArray(authenticationType.getAuthenticationProperties());
 
 			JSONObject				jsonObject			= null;
 			jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, enableRegistrationPropertyName);
@@ -171,15 +177,13 @@ public class JwsUserRegistrationController {
 			return null;
 		}
 		TemplateVO templateVO = templatingService.getTemplateByName("jws-register");
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				mapDetails);
+		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 
 	}
 
 	@PostMapping(value = "/register")
 	@ResponseBody
-	public String registerUser(HttpServletRequest request, JwsUserVO user, HttpServletResponse response)
-			throws Exception {
+	public String registerUser(HttpServletRequest request, JwsUserVO user, HttpServletResponse response) throws Exception {
 
 		Map<String, Object>	mapDetails		= new HashMap<>();
 		String				viewName		= null;
@@ -198,16 +202,14 @@ public class JwsUserRegistrationController {
 			viewName = "jws-register";
 		} else {
 			HttpSession session = request.getSession();
-			if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-					&& session.getAttribute("registerCaptcha") != null
+			if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && session.getAttribute("registerCaptcha") != null
 					&& !(user.getCaptcha().equals(session.getAttribute("registerCaptcha").toString()))) {
 				mapDetails.put("error", "Please verify captcha!");
 				mapDetails.put("firstName", user.getFirstName().trim());
 				mapDetails.put("lastName", user.getLastName().trim());
 				viewName = "jws-register";
 				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-						mapDetails);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 			}
 
 			if (mapDetails.get("enableGoogleAuthenticator").toString().equalsIgnoreCase("false")) {
@@ -229,10 +231,9 @@ public class JwsUserRegistrationController {
 					// email.setMailFrom("admin@jquiver.com");
 
 					Map<String, Object>	mailDetails			= new HashMap<>();
-					TemplateVO			subjectTemplateVO	= templatingService
-							.getTemplateByName("confirm-account-mail-subject");
-					String				subject				= templatingUtils.processTemplateContents(
-							subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
+					TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("confirm-account-mail-subject");
+					String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+							subjectTemplateVO.getTemplateName(), mailDetails);
 					email.setSubject(subject);
 
 					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
@@ -280,8 +281,8 @@ public class JwsUserRegistrationController {
 						+ userEntityFromVo.getUserId() + ".png";
 				File				file				= new File(filePath);
 				FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-				String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(
-						userEntityFromVo.getEmail(), "Jquiver", userEntityFromVo.getSecretKey());
+				String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(userEntityFromVo.getEmail(),
+						"Jquiver", userEntityFromVo.getSecretKey());
 				twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
 
 				Email email = new Email();
@@ -311,8 +312,7 @@ public class JwsUserRegistrationController {
 		}
 
 		TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				mapDetails);
+		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 
 	}
 
@@ -332,7 +332,7 @@ public class JwsUserRegistrationController {
 	@GetMapping(value = "/confirm-account")
 	@ResponseBody
 	public String confirmUserAccount(ModelAndView modelAndView, @RequestParam("token") String confirmationToken,
-			HttpServletResponse response) throws Exception {
+		HttpServletResponse response) throws Exception {
 
 		Map<String, Object>	mapDetails	= new HashMap<>();
 		String				viewName	= null;
@@ -361,8 +361,7 @@ public class JwsUserRegistrationController {
 			}
 
 			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-					mapDetails);
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 
 		} else {
 
@@ -373,8 +372,7 @@ public class JwsUserRegistrationController {
 	}
 
 	@GetMapping(value = "/captcha/{flagCaptcha}")
-	public void loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response)
-			throws Throwable {
+	public void loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
 		String captchaStr = CaptchaUtil.getCaptchaString();
 		System.out.println(captchaStr);

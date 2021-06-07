@@ -70,10 +70,9 @@ public class TemplatingUtils {
 	@Autowired
 	private PropertyMasterDetails	propertyMasterDetails	= null;
 
-	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap)
-			throws Exception {
-		logger.debug("Inside TemplatingUtils.processTemplateContents(templateContent{}, templateName{}, modelMap{})",
-				templateContent, templateName, modelMap);
+	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap) throws Exception {
+		logger.debug("Inside TemplatingUtils.processTemplateContents(templateContent: {}, templateName: {}, modelMap: {})", templateContent,
+				templateName, modelMap);
 		templateContent = StringEscapeUtils.unescapeHtml4(templateContent);
 		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
 		stringTemplateLoader.putTemplate("templateUtils", templateUtils());
@@ -88,10 +87,10 @@ public class TemplatingUtils {
 		return writer.toString();
 	}
 
-	public String processMultipleTemplateContents(String mainTemplateContent, String templateName,
-			Map<String, Object> modelMap, Map<String, String> childTemplateDetails) throws Exception {
+	public String processMultipleTemplateContents(String mainTemplateContent, String templateName, Map<String, Object> modelMap,
+		Map<String, String> childTemplateDetails) throws Exception {
 		logger.debug(
-				"Inside TemplatingUtils.processMultipleTemplateContents(mainTemplateContent{}, templateName{}, modelMap{}, childTemplateDetails{})",
+				"Inside TemplatingUtils.processMultipleTemplateContents(mainTemplateContent: {}, templateName: {}, modelMap: {}, childTemplateDetails: {})",
 				mainTemplateContent, templateName, modelMap, childTemplateDetails);
 		addTemplateProperties(modelMap);
 		StringTemplateLoader stringTemplateLoader = new StringTemplateLoader();
@@ -110,7 +109,7 @@ public class TemplatingUtils {
 	}
 
 	private void addTemplateProperties(Map<String, Object> modelMap) {
-		logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap{})", modelMap);
+		logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap: {})", modelMap);
 		String								contextPath			= servletContext.getContextPath();
 		Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
 		Locale								locale				= localeResolver.resolveLocale(getRequest());
@@ -124,6 +123,7 @@ public class TemplatingUtils {
 		if (detailsVO != null) {
 			modelMap.put("loggedInUserName", detailsVO.getUserName());
 			modelMap.put("loggedInUserRoleList", detailsVO.getRoleIdList());
+			modelMap.put("loggedInUserId", detailsVO.getUserId());
 		}
 	}
 
@@ -134,19 +134,17 @@ public class TemplatingUtils {
 
 	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap)
 			throws IOException, TemplateException {
-		logger.debug("Inside TemplatingUtils.processFtl(templateName{}, templateContent{}, modelMap{})", templateName,
+		logger.debug("Inside TemplatingUtils.processFtl(templateName: {}, templateContent: {}, modelMap: {})", templateName,
 				templateContent, modelMap);
-		Template	templateObj	= new Template(templateName, new StringReader(templateContent),
-				freeMarkerConfigurer.getConfiguration());
+		Template	templateObj	= new Template(templateName, new StringReader(templateContent), freeMarkerConfigurer.getConfiguration());
 		Writer		writer		= new StringWriter();
 		templateObj.process(modelMap, writer);
 		return writer.toString();
 	}
 
-	public String processTemplate(String templateName, Map<String, Object> modelMap, Boolean includeLayout)
-			throws Exception {
-		logger.debug("Inside TemplatingUtils.processTemplate(templateName{}, modelMap{}, includeLayout{})",
-				templateName, modelMap, includeLayout);
+	public String processTemplate(String templateName, Map<String, Object> modelMap, Boolean includeLayout) throws Exception {
+		logger.debug("Inside TemplatingUtils.processTemplate(templateName: {}, modelMap: {}, includeLayout: {})", templateName, modelMap,
+				includeLayout);
 		TemplateVO templateVO = templatingService.getTemplateByName(templateName);
 		addTemplateProperties(modelMap);
 		Template	templateObj	= new Template(templateName, new StringReader(templateVO.getTemplate()),

@@ -31,12 +31,13 @@ import com.trigyn.jws.dynarest.vo.RestApiDaoQueries;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 
+import freemarker.core.StopException;
+
 @Service
 @Transactional
 public class JwsDynamicRestDetailService {
 
-	private final static Logger				logger							= LogManager
-			.getLogger(JwsDynamicRestDetailService.class);
+	private final static Logger				logger							= LogManager.getLogger(JwsDynamicRestDetailService.class);
 
 	@Autowired
 	private TemplatingUtils					templatingUtils					= null;
@@ -56,9 +57,8 @@ public class JwsDynamicRestDetailService {
 	@Autowired
 	private ApplicationContext				applicationContext				= null;
 
-	public Object createSourceCodeAndInvokeServiceLogic(HttpServletRequest httpServletRequest,
-			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails)
-			throws Exception {
+	public Object createSourceCodeAndInvokeServiceLogic(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap,
+		Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
 		ObjectMapper		objectMapper	= new ObjectMapper();
 		Map<String, Object>	apiDetails		= objectMapper.convertValue(restApiDetails, Map.class);
 		requestParameterMap.putAll(apiDetails);
@@ -74,31 +74,26 @@ public class JwsDynamicRestDetailService {
 	}
 
 	private Object invokeAndExecuteFTL(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap,
-			Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
-		if (restApiDetails.getServiceLogic() != null
-				|| Boolean.FALSE.equals("".equals(restApiDetails.getServiceLogic()))) {
+		Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
+		if (restApiDetails.getServiceLogic() != null || Boolean.FALSE.equals("".equals(restApiDetails.getServiceLogic()))) {
 			requestParameterMap.putAll(daoResultSets);
-			return templatingUtils.processTemplateContents(restApiDetails.getServiceLogic(), "service",
-					requestParameterMap);
+			return templatingUtils.processTemplateContents(restApiDetails.getServiceLogic(), "service", requestParameterMap);
 		}
 		return null;
 	}
 
 	private Object invokeAndExecuteOnJava(HttpServletRequest httpServletRequest, Map<String, Object> daoResultSets,
-			RestApiDetails restApiDetails) throws Exception, ClassNotFoundException, NoSuchMethodException,
-			IllegalAccessException, InvocationTargetException, InstantiationException {
-		Class<?>	serviceClass		= Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE,
-				this.getClass().getClassLoader());
+		RestApiDetails restApiDetails) throws Exception, ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException, InstantiationException {
+		Class<?>	serviceClass		= Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
 		Object		classInstance		= serviceClass.getDeclaredConstructor().newInstance();
-		Method		serviceLogicMethod	= serviceClass.getDeclaredMethod(restApiDetails.getMethodName(),
-				HttpServletRequest.class, Map.class, UserDetailsVO.class);
+		Method		serviceLogicMethod	= serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), HttpServletRequest.class,
+				Map.class, UserDetailsVO.class);
 		try {
-			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext",
-					ApplicationContext.class);
+			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext", ApplicationContext.class);
 			applicationContextMethod.invoke(classInstance, applicationContext);
 		} catch (NoSuchMethodException a_exception) {
-			logger.warn(
-					"No method found for setting application context. Create method setApplicationContext to set applicationContext",
+			logger.warn("No method found for setting application context. Create method setApplicationContext to set applicationContext",
 					a_exception);
 		} catch (SecurityException a_exception) {
 			logger.error("Security exception occured while invoking setApplication context ", a_exception);
@@ -109,25 +104,21 @@ public class JwsDynamicRestDetailService {
 		} catch (InvocationTargetException a_exception) {
 			logger.error("InvocationTargetException occured while invoking setApplication context ", a_exception);
 		}
-		return serviceLogicMethod.invoke(classInstance, httpServletRequest, daoResultSets,
-				detailsService.getUserDetails());
+		return serviceLogicMethod.invoke(classInstance, httpServletRequest, daoResultSets, detailsService.getUserDetails());
 	}
 
 	public Object invokeAndExecuteOnFileJava(MultipartFile[] files, HttpServletRequest httpServletRequest,
-			Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
-			NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-		Class<?>	serviceClass		= Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE,
-				this.getClass().getClassLoader());
+		Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException, NoSuchMethodException,
+			IllegalAccessException, InvocationTargetException, InstantiationException {
+		Class<?>	serviceClass		= Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE, this.getClass().getClassLoader());
 		Object		classInstance		= serviceClass.getDeclaredConstructor().newInstance();
-		Method		serviceLogicMethod	= serviceClass.getDeclaredMethod(restApiDetails.getMethodName(),
-				MultipartFile.class, HttpServletRequest.class, Map.class, UserDetailsVO.class);
+		Method		serviceLogicMethod	= serviceClass.getDeclaredMethod(restApiDetails.getMethodName(), MultipartFile.class,
+				HttpServletRequest.class, Map.class, UserDetailsVO.class);
 		try {
-			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext",
-					ApplicationContext.class);
+			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext", ApplicationContext.class);
 			applicationContextMethod.invoke(classInstance, applicationContext);
 		} catch (NoSuchMethodException a_nsme) {
-			logger.warn(
-					"No method found for setting application context. Create method setApplicationContext to set applicationContext",
+			logger.warn("No method found for setting application context. Create method setApplicationContext to set applicationContext",
 					a_nsme);
 		} catch (SecurityException a_se) {
 			logger.error("Security exception occured while invoking setApplication context ", a_se);
@@ -138,13 +129,11 @@ public class JwsDynamicRestDetailService {
 		} catch (InvocationTargetException a_ite) {
 			logger.error("InvocationTargetException occured while invoking setApplication context ", a_ite);
 		}
-		return serviceLogicMethod.invoke(classInstance, files, httpServletRequest, daoResultSets,
-				detailsService.getUserDetails());
+		return serviceLogicMethod.invoke(classInstance, files, httpServletRequest, daoResultSets, detailsService.getUserDetails());
 	}
 
-	private Object invokeAndExecuteJavascript(HttpServletRequest httpServletRequest,
-			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails)
-			throws ScriptException {
+	private Object invokeAndExecuteJavascript(HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap,
+		Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws ScriptException {
 		ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
 		ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("javascript");
 		scriptEngine.put("requestDetails", requestParameterMap);
@@ -156,17 +145,18 @@ public class JwsDynamicRestDetailService {
 		return dyanmicRestDetailsRepository.findByJwsDynamicRestUrl(requestUri);
 	}
 
-	public Map<String, Object> executeDAOQueries(String dynarestId, Map<String, Object> parameterMap) throws Exception {
+	public Map<String, Object> executeDAOQueries(String dataSourceId, String dynarestId, Map<String, Object> parameterMap)
+			throws Exception {
 		List<RestApiDaoQueries>	apiDaoQueries	= dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
 		Map<String, Object>		resultSetMap	= new HashMap<>();
 		for (RestApiDaoQueries restApiDaoQueries : apiDaoQueries) {
-			String						query		= templatingUtils
-					.processTemplateContents(restApiDaoQueries.getJwsDaoQueryTemplate(), "apiQuery", parameterMap);
+			String						query		= templatingUtils.processTemplateContents(restApiDaoQueries.getJwsDaoQueryTemplate(),
+					"apiQuery", parameterMap);
 			List<Map<String, Object>>	resultSet	= new ArrayList<>();
 			if (Constants.QueryType.DML.getQueryType() == restApiDaoQueries.getQueryType()) {
-				dynarestDAO.executeDMLQueries(query, parameterMap);
+				dynarestDAO.executeDMLQueries(dataSourceId, query, parameterMap);
 			} else {
-				resultSet = dynarestDAO.executeQueries(query, parameterMap);
+				resultSet = dynarestDAO.executeQueries(dataSourceId, query, parameterMap);
 			}
 			resultSetMap.put(restApiDaoQueries.getJwsResultVariableName(), resultSet);
 			parameterMap.put(restApiDaoQueries.getJwsResultVariableName(), resultSet);

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.resourcebundle.repository.interfaces.IResourceBundleRepository;
 
+
 @Component("messageSource")
 public class DBResourceBundle extends AbstractMessageSource {
 
@@ -26,8 +27,8 @@ public class DBResourceBundle extends AbstractMessageSource {
 			a_locale = DEFAULT_LOCALE_CODE;
 		}
 
-		message = iResourceBundleRepository.findByKeyAndLanguageCode(a_key, a_locale.toString(),
-				DEFAULT_LOCALE_CODE.toString(), Constant.RecordStatus.INSERTED.getStatus());
+		message = iResourceBundleRepository.findByKeyAndLanguageCode(a_key, a_locale.toString(), DEFAULT_LOCALE_CODE.toString(),
+				Constant.RecordStatus.INSERTED.getStatus());
 		if (message != null) {
 			mfReturn = new MessageFormat(message, a_locale);
 		} else {

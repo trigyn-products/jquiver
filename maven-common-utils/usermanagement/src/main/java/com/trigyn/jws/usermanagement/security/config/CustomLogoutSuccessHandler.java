@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 public class CustomLogoutSuccessHandler implements LogoutHandler {
 
-	private static Set<LogoutSuccessEventListener>	logoutListener				= new HashSet<LogoutSuccessEventListener>();
+	private static Set<LogoutSuccessEventListener> logoutListener = new HashSet<LogoutSuccessEventListener>();
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

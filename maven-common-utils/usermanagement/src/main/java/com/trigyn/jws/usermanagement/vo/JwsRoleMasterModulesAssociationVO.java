@@ -52,15 +52,13 @@ public class JwsRoleMasterModulesAssociationVO implements Serializable {
 		this.isActive = isActive;
 	}
 
-	public JwsRoleMasterModulesAssociation convertVOToEntity(
-			JwsRoleMasterModulesAssociationVO jwsRoleMasterModulesAssociationVO) {
+	public JwsRoleMasterModulesAssociation convertVOToEntity(JwsRoleMasterModulesAssociationVO jwsRoleMasterModulesAssociationVO) {
 
 		JwsRoleMasterModulesAssociation masterModuleAssociation = new JwsRoleMasterModulesAssociation();
 
-		masterModuleAssociation
-				.setRoleModuleId(StringUtils.isNotEmpty(jwsRoleMasterModulesAssociationVO.getRoleModuleId())
-						? jwsRoleMasterModulesAssociationVO.getRoleModuleId()
-						: null);
+		masterModuleAssociation.setRoleModuleId(StringUtils.isNotEmpty(jwsRoleMasterModulesAssociationVO.getRoleModuleId())
+				? jwsRoleMasterModulesAssociationVO.getRoleModuleId()
+				: null);
 		masterModuleAssociation.setRoleId(jwsRoleMasterModulesAssociationVO.getRoleId());
 		masterModuleAssociation.setModuleId(jwsRoleMasterModulesAssociationVO.getModuleId());
 		masterModuleAssociation.setIsActive(jwsRoleMasterModulesAssociationVO.getIsActive());

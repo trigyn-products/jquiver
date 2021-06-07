@@ -70,14 +70,13 @@ public class TypeAheadCrudController {
 	}
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
-	public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 
 		try {
 			String				autocompleteId	= request.getParameter("acId");
 			Map<String, Object>	templateData	= new HashMap<>();
 
-			if (!StringUtils.isBlank(autocompleteId)) {
+			if (StringUtils.isBlank(autocompleteId) == false) {
 				AutocompleteVO autocompleteVO = typeAheadService.getAutocompleteDetailsId(autocompleteId);
 				templateData.put("autocompleteVO", autocompleteVO);
 			}
@@ -102,10 +101,18 @@ public class TypeAheadCrudController {
 		return typeAheadService.saveAutocompleteDetails(formDataMap, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
 
+	@PostMapping(value = "/uad")
+	public void updateAutocompleteDataSource(HttpServletRequest httpServletRequest) throws Exception {
+		String	autocompleteId			= httpServletRequest.getParameter("autocompleteId");
+		String	additionalDataSourceId	= httpServletRequest.getParameter("additionalDataSourceId");
+		typeAheadService.updateAutocompleteDataSource(autocompleteId, additionalDataSourceId);
+	}
+
 	@PostMapping(value = "/cnbtn", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Map<String, Object>> getColumnNamesByTableName(HttpServletRequest httpServletRequest) throws Exception {
-		String tableName = httpServletRequest.getParameter("tableName");
-		return typeAheadService.getColumnNamesByTableName(tableName);
+		String	tableName				= httpServletRequest.getParameter("tableName");
+		String	additionalDataSourceId	= httpServletRequest.getParameter("additionalDataSourceId");
+		return typeAheadService.getColumnNamesByTableName(additionalDataSourceId, tableName);
 	}
 
 }

@@ -1,49 +1,66 @@
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing',
+'autocompleteId,autocompleteDescription,lastUpdatedBy,autocompleteTypeId', 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("dashboardMasterListingGrid", 'Dashboard Master Listing', 'Dashboard Master', 'dashboardMasterListing'
-,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedDate', 2);
+,'dashboardName,dashboardType,contextDescription,createdDate,createdBy,lastUpdatedTs', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing','dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,updatedDate,updatedBy,status', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ("dashletMasterListingGrid", 'Dashlet Master Listing', 'Dashlet Master', 'dashletMasterListing'
+,'dashletName,dashletTitle,dashletTypeId,createdDate,createdBy,lastUpdatedTs,updatedBy,status', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)  VALUES 
-("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing','formId,formName,formDescription,formTypeId,createdDate,createdBy', 2);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ("dynamicFormListingGrid", 'Dynamic Form Master', 'Dynamic Form Master Listing', 'dynamicFormListing'
+,'formId,formName,formDescription,formTypeId,createdDate,createdBy', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing', 'templateName,templateTypeId,createdBy,updatedBy', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing'
+,'templateName,templateTypeId,createdBy,updatedBy', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
-VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing',
-'resourceKey,languageName,resourceBundleText', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing'
+,'resourceKey,languageName,resourceBundleText', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
- VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails', 'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails'
+,'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting', 'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ("notificationDetailsListing", 'Notification Details Listing', 'Notification Details Listing', 'notificationlisting'
+,'targetPlatform,messageType,validFrom,messageText,validTill,messageFormat,selectionCriteria,updatedBy,updatedDate', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id)
-VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing', 'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu', 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
+VALUES ("moduleListingGrid", 'Menu Module Listing', 'Menu Module Listing', 'moduleListing'
+,'moduleId,moduleName,moduleURL,parentModuleName,sequence,isInsideMenu,moduleTypeId', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("dynarestGrid", 'Dynamic Rest API listing', 'Dynamic Rest API listing', 'jq_dynamic_rest_details'
-,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2);
+,'jws_dynamic_rest_id,jws_dynamic_rest_url,jws_method_name,jws_method_description,jws_request_type_id,jws_platform_id,jws_dynamic_rest_type_id', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
-VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jq_property_master','*', 1, 2);
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ("propertyMasterListing", 'Property master listing', 'Property master listing', 'jq_property_master','*', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("fileUploadConfigGrid", 'File Upload Config', 'File Upload Config', 'fileUploadConfigListing'
-,'fileBinId,fileTypeSupported,maxFileSize,noOfFiles,updatedBy,updatedDate', 2);
+,'fileBinId,fileTypeSupported,maxFileSize,noOfFiles,lastUpdatedBy', 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("propertyMasterListingGrid", 'Property Master Listing', 'Property Master Listing', 'propertyMasterListing'
-,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2);
+,'ownerType,ownerId,propertyName,propertyValue,modifiedBy,appVersion,comments', 2, 'aar.dev@trigyn.com', NOW(), NOW());
  
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
+VALUES ("dynarestListingGrid", 'Dynamic REST API Listing', 'Dynamic REST API Listing', 'dynarestListing'
+,'dynarestUrl,rbacId,methodName,methodDescription,requestTypeId,producerTypeId,serviceLogic,platformId,allowFiles,dynarestTypeId', 2, 'aar.dev@trigyn.com', NOW(), NOW()); 
 
 DROP PROCEDURE IF EXISTS autocompleteListing;
-CREATE PROCEDURE autocompleteListing(autocompleteId varchar(100), autocompleteDescription varchar(500), acQuery LONGTEXT, autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE autocompleteListing(autocompleteId VARCHAR(100), autocompleteDescription varchar(500), lastUpdatedBy VARCHAR(500), autocompleteTypeId INT(11) ,forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-  SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery ';
-  SET @resultQuery = CONCAT(@resultQuery, ', au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
+
+
+  SET @resultQuery = ' SELECT au.ac_id AS autocompleteId, au.ac_description AS autocompleteDescription, au.ac_select_query AS acQuery, au.last_updated_by AS lastUpdatedBy ';
+  SET @resultQuery = CONCAT(@resultQuery, ', au.last_updated_ts AS lastUpdatedTs, au.ac_type_id AS autocompleteTypeId, COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM jq_autocomplete_details au ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = au.ac_id AND jmv.entity_name = 'jq_autocomplete_details' ");
@@ -58,19 +75,19 @@ BEGIN
     END IF;  
   END IF;
   
+  IF NOT lastUpdatedBy IS NULL THEN
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND au.last_updated_ts LIKE ''%',lastUpdatedBy,'%''');
+    ELSE
+      SET @whereString = CONCAT('WHERE au.last_updated_ts LIKE ''%',lastUpdatedBy,'%''');
+    END IF;  
+  END IF;
+  
   IF NOT autocompleteDescription IS NULL THEN
     IF  @whereString != '' THEN
       SET @whereString = CONCAT(@whereString,' AND au.ac_description LIKE ''%',autocompleteDescription,'%''');
     ELSE
       SET @whereString = CONCAT('WHERE au.ac_description LIKE ''%',autocompleteDescription,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT acQuery IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND au.ac_select_query LIKE ''%',acQuery,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE au.ac_select_query LIKE ''%',acQuery,'%''');
     END IF;  
   END IF;
   
@@ -87,7 +104,7 @@ BEGIN
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY ac_id DESC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
   END IF;
   
 	IF forCount=1 THEN
@@ -105,10 +122,12 @@ END;
 DROP PROCEDURE IF EXISTS dbResourceListing;
 CREATE PROCEDURE dbResourceListing(resourceKey VARCHAR(100), languageName VARCHAR(100), resourceBundleText TEXT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+
   SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
   SET @selectQuery = CONCAT(@selectQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM jq_resource_bundle AS rb INNER JOIN jq_language AS lang ON lang.language_id = rb.language_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'resource_bundle' ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'jq_resource_bundle' ");
   
   IF languageName IS NULL THEN  
     SET @whereString = ' WHERE lang.language_id = 1 ';
@@ -151,25 +170,20 @@ END;
 
 DROP PROCEDURE IF EXISTS dashboardMasterListing;
 CREATE PROCEDURE dashboardMasterListing(dashboardName varchar(50), dashboardType varchar(100), contextDescription varchar(1000)
-,createdDate varchar(100), createdBy varchar(100),lastUpdatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
+,createdDate varchar(100), createdBy varchar(100),lastUpdatedTs varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 DECLARE db_format VARCHAR(20);
 
-DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
-
-OPEN curP;
-FETCH curP INTO db_format;
 
   SET @resultQuery = CONCAT(" SELECT db.dashboard_id AS dashboardId, db.dashboard_name AS dashboardName, db.dashboard_type AS dashboardType "
   ," , db.created_by AS createdBy "
   ," ,cm.context_description AS contextDescription, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.created_date,''', db_format,''') as createdDate ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(db.last_updated_date,''', db_format,''') as lastUpdatedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', db.created_date AS createdDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', db.last_updated_ts AS lastUpdatedTs ');
   SET @fromString  = ' FROM jq_dashboard AS db INNER JOIN jq_context_master cm ON db.context_id = cm.context_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'dashboard' ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'jq_dashboard' ");
   SET @whereString = ' WHERE db.is_deleted = 0';
   
   IF NOT dashboardName IS NULL THEN
@@ -187,9 +201,9 @@ FETCH curP INTO db_format;
     SET @whereString = CONCAT(@whereString,' AND db.created_date like ''%',@createdDate,'%''');
   END IF;
   
-  IF NOT lastUpdatedDate IS NULL THEN
-    SET @lastUpdatedDate= REPLACE(lastUpdatedDate,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND db.last_updated_date like ''%',@lastUpdatedDate,'%''');
+  IF NOT lastUpdatedTs IS NULL THEN
+    SET @lastUpdatedTs= REPLACE(lastUpdatedTs,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND db.last_updated_ts like ''%',@lastUpdatedTs,'%''');
   END IF;
 
   IF NOT contextDescription IS NULL THEN
@@ -213,7 +227,7 @@ FETCH curP INTO db_format;
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY lastUpdatedDate DESC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
   END IF;
   
 	IF forCount=1 THEN
@@ -225,32 +239,25 @@ FETCH curP INTO db_format;
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
-CLOSE curP;
  
 END;
 
 DROP PROCEDURE IF EXISTS dashletMasterListing;
-CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),updatedDate varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+CREATE PROCEDURE dashletMasterListing(dashletName varchar(50), dashletTitle varchar(100),dashletTypeId INT(11),createdDate varchar(100),createdBy varchar(100),lastUpdatedTs varchar(100),updatedBy varchar(100),status INT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 DECLARE db_format VARCHAR(20);
 
-DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
-
-OPEN curP;
-FETCH curP INTO db_format;
 
   SET @resultQuery = CONCAT("SELECT dl.dashlet_id AS dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
   ," dl.updated_by AS updatedBy, dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.created_date,''', db_format,''') as createdDate ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(dl.updated_date,''', db_format,''') as updatedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', dl.created_date AS createdDate');
+  SET @resultQuery = CONCAT(@resultQuery, ', dl.last_updated_ts AS lastUpdatedTs ');
   SET @fromString  = ' FROM jq_dashlet AS dl';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'dashlet' ");
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'jq_dashlet' ");
   SET @whereString = '';
-  SET @dateFormat = CONCAT(''', db_format, ''');
-  SET @limitString = CONCAT(' limit ','',CONCAT(limitFrom,',',limitTo));
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   
   IF NOT dashletName IS NULL THEN
@@ -285,11 +292,11 @@ FETCH curP INTO db_format;
     END IF;  
   END IF;
   
-    IF NOT updatedDate IS NULL THEN
+    IF NOT lastUpdatedTs IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND date_format(dl.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT(@whereString,' AND date_format(dl.last_updated_ts,''',@dateFormat,''') LIKE ''%',lastUpdatedTs,'%''');
     ELSE
-      SET @whereString = CONCAT('WHERE date_format(dl.updated_date,''',@dateFormat,''') LIKE ''%',updatedDate,'%''');
+      SET @whereString = CONCAT('WHERE date_format(dl.last_updated_ts,''',@dateFormat,''') LIKE ''%',lastUpdatedTs,'%''');
     END IF;  
   END IF;
   
@@ -323,7 +330,7 @@ FETCH curP INTO db_format;
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY dl.updated_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
   END IF;
   
 	IF forCount=1 THEN
@@ -334,30 +341,23 @@ FETCH curP INTO db_format;
 
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-CLOSE curP;
+ DEALLOCATE PREPARE stmt; 
+
 END;
 
 DROP PROCEDURE IF EXISTS dynamicFormListing;
 CREATE PROCEDURE dynamicFormListing(formId VARCHAR(50), formName varchar(50), formDescription varchar(100),formTypeId INT(11),createdDate varchar(100),createdBy varchar(100), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
-DECLARE db_format VARCHAR(20);
 
-DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
-
-OPEN curP;
-FETCH curP INTO db_format;
 
   SET @resultQuery = CONCAT("SELECT df.form_id AS formId, df.form_description AS formDescription,df.form_name AS formName, "
   ," df.created_by AS createdBy ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', df.form_type_id AS formTypeId, COUNT(jmv.version_id) AS revisionCount  '); 
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(df.created_date,''', db_format,''') as createdDate ');
-  SET @fromString  = ' from jq_dynamic_form AS df ';
+  SET @resultQuery = CONCAT(@resultQuery, ', df.created_date AS createdDate, df.last_updated_ts AS lastUpdatedTs  ');
+  SET @fromString  = ' FROM jq_dynamic_form AS df ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version  jmv ON jmv.entity_id = df.form_id AND jmv.entity_name = 'jq_dynamic_form' ");
   SET @whereString = '';
-  SET @dateFormat = CONCAT(''', db_format, ''');
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   
@@ -414,7 +414,7 @@ FETCH curP INTO db_format;
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY df.created_date DESC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
   END IF;
   
 	IF forCount=1 THEN
@@ -426,7 +426,7 @@ FETCH curP INTO db_format;
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
-CLOSE curP;
+
 END;
 
 DROP PROCEDURE IF EXISTS dynarestListing;
@@ -435,12 +435,14 @@ CREATE PROCEDURE dynarestListing(dynarestUrl varchar(256), rbacId INT(11), metho
  platformId INT(11), allowFiles TINYINT(11), dynarestTypeId INT(11),forCount INT, limitFrom INT,
  limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+
   SET @resultQuery = ' SELECT jdrd.jws_dynamic_rest_id AS dynarestId, jdrd.jws_dynamic_rest_url AS dynarestUrl ';
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_rbac_id AS rbacId, jdrd.jws_method_name AS methodName ');
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_method_description AS methodDescription, jdrd.jws_request_type_id AS requestTypeId '); 
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_response_producer_type_id AS producerTypeId, jdrd.jws_service_logic AS serviceLogic ');
   SET @resultQuery = CONCAT(@resultQuery, ', jdrd.jws_platform_id AS platformId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_dynamic_rest_type_id AS dynarestTypeId ');
-  SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount ');
+  SET @resultQuery = CONCAT(@resultQuery, ', jdrd.last_updated_ts AS lastUpdatedTs, COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM jq_dynamic_rest_details AS jdrd ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jdrd.jws_dynamic_rest_id ");
@@ -501,7 +503,7 @@ BEGIN
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY methodName ASC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs ASC');
   END IF;
   
 	IF forCount=1 THEN
@@ -519,9 +521,11 @@ DROP PROCEDURE IF EXISTS gridDetails;
 CREATE PROCEDURE gridDetails(gridId varchar(100), gridName varchar(500), gridDesc varchar(500), gridTableName varchar(100)
 , gridColumnName varchar(500),gridTypeId INT(11), forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+  
   SET @resultQuery = ' SELECT gd.grid_id AS gridId, gd.grid_name AS gridName, gd.grid_description AS gridDesc, gd.grid_table_name AS gridTableName, gd.grid_column_names AS gridColumnName ';
-  SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId , COUNT(jmv.version_id) AS revisionCount ');
-  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
+  SET @resultQuery = CONCAT(@resultQuery, ', gd.grid_type_id AS gridTypeId, gd.last_updated_ts AS lastUpdatedTs ');
+  SET @resultQuery = CONCAT(@resultQuery, ', COUNT(jmv.version_id) AS revisionCount, MAX(jmv.version_id) AS max_version_id ');
   SET @fromString  = ' FROM jq_grid_details AS gd ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = gd.grid_id AND jmv.entity_name = 'jq_grid_details' ");
 
@@ -808,17 +812,11 @@ CREATE PROCEDURE templateListing(templateName varchar(100), templateTypeId INT(1
 , forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
 
-DECLARE db_format VARCHAR(20);
 
-DECLARE curP CURSOR FOR 
-SELECT JSON_VALUE(jpm.property_value, '$.db') AS db_format FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format';
-
-OPEN curP;
-FETCH curP INTO db_format;
   SET @resultQuery = ' SELECT tm.template_id as templateId, tm.template_name as templateName, tm.template as template, tm.updated_by as updatedBy, tm.created_by as createdBy ';
   SET @resultQuery = CONCAT(@resultQuery, ', tm.template_type_id AS templateTypeId , COUNT(jmv.version_id) AS revisionCount ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(tm.updated_date,''', db_format,''') as updatedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', tm.updated_date as updatedDate ');
   SET @fromString  = ' FROM jq_template_master AS tm ';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = tm.template_id AND jmv.entity_name = 'jq_template_master' ");
   SET @whereString = '';
@@ -878,18 +876,20 @@ FETCH curP INTO db_format;
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
-CLOSE curP;
+
 END;
 
 
 DROP PROCEDURE IF EXISTS fileUploadConfigListing;
 CREATE PROCEDURE `fileUploadConfigListing`(fileBinId varchar(100), fileTypeSupported varchar(100), maxFileSize varchar(1000)
-,noOfFiles INT(11), updatedBy varchar(100),updatedDate varchar(100), forCount INT, limitFrom INT, limitTo INT
+,noOfFiles INT(11), lastUpdatedBy varchar(100), forCount INT, limitFrom INT, limitTo INT
 ,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+
   SET @resultQuery = CONCAT(" SELECT fuc.file_bin_id AS fileBinId, fuc.file_type_supported AS fileTypeSupported "
-  ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.updated_by AS updatedBy " 
-  ," ,fuc.updated_date AS updatedDate, fuc.is_deleted AS isDeleted ") ;
+  ," , fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.last_updated_by AS lastUpdatedBy " 
+  ," , fuc.last_updated_ts AS lastUpdatedTs, fuc.is_deleted AS isDeleted ") ;
   SET @fromString  = ' FROM jq_file_upload_config AS fuc ';
   SET @whereString = ' WHERE fuc.is_deleted = 0';
   
@@ -913,23 +913,19 @@ BEGIN
     SET @whereString = CONCAT(@whereString,' AND fuc.no_of_files like ''%',@noOfFiles,'%''');
   END IF;
 
-  IF NOT updatedBy IS NULL THEN
-    SET @updatedBy= REPLACE(updatedBy,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.updated_by like ''%',@updatedBy,'%''');
+  IF NOT lastUpdatedBy IS NULL THEN
+    SET @lastUpdatedBy= REPLACE(lastUpdatedBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND fuc.last_updated_by like ''%',@lastUpdatedBy,'%''');
   END IF;
 
-  IF NOT updatedDate IS NULL THEN
-    SET @updatedDate= REPLACE(updatedDate,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND fuc.updated_date like ''%',@updatedDate,'%''');
-  END IF;
-  
+
   
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
   IF NOT sortIndex IS NULL THEN
       SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
     ELSE
-      SET @orderBy = CONCAT(' ORDER BY updatedDate DESC');
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
   END IF;
   
   IF forCount=1 THEN
@@ -946,12 +942,14 @@ END;
 
 
 DROP PROCEDURE IF EXISTS moduleListing;
-CREATE PROCEDURE `moduleListing`(moduleId varchar(100), moduleName varchar(500),
+CREATE PROCEDURE moduleListing(moduleId varchar(100), moduleTypeId INT(11), moduleName varchar(500),
 moduleURL varchar(500), parentModuleName varchar(500), sequence varchar(100), isInsideMenu INT(1), forCount INT, 
 limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+
   SET @resultQuery = ' SELECT ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, COALESCE(mli18nParent.module_name, mli18nParent2.module_name) AS parentModuleName'
-    ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu, ml.is_home_page AS isHomePage ';
+    ', ml.sequence AS sequence, ml.is_inside_menu AS isInsideMenu, ml.is_home_page AS isHomePage, ml.module_type_id AS moduleTypeId ';
   SET @fromString  = ' FROM jq_module_listing AS ml ';
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing AS mlParent ON ml.parent_id = mlParent.module_id ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 ');
@@ -968,6 +966,16 @@ BEGIN
     ELSE
       SET @whereString = CONCAT(@whereString, 'WHERE COALESCE(mli18n.module_name,mli18n2.module_name) LIKE ''%',@moduleName,'%'''); 
     END IF;  
+  END IF;
+  
+  IF NOT moduleTypeId IS NULL THEN
+    SET @moduleTypeId= moduleTypeId;
+    IF  @whereString != '' THEN
+      SET @whereString = CONCAT(@whereString,' AND ml.module_type_id = ',@moduleTypeId);
+    ELSE
+      SET @whereString = CONCAT(@whereString,' WHERE ml.module_type_id = ',@moduleTypeId);
+    END IF;  
+    
   END IF;
   
   IF NOT moduleURL IS NULL THEN
@@ -1025,13 +1033,15 @@ CREATE PROCEDURE homePageListing(moduleId varchar(100), moduleName varchar(500),
 moduleURL varchar(500), roleName varchar(100), rolePriority INT(11), forCount INT, 
 limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
 BEGIN
+
+
   SET @resultQuery = ' SELECT jr.role_id AS roleId, ml.module_id AS moduleId,COALESCE(mli18n.module_name,mli18n2.module_name) AS moduleName, ml.module_url AS moduleURL, jr.role_name AS roleName, jr.role_priority AS rolePriority ';
   SET @fromString  = ' FROM  jq_role AS jr';
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_role_association AS mra ON jr.role_id = mra.role_id AND mra.is_deleted = 0  ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing AS ml ON mra.module_id = ml.module_id ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON mli18n.module_id = ml.module_id AND mli18n.language_id = 1 ');
   SET @fromString = CONCAT(@fromString, ' LEFT OUTER JOIN jq_module_listing_i18n AS mli18n2 ON ml.module_id = mli18n2.module_id AND mli18n2.language_id = 1 ');
-  SET @whereString = ' WHERE jr.is_active = 1 ';
+  SET @whereString = ' WHERE jr.is_active = 1 AND jr.role_id != "ae6465b3-097f-11eb-9a16-f48e38ab9348" ';
   
   
   IF NOT moduleName IS NULL THEN
@@ -1073,6 +1083,7 @@ BEGIN
  PREPARE stmt FROM @queryString;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
+ 
 END;
 
 CREATE  OR REPLACE VIEW `jq_customResourceBundleListingView` AS
@@ -1088,4 +1099,83 @@ FROM ((`jq_resource_bundle` `rb`
    LEFT JOIN `jq_module_version` `jmv`
      ON (`jmv`.`entity_id` = `rb`.`resource_key`
          AND `jmv`.`entity_name` = 'jq_resource_bundle'))
-WHERE `rb`.`resource_key` NOT LIKE 'jws.%') t WHERE t.revisionCount > 0
+WHERE `rb`.`resource_key` NOT LIKE 'jws.%') t WHERE t.revisionCount > 0;
+
+
+
+DROP PROCEDURE IF EXISTS datasourceListing;
+CREATE PROCEDURE datasourceListing(datasourceName VARCHAR(200), databaseProductName VARCHAR(200), productDisplayName VARCHAR(200),createdBy VARCHAR(500), lastUpdatedBy VARCHAR(500)
+, forCount INT, limitFrom INT, limitTo INT, sortIndex VARCHAR(100),sortOrder VARCHAR(20))
+BEGIN
+
+/* SET @dateFormat = NULL;
+   SELECT JSON_VALUE(jpm.property_value, '$.db') INTO @dateFormat FROM jq_property_master AS jpm WHERE jpm.property_name = 'jws-date-format'; */
+
+
+  SET @resultQuery = CONCAT(" SELECT ad.datasource_name AS datasourceName,jdl.database_product_name AS databaseProductName, ad.additional_datasource_id AS additionalDatasourceId, ad.datasource_lookup_id AS datasourceLookupId "
+  ," , jdl.db_product_display_name AS productDisplayName, ad.created_by AS createdBy, ad.created_date AS createdDate, ad.last_updated_by AS lastUpdatedBy, ad.last_updated_ts AS lastUpdatedTs  ") ;
+  SET @fromString  = ' FROM jq_additional_datasource AS ad';
+  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_datasource_lookup AS jdl ON jdl.datasource_lookup_id = ad.datasource_lookup_id ");
+  SET @whereString = ' WHERE ad.is_deleted = 0';
+  
+ 
+  IF NOT datasourceName IS NULL THEN
+    SET @datasourceName= REPLACE(datasourceName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND ad.datasource_name like ''%',@datasourceName,'%''');
+  END IF;
+  
+  IF NOT productDisplayName IS NULL THEN
+    SET @productDisplayName= REPLACE(productDisplayName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jdl.db_product_display_name like ''%',@productDisplayName,'%''');
+  END IF;
+  
+  IF NOT databaseProductName IS NULL THEN
+    SET @databaseProductName= REPLACE(databaseProductName,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND jdl.database_product_name like ''%',@databaseProductName,'%''');
+  END IF;
+  
+  IF NOT createdBy IS NULL THEN
+    SET @createdBy= REPLACE(createdBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND ad.created_by like ''%',@createdBy,'%''');
+  END IF;
+  
+  IF NOT lastUpdatedBy IS NULL THEN
+    SET @lastUpdatedBy= REPLACE(lastUpdatedBy,"'","''");
+    SET @whereString = CONCAT(@whereString,' AND ad.last_updated_by like ''%',@lastUpdatedBy,'%''');
+  END IF;
+    
+  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
+  
+  IF NOT sortIndex IS NULL THEN
+      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
+    ELSE
+      SET @orderBy = CONCAT(' ORDER BY lastUpdatedTs DESC');
+  END IF;
+  
+  IF forCount=1 THEN
+  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @orderBy,' ) AS cnt');
+  ELSE
+  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @orderBy, @limitString);
+  END IF;
+
+ PREPARE stmt FROM @queryString;
+ EXECUTE stmt;
+ DEALLOCATE PREPARE stmt;
+
+END;
+
+
+CREATE  OR REPLACE VIEW `jq_api_client_details_view` AS
+SELECT
+  `cd`.`client_id`            AS `client_id`,
+  `cd`.`client_name`          AS `client_name`,
+  `cd`.`client_key`           AS `client_key`,
+  `cd`.`client_secret`        AS `client_secret`,
+  `cd`.`encryption_algo_id`   AS `encryption_algo_id`,
+  `cd`.`updated_by`           AS `updated_by`,
+  `cd`.`created_by`           AS `created_by`,
+  `cd`.`updated_date`         AS `updated_date`,
+  `ed`.`encryption_algo_name` AS `encryption_algo_name`
+FROM (`jq_api_client_details` `cd`
+   JOIN `jq_encryption_algorithms_lookup` `ed`)
+WHERE `ed`.`encryption_algo_id` = `cd`.`encryption_algo_id`;

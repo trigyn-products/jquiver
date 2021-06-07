@@ -60,7 +60,7 @@ contextPath = "${contextPath}";
 
 	
 	function backToPreviousPage() {
-		location.href = contextPath+"/cf/home";
+	location.href = contextPath+"/cf/home";
 	}
 </script>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(),2);
 
@@ -241,7 +241,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	}
     
     function backToPreviousPage(){ 
-    	location.href=contextPath+"/cf/home";
+	 location.href = contextPath+"/cf/home";
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 

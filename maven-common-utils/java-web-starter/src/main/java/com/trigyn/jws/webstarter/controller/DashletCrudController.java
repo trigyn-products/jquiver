@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,8 +34,7 @@ import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping("/cf")
-@PreAuthorize("hasPermission('module','Dashlet')"
-		+ "&& hasPermission('module','Dashboard')")
+@PreAuthorize("hasPermission('module','Dashlet')" + "&& hasPermission('module','Dashboard')")
 public class DashletCrudController {
 
 	private final static Logger		logger					= LogManager.getLogger(DashletCrudController.class);
@@ -74,13 +72,12 @@ public class DashletCrudController {
 	}
 
 	@PostMapping(value = "/aedl", produces = { MediaType.TEXT_HTML_VALUE })
-	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			Map<String, Object>	templateMap			= new HashMap<>();
 			DashletVO			dashletVO			= dashletServive.getDashletDetailsById(dashletId);
-			Map<String, String>	componentsMap		= dashletServive
-					.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
+			Map<String, String>	componentsMap		= dashletServive.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
 			Map<String, String>	contextDetailsMap	= dashboardCrudService.findContextDetails();
 			templateMap.put("dashletVO", dashletVO);
 			templateMap.put("componentMap", componentsMap);
@@ -98,18 +95,16 @@ public class DashletCrudController {
 
 	@PostMapping(value = "/sdl")
 	@ResponseBody
-	public String saveDashlet(@RequestHeader(value = "user-id", required = true) String userId,
-			@RequestBody DashletVO dashletVO) throws Exception {
-		return dashboardCrudService.saveDashlet(userId, dashletVO, Constant.MASTER_SOURCE_VERSION_TYPE);
+	public String saveDashlet(@RequestBody DashletVO dashletVO) throws Exception {
+		return dashboardCrudService.saveDashlet(dashletVO, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
 
 	@PostMapping(value = "/sdlv")
-	public void saveDashletByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveDashletByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		DashletVO		dashletVO		= objectMapper.readValue(modifiedContent, DashletVO.class);
-		dashboardCrudService.saveDashlet(null, dashletVO, Constant.REVISION_SOURCE_VERSION_TYPE);
+		dashboardCrudService.saveDashlet(dashletVO, Constant.REVISION_SOURCE_VERSION_TYPE);
 	}
 
 	@PostMapping(value = "/ddl")

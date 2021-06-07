@@ -51,7 +51,7 @@ public class FileUploadConfigService {
 		config.setIsDeleted(vo.getIsDeleted());
 		config.setMaxFileSize(vo.getMaxFileSize());
 		config.setNoOfFiles(vo.getNoOfFiles());
-		config.setUpdatedBy(vo.getUpdatedBy());
+		config.setLastUpdatedBy(vo.getUpdatedBy());
 
 		return config;
 	}

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.notification.entities.GenericUserNotification;
 
+
 @Repository
 public class NotificationDAO extends DBConnection {
 
@@ -25,8 +26,8 @@ public class NotificationDAO extends DBConnection {
 	}
 
 	public GenericUserNotification getNotificationDetails(String notificationId) {
-		GenericUserNotification genericUserNotificationDetails = (GenericUserNotification) sessionFactory
-				.getCurrentSession().get(GenericUserNotification.class, notificationId);
+		GenericUserNotification genericUserNotificationDetails = (GenericUserNotification) sessionFactory.getCurrentSession()
+				.get(GenericUserNotification.class, notificationId);
 		return genericUserNotificationDetails;
 	}
 

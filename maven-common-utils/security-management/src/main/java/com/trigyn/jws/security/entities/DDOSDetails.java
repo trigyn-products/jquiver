@@ -43,8 +43,7 @@ public class DDOSDetails implements Serializable {
 		super();
 	}
 
-	public DDOSDetails(String jwsDosDetailsId, String ipAddress, String sessionDetails, Integer isBlocked,
-			Date lastAttackedDate) {
+	public DDOSDetails(String jwsDosDetailsId, String ipAddress, String sessionDetails, Integer isBlocked, Date lastAttackedDate) {
 		this.jwsDosDetailsId	= jwsDosDetailsId;
 		this.ipAddress			= ipAddress;
 		this.sessionDetails		= sessionDetails;
@@ -110,15 +109,14 @@ public class DDOSDetails implements Serializable {
 		}
 		DDOSDetails other = (DDOSDetails) obj;
 		return Objects.equals(ipAddress, other.ipAddress) && Objects.equals(isBlocked, other.isBlocked)
-				&& Objects.equals(jwsDosDetailsId, other.jwsDosDetailsId)
-				&& Objects.equals(lastAttackedDate, other.lastAttackedDate)
+				&& Objects.equals(jwsDosDetailsId, other.jwsDosDetailsId) && Objects.equals(lastAttackedDate, other.lastAttackedDate)
 				&& Objects.equals(sessionDetails, other.sessionDetails);
 	}
 
 	@Override
 	public String toString() {
-		return "DDOSDetails [jwsDosDetailsId=" + jwsDosDetailsId + ", ipAddress=" + ipAddress + ", sessionDetails="
-				+ sessionDetails + ", isBlocked=" + isBlocked + ", lastAttackedDate=" + lastAttackedDate + "]";
+		return "DDOSDetails [jwsDosDetailsId=" + jwsDosDetailsId + ", ipAddress=" + ipAddress + ", sessionDetails=" + sessionDetails
+				+ ", isBlocked=" + isBlocked + ", lastAttackedDate=" + lastAttackedDate + "]";
 	}
 
 }

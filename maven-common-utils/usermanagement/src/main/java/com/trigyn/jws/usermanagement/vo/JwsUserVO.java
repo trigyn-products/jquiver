@@ -10,34 +10,34 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 
 public class JwsUserVO implements Serializable {
 
-	private static final long	serialVersionUID	= 5522267590792143057L;
+	private static final long	serialVersionUID		= 5522267590792143057L;
 
-	private String				userId				= null;
+	private String				userId					= null;
 
-	private String				firstName			= null;
+	private String				firstName				= null;
 
-	private String				lastName			= null;
+	private String				lastName				= null;
 
-	private String				email				= null;
+	private String				email					= null;
 
-	private String				password			= null;
+	private String				password				= null;
 
-	private Integer				isActive			= null;
+	private Integer				isActive				= null;
 
-	private List<String>		roleIds				= null;
+	private List<String>		roleIds					= null;
 
-	private String				captcha				= null;
+	private String				captcha					= null;
 
-	private Integer				forcePasswordChange	= null;
+	private Integer				forcePasswordChange		= null;
 
-	private Boolean				isProfilePage		= null;
-	
-	private Boolean				isSendMail			= true;
-	
-	private int failedAttempt = 0;
-	
-	private Date				lastPasswordUpdatedDate			= null;
-	
+	private Boolean				isProfilePage			= null;
+
+	private Boolean				isSendMail				= true;
+
+	private int					failedAttempt			= 0;
+
+	private Date				lastPasswordUpdatedDate	= null;
+
 	public String getUserId() {
 		return userId;
 	}

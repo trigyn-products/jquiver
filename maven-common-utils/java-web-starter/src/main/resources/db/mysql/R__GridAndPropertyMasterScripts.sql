@@ -6,12 +6,14 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>      
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 </head>
 
 <div class="container">
@@ -27,6 +29,9 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
             </select>
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
 	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
+	            <a href="${(contextPath)!''''}/cf/ad"> 
+					<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
+				</a>
 	            <button type="submit" class="btn btn-primary">Add Grid</button>
         	</form>
 
@@ -67,21 +72,22 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 		
 		let colM = [
 	        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Name", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Grid Description", width: 160, align: "center", dataIndx: "gridDesc", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Grid Description", width: 160, align: "center",hidden: true, dataIndx: "gridDesc", align: "left", halign: "center",
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 50, minWidth: 115, align: "center", render: editGridDetails, dataIndx: "action", sortable: false }
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Last Updated Date", width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+	        { title: "Action", maxWidth: 145, align: "center", render: editGridDetails, dataIndx: "action", sortable: false }
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "gridId",
-        	sortDir: "up",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
     	};
 		let grid = $("#divGridDetailsListing").grid({
 	      gridId: "gridDetailsListing",
@@ -99,10 +105,10 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
             postData = {gridId:"gridDetailsListing"}
         } else {
             let typeCondition = "str_"+type;       
-   
-            postData = {gridId:"gridDetailsListing" 
-                    ,"cr_gridTypeId":typeCondition
-                    }
+            postData = {
+            	gridId:"gridDetailsListing" 
+            	,"cr_gridTypeId":typeCondition
+            }
         }
         
         let gridNew = $( "#divGridDetailsListing" ).pqGrid();
@@ -118,6 +124,11 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 			return "System";
 		}
 	}
+	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
 	
 	function editGridDetails(uiObject) {
 		const gridId = uiObject.rowData.gridId;
@@ -148,18 +159,23 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
     }
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
-REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('8a80cb8174bebc3c0174bec1892c0000', 'grid-details-form', 'Form to add edit grid details', 'SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName , grid_column_names AS gridColumnName
-, query_type AS queryType FROM jq_grid_details WHERE grid_id="${primaryId}"', '<head>
+, query_type AS queryType, datasource_id AS datasourceId FROM jq_grid_details WHERE grid_id="${primaryId}"', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script> 
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/markdown/highlight/github.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 </head>
 
@@ -194,7 +210,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Id</label>
-					<input type="text" id="gridId" name="gridId" value="" maxlength="255" class="form-control">
+					<input type="text" id="gridId" name="gridId" value="" maxlength="255" class="form-control" onchange="updateDefaultTemplate()">
 				</div>
 			</div>
 			
@@ -214,6 +230,15 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 		</div>
 					
 		<div class="row">	
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+		        	<label for="flammableState" style="white-space:nowrap">Datasource</label>
+		        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
+		        		<option id="defaultConnection" value="">Default Connection</option>
+		        	</select>
+	           	</div>
+			</div>
+			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>Grid Table Name</label>
@@ -238,21 +263,53 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 					</label>
 				</div>
 			</div>
-		</div>
 		
-		<input type="hidden" id="primaryKey" name="primaryKey">
+			<div class="col-4">   
+				<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+		    	<@templateWithoutParams "role-autocomplete"/>
+		    </div>
+    
+    	</div>
+    	
+    	<input type="hidden" id="primaryKey" name="primaryKey">
 		<input type="hidden" id="entityName" name="entityName" value="jq_grid_details">
-		<!-- Your form fields end -->
-		
+		<input type="hidden" id="isEdit" name="isEdit" value="0">
 	</form>	
 	
-	<div class="row">
-		<div class="col-4">   
-			<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
-    		<@templateWithoutParams "role-autocomplete"/>
-    	</div>
+	<div id="tabs">
+        <ul>
+            <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
+            <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.javaScriptContent")}</a></li>
+        </ul>
+        <div id="htmlContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+        <div id="jsContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
     </div> 
+    
+     <div id="manual-container" class="cm-rightbar">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="previewDiv" style="display:none;">
+                    <textarea id="previewContent" style="display:none;"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+	<input type="hidden" id="dataSourceId" value="">
 	
+	<br>
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
@@ -274,18 +331,15 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 			</div>
 		</div>
 	</div>
-		
-
-
 
 </div>
-
-
 
 <script>
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	$(function() {
+		$("#tabs").tabs();
+		loadDefaultTab("grid-default-template", updateGridTemplate);
 	    <#if (resultSet)??>
     	    <#list resultSet as resultSetList>
         		$("#gridId").val(''${resultSetList?api.get("gridId")}'');
@@ -293,6 +347,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         		$("#gridDescription").val(''${resultSetList?api.get("gridDescription")}'');
         		$("#gridTableName").val(''${resultSetList?api.get("gridTableName")}'');
         		$("#gridColumnName").val(''${resultSetList?api.get("gridColumnName")}'');
+        		$("#dataSourceId").val(''${(resultSetList?api.get("datasourceId"))!""}'');
         		$("#queryType option[value=''${resultSetList?api.get("queryType")}'']").attr("selected", "selected");
     	    </#list>
         </#if>
@@ -300,6 +355,8 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         let isEdit = 0;
       	<#if (resultSet)?? && resultSet?has_content>
       		isEdit = 1;
+      		$("#isEdit").val(1);
+      		$("#dataSource").attr("disabled", true);
       		getEntityRoles();
       	<#else>
       		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
@@ -309,8 +366,11 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		}
+		
+		getAllDatasource(isEdit);
 		savedAction("grid-details-form", isEdit);
 		hideShowActionButtons();
+		$("a[href=''#htmlContent'']").click();
 	});   
 
 	function saveData (){
@@ -398,26 +458,53 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
 			    }
 		    });
 		}
+		
+		function updateGridTemplate(){ 
+			let gridId = $("#gridId").val().trim();
+			if(gridId !== ""){
+				let htmlGridId = $("pre span").filter(function() { return ($(this).text() === ''\"yourGridId\"'') });
+				let jsGridId = $("pre span").filter(function() { return ($(this).text() === ''\"#yourGridId\"'') });
+				
+				$(htmlGridId).text(''"''+gridId+''"'');
+				$(jsGridId).text(''"#''+gridId+''"'');
+			}
+		}
 	
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2, NOW());
 
 
 REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
-('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', 'REPLACE INTO jq_grid_details (
-   grid_id
-  ,grid_name
-  ,grid_description
-  ,grid_table_name
-  ,grid_column_names
-  ,query_type
-) VALUES (
+('8a80cb8174bebc3c0174bee22fc60005', '8a80cb8174bebc3c0174bec1892c0000', '
+<#if  (formData?api.getFirst("isEdit"))?has_content &&
+(formData?api.getFirst("isEdit")) == "1">
+    UPDATE jq_grid_details SET 
+    	grid_name = ''${formData?api.getFirst("gridName")}'' 
+  		,grid_description = ''${formData?api.getFirst("gridDescription")}''
+  		,grid_table_name = ''${formData?api.getFirst("gridTableName")}'' 
+  		,grid_column_names = ''${formData?api.getFirst("gridColumnName")}''
+  		,query_type = ''${formData?api.getFirst("queryType")}''
+        ,last_updated_by = :loggedInUserName
+        ,last_updated_ts = NOW()
+  	WHERE grid_id = ''${formData?api.getFirst("gridId")}''; 
+<#else>
+	INSERT INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, datasource_id, created_by, created_date, last_updated_ts)
+	VALUES (
    ''${formData?api.getFirst("gridId")}'' 
   ,''${formData?api.getFirst("gridName")}''  
   ,''${formData?api.getFirst("gridDescription")}''  
   ,''${formData?api.getFirst("gridTableName")}'' 
   ,''${formData?api.getFirst("gridColumnName")}'' 
   ,''${formData?api.getFirst("queryType")}'' 
-);', 1, NULL);
+  <#if  (formData?api.getFirst("datasourceId"))?has_content>
+     , ''${formData?api.getFirst("datasourceId")}''
+  <#else>
+     ,NULL
+  </#if>
+  , :loggedInUserName
+  , NOW()
+  , NOW()
+);
+</#if>', 1, NULL);
 
 
 
@@ -498,7 +585,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "Modified Date", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center"  },
-			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+			{ title: "Action", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -547,7 +634,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 
 
-REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('8a80cb8174bf3b360174bfae9ac80006', 'property-master-form', 'Property master form', 'SELECT * FROM jq_property_master WHERE property_master_id = "${propertyMasterId}" 
 ', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -772,7 +859,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         hideShowActionButtons();
 	});
 </script>
-	', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
+	', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2, NOW());
   
 REPLACE INTO jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence, checksum) VALUES
 ('8a80cb8174bf3b360174bfe666920014', '8a80cb8174bf3b360174bfae9ac80006', '
@@ -801,10 +888,99 @@ REPLACE INTO jq_property_master (
 );', 1, NULL);
 
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id) 
+REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type, grid_type_id, created_by, created_date, last_updated_ts) 
 VALUES ("customResourceBundleListingGrid", 'Custom DB Resource Bundle Listing', 'Custom DB Resource Bundle Listing', 'jq_customResourceBundleListingView'
-,'resourceKey,languageName,resourceBundleText', 1, 2);
+,'resourceKey,languageName,resourceBundleText', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+('1867d3dd-b652-11eb-9b9c-f48e38ab8cd7', 'grid-default-template', '<#if selectedTab == "htmlContent">
+```HTML
+<#noparse>
+<!-- HTML Head -->
+<head>
+<script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<!-- HTML Body-->
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">Your page title here</h2> 
+		<div class="float-right">
+			<form id="addEditRecords" action="${(contextPath)!''''}/cf/df" method="post" class="margin-r-5 pull-left">
+				<input type="hidden" name="formId" value=""/>
+				<input type="hidden" name="primaryId" id="primaryId" value=""/>
+				<button type="submit" class="btn btn-primary"> Create New </button>
+			</form>
+
+
+			<span onclick="backToWelcomePage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="yourGridId"></div>
+
+</div>
+</#noparse>
+```
+
+<#elseif selectedTab == "jsContent">
+```JavaScript
+<#noparse>
+	contextPath = "${contextPath!''''}";
+	$(function () {
+	//Add all columns that needs to be displayed in the grid
+		let colM = [
+			{ title: "Column Name to be displayed", width: 130, dataIndx: "columnNameInQuery", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
+	
+	//System will fecth grid data based on gridId
+		let grid = $("#yourGridId").grid({
+	      gridId: "yourGridId",
+	      colModel: colM,
+          dataModel: dataModel
+	  	});
+	
+	});
+	
+	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+	function manageRecord(uiObject) {
+		let primaryId = uiObject.rowData;
+
+		console.log(uiObject);
+	}
+	
+	//Add logic to navigate to create new record
+	function createNew(element) {
+		$("#primaryId").val(element.id);
+		$("#addEditRecords").submit();
+	}
+
+	//Code go back to previous page
+	function backToWelcomePage() {
+		location.href = contextPath+"/cf/home";
+	}
+</#noparse>
+```
+</#if>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+ 
+ 
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('3035581b-b652-11eb-9b9c-f48e38ab8cd7', '1867d3dd-b652-11eb-9b9c-f48e38ab8cd7', 'grid-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1),  
+('34bd7219-b652-11eb-9b9c-f48e38ab8cd7', '1867d3dd-b652-11eb-9b9c-f48e38ab8cd7', 'grid-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1), 
+('388aa491-b652-11eb-9b9c-f48e38ab8cd7', '1867d3dd-b652-11eb-9b9c-f48e38ab8cd7', 'grid-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1);
+ 
 SET FOREIGN_KEY_CHECKS=1;

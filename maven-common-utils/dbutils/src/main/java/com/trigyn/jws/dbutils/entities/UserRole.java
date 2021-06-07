@@ -99,8 +99,8 @@ public class UserRole implements Serializable {
 
 	@Override
 	public String toString() {
-		return "UserRole [roleId=" + roleId + ", isDeleted=" + isDeleted + ", roleDescription=" + roleDescription
-				+ ", roleName=" + roleName + "]";
+		return "UserRole [roleId=" + roleId + ", isDeleted=" + isDeleted + ", roleDescription=" + roleDescription + ", roleName=" + roleName
+				+ "]";
 	}
 
 	public UserRole getObject() {

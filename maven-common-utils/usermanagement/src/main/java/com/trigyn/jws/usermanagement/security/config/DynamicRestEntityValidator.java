@@ -19,8 +19,7 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Component
 public class DynamicRestEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager
-			.getLogger(DynamicRestEntityValidator.class);
+	private final static Logger					logger							= LogManager.getLogger(DynamicRestEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -32,8 +31,7 @@ public class DynamicRestEntityValidator implements EntityValidator {
 	// private JwsDynamicRestDetailService jwsService = null;
 
 	@Override
-	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames,
-			ProceedingJoinPoint a_joinPoint) {
+	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
 		logger.debug(
 				"Inside DynamicRestEntityValidator.hasAccessToEntity(requestURI - {}, reqObject - {}, roleNames - {}, a_joinPoint - {})",
 				reqObject.getRequestURI(), reqObject, roleNames, a_joinPoint);
@@ -41,7 +39,12 @@ public class DynamicRestEntityValidator implements EntityValidator {
 		boolean	hasAccess	= false;
 
 		String	requestUri	= reqObject.getRequestURI().substring(reqObject.getContextPath().length());
-		requestUri = requestUri.replaceFirst("/api/", "");
+		if (requestUri.startsWith("/japi/")) {
+			requestUri = requestUri.replaceFirst("/japi/", "");
+		} else {
+			requestUri = requestUri.replaceFirst("/api/", "");
+		}
+		
 		String	requestType	= reqObject.getMethod();
 		// RestApiDetails restApiDetails = jwsService.getRestApiDetails(requestUri);
 		// Long count =
@@ -55,16 +58,14 @@ public class DynamicRestEntityValidator implements EntityValidator {
 	}
 
 	@Override
-	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList,
-			ProceedingJoinPoint a_joinPoint) {
+	public String getEntityName(HttpServletRequest reqObject, List<String> roleNameList, ProceedingJoinPoint a_joinPoint) {
 		logger.debug(
 				"Inside DynamicRestEntityValidator.getEntityName(requestURI - {}, reqObject - {}, roleNameList - {}, a_joinPoint - {})",
 				reqObject.getRequestURI(), reqObject, roleNameList, a_joinPoint);
 
 		String requestUri = reqObject.getRequestURI().substring(reqObject.getContextPath().length());
 		requestUri = requestUri.replaceFirst("/api/", "");
-		return entityRoleAssociationRepository
-				.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICREST.getModuleName(), requestUri);
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICREST.getModuleName(), requestUri);
 	}
 
 }

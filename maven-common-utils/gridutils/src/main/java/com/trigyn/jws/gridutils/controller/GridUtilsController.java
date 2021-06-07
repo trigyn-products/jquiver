@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.gridutils.service.GenericUtilsService;
 import com.trigyn.jws.gridutils.utility.CustomGridsResponse;
 import com.trigyn.jws.gridutils.utility.DataGridResponse;
@@ -31,11 +32,14 @@ public class GridUtilsController {
 	@Autowired
 	private GenericUtilsService	genericGridService	= null;
 
+	@Autowired
+	private IUserDetailsService		detailsService			= null;
+
 	@RequestMapping(value = "/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Authorized(moduleName = Constants.GRIDUTILS)
 	public CustomGridsResponse loadGridData(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String						gridId				= request.getParameter("gridId");
-		GenericGridParams			gridParams			= new GenericGridParams(request);
+		GenericGridParams			gridParams			= new GenericGridParams(request, detailsService);
 		Integer						matchingRowCount	= genericGridService.findCount(gridId, gridParams);
 		List<Map<String, Object>>	list				= genericGridService.findAllRecords(gridId, gridParams);
 		GridResponse				gridResponse		= new GridResponse(list, matchingRowCount, gridParams);
@@ -44,15 +48,13 @@ public class GridUtilsController {
 
 	@RequestMapping(value = "/pq-grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Authorized(moduleName = Constants.GRIDUTILS)
-	public DataGridResponse loadPQGridWithData(HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	public DataGridResponse loadPQGridWithData(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String				gridId		= request.getParameter("gridId");
 		GenericGridParams	gridParams	= new GenericGridParams();
 		gridParams.getPQGridDataParams(request);
 		Integer						matchingRowCount	= genericGridService.findCount(gridId, gridParams);
 		List<Map<String, Object>>	list				= genericGridService.findAllRecords(gridId, gridParams);
-		DataGridResponse			gridResponse		= new DataGridResponse(list, matchingRowCount,
-				gridParams.getPageIndex());
+		DataGridResponse			gridResponse		= new DataGridResponse(list, matchingRowCount, gridParams.getPageIndex());
 		List<DataGridResponse>		lstDataGridResponse	= new ArrayList<DataGridResponse>();
 		lstDataGridResponse.add(gridResponse);
 		return gridResponse;

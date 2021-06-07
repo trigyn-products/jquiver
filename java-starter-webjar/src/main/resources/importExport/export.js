@@ -416,8 +416,20 @@
 								filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 2;
-					isSelectTypeApplicable = false;
-					additionalParameterKey = "";
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_moduleTypeId":"str_"+selectedType}
+				 		 });
+					}
 				} else if(moduleType == "ApplicationConfiguration") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
@@ -486,6 +498,41 @@
 				            additionalParameters: {"cr_is_system_manual":"str_"+selectedType}
 				 		 });
 					}
+				} else if(moduleType == "ApiClientDetails") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportApiClientDetailsFormatter, dataIndx: "" },
+						{ title: "Client Id", hidden : true, width: 130, dataIndx: "client_id", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Client Name", hidden : false, width: 130, dataIndx: "client_name", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Client Key", hidden : false, width: 130, dataIndx: "client_key", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Encryption Algorithm", hidden : false, width: 130, dataIndx: "encryption_algo_name", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Updated By", hidden : false, width: 130, dataIndx: "updated_by", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Created By", hidden : false, width: 130, dataIndx: "created_by", align: "left", align: "left", halign: "center",
+		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+		            ];
+					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
+				} else if(moduleType == "AdditionalDatasource") {
+					colM = [
+						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportAdditionalDSFormatter, dataIndx: "" },
+						{ title: "Datasource ID", hidden : true, width: 130, dataIndx: "additionalDatasourceId", align: "left", align: "left", halign: "center",
+		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Datasource Name", hidden : false, width: 130, dataIndx: "datasourceName", align: "left", align: "left", halign: "center",
+		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Datasource Product Name", hidden : false, width: 130, dataIndx: "databaseProductName", align: "left", halign: "center",
+		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+		                { title: "Created By", hidden : false, width: 130, dataIndx: "createdBy", align: "left", halign: "center",
+		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+		                { title: "Last Updated Date", hidden : false, width: 130, dataIndx: "lastUpdatedTs", align: "left", halign: "center"}
+		            ];
+					sortIndex = 1;
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				}
 				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, 
 						colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
@@ -698,7 +745,7 @@
 		const id = uiObject.rowData.moduleId;
 		const name = uiObject.rowData.moduleName;
 		const version = "NA";
-		const isSystemVariable =  2;
+		const isSystemVariable =  uiObject.rowData.moduleTypeId;
 		const moduleType = "SiteLayout";
 		
 		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
@@ -763,6 +810,34 @@
 		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
 		
 	}
+	
+	function updateExportApiClientDetailsFormatter(uiObject) {
+		const id = uiObject.rowData.client_id;
+		const name = uiObject.rowData.client_name;
+		const version = "NA";
+		const isSystemVariable =  1;
+		const moduleType = "ApiClientDetails";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
+
+	function updateExportAdditionalDSFormatter(uiObject) {
+		const id = uiObject.rowData.additionalDatasourceId;
+		const name = uiObject.rowData.datasourceName;
+		const version = "NA";
+		const isSystemVariable =  1;
+		const moduleType = "AdditionalDatasource";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
 
 	function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable) {
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
@@ -788,6 +863,7 @@
 	}
 	
 	function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVariable) {
+		isDeselectedAll = false;
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		
 		if (!checkedCustom.checked) {
@@ -815,6 +891,7 @@
 	
 	function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVariable){
 
+		isDeselectedAll = false;
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		
 		if (checkedSystem.checked) {
@@ -910,6 +987,12 @@
 			        	postData = {gridId:"customResourceBundleListingGrid"}
 					} else {
 						postData = {gridId:"resourceBundleListingGrid" ,"cr_resourceKey":"str_jws" }
+			        }
+				} else if(moduleType == "SiteLayout") {
+					if(selectedType == 0) {
+			            postData = {gridId:gridID}
+			        } else {
+			            postData = {gridId:gridID,"cr_moduleTypeId":"str_"+selectedType}
 			        }
 				}
 				

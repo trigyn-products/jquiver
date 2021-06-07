@@ -67,16 +67,14 @@ public class SecurityManagementService {
 		mapDetails.put("inMemory", inMemory);
 		mapDetails.put("ddosPageCount", propertyMasterDetails.getSystemPropertyValue("ddos-page-count"));
 		mapDetails.put("ddosSiteCount", propertyMasterDetails.getSystemPropertyValue("ddos-site-count"));
-		mapDetails.put("ddosExcludedExtensions",
-				propertyMasterDetails.getSystemPropertyValue("ddos-excluded-extensions"));
+		mapDetails.put("ddosExcludedExtensions", propertyMasterDetails.getSystemPropertyValue("ddos-excluded-extensions"));
 		mapDetails.put("ddosRefreshInterval", propertyMasterDetails.getSystemPropertyValue("ddos-refresh-interval"));
 		mapDetails.put("blockedIpAddress", blockedIPAddrList);
 		return menuService.getTemplateWithoutLayout("distributed-denial-of-service-configuration", mapDetails);
 	}
 
 	@Transactional(readOnly = false)
-	public boolean saveDDOSDetails(HttpServletRequest a_httpServletRequest, Map<String, Object> dAOparameters,
-			UserDetailsVO userDetails) {
+	public boolean saveDDOSDetails(HttpServletRequest a_httpServletRequest, Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		// Integer isDDOSEnabled =
 		// Integer.parseInt(a_httpServletRequest.getParameter("isDDOSEnabled"));
 		// SecurityType securityType =

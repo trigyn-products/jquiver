@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS=0;
 
-replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+replace into jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('193d770c-1217-11eb-980f-802bf9ae2eda', 'mail-configuration-form', 'Mail configuration form', 'select *, (SELECT COUNT(*) FROM jq_failed_mail_history) as totalFailedMails from jq_property_master where property_name = "mail-configuration"', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
@@ -627,7 +627,7 @@ input:checked + .slider:before {
         
         
   });
-</script>', 'admin', NOW(), NULL, NULL, 2);
+</script>', 'admin', NOW(), NULL, NULL, 2, NOW());
   
 
   
@@ -639,8 +639,8 @@ WHERE property_master_id = "mail-configuration";', 1, NULL);
 
 
 REPLACE INTO  jq_dynamic_rest_details
-(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id) VALUES
-('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2);
+(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
+('a3caf8fd-1aa8-11eb-a009-e454e805e22f', 'mailConfigurationDetails', 1, 'saveMailConfigDetails', 'Get mail json details', 1, 7, '', 2, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 REPLACE INTO  jq_dynamic_rest_dao_details
@@ -649,8 +649,8 @@ REPLACE INTO  jq_dynamic_rest_dao_details
 VALUES (''9d08d633-1f4b-11eb-947d-f48e38ab9348'',''system'', ''system'', ''mail-configuration'', :saveMailConfigDetailsJson, 0, NOW(), ''admin'', 1.00, ''mail Config Details'');', 1, 2);
 
 
-REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type,grid_type_id) VALUES
-('failedMailsGrid', 'Failed mails listing', 'Failed mail listing grid', 'jq_mail_history_data', '*', 1,2);
+REPLACE INTO jq_grid_details (grid_id, grid_name, grid_description, grid_table_name, grid_column_names, query_type,grid_type_id, created_by, created_date, last_updated_ts) VALUES
+('failedMailsGrid', 'Failed mails listing', 'Failed mail listing grid', 'jq_mail_history_data', '*', 1, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 REPLACE INTO  jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES

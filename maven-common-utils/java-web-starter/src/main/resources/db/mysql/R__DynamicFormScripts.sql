@@ -6,13 +6,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 </head>
+
 <div class="container">
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage(''jws.formBuilder'')}</h2> 
@@ -26,10 +29,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="Download Forms" type="button">
 				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="Upload Forms" type="button">
 			</#if>
+    		<a href="${(contextPath)!''''}/cf/ad"> 
+				<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
+			</a>
 			<input class="btn btn-primary" name="addNewDynamicForm" value="Add Form" type="button" onclick="submitForm(this)">
-    	 <span onclick="backToHome();">
-    	  	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-    	 </span>	
+    		<span onclick="backToHome();">
+    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+    		</span>	
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -61,20 +67,20 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		
 			let colM = [
 				{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
-				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center"},
-				{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter, sortable: false}
+					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+				{ title: "Created By", width: 100, dataIndx: "createdBy" ,hidden: true, align: "left", halign: "center",
+					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+				{ title: "Last Updated Date", width: 100, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+				{ title: "Action", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editDynamicFormFormatter, sortable: false}
 			];
 			let dataModel = {
         		url: contextPath+"/cf/pq-grid-data",
-        		sortIndx: "formName",
-        		sortDir: "up",
+        		sortIndx: "lastUpdatedTs",
+        		sortDir: "down", 
     		};
 			let grid = $("#divDynamicFormMasterGrid").grid({
 				gridId: "dynamicFormListingGrid",
@@ -110,6 +116,12 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			return "System";
 		}
 	}
+	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
 	function editDynamicFormFormatter(uiObject) {	
 		let dynamicFormId = uiObject.rowData.formId;
 		let dynamicFormName = uiObject.rowData.formName;
@@ -222,9 +234,10 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
 	<script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+	<script src="${(contextPath)!''''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+	<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script>
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
-	<script src="${(contextPath)!''''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 </head>
 
 <div class="container">
@@ -269,9 +282,18 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
 				</div>
 			</div>
+			
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+	        		<label for="flammableState" style="white-space:nowrap">Datasource</label>
+	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
+	        			<option id="defaultConnection" value="" data-product-name="default">Default Connection</option>
+	        		</select>
+           		</div>
+			</div>
                 
             <#if !(dynamicForm?api.getFormId())?? && !(dynamicForm?api.getFormId())?has_content>   
-	            <div class="col-6">
+	            <div id="tableAutocompleteDiv" class="col-6">
 					<div class="col-inner-form full-form-fields">
 	                    <label for="flammableState" style="white-space:nowrap">Select Table</label>
 	                    <div class="search-cover">
@@ -365,7 +387,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         </form>
     </div>
 
-
+    <input type="hidden" id="dataSourceId" value="${(dynamicForm.datasourceId)!''''}"> 
   	<textarea id="sqlContent" style="display: none">
     	${(dynamicForm?api.getFormSelectQuery())!""}
 	</textarea>
@@ -386,68 +408,73 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	let tableAutocomplete;
 	
 	formName = $.trim(formName);
-	if(formName !== ""){
-		$("#formName").prop("disabled", true);
-	}
 	const addEdit = new AddEditDynamicForm();
-  $(function () {
-    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
-	if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
-		getSavedEntity();
-	}
 	
-	savedAction("dynamic-form-manage-details", formId);
-    hideShowActionButtons();
-    
-     <#if !(dynamicForm?api.getFormId())??>
-    	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
-        multiselect.setSelectedObject(defaultAdminRole);
-    	tableAutocomplete = $("#tableAutocomplete").autocomplete({
-	        autocompleteId: "table-autocomplete",
-	        prefetch : true,
-	        render: function(item) {
-	            var renderStr ="";
-	            if(item.emptyMsg == undefined || item.emptyMsg === ""){
-	                renderStr = "<p>"+item.tableName+"</p>";
-	            }else{
-	                renderStr = item.emptyMsg;    
-	            }                                
-	            return renderStr;
-	        },
-	        additionalParamaters: {},
-	        extractText: function(item) {
-	            return item.tableName;
-	        },
-	        select: function(item) {
-	            $("#tableAutocomplete").blur();
-	            $("#selectTable").val(item.tableName);
-	            loadTableTemplate(item.tableName);
-	        },     
-	    });
-    </#if>
-    
+  	$(function () {
+	    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+		
+		savedAction("dynamic-form-manage-details", formId);
+	    hideShowActionButtons();
+	    
+	     <#if !(dynamicForm.formId)?? && !(dynamicForm.formId)?has_content>
+	    	getAllDatasource(0);
+	    	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+	        multiselect.setSelectedObject(defaultAdminRole);
+	    	tableAutocomplete = $("#tableAutocomplete").autocomplete({
+		        autocompleteId: "table-autocomplete",
+		        prefetch : true,
+		        render: function(item) {
+		            var renderStr ="";
+		            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+		                renderStr = "<p>"+item.tableName+"</p>";
+		            }else{
+		                renderStr = item.emptyMsg;    
+		            }                                
+		            return renderStr;
+		        },
+		        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+		        },
+		        extractText: function(item) {
+		            return item.tableName;
+		        },
+		        select: function(item) {
+		            let dbProductID = $("#dataSource").find(":selected").val();
+					let dbProductName = $("#dataSource").find(":selected").data("product-name");
+		            $("#tableAutocomplete").blur();
+		            $("#selectTable").val(item.tableName);
+		            loadTableTemplate(item.tableName, dbProductID, dbProductName);
+		        },     
+		    });
+		<#else>
+			getAllDatasource(1);
+			$("#formName").prop("disabled", true);
+			$("#dataSource").attr("disabled", true);
+	    </#if>
+  	});
 
-    
-  });
-
-  function loadTableTemplate(tableName){
-      $.ajax({
-          type: "POST",
-          url: contextPath+"/cf/dfte",
-          data: {
-            tableName: tableName
-          },
-          success: function(data) {
-  		      dashletHTMLEditor.setValue(data["form-template"].trim());
-  		      dashletSAVESQLEditor.setValue(data["save-template"].trim());
-  		      dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
-          }
+	function loadTableTemplate(tableName, dbProductID, dbProductName){
+    	$.ajax({
+        	type: "POST",
+        	url: contextPath+"/cf/dfte",
+         	data: {
+            	tableName: tableName,
+				dbProductID: dbProductID,
+				dbProductName: dbProductName
+          	},
+          	success: function(data) {
+  		    	dashletHTMLEditor.setValue(data["form-template"].trim());
+  		    	dashletSAVESQLEditor.setValue(data["save-template"].trim());
+  		    	dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
+          	}
         });
-    }
+	}
    
     
-    
-   </script>
-  ','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2 );  
+</script>','aar.dev@trigyn.com','aar.dev@trigyn.com',now(), 2 );  
   
  SET FOREIGN_KEY_CHECKS=1; 

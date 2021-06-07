@@ -37,8 +37,8 @@ public class DashboardVO implements Serializable {
 
 	}
 
-	public DashboardVO(String dashboardId, String dashboardName, List<String> roleIdList, String contextId,
-			List<String> dashletIdList, Integer isDraggable, Integer isExportable) {
+	public DashboardVO(String dashboardId, String dashboardName, List<String> roleIdList, String contextId, List<String> dashletIdList,
+			Integer isDraggable, Integer isExportable) {
 		this.dashboardId	= dashboardId;
 		this.dashboardName	= dashboardName;
 		this.roleIdList		= roleIdList;
@@ -106,8 +106,7 @@ public class DashboardVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, dashboardId, dashboardName, dashletIdList, isDraggable, isExportable,
-				roleIdList);
+		return Objects.hash(contextId, dashboardId, dashboardName, dashletIdList, isDraggable, isExportable, roleIdList);
 	}
 
 	@Override
@@ -123,16 +122,16 @@ public class DashboardVO implements Serializable {
 		}
 		DashboardVO other = (DashboardVO) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(dashboardId, other.dashboardId)
-				&& Objects.equals(dashboardName, other.dashboardName)
-				&& Objects.equals(dashletIdList, other.dashletIdList) && Objects.equals(isDraggable, other.isDraggable)
-				&& Objects.equals(isExportable, other.isExportable) && Objects.equals(roleIdList, other.roleIdList);
+				&& Objects.equals(dashboardName, other.dashboardName) && Objects.equals(dashletIdList, other.dashletIdList)
+				&& Objects.equals(isDraggable, other.isDraggable) && Objects.equals(isExportable, other.isExportable)
+				&& Objects.equals(roleIdList, other.roleIdList);
 	}
 
 	@Override
 	public String toString() {
-		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", roleIdList="
-				+ roleIdList + ", contextId=" + contextId + ", dashletIdList=" + dashletIdList + ", isDraggable="
-				+ isDraggable + ", isExportable=" + isExportable + "]";
+		return "DashboardVO [dashboardId=" + dashboardId + ", dashboardName=" + dashboardName + ", roleIdList=" + roleIdList
+				+ ", contextId=" + contextId + ", dashletIdList=" + dashletIdList + ", isDraggable=" + isDraggable + ", isExportable="
+				+ isExportable + "]";
 	}
 
 }

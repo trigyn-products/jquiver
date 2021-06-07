@@ -85,8 +85,8 @@ public class JwsDynamicRestRoleAssociation implements Serializable {
 
 	@Override
 	public String toString() {
-		return "JwsDynamicRestRoleAssociation [id=" + id + ", jwsDynamicRestDetail=" + jwsDynamicRestDetail
-				+ ", userRole=" + userRole + "]";
+		return "JwsDynamicRestRoleAssociation [id=" + id + ", jwsDynamicRestDetail=" + jwsDynamicRestDetail + ", userRole=" + userRole
+				+ "]";
 	}
 
 	public JwsDynamicRestRoleAssociation getObject() {

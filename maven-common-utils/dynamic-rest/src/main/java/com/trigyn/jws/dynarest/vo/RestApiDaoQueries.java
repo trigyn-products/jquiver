@@ -15,8 +15,7 @@ public class RestApiDaoQueries {
 	public RestApiDaoQueries() {
 	}
 
-	public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence,
-			Integer queryType) {
+	public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence, Integer queryType) {
 		this.jwsDaoQueryTemplate	= jwsDaoQueryTemplate;
 		this.jwsResultVariableName	= jwsResultVariableName;
 		this.jwsQuerySequence		= jwsQuerySequence;
@@ -90,8 +89,8 @@ public class RestApiDaoQueries {
 
 	@Override
 	public String toString() {
-		return "{" + " jwsDaoQueryTemplate='" + getJwsDaoQueryTemplate() + "'" + ", jwsResultVariableName='"
-				+ getJwsResultVariableName() + "'" + ", jwsQuerySequence='" + getJwsQuerySequence() + "'" + "}";
+		return "{" + " jwsDaoQueryTemplate='" + getJwsDaoQueryTemplate() + "'" + ", jwsResultVariableName='" + getJwsResultVariableName()
+				+ "'" + ", jwsQuerySequence='" + getJwsQuerySequence() + "'" + "}";
 	}
 
 }

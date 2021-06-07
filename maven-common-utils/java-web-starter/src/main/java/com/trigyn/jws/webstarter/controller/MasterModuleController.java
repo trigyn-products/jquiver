@@ -28,11 +28,9 @@ public class MasterModuleController {
 
 	@RequestMapping()
 	@Authorized(moduleName = Constants.SITELAYOUT)
-	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			String moduleUrl = httpServletRequest.getRequestURI()
-					.substring(httpServletRequest.getContextPath().length());
+			String moduleUrl = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 			moduleUrl = moduleUrl.replaceFirst("/view/", "");
 			if (moduleUrl.indexOf("/") != -1) {
 				moduleUrl = moduleUrl.substring(0, moduleUrl.indexOf("/"));

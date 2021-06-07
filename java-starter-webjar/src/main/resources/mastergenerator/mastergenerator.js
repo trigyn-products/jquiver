@@ -4,17 +4,20 @@ function backToPreviousPage() {
 	location.href = contextPath+"/cf/home";
 }
 
-function populateFields(tableName){
+function populateFields(tableName, dbProductID){
     let selectedTable = tableName;
     $.ajax({
         url  : contextPath + "/cf/mtd",
         type : 'GET',
-        data : {tableName: selectedTable},
+        data : {
+        	tableName: selectedTable,
+        	dbProductID : dbProductID
+        },
         success : function(data) {
 			resetObjects();
             $("#moduleName").val(selectedTable.replaceAll("_", "-"));
-            let primaryKey = data.filter(element => element.columnKey == "PRI").map(element => element["columnName"]).toString();
-            let columns = data.map(element => element["columnName"]);
+            let primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
+            let columns = data.map(element => element["tableColumnName"]);
             $("#columns").val(columns.toString());
             $("#primaryKey").val(primaryKey);
             createTable(columns);
@@ -304,6 +307,7 @@ function createMaster() {
         	formDetails: JSON.stringify(formDetails),
         	menuDetails: JSON.stringify(menuDetails),
         	roleIds : JSON.stringify(roleIds),
+        	dbProductName : $("#dataSource").find(":selected").data("product-name")
         },
         type: 'POST',
         success: function(data) {

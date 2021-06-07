@@ -16,15 +16,14 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	ModuleDetailsVO getModuleDetails(String moduleId, Integer languageId, Integer defaultLanguageId);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_PARENT_MODULES)
-	List<ModuleDetailsVO> getAllParentModules(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId,
-			Integer isInsideMenu);
+	List<ModuleDetailsVO> getAllParentModules(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId, Integer isInsideMenu);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_MODULES_DETAILS)
 	List<ModuleDetailsVO> getAllModulesDetails(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ROLE_SPECIFIC_MENU_MODULES_DETAILS)
-	List<ModuleDetailsVO> getRoleSpecificModulesDetails(Integer isNotHomePage, Integer languageId,
-			Integer defaultLanguageId, List<String> roleList, String jeraModuleID);
+	List<ModuleDetailsVO> getRoleSpecificModulesDetails(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId,
+		List<String> roleList, String jeraModuleID);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_MODULE_ID_BY_NAME)
 	String getModuleIdByName(String moduleName, Integer languageId, Integer defaultLanguageId);

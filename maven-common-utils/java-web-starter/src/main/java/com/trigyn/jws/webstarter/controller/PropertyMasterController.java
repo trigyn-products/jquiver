@@ -58,8 +58,8 @@ public class PropertyMasterController {
 	}
 
 	@PostMapping(value = "/rp", produces = MediaType.TEXT_HTML_VALUE)
-	public void refreshPropertyMasterDetails(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public void refreshPropertyMasterDetails(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			String	ownerId			= httpServletRequest.getParameter("ownerId");
 			String	ownerType		= httpServletRequest.getParameter("ownerType");

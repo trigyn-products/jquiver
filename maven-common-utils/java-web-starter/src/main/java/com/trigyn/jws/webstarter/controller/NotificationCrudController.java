@@ -45,8 +45,8 @@ public class NotificationCrudController {
 	private MenuService			menuService			= null;
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
-	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			return menuService.getTemplateWithSiteLayout(Constants.GENERIC_USER_NOTIFICATION, new HashMap<>());
 		} catch (Exception a_exception) {
@@ -60,8 +60,8 @@ public class NotificationCrudController {
 	}
 
 	@GetMapping(value = "/aen", produces = MediaType.TEXT_HTML_VALUE)
-	public String createNewUserNotification(HttpSession session, HttpServletRequest request,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public String createNewUserNotification(HttpSession session, HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
 
 		try {
 			String				dateFormat		= Constants.DATE_FORMAT;
@@ -71,8 +71,7 @@ public class NotificationCrudController {
 			templateDetails.put("dataFormat_JS", dateFormat_JS);
 			String notificationId = request.getParameter("notificationId");
 			if (notificationId != null) {
-				GenericUserNotification genericUserNotificationDetails = notificationService
-						.getNotification(notificationId);
+				GenericUserNotification genericUserNotificationDetails = notificationService.getNotification(notificationId);
 				if (genericUserNotificationDetails == null) {
 					httpServletResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid Notification Id");
 					return null;
@@ -99,8 +98,8 @@ public class NotificationCrudController {
 	public Boolean saveEditedNotification(HttpSession session, HttpServletRequest request) throws Exception {
 		UserDetailsVO	detailsVO	= userDetailsService.getUserDetails();
 		String			updatedBy	= detailsVO.getUserId();
-		notificationService.saveEditedNotificationData(GenericUserNotification.createGenericUserNotification(updatedBy,
-				Constants.DATE_FORMAT, request.getParameterMap()));
+		notificationService.saveEditedNotificationData(
+				GenericUserNotification.createGenericUserNotification(updatedBy, Constants.DATE_FORMAT, request.getParameterMap()));
 		return true;
 	}
 

@@ -19,8 +19,7 @@ public class DButilsApplication {
 
 	@Bean
 	public FluentConfiguration atflywayConfiguration(DataSource dataSource) {
-		FluentConfiguration configuration = Flyway.configure().dataSource(dataSource).locations("db/mysql",
-				"db/migration");
+		FluentConfiguration configuration = Flyway.configure().dataSource(dataSource).locations("db/mysql", "db/migration");
 		configuration.cleanDisabled(Boolean.TRUE);
 		configuration.placeholderReplacement(Boolean.FALSE);
 		configuration.ignoreFutureMigrations(Boolean.TRUE);

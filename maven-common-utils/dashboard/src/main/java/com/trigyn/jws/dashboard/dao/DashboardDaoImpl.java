@@ -38,8 +38,7 @@ public class DashboardDaoImpl extends DBConnection {
 		getCurrentSession().saveOrUpdate(dashboardRoleAssociation);
 	}
 
-	public List<Object[]> findDashboardsByContextId(String contextId, List<String> userRoles, String userId)
-			throws Exception {
+	public List<Object[]> findDashboardsByContextId(String contextId, List<String> userRoles, String userId) throws Exception {
 		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_FIND_DASHBOARD_BY_CONTEXT_ID);
 		query.setParameterList("userRoles", userRoles);
 		query.setParameter("contextId", contextId);
@@ -57,16 +56,15 @@ public class DashboardDaoImpl extends DBConnection {
 	public String getContextNameById(String contextName) throws Exception {
 		Map<String, Object> namedParams = new HashMap<>();
 		namedParams.put("contextName", contextName);
-		Map<String, Object> resultMap = namedParameterJdbcTemplate
-				.queryForMap(QueryStore.SQL_QUERY_FIND_CONTEXT_NAME_BY_ID, namedParams);
+		Map<String, Object> resultMap = namedParameterJdbcTemplate.queryForMap(QueryStore.SQL_QUERY_FIND_CONTEXT_NAME_BY_ID, namedParams);
 		return resultMap.get("contextId").toString();
 	}
 
 	public Integer getContextBasedPermissions(String contextName) throws Exception {
 		Map<String, Object> namedParams = new HashMap<>();
 		namedParams.put("contextName", contextName);
-		Map<String, Object> resultMap = namedParameterJdbcTemplate
-				.queryForMap(QueryStore.SQL_QUERY_GET_CONTEXT_BASED_PERMISSION, namedParams);
+		Map<String, Object> resultMap = namedParameterJdbcTemplate.queryForMap(QueryStore.SQL_QUERY_GET_CONTEXT_BASED_PERMISSION,
+				namedParams);
 		return (Integer) resultMap.get("allowDashboardAddition");
 	}
 
@@ -86,16 +84,14 @@ public class DashboardDaoImpl extends DBConnection {
 	}
 
 	public Long getDashboardCount(String dashboardId) {
-		StringBuilder	stringBuilder	= new StringBuilder(
-				"SELECT count(*) FROM Dashboard AS d WHERE d.dashboardId = :dashboardId");
+		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM Dashboard AS d WHERE d.dashboardId = :dashboardId");
 		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("dashboardId", dashboardId);
 		return (Long) query.uniqueResult();
 	}
 
 	public Long getDashletsCount(String dashletId) {
-		StringBuilder	stringBuilder	= new StringBuilder(
-				"SELECT count(*) FROM Dashlet AS d WHERE d.dashletId = :dashletId");
+		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM Dashlet AS d WHERE d.dashletId = :dashletId");
 		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("dashletId", dashletId);
 		return (Long) query.uniqueResult();

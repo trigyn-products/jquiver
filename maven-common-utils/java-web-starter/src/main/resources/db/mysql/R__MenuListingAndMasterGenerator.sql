@@ -1,10 +1,22 @@
-REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM jq_dashboard 
-WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%")',2), 
-('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName FROM jq_dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%")',2), 
-('dynarestListing', 'Autocomplete for dynamic rest', 'SELECT jws_dynamic_rest_id AS targetTypeId, jws_method_name AS targetTypeName 
-FROM jq_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%")',2), 
-('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM jq_template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%")',2);
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) 
+VALUES('dashboardListing', 'Dashboard Listing', 'SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName 
+FROM jq_dashboard WHERE is_deleted = 0 AND dashboard_name LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize'
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts)
+VALUES ('dynamicForms', 'Dynamic Forms Autocomplete', 'SELECT form_id AS targetTypeId, form_name AS targetTypeName 
+FROM jq_dynamic_form WHERE form_name LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize'
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) 
+VALUES ('dynarestListing', 'Autocomplete for dynamic rest', 'SELECT jws_dynamic_rest_id AS targetTypeId, jws_method_name AS targetTypeName 
+FROM jq_dynamic_rest_details WHERE `jws_method_name` LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize ' 
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts)
+VALUES('templateListing', 'Template Autocomplete', 'SELECT template_id AS targetTypeId, template_name AS targetTypeName 
+FROM jq_template_master WHERE `template_name` LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize'
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, checksum, template_type_id) VALUES
@@ -17,6 +29,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script>
 </head>
 
 
@@ -44,7 +57,15 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	<form method="post" name="createMasterForm" id="createMasterForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
-			<div class="col-8">
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+	        		<label for="flammableState" style="white-space:nowrap">Datasource</label>
+	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
+	        			<option id="defaultConnection" value="" data-product-name="default">Default Connection</option>
+	        		</select>
+           		</div>
+			</div>
+			<div class="col-4">
                 <div class="col-inner-form full-form-fields">
                     <label for="flammableState" style="white-space:nowrap">Select Table</label>
                     <div class="search-cover">
@@ -209,7 +230,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	let resourceKeyMap = new Map();
 	
 	$(function() {
-	
+		getAllDatasource(0);
 		tableAutocomplete = $("#tableAutocomplete").autocomplete({
 	        autocompleteId: "table-autocomplete",
 	        prefetch : true,
@@ -223,13 +244,17 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	            return renderStr;
 	        },
 	        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+		        },
 	        extractText: function(item) {
 	            return item.tableName;
 	        },
 	        select: function(item) {
+				let dbProductID = $("#dataSource").find(":selected").val();
 	            $("#tableAutocomplete").blur();
 	            $("#selectTable").val(item.tableName);
-	            populateFields(item.tableName);
+	            populateFields(item.tableName, dbProductID);
 	        }, 
 			resetAutocomplete: function(autocompleteObj){
                 $(".details").remove();

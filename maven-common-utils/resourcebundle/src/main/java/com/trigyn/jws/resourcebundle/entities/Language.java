@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "jq_language")
 public class Language implements Serializable {
@@ -28,6 +30,7 @@ public class Language implements Serializable {
 	private String					languageCode		= null;
 
 	@Column(name = "last_update_ts")
+	@JsonIgnore
 	private Date					lastUpdateTs		= null;
 
 	@Column(name = "is_deleted")
@@ -47,8 +50,7 @@ public class Language implements Serializable {
 		this.lastUpdateTs	= lastUpdateTs;
 	}
 
-	public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs,
-			Integer isDeleted) {
+	public Language(Integer languageId, String languageName, String languageCode, Date lastUpdateTs, Integer isDeleted) {
 		this.languageId		= languageId;
 		this.languageName	= languageName;
 		this.languageCode	= languageCode;
@@ -133,10 +135,9 @@ public class Language implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId)
-				.append(", languageCode = ").append(languageCode).append(", languageName = ").append(languageName)
-				.append(", lastUpdateTs = ").append(lastUpdateTs).append(", isDeleted = ").append(isDeleted)
-				.append(", resourceBundles = ").append(resourceBundles).append(" }");
+		StringBuilder stringBuilder = new StringBuilder().append("{ languageId = ").append(languageId).append(", languageCode = ")
+				.append(languageCode).append(", languageName = ").append(languageName).append(", lastUpdateTs = ").append(lastUpdateTs)
+				.append(", isDeleted = ").append(isDeleted).append(", resourceBundles = ").append(resourceBundles).append(" }");
 		return stringBuilder.toString();
 	}
 

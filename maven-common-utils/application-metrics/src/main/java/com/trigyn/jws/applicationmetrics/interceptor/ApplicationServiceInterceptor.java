@@ -27,16 +27,15 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 	private LinkedHashMap<String, Long>									sessionInfo			= new LinkedHashMap<>();
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		Long time = request.getSession().getLastAccessedTime();
 		sessionInfo.put(request.getRequestURL().toString(), time);
 		return true;
 	}
 
 	@Override
-	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-			Exception exception) throws Exception {
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception exception)
+			throws Exception {
 
 		if (handler instanceof HandlerMethod) {
 			HandlerMethod	handlerMethod	= (HandlerMethod) handler;
@@ -48,12 +47,10 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 			responseJson.addProperty("response-status", response.getStatus());
 			responseJson.addProperty("response-type", response.getContentType());
 			if (exception != null) {
-				String message = HttpStatus.resolve(response.getStatus()).getReasonPhrase() + ": "
-						+ exception.getMessage();
+				String message = HttpStatus.resolve(response.getStatus()).getReasonPhrase() + ": " + exception.getMessage();
 				responseJson.addProperty("response-message", message);
 			} else {
-				responseJson.addProperty("response-message",
-						HttpStatus.resolve(response.getStatus()).getReasonPhrase());
+				responseJson.addProperty("response-message", HttpStatus.resolve(response.getStatus()).getReasonPhrase());
 			}
 			JsonObject auxJsonObject = new JsonObject();
 			auxJsonObject.addProperty("method-description", handlerMethod.getResolvedFromHandlerMethod().toString());
@@ -63,8 +60,8 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 			Date						date			= new Date();
 			SimpleDateFormat			formatter		= new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			String						strDate			= formatter.format(date);
-			HttpTraceEntity				httpTraceEntity	= new HttpTraceEntity(requestJson.toString(),
-					responseJson.toString(), auxJsonObject.toString(), strDate);
+			HttpTraceEntity				httpTraceEntity	= new HttpTraceEntity(requestJson.toString(), responseJson.toString(),
+					auxJsonObject.toString(), strDate);
 
 			LinkedList<HttpTraceEntity>	entities		= requestInformation.get(request.getRequestURL().toString());
 			if (entities == null) {
@@ -75,8 +72,7 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 
 			String modifiedRequestURL = getModifiedRequestURL(request.getRequestURL().toString());
 			requestJson.addProperty("updated-request-url", modifiedRequestURL);
-			Long			time				= new Date().getTime()
-					- sessionInfo.get(request.getRequestURL().toString());
+			Long			time				= new Date().getTime() - sessionInfo.get(request.getRequestURL().toString());
 			HttpTraceEntity	httpTraceEntity1	= new HttpTraceEntity(requestJson.toString(), responseJson.toString(),
 					auxJsonObject.toString(), strDate, time, time, time);
 
@@ -94,8 +90,8 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 				}
 
 				Long avgTime = (maxTime + minTime) / 2;
-				httpTraceEntity1 = new HttpTraceEntity(requestJson.toString(), responseJson.toString(),
-						auxJsonObject.toString(), strDate, minTime, maxTime, avgTime);
+				httpTraceEntity1 = new HttpTraceEntity(requestJson.toString(), responseJson.toString(), auxJsonObject.toString(), strDate,
+						minTime, maxTime, avgTime);
 
 			}
 			timeInfo.put(modifiedRequestURL, httpTraceEntity1);
@@ -104,27 +100,27 @@ public class ApplicationServiceInterceptor implements HandlerInterceptor {
 
 	private String getModifiedRequestURL(String requestURL) {
 		String modifiedRequestURL = requestURL;
-		
-		if(requestURL.contains("/view/")) {
-			modifiedRequestURL = requestURL.substring(0, requestURL.lastIndexOf("/view/"));
-			modifiedRequestURL = modifiedRequestURL.concat("/view");
-		} else if(requestURL.contains("/api/")) {
-			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/api/"));
-			modifiedRequestURL = modifiedRequestURL.concat("/api");
-		} else if(requestURL.contains("/files/")) {
-			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/files/"));
-			modifiedRequestURL = modifiedRequestURL.concat("/files");
-		} else if(requestURL.contains("/aet?")) {
-			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/aet?"));
-			modifiedRequestURL = modifiedRequestURL.concat("/aet");
-		} else if(requestURL.contains("/aea?")) {
-			modifiedRequestURL = requestURL.substring(0, requestURL.indexOf("/aea?"));
-			modifiedRequestURL = modifiedRequestURL.concat("/aea");
+
+		if (requestURL.contains("/view/")) {
+			modifiedRequestURL	= requestURL.substring(0, requestURL.lastIndexOf("/view/"));
+			modifiedRequestURL	= modifiedRequestURL.concat("/view");
+		} else if (requestURL.contains("/api/")) {
+			modifiedRequestURL	= requestURL.substring(0, requestURL.indexOf("/api/"));
+			modifiedRequestURL	= modifiedRequestURL.concat("/api");
+		} else if (requestURL.contains("/files/")) {
+			modifiedRequestURL	= requestURL.substring(0, requestURL.indexOf("/files/"));
+			modifiedRequestURL	= modifiedRequestURL.concat("/files");
+		} else if (requestURL.contains("/aet?")) {
+			modifiedRequestURL	= requestURL.substring(0, requestURL.indexOf("/aet?"));
+			modifiedRequestURL	= modifiedRequestURL.concat("/aet");
+		} else if (requestURL.contains("/aea?")) {
+			modifiedRequestURL	= requestURL.substring(0, requestURL.indexOf("/aea?"));
+			modifiedRequestURL	= modifiedRequestURL.concat("/aea");
 		}
-		
+
 		return modifiedRequestURL;
 	}
-	
+
 	public static LinkedHashMap<String, LinkedList<HttpTraceEntity>> getRequestInformation() {
 		return requestInformation;
 	}

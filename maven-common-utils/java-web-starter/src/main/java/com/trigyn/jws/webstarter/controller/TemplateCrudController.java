@@ -66,8 +66,7 @@ public class TemplateCrudController {
 	}
 
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
-	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			String				templateId		= request.getParameter("vmMasterId");
 			Map<String, Object>	vmTemplateData	= new HashMap<>();
@@ -114,8 +113,8 @@ public class TemplateCrudController {
 	}
 
 	@PostMapping(value = "/stdv")
-	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -143,5 +142,14 @@ public class TemplateCrudController {
 	public void uploadTemplateByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String templateName = request.getParameter("templateName");
 		templateCrudService.uploadTemplates(templateName);
+	}
+
+	@PostMapping(value = "/gadc")
+	public String getAutocompleteDefaultContent(HttpSession a_httpSession, HttpServletRequest a_httpServletRequest) throws Exception {
+		String				templateName		= a_httpServletRequest.getParameter("templateName");
+		String				selectedTab			= a_httpServletRequest.getParameter("selectedTab");
+		Map<String, Object>	templateParamMap	= new HashMap<>();
+		templateParamMap.put("selectedTab", selectedTab);
+		return menuService.getTemplateWithoutLayout(templateName, templateParamMap);
 	}
 }

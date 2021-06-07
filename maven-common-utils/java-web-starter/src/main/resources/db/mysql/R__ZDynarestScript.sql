@@ -4,14 +4,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 ('8a80cb81749b028401749b062c540002', 'dynarest-details-listing', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>  
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
 <div class="container">
 		<div class="topband">
@@ -26,6 +28,12 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                 <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
                 <input type="hidden" name="primaryId" id="primaryId" value=""/>
                 <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
+                <a href="${(contextPath)!''''}/cf/ad"> 
+					<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
+				</a>
+                <a href="${(contextPath)!''''}/cf/acd"> 
+                    <input id="apiClientDetails" class="btn btn-primary" value="API Clients" type="button">
+                </a>
                 <button type="submit" class="btn btn-primary">
                         Add REST API
                 </button>
@@ -77,20 +85,23 @@ $(function () {
 		});
     
 	let colM = [
-        { title: "Dynamic API Url", width: 130, align: "center", dataIndx: "dynarestUrl", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Name", width: 100, align: "center",  dataIndx: "methodName", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Description", width: 160, align: "center", dataIndx: "methodDescription", align: "left", halign: "center",
-        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Method Type", width: 160, align: "center", dataIndx: "requestTypeId", align: "left", halign: "center", render: requestTypes,
-        filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
-        { title: "Platform", width: 160, align: "center", dataIndx: "platformId", align: "left", halign: "center", render: platforms,
-        filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
-        { title: "Action", width: 30, minWidth: 115, align: "center", render: editDynarest, dataIndx: "action", sortable: false }
+        { title: "Dynamic API Url", width: 160, align: "center", dataIndx: "dynarestUrl", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "Method Name", width: 160, align: "center",  dataIndx: "methodName", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "Method Description", width: 160, align: "center",hidden: true, dataIndx: "methodDescription", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "Method Type", width: 100, align: "center", dataIndx: "requestTypeId", align: "left", halign: "center", render: requestTypes,
+        	filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
+        { title: "Platform", width: 130, align: "center", dataIndx: "platformId", align: "left", halign: "center", render: platforms,
+        	filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
+        { title: "Last Updated Date", width: 130, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+        { title: "Action", maxWidth: 145, align: "center", render: editDynarest, dataIndx: "action", sortable: false }
 	];
 	let dataModel = {
        	url: contextPath+"/cf/pq-grid-data",
+       	sortIndx: "lastUpdatedTs",
+        sortDir: "down", 
     };
     let grid = $("#divDynarestGrid").grid({
       gridId: "dynarestListingGrid",
@@ -118,45 +129,50 @@ $(function () {
         gridNew.pqGrid( "refreshDataAndView" );  
     }
    
-function dynarestType(uiObject){
-	const dynarestTypeId = uiObject.rowData.dynarestTypeId;
-	if(dynarestTypeId === 1){
-		return "Default";
-	}else{
-		return "System";
+	function dynarestType(uiObject){
+		const dynarestTypeId = uiObject.rowData.dynarestTypeId;
+		if(dynarestTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
 	}
-}
-	
-function requestTypes(uiObject){
-  let cellValue = uiObject.rowData.requestTypeId;
-  return requestType.find(el => el[cellValue])[cellValue];
-}
-
-function platforms(uiObject){
-  let cellValue = uiObject.rowData.platformId;
-  return platformValues.find(el => el[cellValue])[cellValue];
-}
-
-function editDynarest(uiObject) {
-	let dynarestUrl = uiObject.rowData.dynarestUrl;
-	let methodName = uiObject.rowData.methodName;
-	let dynarestId = uiObject.rowData.dynarestId;
-	const revisionCount = uiObject.rowData.revisionCount;
 		
-	let actionElement;
-	actionElement = ''<span id="''+dynarestUrl+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
-	if(revisionCount > 1){
-		actionElement = actionElement + ''<span id="''+dynarestId+''_entity" name="''+dynarestUrl+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
-	}else{
-		actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+	function requestTypes(uiObject){
+	  let cellValue = uiObject.rowData.requestTypeId;
+	  return requestType.find(el => el[cellValue])[cellValue];
 	}
-	return actionElement;	
-}
-
-function submitForm(element) {
-  $("#primaryId").val(element.id);
-  $("#addEditDynarest").submit();
-}
+	
+	function platforms(uiObject){
+	  let cellValue = uiObject.rowData.platformId;
+	  return platformValues.find(el => el[cellValue])[cellValue];
+	}
+	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
+	function editDynarest(uiObject) {
+		let dynarestUrl = uiObject.rowData.dynarestUrl;
+		let methodName = uiObject.rowData.methodName;
+		let dynarestId = uiObject.rowData.dynarestId;
+		const revisionCount = uiObject.rowData.revisionCount;
+			
+		let actionElement;
+		actionElement = ''<span id="''+dynarestUrl+''" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>'';
+		if(revisionCount > 1){
+			actionElement = actionElement + ''<span id="''+dynarestId+''_entity" name="''+dynarestUrl+''" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>''.toString();
+		}else{
+			actionElement = actionElement + ''<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>''.toString();
+		}
+		return actionElement;	
+	}
+	
+	function submitForm(element) {
+	  $("#primaryId").val(element.id);
+	  $("#addEditDynarest").submit();
+	}
 
 function submitRevisionForm(sourceElement) {
 	let selectedId = sourceElement.id.split("_")[0];
@@ -166,16 +182,16 @@ function submitRevisionForm(sourceElement) {
    	$("#revisionForm").submit();
 }	
 
-function backToWelcomePage() {
-	location.href = contextPath+"/cf/home";
-}
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
 
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), NULL, 2);
 
-REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('8a80cb81749ab40401749ac2e7360000', 'dynamic-rest-form', 'Form to manage dynamic rest modules.', 'select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
-jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId,
-jdrd.jws_request_type_id as dynarestRequestTypeId, jdrd.jws_response_producer_type_id as dynarestProdTypeId, jdrd.jws_allow_files AS allowFiles 
+jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId, jdrd.jws_request_type_id as dynarestRequestTypeId
+, jdrd.jws_response_producer_type_id as dynarestProdTypeId, jdrd.jws_allow_files AS allowFiles, jdrd.datasource_id AS datasourceId 
 FROM jq_dynamic_rest_details as jdrd 
 WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
@@ -187,6 +203,7 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 	<script src="${(contextPath)!''''}/webjars/1.0/dynarest/dynarest.js"></script>
+	<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script>
 </head>
 
 <div class="container">
@@ -275,6 +292,15 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	            </div>
 			</div>
 			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+	        		<label for="flammableState" style="white-space:nowrap">Datasource</label>
+	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
+	        			<option id="defaultConnection" value="">Default Connection</option>
+	        		</select>
+           		</div>
+			</div>
+		
 			<div id="allowFilesDiv" class="col-3" style="display:none;">
 				<div class="col-inner-form full-form-fields">
 					<label  for="contextType">Allow Files</label>
@@ -327,6 +353,8 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	<input type="hidden" id="primaryKey" name="primaryKey">
 	<input type="hidden" id="entityName" name="entityName" value="jq_dynamic_rest_details">
     </form>
+   	
+   	<input type="hidden" id="dataSourceId" value=""> 
    	
    	<div class="row">
 		<div class="col-3"> 
@@ -441,11 +469,14 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 				$("#dynarestMethodDescription").val(''${(resultSetList?api.get("dynarestMethodDescription"))!''''}'');
 				$("#dynarestPlatformId option[value=''${(resultSetList?api.get("dynarestPlatformId"))!''''}'']").prop("selected", "selected");
 				$("#allowFiles").val(''${(resultSetList?api.get("allowFiles"))!''''}'');
+				$("#dataSourceId").val(''${(resultSetList?api.get("datasourceId"))!''''}'');
                 dynarest.populateDetails(''${(resultSetList?api.get("dynarestRequestTypeId"))!''''}'',
                 ''${(resultSetList?api.get("dynarestProdTypeId"))!''''}'',''${(resultSetList?api.get("dynarestUrl"))!''''}'');
 				$("#isEdit").val(1);
+				$("#dataSource").attr("disabled", true);
 			</#if>
 		</#list>
+		getAllDatasource(1);
 	<#else>
 		const generatedDynarestId = uuidv4();
 		$("#dynarestId").val(generatedDynarestId);
@@ -454,6 +485,7 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         multiselect.setSelectedObject(defaultAdminRole);
 	    dynarest.populateDetails();
+	    getAllDatasource(0);
 	</#if>
 	
 	let allowFiles = $("#allowFiles").val();
@@ -466,19 +498,61 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 	if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 		getSavedEntity();
 	}
+	
 	savedAction("dynamic-rest-form", Number.parseInt($("#isEdit").val()));
 	hideShowActionButtons();
   });
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2, NOW());
 
 
+REPLACE into jq_dynamic_form_save_queries (dynamic_form_query_id, dynamic_form_id, dynamic_form_save_query, sequence) VALUES
+('8a80cb81749dbc3d01749dc00d2b0001', '8a80cb81749ab40401749ac2e7360000', '<#if  (formData?api.getFirst("isEdit"))?has_content &&
+(formData?api.getFirst("isEdit")) == "1">
+    UPDATE jq_dynamic_rest_details SET 
+        jws_dynamic_rest_url = ''${formData?api.getFirst("dynarestUrl")}''
+        ,jws_method_name = ''${formData?api.getFirst("dynarestMethodName")}''
+        ,jws_method_description = ''${formData?api.getFirst("dynarestMethodDescription")}''
+        ,jws_request_type_id = ''${formData?api.getFirst("dynarestRequestTypeId")}''
+        ,jws_response_producer_type_id = ''${formData?api.getFirst("dynarestProdTypeId")}''
+        ,jws_rbac_id = 1
+        ,jws_service_logic = ''${formData?api.getFirst("serviceLogic")}''
+        ,jws_platform_id = ''${formData?api.getFirst("dynarestPlatformId")}''
+        ,jws_allow_files = ''${formData?api.getFirst("allowFiles")}''
+        ,last_updated_by = :loggedInUserName
+        ,last_updated_ts = NOW()
+    WHERE jws_dynamic_rest_id = ''${formData?api.getFirst("dynarestId")}''   ;
+<#else>
+    INSERT INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, 
+    jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, 
+    datasource_id, created_by, created_date, last_updated_ts)
+    VALUES (
+		 ''${formData?api.getFirst("dynarestId")}'',
+         ''${formData?api.getFirst("dynarestUrl")}''
+         , ''${formData?api.getFirst("dynarestMethodName")}''
+         , ''${formData?api.getFirst("dynarestMethodDescription")}''
+         , 1
+         , ''${formData?api.getFirst("dynarestRequestTypeId")}''
+         , ''${formData?api.getFirst("dynarestProdTypeId")}''
+         ,''${formData?api.getFirst("serviceLogic")}''
+         , ''${formData?api.getFirst("dynarestPlatformId")}''
+         , ''${formData?api.getFirst("allowFiles")}''
+         <#if  (formData?api.getFirst("dataSourceId"))?has_content>
+         , ''${formData?api.getFirst("dataSourceId")}''
+         <#else>
+         ,NULL
+         </#if>
+         , :loggedInUserName
+         , NOW()
+         , NOW()
+    );
+</#if>', 1);
 
-REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id ) VALUES
+REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
 ('753e3330-e349-4d67-be25-f3824203d522', 'validate-user-email-id', 1, 'validateUserEmailId', 'Validate User Email Id', 2, 7, 'function validateEmailId(requestDetails, daoResults) {
     return daoResults["emailIdCount"];
 }
 
-validateEmailId(requestDetails, daoResults);', 3, 2);
+validateEmailId(requestDetails, daoResults);', 3, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 REPLACE INTO jq_dynamic_rest_dao_details (jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (110, '753e3330-e349-4d67-be25-f3824203d522', 'emailIdCount','SELECT COUNT(ju.email) AS emailCount FROM jq_user AS ju WHERE ju.email = :email', 1, 2);
@@ -493,11 +567,13 @@ REPLACE INTO jq_entity_role_association (entity_role_id, entity_id, entity_name,
 ('6489d472-7a90-11eb-9439-0242ac130002', '753e3330-e349-4d67-be25-f3824203d522', 'validate-user-email-id', '47030ee1-0ecf-11eb-94b2-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'admin', 1, 1);
 
 
-REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
-('833feb5b-8e60-4cb6-a247-3712efc520db', 'user-favorite-entity', 1, 'saveUserFavoriteEntityDetails', '', 1, 7, '" "', 3, 0, 2), 
-('5fd2ea97-2bb1-44f7-ba7f-9784b8e2cbef', 'user-favorite-entity-by-type', 1, 'userFavoriteEnityByType', '', 1, 7, '<#list userFavoriteEnityList as userFavoriteEnity>
+REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts)
+VALUES('833feb5b-8e60-4cb6-a247-3712efc520db', 'user-favorite-entity', 1, 'saveUserFavoriteEntityDetails', '', 1, 7, '" "', 3, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+ 
+REPLACE INTO jq_dynamic_rest_details (jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts)
+VALUES('5fd2ea97-2bb1-44f7-ba7f-9784b8e2cbef', 'user-favorite-entity-by-type', 1, 'userFavoriteEnityByType', '', 1, 7, '<#list userFavoriteEnityList as userFavoriteEnity>
     ${userFavoriteEnity.isFavorite}
-</#list>', 2, 0, 2);
+</#list>', 2, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 
 REPLACE INTO jq_dynamic_rest_dao_details(jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
@@ -517,8 +593,8 @@ FROM jq_user_favorite_entity AS jufq
 WHERE jufq.user_email_id = :loggedInUserName AND jufq.entity_type = 
 :entityType AND jufq.entity_id = :entityId AND jufq.entity_name = :entityName', 1, 1);
 
-REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id) VALUES
-('2db9f5bc-30d7-4b36-9d61-ec1fc8e3a41b', 'rest-api-base-url', 1, 'getDynarestBaseUrl', '', 2, 7, 'com.trigyn.jws.dynarest.service.DynaRest', 1, 0, 2);
+REPLACE INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_rbac_id, jws_method_name, jws_method_description, jws_request_type_id, jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_dynamic_rest_type_id, created_by, created_date, last_updated_ts) VALUES
+('2db9f5bc-30d7-4b36-9d61-ec1fc8e3a41b', 'rest-api-base-url', 1, 'getDynarestBaseUrl', '', 2, 7, 'com.trigyn.jws.dynarest.service.DynaRest', 1, 0, 2, 'aar.dev@trigyn.com', NOW(), NOW());
 
 REPLACE INTO jq_dynamic_rest_dao_details(jws_dao_details_id, jws_dynamic_rest_details_id, jws_result_variable_name, jws_dao_query_template, jws_query_sequence, jws_dao_query_type) VALUES
 (137, '2db9f5bc-30d7-4b36-9d61-ec1fc8e3a41b', 'noVariable', 'SELECT 1', 1, 1);

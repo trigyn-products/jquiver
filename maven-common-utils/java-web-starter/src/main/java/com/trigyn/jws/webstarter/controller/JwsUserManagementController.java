@@ -1,4 +1,4 @@
-	package com.trigyn.jws.webstarter.controller;
+package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -48,8 +48,7 @@ import com.trigyn.jws.webstarter.service.UserManagementService;
 @PreAuthorize("hasPermission('module','User Management')")
 public class JwsUserManagementController {
 
-	private final static Logger			logger						= LogManager
-			.getLogger(JwsUserManagementController.class);
+	private final static Logger			logger						= LogManager.getLogger(JwsUserManagementController.class);
 
 	@Autowired
 	private MenuService					menuService					= null;
@@ -67,8 +66,7 @@ public class JwsUserManagementController {
 	private IUserDetailsService			userDetailsService			= null;
 
 	@GetMapping(value = "/um")
-	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws Exception {
+	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 
 		try {
 			return userManagementService.loadUserManagement();
@@ -89,8 +87,7 @@ public class JwsUserManagementController {
 				Map<String, Object> mapDetails = new HashMap<>();
 				return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (Exception a_exception) {
@@ -112,8 +109,7 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/aedr")
-	public String addEditRole(@RequestParam("roleId") String roleId, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String addEditRole(@RequestParam("roleId") String roleId, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			return userManagementService.addEditRole(roleId);
 		} catch (Exception a_exception) {
@@ -133,8 +129,8 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/srm")
-	public Boolean saveRoleModules(@RequestBody JwsRoleMasterModulesAssociationVO roleModule,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public Boolean saveRoleModules(@RequestBody JwsRoleMasterModulesAssociationVO roleModule, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			return userManagementService.saveRoleModules(roleModule);
 		} catch (Exception a_exception) {
@@ -149,8 +145,8 @@ public class JwsUserManagementController {
 		try {
 			if (userManagementService.checkAuthenticationEnabled()) {
 				Map<String, Object>	mapDetails		= new HashMap<>();
-				String				templateName	= userManagementService
-						.getPropertyValueByAuthName("user-profile-template-details", "templateName");
+				String				templateName	= userManagementService.getPropertyValueByAuthName("user-profile-template-details",
+						"templateName");
 				UserDetailsVO		detailsVO		= userDetailsService.getUserDetails();
 				mapDetails.put("userDetails", detailsVO);
 				if (StringUtils.isNotBlank(templateName)) {
@@ -160,8 +156,7 @@ public class JwsUserManagementController {
 
 				return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (Exception a_exception) {
@@ -189,8 +184,8 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/surap")
-	public Boolean saveUserRolesAndPolicies(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse) throws Exception {
+	public Boolean saveUserRolesAndPolicies(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws Exception {
 		String		userDataJson	= httpServletRequest.getParameter("userData");
 		Gson		gson			= new Gson();
 		JwsUserVO	userData		= gson.fromJson(userDataJson, JwsUserVO.class);
@@ -201,8 +196,7 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/aedu")
-	public String addEditUser(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String addEditUser(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			boolean isProfilePage = false;
 			return userManagementService.addEditUser(userId, isProfilePage);
@@ -227,8 +221,8 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/mpar")
-	public String manageUserRoleAndPermission(@RequestParam("userId") String userId,
-			HttpServletResponse httpServletResponse) throws IOException {
+	public String manageUserRoleAndPermission(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			return userManagementService.manageUserRoleAndPermission(userId);
 		} catch (Exception a_exception) {
@@ -243,13 +237,12 @@ public class JwsUserManagementController {
 
 	@PostMapping(value = "/sat")
 	public Boolean saveAuthenticationType(@RequestParam("authenticationEnabled") String authenticationEnabled,
-			@RequestParam("authenticationTypeId") String authenticationTypeId,
-			@RequestParam("propertyJson") String propertyJson, @RequestParam("regexObj") String regexObj,
-			@RequestParam("userProfileForm") String userProfileForm,
-			@RequestParam("userProfileTemplate") String userProfileTemplate) throws Exception {
+		@RequestParam("authenticationTypeId") String authenticationTypeId, @RequestParam("propertyJson") String propertyJson,
+		@RequestParam("regexObj") String regexObj, @RequestParam("userProfileForm") String userProfileForm,
+		@RequestParam("userProfileTemplate") String userProfileTemplate) throws Exception {
 
-		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled, authenticationTypeId,
-				propertyJson, regexObj, userProfileForm, userProfileTemplate);
+		userManagementService.updatePropertyMasterValuesAndAuthProperties(authenticationEnabled, authenticationTypeId, propertyJson,
+				regexObj, userProfileForm, userProfileTemplate);
 		propertyMasterDetails.resetPropertyMasterDetails();
 		applicationSecurityDetails.resetApplicationSecurityDetails();
 		return true;
@@ -298,21 +291,13 @@ public class JwsUserManagementController {
 
 	@GetMapping(value = "/restart")
 	public void restart() {
-
 		new Thread(() -> {
 			try {
 				TimeUnit.SECONDS.sleep(1);
 			} catch (InterruptedException a_exception) {
 				logger.error("Error ", a_exception);
 			}
-			Restarter.getInstance().restart(new FailureHandler() {
-
-				@Override
-				public Outcome handle(Throwable failure) {
-					logger.error("Error while restarting the server : ", failure);
-					return Outcome.ABORT;
-				}
-			});
+			Restarter.getInstance().restart(FailureHandler.NONE);
 		}).start();
 
 	}
@@ -324,8 +309,7 @@ public class JwsUserManagementController {
 				Map<String, Object> mapDetails = new HashMap<>();
 				return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (Exception a_exception) {
@@ -346,8 +330,8 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/ler", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<JwsRoleVO> getEntityRole(@RequestParam("entityId") String entityId,
-			@RequestParam("moduleId") String moduleId) throws Exception {
+	public List<JwsRoleVO> getEntityRole(@RequestParam("entityId") String entityId, @RequestParam("moduleId") String moduleId)
+			throws Exception {
 
 		return userManagementService.getEntityRoles(entityId, moduleId);
 	}
@@ -377,38 +361,35 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/puj")
-	public String getLastUpdatedPermissionJsonData(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedPermissionJsonData(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return userManagementService.getJwsEntityRoleAssociationJson(entityId);
 	}
 
 	@PostMapping(value = "/sjra")
-	public void savePermission(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void savePermission(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String						modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper				objectMapper	= new ObjectMapper();
-		JwsEntityRoleAssociation	jwsRoleAssoc	= objectMapper.readValue(modifiedContent,
-				JwsEntityRoleAssociation.class);
+		JwsEntityRoleAssociation	jwsRoleAssoc	= objectMapper.readValue(modifiedContent, JwsEntityRoleAssociation.class);
 		userManagementService.saveJwsEntityRoleAssociation(jwsRoleAssoc);
 	}
 
 	@GetMapping(value = "/cae")
-	public boolean checkAuthenticationEnabled(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public boolean checkAuthenticationEnabled(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		return userManagementService.checkAuthenticationEnabled();
 	}
 
 	@PostMapping(value = "/mjwsu")
-	public String getLastUpdatedJwsUser(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return userManagementService.getJwsUserJson(entityId);
 	}
 
 	@PostMapping(value = "/sjwsu")
-	public void saveJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		JwsUser			user			= objectMapper.readValue(modifiedContent, JwsUser.class);
@@ -416,15 +397,14 @@ public class JwsUserManagementController {
 	}
 
 	@PostMapping(value = "/mjwsr")
-	public String getLastUpdatedJwsRole(HttpServletRequest a_httpServletRequest,
-			HttpServletResponse a_httpServletResponse) throws Exception {
+	public String getLastUpdatedJwsRole(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
 		String entityId = a_httpServletRequest.getParameter("entityId");
 		return userManagementService.getJwsRoleJson(entityId);
 	}
 
 	@PostMapping(value = "/sjwsr")
-	public void saveJwsRole(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
+	public void saveJwsRole(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper	objectMapper	= new ObjectMapper();
 		JwsRole			role			= objectMapper.readValue(modifiedContent, JwsRole.class);

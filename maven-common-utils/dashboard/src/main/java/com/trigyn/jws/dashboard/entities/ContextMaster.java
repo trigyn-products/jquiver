@@ -42,8 +42,7 @@ public class ContextMaster implements Serializable {
 
 	}
 
-	public ContextMaster(String contextId, String contextDescription, Integer allowDashboardAddition, String createdBy,
-			Date createdDate) {
+	public ContextMaster(String contextId, String contextDescription, Integer allowDashboardAddition, String createdBy, Date createdDate) {
 		this.contextId				= contextId;
 		this.contextDescription		= contextDescription;
 		this.allowDashboardAddition	= allowDashboardAddition;
@@ -117,16 +116,15 @@ public class ContextMaster implements Serializable {
 		}
 		ContextMaster other = (ContextMaster) obj;
 		return Objects.equals(allowDashboardAddition, other.allowDashboardAddition)
-				&& Objects.equals(contextDescription, other.contextDescription)
-				&& Objects.equals(contextId, other.contextId) && Objects.equals(createdBy, other.createdBy)
-				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(dashlet, other.dashlet);
+				&& Objects.equals(contextDescription, other.contextDescription) && Objects.equals(contextId, other.contextId)
+				&& Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(dashlet, other.dashlet);
 	}
 
 	@Override
 	public String toString() {
-		return "ContextMaster [contextId=" + contextId + ", contextDescription=" + contextDescription
-				+ ", allowDashboardAddition=" + allowDashboardAddition + ", createdBy=" + createdBy + ", createdDate="
-				+ createdDate + ", dashlet=" + dashlet + "]";
+		return "ContextMaster [contextId=" + contextId + ", contextDescription=" + contextDescription + ", allowDashboardAddition="
+				+ allowDashboardAddition + ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", dashlet=" + dashlet + "]";
 	}
 
 	public ContextMaster getObject() {

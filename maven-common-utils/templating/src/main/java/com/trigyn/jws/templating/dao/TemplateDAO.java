@@ -43,8 +43,7 @@ public class TemplateDAO extends DBConnection {
 	}
 
 	public void updateChecksum(TemplateVO templateVO) {
-		Query query = getCurrentSession()
-				.createQuery("UPDATE TemplateMaster SET checksum=:checksum WHERE templateId=:templateId");
+		Query query = getCurrentSession().createQuery("UPDATE TemplateMaster SET checksum=:checksum WHERE templateId=:templateId");
 		query.setParameter("checksum", templateVO.getChecksum());
 		query.setParameter("templateId", templateVO.getTemplateId());
 		query.executeUpdate();
@@ -58,8 +57,7 @@ public class TemplateDAO extends DBConnection {
 	}
 
 	public Long getTemplateCount(String templateId) {
-		StringBuilder	stringBuilder	= new StringBuilder(
-				"SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
+		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
 		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("templateId", templateId);
 		return (Long) query.uniqueResult();

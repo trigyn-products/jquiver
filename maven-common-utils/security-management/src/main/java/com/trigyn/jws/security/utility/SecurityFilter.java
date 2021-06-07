@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -26,12 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
@@ -42,9 +44,6 @@ import com.trigyn.jws.security.service.SecurityManagementService;
 @WebFilter(urlPatterns = { "/*" })
 @Component
 public class SecurityFilter implements Filter {
-
-	private final static Logger					logger						= LogManager
-			.getLogger(SecurityFilter.class);
 
 	@Autowired
 	private PropertyMasterDetails				propertyMasterDetails		= null;
@@ -65,12 +64,19 @@ public class SecurityFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig paramFilterConfig) throws ServletException {
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+		
+		if(securityTypeRepository==null){
+            ServletContext servletContext = paramFilterConfig.getServletContext();
+            WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+            securityTypeRepository = webApplicationContext.getBean(SecurityTypeRepository.class);
+        }
+		
 		SecurityType	securityType	= securityTypeRepository.findBySecurityName("DDOS");
 		Integer			isDDOSEnabled	= securityType.getIsActive();
 		if (isDDOSEnabled != null && isDDOSEnabled.equals(Constant.IS_DDOS_ENABLED)) {
 			getExcludedExtensions();
-			Integer dosRefreshInterval = propertyMasterDetails.getSystemPropertyValue("ddos-refresh-interval") == null
-					? 60
+			Integer dosRefreshInterval = propertyMasterDetails.getSystemPropertyValue("ddos-refresh-interval") == null ? 60
 					: Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("ddos-refresh-interval"));
 			resetSessionDetailsMap();
 			scheduler.scheduleWithFixedDelay(new Runnable() {
@@ -97,6 +103,7 @@ public class SecurityFilter implements Filter {
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws IOException, ServletException {
 
+		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 		SecurityType	securityType	= securityTypeRepository.findBySecurityName("DDOS");
 		Integer			isDDOSEnabled	= securityType.getIsActive();
 		if (isDDOSEnabled != null && isDDOSEnabled.equals(Constant.IS_DDOS_ENABLED)) {
@@ -104,8 +111,7 @@ public class SecurityFilter implements Filter {
 			HttpServletResponse	httpServletResponse	= (HttpServletResponse) servletResponse;
 			HttpSession			httpSession			= httpServletRequest.getSession(false);
 			ObjectMapper		objMapper			= new ObjectMapper();
-			String				blockedIpAddStr		= propertyMasterDetails
-					.getSystemPropertyValue("blocked-ip-address");
+			String				blockedIpAddStr		= propertyMasterDetails.getSystemPropertyValue("blocked-ip-address");
 			List<String>		blockedIpAddList	= new ArrayList<>();
 			if (StringUtils.isBlank(blockedIpAddStr) == false) {
 				blockedIpAddList = objMapper.readValue(blockedIpAddStr, List.class);
@@ -113,15 +119,14 @@ public class SecurityFilter implements Filter {
 			String ipAddr = getUserIpAddress(httpServletRequest);
 
 			if (isExcluded(httpServletRequest) == false && blockedIPAddrMap.containsKey(ipAddr) == false
-					&& (CollectionUtils.isEmpty(blockedIpAddList) == true
-							|| blockedIpAddList.contains(ipAddr) == false)) {
+					&& (CollectionUtils.isEmpty(blockedIpAddList) == true || blockedIpAddList.contains(ipAddr) == false)) {
 				if (ipDetailsMap.containsKey(ipAddr)) {
 					try {
 						// System.out.println("Inside method : " + semaphore.availablePermits());
 						semaphore.acquire();
 						updateDDOSDetails(httpServletRequest, httpSession, ipAddr);
 					} catch (Exception a_exc) {
-						logger.error(a_exc);
+						a_exc.printStackTrace();
 					} finally {
 						semaphore.release();
 					}
@@ -144,14 +149,11 @@ public class SecurityFilter implements Filter {
 		}
 	}
 
-	private void updateDDOSDetails(HttpServletRequest httpServletRequest, HttpSession httpSession, String ipAddr)
-			throws Exception {
-		Integer					ddosPageCount	= propertyMasterDetails
-				.getSystemPropertyValue("ddos-page-count") == null ? 10
-						: Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("ddos-page-count"));
-		Integer					ddosSiteCount	= propertyMasterDetails
-				.getSystemPropertyValue("ddos-site-count") == null ? 30
-						: Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("ddos-site-count"));
+	private void updateDDOSDetails(HttpServletRequest httpServletRequest, HttpSession httpSession, String ipAddr) throws Exception {
+		Integer					ddosPageCount	= propertyMasterDetails.getSystemPropertyValue("ddos-page-count") == null ? 10
+				: Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("ddos-page-count"));
+		Integer					ddosSiteCount	= propertyMasterDetails.getSystemPropertyValue("ddos-site-count") == null ? 30
+				: Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("ddos-site-count"));
 
 		Map<String, Integer>	ipInfo			= ipDetailsMap.get(ipAddr);
 		String					resourceUrl		= httpServletRequest.getRequestURI();
@@ -190,7 +192,7 @@ public class SecurityFilter implements Filter {
 			ipDetailsMap		= new HashMap<>();
 			// System.out.println("Released Time: " + new Date());
 		} catch (InterruptedException a_ie) {
-			logger.error(a_ie);
+			a_ie.printStackTrace();
 		} finally {
 			semaphore.release();
 		}

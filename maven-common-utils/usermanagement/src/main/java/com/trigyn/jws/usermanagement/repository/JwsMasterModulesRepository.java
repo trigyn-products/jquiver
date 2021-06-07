@@ -12,7 +12,7 @@ import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 public interface JwsMasterModulesRepository extends JpaRepository<JwsMasterModules, String> {
 
 	JwsMasterModules findBymoduleName(String moduleName);
-	
+
 	@Query(" SELECT jmm FROM JwsMasterModules jmm WHERE isPermSupported=:isPermSupported order by sequence")
 	List<JwsMasterModules> findAllModulesForPermission(Integer isPermSupported);
 

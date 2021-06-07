@@ -134,7 +134,7 @@ REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.t
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.typeahead', 2, 'Typeahead'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.typeahead', 3, 'Typeahead'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.updatedBy', 1, 'Updated By'); 
-REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.updatedDate', 1, 'Updated Date'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.updatedDate', 1, 'Last Updated Date'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.value', 1, 'Value'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.viewDashboard', 1, 'View Dashboard'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.welcomeuser', 1, 'Welcome User'); 
@@ -210,5 +210,16 @@ REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.d
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.viewFile', 1, 'View File');
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.copyFilePath', 1, 'Copy File Path');
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.fileName', 1, 'File Name');
+
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.connectionURL', 1, 'Connection URL'); 
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.databaseProductName', 1, 'Database Product Name'); 
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.datasourceLookupId', 1, 'Datasource Lookup Id');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.driverClassName', 1, 'Driver Class Name');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.password', 1, 'Password'); 
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.username', 1, 'Username');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.testConnection', 1, 'Test Connection');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.dataSourceName', 1, 'Datasource Name');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.htmlContent', 1, 'HTML');
+REPLACE INTO jq_resource_bundle(resource_key, language_id, text) VALUES ('jws.javaScriptContent', 1, 'JavaScript'); 
 
 SET FOREIGN_KEY_CHECKS=1;

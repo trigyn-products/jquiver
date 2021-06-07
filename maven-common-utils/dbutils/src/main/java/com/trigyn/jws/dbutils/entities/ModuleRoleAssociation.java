@@ -164,9 +164,8 @@ public class ModuleRoleAssociation implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ModuleRoleAssociation [roleId=" + roleId + ", moduleId=" + moduleId + ", updatedBy=" + updatedBy
-				+ ", updatedDate=" + updatedDate + ", isDeleted=" + isDeleted + ", moduleListing=" + moduleListing
-				+ "]";
+		return "ModuleRoleAssociation [roleId=" + roleId + ", moduleId=" + moduleId + ", updatedBy=" + updatedBy + ", updatedDate="
+				+ updatedDate + ", isDeleted=" + isDeleted + ", moduleListing=" + moduleListing + "]";
 	}
 
 	public ModuleRoleAssociation getObject() {

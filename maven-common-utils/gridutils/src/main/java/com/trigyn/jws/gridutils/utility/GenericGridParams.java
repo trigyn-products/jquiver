@@ -20,6 +20,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 public class GenericGridParams {
 	private String				sortIndex		= null;
@@ -34,8 +36,7 @@ public class GenericGridParams {
 		super();
 	}
 
-	public GenericGridParams(HttpServletRequest request, Integer matchingRowCount)
-			throws JsonParseException, IOException {
+	public GenericGridParams(HttpServletRequest request, IUserDetailsService detailsService, Integer matchingRowCount) throws JsonParseException, IOException {
 		this.sortIndex	= request.getParameter("sidx");
 		this.sortOrder	= request.getParameter("sord");
 		if (request.getParameter("rows") != null) {
@@ -65,13 +66,17 @@ public class GenericGridParams {
 				}
 				if (request.getParameter(reqParamKey).contains("str_")) {
 					obj = request.getParameter(reqParamKey).replace("str_", "");
+					if(obj != null && obj.toString().equalsIgnoreCase("__loggedInUserName")) {
+						UserDetailsVO detailsVO = detailsService.getUserDetails();
+						obj = detailsVO.getUserId();
+					}
 				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
 		}
 	}
 
-	public GenericGridParams(HttpServletRequest request, boolean isDataGrid) throws JsonParseException, IOException {
+	public GenericGridParams(HttpServletRequest request, IUserDetailsService detailsService, boolean isDataGrid) throws JsonParseException, IOException {
 		this.sortIndex		= request.getParameter("sidx");
 		this.sortOrder		= request.getParameter("sord");
 		this.rowsPerPage	= Integer.parseInt(request.getParameter("rows"));
@@ -104,6 +109,10 @@ public class GenericGridParams {
 				} /*
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
+				if(obj != null && obj.toString().equalsIgnoreCase("__loggedInUserName")) {
+					UserDetailsVO detailsVO = detailsService.getUserDetails();
+					obj = detailsVO.getUserId();
+				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
 		}
@@ -120,8 +129,8 @@ public class GenericGridParams {
 		this.filterParams	= filterParams;
 	}
 
-	public GenericGridParams(String sortIndex, String sortOrder, int pageIndex, int rowsPerPage, int startIndex,
-			String filterParamsJson) throws JsonProcessingException, IOException {
+	public GenericGridParams(String sortIndex, String sortOrder, int pageIndex, int rowsPerPage, int startIndex, String filterParamsJson)
+			throws JsonProcessingException, IOException {
 		super();
 		this.sortIndex		= sortIndex;
 		this.sortOrder		= sortOrder;
@@ -136,7 +145,7 @@ public class GenericGridParams {
 
 	}
 
-	public GenericGridParams(HttpServletRequest request) throws JsonParseException, IOException {
+	public GenericGridParams(HttpServletRequest request, IUserDetailsService detailsService) throws JsonParseException, IOException {
 		this.sortIndex		= request.getParameter("sidx");
 		this.sortOrder		= request.getParameter("sord");
 		this.rowsPerPage	= Integer.parseInt(request.getParameter("rows"));
@@ -165,13 +174,16 @@ public class GenericGridParams {
 				} /*
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
+				if(obj != null && obj.toString().equalsIgnoreCase("_loggedInUserName")) {
+					UserDetailsVO detailsVO = detailsService.getUserDetails();
+					obj = detailsVO.getUserId();
+				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
 		}
 	}
 
-	public GenericGridParams getPQGridDataParams(HttpServletRequest request)
-			throws JsonParseException, JSONException, IOException {
+	public GenericGridParams getPQGridDataParams(HttpServletRequest request) throws JsonParseException, JSONException, IOException {
 		this.rowsPerPage	= Integer.parseInt(request.getParameter("pq_rpp"));
 		this.pageIndex		= Integer.parseInt(request.getParameter("pq_curpage")) == 0 ? 1
 				: Integer.parseInt(request.getParameter("pq_curpage"));
@@ -233,9 +245,8 @@ public class GenericGridParams {
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			} else if (reqParamKey.contains("additionalParameters")) {
 				String				additonalParamStr	= request.getParameter(reqParamKey).toString();
-				Map<String, String>	additonalParamMap	= new Gson().fromJson(additonalParamStr,
-						new TypeToken<Map<String, String>>() {
-																}.getType());
+				Map<String, String>	additonalParamMap	= new Gson().fromJson(additonalParamStr, new TypeToken<Map<String, String>>() {
+														}.getType());
 				if (CollectionUtils.isEmpty(additonalParamMap) == false) {
 					if (this.criteriaParams == null) {
 						this.criteriaParams = new HashMap<String, Object>();

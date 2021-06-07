@@ -84,8 +84,7 @@ public class DashboardService {
 		return iDashboardLookupCategoryRepository.findDashboardLookupCategoryByName(categoryName);
 	}
 
-	public List<DashboardLookupCategoryVO> getDashboardLookupDetailsById(List<DashletProperties> properties)
-			throws Exception {
+	public List<DashboardLookupCategoryVO> getDashboardLookupDetailsById(List<DashletProperties> properties) throws Exception {
 		List<String> propertyTypeIdList = new ArrayList<>();
 		if (CollectionUtils.isEmpty(properties) == false) {
 			for (DashletProperties dashletProperties : properties) {

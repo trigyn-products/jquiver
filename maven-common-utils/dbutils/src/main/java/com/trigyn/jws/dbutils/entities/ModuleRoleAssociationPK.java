@@ -1,7 +1,9 @@
 package com.trigyn.jws.dbutils.entities;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @Embeddable
 public class ModuleRoleAssociationPK implements Serializable {

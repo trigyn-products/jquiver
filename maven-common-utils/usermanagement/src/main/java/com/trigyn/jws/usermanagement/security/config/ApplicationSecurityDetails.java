@@ -25,14 +25,14 @@ public class ApplicationSecurityDetails {
 
 	public ApplicationSecurityDetails(PropertyMasterRepository propertyMasterRepository) throws Exception {
 		super();
-		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system",
-				"system", "enable-user-management");
+		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system",
+				"enable-user-management");
 		this.isAuthenticationEnabled = Boolean.parseBoolean(propertyMaster.getPropertyValue());
-		PropertyMaster propertyMasterAuthType = propertyMasterRepository
-				.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
+		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system",
+				"authentication-type");
 		this.authenticationType = propertyMasterAuthType.getPropertyValue();
-		PropertyMaster propertyMasterBaseUrl = propertyMasterRepository
-				.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "base-url");
+		PropertyMaster propertyMasterBaseUrl = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system",
+				"base-url");
 		this.baseUrl = propertyMasterBaseUrl.getPropertyValue();
 	}
 
@@ -52,11 +52,11 @@ public class ApplicationSecurityDetails {
 	}
 
 	public void resetApplicationSecurityDetails() {
-		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system",
-				"system", "enable-user-management");
+		PropertyMaster propertyMaster = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system",
+				"enable-user-management");
 		this.isAuthenticationEnabled = Boolean.parseBoolean(propertyMaster.getPropertyValue());
-		PropertyMaster propertyMasterAuthType = propertyMasterRepository
-				.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system", "authentication-type");
+		PropertyMaster propertyMasterAuthType = propertyMasterRepository.findByOwnerTypeAndOwnerIdAndPropertyName("system", "system",
+				"authentication-type");
 		this.authenticationType = propertyMasterAuthType.getPropertyValue();
 	}
 

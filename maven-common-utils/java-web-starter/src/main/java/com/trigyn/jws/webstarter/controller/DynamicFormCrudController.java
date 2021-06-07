@@ -50,8 +50,7 @@ public class DynamicFormCrudController {
 	private MenuService				menuService				= null;
 
 	@PostMapping(value = "/aedf", produces = { MediaType.TEXT_HTML_VALUE })
-	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			return dynamicFormCrudService.addEditForm(formId);
 		} catch (Exception a_exception) {
@@ -62,6 +61,12 @@ public class DynamicFormCrudController {
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
+	}
+
+	@PostMapping(value = "/gfhc")
+	public String getFormContentById(HttpServletRequest httpServletRequest) throws Exception {
+		String formId = httpServletRequest.getParameter("formId");
+		return dynamicFormCrudService.getFormContentById(formId);
 	}
 
 	@PostMapping(value = "/gfsq", produces = { MediaType.APPLICATION_JSON_VALUE })
@@ -95,8 +100,10 @@ public class DynamicFormCrudController {
 	@PostMapping(value = "/dfte", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
 		String						tableName		= httpServletRequest.getParameter("tableName");
-		List<Map<String, Object>>	tableDetails	= dynamicFormService.getTableDetailsByTableName(tableName);
-		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null);
+		String additionalDataSourceId = httpServletRequest.getParameter("dbProductID");
+		String dbProductName = httpServletRequest.getParameter("dbProductName");
+		List<Map<String, Object>>	tableDetails	= dynamicFormService.getTableDetailsByTableName(tableName, additionalDataSourceId);
+		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId, dbProductName);
 	}
 
 	@GetMapping(value = "/cdd")

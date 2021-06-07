@@ -30,8 +30,8 @@ public class ModuleVersionVO implements Serializable {
 
 	}
 
-	public ModuleVersionVO(String moduleVersionId, String entityId, String moduleJson, Double versionId,
-			Date updatedDate, String moduleJsonChecksum, Integer sourceTypeId) {
+	public ModuleVersionVO(String moduleVersionId, String entityId, String moduleJson, Double versionId, Date updatedDate,
+			String moduleJsonChecksum, Integer sourceTypeId) {
 		this.moduleVersionId	= moduleVersionId;
 		this.entityId			= entityId;
 		this.moduleJson			= moduleJson;
@@ -169,8 +169,8 @@ public class ModuleVersionVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId,
-				sourceTypeId, updatedDate, versionId);
+		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId, sourceTypeId,
+				updatedDate, versionId);
 	}
 
 	@Override
@@ -186,20 +186,17 @@ public class ModuleVersionVO implements Serializable {
 		}
 		ModuleVersionVO other = (ModuleVersionVO) obj;
 		return Objects.equals(entityId, other.entityId) && Objects.equals(entityName, other.entityName)
-				&& Objects.equals(moduleJson, other.moduleJson)
-				&& Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
-				&& Objects.equals(moduleVersionId, other.moduleVersionId)
-				&& Objects.equals(parentEntityId, other.parentEntityId)
+				&& Objects.equals(moduleJson, other.moduleJson) && Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
+				&& Objects.equals(moduleVersionId, other.moduleVersionId) && Objects.equals(parentEntityId, other.parentEntityId)
 				&& Objects.equals(sourceTypeId, other.sourceTypeId) && Objects.equals(updatedDate, other.updatedDate)
 				&& Objects.equals(versionId, other.versionId);
 	}
 
 	@Override
 	public String toString() {
-		return "ModuleVersionVO [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName="
-				+ entityName + ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", versionId="
-				+ versionId + ", updatedDate=" + updatedDate + ", moduleJsonChecksum=" + moduleJsonChecksum
-				+ ", sourceTypeId=" + sourceTypeId + "]";
+		return "ModuleVersionVO [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName=" + entityName
+				+ ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", versionId=" + versionId + ", updatedDate="
+				+ updatedDate + ", moduleJsonChecksum=" + moduleJsonChecksum + ", sourceTypeId=" + sourceTypeId + "]";
 	}
 
 }

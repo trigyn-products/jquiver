@@ -99,9 +99,8 @@ public class JwsResponseProducerDetail implements Serializable {
 
 	@Override
 	public String toString() {
-		return "JwsResponseProducerDetail [jwsResponseProducerTypeId=" + jwsResponseProducerTypeId
-				+ ", jwsResponseProducerType=" + jwsResponseProducerType + ", jwsDynamicRestDetails="
-				+ jwsDynamicRestDetails + "]";
+		return "JwsResponseProducerDetail [jwsResponseProducerTypeId=" + jwsResponseProducerTypeId + ", jwsResponseProducerType="
+				+ jwsResponseProducerType + ", jwsDynamicRestDetails=" + jwsDynamicRestDetails + "]";
 	}
 
 }

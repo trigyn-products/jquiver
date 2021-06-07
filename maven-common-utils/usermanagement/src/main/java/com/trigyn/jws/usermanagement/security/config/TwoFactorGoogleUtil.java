@@ -55,8 +55,8 @@ public class TwoFactorGoogleUtil {
 
 	public String getGoogleAuthenticatorBarCode(String account, String issuer, String secretKey) {
 		try {
-			return "otpauth://totp/" + URLEncoder.encode(issuer + ":" + account, "UTF-8").replace("+", "%20")
-					+ "?secret=" + URLEncoder.encode(secretKey, "UTF-8").replace("+", "%20") + "&issuer="
+			return "otpauth://totp/" + URLEncoder.encode(issuer + ":" + account, "UTF-8").replace("+", "%20") + "?secret="
+					+ URLEncoder.encode(secretKey, "UTF-8").replace("+", "%20") + "&issuer="
 					+ URLEncoder.encode(issuer, "UTF-8").replace("+", "%20");
 		} catch (UnsupportedEncodingException a_unSupEncExc) {
 			logger.error("Error ocurred.", a_unSupEncExc);

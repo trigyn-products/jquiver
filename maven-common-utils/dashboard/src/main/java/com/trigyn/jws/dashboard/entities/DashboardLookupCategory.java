@@ -42,8 +42,8 @@ public class DashboardLookupCategory implements Serializable {
 
 	}
 
-	public DashboardLookupCategory(String lookupCategoryId, String lookupCategory, String lookupDescription,
-			String updatedBy, Date updatedDate) {
+	public DashboardLookupCategory(String lookupCategoryId, String lookupCategory, String lookupDescription, String updatedBy,
+			Date updatedDate) {
 		this.lookupCategoryId	= lookupCategoryId;
 		this.lookupCategory		= lookupCategory;
 		this.lookupDescription	= lookupDescription;
@@ -108,17 +108,15 @@ public class DashboardLookupCategory implements Serializable {
 			return false;
 		}
 		DashboardLookupCategory other = (DashboardLookupCategory) obj;
-		return Objects.equals(lookupCategory, other.lookupCategory)
-				&& Objects.equals(lookupCategoryId, other.lookupCategoryId)
-				&& Objects.equals(lookupDescription, other.lookupDescription)
-				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate);
+		return Objects.equals(lookupCategory, other.lookupCategory) && Objects.equals(lookupCategoryId, other.lookupCategoryId)
+				&& Objects.equals(lookupDescription, other.lookupDescription) && Objects.equals(updatedBy, other.updatedBy)
+				&& Objects.equals(updatedDate, other.updatedDate);
 	}
 
 	@Override
 	public String toString() {
-		return "DashletLookUpCategory [lookupCategoryId=" + lookupCategoryId + ", lookupCategory=" + lookupCategory
-				+ ", lookupDescription=" + lookupDescription + ", updatedBy=" + updatedBy + ", updatedDate="
-				+ updatedDate + "]";
+		return "DashletLookUpCategory [lookupCategoryId=" + lookupCategoryId + ", lookupCategory=" + lookupCategory + ", lookupDescription="
+				+ lookupDescription + ", updatedBy=" + updatedBy + ", updatedDate=" + updatedDate + "]";
 	}
 
 }

@@ -59,9 +59,8 @@ public class JwsModuleVersion implements Serializable {
 	public JwsModuleVersion() {
 	}
 
-	public JwsModuleVersion(String moduleVersionId, String entityId, String entityName, String parentEntityId,
-			String moduleJson, String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum,
-			Integer sourceTypeId) {
+	public JwsModuleVersion(String moduleVersionId, String entityId, String entityName, String parentEntityId, String moduleJson,
+			String updatedBy, Date updatedDate, Double versionId, String moduleJsonChecksum, Integer sourceTypeId) {
 		this.moduleVersionId	= moduleVersionId;
 		this.entityId			= entityId;
 		this.entityName			= entityName;
@@ -216,8 +215,8 @@ public class JwsModuleVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId,
-				sourceTypeId, updatedBy, updatedDate, versionId);
+		return Objects.hash(entityId, entityName, moduleJson, moduleJsonChecksum, moduleVersionId, parentEntityId, sourceTypeId, updatedBy,
+				updatedDate, versionId);
 	}
 
 	@Override
@@ -233,20 +232,18 @@ public class JwsModuleVersion implements Serializable {
 		}
 		JwsModuleVersion other = (JwsModuleVersion) obj;
 		return Objects.equals(entityId, other.entityId) && Objects.equals(entityName, other.entityName)
-				&& Objects.equals(moduleJson, other.moduleJson)
-				&& Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
-				&& Objects.equals(moduleVersionId, other.moduleVersionId)
-				&& Objects.equals(parentEntityId, other.parentEntityId)
+				&& Objects.equals(moduleJson, other.moduleJson) && Objects.equals(moduleJsonChecksum, other.moduleJsonChecksum)
+				&& Objects.equals(moduleVersionId, other.moduleVersionId) && Objects.equals(parentEntityId, other.parentEntityId)
 				&& Objects.equals(sourceTypeId, other.sourceTypeId) && Objects.equals(updatedBy, other.updatedBy)
 				&& Objects.equals(updatedDate, other.updatedDate) && Objects.equals(versionId, other.versionId);
 	}
 
 	@Override
 	public String toString() {
-		return "JwsModuleVersion [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName="
-				+ entityName + ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", updatedBy="
-				+ updatedBy + ", updatedDate=" + updatedDate + ", versionId=" + versionId + ", moduleJsonChecksum="
-				+ moduleJsonChecksum + ", sourceTypeId=" + sourceTypeId + "]";
+		return "JwsModuleVersion [moduleVersionId=" + moduleVersionId + ", entityId=" + entityId + ", entityName=" + entityName
+				+ ", parentEntityId=" + parentEntityId + ", moduleJson=" + moduleJson + ", updatedBy=" + updatedBy + ", updatedDate="
+				+ updatedDate + ", versionId=" + versionId + ", moduleJsonChecksum=" + moduleJsonChecksum + ", sourceTypeId=" + sourceTypeId
+				+ "]";
 	}
 
 }

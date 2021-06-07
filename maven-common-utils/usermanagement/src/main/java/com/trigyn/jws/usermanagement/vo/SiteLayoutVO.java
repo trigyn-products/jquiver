@@ -70,8 +70,8 @@ public class SiteLayoutVO {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SiteLayoutVO [moduleName=").append(moduleName).append(", moduleUrl=").append(moduleUrl)
-				.append(", roleCount=").append(roleCount).append("]");
+		builder.append("SiteLayoutVO [moduleName=").append(moduleName).append(", moduleUrl=").append(moduleUrl).append(", roleCount=")
+				.append(roleCount).append("]");
 		return builder.toString();
 	}
 

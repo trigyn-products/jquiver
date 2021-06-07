@@ -79,7 +79,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 	        { title: "${messageSource.getMessage(''jws.text'')}", width: 160, dataIndx: "resourceBundleText", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage(''jws.action'')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDBResource, sortable: false}
+	        { title: "${messageSource.getMessage(''jws.action'')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editDBResource, sortable: false}
 	    ];
 	    
 	    let dataModel = {
@@ -186,7 +186,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	}
 	
 	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
+        location.href = contextPath+"/cf/home";
 	}
 </script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
 
@@ -371,7 +371,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <script>
 	contextPath = "${(contextPath)!''''}";
 	function backToWelcomePage() {
-		location.href = contextPath+"/cf/home";
+        location.href = contextPath+"/cf/home";
 	}
 	$(function () {
 		let formElement = $("#addEditNotification")[0].outerHTML;
@@ -396,7 +396,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 	        { title: "Updated Date", width: 100, dataIndx: "updatedData", align: "left", halign: "center",
 	          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-	        { title: "Action", width: 100, minWidth: 115, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter, sortable: false },
+	        { title: "Action", maxWidth: 145, dataIndx: "action",align: "center", halign: "center",render: editNotificationFormatter, sortable: false },
 		];
 
  		let dataModel = {
@@ -480,7 +480,7 @@ function editNotification(thisObj){
 </div>
 ', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2); 
 
-REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id) VALUES
+REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_query, form_body, created_by, created_date, form_select_checksum, form_body_checksum, form_type_id, last_updated_ts) VALUES
 ('e848b04c-f19b-11ea-9304-f48e38ab9348', 'notification', 'notification add/edit', 'select * from jq_generic_user_notification where notification_id="${(primaryId)!''''}"', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
@@ -761,9 +761,9 @@ function validateFields(){
 function backToPreviousPage(){
 	window.location.href=contextPath+"/cf/nl";
 }     
-</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2);
+</script>', 'aar.dev@trigyn.com', NOW(), NULL, NULL, 2, NOW());
 
-REPLACE INTO jq_dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id  ,dynamic_form_save_query  ,sequence,checksum) VALUES (
+REPLACE INTO jq_dynamic_form_save_queries(dynamic_form_query_id ,dynamic_form_id ,dynamic_form_save_query ,sequence,checksum) VALUES (
    'daf459b9-f82f-11ea-97b6-e454e805e22f' ,'e848b04c-f19b-11ea-9304-f48e38ab9348' ,'
 REPLACE INTO jq_generic_user_notification (
    notification_id

@@ -77,8 +77,7 @@ public class DashletConfigurationPK implements Serializable {
 
 	@Override
 	public String toString() {
-		return "DashletConfigurationPK [userId=" + userId + ", dashletId=" + dashletId + ", dashboardId=" + dashboardId
-				+ "]";
+		return "DashletConfigurationPK [userId=" + userId + ", dashletId=" + dashletId + ", dashboardId=" + dashboardId + "]";
 	}
 
 }

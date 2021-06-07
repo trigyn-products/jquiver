@@ -14,10 +14,6 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-/**
- * The persistent class for the jq_lookup database table.
- * 
- */
 @Entity
 @Table(name = "jq_lookup")
 @NamedQuery(name = "JwsLookup.findAll", query = "SELECT j FROM JwsLookup j")
@@ -45,8 +41,7 @@ public class JwsLookup implements Serializable {
 	public JwsLookup() {
 	}
 
-	public JwsLookup(String lookupId, Integer isDeleted, String lookupName, Integer recordId,
-			List<JwsLookupI18n> jwsLookupI18ns) {
+	public JwsLookup(String lookupId, Integer isDeleted, String lookupName, Integer recordId, List<JwsLookupI18n> jwsLookupI18ns) {
 		this.lookupId		= lookupId;
 		this.isDeleted		= isDeleted;
 		this.lookupName		= lookupName;
@@ -132,8 +127,8 @@ public class JwsLookup implements Serializable {
 
 	@Override
 	public String toString() {
-		return "JwsLookup [lookupId=" + lookupId + ", isDeleted=" + isDeleted + ", lookupName=" + lookupName
-				+ ", recordId=" + recordId + ", jwsLookupI18ns=" + jwsLookupI18ns + "]";
+		return "JwsLookup [lookupId=" + lookupId + ", isDeleted=" + isDeleted + ", lookupName=" + lookupName + ", recordId=" + recordId
+				+ ", jwsLookupI18ns=" + jwsLookupI18ns + "]";
 	}
 
 }

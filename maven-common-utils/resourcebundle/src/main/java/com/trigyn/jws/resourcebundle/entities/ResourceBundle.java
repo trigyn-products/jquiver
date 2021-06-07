@@ -85,8 +85,7 @@ public class ResourceBundle implements Serializable {
 			return false;
 		}
 		ResourceBundle other = (ResourceBundle) obj;
-		return Objects.equals(id, other.id) && Objects.equals(language, other.language)
-				&& Objects.equals(text, other.text);
+		return Objects.equals(id, other.id) && Objects.equals(language, other.language) && Objects.equals(text, other.text);
 	}
 
 	public ResourceBundle getObject() {
@@ -104,8 +103,8 @@ public class ResourceBundle implements Serializable {
 		}
 		ResourceBundlePK	rpk				= new ResourceBundlePK(id.getResourceKey(), id.getLanguageId());
 		ResourceBundle		resourceBundle	= new ResourceBundle(rpk, textStr);
-		Language			lang			= new Language(language.getLanguageId(), langNameStr,
-				language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());
+		Language			lang			= new Language(language.getLanguageId(), langNameStr, language.getLanguageCode(),
+				language.getLastUpdateTs(), language.getIsDeleted());
 		resourceBundle.setLanguage(lang);
 		return resourceBundle;
 	}

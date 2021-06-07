@@ -1,5 +1,6 @@
 package com.trigyn.jws.notification.utility;
 
+
 public final class Constants {
 
 	private Constants() {

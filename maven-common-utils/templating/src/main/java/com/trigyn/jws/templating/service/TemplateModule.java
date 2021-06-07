@@ -60,10 +60,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		List<TemplateVO>		templateVOs	= new ArrayList<>();
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
-			templateVOs = templates.stream()
-					.map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-							template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(),
-							template.getCreatedBy()))
+			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
+					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = dbTemplatingService.getAllDefaultTemplates();
@@ -75,8 +73,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		// "system", "template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		MetadataXMLVO						metadataXMLVO		= null;
-		String								version				= propertyMasterDAO.findPropertyMasterValue("system",
-				"system", "version");
+		String								version				= propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
 		UserDetailsVO						detailsVO			= detailsService.getUserDetails();
 		String								userName			= detailsVO.getUserName();
 		Map<String, Map<String, Object>>	moduleDetailsMap	= new HashMap<>();
@@ -93,8 +90,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 		for (TemplateVO templateVO : templateVOs) {
 			String	newFileCheckSum	= null;
-			File	file			= new File(
-					folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
+			File	file			= new File(folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
 			if (file.exists()) {
 
 				String	generatedFileCheckSum	= fileUtilities.generateFileChecksum(file);
@@ -115,9 +111,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 			if (templateVO.isChecksumChanged()) {
 				templateDAO.updateChecksum(templateVO);
 
-				TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(),
-						templateVO.getTemplateName(), templateVO.getTemplateType(),
-						templateVO.getTemplateName() + ftlCustomExtension);
+				TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
+						templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension);
 
 				Map<String, Object>	map			= new HashMap<>();
 				map.put("moduleName", templateVO.getTemplateName());
@@ -145,8 +140,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		String	user				= "admin";
 		String	ftlCustomExtension	= Constant.CUSTOM_FILE_EXTENSION;
 		String	templateDirectory	= Constant.TEMPLATE_DIRECTORY_NAME;
-		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
-				"template-storage-path");
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		File directory = new File(folderLocation);
 
@@ -167,8 +161,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 			FilenameFilter		textFilter			= new FilenameFilter() {
 														public boolean accept(File dir, String name) {
 															if (!StringUtils.isBlank(uploadFileName)) {
-																return name.toLowerCase().equalsIgnoreCase(
-																		uploadFileName + ftlCustomExtension);
+																return name.toLowerCase()
+																		.equalsIgnoreCase(uploadFileName + ftlCustomExtension);
 															} else {
 																return name.toLowerCase().endsWith(ftlCustomExtension);
 															}
@@ -182,8 +176,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 					if (fileName.equals(templateExportVO.getTemplateFileName())) {
 						TemplateMaster	template				= templateDAO.findTemplateById(moduleID);
 
-						String			content					= fileUtilities
-								.readContentsOfFile(file.getAbsolutePath());
+						String			content					= fileUtilities.readContentsOfFile(file.getAbsolutePath());
 						String			generateFileCheckSum	= fileUtilities.generateFileChecksum(file);
 						if (template == null) {
 							template = new TemplateMaster();
@@ -217,8 +210,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 						}
 						TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
 								template.getTemplate());
-						moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(),
-								"jq_template_master", Constant.UPLOAD_SOURCE_VERSION_TYPE);
+						moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), "jq_template_master",
+								Constant.UPLOAD_SOURCE_VERSION_TYPE);
 					}
 				}
 			}
@@ -233,10 +226,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		List<TemplateVO>		templateVOs			= new ArrayList<>();
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
-			templateVOs = templates.stream()
-					.map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-							template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(),
-							template.getCreatedBy()))
+			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
+					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = dbTemplatingService.getAllDefaultTemplates();
@@ -255,8 +246,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 		for (TemplateVO templateVO : templateVOs) {
 			String	newFileCheckSum	= null;
-			File	file			= new File(
-					folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
+			File	file			= new File(folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
 			if (file.exists()) {
 
 				String	generatedFileCheckSum	= fileUtilities.generateFileChecksum(file);
@@ -272,9 +262,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				newFileCheckSum = fileUtilities.writeFileContents(templateVO.getTemplate(), file);
 				templateVO.setChecksum(newFileCheckSum);
 			}
-			TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(),
-					templateVO.getTemplateName(), templateVO.getTemplateType(),
-					templateVO.getTemplateName() + ftlCustomExtension);
+			TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
+					templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension);
 
 			Map<String, Object>	map			= new HashMap<>();
 			map.put("moduleName", templateVO.getTemplateName());
@@ -290,8 +279,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 	}
 
 	@Override
-	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
-			throws Exception {
+	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
 		String				user				= "admin";
 		TemplateExportVO	templateExportVO	= (TemplateExportVO) importObject;
 
@@ -306,8 +294,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		FilenameFilter	textFilter	= new FilenameFilter() {
 										public boolean accept(File dir, String name) {
 											if (!StringUtils.isBlank(uploadFileName)) {
-												return name.toLowerCase()
-														.equalsIgnoreCase(uploadFileName + ftlCustomExtension);
+												return name.toLowerCase().equalsIgnoreCase(uploadFileName + ftlCustomExtension);
 											} else {
 												return name.toLowerCase().endsWith(ftlCustomExtension);
 											}

@@ -76,9 +76,8 @@ public class DashletProperties implements Serializable {
 
 	}
 
-	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName,
-			String type, String value, String defaultValue, String configurationScript, Integer isDeleted,
-			Integer toDisplay, Integer sequence) {
+	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName, String type, String value,
+			String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence) {
 		this.propertyId				= propertyId;
 		this.dashletId				= dashletId;
 		this.placeholderName		= placeholderName;
@@ -92,9 +91,8 @@ public class DashletProperties implements Serializable {
 		this.sequence				= sequence;
 	}
 
-	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName,
-			String type, String value, String defaultValue, String configurationScript, Integer isDeleted,
-			Integer toDisplay, Integer sequence, Dashlet dashlet) {
+	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName, String type, String value,
+			String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence, Dashlet dashlet) {
 		this.propertyId				= propertyId;
 		this.dashletId				= dashletId;
 		this.placeholderName		= placeholderName;
@@ -207,8 +205,8 @@ public class DashletProperties implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(configurationScript, dashlet, dashletId, defaultValue, displayName, isDeleted,
-				placeholderName, propertyId, sequence, toDisplay, type, value);
+		return Objects.hash(configurationScript, dashlet, dashletId, defaultValue, displayName, isDeleted, placeholderName, propertyId,
+				sequence, toDisplay, type, value);
 	}
 
 	@Override
@@ -226,18 +224,17 @@ public class DashletProperties implements Serializable {
 		return Objects.equals(configurationScript, other.configurationScript) && Objects.equals(dashlet, other.dashlet)
 				&& Objects.equals(dashletId, other.dashletId) && Objects.equals(defaultValue, other.defaultValue)
 				&& Objects.equals(displayName, other.displayName) && Objects.equals(isDeleted, other.isDeleted)
-				&& Objects.equals(placeholderName, other.placeholderName)
-				&& Objects.equals(propertyId, other.propertyId) && Objects.equals(sequence, other.sequence)
-				&& Objects.equals(toDisplay, other.toDisplay) && Objects.equals(type, other.type)
-				&& Objects.equals(value, other.value);
+				&& Objects.equals(placeholderName, other.placeholderName) && Objects.equals(propertyId, other.propertyId)
+				&& Objects.equals(sequence, other.sequence) && Objects.equals(toDisplay, other.toDisplay)
+				&& Objects.equals(type, other.type) && Objects.equals(value, other.value);
 	}
 
 	@Override
 	public String toString() {
-		return "DashletProperties [propertyId=" + propertyId + ", dashletId=" + dashletId + ", placeholderName="
-				+ placeholderName + ", displayName=" + displayName + ", type=" + type + ", value=" + value
-				+ ", defaultValue=" + defaultValue + ", configurationScript=" + configurationScript + ", isDeleted="
-				+ isDeleted + ", toDisplay=" + toDisplay + ", sequence=" + sequence + ", dashlet=" + dashlet + "]";
+		return "DashletProperties [propertyId=" + propertyId + ", dashletId=" + dashletId + ", placeholderName=" + placeholderName
+				+ ", displayName=" + displayName + ", type=" + type + ", value=" + value + ", defaultValue=" + defaultValue
+				+ ", configurationScript=" + configurationScript + ", isDeleted=" + isDeleted + ", toDisplay=" + toDisplay + ", sequence="
+				+ sequence + ", dashlet=" + dashlet + "]";
 	}
 
 	public DashletProperties getObject() {

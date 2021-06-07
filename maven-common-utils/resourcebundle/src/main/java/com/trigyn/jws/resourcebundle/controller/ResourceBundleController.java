@@ -24,25 +24,25 @@ import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 public class ResourceBundleController {
 
 	@Autowired
-	private SessionLocaleResolver sessionLocaleResolver = null;
+	private SessionLocaleResolver	sessionLocaleResolver	= null;
 
 	@Autowired
-	private ResourceBundleService resourceBundleService = null;
+	private ResourceBundleService	resourceBundleService	= null;
 
 	@GetMapping(value = "/cl", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public boolean changeLanguage(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return Boolean.TRUE;
 	}
-	
+
 	@RequestMapping(value = "/getResourceBundleData", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, String> getResourceBundleData(HttpServletRequest request) throws Exception {
 		try {
-			String keyInitials = request.getParameter("resourceKeys");
-			List<String> 	keyList 	= new ArrayList<String>(Arrays.asList(keyInitials.split(",")));
-			
-			String localeId = sessionLocaleResolver.resolveLocale(request).toString();
+			String			keyInitials	= request.getParameter("resourceKeys");
+			List<String>	keyList		= new ArrayList<String>(Arrays.asList(keyInitials.split(",")));
+
+			String			localeId	= sessionLocaleResolver.resolveLocale(request).toString();
 			return resourceBundleService.getResourceBundleData(localeId, keyList);
 		} catch (Throwable a_th) {
 			a_th.printStackTrace();

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -24,7 +25,8 @@ public class JwsDynarestDAO extends DBConnection {
 		return hibernateTemplate.get(JwsDynamicRestDetail.class, dynarestDetailsId);
 	}
 
-	public List<Map<String, Object>> executeQueries(String query, Map<String, Object> parameterMap) {
+	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 		return namedParameterJdbcTemplate.queryForList(query, parameterMap);
 	}
 
@@ -39,16 +41,15 @@ public class JwsDynarestDAO extends DBConnection {
 	}
 
 	public JwsDynamicRestDetail getDynamicRestDetailsByName(String jwsMethodName) {
-		Query query = getCurrentSession()
-				.createQuery(" FROM JwsDynamicRestDetail  WHERE lower(jwsMethodName) = lower(:jwsMethodName)");
+		Query query = getCurrentSession().createQuery(" FROM JwsDynamicRestDetail  WHERE lower(jwsMethodName) = lower(:jwsMethodName)");
 		query.setParameter("jwsMethodName", jwsMethodName);
 		JwsDynamicRestDetail data = (JwsDynamicRestDetail) query.uniqueResult();
 		return data;
 	}
 
 	public void deleteDAOQueries(Integer jwsDynamicRestDetailId) {
-		Query query = getCurrentSession().createQuery(
-				"DELETE FROM JwsDynamicRestDaoDetail  WHERE jwsDynamicRestDetailId = :jwsDynamicRestDetailId");
+		Query query = getCurrentSession()
+				.createQuery("DELETE FROM JwsDynamicRestDaoDetail  WHERE jwsDynamicRestDetailId = :jwsDynamicRestDetailId");
 		query.setParameter("jwsDynamicRestDetailId", jwsDynamicRestDetailId);
 		query.executeUpdate();
 		getCurrentSession().flush();
@@ -75,7 +76,8 @@ public class JwsDynarestDAO extends DBConnection {
 
 	}
 
-	public int executeDMLQueries(String query, Map<String, Object> parameterMap) {
+	public int executeDMLQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
 		return namedParameterJdbcTemplate.update(query, parameterMap);
 	}
 }

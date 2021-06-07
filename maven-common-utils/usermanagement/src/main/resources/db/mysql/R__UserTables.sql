@@ -925,7 +925,7 @@ contextPath = "${contextPath}";
 		     		},
 		            success: function(data) {
                            if(data=="false"){
-                            	location.href="/cf/home"
+	 location.href = contextPath+"/cf/home";
 	                        }else{
 	                            location.href="/cf/login"
 	                        }    
@@ -1140,7 +1140,7 @@ contextPath = "${contextPath}";
 	}	
 	
 	function backToHomePage(){ 
-		location.href = "/cf/home";
+	 location.href = contextPath+"/cf/home";
 	}
 	
 	function changeOAuth(){

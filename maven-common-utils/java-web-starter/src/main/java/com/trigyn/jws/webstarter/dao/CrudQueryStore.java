@@ -70,6 +70,12 @@ public final class CrudQueryStore {
 	public static final String		HQL_QUERY_TO_FETCH_HELP_MANUAL_DATA_FOR_EXPORT		= " FROM ManualType AS mt WHERE "
 			+ "(mt.manualId NOT IN :excludeCustomConfigList AND mt.isSystemManual = :customConfigType) OR "
 			+ "(mt.manualId IN :includeSystemConfigList AND mt.isSystemManual = :systemConfigType)";
-	
+
+	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_EXPORT		= "FROM ApiClientDetails AS acd WHERE "
+			+ "acd.clientId NOT IN :excludeCustomConfigList";
+
+	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_EXPORT		= "FROM AdditionalDatasource AS ads WHERE "
+			+ "ads.additionalDatasourceId NOT IN :excludeCustomConfigList";
+
 
 }

@@ -133,7 +133,7 @@ $(function () {
         autocompleteId: "resourcesAutocomplete",
 		prefetch : false,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -154,7 +154,7 @@ $(function () {
         autocompleteId: "resourcesAutocomplete",
 		prefetch : true,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -175,7 +175,7 @@ $(function () {
         autocompleteId: "resourcesAutocomplete",
         multiselectItem: $(''#rbMultiselect_selectedOptions''),
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -237,7 +237,7 @@ $(function () {
 		prefetch : true,
 		enableClearText: true,
         render: function(item) {
-        	var renderStr ='''';
+        	let renderStr ='''';
         	if(item.emptyMsg == undefined || item.emptyMsg === ''''){
         		renderStr = ''<p>''+item.text+''</p>'';
     		}else{
@@ -269,7 +269,7 @@ $(function () {
             }],
 
             render: function(item) {
-                var renderStr ="";
+                let renderStr ="";
                 if(item.emptyMsg == undefined || item.emptyMsg === ''''){
                     return "<div class=''jws-rich-autocomplete-multiple''> <div class=''jws-rich-autocomplete-text'' ><label>Language Name: </label>" + item.languageName
 			 			+ "</div> <div class=''jws-rich-autocomplete-id''><label>Language Id: </label>" + item.languageId 
@@ -309,14 +309,18 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 ('7e8438bf-1061-11eb-a867-f48e38ab8cd7', 'autocomplete-listing', '<head>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script>  
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+
+
 </head>
 <div class="container">
 		<div class="topband">
@@ -328,12 +332,15 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
                 <option value="2">System</option>                 
             </select>
             <a href="${(contextPath)!''''}/cf/da"> 
-				<input id="demoAutocomplete" class="btn btn-primary" name="demoAutocomplete" value="Demo" type="button">
+				<input id="demoAutocomplete" class="btn btn-primary" value="Demo" type="button">
 			</a>
-			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" name="addAutocompleteDetails" value="Add Autocomplete" type="button">
+			<a href="${(contextPath)!''''}/cf/ad"> 
+				<input id="additionalDataSource" class="btn btn-primary" value="Additional Datasource" type="button">
+			</a>
+			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" value="Add Autocomplete" type="button">
 			<span onclick="backToWelcomePage();">
-  		  <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
-  		 </span>	
+  		  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+  		 	</span>	
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -367,17 +374,16 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		
 		let colM = [
 	        { title: "Autocomplete Id", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Autocomplete Description", width: 100, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Autocomplete Query", width: 160, align: "center", dataIndx: "acQuery", align: "left", halign: "center",
-	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "Action", width: 30, minWidth: 115, align: "center", render: editAutocomplete, dataIndx: "action", sortable: false }
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Description", width: 150, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "Last Updated Date",width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate },
+	        { title: "Action", width: 30, maxWidth: 145, align: "center", render: editAutocomplete, dataIndx: "action", sortable: false }
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "autocompleteId",
-        	sortDir: "up",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
     	};
 	    let grid = $("#divAutocompleteGrid").grid({
 	      gridId: "autocompleteListingGrid",
@@ -388,7 +394,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	});
 	
 	function changeType() {
-        var type = $("#typeSelect").val();   
+        let type = $("#typeSelect").val();   
         let postData;
         if(type == 0) {
             postData = {gridId:"autocompleteListingGrid"}
@@ -414,6 +420,11 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		}
 	}
 	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
 	function editAutocomplete(uiObject) {
 		const autocompleteId = uiObject.rowData.autocompleteId;
 		const revisionCount = uiObject.rowData.revisionCount;
@@ -458,10 +469,15 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 <script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/markdown/highlight/github.min.css" />
+<script src="${(contextPath)!''''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 </head>
 
 	<div class="container">
@@ -494,7 +510,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>Autocomplete Id </label>
-	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
+	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" onchange="addEditAutocomplete.updateAutocompleTemplate()" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''""''}">
 			</div>
 	    </div>
 	    <div class="col-6">
@@ -504,9 +520,17 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			</div>
 	    </div>
 
-		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+	        	<label for="flammableState" style="white-space:nowrap">Datasource</label>
+	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
+	        		<option id="defaultConnection" value="" data-product-name="default">Default Connection</option>
+	        	</select>
+           	</div>
+		</div>
+			
 		<#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>   
-	         <div class="col-6">
+	         <div id="tableAutocompleteDiv" class="col-6" >
 				<div class="col-inner-form full-form-fields">
 	                <label for="flammableState" style="white-space:nowrap">Autocomplete Table</label>
 	                <div class="search-cover">
@@ -524,24 +548,55 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			<h3 class="titlename method-sign-info">
 		    	<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL Parameters</label>
 	    	</h3>
-			<span id="ftlParameter">loggedInUserName, searchText, additionalParamaters {}<span>
+			<span id="ftlParameter">loggedInUserName, searchText, additionalParamaters{}, startIndex, pageSize<span>
 		</div>
 		
 	<div class="row margin-t-b">
-	<div class="col-12">
-		<div class="sql_script">
-			<div class="grp_lblinp">
-			    <div id="sqlContainer" class="ace-editor-container">
-	                <div id="sqlEditor" class="ace-editor"></div>
-					 
-                </div>            
+		<div class="col-12">
+			<div class="sql_script">
+				<div class="grp_lblinp">
+				    <div id="sqlContainer" class="ace-editor-container">
+		                <div id="sqlEditor" class="ace-editor"></div>
+						 
+	                </div>            
+	            </div>
+	    	</div>
+		</div>
+	</div>
+
+	<div id="tabs">
+        <ul>
+            <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
+            <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.javaScriptContent")}</a></li>
+        </ul>
+        <div id="htmlContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+        <div id="jsContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+    </div> 
+    
+     <div id="manual-container" class="cm-rightbar">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="previewDiv" style="display:none;">
+                    <textarea id="previewContent" style="display:none;"></textarea>
+                </div>
             </div>
+        </div>
     </div>
-	</div>
-	</div>
-	
 	
    <input type="hidden" name="autocompleteQuery" id="acSelectQuery">
+   <input type="hidden" id="dataSourceId" value="${(autocompleteVO.dataSourceId)!''''}">
    
   </form>
   <div class="row">
@@ -550,6 +605,8 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
   		<@templateWithoutParams "role-autocomplete"/>
   	</div>
   </div>
+  
+  <br>
   <div class="row margin-t-10">
 			<div class="col-12">
 				<div class="float-right">
@@ -584,6 +641,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	let tableAutocomplete;
 	
 	$(function() {
+	    $("#tabs").tabs();
 	    addEditAutocomplete = new AddEditAutocomplete();
 	    addEditAutocomplete.loadAutocompletDetails();
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
@@ -601,11 +659,12 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         }
         
         <#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>
+	        getAllDatasource(0);
 	        tableAutocomplete = $("#tableAutocomplete").autocomplete({
 		        autocompleteId: "table-autocomplete",
 		        prefetch : true,
 		        render: function(item) {
-		            var renderStr ="";
+		            let renderStr ="";
 		            if(item.emptyMsg == undefined || item.emptyMsg === ""){
 		                renderStr = "<p>"+item.tableName+"</p>";
 		            }else{
@@ -614,23 +673,114 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 		            return renderStr;
 		        },
 		        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+		        },
 		        extractText: function(item) {
 		            return item.tableName;
 		        },
 		        select: function(item) {
 		            $("#tableAutocomplete").blur();
 		            $("#autocompleteTable").val(item.tableName);
-		            addEditAutocomplete.createQuery(item.tableName);
-		        },     
+		            addEditAutocomplete.createQuery();
+		        },
+		        resetAutocomplete: function(){ 
+		        	$("#autocompleteTable").val("");
+		        	addEditAutocomplete.createQuery();
+		        }     
 		    });
+		<#else>
+			getAllDatasource(1);
+			$("#autoId").attr("readonly", "readonly");
+			$("#dataSource").attr("disabled", true);
 		</#if>
-	    
+		loadDefaultTab("autocomplete-default-template", this.updateAutocompleTemplate);
+	    $("a[href=''#htmlContent'']").click();
 	});
+	
 </script>
 <script src="${(contextPath)!''''}/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com',NOW(), 2);
 
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id) VALUES ("autocompleteListingGrid", 'Autocomplete Details Listing', 'Autocomplete Details Listing', 'autocompleteListing', 'autocompleteId,autocompleteDescription,acQuery,autocompleteTypeId', 2);
+REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
+('7748fece-e7b9-41fc-a777-74fb3ab28be5', 'autocomplete-default-template', '<#if selectedTab == "htmlContent">
+```HTML
+<#noparse>
+<!-- HTML Header -->
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 
-REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id) VALUES
-('resourcesAutocomplete', 'List all the keys text resource bundle table', 'select resource_key as `key`, language_id as languageId, `text` as `text` from jq_resource_bundle where language_id = :languageId and `text` LIKE CONCAT("%", :searchText, "%")', 2);
+<!-- HTML Body -->
+<div class="col-6">
+    <div class="col-inner-form full-form-fields">
+        <label for="flammableState" style="white-space:nowrap">Autocomplete</label>
+        <div class="search-cover">
+            <input class="form-control" id="autocompleteId" type="text">
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+    </div>
+</div>
+</#noparse>
+```
+
+<#elseif selectedTab == "jsContent">
+```JavaScript
+<#noparse>
+contextPath = "${contextPath!''''}";
+let autocomplete;
+
+$(function () {
+    autocomplete = $("#autocompleteId").autocomplete({
+        autocompleteId: "autocompleteId",
+        pageSize: 10,//Default page size is 10
+        prefetch : false,
+        render: function(item) {
+            let renderStr ='''';
+            if(item.emptyMsg == undefined || item.emptyMsg === '''')
+            {
+                renderStr = ''<p>''+item.text+''</p>'';
+            }
+            else
+            {
+                renderStr = item.emptyMsg;    
+            }                                
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        requestParameters: {},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#autocompleteId").blur();
+        },     
+        resetAutocomplete: function(){ 
+            //This function will be executed onblur or when user click on clear text button
+            //Code to reset dependent JavaScript variables, input fields etc.
+        }, 
+    }, {key: "jws.action", languageId: 1, text: "Action"});
+
+    //You can set default value using setSelectedObject function
+    autcomplete.setSelectedObject({key: "jws.action", languageId: 1, text: "Action"});
+});
+
+//User can reset any autocomplete component by calling resetAutocomplete function
+autocomplete.resetAutocomplete();
+
+</#noparse>
+```
+</#if>', 'aar.dev@trigyn.com', 'aar.dev@trigyn.com', NOW(), 2);
+ 
+ 
+
+REPLACE INTO jq_autocomplete_details (ac_id, ac_description, ac_select_query, ac_type_id, created_by, created_date, last_updated_ts) VALUES
+('resourcesAutocomplete', 'List all the keys text resource bundle table', 'SELECT resource_key AS `key`, language_id AS languageId, `text` AS `text` 
+FROM jq_resource_bundle WHERE language_id = :languageId AND `text` LIKE CONCAT("%", :searchText, "%") LIMIT :startIndex, :pageSize'
+, 2, 'aar.dev@trigyn.com', NOW(), NOW());
+
+REPLACE INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id) VALUES
+('6da5ae93-3ab6-4dcf-bb36-8b3e66c5feb1', '7748fece-e7b9-41fc-a777-74fb3ab28be5', 'autocomplete-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', '2ace542e-0c63-11eb-9cf5-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1), 
+('b897ab5e-a097-406f-9888-25c5f8542e0e', '7748fece-e7b9-41fc-a777-74fb3ab28be5', 'autocomplete-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1), 
+('d9a4efbe-efb7-4377-a3e6-692b23bd7b13', '7748fece-e7b9-41fc-a777-74fb3ab28be5', 'autocomplete-default-template', '1b0a2e40-098d-11eb-9a16-f48e38ab9348', 'b4a0dda1-097f-11eb-9a16-f48e38ab9348', NOW(), 'aar.dev@trigyn.com', 1, 1);

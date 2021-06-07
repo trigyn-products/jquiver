@@ -21,8 +21,7 @@ public class DashboardDashletVO implements Serializable {
 
 	}
 
-	public DashboardDashletVO(String dashboardId, String dashletId, String dashletName, String contextId,
-			Boolean isSelected) {
+	public DashboardDashletVO(String dashboardId, String dashletId, String dashletName, String contextId, Boolean isSelected) {
 		this.dashboardId	= dashboardId;
 		this.dashletId		= dashletId;
 		this.dashletName	= dashletName;
@@ -101,8 +100,8 @@ public class DashboardDashletVO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "DashboardDashletVO [dashletId=" + dashletId + ", dashboardId=" + dashboardId + ", dashletName="
-				+ dashletName + ", contextId=" + contextId + ", isSelected=" + isSelected + "]";
+		return "DashboardDashletVO [dashletId=" + dashletId + ", dashboardId=" + dashboardId + ", dashletName=" + dashletName
+				+ ", contextId=" + contextId + ", isSelected=" + isSelected + "]";
 	}
 
 }

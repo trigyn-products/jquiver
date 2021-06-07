@@ -1,22 +1,28 @@
 package com.trigyn.jws.typeahead.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class AutocompleteVO {
+public class AutocompleteVO implements Serializable {
 
-	private String	autocompleteId		= null;
+	private static final long	serialVersionUID	= 1L;
 
-	private String	autocompleteDesc	= null;
+	private String				autocompleteId		= null;
 
-	private String	autocompleteQuery	= null;
+	private String				autocompleteDesc	= null;
+
+	private String				autocompleteQuery	= null;
+
+	private String				dataSourceId		= null;
 
 	public AutocompleteVO() {
 	}
 
-	public AutocompleteVO(String autocompleteId, String autocompleteDesc, String autocompleteQuery) {
+	public AutocompleteVO(String autocompleteId, String autocompleteDesc, String autocompleteQuery, String dataSourceId) {
 		this.autocompleteId		= autocompleteId;
 		this.autocompleteDesc	= autocompleteDesc;
 		this.autocompleteQuery	= autocompleteQuery;
+		this.dataSourceId		= dataSourceId;
 	}
 
 	public String getAutocompleteId() {
@@ -43,28 +49,41 @@ public class AutocompleteVO {
 		this.autocompleteQuery = autocompleteQuery;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (!(o instanceof AutocompleteVO)) {
-			return false;
-		}
-		AutocompleteVO autocompleteVO = (AutocompleteVO) o;
-		return Objects.equals(autocompleteId, autocompleteVO.autocompleteId)
-				&& Objects.equals(autocompleteDesc, autocompleteVO.autocompleteDesc)
-				&& Objects.equals(autocompleteQuery, autocompleteVO.autocompleteQuery);
+	public String getDataSourceId() {
+		return dataSourceId;
+	}
+
+	public void setDataSourceId(String dataSourceId) {
+		this.dataSourceId = dataSourceId;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(autocompleteId, autocompleteDesc, autocompleteQuery);
+		return Objects.hash(autocompleteDesc, autocompleteId, autocompleteQuery, dataSourceId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AutocompleteVO other = (AutocompleteVO) obj;
+		return Objects.equals(autocompleteDesc, other.autocompleteDesc) && Objects.equals(autocompleteId, other.autocompleteId)
+				&& Objects.equals(autocompleteQuery, other.autocompleteQuery) && Objects.equals(dataSourceId, other.dataSourceId);
 	}
 
 	@Override
 	public String toString() {
-		return "{" + " autocompleteId='" + getAutocompleteId() + "'" + ", autocompleteDesc='" + getAutocompleteDesc()
-				+ "'" + ", autocompleteQuery='" + getAutocompleteQuery() + "'" + "}";
+		StringBuilder builder = new StringBuilder();
+		builder.append("AutocompleteVO [autocompleteId=").append(autocompleteId).append(", autocompleteDesc=").append(autocompleteDesc)
+				.append(", autocompleteQuery=").append(autocompleteQuery).append(", dataSourceId=").append(dataSourceId).append("]");
+		return builder.toString();
 	}
 
 }

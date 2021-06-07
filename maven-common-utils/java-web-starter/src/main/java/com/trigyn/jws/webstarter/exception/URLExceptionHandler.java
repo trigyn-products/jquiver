@@ -49,11 +49,9 @@ public class URLExceptionHandler implements ErrorController {
 	private JwsRoleRepository			jwsRoleRepository			= null;
 
 	@RequestMapping("/error")
-	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws Exception {
+	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		Object				status			= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-		Exception			exception		= (Exception) httpServletRequest
-				.getAttribute("javax.servlet.error.exception");
+		Exception			exception		= (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
 		TemplateVO			templateVO		= templateService.getTemplateByName("error-page");
 		Map<String, Object>	parameterMap	= new HashMap<String, Object>();
 		if (status != null) {
@@ -66,10 +64,8 @@ public class URLExceptionHandler implements ErrorController {
 			}
 			if (url.contains("/japi/")) {
 				// mobile
-				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE)
-						.toString();
-				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE)
-						.toString();
+				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
+				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();
 				HttpStatus	httpStatus		= HttpStatus.INTERNAL_SERVER_ERROR;
 
 				for (HttpStatus currentStatus : HttpStatus.values()) {
@@ -86,13 +82,12 @@ public class URLExceptionHandler implements ErrorController {
 					UserDetailsVO	userDetailsVO		= userDetails.getUserDetails();
 					List<String>	roleIdList			= userDetailsVO.getRoleIdList();
 					List<String>	roleIdPriorityList	= jwsRoleRepository.getRoleIdByPriority(roleIdList);
-					List<String>	homePageURLList		= iModuleListingRepository
-							.getModuleURLByRoleId(roleIdPriorityList, Constant.IS_HOME_PAGE);
+					List<String>	homePageURLList		= iModuleListingRepository.getModuleURLByRoleId(roleIdPriorityList,
+							Constant.IS_HOME_PAGE);
 					if (!CollectionUtils.isEmpty(homePageURLList)) {
 						for (String homePageURL : homePageURLList) {
 							if (StringUtils.isBlank(fallbackTemplate) && !StringUtils.isBlank(homePageURL)) {
-								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL,
-										httpServletResponse);
+								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
 							}
 						}
 					}
@@ -108,8 +103,8 @@ public class URLExceptionHandler implements ErrorController {
 			if (exception != null) {
 				parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
 			} else {
-				parameterMap.put("errorMessage", "<#noparse>"
-						+ httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) + "</#noparse>");
+				parameterMap.put("errorMessage",
+						"<#noparse>" + httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) + "</#noparse>");
 			}
 
 		}

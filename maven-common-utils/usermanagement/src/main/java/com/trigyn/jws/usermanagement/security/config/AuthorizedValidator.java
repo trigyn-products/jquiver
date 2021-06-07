@@ -45,8 +45,7 @@ public class AuthorizedValidator {
 	public Object validateEntityPermission(ProceedingJoinPoint a_joinPoint) throws Throwable {
 
 		/*
-		 * if (!applicationSecurityDetails.getIsAuthenticationEnabled()) { return
-		 * a_joinPoint.proceed(); }
+		 * if (!applicationSecurityDetails.getIsAuthenticationEnabled()) { return a_joinPoint.proceed(); }
 		 */
 
 		MethodSignature		signature		= (MethodSignature) a_joinPoint.getSignature();
@@ -78,8 +77,7 @@ public class AuthorizedValidator {
 				return null;
 			}
 			logger.error("You do not have enough privilege to access: ", entityName);
-			responseObject.sendError(HttpStatus.FORBIDDEN.value(),
-					"You do not have enough privilege to access this module");
+			responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
 			// throw new AccessDeniedException("You dont have rights to access this
 			// entity");
 			return null;

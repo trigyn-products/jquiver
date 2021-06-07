@@ -2,6 +2,7 @@ package com.trigyn.jws.dynarest.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,6 +63,21 @@ public class JwsDynamicRestDetail implements Serializable {
 	@Column(name = "jws_dynamic_rest_type_id")
 	private Integer								jwsDynamicRestTypeId			= 1;
 
+	@Column(name = "created_by")
+	private String								createdBy						= null;
+
+	@Column(name = "created_date")
+	private Date								createdDate						= null;
+
+	@Column(name = "datasource_id")
+	private String								datasourceId					= null;
+
+	@Column(name = "last_updated_by")
+	private String								lastUpdatedBy					= null;
+
+	@Column(name = "last_updated_ts")
+	private Date								lastUpdatedTs					= null;
+
 	@OneToMany(mappedBy = "jwsDynamicRestDetail", fetch = FetchType.LAZY)
 	private List<JwsDynamicRestDaoDetail>		jwsDynamicRestDaoDetails		= null;
 
@@ -80,26 +96,29 @@ public class JwsDynamicRestDetail implements Serializable {
 	private List<JwsDynamicRestRoleAssociation>	JwsDynamicRestRoleAssociation	= null;
 
 	public JwsDynamicRestDetail() {
+
 	}
 
-	public JwsDynamicRestDetail(String jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription,
-			String jwsMethodName, Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic,
-			Integer jwsAllowFiles, Integer jwsDynamicRestTypeId, List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails,
-			JwsRequestTypeDetail jwsRequestTypeDetail, JwsResponseProducerDetail jwsResponseProducerDetail,
-			List<JwsDynamicRestResponseParam> jwsDynamicRestResponseParams) {
-		this.jwsDynamicRestId				= jwsDynamicRestId;
-		this.jwsDynamicRestUrl				= jwsDynamicRestUrl;
-		this.jwsMethodDescription			= jwsMethodDescription;
-		this.jwsMethodName					= jwsMethodName;
-		this.jwsPlatformId					= jwsPlatformId;
-		this.jwsRbacId						= jwsRbacId;
-		this.jwsServiceLogic				= jwsServiceLogic;
-		this.jwsAllowFiles					= jwsAllowFiles;
-		this.jwsDynamicRestTypeId			= jwsDynamicRestTypeId;
-		this.jwsDynamicRestDaoDetails		= jwsDynamicRestDaoDetails;
-		this.jwsRequestTypeDetail			= jwsRequestTypeDetail;
-		this.jwsResponseProducerDetail		= jwsResponseProducerDetail;
-		this.jwsDynamicRestResponseParams	= jwsDynamicRestResponseParams;
+	public JwsDynamicRestDetail(String jwsDynamicRestId, String jwsDynamicRestUrl, String jwsMethodDescription, String jwsMethodName,
+			Integer jwsPlatformId, Integer jwsRbacId, String jwsServiceLogic, Integer jwsRequestTypeId, Integer jwsResponseProducerTypeId,
+			Integer jwsAllowFiles, Integer jwsDynamicRestTypeId, String createdBy, Date createdDate, String datasourceId,
+			String lastUpdatedBy, Date lastUpdatedTs) {
+		this.jwsDynamicRestId			= jwsDynamicRestId;
+		this.jwsDynamicRestUrl			= jwsDynamicRestUrl;
+		this.jwsMethodDescription		= jwsMethodDescription;
+		this.jwsMethodName				= jwsMethodName;
+		this.jwsPlatformId				= jwsPlatformId;
+		this.jwsRbacId					= jwsRbacId;
+		this.jwsServiceLogic			= jwsServiceLogic;
+		this.jwsRequestTypeId			= jwsRequestTypeId;
+		this.jwsResponseProducerTypeId	= jwsResponseProducerTypeId;
+		this.jwsAllowFiles				= jwsAllowFiles;
+		this.jwsDynamicRestTypeId		= jwsDynamicRestTypeId;
+		this.createdBy					= createdBy;
+		this.createdDate				= createdDate;
+		this.datasourceId				= datasourceId;
+		this.lastUpdatedBy				= lastUpdatedBy;
+		this.lastUpdatedTs				= lastUpdatedTs;
 	}
 
 	public String getJwsDynamicRestId() {
@@ -190,6 +209,46 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.jwsDynamicRestTypeId = jwsDynamicRestTypeId;
 	}
 
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
+	}
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
 	public List<JwsDynamicRestDaoDetail> getJwsDynamicRestDaoDetails() {
 		return this.jwsDynamicRestDaoDetails;
 	}
@@ -244,81 +303,33 @@ public class JwsDynamicRestDetail implements Serializable {
 		JwsDynamicRestRoleAssociation = jwsDynamicRestRoleAssociation;
 	}
 
-	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(
-			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam addJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().add(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsDynamicRestDetail(this);
 
 		return jwsDynamicRestResponseParam;
 	}
 
-	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(
-			JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
+	public JwsDynamicRestResponseParam removeJwsDynamicRestResponseParam(JwsDynamicRestResponseParam jwsDynamicRestResponseParam) {
 		getJwsDynamicRestResponseParams().remove(jwsDynamicRestResponseParam);
 		jwsDynamicRestResponseParam.setJwsDynamicRestDetail(null);
 
 		return jwsDynamicRestResponseParam;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(JwsDynamicRestRoleAssociation, jwsAllowFiles, jwsDynamicRestDaoDetails, jwsDynamicRestId,
-				jwsDynamicRestResponseParams, jwsDynamicRestTypeId, jwsDynamicRestUrl, jwsMethodDescription,
-				jwsMethodName, jwsPlatformId, jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId,
-				jwsResponseProducerDetail, jwsResponseProducerTypeId, jwsServiceLogic);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		JwsDynamicRestDetail other = (JwsDynamicRestDetail) obj;
-		return Objects.equals(JwsDynamicRestRoleAssociation, other.JwsDynamicRestRoleAssociation)
-				&& Objects.equals(jwsAllowFiles, other.jwsAllowFiles)
-				&& Objects.equals(jwsDynamicRestDaoDetails, other.jwsDynamicRestDaoDetails)
-				&& Objects.equals(jwsDynamicRestId, other.jwsDynamicRestId)
-				&& Objects.equals(jwsDynamicRestResponseParams, other.jwsDynamicRestResponseParams)
-				&& Objects.equals(jwsDynamicRestTypeId, other.jwsDynamicRestTypeId)
-				&& Objects.equals(jwsDynamicRestUrl, other.jwsDynamicRestUrl)
-				&& Objects.equals(jwsMethodDescription, other.jwsMethodDescription)
-				&& Objects.equals(jwsMethodName, other.jwsMethodName)
-				&& Objects.equals(jwsPlatformId, other.jwsPlatformId) && Objects.equals(jwsRbacId, other.jwsRbacId)
-				&& Objects.equals(jwsRequestTypeDetail, other.jwsRequestTypeDetail)
-				&& Objects.equals(jwsRequestTypeId, other.jwsRequestTypeId)
-				&& Objects.equals(jwsResponseProducerDetail, other.jwsResponseProducerDetail)
-				&& Objects.equals(jwsResponseProducerTypeId, other.jwsResponseProducerTypeId)
-				&& Objects.equals(jwsServiceLogic, other.jwsServiceLogic);
-	}
-
-	@Override
-	public String toString() {
-		return "JwsDynamicRestDetail [jwsDynamicRestId=" + jwsDynamicRestId + ", jwsDynamicRestUrl=" + jwsDynamicRestUrl
-				+ ", jwsMethodDescription=" + jwsMethodDescription + ", jwsMethodName=" + jwsMethodName
-				+ ", jwsPlatformId=" + jwsPlatformId + ", jwsRbacId=" + jwsRbacId + ", jwsServiceLogic="
-				+ jwsServiceLogic + ", jwsRequestTypeId=" + jwsRequestTypeId + ", jwsResponseProducerTypeId="
-				+ jwsResponseProducerTypeId + ", jwsAllowFiles=" + jwsAllowFiles + ", jwsDynamicRestTypeId="
-				+ jwsDynamicRestTypeId + ", jwsDynamicRestDaoDetails=" + jwsDynamicRestDaoDetails
-				+ ", jwsRequestTypeDetail=" + jwsRequestTypeDetail + ", jwsResponseProducerDetail="
-				+ jwsResponseProducerDetail + ", jwsDynamicRestResponseParams=" + jwsDynamicRestResponseParams
-				+ ", JwsDynamicRestRoleAssociation=" + JwsDynamicRestRoleAssociation + "]";
-	}
-
 	public JwsDynamicRestDetail getObject() {
 		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
 		dynaRest.setJwsDynamicRestId(jwsDynamicRestId != null ? jwsDynamicRestId.trim() : jwsDynamicRestId);
 		dynaRest.setJwsDynamicRestUrl(jwsDynamicRestUrl != null ? jwsDynamicRestUrl.trim() : jwsDynamicRestUrl);
-		dynaRest.setJwsMethodDescription(
-				jwsMethodDescription != null ? jwsMethodDescription.trim() : jwsMethodDescription);
+		dynaRest.setJwsMethodDescription(jwsMethodDescription != null ? jwsMethodDescription.trim() : jwsMethodDescription);
 		dynaRest.setJwsMethodName(jwsMethodName != null ? jwsMethodName.trim() : jwsMethodName);
 		dynaRest.setJwsPlatformId(jwsPlatformId);
 		dynaRest.setJwsRbacId(jwsRbacId);
+		dynaRest.setCreatedBy(createdBy);
+		dynaRest.setCreatedDate(createdDate);
+		dynaRest.setDatasourceId(datasourceId);
+		dynaRest.setLastUpdatedBy(lastUpdatedBy);
+		dynaRest.setLastUpdatedTs(lastUpdatedTs);
 		if (jwsServiceLogic != null) {
 			dynaRest.setJwsServiceLogic(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsServiceLogic.trim() + "]]>"));
 		} else {
@@ -360,6 +371,61 @@ public class JwsDynamicRestDetail implements Serializable {
 			dynaRest.setJwsDynamicRestRoleAssociation(null);
 
 		return dynaRest;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(JwsDynamicRestRoleAssociation, createdBy, datasourceId, jwsAllowFiles, jwsDynamicRestDaoDetails,
+				jwsDynamicRestId, jwsDynamicRestResponseParams, jwsDynamicRestTypeId, jwsDynamicRestUrl, jwsMethodDescription,
+				jwsMethodName, jwsPlatformId, jwsRbacId, jwsRequestTypeDetail, jwsRequestTypeId, jwsResponseProducerDetail,
+				jwsResponseProducerTypeId, jwsServiceLogic, lastUpdatedBy);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		JwsDynamicRestDetail other = (JwsDynamicRestDetail) obj;
+		return Objects.equals(JwsDynamicRestRoleAssociation, other.JwsDynamicRestRoleAssociation)
+				&& Objects.equals(createdBy, other.createdBy) && Objects.equals(datasourceId, other.datasourceId)
+				&& Objects.equals(jwsAllowFiles, other.jwsAllowFiles)
+				&& Objects.equals(jwsDynamicRestDaoDetails, other.jwsDynamicRestDaoDetails)
+				&& Objects.equals(jwsDynamicRestId, other.jwsDynamicRestId)
+				&& Objects.equals(jwsDynamicRestResponseParams, other.jwsDynamicRestResponseParams)
+				&& Objects.equals(jwsDynamicRestTypeId, other.jwsDynamicRestTypeId)
+				&& Objects.equals(jwsDynamicRestUrl, other.jwsDynamicRestUrl)
+				&& Objects.equals(jwsMethodDescription, other.jwsMethodDescription) && Objects.equals(jwsMethodName, other.jwsMethodName)
+				&& Objects.equals(jwsPlatformId, other.jwsPlatformId) && Objects.equals(jwsRbacId, other.jwsRbacId)
+				&& Objects.equals(jwsRequestTypeDetail, other.jwsRequestTypeDetail)
+				&& Objects.equals(jwsRequestTypeId, other.jwsRequestTypeId)
+				&& Objects.equals(jwsResponseProducerDetail, other.jwsResponseProducerDetail)
+				&& Objects.equals(jwsResponseProducerTypeId, other.jwsResponseProducerTypeId)
+				&& Objects.equals(jwsServiceLogic, other.jwsServiceLogic) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("JwsDynamicRestDetail [jwsDynamicRestId=").append(jwsDynamicRestId).append(", jwsDynamicRestUrl=")
+				.append(jwsDynamicRestUrl).append(", jwsMethodDescription=").append(jwsMethodDescription).append(", jwsMethodName=")
+				.append(jwsMethodName).append(", jwsPlatformId=").append(jwsPlatformId).append(", jwsRbacId=").append(jwsRbacId)
+				.append(", jwsServiceLogic=").append(jwsServiceLogic).append(", jwsRequestTypeId=").append(jwsRequestTypeId)
+				.append(", jwsResponseProducerTypeId=").append(jwsResponseProducerTypeId).append(", jwsAllowFiles=").append(jwsAllowFiles)
+				.append(", jwsDynamicRestTypeId=").append(jwsDynamicRestTypeId).append(", createdBy=").append(createdBy)
+				.append(", createdDate=").append(createdDate).append(", datasourceId=").append(datasourceId).append(", lastUpdatedBy=")
+				.append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs).append(", jwsDynamicRestDaoDetails=")
+				.append(jwsDynamicRestDaoDetails).append(", jwsRequestTypeDetail=").append(jwsRequestTypeDetail)
+				.append(", jwsResponseProducerDetail=").append(jwsResponseProducerDetail).append(", jwsDynamicRestResponseParams=")
+				.append(jwsDynamicRestResponseParams).append(", JwsDynamicRestRoleAssociation=").append(JwsDynamicRestRoleAssociation)
+				.append("]");
+		return builder.toString();
 	}
 
 }
