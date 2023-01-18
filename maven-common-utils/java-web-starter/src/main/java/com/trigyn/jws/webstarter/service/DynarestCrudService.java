@@ -75,6 +75,7 @@ public class DynarestCrudService {
 		String							variableName		= formData.getFirst("variableName");
 		String							queryType			= formData.getFirst("queryType");
 		String							daoQueryDetails		= formData.getFirst("daoQueryDetails");
+		String							datasourceDetails   = formData.getFirst("datasourceDetails");
 
 		String							dynamicRestId		= dynamicRestDetailsRepository
 				.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
@@ -87,6 +88,7 @@ public class DynarestCrudService {
 		List<String>					variableNameList	= objectMapper.readValue(variableName, List.class);
 		List<Integer>					queryTypeList		= objectMapper.readValue(queryType, listOfInteger);
 		List<String>					daoQueryDetailsList	= objectMapper.readValue(daoQueryDetails, List.class);
+		List<String>					datasourceDetailsList	= objectMapper.readValue(datasourceDetails, List.class);
 		if (!StringUtils.isBlank(daoDetailsIds)) {
 			daoDetailsIdList = new ObjectMapper().readValue(daoDetailsIds, listOfInteger);
 		}
@@ -103,6 +105,7 @@ public class DynarestCrudService {
 				dynamicRestDaoDetail.setJwsResultVariableName(variableNameList.get(counter));
 				dynamicRestDaoDetail.setQueryType(queryTypeList.get(counter));
 				dynamicRestDaoDetail.setJwsDaoQueryTemplate(daoQueryDetailsList.get(counter));
+				dynamicRestDaoDetail.setDatasourceId(datasourceDetailsList.get(counter));
 				dynamicRestDaoDetail.setJwsQuerySequence(counter + 1);
 				dynamicRestDaoDetailsList.add(dynamicRestDaoDetail);
 

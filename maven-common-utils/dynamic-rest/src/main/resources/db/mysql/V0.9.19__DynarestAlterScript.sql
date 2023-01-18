@@ -1,0 +1,1 @@
+ALTER TABLE jq_dynamic_rest_details ADD COLUMN IF NOT EXISTS hide_dao_query INT(1) DEFAULT 0; 

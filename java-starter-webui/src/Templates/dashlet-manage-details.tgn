@@ -1,0 +1,338 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/dashboard/dashboard.css" />
+<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+
+<div class="container">
+
+	<div class="row topband">
+		<div class="col-8">
+			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+			    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
+		    <#else>
+		        <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
+		    </#if> 
+		</div>
+        
+	    <div class="col-4">
+			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
+				<#assign ufAttributes = {
+			    	"entityType": "Dashlet",
+			        "entityId": "dashletId",
+			        "entityName": "dashletName"
+			     }>
+			 	<@templateWithParams "user-favorite-template" ufAttributes />
+		     </#if>
+		 </div>
+		
+		<div class="clearfix"></div>		
+	</div>
+
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	<div class="row">
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="dashletName" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletName")}</label>									 
+				<input type="hidden" id="dashletId" name="dashletId" value="${(dashletVO.dashletId)!''}"/>
+				<input type="text" id="dashletName" name="dashletName" value="${(dashletVO.dashletName)!''}" maxlength="100" placeholder="Enter Dashlet name" class="form-control"/>									
+			</div>
+		</div>
+						
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="dashletTitle" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletTitle")}</label>									 
+				<input type="text" id="dashletTitle" name="dashletTitle" value="${(dashletVO.dashletTitle)!''}" maxlength="100" placeholder="Enter Dashlet Title" class="form-control"/>	
+			</div>
+		</div>
+								
+								
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="dashletTitle"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletCoordinates")}</label>
+				<div class="co-ordinates-block-cover">
+					<div class="co-ordinates-block"><input type="text" id="xCoordinate" name="xCoordinate"  class="numberValidator form-control"  value="${(dashletVO.xCoordinate)!''}"  placeholder="X Coordinate" maxlength="2" /></div>
+					<div class="co-ordinates-block"><input type="text" id="yCoordinate" name="yCoordinate" class="numberValidator form-control" value="${(dashletVO.yCoordinate)!''}"    placeholder="Y Coordinate" maxlength="2" /></div>
+				</div>
+			</div>
+		</div>
+							
+							
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="dashletTitle"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletDimesions")}</label>
+				<div class="co-ordinates-block-cover">	
+					<div class="co-ordinates-block"><input type="text" id="width" name="width" class="numberValidator form-control" value="${(dashletVO.width)!''}" placeholder="Dashlet Width" /></div>
+					<div class="co-ordinates-block"><input type="text" id="height" name="height" class="numberValidator form-control" value="${(dashletVO.height)!''}" placeholder="Dashlet Height" /></div>
+				</div>
+			</div>
+		</div>
+							
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="contextType"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextType")}</label>
+				<select id="contextId" name="contextId" class="form-control">
+					<option value="">Select</option>
+					<#if (contextDetailsMap)??>
+						<#list contextDetailsMap as contextId, contextDescription>
+							<#if (dashletVO?api.getContextId())?? && contextId == dashletVO?api.getContextId()>
+								<option value="${contextId}" selected>${contextDescription}</option>
+							<#else>
+								<option value="${contextId}">${contextDescription}</option>
+							</#if>
+						</#list>
+					</#if>
+				</select>
+			</div>
+		</div>
+								
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+	        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
+	        		<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>
+	        	</select>
+           	</div>
+		</div>
+								
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label for="isActiveCheckbox"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletActive")}</label>
+				<div class="onoffswitch">
+					<input type="hidden" id="isActive" name="isActive" value="${(dashletVO.isActive)!''}"/>
+					<input type="checkbox" name="isActiveCheckbox" class="onoffswitch-checkbox" id="isActiveCheckbox" onchange="" />
+					<label class="onoffswitch-label" for="isActiveCheckbox">
+						<span class="onoffswitch-inner"></span>
+						<span class="onoffswitch-switch"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+								
+		<div class="col-3">
+			<div class="col-inner-form full-form-fields">
+				<label  for="contextType">${messageSource.getMessage("jws.dashletHeader")}</label>
+				<div class="onoffswitch">
+					<input type="hidden" id="showHeader" name="showHeader" value="${(dashletVO.showHeader)!''}"/>
+					<input type="checkbox" name="showHeaderCheckbox" class="onoffswitch-checkbox" id="showHeaderCheckbox" onchange="" />
+					<label class="onoffswitch-label" for="showHeaderCheckbox">
+						<span class="onoffswitch-inner"></span>
+						<span class="onoffswitch-switch"></span>
+					</label>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="row">
+		<div class="col-12">
+			<div class="customdashletblock">
+				<div class="row">
+					<div class="col-12">
+						<h3 class="pull-left titlename">${messageSource.getMessage("jws.configurableProperties")} </h3>
+						<div class=" float-right">
+			   				<input type="button" value="${messageSource.getMessage('jws.addProperty')}" class="btn btn-primary" onclick="addEditDashletFn.addDashletProperty();">	    
+						</div>
+					</div>
+				</div>	
+   				
+   				<div class="row">	    
+    				<div class="col-12">
+    					<table id="dashletProps" class="defaulttable ">
+							<thead class="thead-light">
+								<tr>
+									<th>${messageSource.getMessage("jws.placeholderName")}</th>
+									<th>${messageSource.getMessage("jws.displayName")}</th>
+									<th>${messageSource.getMessage("jws.type")}</th>
+									<th>${messageSource.getMessage("jws.value")}</th>
+									<th>${messageSource.getMessage("jws.defaultValue")}</th>
+									<th>${messageSource.getMessage("jws.show")}</th>
+					        		<th>${messageSource.getMessage("jws.action")}</th>
+								</tr>
+							</thead>
+							<tbody>
+    							<#if (dashletVO?api.getDashletPropertVOList())??>
+									<#list dashletVO?api.getDashletPropertVOList() as dashletProperty>
+										<tr class="dashlet_property">
+											<td id="propertyDetails">
+							  					<input type="hidden" name="propertyId" id="${(dashletProperty.propertyId)!''}"  value="${(dashletProperty.propertyId)!''}"/>
+							  					<input type="hidden" name="dashletId" id="${(dashletVO.dashletId)!''}"  value="${(dashletVO.dashletId)!''}"/>
+							  					<input type="text" name="placeholderName" id="placeholderName_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.placeholderName)!''}"/>
+							  				    <input type="hidden" name="isDeleted" id="deleted_${(dashletProperty.sequence)!''}" value="${(dashletProperty.isDeleted)!''}" />
+							  				    <input type="hidden" name="sequence" id="sequence_${(dashletProperty.sequence)!''}" value="${(dashletProperty.sequence)!''}" />
+							          		</td>
+          
+											<td>
+									        	<input type="text" name="displayName" id="displayName_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.displayName)!''}"/>
+											</td>
+          
+        									<td>
+				  								<select id="componentType_${(dashletProperty.sequence)!''}" class="form-control" name="componentType" onchange="addEditDashletFn.defaultValueChange(this.id)">
+				    								<#list componentMap as categoryId, categoryDescription>
+														<#if (dashletProperty?api.getType())?? && categoryId == dashletProperty?api.getType()>
+															<option value="${categoryId}" selected = "selected" >${categoryDescription}</option>	
+               											<#else>
+                   											<option value="${categoryId}">${categoryDescription}</option>
+               											</#if>
+													</#list>
+												</select>
+											</td>
+  			
+        									<td>
+         										<input type="text" name="value" id="value_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.value)!''}"/>
+											</td>
+          
+											<td>
+												<input type="text" name="defaultValue" id="defaultValue_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.defaultValue)!''}"/>
+				   							</td>
+          
+          									<td>
+												<#if (dashletProperty.toDisplay)?? && (dashletProperty.toDisplay) == 1>
+													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''}" class="form-control" checked/>
+												<#else>
+													<input type="checkbox" name="toDisplay" id="toDisplay_${(dashletProperty.sequence)!''}" class="form-control"/>
+												</#if>
+								            	
+								            </td>
+			 
+											<td>
+												<span id="upArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"   class="tblicon pull-left ${(dashletProperty?is_first)?then("disable_cls" , "")}" ><i class="fa fa-chevron-up" title="${messageSource.getMessage('jws.moveUp')}"></i></span>				  
+												<span id="downArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"  class="tblicon pull-left ${(dashletProperty?is_last)?then("disable_cls", "" )}" ><i class="fa fa-chevron-down" title="${messageSource.getMessage('jws.moveDown')}"></i></span>
+												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.deleteProperty(this.id);" class="tblicon pull-left" ><i class="fa fa-trash-o" title="${messageSource.getMessage('jws.deleteProperty')}"></i></span>
+											</td>
+			
+										</tr>
+									</#list>
+								</#if>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+   
+    <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+		<h3 class="titlename method-sign-info">
+		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
+	    </h3>
+		<span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+    </div>
+    
+	<div class="row margin-t-b">
+		<div class="col-12">
+			<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.htmlScript")}</h3>
+			<div class="html_script">
+				<div class="grp_lblinp">
+					<div id="htmlContainer" class="ace-editor-container">
+						<div id="htmlEditor" class="ace-editor"></div>
+					</div>
+				</div>
+			</div>
+		</div> 
+	</div>
+	 
+
+	<div class="row margin-t-b">
+		<div class="col-12">
+			<h3  class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.sqlscriptjavascript')}</h3>
+            
+            <div id="sqlContainer" class="html_script">
+				<div class="grp_lblinp">
+					<div id="sqlContainer" class="ace-editor-container">
+						<div id="sqlEditor" class="ace-editor"></div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-3">
+			<input id="moduleId" value="19aa8996-80a2-11eb-971b-f48e38ab8cd7" name="moduleId"  type="hidden">
+	       	<@templateWithoutParams "role-autocomplete"/> 
+	    </div>
+    </div>
+	 
+	<div class="row margin-t-10">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropup custom-grp-btn">
+		            <div id="savedAction">
+	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		            </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            <div class="dropdown-menu action-cls"  id="actionDiv">
+		               	<ul class="dropdownmenu">
+		                   	<li id="saveAndCreateNew" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                    <li id="saveAndEdit" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		            	</ul>
+	                </div> 
+				</div>
+				<span onclick="addEditDashletFn.backToDashletListing();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+		
+	<input type="hidden" id="dataSourceId" value="${(dashletVO.dataSourceId)!''}">	
+	<textarea id="htmlContent" style="display: none">
+	   	${(dashletVO.dashletBody)!""}
+	</textarea>
+	 
+	<textarea id="sqlContent" style="display: none">
+	   	${(dashletVO.dashletQuery)!""}
+	</textarea>
+	
+	 <div id="deletePropertyConfirm"></div>
+</div>
+<script>
+	contextPath = "${(contextPath)!''}";
+	let dashletSQLEditor;
+	var dashletHTMLEditor;
+	let componentArray = new Array();
+	const dashletId = "${(dashletVO.dashletId)!''}"; 
+  	<#list componentMap as categoyId, categoryDescription>
+    	<#if categoyId??>
+        var componentObj = new Object();
+    	  componentObj.categoryId = "${categoyId}";
+    	  componentObj.categoryDescription = "${categoryDescription}";
+    	  componentArray.push(componentObj);
+      </#if>
+  	</#list>
+	let dashletPropertiesCount = parseInt("${(dashletVO?api.getDashletPropertVOList()?size)!'0'}");
+  	let addEditDashletFn;
+	$(function() {
+	 	const addEditDashlet = new AddEditDashlet(dashletPropertiesCount, componentArray, dashletSQLEditor, dashletHTMLEditor);
+		addEditDashletFn = addEditDashlet.fn;
+		addEditDashletFn.loadAddEditDashletPage("${(dashletVO.resultVariableName)!''}", "${(dashletVO.dataSourceId! '')}", parseInt("${(dashletVO.daoQueryType)!'1'}"));
+		addEditDashletFn.disableInputFields();
+		
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+		
+		if(dashletId == ""){
+            let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+            getAllDatasource(0);
+        }else{
+            addEditDashletFn.getEntityRoles();
+            getAllDatasource(1);
+        }
+        
+		savedAction("dashlet-manage-details", dashletId);
+		hideShowActionButtons();
+	});
+
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/dashlet/addEditDashlet.js"></script>

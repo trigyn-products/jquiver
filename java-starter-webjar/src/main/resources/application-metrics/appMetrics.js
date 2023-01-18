@@ -4,6 +4,7 @@
 		
 	gcOptions = {
 	    animation: false,
+		maintainAspectRatio: false,
 	    scaleOverride: true,
 	    scaleStartValue: 0,
 	    fill: false
@@ -27,9 +28,9 @@
 	
 	createClassLoadingDetails = function(data) {
 		let classesData = data;
-		$("#totalClassLoaded").html(classesData["total-classes-loaded "]);
-		$("#classLoaded").html(classesData["classes-loaded "]);
-		$("#classUnloaded").html(classesData["classes-unloaded "]);
+		$("#totalClassLoaded").html(classesData["total-classes-loaded"]);
+		$("#classLoaded").html(classesData["classes-loaded"]);
+		$("#classUnloaded").html(classesData["classes-unloaded"]);
 	}
 	
 	createGCDetails = function(data) {
@@ -43,7 +44,15 @@
 			type: "line",
 			data: appMetrics.gcData,
 			options: appMetrics.gcOptions
+			
 		});
+	}
+	
+	createUserDetails = function(data) {
+		if(data == undefined) {
+			data = appMetrics.applicationDetails["user-details"]
+		}
+		$("#activeSessions").html(data["total-active-sessions"]);
 	}
 	
 	createSystemDetails = function(data) {
@@ -104,6 +113,7 @@
 			data: chartData,
 			options: {
 				animation: false,
+				maintainAspectRatio: false,
 				/*legend: {
 		            display: false
 		         },*/
@@ -115,6 +125,8 @@
 		            }
 		        }
 			}
+				
+				 
 		});
 		
 		
@@ -180,6 +192,7 @@
 			data: chartData,
 			options: {
 			  animation: false,
+			  maintainAspectRatio: false,
 		      responsive: true,
 		      scales: {
 		         xAxes: [{
@@ -200,7 +213,7 @@
 		}
 		let details = Object.keys(data);
 		
-		let tabData = '<div class="cm-boxwrapper"  id="mainTab">';
+		let tabData = '<div class="cm-boxwrapper httptrace"  id="mainTab">';
 			tabData = tabData + '<div class="cm-boxleft cm-scrollbar">';
 			tabData = tabData + '<div class="tab">';
 						for(let counter = 0; counter < details.length; counter++) {
@@ -240,13 +253,13 @@
 	
 	createSystemEnvironment = function(data){
 		for (const property in data) {
-			$("#sys-env-content").append('<div class=""><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
+			$("#sys-env-content").append('<div class="comncls"><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
 		}
 	}
 	
 	createSystemProperties = function(data){
 		for (const property in data) {
-			$("#sys-prop-content").append('<div class=""><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
+			$("#sys-prop-content").append('<div class="comncls"><label>'+property+'  </label> <span id="'+data[property]+'">'+data[property]+'</span></div>');
 		}
 	}
 	
@@ -278,6 +291,9 @@
 	    
 	    this.createSystemDetails(this.applicationDetails["system-metrics"]);
 	    setInterval(this.createSystemDetails.bind(), 6000);
+	    
+	    this.createUserDetails(this.applicationDetails["user-details"]);
+	    setInterval(this.createUserDetails.bind(), 6000);
 	    
 	    this.createThreadDetails(this.applicationDetails["thread-metrics"]);
 	    setInterval(this.createThreadDetails.bind(), 6000);

@@ -1,0 +1,1 @@
+ALTER TABLE jq_module_listing ADD COLUMN request_param_json text;

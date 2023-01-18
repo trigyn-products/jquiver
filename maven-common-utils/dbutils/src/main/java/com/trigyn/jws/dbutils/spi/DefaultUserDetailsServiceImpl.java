@@ -19,7 +19,7 @@ public class DefaultUserDetailsServiceImpl implements IUserDetailsService {
 
 	@Override
 	public UserDetailsVO getUserDetails() {
-		return new UserDetailsVO("aar.dev@trigyn.com", "aar-dev", Arrays.asList("admin"));
+		return new UserDetailsVO("aar.dev@trigyn.com", "aar-dev", Arrays.asList("admin"), "aar-dev");
 	}
 
 	@Override

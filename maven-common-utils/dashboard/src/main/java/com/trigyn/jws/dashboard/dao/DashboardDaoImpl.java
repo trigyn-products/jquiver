@@ -10,9 +10,12 @@ import javax.sql.DataSource;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
+import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
+import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.vo.DashboardDashletVO;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 
@@ -25,7 +28,15 @@ public class DashboardDaoImpl extends DBConnection {
 	}
 
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
-		return hibernateTemplate.get(Dashboard.class, dashboardId);
+		Dashboard dashboard =  hibernateTemplate.get(Dashboard.class, dashboardId);
+		if(dashboard != null) getCurrentSession().evict(dashboard);
+		return dashboard;
+	}
+
+	public Object findDashletByDashletId(String dashletId) {
+		Dashlet dashlet =  hibernateTemplate.get(Dashlet.class, dashletId);
+		if(dashlet != null) getCurrentSession().evict(dashlet);
+		return dashlet;
 	}
 
 	public Dashboard saveDashboardDetails(Dashboard dashboard) throws Exception {
@@ -96,4 +107,5 @@ public class DashboardDaoImpl extends DBConnection {
 		query.setParameter("dashletId", dashletId);
 		return (Long) query.uniqueResult();
 	}
+
 }

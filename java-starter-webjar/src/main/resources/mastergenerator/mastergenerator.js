@@ -16,6 +16,8 @@ function populateFields(tableName, dbProductID){
         success : function(data) {
 			resetObjects();
             $("#moduleName").val(selectedTable.replaceAll("_", "-"));
+            $("#formDisplayName").val(selectedTable.replaceAll("_", "-")+"-form");
+            $("#formModuleURL").val(selectedTable.replaceAll("_", "-")+"-f");
             let primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
             let columns = data.map(element => element["tableColumnName"]);
             $("#columns").val(columns.toString());
@@ -29,6 +31,7 @@ function resetObjects(){
     gridDetails = new Array();
     formDetails = new Array();
     menuDetails = new Object();
+    dynamicFormModuleDetails = new Object();
     resourceKeyMap = new Map();
     $("#menuDisplayName").val("");
 	$("#parentModuleName").val("");
@@ -293,6 +296,10 @@ function createMaster() {
 	menuDetails["parentModuleId"]=$("#parentModuleName").val();
 	menuDetails["moduleURL"]=$("#moduleURL").val();
 	
+
+	dynamicFormModuleDetails["moduleName"]=$("#formDisplayName").val();
+	dynamicFormModuleDetails["moduleURL"]=$("#formModuleURL").val();
+	
 	let roleIds =[];
 	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
 		roleIds.push(val.id);
@@ -306,6 +313,7 @@ function createMaster() {
         	gridDetails: JSON.stringify(gridDetails),
         	formDetails: JSON.stringify(formDetails),
         	menuDetails: JSON.stringify(menuDetails),
+        	dynamicFormModuleDetails: JSON.stringify(dynamicFormModuleDetails),
         	roleIds : JSON.stringify(roleIds),
         	dbProductName : $("#dataSource").find(":selected").data("product-name")
         },
@@ -392,6 +400,22 @@ function validateSiteLayoutDetails(){
 	 	showMessage("Module Name and Module URL cannot be blank", "error");
 	 	return false;
 	 }
+	 let dfModuleName = $("#formDisplayName").val().trim();
+	 let dfModuleUrl = $("#formModuleURL").val().trim();
+	 if(dfModuleName === "" || dfModuleUrl === ""){
+	 	showMessage("Form Module Name and Module URL cannot be blank", "error");
+	 	return false;
+	 }
+	 
+	 if(moduleName === dfModuleName) {
+		 showMessage("Listing and Form module name cannot be same.", "error");
+		 	return false;
+	 }
+
+	 if(moduleUrl === dfModuleUrl) {
+		 showMessage("Listing and Form URL name cannot be same.", "error");
+		 	return false;
+	 }
 	 $.ajax({
         url: contextPath+ "/cf/ced",
         type: 'GET',
@@ -418,6 +442,39 @@ function validateSiteLayoutDetails(){
 	   	},
 				
     });	
+	 
+	 if(isValid == false) {
+		 return isValid;
+	 }
+	 
+	
+	 $.ajax({
+        url: contextPath+ "/cf/ced",
+        type: 'GET',
+        async: false,
+        headers: {
+        	"module-name": dfModuleName,
+        	"parent-module-id": $("#parentModuleName").val(),
+        	"module-url": dfModuleUrl,
+        	"module-id": uuidv4(),
+        },
+        success: function(data) {
+        	if(data !== undefined && data !== ""){
+	        	if(data.moduleIdName !== undefined && data.moduleIdName !== ""){
+	        		isValid = false;
+	        		showMessage("Module Name already exist for form", "error");
+	        	}else if(data.moduleIdURL !== undefined &&  data.moduleIdURL !== ""){
+	        		isValid = false;
+	        		showMessage("Module URL already exist for form", "error");
+	        	}
+        	}
+        },
+		error : function(xhr, error){
+			showMessage("Error occurred while creating master", "error");
+	   	},
+				
+    });	
+	 
 	return isValid;	
 }
 
@@ -455,3 +512,4 @@ function enableDisableMenuAdd(){
    		}
 		
 	}
+

@@ -45,12 +45,16 @@ public class Autocomplete implements Serializable {
 	@Column(name = "last_updated_ts")
 	private Date				lastUpdatedTs			= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer				isCustomUpdated			= 1;
+
 	public Autocomplete() {
 
 	}
 
-	public Autocomplete(String autocompleteId, String autocompleteDesc, String autocompleteSelectQuery, Integer acTypeId, String createdBy,
-			Date createdDate, String datasourceId, String lastUpdatedBy, Date lastUpdatedTs) {
+	public Autocomplete(String autocompleteId, String autocompleteDesc, String autocompleteSelectQuery,
+			Integer acTypeId, String createdBy, Date createdDate, String datasourceId, String lastUpdatedBy,
+			Date lastUpdatedTs) {
 		this.autocompleteId				= autocompleteId;
 		this.autocompleteDesc			= autocompleteDesc;
 		this.autocompleteSelectQuery	= autocompleteSelectQuery;
@@ -134,6 +138,14 @@ public class Autocomplete implements Serializable {
 		this.lastUpdatedTs = lastUpdatedTs;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public Autocomplete getObject() {
 		Autocomplete autocomplete = new Autocomplete();
 
@@ -146,19 +158,22 @@ public class Autocomplete implements Serializable {
 		autocomplete.setLastUpdatedBy(lastUpdatedBy);
 		autocomplete.setLastUpdatedTs(lastUpdatedTs);
 		if (autocompleteSelectQuery != null) {
-			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery.trim() + "]]>"));
+			autocomplete.setAutocompleteSelectQuery(
+					StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery.trim() + "]]>"));
 		} else {
-			autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
+			autocomplete.setAutocompleteSelectQuery(
+					StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
 		}
-		autocomplete.setAutocompleteSelectQuery(StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
+		autocomplete.setAutocompleteSelectQuery(
+				StringEscapeUtils.unescapeXml("<![CDATA[" + autocompleteSelectQuery + "]]>"));
 		autocomplete.setAcTypeId(this.acTypeId);
 		return autocomplete;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(acTypeId, autocompleteDesc, autocompleteId, autocompleteSelectQuery, createdBy, createdDate, datasourceId,
-				lastUpdatedBy, lastUpdatedTs);
+		return Objects.hash(acTypeId, autocompleteDesc, autocompleteId, autocompleteSelectQuery, createdBy, createdDate,
+				datasourceId, lastUpdatedBy, lastUpdatedTs);
 	}
 
 	@Override
@@ -175,18 +190,21 @@ public class Autocomplete implements Serializable {
 		Autocomplete other = (Autocomplete) obj;
 		return Objects.equals(acTypeId, other.acTypeId) && Objects.equals(autocompleteDesc, other.autocompleteDesc)
 				&& Objects.equals(autocompleteId, other.autocompleteId)
-				&& Objects.equals(autocompleteSelectQuery, other.autocompleteSelectQuery) && Objects.equals(createdBy, other.createdBy)
-				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(datasourceId, other.datasourceId)
-				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy) && Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
+				&& Objects.equals(autocompleteSelectQuery, other.autocompleteSelectQuery)
+				&& Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(datasourceId, other.datasourceId)
+				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
+				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Autocomplete [autocompleteId=").append(autocompleteId).append(", autocompleteDesc=").append(autocompleteDesc)
-				.append(", autocompleteSelectQuery=").append(autocompleteSelectQuery).append(", acTypeId=").append(acTypeId)
-				.append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate).append(", datasourceId=")
-				.append(datasourceId).append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
+		builder.append("Autocomplete [autocompleteId=").append(autocompleteId).append(", autocompleteDesc=")
+				.append(autocompleteDesc).append(", autocompleteSelectQuery=").append(autocompleteSelectQuery)
+				.append(", acTypeId=").append(acTypeId).append(", createdBy=").append(createdBy)
+				.append(", createdDate=").append(createdDate).append(", datasourceId=").append(datasourceId)
+				.append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
 				.append("]");
 		return builder.toString();
 	}

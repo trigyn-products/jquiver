@@ -46,7 +46,9 @@ public class UserManagementDAO extends DBConnection {
 
 	@Transactional
 	public JwsUser saveUserData(JwsUser jwsUser) {
-		jwsUser.setRegisteredBy(Constants.AuthType.OAUTH.getAuthType());
+		if(jwsUser.getRegisteredBy()==null)
+			jwsUser.setRegisteredBy(Constants.AuthType.OAUTH.getAuthType());
+		jwsUser.setIsCustomUpdated(1);
 		if (jwsUser.getUserId() == null) {
 			TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
 			jwsUser.setSecretKey(twoFactorGoogleUtil.generateSecretKey());
@@ -57,12 +59,14 @@ public class UserManagementDAO extends DBConnection {
 
 	@Transactional
 	public JwsUser updateUserData(JwsUser jwsUser) {
+		jwsUser.setIsCustomUpdated(1);
 		getCurrentSession().saveOrUpdate(jwsUser);
 		return jwsUser;
 	}
 
 	@Transactional
 	public void saveRoleData(JwsRole jwsRole) {
+		jwsRole.setIsCustomUpdated(1);
 		getCurrentSession().saveOrUpdate(jwsRole);
 	}
 
@@ -75,4 +79,36 @@ public class UserManagementDAO extends DBConnection {
 		getCurrentSession().save(userRoleAssociation);
 	}
 
+	public JwsUser findJwsUserById(String userId) {
+		JwsUser user =  hibernateTemplate.get(JwsUser.class, userId);
+		user.setIsCustomUpdated(1);
+		if(user != null) getCurrentSession().evict(user);
+		return user;
+	
+	}
+
+	@Transactional
+	public void saveJwsUser(JwsUser user) {
+		if(user.getUserId() == null || findJwsUserById(user.getUserId()) == null) {
+			getCurrentSession().save(user);			
+		}else {
+			getCurrentSession().saveOrUpdate(user);
+		}
+	}
+
+	public JwsRole findJwsRoleById(String roleId) {
+		JwsRole role =  hibernateTemplate.get(JwsRole.class, roleId);
+		if(role != null) getCurrentSession().evict(role);
+		return role;
+	
+	}
+
+	@Transactional
+	public void saveJwsRole(JwsRole role) {
+		if(role.getRoleId() == null || findJwsRoleById(role.getRoleId()) == null) {
+			getCurrentSession().save(role);			
+		}else {
+			getCurrentSession().saveOrUpdate(role);
+		}
+	}
 }

@@ -15,12 +15,14 @@ public class CustomLogoutSuccessHandler implements LogoutHandler {
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-		System.out.println("Logged out successfully");
-		UserInformation userInformation = (UserInformation) authentication.getPrincipal();
-
-		for (LogoutSuccessEventListener logoutSuccessEventListner : logoutListener) {
-			logoutSuccessEventListner.onLogout(userInformation);
+		UserInformation userInformation = null;
+		if(authentication!=null) {
+			userInformation = (UserInformation) authentication.getPrincipal();
+			for (LogoutSuccessEventListener logoutSuccessEventListner : logoutListener) {
+				logoutSuccessEventListner.onLogout(userInformation);
+			}
 		}
+		
 	}
 
 	public static void addLoginListener(LogoutSuccessEventListener eventListener) {

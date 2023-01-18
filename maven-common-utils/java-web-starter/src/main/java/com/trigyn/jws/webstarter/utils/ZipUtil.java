@@ -12,6 +12,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -35,7 +36,7 @@ public class ZipUtil {
 		String				zipFilePath	= zipDestinationFolder + File.separator + zipFileName;
 
 		try {
-			zipFolder(dir.toPath(), zipFileName);
+			zipFolder(dir.toPath(), zipDestinationFolder, zipFileName);
 
 			File directory = new File(zipSourceFolder);
 			if (directory.exists()) {
@@ -47,10 +48,50 @@ public class ZipUtil {
 		}
 		return zipFilePath;
 	}
+	
+	public static String unzip(InputStream fis, String destDir) throws IOException {
 
-	private static String zipFolder(Path source, String zipFileName) throws IOException {
+		String targetFolder = System.getProperty("java.io.tmpdir");
+		if (targetFolder.endsWith(File.separator) == false) {
+			targetFolder += File.separator;
+		}
+		targetFolder += UUID.randomUUID().toString() + File.separator;
+		new File(targetFolder).mkdirs();
+//		FileInputStream	fis	= new FileInputStream(destPath.toString() + File.separator + zipFileName);
+		ZipInputStream	zis	= new ZipInputStream(fis);
+		ZipEntry		ze	= zis.getNextEntry();
+		byte[] buffer = new byte[1024];
+		while (ze != null) {
+			String fileName = ze.getName();
 
-		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFileName))) {
+			if (ze.isDirectory()) {
+				new File(targetFolder, fileName).mkdirs();
+			} else {
+				
+				File	newFile;
+				if(fileName.contains("/")) {
+					newFile = new File(targetFolder + fileName.substring(0, fileName.lastIndexOf("/")), fileName.substring(fileName.lastIndexOf("/")));
+					newFile.getParentFile().mkdirs();
+				} else {
+					newFile		= new File(targetFolder + fileName);
+				}
+				FileOutputStream	fos	= new FileOutputStream(newFile);
+				int					len;
+				while ((len = zis.read(buffer)) > 0) {
+					fos.write(buffer, 0, len);
+				}
+				fos.close();
+			}
+			zis.closeEntry();
+			ze = zis.getNextEntry();
+		}
+
+		return targetFolder;
+	}
+
+	private static String zipFolder(Path source, String destPath, String zipFileName) throws IOException {
+
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destPath.toString() + File.separator + zipFileName))) {
 			Files.walkFileTree(source, new SimpleFileVisitor<>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
@@ -84,39 +125,72 @@ public class ZipUtil {
 				}
 			});
 		}
-		return source.toString() + File.separator + zipFileName;
+		return destPath.toString() + File.separator + zipFileName;
 	}
 
-	public static void unzip(InputStream fis, String destDir) {
-		File dir = new File(destDir);
-		if (!dir.exists())
-			dir.mkdirs();
-		byte[] buffer = new byte[1024];
-		try {
-			ZipInputStream	zis	= new ZipInputStream(fis);
-			ZipEntry		ze	= zis.getNextEntry();
-			while (ze != null) {
-				String	fileName	= ze.getName();
-				File	newFile		= new File(destDir + File.separator + fileName);
-				// create directories for sub directories in zip
-				new File(newFile.getParent()).mkdirs();
-				FileOutputStream	fos	= new FileOutputStream(newFile);
-				int					len;
-				while ((len = zis.read(buffer)) > 0) {
-					fos.write(buffer, 0, len);
-				}
-				fos.close();
-				// close this ZipEntry
-				zis.closeEntry();
-				ze = zis.getNextEntry();
-			}
-			// close last ZipEntry
-			zis.closeEntry();
-			zis.close();
-			fis.close();
-		} catch (IOException a_ioe) {
-			logger.error("Error ocurred while zipping the folder.", a_ioe);
-		}
-
-	}
+//	public static void unzip(InputStream fis, String destDir) {
+//		File dir = new File(destDir);
+//		if (dir.exists() == false) {
+//			dir.mkdirs();
+//		}
+//		
+//		byte[] buffer = new byte[1024];
+//		try {
+//			ZipInputStream	zis	= new ZipInputStream(fis);
+//			ZipEntry		ze	= zis.getNextEntry();
+//			while (ze != null) {
+//				String parentFolder = destDir;
+//				String	fileName	= ze.getName();
+//				
+//				//check if it's part of another folder then chage the parent folder and
+//				//update the file name
+//				if(File.separator == "/") {
+//					if(fileName.indexOf("\\") >= 0) {
+//						parentFolder += File.separator + fileName.split("\\\\")[0];
+//						fileName = fileName.split("\\\\")[1];
+//					}
+//				} else {
+//					if(fileName.indexOf("/") >= 0) {
+//						String[] folders = fileName.split("/");
+//						for(int i = 0; i < folders.length - 1; i++) {
+//							parentFolder += File.separator + folders[i];
+//						}
+//						fileName = folders[folders.length-1];
+//					}
+//				}
+//				
+//				
+////				//create folders in case it's not created
+//				new File(parentFolder).mkdirs();
+//				System.out.println("fileName :: " + fileName);
+//				File	newFile		= new File(parentFolder + File.separator + fileName);
+//				// create directories for sub directories in zip
+//				FileOutputStream	fos	= null;
+//				if(ze.isDirectory()) {
+////					new File(newFile.getParent()).mkdirs();
+////					fos	= new FileOutputStream(newFile.getParent());
+//					newFile.mkdirs();
+//				} else {
+//					fos	= new FileOutputStream(newFile);
+//
+//					int					len;
+//					while ((len = zis.read(buffer)) > 0) {
+//						fos.write(buffer, 0, len);
+//					}
+//					fos.close();
+//				}
+//				
+//				// close this ZipEntry
+//				zis.closeEntry();
+//				ze = zis.getNextEntry();
+//			}
+//			// close last ZipEntry
+//			zis.closeEntry();
+//			zis.close();
+//			fis.close();
+//		} catch (IOException a_ioe) {
+//			logger.error("Error ocurred while zipping the folder.", a_ioe);
+//		}
+//
+//	}
 }

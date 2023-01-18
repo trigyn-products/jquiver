@@ -61,7 +61,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy()))
+					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = dbTemplatingService.getAllDefaultTemplates();
@@ -112,7 +112,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				templateDAO.updateChecksum(templateVO);
 
 				TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
-						templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension);
+						templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate());
 
 				Map<String, Object>	map			= new HashMap<>();
 				map.put("moduleName", templateVO.getTemplateName());
@@ -209,7 +209,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 								dbTemplatingRepository.save(template);
 						}
 						TemplateVO templateVO = new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-								template.getTemplate());
+								template.getTemplate(), new Date());
 						moduleVersionService.saveModuleVersion(templateVO, null, template.getTemplateId(), "jq_template_master",
 								Constant.UPLOAD_SOURCE_VERSION_TYPE);
 					}
@@ -227,7 +227,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
-					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy()))
+					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
 			templateVOs = dbTemplatingService.getAllDefaultTemplates();
@@ -263,7 +263,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				templateVO.setChecksum(newFileCheckSum);
 			}
 			TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
-					templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension);
+					templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate());
 
 			Map<String, Object>	map			= new HashMap<>();
 			map.put("moduleName", templateVO.getTemplateName());
@@ -316,7 +316,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 						template.setTemplateId(templateExportVO.getTemplateId());
 						template.setTemplateName(templateExportVO.getTemplateName());
 						template.setTemplateTypeId(templateExportVO.getTemplateTypeId());
-						template.setUpdatedDate(new Date());
+						template.setUpdatedDate(templateExportVO.getUpdatedDate());
 						template.setUpdatedBy(user);
 						template.setCreatedBy(user);
 					} else {
@@ -328,7 +328,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 						template.setTemplate(content);
 						template.setChecksum(generateFileCheckSum);
 						template.setUpdatedBy(user);
-						template.setUpdatedDate(new Date());
+						template.setUpdatedDate(templateExportVO.getUpdatedDate());
 					}
 				}
 			}

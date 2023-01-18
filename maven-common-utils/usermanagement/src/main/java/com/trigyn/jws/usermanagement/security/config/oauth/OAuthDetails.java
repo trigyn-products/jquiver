@@ -19,10 +19,13 @@ public class OAuthDetails {
 
 	private String							oAuthClientSecret				= null;
 
-	@Autowired
-	private JwsAuthenticationTypeRepository	authenticationTypeRepository	= null;
+	
+	public OAuthDetails() {
+		//TODO Auto-generated constructor stub
+	}
 
 	public OAuthDetails(JwsAuthenticationTypeRepository authenticationTypeRepository) throws JSONException {
+		super();
 		JwsAuthenticationType	oAuthType	= authenticationTypeRepository.findById(Constants.AuthType.OAUTH.getAuthType()).get();
 		JSONObject				jsonObject	= null;
 		if (oAuthType.getAuthenticationProperties() != null) {
@@ -34,6 +37,9 @@ public class OAuthDetails {
 		}
 
 	}
+
+	
+	
 
 	public JSONObject getActiveOAuthJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray) throws JSONException {
 		String propertyName = "selected";
@@ -58,6 +64,30 @@ public class OAuthDetails {
 
 	public String getOAuthClientSecret() {
 		return oAuthClientSecret;
+	}
+
+	public String getoAuthClient() {
+		return oAuthClient;
+	}
+
+	public void setoAuthClient(String oAuthClient) {
+		this.oAuthClient = oAuthClient;
+	}
+
+	public String getoAuthClientId() {
+		return oAuthClientId;
+	}
+
+	public void setoAuthClientId(String oAuthClientId) {
+		this.oAuthClientId = oAuthClientId;
+	}
+
+	public String getoAuthClientSecret() {
+		return oAuthClientSecret;
+	}
+
+	public void setoAuthClientSecret(String oAuthClientSecret) {
+		this.oAuthClientSecret = oAuthClientSecret;
 	}
 
 }

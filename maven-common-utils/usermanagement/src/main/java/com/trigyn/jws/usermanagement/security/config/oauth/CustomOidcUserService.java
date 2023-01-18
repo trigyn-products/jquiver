@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -27,7 +28,8 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 @Service
 public class CustomOidcUserService extends OidcUserService {
 
-	private final static Logger					logger							= LogManager.getLogger(CustomOidcUserService.class);
+	private final static Logger					logger							= LogManager
+			.getLogger(CustomOidcUserService.class);
 
 	@Autowired
 	private JwsUserRepository					jwsUserRepository				= null;
@@ -37,6 +39,9 @@ public class CustomOidcUserService extends OidcUserService {
 
 	@Autowired
 	private JwsUserRoleAssociationRepository	userRoleAssociationRepository	= null;
+
+	@Autowired
+	private PasswordEncoder						passwordEncoder					= null;
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -58,8 +63,8 @@ public class CustomOidcUserService extends OidcUserService {
 
 	private OidcUser processOAuth2User(OAuth2UserRequest userRequest, OidcUser oidcUser) {
 
-		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(),
-				oidcUser.getAttributes());
+		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
+				.getOAuth2UserInfo(userRequest.getClientRegistration().getRegistrationId(), oidcUser.getAttributes());
 
 		if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
 			throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
@@ -95,7 +100,8 @@ public class CustomOidcUserService extends OidcUserService {
 		user.setLastName(oAuth2UserInfo.getName().split(" ")[1]);
 		user.setEmail(oAuth2UserInfo.getEmail());
 		user.setIsActive(Constants.ISACTIVE);
-		user.setForcePasswordChange(Constants.INACTIVE);
+		user.setPassword(passwordEncoder.encode(oAuth2UserInfo.getEmail()));
+		user.setForcePasswordChange(Constants.ISACTIVE);
 		// user.setImageUrl(oAuth2UserInfo.getImageUrl());
 		userManagementDAO.saveUserData(user);
 		userManagementDAO.saveAuthenticatedRole(user.getUserId());

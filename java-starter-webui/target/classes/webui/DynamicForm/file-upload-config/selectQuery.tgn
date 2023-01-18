@@ -1,0 +1,16 @@
+SELECT fuc.file_bin_id AS fileBinId, fuc.file_type_supported AS fileTypeSupported
+, fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles, fuc.select_query_content AS selectQueryContent
+, fuc.upload_query_content AS uploadQueryContent
+, fuc.view_query_content AS viewQueryContent
+, fuc.delete_query_content AS deleteQueryContent, fuc.last_updated_by AS updatedBy
+, fuc.last_updated_ts AS updatedDate,fuc.is_deleted AS isDeleted
+, fuc.select_query_type AS selectQueryType
+, fuc.upload_query_type AS uploadQueryType
+, fuc.view_query_type AS viewQueryType
+, fuc.delete_query_type AS deleteQueryType
+, fuc.select_query_type AS datasourceSelectValidator
+, fuc.datasource_upload_validator AS datasourceUploadValidator
+, fuc.datasource_view_validator AS datasourceViewValidator
+, fuc.datasource_delete_validator AS datasourceDeleteValidator
+FROM jq_file_upload_config AS fuc
+WHERE fuc.file_bin_id = "${fileBinId}" AND is_deleted = 0;

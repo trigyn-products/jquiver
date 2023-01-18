@@ -35,10 +35,14 @@ public class JwsAuthenticationTypeVO {
 	}
 
 	public JwsAuthenticationTypeVO convertEntityToVO(JwsAuthenticationType authenticationType) {
-		this.id							= authenticationType.getAuthenticationId();
-		this.authenticationName			= authenticationType.getAuthenticationName();
-		this.authenticationProperties	= authenticationType.getAuthenticationProperties();
-		return this;
+		if(authenticationType.getAuthenticationProperties()!=null) {
+			this.id							= authenticationType.getAuthenticationId();
+			this.authenticationName			= authenticationType.getAuthenticationName();
+			this.authenticationProperties	= authenticationType.getAuthenticationProperties();
+			return this;
+		}
+		return null;
+		
 	}
 
 }

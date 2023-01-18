@@ -104,7 +104,7 @@
 	  	let additionalParameterKey;
 	  	let additionalParameterValue;
 	  	var exportObj = map.get(moduleType);
-		if(moduleType != "ApplicationConfiguration") {
+		if(moduleType != undefined &&  moduleType != null && moduleType != "") {
 			if(exportObj == null || (exportObj != null && exportObj.getColM() == null)) {
 				let systemConfigIncludeList = [];
 				let customConfigExcludeList = [];
@@ -133,14 +133,10 @@
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportGridFormatter, dataIndx: "" },
 				        { title: "Grid Id", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
 				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-				        { title: "Grid Name", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
-				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-				        { title: "Grid Description", width: 160, align: "center", dataIndx: "gridDesc", align: "left", halign: "center",
-				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 				        { title: "Grid Table Name", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
 				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-				        { title: "Grid Column Names", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
-				        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+				        { title: "Updated By", width: 200, align: "center", dataIndx: "lastUpdatedBy", align: "left", halign: "center"},
+					    { title: "Updated Date", width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: gridDateRenderer }
 					];
 					sortIndex = 1;
 					isSelectTypeApplicable = true;
@@ -163,12 +159,8 @@
 						{ title: "", hidden: true, sortable : false, dataIndx: "templateId" },
 			            { title: "Template Name", width: 130, align: "center", sortable : true, dataIndx: "templateName", align: "left", halign: "center",
 			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			            { title: "Created By", width: 100, align: "center",  sortable : true, dataIndx: "createdBy", align: "left", halign: "center",
-			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			            { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
-			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-			            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center",
-			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+			            { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "updatedBy", align: "left", halign: "center" },
+			            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center", render: templateDateRenderer }
 					];
 					sortIndex = 2;
 					isSelectTypeApplicable = true;
@@ -228,10 +220,8 @@
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateExportAutocompleteFormatter, dataIndx: "" },
 						{ title: "Autocomplete Id", width: 130, align: "left", dataIndx: "autocompleteId", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Autocomplete Description", width: 100, align: "left",  dataIndx: "autocompleteDescription", halign: "center",
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Autocomplete Query", width: 160, align: "left", dataIndx: "acQuery", halign: "center",
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					    { title: "Updated By", width: 100, align: "left",  dataIndx: "lastUpdatedBy", halign: "center"},
+						 { title: "Updated Date", width: 160, align: "left", dataIndx: "lastUpdatedTs", halign: "center", render: autocompleteDateRenderer }
 					];
 					sortIndex = 1;
 					isSelectTypeApplicable = true;
@@ -256,8 +246,8 @@
 				        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				        { title: "Message Type", width: 160, dataIndx: "messageType", align: "left", halign: "center", 
 				        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Message Text", width: 200, dataIndx: "messageText", align: "left", halign: "center",
-				          filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
+						    { title: "Updated By", width: 160, dataIndx: "updatedBy", align: "left", halign: "center"},
+							{ title: "Updated Date", width: 200, dataIndx: "updatedDate", align: "left", halign: "center", render: notificationDateRenderer}
 					];
 					sortIndex = 1;
 					isSelectTypeApplicable = false;
@@ -267,14 +257,10 @@
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashboardRenderer, dataIndx: "" },
 						{ title: "Dashboard Name", width: 130, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-						{ title: "Dashboard Type", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
 						{ title: "Created By", width: 100, dataIndx: "createdBy", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
 						{ title: "Created Date", width: 100, dataIndx: "createdDate" , align: "left", halign: "center" },
-						{ title: "Last Updated Date", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center" },
-						{ title: "Context Description", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+						{ title: "Last Updated Date", width: 100, dataIndx: "lastUpdatedDate" , align: "left", halign: "center", render: dashboardDateRenderer}
 					];
 					sortIndex = 1;
 					isSelectTypeApplicable = true;
@@ -296,18 +282,8 @@
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDashletRenderer, dataIndx: "" },
 						{ title: "Dashlet Name", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Dashlet Title", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Updated By", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Updated Date", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Status", width: 160, dataIndx: "status" , align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
+						{ title: "Updated By", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center"},
+						{ title: "Updated Date", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center", render: dashletDateRenderer},
 					];
 					sortIndex = 2;
 					isSelectTypeApplicable = true;
@@ -327,16 +303,10 @@
 				} else if(moduleType == "DynamicForm") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynamicFormRenderer, dataIndx: "" },
-							{ title: "Form Id", width: 190, dataIndx: "formId" , align: "left", halign: "center",
-								filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 						{ title: "Form Name", width: 130, dataIndx: "formName" , align: "left", halign: "center",
 						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Form Description", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
-						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Created By", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
-						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-						{ title: "Created Date", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
-						filter: { type: "textbox", condition: "contain",  listeners: ["change"] }}
+						{ title: "Updated By", width: 100, dataIndx: "lastUpdatedBy" , align: "left", halign: "center"},
+						{ title: "Updated Date", width: 100, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: dynamicFormDateRenderer}
 					];
 					isSelectTypeApplicable = true;
 					if(selectedType != 0) {
@@ -357,24 +327,20 @@
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateFileManagerRenderer, dataIndx: "" },
 							{ title: "File Bin Id", width: 130, dataIndx: "fileBinId", align: "left", halign: "center", 
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					        { title: "File Type Supported", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-					        { title: "Max File Size", width: 160, dataIndx: "maxFileSize", align: "left", halign: "center", 
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-							{ title: "No Of Files", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					        { title: "Updated By", width: 160, dataIndx: "lastUpdatedBy", align: "left", halign: "center"},
+								{ title: "Updated Date", width: 160, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: fmDateRenderer }
 					];
 					isSelectTypeApplicable = false;
 					additionalParameterKey = "";
 				} else if(moduleType == "DynaRest") {
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateDynaRestRenderer, dataIndx: "" },
-							{ title: "Dynamic API Url", width: 130, align: "center", dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
+							{ title: "Dynamic API URL", width: 130, align: "center", dataIndx: "dynarestUrl", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					        { title: "Method Name", width: 100, align: "center",  dataIndx: "jws_method_name", align: "left", halign: "center",
+					        { title: "Method Name", width: 100, align: "center",  dataIndx: "methodName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					        { title: "Method Description", width: 160, align: "center", dataIndx: "jws_method_description", align: "left", halign: "center",
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+					       { title: "Updated By", width: 160, align: "center", dataIndx: "lastUpdatedBy", align: "left", halign: "center"},
+						        { title: "Updated Date", width: 160, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: dynarestDateRenderer }
 					];
 					sortIndex = 2;
 					isSelectTypeApplicable = true;
@@ -394,14 +360,14 @@
 				} else if(moduleType == "Permission") {
 					colM = [
 							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updatePermissionRenderer, dataIndx: "" },
-							{ title: "Module ID", width: 100, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",
-								filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 							{ title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
 						        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 						    { title: "Role Name", width: 100, align: "center",  dataIndx: "roleName", align: "left", halign: "center",
 						        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 						    { title: "Entity Name", width: 130, align: "center", dataIndx: "entityName", align: "left", halign: "center",
-						        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+						        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+						    { title: "Updated By", width: 160, align: "center", dataIndx: "lastUpdatedBy", align: "left", halign: "center" },
+							{title: "Updated Date", width: 160, align: "center", dataIndx: "lastUpdatedDate", align: "left", halign: "center", render: permDateRenderer }
 					];
 					sortIndex = 5, 3;
 					isSelectTypeApplicable = false;
@@ -413,7 +379,8 @@
 				        { title: "Module Name", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 				        { title: "Module URL", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
-								filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
+								filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+						{title: "Updated Date", width: 160, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: sitelayoutDateRenderer}
 					];
 					sortIndex = 2;
 					isSelectTypeApplicable = true;
@@ -433,18 +400,12 @@
 				} else if(moduleType == "ApplicationConfiguration") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateAppConfigRenderer, dataIndx: "" },
-						{ title: "Owner Id", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-						{ title: "Owner Type", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 						{ title: "Property Name", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 						{ title: "Property Value", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
 							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-						{ title: "Modified By", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-						{ title: "Comments", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
-							filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+						    { title: "Updated By", width: 160, align: "center", dataIndx: "modifiedBy", align: "left", halign: "center" },
+							{title: "Updated Date", width: 160, align: "center", dataIndx: "lastModifiedDate", align: "left", halign: "center", render: appConfDateRenderer}
 					];
 					sortIndex = 4;
 					isSelectTypeApplicable = false;
@@ -452,13 +413,13 @@
 				} else if(moduleType == "ManageUsers") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateUsersRenderer, dataIndx: "" },
-						{ title: "${messageSource.getMessage('jws.email')}", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
+						{ title: "Email", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-						{ title: "${messageSource.getMessage('jws.firstName')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
+						{ title: "First Name", width: 130, align: "center", dataIndx: "firstName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "${messageSource.getMessage('jws.lastName')}", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",
+					    { title: "Last Name", width: 130, align: "center", dataIndx: "lastName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "${messageSource.getMessage('jws.isActive')}", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
+					    { title: "Status", width: 160, align: "center", dataIndx: "status", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
@@ -467,11 +428,9 @@
 				} else if(moduleType == "ManageRoles") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateRolesRenderer, dataIndx: "" },
-						{ title: "Role Name", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",
+						{ title: "Role Name", width: 130, align: "center", dataIndx: "roleName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Role Description", width: 100, align: "center",  dataIndx: "role_description", align: "left", halign: "center",
-					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-					    { title: "Is Active", width: 160, align: "center", dataIndx: "is_active", align: "left", halign: "center",
+					    { title: "Is Active", width: 160, align: "center", dataIndx: "isActive", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
@@ -480,7 +439,7 @@
 				} else if(moduleType == "HelpManual") {
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateHelpManualRenderer, dataIndx: "" },
-						{ title: "Manual Name", width: 130, align: "center", dataIndx: "name", align: "left", halign: "center",
+						{ title: "Manual Name", width: 130, align: "center", dataIndx: "manualName", align: "left", halign: "center",
 					        filter: { type: "textbox", condition: "contain", listeners: ["change"]} }
 					];
 					sortIndex = 1;
@@ -505,14 +464,8 @@
 		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 		                { title: "Client Name", hidden : false, width: 130, dataIndx: "client_name", align: "left", align: "left", halign: "center",
 		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-		                { title: "Client Key", hidden : false, width: 130, dataIndx: "client_key", align: "left", align: "left", halign: "center",
-		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-		                { title: "Encryption Algorithm", hidden : false, width: 130, dataIndx: "encryption_algo_name", align: "left", align: "left", halign: "center",
-		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-		                { title: "Updated By", hidden : false, width: 130, dataIndx: "updated_by", align: "left", align: "left", halign: "center",
-		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-		                { title: "Created By", hidden : false, width: 130, dataIndx: "created_by", align: "left", align: "left", halign: "center",
-		                    filter: { type: "textbox", condition: "contain", listeners: ["change"]}  }
+		                { title: "Updated By", hidden : false, width: 130, dataIndx: "updated_by", align: "left", align: "left", halign: "center" },
+		                { title: "Updated Date", hidden : false, width: 130, dataIndx: "updated_date", align: "left", align: "left", halign: "center", render: apiClientDateRenderer }
 		            ];
 					sortIndex = 1;
 					isSelectTypeApplicable = false;
@@ -526,13 +479,36 @@
 		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 		                { title: "Datasource Product Name", hidden : false, width: 130, dataIndx: "databaseProductName", align: "left", halign: "center",
 		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-		                { title: "Created By", hidden : false, width: 130, dataIndx: "createdBy", align: "left", halign: "center",
-		                	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-		                { title: "Last Updated Date", hidden : false, width: 130, dataIndx: "lastUpdatedTs", align: "left", halign: "center"}
+		                { title: "Updated By", hidden : false, width: 130, dataIndx: "lastUpdatedBy", align: "left", halign: "center"  },
+		                { title: "Last Updated Date", hidden : false, width: 130, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: sitelayoutDateRenderer}
 		            ];
 					sortIndex = 1;
 					isSelectTypeApplicable = false;
 					additionalParameterKey = "";
+				} else if(moduleType == "Scheduler") {
+					colM = [
+						{ title: "Action", width: 50, maxWidth: 20, align: "center", render: updateExportSchedulerFormatter, dataIndx: "" },
+						{ title: "", hidden: true, sortable : false, dataIndx: "scheduler_id" },
+			            { title: "Scheduler Name", width: 130, align: "center", sortable : true, dataIndx: "scheduler_name", align: "left", halign: "center",
+			            filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+			            { title: "Updated By", width: 160, align: "center", sortable : true, dataIndx: "modified_by", align: "left", halign: "center" },
+			            { title: "Updated Date", width: 200, align: "center", sortable : true, dataIndx: "last_modified_date", align: "left", halign: "center", render: schedulerDateRenderer }
+					];
+					sortIndex = 2;
+					isSelectTypeApplicable = true;
+					if(selectedType != 0) {
+						grid=  $("#"+moduleType+"").grid({
+				      		gridId: gridID,
+				      		colModel: colM,
+				      		height:300,
+				            dataModel: {
+				            	url: contextPath+"/cf/pq-grid-data",
+				                sortIndx: sortIndex,
+				                sortDir: "up"
+				            },
+				            additionalParameters: {"cr_schedulerTypeId":"str_"+selectedType}
+				 		 });
+					}
 				}
 				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, 
 						colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
@@ -554,13 +530,71 @@
 		}
 		let gridNew = $("#"+moduleType+"").pqGrid();
         gridNew.pqGrid( "refreshDataAndView" ); 
+        changeType();
 		
 	  	document.getElementById(moduleType).style.display = "block";
 	  	if(evt != null) {
-	 	evt.currentTarget.className += " active";}
+	  		evt.currentTarget.className += " active";
+	  	}
 	  	
 	}
 
+	function gridDateRenderer(uiObject) {
+        return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+	
+	function templateDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.updatedDate);
+	}
+
+	function schedulerDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.isAfterDate);
+	}
+	
+	function autocompleteDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+	
+	function notificationDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.updatedDate);
+	}
+
+	function dashboardDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+
+	function dashletDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+
+	function dynamicFormDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+
+	function fmDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+	
+	function dynarestDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+
+	function permDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedDate);
+	}
+
+	function sitelayoutDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastUpdatedTs);
+	}
+	
+	function appConfDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.lastModifiedDate);
+	}
+
+	function apiClientDateRenderer(uiObject) {
+		return formatDate(uiObject.rowData.updated_date);
+	}
+	
 	function moduleTypes(uiObject){
 	  let cellValue = uiObject.rowData.moduleId;
 	  return moduleType.find(el => el[cellValue])[cellValue];
@@ -712,10 +746,10 @@
 	}
 	
 	function updateDynaRestRenderer(uiObject) {
-		const id = uiObject.rowData.jws_dynamic_rest_id;
-		const name = uiObject.rowData.jws_dynamic_rest_url;
+		const id = uiObject.rowData.dynarestId;
+		const name = uiObject.rowData.dynarestUrl;
 		let version = getVersion(uiObject);
-		const isSystemVariable =  uiObject.rowData.jws_dynamic_rest_type_id;
+		const isSystemVariable =  uiObject.rowData.dynarestTypeId;
 		const moduleType = "DynaRest";
 		
 		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
@@ -784,8 +818,8 @@
 	}
 	// dont havae system var
 	function updateRolesRenderer(uiObject) {
-		const id = uiObject.rowData.role_name;
-		const name = uiObject.rowData.role_description;
+		const id = uiObject.rowData.roleName;
+		const name = uiObject.rowData.roleDescription;
 		const version = "NA";
 		const isSystemVariable =  2;
 		const moduleType = "ManageRoles";
@@ -798,10 +832,10 @@
 	}
 	
 	function updateHelpManualRenderer(uiObject) {
-		const id = uiObject.rowData.manual_id;
-		const name = uiObject.rowData.name;
+		const id = uiObject.rowData.manualId;
+		const name = uiObject.rowData.manualName;
 		const version = "NA";
-		const isSystemVariable =  uiObject.rowData.is_system_manual;
+		const isSystemVariable =  uiObject.rowData.isSystemManual;
 		const moduleType = "HelpManual";
 		
 		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
@@ -839,16 +873,30 @@
 		
 	}
 
+	function updateExportSchedulerFormatter(uiObject) {
+		const id = uiObject.rowData.scheduler_id;
+		const name = uiObject.rowData.scheduler_name;
+		const version = "NA";
+		const isSystemVariable =  uiObject.rowData.schedulerTypeId;
+		const moduleType = "Scheduler";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
+	}
+
 	function renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable) {
 		let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 		if(isSystemVariable == 1) {
 			if(customConfigExcludeList.indexOf(id) != -1 || isDeselectedAll == true) {
 				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkCustomVar(this,\'' 
-					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');">'.toString();
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  escape(name)+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');">'.toString();
 			} else {
 				map.get(moduleType).getExportableDataListMap().set(id, exportableData);
 				return '<input type="checkbox" id="'+moduleType+id+'" name="'+moduleType+id+'" onchange="checkCustomVar(this, \'' 
-					+  id+ '\',\'' +  moduleType+ '\',\'' +  name+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');" checked="checked">'.toString();
+					+  id+ '\',\'' +  moduleType+ '\',\'' +  escape(name)+ '\',\'' +  version+ '\',\'' +  isSystemVariable+ '\');" checked="checked">'.toString();
 			}
 		} else {
 			if(systemConfigIncludeList.indexOf(id) != -1) {
@@ -909,6 +957,7 @@
 			map.get(moduleType).systemConfigIncludeList 
 				= map.get(moduleType).systemConfigIncludeList.filter((element) => {return element != id});
 			map.get(moduleType).getExportableDataListMap().delete(id);
+
 			let count = $('#selectedCount_'+moduleType).text();
 			let countInt = parseInt(count);
 			$('#selectedCount_'+moduleType).text(countInt-1);
@@ -922,8 +971,9 @@
 		$("#nextTab").show();
 		$("#mainTabBtn").hide();
 		$("#nextTabBtn").show();
+		$("#expHeader").hide();
 	}
-
+	
     function changeType() {
         selectedType = $("#typeSelect").val();   
         let postData;
@@ -934,66 +984,165 @@
 				
 				if(moduleType == "Grid") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_gridTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_gridTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_gridTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "Templates") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_templateTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_templateTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_templateTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "Autocomplete") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_autocompleteTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_autocompleteTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_autocompleteTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "Dashboard") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_dashboardType":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_dashboardType":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_dashboardType":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "Dashlets") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_dashletTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_dashletTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_dashletTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "DynamicForm") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_formTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_formTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_formTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "DynaRest") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_jws_dynamic_rest_type_id":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_dynarestTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_dynarestTypeId":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "HelpManual") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_is_system_manual":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_isSystemManual":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_isSystemManual":"str_"+selectedType}
+						}
 			        }
 				} else if(moduleType == "ResourceBundle") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						postData = {gridId:gridID}
 			        } else if(selectedType == 1) {
 			        	postData = {gridId:"customResourceBundleListingGrid"}
 					} else {
-						postData = {gridId:"resourceBundleListingGrid" ,"cr_resourceKey":"str_jws" }
+						postData = {gridId:"resourceBundleListingGrid"}
 			        }
 				} else if(moduleType == "SiteLayout") {
 					if(selectedType == 0) {
-			            postData = {gridId:gridID}
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
 			        } else {
-			            postData = {gridId:gridID,"cr_moduleTypeId":"str_"+selectedType}
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_moduleTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_moduleTypeId":"str_"+selectedType}
+						}
 			        }
+				}  else if(moduleType == "Scheduler") {
+					if(selectedType == 0) {
+						if(isSelectAsPerDate == true) {
+							postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID}
+						}
+			        } else {
+			        	if(isSelectAsPerDate == true) {
+			        		postData = {gridId:gridID,"cr_schedulerTypeId":"str_"+selectedType,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+						} else {
+							postData = {gridId:gridID,"cr_schedulerTypeId":"str_"+selectedType}
+						}
+			        }
+				} else if(moduleType == "ManageUsers" || moduleType == "ManageRoles") {
+					if(isSelectAsPerDate == true) {
+						postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+					} else {
+						postData = {gridId:gridID}
+					}
+				} else if(moduleType == "ApplicationConfiguration" || moduleType == "Permission" 
+					|| moduleType == "AdditionalDatasource") {
+					if(isSelectAsPerDate == true) {
+						postData = {gridId:gridID,"cr_isAfterDate":"str_"+$("#modifiedAfter").val()}
+					} else {
+						postData = {gridId:gridID}
+					}
 				}
 				
 				if(gridID != null && moduleType != null && postData != null && postData.gridId != null) {
@@ -1004,9 +1153,6 @@
 
 			}
 		});
-
-        
-        
     }
       
 	function deselectAll(){
@@ -1078,7 +1224,7 @@
 							tableRow += '<tr>';
 							tableRow += '<td><label>'+exportData.getModuleType()+'</label> </td>';
 							tableRow += '<td><label>'+exportData.getModuleId()+'</label> </td>';
-							tableRow += '<td><label>'+exportData.getModuleName()+'</label> </td>';
+							tableRow += '<td><label>'+unescape(exportData.getModuleName())+'</label> </td>';
 							tableRow += '<td><label>'+newVer+'</label> </td>';
 							tableRow += '</tr>';
 							
@@ -1103,6 +1249,7 @@
 		$("#nextTabBtn").hide();
 		$("#mainTab").show();
 		$("#mainTabBtn").show();
+		$("#expHeader").show();
 	}
 	
 	function exportData() {
@@ -1153,6 +1300,46 @@
         	showMessage("Nothing to export. Please select atleast one configuration.", "info");
         }
 	}
+
+	function exportToLocal() {
+		let isDataAvailableForExport = true;
+		const out = Object.create(null);
+        map.forEach((value, key) => {
+        	if(key == "htmlTableJSON" && map.get(key).length == 0) {
+        		isDataAvailableForExport = false;
+        	}
+         if (value instanceof Map) {
+           out[key] = map_to_object(value)
+         }
+         else {
+           out[key] = JSON.stringify(value);
+         }
+       });
+       
+        if(isDataAvailableForExport == true) {
+    		$.ajax({
+    			type : "POST",
+    			url : contextPath+"/cf/etl",
+    			async: false,
+    		     contentType: "application/json",
+    		     data : JSON.stringify(out),
+    			success : function(data) {
+    				if(data.startsWith("fail:")){
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				}
+    			},
+    		        
+    		    error : function(xhr, error){
+    		    	showMessage("Error occurred while exporting", "error");
+    		    },
+    		        	
+    		});
+        } else {
+        	showMessage("Nothing to export. Please select atleast one configuration.", "info");
+        }
+	}
+
 
 	function backToPreviousPage(){
 		location.href = contextPath+"/cf/home";

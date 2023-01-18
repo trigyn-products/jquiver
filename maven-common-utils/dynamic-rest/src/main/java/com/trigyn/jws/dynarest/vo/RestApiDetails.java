@@ -22,13 +22,14 @@ public class RestApiDetails {
 
 	private String	methodType			= null;
 
-	private String	dataSourceId		= null;
+	private String	headerJson			= null;
 
 	public RestApiDetails() {
 	}
 
-	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName, String methodDescription,
-			String reponseType, String serviceLogic, Integer platformId, String methodType, String dataSourceId) {
+	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
+			String methodDescription, String reponseType, String serviceLogic, Integer platformId, String methodType,
+			String headerJson) {
 		this.dynamicId			= dynamicId;
 		this.dynamicRestUrl		= dynamicRestUrl;
 		this.rbacId				= rbacId;
@@ -38,7 +39,7 @@ public class RestApiDetails {
 		this.serviceLogic		= serviceLogic;
 		this.platformId			= platformId;
 		this.methodType			= methodType;
-		this.dataSourceId		= dataSourceId;
+		this.headerJson			= headerJson;
 	}
 
 	public String getDynamicId() {
@@ -158,18 +159,18 @@ public class RestApiDetails {
 		return this;
 	}
 
-	public String getDataSourceId() {
-		return dataSourceId;
+	public String getHeaderJson() {
+		return headerJson;
 	}
 
-	public void setDataSourceId(String dataSourceId) {
-		this.dataSourceId = dataSourceId;
+	public void setHeaderJson(String headerJson) {
+		this.headerJson = headerJson;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataSourceId, dynamicId, dynamicRestUrl, methodDescription, methodName, methodType, platformId, rbacId,
-				reponseType, serviceLogic);
+		return Objects.hash(dynamicId, dynamicRestUrl, methodDescription, methodName, methodType, platformId, rbacId,
+				reponseType, serviceLogic, headerJson);
 	}
 
 	@Override
@@ -184,21 +185,22 @@ public class RestApiDetails {
 			return false;
 		}
 		RestApiDetails other = (RestApiDetails) obj;
-		return Objects.equals(dataSourceId, other.dataSourceId) && Objects.equals(dynamicId, other.dynamicId)
-				&& Objects.equals(dynamicRestUrl, other.dynamicRestUrl) && Objects.equals(methodDescription, other.methodDescription)
+		return Objects.equals(dynamicId, other.dynamicId) && Objects.equals(dynamicRestUrl, other.dynamicRestUrl)
+				&& Objects.equals(methodDescription, other.methodDescription)
 				&& Objects.equals(methodName, other.methodName) && Objects.equals(methodType, other.methodType)
 				&& Objects.equals(platformId, other.platformId) && Objects.equals(rbacId, other.rbacId)
-				&& Objects.equals(reponseType, other.reponseType) && Objects.equals(serviceLogic, other.serviceLogic);
+				&& Objects.equals(reponseType, other.reponseType) && Objects.equals(serviceLogic, other.serviceLogic)
+				&& Objects.equals(headerJson, other.headerJson);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("RestApiDetails [dynamicId=").append(dynamicId).append(", dynamicRestUrl=").append(dynamicRestUrl)
-				.append(", rbacId=").append(rbacId).append(", methodName=").append(methodName).append(", methodDescription=")
-				.append(methodDescription).append(", reponseType=").append(reponseType).append(", serviceLogic=").append(serviceLogic)
-				.append(", platformId=").append(platformId).append(", methodType=").append(methodType).append(", dataSourceId=")
-				.append(dataSourceId).append("]");
+		builder.append("RestApiDetails [dynamicId=").append(dynamicId).append(", dynamicRestUrl=")
+				.append(dynamicRestUrl).append(", rbacId=").append(rbacId).append(", methodName=").append(methodName)
+				.append(", methodDescription=").append(methodDescription).append(", reponseType=").append(reponseType)
+				.append(", serviceLogic=").append(serviceLogic).append(", platformId=").append(platformId)
+				.append(", methodType=").append(methodType).append(headerJson).append("]");
 		return builder.toString();
 	}
 

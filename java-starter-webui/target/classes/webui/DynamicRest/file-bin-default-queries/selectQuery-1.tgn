@@ -1,0 +1,3 @@
+SELECT jpm.property_value AS defaultQuery, jpm.comments AS selectorId 
+FROM jq_property_master AS jpm 
+WHERE jpm.property_name = "file-bin-default-queries"

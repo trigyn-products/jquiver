@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
+import com.trigyn.jws.dbutils.cipher.utils.RSAKeyPairGeneratorUtil;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dynarest.cipher.utils.CipherUtilFactory;
-import com.trigyn.jws.dynarest.cipher.utils.RSAKeyPairGeneratorUtil;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynarestCrudService;
 

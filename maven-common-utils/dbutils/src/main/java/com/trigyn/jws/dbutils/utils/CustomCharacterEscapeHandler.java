@@ -23,7 +23,6 @@ public class CustomCharacterEscapeHandler implements CharacterEscapeHandler {
 
 		}
 		out.write(st);
-		System.out.println(st);
 	}
 
 }

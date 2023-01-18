@@ -1,0 +1,369 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">
+        <#if (jwsUser?api.getUserId())??>
+                ${messageSource.getMessage('jws.edituser')}
+             <#else>
+                ${messageSource.getMessage('jws.addUser')}
+             </#if>
+        </h2> 
+        <div class="clearfix"></div>        
+    </div>
+  <form method="post" name="addEditUser" id="addEditUser">
+            <div class="row">
+            <input type="hidden" id="userId" name="userId"/>
+            <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                    <label for="firstName" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                      ${messageSource.getMessage('jws.firstName')}
+                    </label>
+                <input type="text" id="firstName" name="firstName"  value="" maxlength="100" class="form-control">
+            </div>
+        </div>
+         <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                    <label for="lastName" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                      ${messageSource.getMessage('jws.lastName')}
+                    </label>
+                <input type="text" id="lastName" name="lastName"  value="" maxlength="100" class="form-control">
+            </div>
+        </div>
+    
+            <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                    <label for="email" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                      ${messageSource.getMessage('jws.email')}
+                    </label>
+                <input type="email" id="email" name="email"  value="" maxlength="2000" class="form-control">
+            </div>
+        </div>
+
+        </div>
+        
+        <div class="row">
+        <#if !isProfilePage >
+        <#if !enableGoogleAuthenticator>
+            <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                <label for="allowPasswordChange"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.forceuser')}</label>
+                <div class="onoffswitch">
+                    <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" onchange="disableIsActive();"/>
+                    <label class="onoffswitch-label" for="forcePasswordChange">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+                
+            </div>
+        </div>
+          </#if>
+          <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                <label for="isActive"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.status')}</label>
+                <div class="onoffswitch">
+                    <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0">
+                    <label class="onoffswitch-label" for="isActive">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+          <div class="col-3">
+            <div class="col-inner-form full-form-fields">
+                <label for="isSendMail"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.sendmail')}</label>
+                <div class="onoffswitch">
+                    <input type="checkbox" name="isSendMail" class="onoffswitch-checkbox" id="isSendMail" value="0">
+                    <label class="onoffswitch-label" for="isSendMail">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="row">
+                 <div class="divsion col-12">
+                     <div class="divisionblock">
+                     <h3>${messageSource.getMessage('jws.role')} </h3>
+                    <div class="row">
+             <#list roles as role>
+                <div class="col-3">
+                    <div class="col-inner-form full-form-fields">
+                            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
+                              ${role?api.getRoleName()}
+                            </label>
+                           <div class="onoffswitch">
+                                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox roleList" id="${role?api.getRoleId()}" value="0"/>
+                                <label class="onoffswitch-label" for="${role?api.getRoleId()}">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                </label>
+                            </div>
+                    </div>
+                     </div> 
+                      
+        </#list>
+         </div>
+         </div>
+        </div>
+        
+       </div>
+        
+         <div class="row">
+            <div class="col-12">
+                <div id="buttons" class="pull-right">
+                    <div class="btn-group dropup custom-grp-btn">
+                        <div id="savedAction">
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('add-edit-user', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction('add-edit-user', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction('add-edit-user', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+                    <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage('jws.cancel')}" onclick="backToPreviousPage();">
+                </div>
+            </div>
+        </div>
+      <#else>
+            </div>
+              <div class="row">
+            <div class="col-12">
+                <div class="float-right">
+                    <input  class="btn btn-primary" value="${messageSource.getMessage('jws.save')}" type="button" onclick="saveData();">
+                    <span onclick="backToPreviousPage();">
+                        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                    </span> 
+                </div>
+            </div>
+        </div>
+    </#if>
+         <div class="row">
+        <div class="col-6">
+            <div id="fileUploadMaster" class="col-12 fileupload dropzone"></div>
+        </div>
+        <div class="col-6">
+            <img style="width:120px; height:123px; margin-top: 14px;" id="profilePicImg" />
+        </div>
+        </div>
+  </form>
+    
+</div>
+
+<script>
+
+	let isProfilePage = ${isProfilePage?c};
+	let isEdit = "${jwsUser?api.getUserId()!''}";
+	contextPath = "${contextPath}";
+  	var fileBins = new Array();
+  	let profilePicDropZone = $(".fileupload").fileUpload({
+        fileBinId : "profilePic",
+        fileAssociationId: "${jwsUser?api.getUserId()!''}",
+        createFileBin : true,
+        //successcallback: onUploadProfilePic.bind(this),
+        //deletecallback: onDeleteProfilePic.bind(this)
+    });
+	function onUploadProfilePic(a_file) {
+        $("#profilePicImg").attr("src", contextPath + "/cf/files/" + a_file);
+		document.getElementById("iClass").style.display = "none";
+	    document.getElementById("profileImg").style.display = "inline";
+        $("#profileImg").attr("src", contextPath + "/cf/files/" + a_file);
+    }
+
+    function onDeleteProfilePic(a_file) {
+        $("#profilePicImg").attr("src", "");
+	    if(document.getElementById("iClass") != null) {
+			document.getElementById("iClass").style.display = "inline";
+	    }
+        if(document.getElementById("profileImg") != null) {
+	    	document.getElementById("profileImg").style.display = "none";
+        }
+    }
+
+   <#if !isProfilePage && ("${jwsUser?api.getUserId()!''}" != "${loggedInUserId!''}")>
+        profilePicDropZone.disableDropZone("You are not authorized");
+    </#if>
+    
+    var profilePicFileIds = profilePicDropZone.getSelectedFileIds();
+    if(profilePicFileIds.length > 0) {
+        $("#profilePicImg").attr("src", contextPath + "/cf/files/" + profilePicFileIds[0]);
+    }
+    
+  $(function(){
+  
+    $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
+    $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+	$("#lbl2ace542e-0c63-11eb-9cf5-f48e38ab9348").css("cursor","not-allowed");
+	
+  	savedAction("add-edit-user", isEdit);
+	hideShowActionButtons();
+     // disable authenticated role
+     if(isEdit.trim() == ""){ 
+        $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+     	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
+     }
+    let authenticationType;
+     <#list systemProperties as key, value>
+            <#if key.propertyName == "authentication-type">
+                authenticationType = JSON.stringify(${value});
+            </#if>
+        </#list>
+    if(authenticationType == 4) {
+        $("#forcePasswordChange").prop("disabled",true);
+		$("#forcePasswordChange").prop("checked",false);
+    }
+    var verificationType = ${verificationType!''};
+    if(authenticationType == 2 && verificationType == 0) {
+        $("#forcePasswordChange").prop("disabled",true);
+		$("#forcePasswordChange").prop("checked",false);
+		$("#isActive").prop("checked",true);
+		$("#isSendMail").prop("disabled",false);
+    }
+     
+    // setting value on edit.
+		 <#if (jwsUser?api.getUserId())??>
+        $("#userId").val("${jwsUser?api.getUserId()}");
+		 $("#firstName").val("${jwsUser?api.getFirstName()}"); 
+        $("#lastName").val("${jwsUser?api.getLastName()}");
+        $("#email").val("${jwsUser?api.getEmail()}"); 
+         $("#email").attr("disabled",true);
+         if(${jwsUser?api.getForcePasswordChange()} == 1){ 
+            	 $("#forcePasswordChange").prop("checked",true);
+            }
+            
+         if(${jwsUser?api.getIsActive()} == 1){ 
+         	 $("#isActive").prop("checked",true);
+         }
+        <#if userRoleIds??>    
+          <#list userRoleIds as roleId>
+              $("#${roleId}").attr("checked",true);
+          </#list>    
+		    </#if>
+        <#else>
+        	 $("#isActive").prop("checked",true);
+        	 $("#isActive").prop("disabled",true);
+      </#if> 
+  });
+  
+  function disableIsActive(){ 
+	if($("#forcePasswordChange").prop("checked")){
+		$("#isActive").prop("disabled",true);
+		$("#isActive").prop("checked",false);
+		$("#isSendMail").prop("disabled",true);
+		$("#isSendMail").prop("checked",true);
+	}else{ 
+		if(isEdit.trim() !== ""){ 
+			$("#isActive").prop("disabled",false);
+		}
+		$("#isActive").prop("checked",true);
+		$("#isSendMail").prop("disabled",false);
+	}
+}
+
+	//Add logic to save form data
+	function saveData (){
+		let emailIdExist = checkEmailIdExist();
+        if(emailIdExist == true) {
+            showMessage("User email id already exists", "error");
+            return;
+        }
+    let userData = new Object();
+    userData.userId = $("#userId").val();
+    userData.firstName =  $("#firstName").val().trim();
+    userData.lastName =  $("#lastName").val().trim();
+    userData.isProfilePage = isProfilePage;
+    <#if isProfilePage == false >
+	    userData.email = $("#email").val().trim();
+    	userData.roleIds = [];
+	    userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+	    userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+	    $.each($("input[name='rolesAssigned']:checked"),function(key,value){
+	      userData.roleIds.push(value.id);
+	    });
+	    userData.isSendMail = $("#isSendMail").is(":checked");
+	</#if>
+    
+    let serializedForm = $("#addEditUser").serializeArray();
+    for(let fileBinCounter = 0; fileBinCounter < fileBins.length; fileBinCounter++){
+    	serializedForm.push(fileBins[fileBinCounter]);
+    }
+    userData.formData = JSON.stringify(serializedForm.formatSerializedArray());
+	    $.ajax({
+			type : "POST",
+	    	contentType : "application/json",
+	    	async: false,
+			<#if isProfilePage == false >
+				url : contextPath+"/cf/sud",
+			<#else>	
+				url : contextPath+"/cf/supd",
+			</#if>
+			data : JSON.stringify(userData),
+			success: function(data) {
+				var profilePicFileIds = profilePicDropZone.getSelectedFileIds();
+				if(profilePicFileIds.length > 0) {
+					onUploadProfilePic(profilePicFileIds[0])
+				} else {
+					onDeleteProfilePic(profilePicFileIds[0]);
+				}
+				showMessage("Information saved successfully", "success");
+			},
+			error: function(data) {
+				showMessage("Error occurred while saving details", "error");
+			},
+		});
+		return true;
+    
+	}
+	
+    function checkEmailIdExist(){
+        let emailIdExist = false;
+        if($("#userId").val().trim() == "") {
+
+        $.ajax({
+                type : "GET",
+                async: false,
+                url : contextPath+"/api/validate-user-email-id",
+                data : {
+                    email:  $("#email").val().trim()
+                },
+                success : function(data) {
+                    if(data[0].emailCount > 0){
+                        emailIdExist = true;
+                    }
+                }
+            });
+        }
+        return emailIdExist;
+    }
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		<#if !isProfilePage >
+			location.href = contextPath+"/cf/ul";
+		<#else>
+			location.href = contextPath+"/";
+		</#if>
+		
+			
+	}
+</script>

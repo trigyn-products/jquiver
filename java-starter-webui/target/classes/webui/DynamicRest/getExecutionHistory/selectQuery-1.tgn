@@ -1,0 +1,6 @@
+<#assign l_offset = offset?number>
+SELECT  * FROM `jq_job_scheduler_log` WHERE scheduler_id=:schedulerID
+ORDER BY
+	response_time DESC
+
+limit ${l_offset * 10}, 10

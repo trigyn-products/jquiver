@@ -1,0 +1,1 @@
+ALTER TABLE jq_job_scheduler DROP foreign KEY jq_job_scheduler_ibfk1

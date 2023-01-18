@@ -1,0 +1,2 @@
+SELECT COUNT(gun.notification_id) AS notificationCount 
+FROM jq_generic_user_notification AS gun

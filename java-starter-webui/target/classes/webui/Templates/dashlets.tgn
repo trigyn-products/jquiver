@@ -1,0 +1,186 @@
+
+	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="${(contextPath)!''}/webjars/lodash/4.17.15/lodash.js"></script>
+	<script src="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.js"></script>
+	<script src="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.jQueryUI.js"></script>
+	<script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.categoryAxisRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasAxisTickRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.canvasTextRenderer.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/plugins/jqplot.pointLabels.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jqplot/1.0.9.d96a669/jquery.jqplot.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script>
+	let crntdashletId;
+	let configDailog;
+	contextPath = "${(contextPath)!''}";
+$(function() {
+$(".ui-dialog-content").dialog("destroy").html("");
+    let options = {};
+    $(".grid-stack").gridstack(options);
+    let grid = $(".grid-stack").data("gridstack");
+    grid.enableResize(false, true); $(".grid-stack").on("change", function (event, ui) {
+    let dashlets = new Array();
+    if(ui != undefined)
+    	{
+    	for(dashCnt=0;dashCnt<ui.length;dashCnt++){
+    		let node = ui[dashCnt];
+    		let nodeObj={"id":node.el[0].attributes[0].value,"x":node.x, "y":node.y};
+    		dashlets.push(JSON.stringify(nodeObj));
+    	}
+    	}
+    	let blankNodeObj={"id":"","x":null, "y":null};
+		dashlets.push(JSON.stringify(blankNodeObj));
+		let dashboardId= $("#dashboardId").val();
+    	let url = contextPath+"/cf/sdc";
+     	$.ajax({
+     		type : "POST",
+     		url : url,
+     		data : {
+				 dashlets:dashlets,
+				 dashboardId:dashboardId
+				 }
+     	});
+    });
+});
+
+function openConfigurationDialog(dashletId){
+	crntdashletId=dashletId;
+	$("#configurationDialog").html('<div class="loading_gif"></div>');
+	configDailog = $("#configurationDialog").dialog({
+		title : "Configuration",
+		resizable:false,
+		modal: true,
+		maxHeight: 300,
+		closeOnEscape : true,
+		draggable	 : true,
+		resizable	 : false,
+		bgiframe		 : true,
+		autoOpen		 : true, 
+		position: {
+		 my: "center", at: "center", of: window
+		},
+    	close: function() {
+    		configDailog.dialog("close");
+    	},
+    	open		: function( event, ui ) {
+               
+			 $(".ui-dialog-titlebar")
+		   	    .find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       	}	
+	});
+	$("#configurationDialog").html('<div class="loading_gif"></div>');
+  	let dashboardId= $("#dashboardId").val();
+	$("#configurationDialog").load(contextPath+"/cf/oc", {"dashletId" : dashletId, "dashboardId": dashboardId});
+}
+                
+function refreshDashletContent(dashletId){ 
+	//$("#dashlet_"+dashletId).parent().parent().block({ message: null }); //For blocking div of dashlet
+	let paramArray = new Array();
+	paramArray.push("");
+	let url = contextPath+"/cf/rdc";
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : {dashletId:dashletId, paramArray:paramArray,dashboardId:$("#dashboardId").val()},
+		success : function(data) {
+			//$("#dashlet_"+dashletId).parent().parent().unblock(); //For unblocking div of dashlet
+			$("#dashlet_"+dashletId).html("");
+			$("#dashlet_"+dashletId).html(data);
+		},
+	});	
+}
+        
+function closeConfigurationDialog(){
+	configDailog.dialog("close");
+}
+
+function saveConfiguration(){
+	let isValid;
+	jQuery.each(jQuery("#formConfiguration").find("input[pattern]"),function(index, inputWithPattern){
+	let pattern = inputWithPattern.pattern;
+	let inputId = inputWithPattern.id;
+	if(pattern != "" || pattern != null || pattern != "undefined"){
+		isValid = validateInput(pattern , inputId);
+	}
+
+	if(isValid == false){
+		jQuery("#"+inputId).css("border","1px solid red");
+		jQuery("#"+inputId).attr("error",true);
+	}else{
+		jQuery("#"+inputId).css("border","1px solid #ccc");
+		jQuery("#"+inputId).removeAttr("error");
+	}
+});
+
+if(jQuery("#formConfiguration").find("input[error]").length <= 0){
+	let formData = $("#formConfiguration").serialize();
+	let url = contextPath+"/cf/sc";
+	$.ajax({
+		type : "POST",
+			url  : url,
+			data : formData,
+			success : function(data){
+				closeConfigurationDialog();
+				refreshDashletContent(crntdashletId);
+			}
+		});
+	}
+}
+
+function validateInput(pattern , inputId) {
+    let newValue = jQuery("#"+inputId).val();
+    if (eval(pattern).test(newValue)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function onSliderChange(a_elementId){
+	$("#slider-value_"+a_elementId).html(jQuery("#" + a_elementId).val());
+}
+
+function backToDashboardPage() {
+  location.href = contextPath+"/cf/dbm"
+}
+</script>
+
+<style type="text/css">
+.grid-stack-item-content {
+	color: #2c3e50;
+	text-align: center;
+}
+
+.grid-stack .grid-stack-item {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content {
+	background: #e1ebf6;
+}
+
+.heading {
+    background: #5da9fc;
+}
+
+.ui-dialog-titlebar {
+    background: #5da9fc !important;
+}
+</style>
+<div class="container">
+<input type="hidden" value="${dashboardId}" id="dashboardId"/>
+<div class="grid-stack" data-gs-width="12" data-gs-animate="yes">
+		<#list dashletUIs as dashletUI>
+			${dashletUI}
+		</#list>
+</div>
+
+<div id="configurationDialog"></div></div>

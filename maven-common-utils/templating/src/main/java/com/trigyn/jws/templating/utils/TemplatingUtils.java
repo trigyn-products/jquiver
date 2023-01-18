@@ -28,6 +28,7 @@ import com.google.common.io.Resources;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.spi.PropertyMasterKeyVO;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -69,7 +70,7 @@ public class TemplatingUtils {
 
 	@Autowired
 	private PropertyMasterDetails	propertyMasterDetails	= null;
-
+	
 	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap) throws Exception {
 		logger.debug("Inside TemplatingUtils.processTemplateContents(templateContent: {}, templateName: {}, modelMap: {})", templateContent,
 				templateName, modelMap);
@@ -112,24 +113,39 @@ public class TemplatingUtils {
 		logger.debug("Inside TemplatingUtils.addTemplateProperties(modelMap: {})", modelMap);
 		String								contextPath			= servletContext.getContextPath();
 		Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
-		Locale								locale				= localeResolver.resolveLocale(getRequest());
+		Locale								locale				= null;
+		
+		if(getRequest() == null) {
+			locale = Locale.ENGLISH;
+		} else {
+			locale = localeResolver.resolveLocale(getRequest());
+		}
 
 		modelMap.put("contextPath", contextPath);
 		modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
 		modelMap.put("dynamicTemplate", dynamicTemplate);
 		modelMap.put("systemProperties", propertyMasterMap);
+		
+		
+		Object scriptUtil = ApplicationContextUtils.getApplicationContext().getBean("scriptUtil");
+		modelMap.put("scriptUtil", scriptUtil);
 
 		UserDetailsVO detailsVO = detailsService.getUserDetails();
 		if (detailsVO != null) {
 			modelMap.put("loggedInUserName", detailsVO.getUserName());
 			modelMap.put("loggedInUserRoleList", detailsVO.getRoleIdList());
 			modelMap.put("loggedInUserId", detailsVO.getUserId());
+			modelMap.put("fullName", detailsVO.getFullName());
+			modelMap.put("userObject", detailsVO);
 		}
 	}
 
 	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		return sra.getRequest();
+		if(sra != null) {
+			return sra.getRequest();
+		} else 
+			return null;
 	}
 
 	public String processFtl(String templateName, String templateContent, Map<String, Object> modelMap)

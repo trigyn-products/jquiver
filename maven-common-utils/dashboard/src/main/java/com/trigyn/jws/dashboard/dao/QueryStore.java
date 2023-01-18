@@ -26,6 +26,7 @@ public final class QueryStore {
 			+ " , dl.dashletBody AS dashletBody, dl.dashletQuery AS dashletQuery"
 			+ " , dl.xCoordinate AS xCoordinate, dl.yCoordinate AS yCoordinate"
 			+ " , dl.width AS width, dl.height AS height, dl.contextId AS contextId, dl.datasourceId AS dataSourceId "
+			+ " , dl.resultVariableName, dl.daoQueryType "
 			+ " , dl.showHeader AS showHeader, dl.isActive AS isActive) " + " FROM Dashlet AS dl WHERE dl.dashletId = :dashletId ";
 
 	public static final String		JPQ_QUERY_TO_GET_DAHSLET_PROPERTIES_BY_ID			= "SELECT new com.trigyn.jws.dashboard.vo.DashletPropertyVO "

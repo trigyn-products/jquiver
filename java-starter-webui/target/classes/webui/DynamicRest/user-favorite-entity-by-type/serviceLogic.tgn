@@ -1,0 +1,3 @@
+<#list userFavoriteEnityList as userFavoriteEnity>
+    ${userFavoriteEnity.isFavorite}
+</#list>

@@ -4,8 +4,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
+import com.trigyn.jws.usermanagement.utils.Constants;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,11 +24,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.trigyn.jws.usermanagement.utils.Constants;
 
 @Aspect
 @Component
@@ -35,7 +40,10 @@ public class AuthorizedValidator {
 	private EntityValidatorFactory		entityValidatorFactory		= null;
 
 	@Autowired
-	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
+	private IModuleListingRepository	moduleListingRepository	= null;
+
+	@Autowired
+	private ServletContext							servletContext					= null;
 
 	@Pointcut("@annotation(com.trigyn.jws.usermanagement.security.config.Authorized)")
 	private void customHasPermission() {
@@ -55,10 +63,17 @@ public class AuthorizedValidator {
 		HttpServletRequest	requestObject	= getRequest();
 		HttpServletResponse	responseObject	= getResponse();
 		Authorized			myAnnotation	= method.getAnnotation(Authorized.class);
-		Authentication		authentication	= SecurityContextHolder.getContext().getAuthentication();
+		Authentication		authentication	= null;
+		if(requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null) {
+			authentication = ((SecurityContextImpl) requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT")).getAuthentication();
+		}
+		if(authentication == null) {
+			authentication = SecurityContextHolder.getContext().getAuthentication();
+		}
+ 		
 		String				moduleName		= myAnnotation.moduleName();
 
-		if ((authentication instanceof AnonymousAuthenticationToken)) {
+		if (authentication == null || (authentication instanceof AnonymousAuthenticationToken)) {
 
 			roleNames.add(Constants.ANONYMOUS_ROLE_NAME);
 
@@ -72,17 +87,33 @@ public class AuthorizedValidator {
 		if (hasAccess == Boolean.FALSE) {
 			String entityName = entityValidator.getEntityName(requestObject, roleNames, a_joinPoint);
 			if (entityName == null) {
-				logger.error("No record found for", moduleName);
+				logger.error("No record found for "+ moduleName, moduleName);
 				responseObject.sendError(HttpStatus.NOT_FOUND.value());
 				return null;
-			}
-			logger.error("You do not have enough privilege to access: ", entityName);
-			responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
+			} else {
+				logger.error("You do not have enough privilege to access: "+ moduleName + " : " +entityName, entityName);
+				String	requestUri	= requestObject.getRequestURI().substring(requestObject.getContextPath().length());
+				if (requestUri.startsWith("/error")) {
+					if(moduleListingRepository.getIsHomePageByUrl(entityName) == 1) {
+						ApplicationContextUtils.getThreadLocal().set(403);
+					} else {
+						responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
+					}
+				} else {
+					if(roleNames.contains("ANONYMOUS")) {
+						requestObject.getSession().setAttribute("CUSTOM_REDIRECT_URL", requestObject.getRequestURL());
+						StringBuilder	redirectUrl		= new StringBuilder().append(servletContext.getContextPath()).append("/cf/login");
+						responseObject.sendRedirect(redirectUrl.toString());
+					} else {
+						responseObject.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
+					}
+				}
 			// throw new AccessDeniedException("You dont have rights to access this
 			// entity");
 			return null;
+			}
 		}
-
+		ApplicationContextUtils.getThreadLocal().set(200);
 		return a_joinPoint.proceed();
 
 	}

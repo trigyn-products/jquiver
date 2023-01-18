@@ -1,0 +1,3 @@
+UPDATE jq_dashlet SET dashlet_query = 'SELECT dashlet_id AS dashletId, dashlet_title AS dashletTitle,dashlet_name AS dashletName,DATE_FORMAT(created_date,"%d %b %Y") AS createdDate,DATE_FORMAT(last_updated_ts,"%d %b %Y") AS updatedDate, updated_by AS updatedBy, created_by AS createdBy,is_active AS status FROM jq_dashlet' WHERE dashlet_id = '44cb330d-eadf-11ea-a036-e454e805e22f';
+
+UPDATE jq_dashboard SET dashboard_type = 2 WHERE dashboard_id='ab7202bf-eadd-11ea-a036-e454e805e22f';

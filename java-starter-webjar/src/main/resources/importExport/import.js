@@ -4,7 +4,7 @@
     	    	
     	$.ajax({
 	    	url : contextPath+'/cf/impF',
-	    	type : "post",
+	    	type : "POST",
 	    	data: importedFileData,
 	        enctype: 'multipart/form-data',
 	        processData: false,
@@ -16,9 +16,30 @@
     			} else {
 					localStorage.removeItem("imporatableData");
 		    		localStorage.removeItem("importedIdList");
+		    		localStorage.removeItem("exportedFormatObject");
 		    		idList = new Array();
 		    		imporatableData = data;
-		    		loadTable(imporatableData);
+		    		localStorage.setItem("imporatableData", imporatableData);
+		    		let jsonObject = JSON.parse(imporatableData);
+					for (var value in jsonObject) {  
+						zipFileJsonDataMap.set(value,jsonObject[value])  
+					}  
+					
+					var exportedFormatObject = zipFileJsonDataMap.get("exportedFormatObject")
+					localStorage.setItem("exportedFormatObject", JSON.stringify(exportedFormatObject));
+		    		var versionMap = new Map();
+		        	let versionJson = JSON.parse(zipFileJsonDataMap.get("versionMap"));
+		    		for (var value in versionJson) {  
+		    			versionMap.set(value,versionJson[value])  
+		    		}
+		    		
+		    		var crcMap = new Map();
+		        	let crcJson = JSON.parse(zipFileJsonDataMap.get("crcMap"));
+		    		for (var value in crcJson) {  
+		    			crcMap.set(value,crcJson[value])  
+		    		}
+		    		
+		    		loadTable(zipFileJsonDataMap, versionMap, crcMap);
 		    	}
 	    	},
 	    	error: function (textStatus, errorThrown) {
@@ -28,60 +49,15 @@
     	});
     }
     
-    function loadTable(data) {
+    function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
     	let isError = "false";
-    	var versionMap = new Map();
-    	$.ajax({
-	    	url : contextPath+'/cf/glv',
-	    	async : false,
-	    	type : "post",
-	    	data: {
-	    		imporatableData : data
-	    	},
-	    	success : function(outData) {
-	    		let versionJson = JSON.parse(outData);
-	    		for (var value in versionJson) {  
-	    			versionMap.set(value,versionJson[value])  
-	    		}
-	    	},
-	    	error: function (textStatus, errorThrown) {
-	    		isError = "true";
-	    		$("#htmlTable > tbody").empty();
-	    		showMessage("Error while importing data", "error");
-	    	}
-    	});
-    	
-    	var crcMap = new Map();
-    	$.ajax({
-	    	url : contextPath+'/cf/glcrc',
-	    	async : false,
-	    	type : "post",
-	    	data: {
-	    		imporatableData : data
-	    	},
-	    	success : function(outData) {
-	    		let crcJson = JSON.parse(outData);
-	    		for (var value in crcJson) {  
-	    			crcMap.set(value,crcJson[value])  
-	    		}
-	    	},
-	    	error: function (textStatus, errorThrown) {
-	    		isError = "true";
-	    		$("#htmlTable > tbody").empty();
-	    		showMessage("Error while importing data", "error");
-	    	}
-    	});
     	
     	if(isError == "false") {
-    	let jsonObject = JSON.parse(data);
-		for (var value in jsonObject) {  
-			zipFileJsonDataMap.set(value,jsonObject[value])  
-		}  
-		
-		let completeZipJsonData = zipFileJsonDataMap.get("completeZipJsonData");
-		var htmlTableJsonArray = JSON.parse(completeZipJsonData);
-		var tableRow="";
-		$("#htmlTable > tbody").empty();
+			
+			let completeZipJsonData = zipFileJsonDataMap.get("completeZipJsonData");
+			var htmlTableJsonArray = JSON.parse(completeZipJsonData);
+			var tableRow="";
+			$("#htmlTable > tbody").empty();
 			if(htmlTableJsonArray != null) {
 				for (var i = 0; i < htmlTableJsonArray.length; i++) {
 					let importVersion = htmlTableJsonArray[i].moduleVersion;
@@ -268,12 +244,13 @@
     }
     
     function importSingle(moduleType, entityId) {
+    	let exportedFormatObject= localStorage.getItem("exportedFormatObject");
 		$.ajax({
 	    	url : contextPath+'/cf/importConfig',
 	    	type : "POST",
 			async: false,
 	    	data: {
-	    		imporatableData : imporatableData,
+	    		exportedFormatObject : exportedFormatObject,
 	    		importId		: entityId,
 	    		moduleType		: moduleType
 	    	},
@@ -299,7 +276,8 @@
     }
 
     function importAll() {
-    	if(isDataAvailableForImport == true) {
+    	let exportedFormatObject= localStorage.getItem("exportedFormatObject");
+		if(isDataAvailableForImport == true) {
     		$.ajax({
     	    	url : contextPath+'/cf/importAll',
     	    	type : "POST",
@@ -347,4 +325,48 @@
 		$('#uploadBox').width($('#file-upload-filename').width() + 160);
 		$('#formUploadBox').width($('#file-upload-filename').width() + 160);
 	}
+	
+	function importFromLocal() {    	    	
+    	$.ajax({
+	    	url : contextPath+'/cf/ifl',
+	    	type : "POST",
+	    	success : function(data) {
+	    		if(data.startsWith("fail:")){
+    				let errorMessageString = data.substring(5);
+    				showMessage(errorMessageString, "error");
+    			} else {
+					localStorage.removeItem("imporatableData");
+		    		localStorage.removeItem("importedIdList");
+		    		localStorage.removeItem("exportedFormatObject");
+		    		idList = new Array();
+		    		imporatableData = data;
+		    		localStorage.setItem("imporatableData", imporatableData);
+		    		let jsonObject = JSON.parse(imporatableData);
+					for (var value in jsonObject) {  
+						zipFileJsonDataMap.set(value,jsonObject[value])  
+					}  
+					
+					var exportedFormatObject = zipFileJsonDataMap.get("exportedFormatObject")
+					localStorage.setItem("exportedFormatObject", JSON.stringify(exportedFormatObject));
+		    		var versionMap = new Map();
+		        	let versionJson = JSON.parse(zipFileJsonDataMap.get("versionMap"));
+		    		for (var value in versionJson) {  
+		    			versionMap.set(value,versionJson[value])  
+		    		}
+		    		
+		    		var crcMap = new Map();
+		        	let crcJson = JSON.parse(zipFileJsonDataMap.get("crcMap"));
+		    		for (var value in crcJson) {  
+		    			crcMap.set(value,crcJson[value])  
+		    		}
+		    		
+		    		loadTable(zipFileJsonDataMap, versionMap, crcMap);
+		    	}
+	    	},
+	    	error: function (textStatus, errorThrown) {
+	    		$("#htmlTable > tbody").empty();
+	    		showMessage("Error while importing data", "error");
+	    	}
+    	});
+    }
 		

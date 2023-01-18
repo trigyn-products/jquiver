@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.trigyn.jws.dynamicform.utils.CryptoUtils;
+import com.trigyn.jws.dynarest.service.CryptoUtils;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
@@ -59,8 +59,8 @@ public class JwsApiRegistrationController {
 	public ResponseEntity<AuthenticationResponse> loadCaptcha(HttpServletResponse httpServletResponse,
 		@RequestBody AuthenticationRequest authenticationRequest) throws Throwable {
 
-		Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
-		if (authType == Constants.AuthType.DAO.getAuthType() || authType == Constants.AuthType.LDAP.getAuthType()) {
+		//Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
+		if (authenticationRequest!= null && authenticationRequest.getPassword().isEmpty() == false && authenticationRequest.getUsername().isEmpty() == false) {
 			String decryptedText = CryptoUtils.decrypt(JWS_SALT, authenticationRequest.getPassword());
 
 			try {
@@ -83,32 +83,32 @@ public class JwsApiRegistrationController {
 	@PostMapping(value = "/register")
 	public ResponseEntity<String> registerUser(HttpServletResponse httpServletResponse, @RequestBody JwsUserVO user) throws Exception {
 
-		Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
-		if (authType == Constants.AuthType.DAO.getAuthType() || authType == Constants.AuthType.LDAP.getAuthType()) {
-			JwsUser existingUser = new JwsUser();
-			if (StringUtils.isNotBlank(user.getEmail()) && StringUtils.isNotBlank(user.getFirstName())
-					&& StringUtils.isNotBlank(user.getLastName()) && StringUtils.isNotBlank(user.getPassword())) {
+		//Integer authType = Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
+		//if (authType == Constants.AuthType.DAO.getAuthType() || authType == Constants.AuthType.LDAP.getAuthType()) {
+		JwsUser existingUser = new JwsUser();
+		if (StringUtils.isNotBlank(user.getEmail()) && StringUtils.isNotBlank(user.getFirstName())
+				&& StringUtils.isNotBlank(user.getLastName()) && StringUtils.isNotBlank(user.getPassword())) {
 
-				existingUser = userRepository.findByEmailIgnoreCase(user.getEmail());
-				if (existingUser != null) {
-					return new ResponseEntity<String>("User already exist with these email", HttpStatus.CONFLICT);
-				}
-				JwsUser jwsUser = user.convertVOToEntity(user);
-				jwsUser.setPassword(passwordEncoder.encode(jwsUser.getPassword()));
-				jwsUser.setIsActive(Constants.ISACTIVE);
-				jwsUser.setForcePasswordChange(Constants.INACTIVE);
-
-				jwsUser.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
-				userRepository.save(jwsUser);
-				return new ResponseEntity<String>("User Created Successfully", HttpStatus.OK);
-
-			} else {
-				return new ResponseEntity<String>("Necessary Parameters missing ", HttpStatus.PRECONDITION_FAILED);
+			existingUser = userRepository.findByEmailIgnoreCase(user.getEmail());
+			if (existingUser != null) {
+				return new ResponseEntity<String>("User already exist with these email", HttpStatus.CONFLICT);
 			}
+			JwsUser jwsUser = user.convertVOToEntity(user);
+			jwsUser.setPassword(passwordEncoder.encode(jwsUser.getPassword()));
+			jwsUser.setIsActive(Constants.ISACTIVE);
+			jwsUser.setForcePasswordChange(Constants.INACTIVE);
+
+			jwsUser.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
+			userRepository.save(jwsUser);
+			return new ResponseEntity<String>("User Created Successfully", HttpStatus.OK);
+
 		} else {
-			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
-			return null;
+			return new ResponseEntity<String>("Necessary Parameters missing ", HttpStatus.PRECONDITION_FAILED);
 		}
+		//} else {
+			//httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
+			//return null;
+		//}
 
 	}
 

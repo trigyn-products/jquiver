@@ -7,10 +7,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,12 +44,14 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.templating.vo.TemplateVO;
 
 @Service
 @Transactional
 public class DashletService {
 
-	private final static Logger					logger								= LogManager.getLogger(DashletService.class);
+	private final static Logger					logger								= LogManager
+			.getLogger(DashletService.class);
 
 	@Autowired
 	private DashletDAO							dashletDAO							= null;
@@ -78,7 +87,8 @@ public class DashletService {
 		return dashletDAO.findById(id);
 	}
 
-	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden) throws Exception {
+	public List<DashletProperties> findDashletPropertyByDashletId(String dashletId, boolean includeHidden)
+			throws Exception {
 		return dashletDAO.findDashletPropertyByDashletId(dashletId, includeHidden);
 	}
 
@@ -96,7 +106,8 @@ public class DashletService {
 		return dashletDAO.getDashletData(null, selectionQuery);
 	}
 
-	public Boolean saveConfiguration(MultiValueMap<String, String> formData, String userId, String dashboardId) throws Exception {
+	public Boolean saveConfiguration(MultiValueMap<String, String> formData, String userId, String dashboardId)
+			throws Exception {
 		Iterator<String> it = formData.keySet().iterator();
 		while (it.hasNext()) {
 			String							propertyId						= it.next();
@@ -137,7 +148,7 @@ public class DashletService {
 	}
 
 	public String getDashletUI(String a_userId, boolean a_isContentOnly, String dashboardId, List<String> roleIdList,
-		Boolean isLayoutRequired) throws Exception {
+			Boolean isLayoutRequired, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		List<String>		dashletUIs		= new ArrayList<String>();
 		Map<String, Object>	mapOfVariables	= new HashMap<String, Object>();
 
@@ -147,7 +158,7 @@ public class DashletService {
 		List<Dashlet>		dashlets		= getDashlets(roleIdList, dashboardId);
 
 		for (Dashlet l_dashlet : dashlets) {
-			String dashletUI = getDashletUIString(l_dashlet, a_userId, a_isContentOnly, dashboardId, null);
+			String dashletUI = getDashletUIString(l_dashlet, a_userId, a_isContentOnly, dashboardId, null, httpServletRequest, httpServletResponse);
 			dashletUIs.add(dashletUI);
 		}
 
@@ -161,7 +172,8 @@ public class DashletService {
 		return menuService.getTemplateWithSiteLayout("dashlets", mapOfVariables);
 	}
 
-	public String getDashletUIString(Dashlet a_dashlet, String userId, boolean isContentOnly, String dashboardId, String[] params)
+	public String getDashletUIString(Dashlet a_dashlet, String userId, boolean isContentOnly, String dashboardId,
+			String[] params, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws Exception {
 
 		String selectCriteria = null;
@@ -172,8 +184,10 @@ public class DashletService {
 
 		String	environment		= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		if (environment.equalsIgnoreCase("dev")) {
-			selectCriteria	= getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletQuery(), selectQueryFile);
-			htmlBody		= getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletBody(), htmlBodyFile);
+			selectCriteria	= getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletQuery(),
+					selectQueryFile);
+			htmlBody		= getContentForDevEnvironment(a_dashlet.getDashletName(), a_dashlet.getDashletBody(),
+					htmlBodyFile);
 		} else {
 			selectCriteria	= a_dashlet.getDashletQuery();
 			htmlBody		= a_dashlet.getDashletBody();
@@ -184,8 +198,10 @@ public class DashletService {
 		String						templateHtml		= null;
 		String						finalTemplate		= null;
 
-		Map<Object, Object>			usersProp			= getUserPreferences(userId, a_dashlet.getDashletId(), dashboardId);
-		List<Object[]>				dashletCoordinates	= getUserDashletCoordinates(userId, a_dashlet.getDashletId(), dashboardId);
+		Map<Object, Object>			usersProp			= getUserPreferences(userId, a_dashlet.getDashletId(),
+				dashboardId);
+		List<Object[]>				dashletCoordinates	= getUserDashletCoordinates(userId, a_dashlet.getDashletId(),
+				dashboardId);
 
 		for (DashletProperties property : a_dashlet.getProperties()) {
 			String userPreferredValue = (String) usersProp.get(property.getPropertyId());
@@ -208,15 +224,41 @@ public class DashletService {
 		templateMap.put("dashletId", a_dashlet.getDashletId());
 		boolean isErrorOccured = Boolean.FALSE;
 		try {
-			templateQuery = templateEngine.processTemplateContents(selectCriteria, a_dashlet.getDashletName(), templateMap);
+			if (Constants.QueryType.SELECT.getQueryType() == a_dashlet.getDaoQueryType()) {
+				try {
+					templateQuery = templateEngine.processTemplateContents(selectCriteria, a_dashlet.getDashletName(),
+							templateMap);
+					if (null != templateQuery && !templateQuery.equals("")) {
+						resultSet = dashletDAO.getDashletData(a_dashlet.getDatasourceId(), templateQuery.toString());
+					}
+				} catch (Throwable a_thr) {
+					logger.error(ExceptionUtils.getStackTrace(a_thr));
+					httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(), ExceptionUtils.getStackTrace(a_thr));
+				}
+			} else {
+				try {
+					TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
+					StringBuilder	resultStringBuilder	= new StringBuilder();
+					resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+
+					ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
+
+					ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
+					scriptEngine.put("requestDetails", templateMap);
+
+					resultStringBuilder.append(selectCriteria.toString());
+					scriptEngine.eval(resultStringBuilder.toString());
+				} catch (Throwable a_thr) {
+					logger.error(ExceptionUtils.getStackTrace(a_thr));
+					httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(), ExceptionUtils.getStackTrace(a_thr));
+				}
+			}
+
 		} catch (Exception a_ex) {
 			isErrorOccured = Boolean.TRUE;
 			logger.error(a_ex);
 		}
 
-		if (null != templateQuery && !templateQuery.equals("")) {
-			resultSet = dashletDAO.getDashletData(a_dashlet.getDatasourceId(), templateQuery.toString());
-		}
 		templateMap.put("resultSet", resultSet);
 
 		if (resultSet == null) {
@@ -258,12 +300,14 @@ public class DashletService {
 		}
 
 		String commonDashletDiv = templatingService.getTemplateByName("dashlet-common-div").getTemplate();
-		finalTemplate = templateEngine.processTemplateContents(commonDashletDiv, a_dashlet.getDashletName(), mapOfVariables);
+		finalTemplate = templateEngine.processTemplateContents(commonDashletDiv, a_dashlet.getDashletName(),
+				mapOfVariables);
 
 		return finalTemplate;
 	}
 
-	public Map<Object, Object> getUserPreferences(String userId, String dashletId, String dashboardId) throws Exception {
+	public Map<Object, Object> getUserPreferences(String userId, String dashletId, String dashboardId)
+			throws Exception {
 		List<Object[]>		preferences		= dashletDAO.getUserPreferences(userId, dashletId, dashboardId);
 		Map<Object, Object>	userPreferences	= new HashMap<Object, Object>();
 		for (Object[] preference : preferences) {
@@ -272,13 +316,15 @@ public class DashletService {
 		return userPreferences;
 	}
 
-	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId) throws Exception {
+	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId)
+			throws Exception {
 		return dashletDAO.getUserDashletCoordinates(userId, dashletId, dashboardId);
 	}
 
-	public String refreshDashletContent(String userId, String dashletId, String[] paramArray, String dashboardId) throws Exception {
+	public String refreshDashletContent(String userId, String dashletId, String[] paramArray, String dashboardId, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws Exception {
 		Dashlet dashlet = dashletDAO.findById(dashletId);
-		return getDashletUIString(dashlet, userId, Boolean.TRUE, dashboardId, paramArray);
+		return getDashletUIString(dashlet, userId, Boolean.TRUE, dashboardId, paramArray, httpServletRequest, httpServletResponse);
 	}
 
 	@Transactional(readOnly = true)
@@ -287,8 +333,10 @@ public class DashletService {
 		try {
 			if (dashletId != null && !dashletId.equals("") && !dashletId.isEmpty()) {
 				dashletVO = findDashletByDashletId(dashletId);
-				StringBuilder	dashletBody		= new StringBuilder("<#noparse>").append(dashletVO.getDashletBody()).append("</#noparse>");
-				StringBuilder	dashletQuery	= new StringBuilder("<#noparse>").append(dashletVO.getDashletQuery()).append("</#noparse>");
+				StringBuilder	dashletBody		= new StringBuilder("<#noparse>").append(dashletVO.getDashletBody())
+						.append("</#noparse>");
+				StringBuilder	dashletQuery	= new StringBuilder("<#noparse>").append(dashletVO.getDashletQuery())
+						.append("</#noparse>");
 				dashletVO.setDashletBody(dashletBody.toString());
 				dashletVO.setDashletQuery(dashletQuery.toString());
 				List<DashletPropertyVO>	dashletPropertyVOList	= getDashletPropertyByDashletId(dashletId);
@@ -317,7 +365,8 @@ public class DashletService {
 	}
 
 	public List<DashletPropertyVO> getDashletPropertyByDashletId(String dashletId) throws Exception {
-		return iDashletPropertiesRepository.findDashletPropertyByDashletId(dashletId, Constants.RecordStatus.INSERTED.getStatus());
+		return iDashletPropertiesRepository.findDashletPropertyByDashletId(dashletId,
+				Constants.RecordStatus.INSERTED.getStatus());
 	}
 
 	public List<String> findDashletRolesByDashletId(String dashletId) throws Exception {
@@ -329,21 +378,23 @@ public class DashletService {
 		List<DashboardLookupCategoryVO>	dashboardLookupCategoryVOList	= iDashboardLookupCategoryRepository
 				.findDashboardLookupCategoryByName(componentName);
 		for (DashboardLookupCategoryVO dashboardLookupCategoryVO : dashboardLookupCategoryVOList) {
-			componentTypes.put(dashboardLookupCategoryVO.getLookupCategoryId(), dashboardLookupCategoryVO.getLookupDescription());
+			componentTypes.put(dashboardLookupCategoryVO.getLookupCategoryId(),
+					dashboardLookupCategoryVO.getLookupDescription());
 		}
 		return componentTypes;
 
 	}
 
-	public Map<String, Object> getDashletConfigDetails(String userId, String dashboardId, String dashletId) throws Exception {
+	public Map<String, Object> getDashletConfigDetails(String userId, String dashboardId, String dashletId)
+			throws Exception {
 		List<DashletProperties>	properties		= findDashletPropertyByDashletId(dashletId, false);
 		Map<String, Object>		templateDetails	= new HashMap<>();
 		templateDetails.put("properties", properties);
 		templateDetails.put("dashboardId", dashboardId);
 
 		if (Boolean.FALSE.equals(properties.isEmpty())) {
-			List<DashletPropertyVO> dashletPropertyVOs = iDashletPropertiesRepository.getDashletPropertyDetailsById(dashletId, userId,
-					Constants.RecordStatus.INSERTED.getStatus());
+			List<DashletPropertyVO> dashletPropertyVOs = iDashletPropertiesRepository
+					.getDashletPropertyDetailsById(dashletId, userId, Constants.RecordStatus.INSERTED.getStatus());
 
 			templateDetails.put("dashletPropertyVOs", dashletPropertyVOs);
 		}
@@ -354,7 +405,8 @@ public class DashletService {
 
 		String	ftlCustomExtension	= ".tgn";
 		String	templateDirectory	= "Dashlets";
-		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory + File.separator + dashletName;
 		File directory = new File(folderLocation);
 		if (!directory.exists()) {

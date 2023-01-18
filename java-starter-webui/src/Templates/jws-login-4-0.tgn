@@ -1,0 +1,48 @@
+
+<div class="socialloginblock">
+<#if innerTemplateObj?? && (innerTemplateObj.regisrationIds)??> 
+	<#list innerTemplateObj.regisrationIds as regisrationId>
+		<#if (regisrationId)??>
+			<div class="block-wrap">	  
+				<a class="btn-microsoft" href="${(contextPath)!''}/oauth2/authorization/${regisrationId}"> 
+					<div class="ms-content">    
+						<div class="logo">  
+							<img src="${(contextPath)!''}/webjars/1.0/images/jc-microsoft.svg"> 
+		                    <@resourceBundleWithDefault "jws.microsoftsignin" "JQuiver"/>
+						</div>  
+					</div>  
+				</a>		 
+			</div>
+		</#if>
+	</#list>	
+</#if>
+<#if innerTemplateObj?? && innerTemplateObj.google?has_content && innerTemplateObj.google>   
+	<div class="block-wrap">    
+		   
+		<a class="btn-google" href="${(contextPath)!''}/oauth2/authorization/google">   
+			<div class="google-content">    
+				<div class="logo">  
+					<img src="${(contextPath)!''}/webjars/1.0/images/jc-google.svg">    
+                    <@resourceBundleWithDefault "jws.googlesignin" "JQuiver"/>
+				</div>  
+ 			</div>  
+		</a>    
+		 
+	</div>
+</#if>
+<#if innerTemplateObj?? && innerTemplateObj.facebook?has_content && innerTemplateObj.facebook> 
+	<div class="block-wrap">    
+	   
+			<a class="btn-fb" href="${(contextPath)!''}/oauth2/authorization/facebook"> 
+				<div class="fb-content">    
+					<div class="logo">  
+						<img src="${(contextPath)!''}/webjars/1.0/images/jc-facebook.svg">  
+                        <@resourceBundleWithDefault "jws.facebooksignin" "JQuiver"/>
+					</div>  
+				   
+				</div>  
+			</a>    
+		 
+	</div>  
+</#if>
+</div>

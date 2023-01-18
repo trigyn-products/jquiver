@@ -1,0 +1,80 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.pagetitle')}</h2> 
+		<div class="float-right">
+			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage('jws.createnew')}" type="button" onclick="createNew()">
+			<span onclick="backToPreviousPage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<form method="post" name="addEditForm" id="addEditForm">
+		
+		<!-- You can include any type of form element over here -->
+		<div class="row">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="field1" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.field1')}</label>
+					<input type="text" id="" name="field1" value="" maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="field1" style="white-space:nowrap">${messageSource.getMessage('jws.field2')}</label>
+						<select id="" name="field1"  class="form-control">
+							<option value="">${messageSource.getMessage('jws.select')}</option>
+						</select>
+					</label>
+				</div>
+			</div>
+		</div>
+		<!-- Your form fields end -->
+		
+		
+		<div class="row">
+			<div class="col-12">
+				<div class="float-right">
+					<input id="formId" class="btn btn-primary" name="addTemplate" value="${messageSource.getMessage('jws.save')}" type="button" onclick="saveData();">
+					<span onclick="backToPreviousPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>
+		
+	</form>
+
+
+</div>
+
+
+
+<script>
+	contextPath = "${contextPath}";
+	//Add logic to save form data
+	function saveData (){
+		let formData = $("#addEditForm").serialize();
+	}
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		
+	}
+</script>

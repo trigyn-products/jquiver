@@ -1,0 +1,1 @@
+ALTER TABLE `jq_module_listing` ADD COLUMN `open_in_new_tab` BIT(1) DEFAULT b'0' NULL AFTER `request_param_json`;

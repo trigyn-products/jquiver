@@ -1,0 +1,312 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script> 
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/addEditGridDetails.js"></script>
+</head>
+
+<div class="container">
+	<div class="row topband">
+        <div class="col-8">
+			<#if (resultSet)?? && (resultSet)?has_content>
+			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editgrid')}</h2> 
+	        <#else>
+	            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addgrid')}</h2> 
+	        </#if>
+     	</div>
+        
+        <div class="col-4">
+	        <#if (resultSet)?? && (resultSet)?has_content>   
+		        <#assign ufAttributes = {
+		            "entityType": "Grid Utils",
+		            "entityId": "gridId",
+		            "entityName": "gridName"
+		        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+		    </#if>
+		 </div>
+         
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	<form method="post" name="addEditForm" id="addEditForm">
+		
+		<div class="row">
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridid')}</label>
+					<input type="text" id="gridId" name="gridId" value="" maxlength="255" class="form-control" onkeydown="updateOldVal()" onkeyup="updateDefaultTemplate()">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridname')}</label>
+					<input type="text" id="gridName" name="gridName" value="" maxlength="1000" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridDescription" style="white-space:nowrap">${messageSource.getMessage('jws.gridDescription')}</label>
+					<input type="text" id="gridDescription" name="gridDescription" value="" class="form-control">
+				</div>
+			</div>
+		</div>
+					
+		<div class="row">	
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+		        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+		        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
+		        		<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>
+		        	</select>
+	           	</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridtablename')}</label>
+					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="1000" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridcolnames')}</label>
+					<input type="text" id="gridColumnName" name="gridColumnName" value="" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="queryType" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')}</label>
+						<select id="queryType" name="queryType"  class="form-control">
+							<option value="1">${messageSource.getMessage('jws.viewtable')}</option>
+							<option value="2">${messageSource.getMessage('jws.storedprocedure')}</option>
+						</select>
+					</label>
+				</div>
+			</div>
+		
+			<div class="col-4">   
+				<input id="moduleId" value="07067149-098d-11eb-9a16-f48e38ab9348" name="moduleId"  type="hidden">
+		    	<@templateWithoutParams "role-autocomplete"/>
+		    </div>
+		    
+		    <div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="customFilterCriteria" style="white-space:nowrap">${messageSource.getMessage('jws.additionalfilter')}</label>
+					<textarea id="customFilterCriteria" rows="4" cols="50" class="form-control">${(resultSetObject.customFilterCriteria)!""}</textarea>
+					<input id="customFilterCriteriaHidden" name="customFilterCriteria" type="hidden">
+				</div>
+			</div>
+    
+    	</div>
+    	
+    	<input type="hidden" id="primaryKey" name="primaryKey">
+		<input type="hidden" id="entityName" name="entityName" value="jq_grid_details">
+		<input type="hidden" id="isEdit" name="isEdit" value="0">
+	</form>	
+	
+	<div id="tabs">
+        <ul>
+            <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
+            <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.javaScriptContent")}</a></li>
+        </ul>
+        <div id="htmlContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	           		 <span class="copyblockcls tabcopybtn" onclick="copyGenericContent('htmlPreview');">
+           			${messageSource.getMessage('jws.copyhtml')}				
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+					</span> 
+	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+        <div id="jsContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	            <span class="copyblockcls tabcopybtn" onclick="copyGenericContent('jsPreview');">
+           			${messageSource.getMessage('jws.copyjavascript')}				
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+					</span> 
+	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+    </div> 
+    
+     <div id="manual-container" class="cm-rightbar">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="previewDiv" style="display:none;">
+                    <textarea id="previewContent" style="display:none;"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+	<input type="hidden" id="dataSourceId" value="">
+	
+	<br>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('grid-details-form', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction('grid-details-form', this, saveData,backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction('grid-details-form', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<script>
+	let formId = "${formId}";
+	contextPath = "${contextPath}";
+	let oldGridId = "yourGridId";
+	$(function() {
+		$("#tabs").tabs();
+		loadDefaultTab("grid-default-template", updateDefaultTemplate);
+	    <#if (resultSet)??>
+    	    <#list resultSet as resultSetList>
+        		$("#gridId").val('${resultSetList?api.get("gridId")}');
+        		$("#gridName").val('${resultSetList?api.get("gridName")}'); 
+        		$("#gridDescription").val('${resultSetList?api.get("gridDescription")}');
+        		$("#gridTableName").val('${resultSetList?api.get("gridTableName")}');
+        		$("#gridColumnName").val('${resultSetList?api.get("gridColumnName")}');
+        		$("#dataSourceId").val('${(resultSetList?api.get("datasourceId"))!""}');
+        		$("#queryType option[value='${resultSetList?api.get("queryType")}']").attr("selected", "selected");
+    	    </#list>
+        </#if>
+        
+        let isEdit = 0;
+      	<#if (resultSet)?? && resultSet?has_content>
+      		isEdit = 1;
+      		$("#isEdit").val(1);
+      		getEntityRoles();
+      	<#else>
+      		let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+		</#if>      	
+		
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+		
+		getAllDatasource(isEdit);
+		savedAction("grid-details-form", isEdit);
+		hideShowActionButtons();
+		$("a[href='#htmlContent']").click();
+	});   
+
+	function validateFields(){
+        const gridId = $("#gridId").val().trim();
+        const gridName = $("#gridName").val().trim();
+        const gridTableName = $("#gridTableName").val().trim();
+        const gridColumnName = $("#gridColumnName").val().trim();
+        const queryType = $("#queryType").val();
+        if(gridId == "" || gridName == "" ||
+                gridTableName == "" || gridColumnName == ""){
+            $("#errorMessage").html("All fields are mandatory");
+    		return false;
+        }
+        return true;
+    }
+    
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/gd";
+	}
+	
+	let saveEntityRoleAssociation =   function(gridId){
+			let roleIds =[];
+			let entityRoles = new Object();
+			entityRoles.entityName = $("#gridName").val();
+			entityRoles.moduleId=$("#moduleId").val();
+			entityRoles.entityId= gridId;
+			 $.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
+				 roleIds.push(val.id);
+		     	
+		     });
+			
+			entityRoles.roleIds=roleIds;
+			
+			$.ajax({
+		        async : false,
+		        type : "POST",
+		        contentType : "application/json",
+		        url : contextPath+"/cf/ser", 
+		        data : JSON.stringify(entityRoles),
+		        success : function(data) {
+			    }
+		    });
+		}
+		let getEntityRoles = function(){
+			$.ajax({
+		        async : false,
+		        type : "GET",
+		        url : contextPath+"/cf/ler", 
+		        data : {
+		        	entityId:$("#gridId").val(),
+		        	moduleId:$("#moduleId").val(),
+		        },
+		        success : function(data) {
+		            $.each(data, function(key,val){
+		            	multiselect.setSelectedObject(val);
+		            	
+		            });
+			    }
+		    });
+		}
+		
+		function updateDefaultTemplate(){ 
+			let gridId = $("#gridId").val().trim();
+			if(oldGridId === ""){ 
+				oldGridId = "yourGridId";
+			}
+			if(gridId !== ""){
+				let htmlGridId = $("pre span").filter(function() { 
+					return ($(this).text() === '"'+oldGridId+'"') 
+				});
+				let jsGridId = $("pre span").filter(function() { 
+					return ($(this).text() === "#"+oldGridId) 
+				});
+				
+				$(htmlGridId).text('"'+gridId+'"');
+				$(jsGridId).text('"#'+gridId+'"');
+			}
+			oldGridId = $("#gridId").val().trim();
+		}
+		
+		function updateOldVal(){ 
+			oldGridId = $("#gridId").val().trim();
+		}
+	
+</script>

@@ -1,0 +1,321 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+<div class="container">
+
+	<div class="topband">
+		<h2 class="title-cls-name float-left">
+			<@resourceBundleWithDefault "jws.typeAheadAutocompleteDemo" "TypeAhead Demo"/>
+		</h2> 
+		<div class="float-right">
+			<span onclick="backToListingPage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+    <div class="row">
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap"><@resourceBundle "jws.autocomplete" /></label>
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocomplete" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>
+ 			</div>
+		</div>
+	
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompletePrefetch')}</label>
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocompletePF" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>
+ 			</div>
+		</div>
+		<div class="clearfix"></div>
+    </div>
+	
+    <div class="row">
+    
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompleteLocalSotrage')}</label>
+				<div class="search-cover">
+					<input class="form-control" id="rbAutocompleteLS" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>					
+ 			</div>
+		</div>
+		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompleteClearText')}</label>
+				<div class="search-cover">			
+					<input class="form-control" id="rbAutocompleteCT" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>					
+ 			</div>
+		</div>
+	</div>
+	
+	<div class="row">	
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.multiselect')}</label>
+				<div class="search-cover">			
+					<input class="form-control" id="bsMultiselect" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>				
+ 			</div>
+		</div>
+		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.dependentMultiselect')}</label>
+				<div class="search-cover">			
+					<input class="form-control" id="rbMultiselect" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>				
+ 			</div>
+		</div>
+		
+		
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.multiselectLocalStorage')}</label>
+				<div class="search-cover">				
+					<input class="form-control" id="rbMultiselectLS" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>				
+ 			</div>
+		</div>
+		
+	</div>
+	
+</div>
+<script>
+contextPath = "${(contextPath)!''}";
+function backToListingPage() {
+    location.href = contextPath+"/cf/adl";
+}
+let autocomplete;
+let autocompletePF;
+let autocompleteCT;
+let multiselect;
+$(function () {
+    autocomplete = $('#rbAutocomplete').autocomplete({
+        autocompleteId: "resourcesAutocomplete",
+		prefetch : false,
+        render: function(item) {
+        	let renderStr ='';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''){
+        		renderStr = '<p>'+item.text+'</p>';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#rbAutocomplete").blur();
+        }, 	
+    }, {key: "jws.action", languageId: 1, text: "Action"});
+    
+	autocompletePF = $('#rbAutocompletePF').autocomplete({
+        autocompleteId: "resourcesAutocomplete",
+		prefetch : true,
+        render: function(item) {
+        	let renderStr ='';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''){
+        		renderStr = '<p>'+item.text+'</p>';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#rbAutocompletePF").blur();
+        }, 	
+    });
+	
+    
+	autocompleteCT = $('#rbAutocompleteCT').autocomplete({
+        autocompleteId: "resourcesAutocomplete",
+		prefetch : true,
+		enableClearText: true,
+        render: function(item) {
+        	let renderStr ='';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''){
+        		renderStr = '<p>'+item.text+'</p>';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#rbAutocompleteCT").blur();
+        }, 	
+    });
+        
+    $("#rbAutocompleteLS").richAutocomplete({
+		items: [{
+			key: "English",
+			languageName: "English",
+			languageId: 1
+		}, {
+			key: "French",
+			languageName: "French",
+			languageId: 2
+		}, {
+			key: "Hindi",
+			languageName: "Hindi",
+			languageId: 3
+		}],
+		extractText: function(item) {
+			return item.languageName;
+		},
+		filter: function(items, searchTerm) {
+			return items.filter(function(item) {
+				return item.languageName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+			});
+		},
+		render: function(item) {
+			return "<div class='jws-rich-autocomplete-multiple'> <div class='jws-rich-autocomplete-text' ><label>Language Name: </label>" + item.languageName
+			 + "</div> <div class='jws-rich-autocomplete-id'><label>Language Id: </label>" + item.languageId 
+			 + "<div class='clearfix'></div> </div>";
+		}
+	});
+	
+	basicMultiselect = $('#bsMultiselect').multiselect({
+        autocompleteId: "resourcesAutocomplete",
+        render: function(item) {
+        	let renderStr ='';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''){
+        		renderStr = '<p>'+item.text+'</p>';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        selectedItemRender: function(item){
+            return item.text;
+        },
+        select: function(item) {
+        	$("#bsMultiselectLS").blur();
+            basicMultiselect.setSelectedObject(item);
+        },	
+    });
+    
+
+    multiselect = $('#rbMultiselect').multiselect({
+        autocompleteId: "resourcesAutocomplete",
+        render: function(item) {
+        	let renderStr ='';
+        	if(item.emptyMsg == undefined || item.emptyMsg === ''){
+        		renderStr = '<p>'+item.text+'</p>';
+    		}else{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        selectedItemRender: function(item){
+            return item.text;
+        },
+        select: function(item) {
+        	let dependArray = new Array();
+        	let dependObj = new Object();
+        	dependObj.componentId = "rbMultiselectLS";
+        	dependObj.context = rbMultiselectLS;
+        	dependArray.push(dependObj);
+        	let dependentCompUpdated = multiselect.resetDependent(dependArray);
+        	if(dependentCompUpdated === true){ 
+	            multiselect.setSelectedObject(item);
+	        }
+	        $("#rbMultiselect").blur();
+	        $("#rbMultiselect").val("");
+        },	
+    }, [{key: "jws.action", languageId: 1, text: "Action"}]);
+    
+	rbMultiselectLS = $("#rbMultiselectLS").multiselect({
+            paging:false,
+            items: [{
+            	key: "English",
+                languageName: "English",
+                languageId: 1
+            }, {
+            	key: "French",
+                languageName: "French",
+                languageId: 2
+            }, {
+            	key: "Hindi",
+                languageName: "Hindi",
+                languageId: 3
+            }],
+
+            render: function(item) {
+                let renderStr ="";
+                if(item.emptyMsg == undefined || item.emptyMsg === ''){
+                    return "<div class='jws-rich-autocomplete-multiple'> <div class='jws-rich-autocomplete-text' ><label>Language Name: </label>" + item.languageName
+			 			+ "</div> <div class='jws-rich-autocomplete-id'><label>Language Id: </label>" + item.languageId 
+			 			+ "<div class='clearfix'></div> </div>";
+                }else{
+                    renderStr = item.emptyMsg;    
+                }                                
+                return renderStr;
+            },
+
+            filter: function(items, searchTerm) {
+                return items.filter(function(item) {
+                	return item.languageName.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+                });
+            },
+            extractText: function(item) {
+                return item.languageName;
+            },
+
+            selectedItemRender: function(item){
+                return item.languageName;
+            },
+
+            select: function(item) {
+                $("#rbMultiselectLS").blur();
+                rbMultiselectLS.setSelectedObject(item);
+            }    
+
+        });
+        
+        
+});
+</script>

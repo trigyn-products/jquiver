@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 
@@ -22,6 +23,14 @@ public class PropertyMasterService {
 
 	public String findPropertyMasterValue(String propertyName) throws Exception {
 		return propertyMasterDetails.getSystemPropertyValue(propertyName);
+	}
+
+	public PropertyMaster findPropertyMasterByName(String propertyName) throws Exception {
+		return propertyMasterDAO.findPropertyMasterByName(propertyName);
+	}
+
+	public void save(PropertyMaster propertyMaster) throws Exception {
+		propertyMasterDAO.save(propertyMaster);
 	}
 
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {

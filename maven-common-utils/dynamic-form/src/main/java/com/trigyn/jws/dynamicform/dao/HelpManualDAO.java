@@ -8,10 +8,12 @@ import javax.sql.DataSource;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dynamicform.entities.ManualEntryDetails;
 import com.trigyn.jws.dynamicform.entities.ManualEntryFileAssociation;
+import com.trigyn.jws.dynamicform.entities.ManualType;
 
 @Repository
 public class HelpManualDAO extends DBConnection {
@@ -78,5 +80,36 @@ public class HelpManualDAO extends DBConnection {
 		query.setParameter("sortIndex", sortIndex);
 		query.executeUpdate();
 	}
+
+	public ManualType getManualType(String manualTypeId) {
+		ManualType manualType =  hibernateTemplate.get(ManualType.class, manualTypeId);
+		if(manualType != null) getCurrentSession().evict(manualType);
+		return manualType;
+	}
+
+	@Transactional(readOnly = false)
+	public void saveManualType(ManualType manualType) {
+		if(manualType.getManualId() == null || getManualType(manualType.getManualId()) == null) {
+			getCurrentSession().save(manualType);			
+		}else {
+			getCurrentSession().saveOrUpdate(manualType);
+		}
+	}
+
+	public ManualEntryDetails getManualEntryDetails(String medId) {
+		ManualEntryDetails med =  hibernateTemplate.get(ManualEntryDetails.class, medId);
+		if(med != null) getCurrentSession().evict(med);
+		return med;
+	}
+
+	@Transactional(readOnly = false)
+	public void saveManualEntryDetails(ManualEntryDetails med) {
+		if(med.getManualEntryId() == null || getManualType(med.getManualEntryId()) == null) {
+			getCurrentSession().save(med);			
+		}else {
+			getCurrentSession().saveOrUpdate(med);
+		}
+	}
+
 
 }

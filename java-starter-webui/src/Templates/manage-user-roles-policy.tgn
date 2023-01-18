@@ -1,0 +1,134 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+		
+		<div id="errorMessageUser" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+		<div class="row">
+		<#if !enableGoogleAuthenticator>
+	    	<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="forcePasswordChange"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.forceuser')}</label>
+		            <div class="onoffswitch">
+		                <input type="checkbox" name="forcePasswordChange" class="onoffswitch-checkbox" id="forcePasswordChange" value="0" onchange="disableIsActive();"/>
+		                <label class="onoffswitch-label" for="forcePasswordChange">
+		                    <span class="onoffswitch-inner"></span>
+		                    <span class="onoffswitch-switch"></span>
+		                </label>
+		            </div>
+					
+				</div>
+			</div>
+		</#if>
+		<div class="col-3">
+    	<div class="col-inner-form full-form-fields">
+				<label for="isActive"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.status')}</label>
+	            <div class="onoffswitch">
+	                <input type="checkbox" name="isActive" class="onoffswitch-checkbox" id="isActive" value="0" onchange="saveRolesAndPolicy();">
+	                <label class="onoffswitch-label" for="isActive">
+	                    <span class="onoffswitch-inner"></span>
+	                    <span class="onoffswitch-switch"></span>
+	                </label>
+	            </div>
+				
+			</div>
+		</div>
+        <#list roles as role>
+           	<div class="col-3">
+         			<div class="col-inner-form full-form-fields">
+         		            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
+         		              ${role?api.getRoleName()}
+         		            </label>
+         		           <div class="onoffswitch">
+				                <input type="checkbox" name="rolesAssigned"  class="onoffswitch-checkbox" id="${role?api.getRoleId()}" value="0" onchange="saveRolesAndPolicy();"/>
+				                <label class="onoffswitch-label" for="${role?api.getRoleId()}">
+				                    <span class="onoffswitch-inner"></span>
+				                    <span class="onoffswitch-switch"></span>
+				                </label>
+	           				</div>
+         			</div>
+ 		        </div>
+        
+                      
+        </#list>
+      </div>
+	</div>
+<script>
+
+function disableIsActive(){ 
+	if($("#forcePasswordChange").prop("checked")){
+		$("#isActive").prop("disabled",true);
+		$("#isActive").prop("checked",false);
+	}else{ 
+		$("#isActive").prop("disabled",false);
+		$("#isActive").prop("checked",true);
+	}
+	saveRolesAndPolicy();
+}
+
+function saveRolesAndPolicy(){ 
+	if($("#userId").val().trim() !== ""){ 
+		let userData = new Object();
+		userData.firstName = $("#firstName").val().trim();
+		userData.lastName = $("#lastName").val().trim();
+		userData.email = $("#email").val().trim();
+		userData.userId = $("#userId").val();
+		userData.roleIds = [];
+		userData.forcePasswordChange = ($("#forcePasswordChange").is(":checked") ? 1 : 0);
+		userData.isActive = ($("#isActive").is(":checked") ? 1 : 0);
+		$.each($("input[name='rolesAssigned']:checked"),function(key,value){
+		   userData.roleIds.push(value.id);
+		});
+		    
+			
+			$.ajax({
+		      type: "POST",
+		      url: contextPath + "/cf/surap",
+		      data : {
+		      	userData : JSON.stringify(userData),
+		      	isEdit : isEdit
+		      },
+		      success: function(data) {
+			  	showMessage("Roles and policies saved successfully", "success");
+			  },
+			  error: function(data) {
+	      		showMessage("Error occurred while saving details", "error");
+	      	  }, 
+		    });
+		}else{
+			$("#errorMessageUser").show();
+			$("#errorMessageUser").html("Please save user details first");		
+		}
+	}
+  
+
+  $(function(){
+  	$("#errorMessageUser").hide();
+  	 $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
+     $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
+	<#if (jwsUser?api.getUserId())??>
+        if(${jwsUser?api.getForcePasswordChange()} == 1){ 
+         	 $("#forcePasswordChange").prop("checked",true);
+        }
+        
+        if(${jwsUser?api.getIsActive()} == 1){ 
+         	 $("#isActive").prop("checked",true);
+        }
+            
+        <#if userRoleIds??>    
+        	<#list userRoleIds as roleId>
+            	$("#${roleId}").attr("checked",true);
+          	</#list>    
+		</#if>
+	<#else>
+		 $("#isActive").prop("checked",true);
+	</#if>
+	});
+
+  
+</script>

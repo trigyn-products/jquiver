@@ -52,9 +52,18 @@ public class JwsUser {
 	@Column(name = "failed_attempt")
 	private int		failedAttempt			= 0;
 
+	@Column(name = "one_time_password")
+	private String	oneTimePassword			= null;
+
+	@Column(name = "otp_requested_time")
+	private Date	otpRequestedTime		= null;
+
 	@JsonIgnore
 	@Column(name = "last_password_updated_date")
 	private Date	lastPasswordUpdatedDate	= null;
+
+	@Column(name = "is_custom_updated")
+	private Integer	isCustomUpdated			= 1;
 
 	public String getUserId() {
 		return userId;
@@ -144,6 +153,30 @@ public class JwsUser {
 		this.lastPasswordUpdatedDate = lastPasswordUpdatedDate;
 	}
 
+	public String getOneTimePassword() {
+		return oneTimePassword;
+	}
+
+	public void setOneTimePassword(String oneTimePassword) {
+		this.oneTimePassword = oneTimePassword;
+	}
+
+	public Date getOtpRequestedTime() {
+		return otpRequestedTime;
+	}
+
+	public void setOtpRequestedTime(Date otpRequestedTime) {
+		this.otpRequestedTime = otpRequestedTime;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public JwsUser getObject() {
 		JwsUser user = new JwsUser();
 
@@ -158,6 +191,8 @@ public class JwsUser {
 		user.setUserId(userId);
 		user.setFailedAttempt(failedAttempt);
 		user.setLastPasswordUpdatedDate(lastPasswordUpdatedDate);
+		user.setOneTimePassword(oneTimePassword);
+		user.setOtpRequestedTime(otpRequestedTime);
 		return user;
 	}
 
@@ -174,4 +209,5 @@ public class JwsUser {
 		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
 		return jwsUser;
 	}
+
 }

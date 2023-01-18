@@ -119,6 +119,7 @@ public final class DBExtractor {
 			case "BOOLEAN":
 				return "int";
 			case "DATE":
+			case "DATETIME":
 			case "TIMESTAMP":
 			case "TIMESTAMP_WITH_TIMEZONE":
 			case "TIMESTAMP_WITH_LOCAL_TIMEZONE":

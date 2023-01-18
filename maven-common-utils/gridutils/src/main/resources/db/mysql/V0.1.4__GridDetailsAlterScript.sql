@@ -1,0 +1,1 @@
+ALTER TABLE jq_grid_details ADD custom_filter_criteria LONGTEXT ASCII AFTER datasource_id;

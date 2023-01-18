@@ -15,6 +15,7 @@ import javax.xml.bind.Unmarshaller;
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import com.trigyn.jws.dbutils.utils.CustomCharacterEscapeHandler;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
+import com.trigyn.jws.dbutils.vo.xml.DynaRestExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ExportModule;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
@@ -63,6 +64,8 @@ public class XMLUtil {
 					module.setHelpManual((HelpManualTypeExportVO) map.get("moduleObject"));
 				} else if (map.get("moduleObject") instanceof FileUploadConfigExportVO) {
 					module.setFileBin((FileUploadConfigExportVO) map.get("moduleObject"));
+				} else if (map.get("moduleObject") instanceof DynaRestExportVO) {
+					module.setDynaRestExportVO((DynaRestExportVO) map.get("moduleObject"));
 				}
 
 				exportModuleList.add(module);
@@ -96,9 +99,9 @@ public class XMLUtil {
 	}
 
 	public static void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws JAXBException {
-		JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());
+		JAXBContext	jaxbContext		= JAXBContext.newInstance(xmlVO.getClass());
 
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		Marshaller	jaxbMarshaller	= jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
 		jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
@@ -110,7 +113,6 @@ public class XMLUtil {
 		File		xmlFile		= new File(xmlFilePath);
 
 		JAXBContext	jaxbContext	= JAXBContext.newInstance(xmlVOClass);
-		;
 		Unmarshaller	jaxbUnmarshaller	= jaxbContext.createUnmarshaller();
 		XMLVO			outputXMLVO			= (XMLVO) jaxbUnmarshaller.unmarshal(xmlFile);
 

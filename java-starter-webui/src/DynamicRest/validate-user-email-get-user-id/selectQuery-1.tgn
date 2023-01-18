@@ -1,0 +1,1 @@
+SELECT ju.user_id AS userId FROM jq_user AS ju WHERE ju.email = :email

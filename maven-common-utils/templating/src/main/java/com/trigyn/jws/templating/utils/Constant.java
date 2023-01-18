@@ -18,5 +18,57 @@ public final class Constant {
 	public static final String	SYSTEM_OWNER_TYPE				= "system";
 	public static final String	SYSTEM_OWNER_ID					= "system";
 	public static final String	JQUIVER_VERSION_PROPERTY_NAME	= "version";
+	
+	
+	public enum Changetype{
+		SYSTEM("System"),
+		CUSTOM("Custom");
+		
+		final String changetype;
+		
+		Changetype(String i) {
+			changetype = i;
+		} 
+
+		public String getChangetype() {
+			return changetype;
+		}
+
+		}
+	public enum MasterModuleType {
+		TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"), RESOURCEBUNDLE("ResourceBundle"), DASHBOARD("Dashboard"),
+		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
+		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
+		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
+		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
+		SCHEDULER("Scheduler");
+
+		final String moduleType;
+
+		MasterModuleType(String i) {
+			moduleType = i;
+		}
+
+		public String getModuleType() {
+			return moduleType;
+		}
+	}
+	public enum Action{
+		ADD("Add"),
+		EDIT("Edit"),
+		DELETE("Delete"),
+		OPEN("Open");
+		
+		final String action;
+		
+		Action(String i) {
+			action = i;
+		}
+
+		public String getAction() {
+			return action;
+		}
+
+		}
 
 }

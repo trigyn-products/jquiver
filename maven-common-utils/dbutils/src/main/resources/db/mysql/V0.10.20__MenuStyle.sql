@@ -1,0 +1,1 @@
+ALTER TABLE jq_module_listing ADD COLUMN `menu_style` VARCHAR(100) NULL AFTER `open_in_new_tab`;

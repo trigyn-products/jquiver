@@ -1,0 +1,9 @@
+/*
+ *  This is a custom js which will be used by
+ *  the implementer.
+ *  
+ */
+
+$(function() {
+    //console.log( "ready!" );
+});

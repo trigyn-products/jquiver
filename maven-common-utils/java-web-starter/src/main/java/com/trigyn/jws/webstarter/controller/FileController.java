@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
-import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
-import com.trigyn.jws.dynamicform.service.FileUploadConfigService;
-import com.trigyn.jws.dynamicform.vo.FileUploadConfigVO;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.service.FileUploadConfigService;
+import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
 import com.trigyn.jws.templating.service.MenuService;
 
 @RestController

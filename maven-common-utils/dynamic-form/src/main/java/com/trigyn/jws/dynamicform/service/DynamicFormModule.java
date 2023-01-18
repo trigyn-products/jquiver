@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,9 @@ import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 @Component("dynamic-form")
 public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
+	private final static Logger					logger							= LogManager
+			.getLogger(DynamicFormModule.class);
+
 	@Autowired
 	private PropertyMasterDAO					propertyMasterDAO				= null;
 
@@ -55,6 +60,9 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 	@Override
 	public void downloadCodeToLocal(DynamicForm a_dynamicForm, String folderLocation) throws Exception {
+		logger.debug("Inside DynamicFormModule.downloadCodeToLocal(a_dynamicForm: {}, folderLocation: {})",
+				a_dynamicForm, folderLocation);
+
 		List<DynamicForm> formList = new ArrayList<>();
 		if (a_dynamicForm != null) {
 			formList.add(a_dynamicForm);
@@ -71,7 +79,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		// "system", "template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		MetadataXMLVO						metadataXMLVO		= null;
-		String								version				= propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
+		String								version				= propertyMasterDAO.findPropertyMasterValue("system",
+				"system", "version");
 		UserDetailsVO						detailsVO			= detailsService.getUserDetails();
 		String								userName			= detailsVO.getUserName();
 		Map<String, Map<String, Object>>	moduleDetailsMap	= new HashMap<>();
@@ -96,8 +105,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			}
 
 			// select
-			String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dynamicForm.getFormSelectQuery(),
-					dynamicForm.getFormSelectChecksum(), ftlCustomExtension);
+			String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder,
+					dynamicForm.getFormSelectQuery(), dynamicForm.getFormSelectChecksum(), ftlCustomExtension);
 			if (selectCheckSum != null) {
 				isCheckSumChanged = true;
 				dynamicForm.setFormSelectChecksum(selectCheckSum);
@@ -112,13 +121,19 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			}
 
 			// save
-			Map<Integer, String> saveQueryFileNameMap = new HashMap<>();
+			Map<Integer, String>	saveQueryFileNameMap	= new HashMap<>();
+			Map<Integer, String>	variableNameMap			= new HashMap<>();
+			Map<Integer, String>	datasourceDetailsMap	= new HashMap<>();
+			Map<Integer, Integer>	queryTypeMap			= new HashMap<>();
 			for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
 				Integer	sequenceNum	= formSaveQuery.getSequence();
 				String	sequence	= saveQuery + sequenceNum;
-				String	checksum	= fileUtilities.checkFileContents(sequence, formFolder, formSaveQuery.getDynamicFormSaveQuery(),
-						formSaveQuery.getChecksum(), ftlCustomExtension);
+				String	checksum	= fileUtilities.checkFileContents(sequence, formFolder,
+						formSaveQuery.getDynamicFormSaveQuery(), formSaveQuery.getChecksum(), ftlCustomExtension);
 				saveQueryFileNameMap.put(sequenceNum, sequence + ftlCustomExtension);
+				variableNameMap.put(sequenceNum, formSaveQuery.getResultVariableName());
+				datasourceDetailsMap.put(sequenceNum, formSaveQuery.getDatasourceId());
+				queryTypeMap.put(sequenceNum, formSaveQuery.getDaoQueryType());
 				if (checksum != null) {
 					isCheckSumChanged = true;
 					formSaveQuery.setChecksum(checksum);
@@ -127,10 +142,13 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 			// save checksum
 			if (isCheckSumChanged) {
+				dynamicForm.setIsCustomUpdated(1);
 				dynamicFormDAO.saveDynamicFormData(dynamicForm);
-				DynamicFormExportVO	dynamicFormExportVO	= new DynamicFormExportVO(dynamicForm.getFormId(), dynamicForm.getFormName(),
-						dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(), selectQuery + ftlCustomExtension,
-						htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(), saveQueryFileNameMap);
+				DynamicFormExportVO	dynamicFormExportVO	= new DynamicFormExportVO(dynamicForm.getFormId(),
+						dynamicForm.getFormName(), dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(),
+						selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(),
+						saveQueryFileNameMap, dynamicForm.getSelectQueryType(), variableNameMap, datasourceDetailsMap,
+						queryTypeMap, dynamicForm.getLastUpdatedTs());
 				Map<String, Object>	map					= new HashMap<>();
 				map.put("moduleName", formName);
 				map.put("moduleObject", dynamicFormExportVO);
@@ -155,10 +173,13 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 	@Override
 	public void uploadCodeToDB(String uploadFileName) throws Exception {
+		logger.debug("Inside DynamicFormModule.uploadCodeToDB(uploadFileName: {})", uploadFileName);
+
 		String	user				= "admin";
 		String	templateDirectory	= Constant.DYNAMIC_FORM_DIRECTORY_NAME;
 
-		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"template-storage-path");
 		folderLocation = folderLocation + File.separator + templateDirectory;
 		File directory = new File(folderLocation);
 		if (!directory.exists()) {
@@ -172,34 +193,40 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		}
 
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
-			String					moduleID			= module.getModuleID();
-			String					moduleName			= module.getModuleName();
-			DynamicFormExportVO		dynamicFormExportVO	= module.getDynamicForm();
+			String					moduleID				= module.getModuleID();
+			String					moduleName				= module.getModuleName();
+			DynamicFormExportVO		dynamicFormExportVO		= module.getDynamicForm();
 
-			String					selectQuery			= dynamicFormExportVO.getSelectQueryFileName();
-			String					htmlBody			= dynamicFormExportVO.getHtmlBodyFileName();
-			Map<Integer, String>	saveQueryMap		= dynamicFormExportVO.getSaveFileNameMap();
-			String					ftlCustomExtension	= "." + dynamicFormExportVO.getHtmlBodyFileName().split("\\.")[1];
+			String					selectQuery				= dynamicFormExportVO.getSelectQueryFileName();
+			String					htmlBody				= dynamicFormExportVO.getHtmlBodyFileName();
+			Map<Integer, String>	saveQueryMap			= dynamicFormExportVO.getSaveFileNameMap();
+			String					ftlCustomExtension		= "."
+					+ dynamicFormExportVO.getHtmlBodyFileName().split("\\.")[1];
+			Map<Integer, String>	variableNameMap			= dynamicFormExportVO.getVariableNameMap();
+			Map<Integer, String>	datasourceDetailsMap	= dynamicFormExportVO.getDatasourceDetailsMap();
+			Map<Integer, Integer>	queryTypeMap			= dynamicFormExportVO.getQueryTypeMap();
 
-			FilenameFilter			textFilter			= new FilenameFilter() {
-															public boolean accept(File dir, String name) {
-																return name.toLowerCase().endsWith(ftlCustomExtension);
-															}
-														};
+			FilenameFilter			textFilter				= new FilenameFilter() {
+																public boolean accept(File dir, String name) {
+																	return name.toLowerCase()
+																			.endsWith(ftlCustomExtension);
+																}
+															};
 
-			File[]					directories			= directory.listFiles((new FilenameFilter() {
-															@Override
-															public boolean accept(File current, String name) {
-																if (!StringUtils.isBlank(uploadFileName)) {
-																	if (name.equalsIgnoreCase(uploadFileName)) {
+			File[]					directories				= directory.listFiles((new FilenameFilter() {
+																@Override
+																public boolean accept(File current, String name) {
+																	if (!StringUtils.isBlank(uploadFileName)) {
+																		if (name.equalsIgnoreCase(uploadFileName)) {
+																			return new File(current, name)
+																					.isDirectory();
+																		}
+																	} else {
 																		return new File(current, name).isDirectory();
 																	}
-																} else {
-																	return new File(current, name).isDirectory();
+																	return false;
 																}
-																return false;
-															}
-														}));
+															}));
 			for (File currentDirectory : directories) {
 				String	selectCheckSum			= null;
 				String	htmlCheckSum			= null;
@@ -213,26 +240,33 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 						dynamicForm.setCreatedDate(new Date());
 						dynamicForm.setFormName(currentDirectoryName);
 						dynamicForm.setFormDescription("Uploaded from Local Directory");
+					} else {
+						dynamicForm.setLastUpdatedTs(new Date());
 					}
 
 					dynamicForm.setFormName(dynamicFormExportVO.getFormName());
 					dynamicForm.setFormDescription(dynamicFormExportVO.getFormDescription());
 					dynamicForm.setFormId(dynamicFormExportVO.getFormId());
 					dynamicForm.setFormTypeId(dynamicFormExportVO.getFormTypeId());
+					dynamicForm.setSelectQueryType(dynamicFormExportVO.getSelectQueryType());
 
 					File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 					Integer	filesPresent	= directoryFiles.length;
 					if (filesPresent >= 3) {
-						File	selectFile		= new File(currentDirectory.getAbsolutePath() + File.separator + selectQuery);
-						File	hmtlBodyFile	= new File(currentDirectory.getAbsolutePath() + File.separator + htmlBody);
+						File	selectFile		= new File(
+								currentDirectory.getAbsolutePath() + File.separator + selectQuery);
+						File	hmtlBodyFile	= new File(
+								currentDirectory.getAbsolutePath() + File.separator + htmlBody);
 						if (!selectFile.exists() || !hmtlBodyFile.exists()) {
-							throw new Exception("selectQuery  file not and hmtlQueryfile are mandatory  for saving dynamic form"
-									+ currentDirectoryName);
+							throw new Exception(
+									"selectQuery  file not and hmtlQueryfile are mandatory  for saving dynamic form"
+											+ currentDirectoryName);
 						} else {
 							// set select
 							selectCheckSum = fileUtilities.generateFileChecksum(selectFile);
 							if (!selectCheckSum.equalsIgnoreCase(dynamicForm.getFormSelectChecksum())) {
-								dynamicForm.setFormSelectQuery(fileUtilities.readContentsOfFile(selectFile.getAbsolutePath()));
+								dynamicForm.setFormSelectQuery(
+										fileUtilities.readContentsOfFile(selectFile.getAbsolutePath()));
 								dynamicForm.setFormSelectChecksum(selectCheckSum);
 							}
 
@@ -240,9 +274,11 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 							htmlCheckSum = fileUtilities.generateFileChecksum(hmtlBodyFile);
 							if (!htmlCheckSum.equalsIgnoreCase(dynamicForm.getFormBodyChecksum())) {
 
-								dynamicForm.setFormBody(fileUtilities.readContentsOfFile(hmtlBodyFile.getAbsolutePath()));
+								dynamicForm
+										.setFormBody(fileUtilities.readContentsOfFile(hmtlBodyFile.getAbsolutePath()));
 								dynamicForm.setFormBodyChecksum(htmlCheckSum);
 							}
+							dynamicForm.setIsCustomUpdated(1);
 							dynamicFormDAO.saveDynamicFormData(dynamicForm);
 							// saveQuery
 							if (dynamicForm.getDynamicFormSaveQueries() != null) {
@@ -261,24 +297,33 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 										formSaveQuery.setDynamicFormId(dynamicForm.getFormId());
 										formSaveQuery.setChecksum(fileUtilities.generateFileChecksum(saveQueryFile));
 										formSaveQuery.setSequence(sequence);
-										formSaveQuery
-												.setDynamicFormSaveQuery(fileUtilities.readContentsOfFile(saveQueryFile.getAbsolutePath()));
+										formSaveQuery.setDynamicFormSaveQuery(
+												fileUtilities.readContentsOfFile(saveQueryFile.getAbsolutePath()));
+
+										if(variableNameMap != null) 
+											formSaveQuery.setDatasourceId(variableNameMap.get(sequence));
+										if(datasourceDetailsMap != null) 
+											formSaveQuery.setDatasourceId(datasourceDetailsMap.get(sequence));
+										if(queryTypeMap != null) 
+											formSaveQuery.setDaoQueryType(queryTypeMap.get(sequence));
 										dynamicFormSaveQueries.add(formSaveQuery);
 									} else {
-										throw new Exception("saveQuery file sequence is incorrect" + currentDirectoryName);
+										throw new Exception(
+												"saveQuery file sequence is incorrect" + currentDirectoryName);
 									}
 								}
 
 							} else {
-								throw new Exception("saveQuery file is mandatory  for saving dynamic form" + currentDirectoryName);
+								throw new Exception(
+										"saveQuery file is mandatory  for saving dynamic form" + currentDirectoryName);
 							}
 							dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
 
 							dynamicFormQueriesRepository.saveAll(dynamicFormSaveQueries);
 							dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
 							DynamicFormVO dynamicFormVO = convertEntityToVO(dynamicForm);
-							moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), "jq_dynamic_form",
-									Constant.UPLOAD_SOURCE_VERSION_TYPE);
+							moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(),
+									"jq_dynamic_form", Constant.UPLOAD_SOURCE_VERSION_TYPE);
 						}
 					} else {
 						throw new Exception("Invalid count of files for saving dynamic form" + currentDirectoryName);
@@ -318,8 +363,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			}
 
 			// select
-			String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder, dynamicForm.getFormSelectQuery(),
-					dynamicForm.getFormSelectChecksum(), ftlCustomExtension);
+			String selectCheckSum = fileUtilities.checkFileContents(selectQuery, formFolder,
+					dynamicForm.getFormSelectQuery(), dynamicForm.getFormSelectChecksum(), ftlCustomExtension);
 			if (selectCheckSum != null) {
 				isCheckSumChanged = true;
 				dynamicForm.setFormSelectChecksum(selectCheckSum);
@@ -334,13 +379,19 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 			}
 
 			// save
-			Map<Integer, String> saveQueryFileNameMap = new HashMap<>();
+			Map<Integer, String>	saveQueryFileNameMap	= new HashMap<>();
+			Map<Integer, String>	variableNameMap			= new HashMap<>();
+			Map<Integer, String>	datasourceDetailsMap	= new HashMap<>();
+			Map<Integer, Integer>	queryTypeMap			= new HashMap<>();
 			for (DynamicFormSaveQuery formSaveQuery : dynamicForm.getDynamicFormSaveQueries()) {
 				Integer	sequenceNum	= formSaveQuery.getSequence();
 				String	sequence	= saveQuery + sequenceNum;
-				String	checksum	= fileUtilities.checkFileContents(sequence, formFolder, formSaveQuery.getDynamicFormSaveQuery(),
-						formSaveQuery.getChecksum(), ftlCustomExtension);
+				String	checksum	= fileUtilities.checkFileContents(sequence, formFolder,
+						formSaveQuery.getDynamicFormSaveQuery(), formSaveQuery.getChecksum(), ftlCustomExtension);
 				saveQueryFileNameMap.put(sequenceNum, sequence + ftlCustomExtension);
+				variableNameMap.put(sequenceNum, formSaveQuery.getResultVariableName());
+				datasourceDetailsMap.put(sequenceNum, formSaveQuery.getDatasourceId());
+				queryTypeMap.put(sequenceNum, formSaveQuery.getDaoQueryType());
 				if (checksum != null) {
 					isCheckSumChanged = true;
 					formSaveQuery.setChecksum(checksum);
@@ -349,12 +400,15 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 			// save checksum
 			if (isCheckSumChanged) {
+				dynamicForm.setIsCustomUpdated(1);
 				dynamicFormDAO.saveDynamicFormData(dynamicForm);
 			}
 
-			DynamicFormExportVO	dynamicFormExportVO	= new DynamicFormExportVO(dynamicForm.getFormId(), dynamicForm.getFormName(),
-					dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(), selectQuery + ftlCustomExtension,
-					htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(), saveQueryFileNameMap);
+			DynamicFormExportVO	dynamicFormExportVO	= new DynamicFormExportVO(dynamicForm.getFormId(),
+					dynamicForm.getFormName(), dynamicForm.getFormDescription(), dynamicForm.getFormTypeId(),
+					selectQuery + ftlCustomExtension, htmlBody + ftlCustomExtension, dynamicForm.getDatasourceId(),
+					saveQueryFileNameMap, dynamicForm.getSelectQueryType(), variableNameMap, datasourceDetailsMap,
+					queryTypeMap, dynamicForm.getLastUpdatedTs());
 
 			Map<String, Object>	map					= new HashMap<>();
 			map.put("moduleName", formName);
@@ -365,18 +419,23 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 	}
 
 	@Override
-	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject) throws Exception {
-		String					user				= "admin";
+	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
+			throws Exception {
+		String					user					= "admin";
 
-		DynamicFormExportVO		dynamicFormExportVO	= (DynamicFormExportVO) importObject;
+		DynamicFormExportVO		dynamicFormExportVO		= (DynamicFormExportVO) importObject;
 
-		String					selectQuery			= dynamicFormExportVO.getSelectQueryFileName();
-		String					htmlBody			= dynamicFormExportVO.getHtmlBodyFileName();
-		Map<Integer, String>	saveQueryMap		= dynamicFormExportVO.getSaveFileNameMap();
-		String					ftlCustomExtension	= "." + dynamicFormExportVO.getHtmlBodyFileName().split("\\.")[1];
+		String					selectQuery				= dynamicFormExportVO.getSelectQueryFileName();
+		String					htmlBody				= dynamicFormExportVO.getHtmlBodyFileName();
+		Map<Integer, String>	saveQueryMap			= dynamicFormExportVO.getSaveFileNameMap();
+		Map<Integer, String>	variableNameMap			= dynamicFormExportVO.getVariableNameMap();
+		Map<Integer, String>	datasourceDetailsMap	= dynamicFormExportVO.getDatasourceDetailsMap();
+		Map<Integer, Integer>	queryTypeMap			= dynamicFormExportVO.getQueryTypeMap();
+		String					ftlCustomExtension		= "."
+				+ dynamicFormExportVO.getHtmlBodyFileName().split("\\.")[1];
 
-		DynamicForm				dynamicForm			= null;
-		File					directory			= new File(folderLocation);
+		DynamicForm				dynamicForm				= null;
+		File					directory				= new File(folderLocation);
 		if (!directory.exists()) {
 			throw new Exception("No such directory present");
 		}
@@ -407,7 +466,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 				DynamicForm dynamicFormEntity = dynamicFormDAO.findDynamicFormById(uploadID);
 				dynamicForm = new DynamicForm();
 				if (dynamicFormEntity != null) {
-					dynamicForm = dynamicFormEntity.getObject();
+					dynamicForm = dynamicFormEntity.getObject(true);
+					dynamicForm.setLastUpdatedTs(new Date());
 				} else {
 					dynamicForm.setCreatedBy(user);
 					dynamicForm.setCreatedDate(new Date());
@@ -417,15 +477,18 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 				dynamicForm.setFormDescription(dynamicFormExportVO.getFormDescription());
 				dynamicForm.setFormId(dynamicFormExportVO.getFormId());
 				dynamicForm.setFormTypeId(dynamicFormExportVO.getFormTypeId());
+				dynamicForm.setSelectQueryType(dynamicFormExportVO.getSelectQueryType());
 
 				File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 				Integer	filesPresent	= directoryFiles.length;
 				if (filesPresent >= 3) {
-					File	selectFile		= new File(currentDirectory.getAbsolutePath() + File.separator + selectQuery);
+					File	selectFile		= new File(
+							currentDirectory.getAbsolutePath() + File.separator + selectQuery);
 					File	hmtlBodyFile	= new File(currentDirectory.getAbsolutePath() + File.separator + htmlBody);
 					if (!selectFile.exists() || !hmtlBodyFile.exists()) {
 						throw new Exception(
-								"selectQuery  file not and hmtlQueryfile are mandatory  for saving dynamic form" + currentDirectoryName);
+								"selectQuery  file not and hmtlQueryfile are mandatory  for saving dynamic form"
+										+ currentDirectoryName);
 					} else {
 						// set select
 						selectCheckSum = fileUtilities.generateFileChecksum(selectFile);
@@ -453,15 +516,23 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 									formSaveQuery.setDynamicFormId(dynamicForm.getFormId());
 									formSaveQuery.setChecksum(fileUtilities.generateFileChecksum(saveQueryFile));
 									formSaveQuery.setSequence(sequence);
-									formSaveQuery
-											.setDynamicFormSaveQuery(fileUtilities.readContentsOfFile(saveQueryFile.getAbsolutePath()));
+									formSaveQuery.setDynamicFormSaveQuery(
+											fileUtilities.readContentsOfFile(saveQueryFile.getAbsolutePath()));
+
+									if(variableNameMap != null) 
+										formSaveQuery.setResultVariableName(variableNameMap.get(sequence));
+									if(datasourceDetailsMap != null) 
+										formSaveQuery.setDatasourceId(datasourceDetailsMap.get(sequence));
+									if(queryTypeMap != null) 
+										formSaveQuery.setDaoQueryType(queryTypeMap.get(sequence));
 									dynamicFormSaveQueries.add(formSaveQuery);
 								} else {
 									throw new Exception("saveQuery file sequence is incorrect" + currentDirectoryName);
 								}
 							}
 						} else {
-							throw new Exception("saveQuery file is mandatory  for saving dynamic form" + currentDirectoryName);
+							throw new Exception(
+									"saveQuery file is mandatory  for saving dynamic form" + currentDirectoryName);
 						}
 
 						dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
@@ -509,6 +580,9 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		formSaveQueryVO.setDynamicFormId(dynamicFormSaveQuery.getDynamicFormId());
 		formSaveQueryVO.setFormSaveQuery(dynamicFormSaveQuery.getDynamicFormSaveQuery());
 		formSaveQueryVO.setSequence(dynamicFormSaveQuery.getSequence());
+		formSaveQueryVO.setDatasourceId(dynamicFormSaveQuery.getDatasourceId());
+		formSaveQueryVO.setResultVariableName(dynamicFormSaveQuery.getResultVariableName());
+		formSaveQueryVO.setDaoQueryType(dynamicFormSaveQuery.getDaoQueryType());
 		return formSaveQueryVO;
 	}
 

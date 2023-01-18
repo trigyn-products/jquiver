@@ -15,22 +15,24 @@ public class UserDetailsVO implements Serializable {
 
 	private List<String>		roleIdList			= new ArrayList<>();
 
+	private String				fullName			= null;
+
 	public UserDetailsVO() {
 
 	}
 
-	public UserDetailsVO(String userId, String userName, List<String> roleIdList) {
+	public UserDetailsVO(String userId, String userName, List<String> roleIdList, String fullName) {
 		this.userId		= userId;
 		this.userName	= userName;
 		this.roleIdList	= roleIdList;
+		this.fullName = fullName;
 	}
 
 	public String getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUserId(String userId) { this.userId = userId;
 	}
 
 	public String getUserName() {
@@ -73,6 +75,14 @@ public class UserDetailsVO implements Serializable {
 	@Override
 	public String toString() {
 		return "UserDetailsVO [userId=" + userId + ", userName=" + userName + ", roleIdList=" + roleIdList + "]";
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 
 }

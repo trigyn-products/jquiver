@@ -1,0 +1,5 @@
+<script type="text/javascript"></script>
+<div class="col-12 margin-b-10">
+	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+	<input type="number" min="0" id="${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" step=".01" class="form-control"/>
+</div>

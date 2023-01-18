@@ -3,7 +3,6 @@ package com.trigyn.jws.resourcebundle.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +36,7 @@ public class ResourceBundleController {
 
 	@RequestMapping(value = "/getResourceBundleData", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, String> getResourceBundleData(HttpServletRequest request) throws Exception {
+	public Object getResourceBundleData(HttpServletRequest request) throws Exception {
 		try {
 			String			keyInitials	= request.getParameter("resourceKeys");
 			List<String>	keyList		= new ArrayList<String>(Arrays.asList(keyInitials.split(",")));

@@ -1,0 +1,289 @@
+<head>
+<link rel="stylesheet" href="${contextPath!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${contextPath!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${contextPath!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${contextPath!''}/webjars/1.0/css/starter.style.css" />
+<script src="${contextPath!''}/webjars/1.0/common/passwordStrength.js"></script> 
+        
+</head>
+
+<div class="container">
+	<div class="topband">
+		<#if (resultSetObject.additional_datasource_id)?? && (resultSetObject.additional_datasource_id)?has_content>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editdatasource')}</h2>
+        <#else>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.adddatasource')}</h2> 
+        </#if>
+		<div class="clearfix"></div>		
+	</div>
+  <form method="post" name="addEditForm" id="addEditForm">
+    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+    
+    	<div class="row">
+				<input type="hidden" data-type="varchar" id="additionalDatasourceId" name="additionalDatasourceId"  value="${(resultSetObject.additional_datasource_id)!""}">
+				<input type="hidden" data-type="varchar" id="datasourceLookupId" name="datasourceLookupId"  value="${(resultSetObject.datasource_lookup_id)!""}" >
+	    		<div class="col-4">
+					<div class="col-inner-form full-form-fields">
+					    <span class="asteriskmark">*</span>
+						<label for="datasourcename"><@resourceBundle "jws.datasourceName" /></label>
+						<input type="text" data-type="varchar" id="datasourcename" name="datasourcename" class="form-control" value="${(resultSetObject.datasource_name)!""}" >
+					</div>
+				</div>
+	    		
+	    		<div class="col-4">
+					<div class="col-inner-form full-form-fields">
+						<span class="asteriskmark">*</span>
+						<label for="allDBDrivers"><@resourceBundle "jws.databaseProductName" /></label>
+						<select class="form-control" id="allDBDrivers" onchange="onDBTypeChange()">
+						</select>
+					</div>
+				</div>
+	    		<#if (resultSetObject.additional_datasource_id)??>
+	    		<div class="col-4">
+                    <div class="col-inner-form full-form-fields datasrourceid">
+					    <span class="asteriskmark">*</span>
+						<label for="datasourceid">${messageSource.getMessage('jws.datasourceid')}</label>
+						<input type="text" data-type="varchar" id="datasourceid" name="datasourceid" readonly disabled 
+                            class="form-control" value="${(resultSetObject.additional_datasource_id)!""}" >
+                        <span onclick="copyId()" class="copybtnc">
+                            <i class="fa fa-clipboard"></i>                        
+                        </span>
+					</div>
+				</div>
+                </#if>
+	    		
+	    		<div class="col-12">
+					<div class="col-inner-form full-form-fields">
+						<span class="asteriskmark">*</span>
+						<label for="connectionurl"><@resourceBundle "jws.connectionURL" /></label>
+						<textarea class="form-control" rows="1" cols="10"  data-type="text"  id="connectionurl" placeholder="<@resourceBundle 'jws.connectionURL' />" name="dbconnectionurl" ></textarea>
+					</div>
+				</div>
+
+                <div class="col-4">
+					<div class="col-inner-form full-form-fields">
+					    <span class="asteriskmark">*</span>
+						<label for="username"><@resourceBundle "jws.username" /></label>
+						<input type="text" data-type="varchar" id="username" name="username" class="form-control" autocomplete="false">
+					</div>
+				</div>
+
+                <div class="col-4">
+					<div class="col-inner-form full-form-fields passowrdblock">	
+					    <span class="asteriskmark">*</span>
+						<label for="password"><@resourceBundle "jws.password" /></label>
+						<input type="password" data-type="varchar" id="password" name="password" class="form-control" autocomplete="false" >
+					</div>
+				</div>
+    	</div>
+    
+  </form>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<button type="button" id="testConnBtn" class="btn btn-primary" onclick="testDatabaseConnection()"><@resourceBundleWithDefault "jws.testConnection" "Test Connection" /></button>
+				<div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>  
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+</div>
+<textarea style="display:none;" id="txtTemp" >${(resultSetObject.datasource_configuration)!""}</textarea>
+<script>
+	let formId = "${formId}";
+	contextPath = "${contextPath}";
+	 let isEdit = 0;
+     let driverList;
+  
+  $(function(){
+
+      <#if (resultSet)??>
+      	<#list resultSet as resultSetList>
+          let connectionDetails =  JSON.parse($('#txtTemp').val());;
+          $("#connectionurl").text(connectionDetails.url);
+          $("#username").val(connectionDetails.userName);
+          $("#password").val(connectionDetails.password); 
+          $("#allDBDrivers").attr("disabled", true);  
+      	</#list>
+      </#if>
+    
+      <#if (resultSet)?? && resultSet?has_content>
+      	isEdit = 1;
+        $("#password").keydown();
+      </#if>
+    
+	savedAction(formId, isEdit);
+	hideShowActionButtons();
+    getDBDrivers();
+  });
+
+    $('#password').passtrength({
+          minChars: 6,
+          passwordToggle: true,
+          tooltip: true,
+          eyeImg: "${contextPath}/cf/files/f918e998-84b8-4b99-b81c-fedc774f871d"
+        });
+    
+	function getDBDrivers(){
+        let dbTypeId = $("#datasourceLookupId").val().trim();
+        $.ajax({
+		    type : "POST",
+		    url : contextPath+"/api/jq-db-driver-list",
+            success : function(data) {
+                driverList = data;
+                for (let property in data) {
+                	if(data[property].driverClassAvailable === true){
+    					$("#allDBDrivers").append("<option value="+property+">"+data[property].databaseDisplayProductName+"</option>")
+    				}
+				}
+				if(dbTypeId !== ""){ 
+					$("#allDBDrivers").val(dbTypeId);
+				}else{
+					$("#datasourceLookupId").val($("#allDBDrivers option:first").val());
+				}
+		    },
+	        error : function(xhr, error){
+		        showMessage("Error occurred while fetching list of available database drivers", "error");
+	        },
+		});
+    }
+    
+
+	function copyId(){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val($("#datasourceid").val()).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Id copied successfully", "success");
+	}
+  
+  function showHidePassword(thisObj){
+        var element = $(thisObj).parent().find("input[name='password']");
+        if (element.prop("type") === "password") {
+            element.prop("type","text");
+            $(thisObj).find("i").removeClass("fa-eye");
+            $(thisObj).find("i").addClass("fa-eye-slash");
+            $("#password").focus();
+        } else {
+            element.prop("type","password");
+            $(thisObj).find("i").removeClass("fa-eye-slash");
+            $(thisObj).find("i").addClass("fa-eye");
+            $("#password").focus();
+        }
+    }
+    
+	function onDBTypeChange(){ 
+		let datasourceLookupId = $("#allDBDrivers").find(":selected").val();
+		$("#datasourceLookupId").val(datasourceLookupId);
+	}
+	
+	function saveData(){
+        let isDataSaved = false;
+		let formData = validateData();
+        let connectionUrl = $("#connectionurl").val().trim();
+        let selectedDBType = $("#allDBDrivers").find(":selected").val();
+        let dbName = $("#allDBDrivers").find(":selected").text();
+        if(driverList[selectedDBType].driverClassAvailable === false){ 
+       		showMessage("No driver class found for: " + dbName , "error");
+        	return false;
+        }
+        if(connectionUrl.includes(driverList[selectedDBType].datasourceName) === false){
+        	showMessage("Invalid connection url", "error");
+        	return false;
+        }
+        if(formData === undefined){
+			showMessage("All fields are mandatory", "error");
+			return false;
+		}
+        let additionalDatasourceId = $("#additionalDatasourceId").val().trim();
+        let datasourceLookupId = $("#datasourceLookupId").val().trim();
+        let userName = $("#username").val().trim();
+        let password = $("#password").val().trim();
+        let dataSourceName = $("#datasourcename").val().trim();
+        $.ajax({
+		    type : "POST",
+		    async: false,
+		    url : contextPath+"/api/jq-db-datasource",
+            data:{
+                adi: additionalDatasourceId,
+                dn: dataSourceName,
+                dli: datasourceLookupId,
+                curl: connectionUrl,
+                un: userName,
+                pwd: password,
+            },
+            success : function(data) {
+                isDataSaved = true;
+			    showMessage("Information saved successfully", "success");
+		    },
+	        error : function(xhr, error){
+		        showMessage(xhr.responseText, "error");
+	        },
+		});
+		return isDataSaved; 
+    }
+	
+
+    function validateData(){
+		let serializedForm = $("#addEditForm").serializeArray();
+		for(let iCounter =0, length = serializedForm.length;iCounter<length;iCounter++){
+			let fieldValue = $.trim(serializedForm[iCounter].value);
+			let fieldName = $.trim(serializedForm[iCounter].name);
+			let isFieldVisible = $("#"+fieldName).is(":visible");
+            if(fieldValue !== ""){
+            	serializedForm[iCounter].value = fieldValue;
+            }else if(isFieldVisible === true){
+            	return undefined;
+            }  
+		}
+		serializedForm = serializedForm.formatSerializedArray();
+		return serializedForm;
+    }
+    
+	function testDatabaseConnection(){
+        let datasourceLookupId = $("#datasourceLookupId").val().trim();
+        let connectionUrl = $("#connectionurl").val().trim();
+        let userName = $("#username").val().trim();
+        let password = $("#password").val().trim();
+        
+        $.ajax({
+		    type : "POST",
+            async: true,
+		    url : contextPath+"/api/jq-test-database-connection",
+		    data:{ 
+		    	dli: datasourceLookupId,
+		    	curl: connectionUrl,
+		    	un: userName,
+		    	pwd: password,
+		    },
+            success : function(data) {
+                showMessage("Connection successful", "success");
+		    },
+	        error : function(xhr, error){
+		        showMessage(xhr.responseText, "error"); 
+	        },
+		});
+    }
+    
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/ad";
+	}
+	
+</script>

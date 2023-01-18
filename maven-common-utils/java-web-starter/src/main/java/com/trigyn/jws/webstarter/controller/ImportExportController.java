@@ -15,7 +15,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +35,7 @@ import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
 @RequestMapping("/cf")
-@PreAuthorize("hasPermission('module','Import/Export')")
+//@PreAuthorize("hasPermission('module','Import/Export')")
 public class ImportExportController {
 
 	private final static Logger	logger				= LogManager.getLogger(ImportExportController.class);
@@ -80,7 +79,7 @@ public class ImportExportController {
 	@ResponseBody
 	public String exportConfigData(@RequestBody Map<String, String> map, HttpServletRequest request,
 		HttpServletResponse httpServletResponse) throws Exception {
-		return exportService.exportConfigData(request, httpServletResponse, map);
+		return exportService.exportConfigData(request, httpServletResponse, map, false);
 	}
 
 	@RequestMapping(value = "/downloadExport", method = RequestMethod.POST)
@@ -110,19 +109,24 @@ public class ImportExportController {
 	public String importFile(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Part				file			= request.getPart("inputFile");
-			Map<String, Object>	map				= importService.importConfig(file);
-
+			Map<String, Object>	map				= importService.importConfig(file, false);
+	
 			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
 			String				unZipFilePath	= (String) map.get("unZipFilePath");
-
+	
 			String				jsonArray		= importService.getJsonArrayFromMetadataXMLVO(metadataXmlvo);
 			Map<String, Object>	zipFileDataMap	= importService.getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
-
-			zipFileDataMap.put("completeZipJsonData", jsonArray);
-
+	
 			Gson	gson		= new GsonBuilder().create();
+			
+			zipFileDataMap.put("completeZipJsonData", jsonArray);
+			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
+			zipFileDataMap.put("versionMap", gson.toJson(versionMap));
+			
+			Map<String, Boolean> crcMap = importService.getLatestCRC(zipFileDataMap);
+			zipFileDataMap.put("crcMap", gson.toJson(crcMap));
 			String	jsonString	= gson.toJson(zipFileDataMap);
-
+	
 			return jsonString;
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
@@ -133,7 +137,7 @@ public class ImportExportController {
 		}
 	}
 
-	@PostMapping(value = "/glv")
+	@RequestMapping(value = "/glv")
 	@ResponseBody
 	public String getLatestVersion(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
@@ -176,11 +180,11 @@ public class ImportExportController {
 	@ResponseBody
 	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
-			String	imporatableData	= request.getParameter("imporatableData");
+			String	exportedFormatObject	= request.getParameter("exportedFormatObject");
 			String	importId		= request.getParameter("importId");
 			String	moduleType		= request.getParameter("moduleType");
 
-			return importService.importConfig(imporatableData, importId, moduleType);
+			return importService.importConfig(exportedFormatObject, importId, moduleType, false, null);
 		} catch (Exception exception) {
 			logger.error("Error ", exception);
 			return "fail:" + exception.getMessage();
@@ -194,10 +198,49 @@ public class ImportExportController {
 			String	imporatableData	= request.getParameter("imporatableData");
 			String	importedIdList	= request.getParameter("importedIdList");
 
-			return importService.importAll(imporatableData, importedIdList);
+			return importService.importAll(imporatableData, importedIdList, false);
 		} catch (Exception exception) {
 			logger.error("Error ", exception);
 			return "fail:" + exception.getMessage();
+		}
+	}
+
+	@RequestMapping(value = "/etl")
+	@ResponseBody
+	public String exportToLocal(@RequestBody Map<String, String> map, HttpServletRequest request,
+		HttpServletResponse httpServletResponse) throws Exception {
+		return exportService.exportConfigData(request, httpServletResponse, map, true);
+	}
+
+	@RequestMapping(value = "/ifl")
+	@ResponseBody
+	public String importFromLocal(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			Map<String, Object>	map				= importService.importConfig(null, true);
+	
+			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
+			String				unZipFilePath	= (String) map.get("unZipFilePath");
+	
+			String				jsonArray		= importService.getJsonArrayFromMetadataXMLVO(metadataXmlvo);
+			Map<String, Object>	zipFileDataMap	= importService.getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
+	
+			Gson	gson		= new GsonBuilder().create();
+			
+			zipFileDataMap.put("completeZipJsonData", jsonArray);
+			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
+			zipFileDataMap.put("versionMap", gson.toJson(versionMap));
+			
+			Map<String, Boolean> crcMap = importService.getLatestCRC(zipFileDataMap);
+			zipFileDataMap.put("crcMap", gson.toJson(crcMap));
+			String	jsonString	= gson.toJson(zipFileDataMap);
+	
+			return jsonString;
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			return "fail:" + a_exception.getMessage();
 		}
 	}
 

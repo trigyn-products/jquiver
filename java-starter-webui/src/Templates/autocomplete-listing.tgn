@@ -1,0 +1,168 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>  
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+
+
+</head>
+<div class="container">
+		<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.typeAheadAutocomplete')}</h2> 
+		<div class="float-right">
+		    ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+            </select>
+            <a href="${(contextPath)!''}/cf/da"> 
+				<input id="demoAutocomplete" class="btn btn-primary" value="${messageSource.getMessage('jws.demo')}" type="button">
+			</a>
+			<a href="${(contextPath)!''}/cf/ad"> 
+				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
+			</a>
+			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" value="${messageSource.getMessage('jws.addautocomplete')}" type="button">
+			<span onclick="backToWelcomePage();">
+  		  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+  		 	</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+		</div>
+		
+		<div id="deleteHeader"></div>
+		<div id="divAutocompleteGrid"></table>
+
+		<div id="snackbar"></div>
+</div>
+
+
+<form action="${(contextPath)!''}/cf/aea" method="GET" id="formACRedirect">
+	<input type="hidden" id="acId" name="acId">
+</form>
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="entityName" name="entityName" value="jq_autocomplete_details">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="autocomplete">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/adl">
+</form>
+<script>
+	contextPath = "${(contextPath)!''}";
+	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		let formElement = $("#formACRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("autocomplete-manage-details", formDataJson);
+		
+		let colM = [
+	        { title: "${messageSource.getMessage('jws.autocompleteid')}", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "${messageSource.getMessage('jws.description')}", width: 150, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}",width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate },
+	        { title: "${messageSource.getMessage('jws.action')}", width: 30, maxWidth: 145, align: "left", render: editAutocomplete, dataIndx: "action", sortable: false }
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
+    	};
+	    let grid = $("#divAutocompleteGrid").grid({
+	      gridId: "autocompleteListingGrid",
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_autocompleteTypeId":"str_1"}
+	  });
+	});
+	
+	function changeType() {
+        let type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"autocompleteListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"autocompleteListingGrid"
+                    ,"cr_autocompleteTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divAutocompleteGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+        
+	function autocompleteType(uiObject){
+		const autocompleteTypeId = uiObject.rowData.autocompleteTypeId;
+		if(autocompleteTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
+	function editAutocomplete(uiObject) {
+		const autocompleteId = uiObject.rowData.autocompleteId;
+        const updatedDate = uiObject.rowData.lastUpdatedTs;
+        const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = '<span id="'+autocompleteId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+autocompleteId+'_entity" name="'+autocompleteId+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+        if(uiObject.rowData.autocompleteTypeId == 1) {
+        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+        	<#list loggedInUserRoleList as loggedInUserRole>
+            	<#if (loggedInUserRole == "ADMIN")> 
+	        			actionElement += '<span onclick=\'openDeletConfirmation("divAutocompleteGrid","'+autocompleteId+'","91a81b68-0ece-11eb-94b2-f48e38ab9348","'+autocompleteId+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
+	        			<#break>
+        		</#if>
+        	</#list>
+        </#if>
+       	}
+		return actionElement;
+		
+	}
+
+    function submitForm(sourceElement) {
+		let moduleId = "";
+		if(sourceElement !== undefined){
+			moduleId = sourceElement.id
+		}
+      	$("#acId").val(moduleId);
+      	$("#formACRedirect").submit();
+    }
+    
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+	
+	function backToWelcomePage() {
+		location.href = contextPath+"/cf/home";
+	}
+</script>

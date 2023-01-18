@@ -3,20 +3,29 @@ package com.trigyn.jws.dynamicform.vo;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
+
 public class DynamicFormSaveQueryVO {
 
-	private String	dynamicFormId	= null;
-	private String	formSaveQuery	= null;
-	private Integer	sequence		= null;
+	private String	dynamicFormId		= null;
+	private String	formSaveQuery		= null;
+	private Integer	sequence			= null;
+	private String	resultVariableName	= null;
+	private Integer	daoQueryType		= null;
+	private String	datasourceId		= null;
 
 	public DynamicFormSaveQueryVO() {
 
 	}
 
-	public DynamicFormSaveQueryVO(String dynamicFormId, String formSaveQuery, Integer sequence) {
-		this.dynamicFormId	= dynamicFormId;
-		this.formSaveQuery	= formSaveQuery;
-		this.sequence		= sequence;
+	public DynamicFormSaveQueryVO(String dynamicFormId, String formSaveQuery, Integer sequence,
+			String resultVariableName, Integer daoQueryType, String datasourceId) {
+		this.dynamicFormId		= dynamicFormId;
+		this.formSaveQuery		= formSaveQuery;
+		this.sequence			= sequence;
+		this.resultVariableName	= resultVariableName;
+		this.daoQueryType		= daoQueryType;
+		this.datasourceId		= datasourceId;
 	}
 
 	/**
@@ -86,6 +95,30 @@ public class DynamicFormSaveQueryVO {
 	public String toString() {
 		return "DynamicFormSaveQueryVO [dynamicFormId=" + dynamicFormId + ", formSaveQuery=" + formSaveQuery
 				+ ", sequence=" + sequence + "]";
+	}
+
+	public String getResultVariableName() {
+		return resultVariableName;
+	}
+
+	public void setResultVariableName(String resultVariableName) {
+		this.resultVariableName = resultVariableName;
+	}
+
+	public Integer getDaoQueryType() {
+		return daoQueryType;
+	}
+
+	public void setDaoQueryType(Integer daoQueryType) {
+		this.daoQueryType = daoQueryType;
+	}
+
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
 	}
 
 }

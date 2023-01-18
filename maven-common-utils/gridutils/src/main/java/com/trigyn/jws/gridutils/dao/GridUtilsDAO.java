@@ -41,14 +41,14 @@ public class GridUtilsDAO extends DBConnection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Integer findCount(GridDetails gridDetails, GenericGridParams gridParams) {
+	public Integer findCount(GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam) throws Exception {
 		Integer			rowCount		= null;
 		JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
 		String			dataSourceId	= gridDetails.getDatasourceId();
 		String			dbProductName	= datasourceLookUpRepository.getDataSourceProductNameById(dataSourceId);
 
 		if (gridDetails.getQueryType().intValue() == Constants.queryImplementationType.VIEW.getType()) {
-			String	query				= GridUtility.generateQueryForCount(dbProductName, gridDetails, gridParams);
+			String	query				= GridUtility.generateQueryForCount(dbProductName, gridDetails, gridParams, requestParam);
 			Object	criteriaParams[]	= GridUtility.generateCriteriaForCount(gridParams);
 			rowCount = jdbcTemplate.queryForObject(query, criteriaParams, Integer.class);
 		} else {
@@ -59,7 +59,7 @@ public class GridUtilsDAO extends DBConnection {
 			} catch (SQLException a_sqlException) {
 				logger.error("Didn't find the schema name in datasource ", a_sqlException);
 			}
-			Map<String, Object>		inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams, true);
+			Map<String, Object>		inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams, true, requestParam);
 			SqlParameterSource		in						= new MapSqlParameterSource(inParamMap);
 			Map<String, Object>		simpleJdbcCallResult	= simpleJdbcCall.execute(in);
 			List<Map<String, Long>>	list					= (List<Map<String, Long>>) (Object) simpleJdbcCallResult.get("#result-set-1");
@@ -69,14 +69,14 @@ public class GridUtilsDAO extends DBConnection {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> findAllRecords(GridDetails gridDetails, GenericGridParams gridParams) {
+	public List<Map<String, Object>> findAllRecords(GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam) throws Exception {
 		List<Map<String, Object>>	list			= null;
 		String						dataSourceId	= gridDetails.getDatasourceId();
 		String						dbProductName	= datasourceLookUpRepository.getDataSourceProductNameById(dataSourceId);
 		JdbcTemplate				jdbcTemplate	= updateJdbcTemplateDataSource(dataSourceId);
 
 		if (gridDetails.getQueryType().intValue() == Constants.queryImplementationType.VIEW.getType()) {
-			String	query				= GridUtility.generateQueryForList(dbProductName, gridDetails, gridParams);
+			String	query				= GridUtility.generateQueryForList(dbProductName, gridDetails, gridParams, requestParam);
 			Object	criteriaParams[]	= GridUtility.generateCriteriaForList(dbProductName, gridParams);
 			list = (List<Map<String, Object>>) (Object) jdbcTemplate.queryForList(query, criteriaParams);
 		} else {
@@ -87,7 +87,7 @@ public class GridUtilsDAO extends DBConnection {
 			} catch (SQLException a_sqlException) {
 				logger.error("Didn't find the schema name in datasource ", a_sqlException);
 			}
-			Map<String, Object>	inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams, false);
+			Map<String, Object>	inParamMap				= GridUtility.generateParamMap(gridDetails, gridParams, false, requestParam);
 			SqlParameterSource	in						= new MapSqlParameterSource(inParamMap);
 			Map<String, Object>	simpleJdbcCallResult	= simpleJdbcCall.execute(in);
 			list = (List<Map<String, Object>>) simpleJdbcCallResult.get("#result-set-1");
@@ -102,7 +102,8 @@ public class GridUtilsDAO extends DBConnection {
 				(rs, rowNum) -> new GridDetails(rs.getString("grid_id"), rs.getString("grid_name"), rs.getString("grid_description"),
 						rs.getString("grid_table_name"), rs.getString("grid_column_names"), Integer.parseInt(rs.getString("query_type")),
 						Integer.parseInt(rs.getString("grid_type_id")), rs.getString("created_by"), rs.getDate("created_date"),
-						rs.getString("datasource_id"), rs.getString("last_updated_by"), rs.getDate("last_updated_ts")));
+						rs.getString("datasource_id"), rs.getString("custom_filter_criteria"), rs.getString("last_updated_by"),
+						rs.getDate("last_updated_ts")));
 	}
 
 	public GridDetails saveGridDetails(GridDetails gridDetails) {

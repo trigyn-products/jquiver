@@ -1,0 +1,81 @@
+<#if selectedTab == "htmlContent">
+```HTML
+<#noparse>
+<!-- HTML Head -->
+<head>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<!-- HTML Body-->
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.pagetitle')}</h2> 
+		<div class="float-right">
+			<form id="addEditRecords" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+				<input type="hidden" name="formId" value=""/>
+				<input type="hidden" name="primaryId" id="primaryId" value=""/>
+				<button type="submit" class="btn btn-primary"> ${messageSource.getMessage('jws.createnew')} </button>
+			</form>
+
+
+			<span onclick="backToWelcomePage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="yourGridId"></div>
+
+</div>
+</#noparse>
+```
+
+<#elseif selectedTab == "jsContent">
+```JavaScript
+<#noparse>
+	contextPath = "${contextPath!''}";
+	$(function () {
+	//Add all columns that needs to be displayed in the grid
+		let colM = [
+			{ title: "Column Name to be displayed", width: 130, dataIndx: "columnNameInQuery", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
+	
+	//System will fecth grid data based on gridId
+		let grid = $("#yourGridId").grid({
+	      gridId: "yourGridId",
+	      colModel: colM,
+          dataModel: dataModel
+	  	});
+	
+	});
+	
+	//Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+	function manageRecord(uiObject) {
+		let primaryId = uiObject.rowData;
+
+		console.log(uiObject);
+	}
+	
+	//Add logic to navigate to create new record
+	function createNew(element) {
+		$("#primaryId").val(element.id);
+		$("#addEditRecords").submit();
+	}
+
+	//Code go back to previous page
+	function backToWelcomePage() {
+		location.href = contextPath+"/cf/home";
+	}
+</#noparse>
+```
+</#if>

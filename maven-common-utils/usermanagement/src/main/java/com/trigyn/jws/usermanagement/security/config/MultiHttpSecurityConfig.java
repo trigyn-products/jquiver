@@ -2,13 +2,13 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -33,59 +33,54 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
-import com.trigyn.jws.usermanagement.security.config.oauth.OAuthDetails;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.AuthenticationDetails;
+import com.trigyn.jws.usermanagement.vo.ConnectionDetailsJSONSpecification;
+import com.trigyn.jws.usermanagement.vo.DropDownData;
+import com.trigyn.jws.usermanagement.vo.JwsAuthAdditionalProperty;
+import com.trigyn.jws.usermanagement.vo.JwsAuthConfiguration;
+import com.trigyn.jws.usermanagement.vo.JwsAuthenticationType;
+import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
+	
+	@Autowired
+	private LogoutHandler					customLogoutSuccessHandler		= null;
 
 	@Autowired
-	private UserDetailsService				userDetailsService			= null;
+	private ApplicationSecurityDetails		applicationSecurityDetails		= null;
 
 	@Autowired
-	private AuthenticationSuccessHandler	customAuthSuccessHandler	= null;
+	private PasswordEncoder					passwordEncoder					= null;
 
 	@Autowired
-	private LogoutHandler					customLogoutSuccessHandler	= null;
+	private DataSource						dataSource						= null;
+
+	private static List<String>				clients							= new ArrayList<>();
+	// Arrays.asList("google", "facebook");
 
 	@Autowired
-	private ApplicationSecurityDetails		applicationSecurityDetails	= null;
+	private JwtRequestFilter				jwtRequestFilter				= null;
 
 	@Autowired
-	private PasswordEncoder					passwordEncoder				= null;
+	private ServletContext					servletContext					= null;
 
 	@Autowired
-	private DataSource						dataSource					= null;
-
-	@Autowired
-	private OAuthDetails					oAuthDetails				= null;
-
-	private static List<String>				clients						= new ArrayList<>();	// Arrays.asList("google",
-																// "facebook");
-	@Autowired
-	private JwtRequestFilter				jwtRequestFilter			= null;
-
-	@Autowired
-	private ServletContext					servletContext				= null;
-
-	// @Bean
-	// public AuthenticationManager authenticationManagerBean() throws Exception {
-	// return super.authenticationManagerBean();
-	// }
+	private CustomAuthenticationProvider	customAuthenticationProvider	= null;
 
 	@Bean
-	@ConditionalOnMissingBean
 	public UserDetailsService userDetailsService(JwsUserRepository userRepository,
-		JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
+			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
 		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository, userConfigService);
 	}
-
+	
 	@Bean
-	@ConditionalOnMissingBean
-	public AuthenticationSuccessHandler authenticationSuccessHandler() {
+	public AuthenticationSuccessHandler customAuthSuccessHandler() {
 		return new CustomAuthSuccessHandler();
 	}
+
 
 	@Bean
 	public CustomLoginFailureHandler loginFailureHandler() {
@@ -93,7 +88,6 @@ public class MultiHttpSecurityConfig {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
 	public LogoutHandler logoutHandler() {
 		return new CustomLogoutSuccessHandler();
 	}
@@ -111,88 +105,181 @@ public class MultiHttpSecurityConfig {
 		}
 
 		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-		}
-
-		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/japi/**") // <= Security only available for /japi/**
-					.authorizeRequests().antMatchers("/japi/register", "/japi/login", "/japi/error").permitAll().anyRequest()
-					.authenticated().and().csrf().disable().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
+					.authorizeRequests().antMatchers("/japi/register", "/japi/login", "/japi/error").permitAll()
+					.anyRequest().authenticated().and().csrf().disable().exceptionHandling()
+					.authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
 					.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}
 	}
 
 	@Configuration
+	@Order(2)
 	public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			String authenticationType = applicationSecurityDetails.getAuthenticationType();
-			// auth.parentAuthenticationManager(null);
-			if (authenticationType == null) {
-				auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
-			} else {
-				Integer authType = Integer.parseInt(authenticationType);
-				if (Constants.AuthType.INMEMORY.getAuthType() == authType) {
-					auth.inMemoryAuthentication().withUser("root@trigyn.com").password(passwordEncoder.encode("root")).roles("ADMIN");
-				} else if (Constants.AuthType.DAO.getAuthType() == authType) {
-					auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-				} else if (Constants.AuthType.LDAP.getAuthType() == authType) {
-					// TODO :
-				} else if (Constants.AuthType.OAUTH.getAuthType() == authType) {
-					// TODO :
+			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
+			if (authenticationDetails != null) {
+				@SuppressWarnings("unchecked")
+				List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
+						.get("authenticationDetails");
+				if (multiAuthSecurityDetails != null && multiAuthSecurityDetails.isEmpty() == false) {
+					for (MultiAuthSecurityDetailsVO multiAuthLogin : multiAuthSecurityDetails) {
+						Integer authType = multiAuthLogin.getAuthenticationTypeVO().getId();
+						if (authenticationDetails != null) {
+							if (authType == null || Constants.AuthType.INMEMORY.getAuthType() == authType) {
+								// TODO : Need to move INMEMORY Auth to customAuthenticationProvider with
+								// another switch case
+								auth.inMemoryAuthentication().withUser("root@trigyn.com")
+										.password(passwordEncoder.encode("root")).roles("ADMIN");
+							} else if (Constants.AuthType.DAO.getAuthType() == authType
+									|| Constants.AuthType.LDAP.getAuthType() == authType) {
+								auth.authenticationProvider(customAuthenticationProvider);
+							}
+						}
+					}
 				}
 			}
 		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-				String	authenticationType	= applicationSecurityDetails.getAuthenticationType();
-				Integer	authType			= Integer.parseInt(authenticationType);
-				if (Constants.AuthType.INMEMORY.getAuthType() == authType) {
-					// TODO :
-				} else if (Constants.AuthType.DAO.getAuthType() == authType) {
-					http.authorizeRequests().antMatchers("/webjars/**").permitAll().antMatchers("/").permitAll()
-							.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail", "/cf/resetPasswordPage",
-									"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/authenticate")
-							.permitAll()
-							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
-									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail", "/cf/**", "/", "/view/**")
-							.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login").usernameParameter("email").permitAll()
-							.failureHandler(loginFailureHandler()).successHandler(customAuthSuccessHandler).and().rememberMe()
-							.rememberMeParameter("remember-me").tokenRepository(tokenRepository()).and().logout()
-							.addLogoutHandler(customLogoutSuccessHandler).deleteCookies("JSESSIONID").invalidateHttpSession(true);
-					// .and().sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry());
+			CustomAuthSuccessHandler.addLoginListener(new LoginSuccessEventListenerRestImpl());
+			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
+			if (authenticationDetails != null) {
+				@SuppressWarnings("unchecked")
+				List<MultiAuthSecurityDetailsVO> multiAuthLogiVos = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
+						.get("authenticationDetails");
+				if (multiAuthLogiVos.isEmpty() == false && applicationSecurityDetails.getIsAuthenticationEnabled()) {
+					for (MultiAuthSecurityDetailsVO multiAuthLogin : multiAuthLogiVos) {
+						if (multiAuthLogin != null) {
+							Integer					authType				= multiAuthLogin.getAuthenticationTypeVO()
+									.getId();
+							JwsAuthenticationType	authVerificationType	= multiAuthLogin.getConnectionDetailsVO()
+									.getAuthenticationType();
+							if (authVerificationType != null && authVerificationType.getValue() != null) {
+								Boolean enableVerification = Boolean.parseBoolean(authVerificationType.getValue());
+								if (enableVerification) {
+									if (Constants.AuthType.INMEMORY.getAuthType() == authType) {
+										// TODO :
+									}
+									if (Constants.AuthType.DAO.getAuthType() == authType) {
+										http.authorizeRequests().antMatchers("/webjars/**").permitAll().antMatchers("/")
+												.permitAll()
+												.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail",
+														"/cf/resetPasswordPage", "/cf/sendResetPasswordMail",
+														"/cf/resetPassword", "/cf/authenticate",
+														"/cf/saveOtpAndSendMail")
+												.permitAll()
+												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
+														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
+														"/cf/sendConfigureTOTPMail")
+												.permitAll().antMatchers("/login/**", "/logout/**").permitAll()
+												.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
+												.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
+												.usernameParameter("email").permitAll()
+												.failureHandler(loginFailureHandler())
+												.successHandler(customAuthSuccessHandler())
+												.and().rememberMe()
+												.rememberMeParameter("remember-me").tokenRepository(tokenRepository())
+												.and().logout().addLogoutHandler(customLogoutSuccessHandler)
+												.deleteCookies("JSESSIONID");
+									}
 
-				} else if (Constants.AuthType.LDAP.getAuthType() == authType) {
-					// TODO :
-				} else if (Constants.AuthType.OAUTH.getAuthType() == authType) {
+									if (Constants.AuthType.LDAP.getAuthType() == authType) {
+										http.authorizeRequests().antMatchers("/webjars/**").permitAll().antMatchers("/")
+												.permitAll()
+												.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail",
+														"/cf/resetPasswordPage", "/cf/sendResetPasswordMail",
+														"/cf/resetPassword", "/cf/authenticate",
+														"/cf/saveOtpAndSendMail")
+												.permitAll()
+												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
+														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
+														"/cf/sendConfigureTOTPMail")
+												.permitAll().antMatchers("/login/**", "/logout/**").permitAll()
+												.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
+												.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
+												.usernameParameter("email").permitAll()
+												.failureHandler(loginFailureHandler())
+												.successHandler(customAuthSuccessHandler())
+												.and().rememberMe()
+												.rememberMeParameter("remember-me").tokenRepository(tokenRepository())
+												.and().logout().addLogoutHandler(customLogoutSuccessHandler)
+												.deleteCookies("JSESSIONID");
 
+									}
+
+									if (Constants.AuthType.OAUTH.getAuthType() == authType) {
+										List<List<JwsAuthConfiguration>>	configurations			= multiAuthLogin
+												.getConnectionDetailsVO().getAuthenticationDetails()
+												.getConfigurations();
+										List<DropDownData>					selectedDropDownData	= null;
+										for (List<JwsAuthConfiguration> multiAuthSecConfigurations : configurations) {
+											selectedDropDownData = multiAuthSecConfigurations.stream()
+													.filter(configuration -> configuration.getDropDownData() != null)
+													.flatMap(dropDownDatas -> dropDownDatas.getDropDownData().stream())
+													.filter(dropDownData -> dropDownData.getSelected() != null
+															&& dropDownData.getSelected())
+													.collect(Collectors.toList());
+										}
+
+										if (selectedDropDownData != null && selectedDropDownData.size() > 0) {
+											http.authorizeRequests().antMatchers("/cf/confirm-account").denyAll()
+													.antMatchers("/webjars/**").permitAll()
+													.antMatchers("/login/**", "/logout/**").permitAll()
+													.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
+													.permitAll()
+													// below line will enable redirection to authentication page, if
+													// user
+													// has not logged in. Example, clicking directly to survey link.
+													.antMatchers("/cf/**").authenticated().and().oauth2Login()
+													.clientRegistrationRepository(clientRegistrationRepository())
+													.loginPage("/cf/login").permitAll()
+													.failureHandler(loginFailureHandler())
+													.successHandler(customAuthSuccessHandler())
+													.and().logout()
+													.addLogoutHandler(customLogoutSuccessHandler).and().csrf()
+													.disable();
+										}
+									}
+								}
+							}
+
+						} else {
+							http.authorizeRequests()
+									.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail",
+											"/cf/resetPasswordPage", "/cf/sendResetPasswordMail", "/cf/resetPassword",
+											"/cf/login")
+									.denyAll()
+									.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
+											"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
+											"/cf/sendConfigureTOTPMail")
+									.denyAll().antMatchers("/cf/**", "/view/**", "/").permitAll().and().csrf()
+									.disable();
+						}
+					}
+				} else {
 					http.authorizeRequests()
 							.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail", "/cf/resetPasswordPage",
-									"/cf/sendResetPasswordMail", "/cf/resetPassword")
+									"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/login")
 							.denyAll()
 							.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
 									"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
-							.denyAll().antMatchers("/webjars/**").permitAll().antMatchers("/login/**", "/logout/**").permitAll().and()
-							.oauth2Login().loginPage("/cf/login").permitAll().failureHandler(loginFailureHandler())
-							.successHandler(customAuthSuccessHandler).and().logout().addLogoutHandler(customLogoutSuccessHandler).and()
-							.csrf().disable();
+							.denyAll().antMatchers("/cf/**", "/view/**", "/").permitAll().and().csrf().disable();
 				}
 			} else {
 				http.authorizeRequests()
 						.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail", "/cf/resetPasswordPage",
 								"/cf/sendResetPasswordMail", "/cf/resetPassword", "/cf/login")
 						.denyAll()
-						.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword", "/cf/updatePassword",
-								"/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
+						.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**", "/cf/changePassword",
+								"/cf/updatePassword", "/cf/configureTOTP", "/cf/sendConfigureTOTPMail")
 						.denyAll().antMatchers("/cf/**", "/view/**", "/").permitAll().and().csrf().disable();
 			}
-
 		}
 	}
 
@@ -203,41 +290,112 @@ public class MultiHttpSecurityConfig {
 		return jdbcTokenRepositoryImpl;
 	}
 
-	@Bean
-	public ClientRegistrationRepository clientRegistrationRepository() {
-		List<ClientRegistration> registrations = new ArrayList<ClientRegistration>();
-		if (oAuthDetails != null) {
-			clients.add(oAuthDetails.getOAuthClient());
-			registrations = clients.stream().map(this::getRegistration).filter(registration -> registration != null)
-					.collect(Collectors.toList());
-		}
+	private ClientRegistrationRepository clientRegistrationRepository() {
+		List<ClientRegistration>	registrations			= new ArrayList<ClientRegistration>();
+		Map<String, Object>			authenticationDetails	= applicationSecurityDetails.getAuthenticationDetails();
+		if (authenticationDetails != null) {
+			@SuppressWarnings("unchecked")
+			List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
+					.get("authenticationDetails");
+			if (multiAuthSecurityDetails != null) {
+				for (MultiAuthSecurityDetailsVO authSecurityDetail : multiAuthSecurityDetails) {
+					Integer authType = authSecurityDetail.getAuthenticationTypeVO().getId();
+					if (authType != null && Constants.AuthType.OAUTH.getAuthType() == authType) {
+						ConnectionDetailsJSONSpecification oAuthType = authSecurityDetail.getConnectionDetailsVO();
+						if (oAuthType.getAuthenticationType() != null && oAuthType.getAuthenticationDetails() != null) {
+							AuthenticationDetails authenticationDetail = oAuthType.getAuthenticationDetails();
+							for (List<JwsAuthConfiguration> oAuthConfigurationDetails : authenticationDetail
+									.getConfigurations()) {
+								for (JwsAuthConfiguration authConfiguration : oAuthConfigurationDetails) {
+									List<DropDownData> dropDownDatas = authConfiguration.getDropDownData();
+									for (DropDownData dropDownData : dropDownDatas) {
+										if (!clients.contains(dropDownData.getName())) {
+											clients.add(dropDownData.getName());
+											ClientRegistration client = getRegistration(dropDownData);
+											if (client != null)
+												registrations.add(client);
+										}
 
+									}
+								}
+
+							}
+						}
+					}
+				}
+			}
+		}
 		return new InMemoryClientRegistrationRepository(registrations);
 	}
 
-	private ClientRegistration getRegistration(String client) {
-		String	clientId		= oAuthDetails.getOAuthClientId();
-		String	clientSecret	= oAuthDetails.getOAuthClientSecret();
+	private ClientRegistration getRegistration(DropDownData dropDownData) {
+		if (dropDownData == null) {
+			return null;
+		}
+		String									clientName				= dropDownData.getName();
+		String									clientId				= null;
+		String									clientSecret			= null;
+		String									clientType				= dropDownData.getName();
 
-		if (client.equals("google")) {
-			return CommonOAuth2Provider.GOOGLE.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
-		} else if (client.equals("facebook")) {
-			return CommonOAuth2Provider.FACEBOOK.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
-		} else if (client.equals("github")) {
-			return CommonOAuth2Provider.GITHUB.getBuilder(client).clientId(clientId).clientSecret(clientSecret).build();
-		} else if (client.equals("office365")) {
+		List<List<JwsAuthAdditionalProperty>>	additionalProperties	= dropDownData.getAdditionalDetails()
+				.getAdditionalProperties();
+		if (additionalProperties == null) {
+			return null;
+		}
+		for (List<JwsAuthAdditionalProperty> additionalProps : additionalProperties) {
 
-			String redirectUri = String.format("%s%s/login/oauth2/code/office365", applicationSecurityDetails.getBaseUrl(),
-					servletContext.getContextPath());
-			return ClientRegistration.withRegistrationId("office365").clientId(clientId).clientSecret(clientSecret)
-					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid").redirectUriTemplate(redirectUri)
+			JwsAuthAdditionalProperty	oAuthClientId		= additionalProps.stream()
+					.filter(additionalProperty -> additionalProperty != null
+							&& additionalProperty.getName().equalsIgnoreCase("client-id"))
+					.findAny().orElse(null);
+			JwsAuthAdditionalProperty	oAuthClientSecret	= additionalProps.stream()
+					.filter(additionalProperty -> additionalProperty != null
+							&& additionalProperty.getName().equalsIgnoreCase("client-secret"))
+					.findAny().orElse(null);
 
-					.authorizationUri("https://login.microsoftonline.com/common/oauth2/authorize")
-					.tokenUri("https://login.microsoftonline.com/common/oauth2/token")
-					.jwkSetUri("https://login.microsoftonline.com/common/discovery/keys").build();
+			if (oAuthClientId != null)
+				clientId = oAuthClientId.getValue();
+
+			if (oAuthClientSecret != null)
+				clientSecret = oAuthClientSecret.getValue();
+
+			if (clientId == null || clientSecret == null) {
+				return null;
+			}
+
+			if (clientType.equals("google")) {
+				return CommonOAuth2Provider.GOOGLE.getBuilder(clientName).clientId(clientId).clientSecret(clientSecret)
+						.build();
+			}
+			if (clientType.equals("facebook")) {
+				return CommonOAuth2Provider.FACEBOOK.getBuilder(clientName).clientId(clientId)
+						.clientSecret(clientSecret).build();
+			}
+			if (clientType.equals("github")) {
+				return CommonOAuth2Provider.GITHUB.getBuilder(clientName).clientId(clientId).clientSecret(clientSecret)
+						.build();
+			}
+			if (clientType.equals("office-365")) {
+				JwsAuthAdditionalProperty registrationId = additionalProps.stream()
+						.filter(additionalProperty -> additionalProperty != null
+								&& additionalProperty.getName().equalsIgnoreCase("registration-id"))
+						.findAny().orElse(null);
+				if (registrationId != null) {
+					String redirectUri = String.format("%s%s/login/oauth2/code/" + registrationId.getValue(),
+							applicationSecurityDetails.getBaseUrl(), servletContext.getContextPath());
+					return ClientRegistration.withRegistrationId(registrationId.getValue()).clientId(clientId)
+							.clientSecret(clientSecret)
+							.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid")
+							.redirectUriTemplate(redirectUri)
+
+							.authorizationUri("https://login.microsoftonline.com/common/oauth2/authorize")
+							.tokenUri("https://login.microsoftonline.com/common/oauth2/token")
+							.jwkSetUri("https://login.microsoftonline.com/common/discovery/keys").build();
+				}
+
+			}
 		}
 		return null;
-
 	}
 
 }

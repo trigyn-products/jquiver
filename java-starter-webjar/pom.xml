@@ -4,7 +4,7 @@
     <packaging>jar</packaging>
     <groupId>com.trigyn</groupId>
     <artifactId>webjars</artifactId>
-    <version>1.2.20-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>webjars</name>
     <description>WebJar for Java starter project.</description>
     <url>https://github.com/trigyn-products/java-web-starter</url>
@@ -37,6 +37,13 @@
 		<developer>
 			<name>Aman Prasad</name>
 			<email>akprasad1995@gmail.com</email>
+			<organization>Trigyn</organization>
+			<organizationUrl>https://trigyn.com</organizationUrl>
+			<timezone>UTC+05:30</timezone>
+		</developer>
+		<developer>
+			<name>Abhay Desai</name>
+			<email>abcoll786@gmail.com</email>
 			<organization>Trigyn</organization>
 			<organizationUrl>https://trigyn.com</organizationUrl>
 			<timezone>UTC+05:30</timezone>

@@ -29,6 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dynarest.service.SendMailService;
+import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -39,9 +42,7 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.webstarter.service.SendMailService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
-import com.trigyn.jws.webstarter.utils.Email;
 
 @RestController
 @RequestMapping("/cf")
@@ -79,6 +80,9 @@ public class JwsResetPasswordController {
 
 	@Autowired
 	private ServletContext					servletContext					= null;
+	
+	@Autowired
+   	private IUserDetailsService					userDetailsService						= null;
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
@@ -117,6 +121,7 @@ public class JwsResetPasswordController {
 					session.removeAttribute("resetCaptcha");
 				}
 				existingUser.setIsActive(Constants.INACTIVE);
+				existingUser.setForcePasswordChange(Constants.INACTIVE);
 				userRepository.save(existingUser);
 				JwsResetPasswordToken	resetPassword	= new JwsResetPasswordToken();
 				String					tokenId			= UUID.randomUUID().toString();
@@ -124,9 +129,9 @@ public class JwsResetPasswordController {
 				resetPassword.setPasswordResetTime(Calendar.getInstance());
 				resetPassword.setUserId(existingUser.getUserId());
 				String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
-				
-				if(baseURL!=null && baseURL.endsWith("/")) {
-					baseURL = baseURL.substring(0, baseURL.length()-1);
+
+				if (baseURL != null && baseURL.endsWith("/")) {
+					baseURL = baseURL.substring(0, baseURL.length() - 1);
 				}
 				resetPassword.setResetPasswordUrl(baseURL + "/cf/resetPassword?token=" + tokenId);
 				resetPassword.setIsResetUrlExpired(Boolean.FALSE);
@@ -134,7 +139,9 @@ public class JwsResetPasswordController {
 
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
-
+				/*For inserting notification in case of mail failure only on access of Admin*/
+				email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+				email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 				// email.setMailFrom("admin@jquiver.com");
 				Map<String, Object>	mailDetails			= new HashMap<>();
 				TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("reset-password-mail-subject");
@@ -247,10 +254,12 @@ public class JwsResetPasswordController {
 						user.setPassword(encodedPassword);
 						userRepository.save(user);
 
-						if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-							mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
-						}
-
+						/*
+						 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+						 * mapDetails.put("authenticationType",
+						 * applicationSecurityDetails.getAuthenticationType()); }
+						 */
+						userConfigService.getConfigurableDetails(mapDetails);
 						resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(), tokenId);
 						mapDetails.put("resetPasswordSuccess", "Congratulations.You have successfully changed your password.");
 						viewName = "jws-login";
@@ -346,9 +355,12 @@ public class JwsResetPasswordController {
 								jwsUser.setLastPasswordUpdatedDate(new Date());
 								userRepository.save(jwsUser);
 
-								if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-									mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
-								}
+								/*
+								 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+								 * mapDetails.put("authenticationType",
+								 * applicationSecurityDetails.getAuthenticationType()); }
+								 */
+								userConfigService.getConfigurableDetails(mapDetails);
 
 								mapDetails.put("resetPasswordSuccess", "Congratulations.You have successfully updated your password.");
 								viewName = "jws-login";

@@ -1,0 +1,12 @@
+<script type="text/javascript">
+	
+</script>
+<div class="col-12 margin-b-10">
+ <div class="control--checkbox">
+  <label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+  <input type="checkbox" class="roles" name="${innerTemplateObj.propertyId!''}" value="true" />
+  <label for="checkbox1"><span></span>${messageSource.getMessage('jws.true')}</label>
+  <input type="checkbox" class="roles" name="${innerTemplateObj.propertyId!''}" value="false"/>
+  <label for="checkbox1"><span></span>${messageSource.getMessage('jws.false')}</label>
+ </div>
+</div>

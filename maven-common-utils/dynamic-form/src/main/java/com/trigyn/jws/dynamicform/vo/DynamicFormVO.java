@@ -17,6 +17,10 @@ public class DynamicFormVO implements Serializable {
 	private String							createdBy				= null;
 	private Date							createdDate				= null;
 	private List<DynamicFormSaveQueryVO>	dynamicFormSaveQueries	= null;
+	private Integer							selectQueryType  		= null;
+	private String					variableName	= null;
+	private String					datasourceDetails	= null;
+	private String					queryType	= null;
 
 	public DynamicFormVO() {
 
@@ -194,6 +198,38 @@ public class DynamicFormVO implements Serializable {
 				+ ", formSelectQuery=" + formSelectQuery + ", formBody=" + formBody + ", formTypeId=" + formTypeId
 				+ ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", dynamicFormSaveQueries="
 				+ dynamicFormSaveQueries + "]";
+	}
+
+	public Integer getSelectQueryType() {
+		return selectQueryType;
+	}
+
+	public void setSelectQueryType(Integer selectQueryType) {
+		this.selectQueryType = selectQueryType;
+	}
+
+	public String getVariableName() {
+		return variableName;
+	}
+
+	public void setVariableName(String variableName) {
+		this.variableName = variableName;
+	}
+
+	public String getDatasourceDetails() {
+		return datasourceDetails;
+	}
+
+	public void setDatasourceDetails(String datasourceDetails) {
+		this.datasourceDetails = datasourceDetails;
+	}
+
+	public String getQueryType() {
+		return queryType;
+	}
+
+	public void setQueryType(String queryType) {
+		this.queryType = queryType;
 	}
 
 }

@@ -1,0 +1,116 @@
+<#if selectedTab == "htmlContent">
+```HTML
+<#noparse>
+<!-- HTML Header -->
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
+<!-- Start - Autocomplete HTML Body -->
+<div class="col-6">
+    <div class="col-inner-form full-form-fields">
+        <label for="flammableState" style="white-space:nowrap"><@resourceBundleWithDefault "jws.autocomplete" "Autocomplete"/></label>
+        <div class="search-cover">
+            <input class="form-control" id="autocompleteId" type="text">
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </div>
+    </div>
+</div>
+<!-- End - Autocomplete HTML Body -->
+
+<!-- Start - Multiselect HTML Body -->
+<div class="col-6">
+    <div class="col-inner-form full-form-fields">
+        <label for="flammableState" style="white-space:nowrap"><@resourceBundleWithDefault "jws.multiselect" "Multiselect"/></label>
+        <div class="search-cover">                
+            <input class="form-control" id="bsMultiselect" type="text">
+            <i class="fa fa-search" aria-hidden="true"></i>
+        </div>    
+    </div>
+</div>
+<!-- End - Multiselect HTML Body -->
+
+</#noparse>
+```
+
+<#elseif selectedTab == "jsContent">
+```JavaScript
+<#noparse>
+/*Start - Autocomplete code*/
+contextPath = "${contextPath!''}";
+let autocomplete;
+
+$(function () {
+    autocomplete = $("#autocompleteId").autocomplete({
+        autocompleteId: "autocompleteId",
+        pageSize: 10,//Default page size is 10
+        prefetch : false,
+        render: function(item) {
+            let renderStr ='';
+            if(item.emptyMsg == undefined || item.emptyMsg === '')
+            {
+                renderStr = '<p>'+item.text+'</p>';
+            }
+            else
+            {
+                renderStr = item.emptyMsg;    
+            }                                
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        requestParameters: {},
+        extractText: function(item) {
+            return item.text;
+        },
+        select: function(item) {
+            $("#autocompleteId").blur();
+        },     
+        resetAutocomplete: function(){ 
+            //This function will be executed onblur or when user click on clear text button
+            //Code to reset dependent JavaScript variables, input fields etc.
+        }, 
+    }, {key: "jws.action", languageId: 1, text: "Action"});
+
+    //You can set default value using setSelectedObject function
+    autcomplete.setSelectedObject({key: "jws.action", languageId: 1, text: "Action"});
+});
+
+//User can reset any autocomplete component by calling resetAutocomplete function
+autocomplete.resetAutocomplete();
+/*End - Autocomplete code*/
+
+/*Start - Multiselect code*/
+
+<script>
+let basicMultiselect;
+$(function () {
+    basicMultiselect = $("#bsMultiselect").multiselect({
+        autocompleteId: "resourcesAutocomplete",
+        enableClearAll: true,//true enables Clear All functionality
+        render: function(item) {
+            let renderStr =';
+            if(item.emptyMsg == undefined || item.emptyMsg === '){
+                renderStr = '<p>'+item.text+'</p>';
+            }else{
+                renderStr = item.emptyMsg;    
+            }                                
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.text;
+        },
+        selectedItemRender: function(item){
+            return item.text;
+        },
+        select: function(item) {
+            $("#bsMultiselectLS").blur();
+            basicMultiselect.setSelectedObject(item);
+        },    
+    });
+</script>
+
+/*End - Multiselect code*/
+</#noparse>
+```
+</#if>

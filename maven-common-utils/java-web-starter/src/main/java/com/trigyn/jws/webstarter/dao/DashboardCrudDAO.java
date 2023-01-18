@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
@@ -30,11 +31,15 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
-		return hibernateTemplate.get(Dashboard.class, dashboardId);
+		Dashboard dashboard =  hibernateTemplate.get(Dashboard.class, dashboardId);
+		if(dashboard != null) getCurrentSession().evict(dashboard);
+		return dashboard;
 	}
 
 	public Dashlet findDashletByDashletId(String dashletId) throws Exception {
-		return hibernateTemplate.get(Dashlet.class, dashletId);
+		Dashlet dashlet =  hibernateTemplate.get(Dashlet.class, dashletId);
+		if(dashlet != null) getCurrentSession().evict(dashlet);
+		return dashlet;
 	}
 
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId) throws Exception {
@@ -81,6 +86,33 @@ public class DashboardCrudDAO extends DBConnection {
 		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHLET_ROLES.toString());
 		query.setParameter("dashletId", dashletId);
 		query.executeUpdate();
+	}
+
+	@Transactional(readOnly = false)
+	public void saveDashboard(Dashboard dashboard, List<DashboardRoleAssociation> dashboardRoleAssociations, List<DashboardDashletAssociation>	dashboardDashlets) throws Exception {
+		if(dashboard.getDashboardId() == null || findDashboardByDashboardId(dashboard.getDashboardId()) == null) {
+			getCurrentSession().save(dashboard);			
+		}else {
+			getCurrentSession().saveOrUpdate(dashboard);
+		}
+		
+		deleteAllDashboardRoles(dashboard.getDashboardId());
+		for(DashboardRoleAssociation dra : dashboardRoleAssociations) {
+			getCurrentSession().save(dra);
+		}
+
+		deleteAllDashletFromDashboard(dashboard.getDashboardId());
+		for(DashboardDashletAssociation dra : dashboardDashlets) {
+			getCurrentSession().save(dra);
+		}
+	}
+
+	public void saveDashlet(Dashlet dashlet) throws Exception {
+		if(dashlet.getDashletId() == null || findDashletByDashletId(dashlet.getDashletId()) == null) {
+			getCurrentSession().save(dashlet);			
+		}else {
+			getCurrentSession().saveOrUpdate(dashlet);
+		}
 	}
 
 }

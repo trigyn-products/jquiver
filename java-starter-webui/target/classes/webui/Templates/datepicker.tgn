@@ -1,0 +1,38 @@
+
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script type="text/javascript">
+jQuery(function() {
+	Calendar.setup({
+			trigger    : "${innerTemplateObj.propertyId!''}-trigger",
+			inputField : "${innerTemplateObj.propertyId!''}",
+			dateFormat : "%d-%b-%Y",
+			weekNumbers: true,
+			onSelect   : function() {
+				let selectedDate = this.selection.get();
+				let date = Calendar.intToDate(selectedDate);
+				date = Calendar.printDate(date, "%d-%b-%Y");
+				$("#"+this.inputField.id).val(date);
+				this.hide(); 
+			}
+		});
+});
+var dateInputId = "${innerTemplateObj.propertyId!''}";
+var defaultDate = "${innerTemplateObj.defaultValue!''}";
+if(defaultDate.trim() !== ""){ 
+	$("#"+dateInputId).val(Calendar.printDate(Calendar.parseDate(defaultDate,false),"%d-%b-%Y"));
+}
+</script>
+<div class="col-12 margin-b-10">
+	<div class="dashlet-config-calendar">
+		<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+		<input class="form-control" id="${innerTemplateObj.propertyId!''}"  name= "${innerTemplateObj.propertyId!''}" placeholder="" />
+		<button id="${innerTemplateObj.propertyId!''}-trigger" class="calender_icon">
+			<i class="fa fa-calendar" aria-hidden="true"></i>
+		</button>
+	</div>
+</div>
+					

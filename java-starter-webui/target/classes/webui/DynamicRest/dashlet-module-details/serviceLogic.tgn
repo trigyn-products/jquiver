@@ -1,0 +1,12 @@
+function dashletmoduleDetails(requestDetails, daoResults) {
+    var moduleDetails = new Object();
+    moduleDetails.templates = daoResults["templateDetails"];
+    moduleDetails.grids = daoResults["gridDetails"];
+    moduleDetails.dashboards = daoResults["dashboardDetails"];
+    moduleDetails.i18n = daoResults["resourceBundleDetails"];
+    moduleDetails.dashlets = daoResults["dashletDetails"];
+    moduleDetails.notifications = daoResults["notificationDetails"];
+    return moduleDetails;
+}
+
+dashletmoduleDetails(requestDetails, daoResults);

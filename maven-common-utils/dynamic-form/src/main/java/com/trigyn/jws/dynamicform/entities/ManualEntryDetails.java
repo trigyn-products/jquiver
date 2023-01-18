@@ -2,7 +2,6 @@ package com.trigyn.jws.dynamicform.entities;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,7 +39,12 @@ public class ManualEntryDetails {
 	@Column(name = "last_modified_on")
 	private Date	lastModifiedOn	= null;
 
-	public ManualEntryDetails() {}
+	@Column(name = "is_custom_updated")
+	private Integer	isCustomUpdated	= 1;
+
+	public ManualEntryDetails() {
+	}
+
 	public ManualEntryDetails(Map<String, Object> manualParameterMap, String userName) {
 		super();
 		this.manualEntryId	= manualParameterMap.get("manualentryid") == null
@@ -53,8 +57,6 @@ public class ManualEntryDetails {
 		this.lastUpdatedBy	= userName;
 		this.lastModifiedOn	= new Date();
 	}
-	
-	
 
 	public ManualEntryDetails(String manualEntryId, String manualType, String entryName, String entryContent,
 			Integer sortIndex, String lastUpdatedBy, Date lastModifiedOn) {
@@ -67,6 +69,7 @@ public class ManualEntryDetails {
 		this.lastUpdatedBy	= lastUpdatedBy;
 		this.lastModifiedOn	= lastModifiedOn;
 	}
+
 	public String getManualEntryId() {
 		return manualEntryId;
 	}
@@ -121,6 +124,14 @@ public class ManualEntryDetails {
 
 	public void setLastModifiedOn(Date lastModifiedOn) {
 		this.lastModifiedOn = lastModifiedOn;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 }

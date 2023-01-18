@@ -45,6 +45,10 @@
             const pqGridObject = {
                 flexHeight: true,
                 dataModel: options.dataModel,
+                menuIcon: true, 
+                menuUI:{
+                    tabs: ['filter'] 
+                },
                 colModel: options.colModel,
                 additionalParameters: options.additionalParameters,
                 pageModel: { type: "remote", rPP: 10, strRpp: "{0}" },
@@ -56,20 +60,23 @@
                 resizable: false,
                 showTop : false,
                 dragColumns: {enabled: options.draggableColumns},
+                editable : false,
                 load: function(event, ui) {
                 	options.loadCallback(event, ui);
-                	disableInputSuggestion();
                 	ui.colModel.forEach((column, index) => {
 					    if(column.sortable == false){
-					        $("tr.pq-grid-title-row td[pq-col-indx="+column.leftPos+"]").addClass("pq-grid-col-cusror")  
+					        $("tr.pq-grid-title-row th[pq-col-indx="+column.leftPos+"]").addClass("pq-grid-col-cusror")  
 					    }
 					})
-                }
+                },
+                complete: function( event, ui ) {
+                	disableInputSuggestion();
+                },
             }
             
          
             if(options.enableFilter) {
-                pqGridObject['filterModel'] = { on: true, mode: "AND", header: true }; 
+                pqGridObject['filterModel'] = { on: true, mode: "AND", header: true, menuIcon: true, type : 'remote' }; 
             }
 
          	

@@ -1,0 +1,1 @@
+SELECT COUNT(tm.template_id) AS templateCount FROM jq_template_master AS tm WHERE tm.updated_date > STR_TO_DATE("${startDate}","%d-%b-%Y") AND tm.updated_date <= STR_TO_DATE("${endDate}","%d-%b-%Y")

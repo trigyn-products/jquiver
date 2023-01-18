@@ -24,6 +24,9 @@ public class ResourceBundle implements Serializable {
 	@Column(name = "text")
 	private String				text				= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer				isCustomUpdated		= 1;
+
 	@ManyToOne
 	@JoinColumn(name = "language_id", nullable = false, insertable = false, updatable = false)
 	private Language			language			= null;
@@ -61,6 +64,14 @@ public class ResourceBundle implements Serializable {
 		this.language = language;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder().append("{ id = ").append(id).append(", text = ").append(text)
@@ -85,26 +96,27 @@ public class ResourceBundle implements Serializable {
 			return false;
 		}
 		ResourceBundle other = (ResourceBundle) obj;
-		return Objects.equals(id, other.id) && Objects.equals(language, other.language) && Objects.equals(text, other.text);
+		return Objects.equals(id, other.id) && Objects.equals(language, other.language)
+				&& Objects.equals(text, other.text);
 	}
 
 	public ResourceBundle getObject() {
 		String textStr;
 		if (text != null) {
-			textStr = StringEscapeUtils.unescapeXml("<![CDATA[" + text.trim() + "]]>");
+			textStr = StringEscapeUtils.unescapeXml("<![CDATA[" + text.trim() + "]]>".trim());
 		} else {
-			textStr = StringEscapeUtils.unescapeXml("<![CDATA[" + text + "]]>");
+			textStr = StringEscapeUtils.unescapeXml("<![CDATA[" + text + "]]>".trim());
 		}
 		String langNameStr;
 		if (language.getLanguageName() != null) {
-			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA[" + language.getLanguageName().trim() + "]]>");
+			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA[" + language.getLanguageName().trim() + "]]>".trim());
 		} else {
-			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA[" + language.getLanguageName() + "]]>");
+			langNameStr = StringEscapeUtils.unescapeXml("<![CDATA[" + language.getLanguageName() + "]]>".trim());
 		}
 		ResourceBundlePK	rpk				= new ResourceBundlePK(id.getResourceKey(), id.getLanguageId());
 		ResourceBundle		resourceBundle	= new ResourceBundle(rpk, textStr);
-		Language			lang			= new Language(language.getLanguageId(), langNameStr, language.getLanguageCode(),
-				language.getLastUpdateTs(), language.getIsDeleted());
+		Language			lang			= new Language(language.getLanguageId(), langNameStr,
+				language.getLanguageCode(), language.getLastUpdateTs(), language.getIsDeleted());
 		resourceBundle.setLanguage(lang);
 		return resourceBundle;
 	}

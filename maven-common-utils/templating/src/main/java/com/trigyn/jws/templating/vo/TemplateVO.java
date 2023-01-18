@@ -1,6 +1,7 @@
 package com.trigyn.jws.templating.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 public class TemplateVO implements Serializable {
@@ -21,13 +22,16 @@ public class TemplateVO implements Serializable {
 
 	private String				createdBy			= null;
 
+	private Date				updatedDate			= null;
+
 	public TemplateVO() {
 	}
 
-	public TemplateVO(String templateId, String templateName, String template) {
+	public TemplateVO(String templateId, String templateName, String template, Date updatDate) {
 		this.templateId		= templateId;
 		this.templateName	= templateName;
 		this.template		= template;
+		this.updatedDate	= updatDate;
 	}
 
 	public TemplateVO(String templateId, String templateName, String template, String checksum) {
@@ -37,7 +41,8 @@ public class TemplateVO implements Serializable {
 		this.checksum		= checksum;
 	}
 
-	public TemplateVO(String templateId, String templateName, String template, String checksum, Integer templateTypeId) {
+	public TemplateVO(String templateId, String templateName, String template, String checksum,
+			Integer templateTypeId) {
 		this.templateId		= templateId;
 		this.templateName	= templateName;
 		this.template		= template;
@@ -45,13 +50,15 @@ public class TemplateVO implements Serializable {
 		this.templateTypeId	= templateTypeId;
 	}
 
-	public TemplateVO(String templateId, String templateName, String template, String checksum, Integer templateTypeId, String createdBy) {
+	public TemplateVO(String templateId, String templateName, String template, String checksum, Integer templateTypeId,
+			String createdBy, Date updatDate) {
 		this.templateId		= templateId;
 		this.templateName	= templateName;
 		this.template		= template;
 		this.checksum		= checksum;
 		this.templateTypeId	= templateTypeId;
 		this.createdBy		= createdBy;
+		this.updatedDate	= updatDate;
 	}
 
 	public String getTemplateId() {
@@ -129,13 +136,23 @@ public class TemplateVO implements Serializable {
 		TemplateVO other = (TemplateVO) obj;
 		return Objects.equals(checksum, other.checksum) && checksumChanged == other.checksumChanged
 				&& Objects.equals(template, other.template) && Objects.equals(templateId, other.templateId)
-				&& Objects.equals(templateName, other.templateName) && Objects.equals(templateTypeId, other.templateTypeId);
+				&& Objects.equals(templateName, other.templateName)
+				&& Objects.equals(templateTypeId, other.templateTypeId);
 	}
 
 	@Override
 	public String toString() {
-		return "TemplateVO [templateId=" + templateId + ", templateName=" + templateName + ", template=" + template + ", checksum="
-				+ checksum + ", checksumChanged=" + checksumChanged + ", templateTypeId=" + templateTypeId + "]";
+		return "TemplateVO [templateId=" + templateId + ", templateName=" + templateName + ", template=" + template
+				+ ", checksum=" + checksum + ", checksumChanged=" + checksumChanged + ", templateTypeId="
+				+ templateTypeId + "]";
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
 	}
 
 }

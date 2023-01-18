@@ -84,16 +84,21 @@ public class URLExceptionHandler implements ErrorController {
 					List<String>	roleIdPriorityList	= jwsRoleRepository.getRoleIdByPriority(roleIdList);
 					List<String>	homePageURLList		= iModuleListingRepository.getModuleURLByRoleId(roleIdPriorityList,
 							Constant.IS_HOME_PAGE);
-					if (!CollectionUtils.isEmpty(homePageURLList)) {
-						for (String homePageURL : homePageURLList) {
-							if (StringUtils.isBlank(fallbackTemplate) && !StringUtils.isBlank(homePageURL)) {
-								fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
+					if(roleIdList.size() >= 2 && roleIdList.contains("ADMIN") 
+							&& roleIdList.contains("AUTHENTICATED")) {
+						return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+					} else {
+						if (!CollectionUtils.isEmpty(homePageURLList)) {
+							for (String homePageURL : homePageURLList) {
+								if (StringUtils.isBlank(fallbackTemplate) && !StringUtils.isBlank(homePageURL)) {
+									fallbackTemplate = masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
+								}
 							}
 						}
 					}
 				}
 				if ("/".equals(url) && fallbackTemplate == null) {
-					return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+					return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
 				} else if (fallbackTemplate == null) {
 					return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 				} else {

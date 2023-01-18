@@ -17,6 +17,8 @@ public class Modules {
 	private HelpManualTypeExportVO	helpManual;
 	
 	private FileUploadConfigExportVO fileBin;
+	
+	private DynaRestExportVO dynaRestExportVO;
 
 	public String getModuleID() {
 		return moduleID;
@@ -80,6 +82,14 @@ public class Modules {
 
 	public void setFileBin(FileUploadConfigExportVO fileBin) {
 		this.fileBin = fileBin;
+	}
+
+	public DynaRestExportVO getDynaRestExportVO() {
+		return dynaRestExportVO;
+	}
+
+	public void setDynaRestExportVO(DynaRestExportVO dynaRestExportVO) {
+		this.dynaRestExportVO = dynaRestExportVO;
 	}
 
 }

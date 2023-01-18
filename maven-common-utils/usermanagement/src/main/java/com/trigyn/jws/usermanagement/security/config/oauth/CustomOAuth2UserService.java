@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -36,6 +37,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	@Autowired
 	private JwsUserRoleAssociationRepository	userRoleAssociationRepository	= null;
+	
+	@Autowired
+	private PasswordEncoder						passwordEncoder					= null;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -94,6 +98,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		user.setLastName(oAuth2UserInfo.getName().split(" ")[1]);
 		user.setEmail(oAuth2UserInfo.getEmail());
 		user.setIsActive(Constants.ISACTIVE);
+		user.setPassword(passwordEncoder.encode(oAuth2UserInfo.getEmail()));
 		user.setForcePasswordChange(Constants.INACTIVE);
 		// user.setImageUrl(oAuth2UserInfo.getImageUrl());
 

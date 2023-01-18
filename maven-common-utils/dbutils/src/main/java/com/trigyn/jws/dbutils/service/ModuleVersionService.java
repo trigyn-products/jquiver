@@ -50,6 +50,7 @@ public class ModuleVersionService {
 	@Autowired
 	private PropertyMasterService			propertyMasterService	= null;
 
+	
 	@Transactional(readOnly = false)
 	public void saveModuleVersion(Object entityData, Object parentEntityIdObj, Object entityIdObj, String entityName, Integer sourceTypeId)
 			throws Exception {
@@ -61,8 +62,13 @@ public class ModuleVersionService {
 		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
 		objectMapper.setDateFormat(dateFormat);
 		try {
-			Map<String, Object> objectMap = objectMapper.convertValue(entityData, TreeMap.class);
-			moduleJson = gson.toJson(objectMap);
+			if(entityData.toString().startsWith("[")) {
+				List<Map<String, Object>> objectMap = objectMapper.convertValue(entityData, List.class);
+				moduleJson = gson.toJson(objectMap);
+			}else {
+				Map<String, Object> objectMap = objectMapper.convertValue(entityData, TreeMap.class);
+				moduleJson = gson.toJson(objectMap);
+			}
 		} catch (IllegalArgumentException a_iae) {
 			moduleJson = gson.toJson(entityData);
 			logger.error(a_iae);
@@ -74,7 +80,7 @@ public class ModuleVersionService {
 		UserDetailsVO		userDetailsVO		= userDetailsService.getUserDetails();
 		String				moduleJsonChecksum	= generateJsonChecksum(moduleJson);
 		Boolean				isDataUpdated		= compareChecksum(entityId, entityName, moduleJsonChecksum);
-
+	
 		if (isDataUpdated != null && isDataUpdated == true) {
 			Double versionId = getVersionNumber(entityId, entityName);
 			moduleVersion.setParentEntityId(parentEntityId);

@@ -46,6 +46,9 @@ public class ApiClientDetails {
 	@Column(name = "inclusion_url_pattern")
 	private String	inclusionURLPattern	= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer	isCustomUpdated		= 1;
+
 	public String getClientId() {
 		return clientId;
 	}
@@ -118,6 +121,14 @@ public class ApiClientDetails {
 		this.inclusionURLPattern = inclusionURLPattern;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public ApiClientDetails getObject() {
 		ApiClientDetails apiClientDetails = new ApiClientDetails();
 
@@ -130,12 +141,12 @@ public class ApiClientDetails {
 		apiClientDetails.setInclusionURLPattern(inclusionURLPattern);
 		apiClientDetails.setUpdatedBy(updatedBy);
 		apiClientDetails.setUpdatedDate(updatedDate);
-		
+
 		return apiClientDetails;
 	}
-	
+
 	public ApiClientDetailsVO convertEntityToVO(ApiClientDetails apiClientDetails) {
-		
+
 		ApiClientDetailsVO vo = new ApiClientDetailsVO();
 		vo.setClientId(apiClientDetails.getClientId());
 		vo.setClientKey(apiClientDetails.getClientKey());
@@ -143,7 +154,7 @@ public class ApiClientDetails {
 		vo.setClientSecret(apiClientDetails.getClientSecret());
 		vo.setEncryptionAlgoId(Integer.valueOf(apiClientDetails.getEncryptionAlgoId()));
 		vo.setInclusionURLPattern(apiClientDetails.getInclusionURLPattern());
-		
+
 		return vo;
 	}
 

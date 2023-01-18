@@ -6,18 +6,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.gridutils.entities.GridDetails;
+import com.trigyn.jws.templating.utils.TemplatingUtils;
 
+@Component
 public class GridUtility {
 
 	private final static Logger logger = LogManager.getLogger(GridUtility.class);
 
-	public static String generateQueryForCount(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams) {
+	public static String generateQueryForCount(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
+			throws Exception {
 		logger.debug("Inside GridUtility.generateQueryForCount(gridDetails: {}, gridParams: {})", gridDetails, gridParams);
 		boolean			criteriaParamsPressent	= gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true
 				: false;
@@ -27,7 +34,8 @@ public class GridUtility {
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? AND ", " WHERE ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				joiner.add(criteriaParams.getKey());
+				String criteriaParam = criteriaParams.getValue() == null ? null : escapeSql(criteriaParams.getValue().toString());
+				joiner.add(criteriaParam);
 			}
 
 			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
@@ -49,6 +57,8 @@ public class GridUtility {
 			}
 			query.append(stringJoiner.toString());
 		}
+
+		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
 
 		return query.toString();
 	}
@@ -80,7 +90,8 @@ public class GridUtility {
 		return params.toArray();
 	}
 
-	public static String generateQueryForList(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams) {
+	public static String generateQueryForList(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
+			throws Exception {
 		logger.debug("Inside GridUtility.generateQueryForList(datasourceProductName: {}, gridDetails: {}, gridParams: {})", dbProductName,
 				gridDetails, gridParams);
 
@@ -116,6 +127,9 @@ public class GridUtility {
 			}
 			query.append(stringJoiner.toString());
 		}
+
+		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
+
 		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty())
 				&& (gridParams.getSortOrder() != null && !gridParams.getSortOrder().isEmpty())) {
 			query.append("ORDER BY " + gridParams.getSortIndex() + " " + gridParams.getSortOrder());
@@ -125,14 +139,14 @@ public class GridUtility {
 			}
 		}
 
-//		if(dbProductName.contains("oracle:thin")) {
-//			if(query.toString().contains("where")) {
-//				query.append(" AND ");
-//			} else {
-//				query.append(" WHERE ");
-//			}
-//			query.append(" rownum >= ? and rownum < ?");
-//		} else
+		//		if(dbProductName.contains("oracle:thin")) {
+		//			if(query.toString().contains("where")) {
+		//				query.append(" AND ");
+		//			} else {
+		//				query.append(" WHERE ");
+		//			}
+		//			query.append(" rownum >= ? and rownum < ?");
+		//		} else
 		if (StringUtils.isBlank(dbProductName)) {
 			query.append(" LIMIT ?,?");
 		} else {
@@ -141,6 +155,25 @@ public class GridUtility {
 		}
 
 		return query.toString();
+	}
+
+	private static void generateCustomCriteria(GridDetails gridDetails, boolean criteriaParamsPressent, boolean filterParamsPresent,
+		StringBuilder query, Map<String, Object> requestParam) throws Exception {
+		if (StringUtils.isBlank(gridDetails.getCustomFilterCriteria()) == false) {
+			
+			String			customCriteria	= gridDetails.getCustomFilterCriteria();
+			TemplatingUtils	templatingUtils	= ApplicationContextUtils.getApplicationContext().getBean("templatingUtils",
+					TemplatingUtils.class);
+			customCriteria	= customCriteria.replace("<#noparse>", "");
+			customCriteria	= customCriteria.replace("</#noparse>", "");
+			String customFilterCriteria = templatingUtils.processTemplateContents(customCriteria, "gridCustomCriteria", requestParam);
+			if (criteriaParamsPressent || filterParamsPresent) {
+				query.append(" AND (");
+			} else {
+				query.append(" WHERE (");
+			}
+			query.append(customFilterCriteria).append(") ");
+		}
 	}
 
 	public static Object[] generateCriteriaForList(String datasourceProductName, GenericGridParams gridParams) {
@@ -169,7 +202,8 @@ public class GridUtility {
 		return params.toArray();
 	}
 
-	public static Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams, boolean forCnt) {
+	public static Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams, boolean forCnt, Map<String, Object> requestParam)
+			throws Exception {
 		logger.debug("Inside GridUtility.generateParamMap(gridDetails: {}, gridParams: {}, forCnt: {})", gridDetails, gridParams, forCnt);
 
 		boolean				criteriaParamsPressent	= gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0
@@ -203,6 +237,21 @@ public class GridUtility {
 					inParamMap.put(column, null);
 				}
 			}
+		}
+
+		if (StringUtils.isBlank(gridDetails.getCustomFilterCriteria()) == false) {
+			String			customCriteria	= gridDetails.getCustomFilterCriteria();
+			TemplatingUtils	templatingUtils	= ApplicationContextUtils.getApplicationContext().getBean("templatingUtils",
+					TemplatingUtils.class);
+			customCriteria	= customCriteria.replace("<#noparse>", "");
+			customCriteria	= customCriteria.replace("</#noparse>", "");
+			customCriteria	= templatingUtils.processTemplateContents(customCriteria, "gridCustomCriteria", requestParam);
+
+			List<String>		customCriteriaList	= Stream.of(customCriteria.split("AND")).map(String::trim).collect(Collectors.toList());
+
+			Map<String, Object>	customCriteriaMap	= new HashMap<>();
+			customCriteriaList.stream().map(elem -> elem.split("=")).forEach(elem -> customCriteriaMap.put(elem[0].trim(), (elem[1].trim())));
+			inParamMap.putAll(customCriteriaMap);
 		}
 
 		if (forCnt) {

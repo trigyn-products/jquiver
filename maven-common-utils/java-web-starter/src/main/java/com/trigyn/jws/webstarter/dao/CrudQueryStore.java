@@ -40,7 +40,8 @@ public final class CrudQueryStore {
 			+ "jr.entityRoleId IN :includeSystemConfigList";
 
 	public static final String		HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT		= "FROM ModuleListing AS ml WHERE "
-			+ "ml.moduleId IN :includeSystemConfigList";
+			+ "(ml.moduleId NOT IN :excludeCustomConfigList AND ml.moduleTypeId = :customConfigType) OR "
+			+ "(ml.moduleId IN :includeSystemConfigList AND ml.moduleTypeId = :systemConfigType)";
 
 	public static final String		HQL_QUERY_TO_FETCH_TEMPLATE_DATA_FOR_EXPORT			= "FROM TemplateMaster AS tm WHERE "
 			+ "(tm.templateId NOT IN :excludeCustomConfigList AND tm.templateTypeId = :customConfigType) OR "
@@ -76,6 +77,10 @@ public final class CrudQueryStore {
 
 	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_EXPORT		= "FROM AdditionalDatasource AS ads WHERE "
 			+ "ads.additionalDatasourceId NOT IN :excludeCustomConfigList";
+
+	public static final String		HQL_QUERY_TO_FETCH_SCHEDULER_DATA_FOR_EXPORT		= "FROM JqScheduler AS js WHERE "
+			+ "(js.schedulerId NOT IN :excludeCustomConfigList AND js.schedulerTypeId = :customConfigType) OR "
+			+ "(js.schedulerId IN :includeSystemConfigList AND js.schedulerTypeId = :systemConfigType)";
 
 
 }

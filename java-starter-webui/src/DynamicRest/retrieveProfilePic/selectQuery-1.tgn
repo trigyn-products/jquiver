@@ -1,0 +1,1 @@
+SELECT file_upload_id AS fileUploadId FROM jq_file_upload WHERE file_bin_id="profilePic" AND file_association_id=:loggedInUserId

@@ -64,20 +64,30 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 
 	private SiteLayoutVO hasAccessToSiteLayout(HttpServletRequest reqObject, String moduleUrlStr, List<String> roleNames) {
 		SiteLayoutVO		siteLayoutVO		= null;
-		List<SiteLayoutVO>	siteLayoutVOList	= entityRoleAssociationRepository.hasAccessToSiteLayout(moduleUrlStr, roleNames,
-				Constants.ISACTIVE);
-
+		List<SiteLayoutVO>	siteLayoutVOList	= new ArrayList<>();
 		StringBuilder		moduleUrl			= new StringBuilder();
-		List<String>		pathVariableList	= getPathVariables(reqObject);
+		StringBuilder		fixedModuleUrl		= new StringBuilder();
+
+		if (roleNames != null) {
+			siteLayoutVOList = entityRoleAssociationRepository.hasAccessToSiteLayout(moduleUrlStr, roleNames, Constants.ISACTIVE);
+		} else {
+			siteLayoutVOList = entityRoleAssociationRepository.getSiteLayoutNameByUrl(moduleUrlStr);
+		}
+
+		List<String> pathVariableList = getPathVariables(reqObject);
 		for (String pathVariable : pathVariableList) {
 			if (StringUtils.isBlank(moduleUrl) == false) {
 				moduleUrl.append("/");
+				fixedModuleUrl.append("/");
 			}
 			moduleUrl.append(pathVariable);
+			fixedModuleUrl.append(pathVariable);
 			moduleUrl.append("/**");
+
 			for (SiteLayoutVO siteLayoutVODB : siteLayoutVOList) {
 				String moduleUrlDB = siteLayoutVODB.getModuleUrl();
-				if (StringUtils.isBlank(moduleUrlDB) == false && moduleUrlDB.equals(moduleUrl.toString())) {
+				if (StringUtils.isBlank(moduleUrlDB) == false
+						&& (moduleUrlDB.equals(moduleUrl.toString()) || moduleUrlDB.equals(fixedModuleUrl.toString()))) {
 					return siteLayoutVODB;
 				}
 			}
@@ -103,7 +113,7 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 			moduleUrl = moduleUrl.substring(0, moduleUrl.indexOf("/"));
 		}
 
-		SiteLayoutVO	siteLayoutVO	= getSiteLayoutName(reqObject, moduleUrl);
+		SiteLayoutVO	siteLayoutVO	= hasAccessToSiteLayout(reqObject, moduleUrl, null);
 		String			moduleName		= null;
 		if (siteLayoutVO != null) {
 			moduleName = siteLayoutVO.getModuleName();
@@ -115,33 +125,6 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 		}
 
 		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.SITELAYOUT.getModuleName(), moduleName);
-	}
-
-	private SiteLayoutVO getSiteLayoutName(HttpServletRequest reqObject, String moduleUrlStr) {
-		SiteLayoutVO		siteLayoutVO		= null;
-		List<SiteLayoutVO>	siteLayoutVOList	= entityRoleAssociationRepository.getSiteLayoutNameByUrl(moduleUrlStr);
-
-		StringBuilder		moduleUrl			= new StringBuilder();
-		List<String>		pathVariableList	= getPathVariables(reqObject);
-		for (String pathVariable : pathVariableList) {
-			if (StringUtils.isBlank(moduleUrl) == false) {
-				moduleUrl.append("/");
-			}
-			moduleUrl.append(pathVariable);
-			moduleUrl.append("/**");
-			for (SiteLayoutVO siteLayoutVODB : siteLayoutVOList) {
-				String moduleUrlDB = siteLayoutVODB.getModuleUrl();
-				if (StringUtils.isBlank(moduleUrlDB) == false && moduleUrlDB.equals(moduleUrl.toString())) {
-					return siteLayoutVODB;
-				}
-			}
-			moduleUrl.delete(moduleUrl.indexOf("/**"), moduleUrl.length());
-		}
-		if (siteLayoutVO == null && CollectionUtils.isEmpty(pathVariableList) == true
-				&& CollectionUtils.isEmpty(siteLayoutVOList) == false) {
-			siteLayoutVO = siteLayoutVOList.get(0);
-		}
-		return siteLayoutVO;
 	}
 
 	private List<String> getPathVariables(HttpServletRequest httpServletRequest) {

@@ -1,0 +1,205 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>     
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+</head>
+<div class="container"> 
+		<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.restAPIBuilder')}</h2> 
+		<div class="float-right">
+			<form id="addEditDynarest" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+                ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+                        <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                        <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                        <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                    </select>
+                <input type="hidden" name="formId" value="8a80cb81749ab40401749ac2e7360000"/>
+                <input type="hidden" name="primaryId" id="primaryId" value=""/>
+                <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
+               
+                <a href="${(contextPath)!''}/cf/ad"> 
+					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
+				</a>
+                <a href="${(contextPath)!''}/cf/acd"> 
+                    <input id="apiClientDetails" class="btn btn-primary" value="${messageSource.getMessage('jws.apiclients')}" type="button">
+                    
+                </a>
+                <a href="${(contextPath)!''}/cf/sl"> 
+					<input id="scheduleRest" class="btn btn-primary" value="${messageSource.getMessage('jws.scheduler')}" type="button">
+				</a>
+                <button type="submit" class="btn btn-primary">
+                        ${messageSource.getMessage('jws.addrestapi')}
+                </button>
+            </form>
+			<span onclick="backToWelcomePage();">
+  		        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+  		    </span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+		</div>
+		
+		<div id="deleteHeader"></div>
+		<div id="divDynarestGrid"></table>
+
+
+</div>
+
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="jq_dynamic_rest_details">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dynarest">
+	<input type="hidden" id="formId" name="formId" value="8a80cb81749ab40401749ac2e7360000">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dynl">
+</form>
+<script>
+contextPath = "${(contextPath)!''}";
+let requestType = [{"": "All"}];
+let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}, {"3": "Javascript"}];
+$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		let formElement = $("#addEditDynarest")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dynamic-rest-form", formDataJson);
+  		$.ajax({
+			type : "GET",
+			url : contextPath+"/api/dynarestDetails",
+      		async: false,
+			success : function(data) {
+				for(let counter = 0; counter < data["methodTypes"].length; ++counter) {
+					let object = data["methodTypes"][counter];
+          let details = new Object()
+          details[object["value"]] = object["name"];
+					requestType.push(details);
+				}
+			}
+		});
+    
+	let colM = [
+        { title: "${messageSource.getMessage('jws.dynamicapiurl')}", width: 160, align: "center", dataIndx: "dynarestUrl", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "${messageSource.getMessage('jws.methodname')}", width: 160, align: "center",  dataIndx: "methodName", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "Method Description", width: 160, align: "center",hidden: true, dataIndx: "methodDescription", align: "left", halign: "center",
+        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+        { title: "${messageSource.getMessage('jws.methodtype')}", width: 100, align: "center", dataIndx: "requestTypeId", align: "left", halign: "center", render: requestTypes,
+        	filter: { type: "select", condition: "equal", options : requestType, listeners: ["change"]} },
+        { title: "${messageSource.getMessage('jws.platform')}", width: 130, align: "center", dataIndx: "platformId", align: "left", halign: "center", render: platforms,
+        	filter: { type: "select", condition: "equal", options : platformValues, listeners: ["change"]} },
+        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, align: "left", render: editDynarest, dataIndx: "action", sortable: false }
+	];
+	let dataModel = {
+       	url: contextPath+"/cf/pq-grid-data",
+       	sortIndx: "lastUpdatedTs",
+        sortDir: "down", 
+    };
+    let grid = $("#divDynarestGrid").grid({
+      gridId: "dynarestListingGrid",
+      colModel: colM,
+      dataModel: dataModel,
+          additionalParameters: {"cr_dynarestTypeId":"str_1"}
+  });
+});
+
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dynarestListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dynarestListingGrid" 
+                    ,"cr_dynarestTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divDynarestGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+   
+	function dynarestType(uiObject){
+		const dynarestTypeId = uiObject.rowData.dynarestTypeId;
+		if(dynarestTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+		
+	function requestTypes(uiObject){
+	  let cellValue = uiObject.rowData.requestTypeId;
+	  return requestType.find(el => el[cellValue])[cellValue];
+	}
+	
+	function platforms(uiObject){
+	  let cellValue = uiObject.rowData.platformId;
+	  return platformValues.find(el => el[cellValue])[cellValue];
+	}
+	
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
+	function editDynarest(uiObject) {
+		let dynarestUrl = uiObject.rowData.dynarestUrl;
+		let methodName = uiObject.rowData.methodName;
+		let dynarestId = uiObject.rowData.dynarestId;
+        const updatedDate = uiObject.rowData.lastUpdatedTs;
+        const templateTypeId = uiObject.rowData.dynarestTypeId;
+		const revisionCount = uiObject.rowData.revisionCount;
+			
+		let actionElement;
+		actionElement = '<span id="'+dynarestUrl+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+dynarestId+'_entity" name="'+dynarestUrl+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+            		if(uiObject.rowData.dynarestTypeId == 1) { 
+		        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+		        	<#list loggedInUserRoleList as loggedInUserRole>
+		            	<#if (loggedInUserRole == "ADMIN" )>   
+		        			actionElement += '<span onclick=\'openDeletConfirmation("divDynarestGrid","'+dynarestId+'","47030ee1-0ecf-11eb-94b2-f48e38ab9348","'+methodName+'","'+updatedDate+'","'+templateTypeId+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
+		        			<#break>
+		        		</#if>
+		        	</#list>
+		        </#if>
+		        }
+		return actionElement;	
+	}
+	
+	function submitForm(element) {
+	  $("#primaryId").val(element.id);
+	  $("#addEditDynarest").submit();
+	}
+
+function submitRevisionForm(sourceElement) {
+	let selectedId = sourceElement.id.split("_")[0];
+	let moduleName = $("#"+sourceElement.id).attr("name")
+  	$("#entityId").val(selectedId);
+	$("#moduleName").val(moduleName);
+   	$("#revisionForm").submit();
+}	
+
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
+
+</script>

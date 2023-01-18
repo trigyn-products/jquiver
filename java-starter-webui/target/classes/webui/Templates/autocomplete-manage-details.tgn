@@ -1,0 +1,262 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+</head>
+
+	<div class="container">
+		<div class="row topband">
+			<div class="col-8">
+				<#if (autocompleteVO.autocompleteId)??>
+				    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editautocomplete')}</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addautocomplete')}</h2>  
+		        </#if>
+		    </div>
+	    
+	        <div class="col-4">    
+				<#if (autocompleteVO.autocompleteId)?? && (autocompleteVO.autocompleteId)?has_content>	 
+			        <#assign ufAttributes = {
+			            "entityType": "TypeAhead Autocomplete",
+			            "entityId": "autoId",
+			            "entityName": "autoId"
+			        }>
+			        <@templateWithParams "user-favorite-template" ufAttributes />
+		        </#if>
+		     </div>
+		
+			<div class="clearfix"></div>		
+		</div>
+	
+    <form id="autocompleteForm" method="post" >
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	  <div class="row">
+	    <div class = "col-6">
+			<div class="col-inner-form full-form-fields">
+	        <label for="autoId"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.autocompleteid')} </label>
+	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" onkeydown="addEditAutocomplete.updateOldVal()" onkeyup="addEditAutocomplete.updateAutocompleTemplate()" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!'""'}">
+			</div>
+	    </div>
+	    <div class="col-6">
+			<div class="col-inner-form full-form-fields">
+	        <label for="autoDesc">${messageSource.getMessage('jws.autocompletedescription')} </label>
+	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!'""'}">
+			</div>
+	    </div>
+
+		<div class="col-6">
+			<div class="col-inner-form full-form-fields">
+	        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
+	        		<option id="defaultConnection" value="" data-product-name="default">${messageSource.getMessage('jws.defaultconnection')}</option>
+	        	</select>
+           	</div>
+		</div>
+			
+		<#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>   
+	         <div id="tableAutocompleteDiv" class="col-6" >
+				<div class="col-inner-form full-form-fields">
+	                <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompletetable')}</label>
+	                <div class="search-cover">
+	                    <input class="form-control" id="tableAutocomplete" type="text">
+	                  	<i class="fa fa-search" aria-hidden="true"></i>
+	                </div>
+	               	<input type="hidden" id="autocompleteTable" name="autocompleteTable">
+	           	</div>
+			</div>
+		</#if>
+			
+	</div>
+	
+		 <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+				 <a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+                </a>
+
+                <div class="collapse" id="tipscolpase">
+                    <div class="tipscontent">
+                    <span id="contextParameter">${messageSource.getMessage('jws.javascriptsuggestions')}</span>
+                        <h3 class="titlename method-sign-info">
+                        <label for="ftlParameter">${messageSource.getMessage('jws.sql/ftlparamandmacros')} :</label>   </h3>
+                        <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+                    </div>
+                </div>
+          </div>		
+		
+	<div class="row margin-t-b">
+		<div class="col-12">
+			<div class="sql_script">
+				<div class="grp_lblinp">
+				    <div id="sqlContainer" class="ace-editor-container">
+		                <div id="sqlEditor" class="ace-editor"></div>
+						 
+	                </div>            
+	            </div>
+	    	</div>
+		</div>
+	</div>
+
+	<div id="tabs">
+        <ul>
+            <li>
+            <a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a>                        
+            </li>
+            
+            <li>
+            <a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.javaScriptContent")}</a>        		 
+            </li>
+        </ul>
+        <div id="htmlContent">
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">	
+	        
+           			<span class="copyblockcls tabcopybtn" onclick="copyGenericContent('htmlPreview');">
+           			${messageSource.getMessage('jws.copyhtml')}				
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+					</span> 
+					         
+	            <div id="contentDiv">	           
+	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+        <div id="jsContent">
+        
+           			<span class="copyblockcls tabcopybtn" onclick="copyGenericContent('jsPreview');">	
+           			${messageSource.getMessage('jws.copyjavascript')}		
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i> 
+					</span> 
+					
+	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
+	            <div id="contentDiv">
+	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
+	            </div>
+	        </div>
+        </div>
+    </div> 
+    
+     <div id="manual-container" class="cm-rightbar">
+        <div class="row">
+            <div class="col-md-3">
+                <div id="previewDiv" style="display:none;">
+                    <textarea id="previewContent" style="display:none;"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+   <input type="hidden" name="autocompleteQuery" id="acSelectQuery">
+   <input type="hidden" id="dataSourceId" value="${(autocompleteVO.dataSourceId)!''}">
+   
+  </form>
+  <div class="row">
+	<div class="col-3">   
+  		<input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+  		<@templateWithoutParams "role-autocomplete"/>
+  	</div>
+  </div>
+  
+  <br>
+  <div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropup custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="addEditAutocomplete.backToListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+					</span> 
+				</div>
+			</div>
+	</div>
+ 	
+<textarea id="sqlContentDiv" style="display: none">
+	${(autocompleteVO.autocompleteQuery)!""}
+</textarea>
+  
+<script>
+	contextPath = "${(contextPath)!''}";
+	const acId = "${(autocompleteVO.autocompleteId)!''}";
+  /*Written for Updating Monaco Suggestions*/
+    const monacoSugg = '${(suggestions)!""}';
+    var suggestionArray = JSON.parse(monacoSugg);
+	let addEditAutocomplete;
+	let tableAutocomplete;
+	let oldAutocompleteId;
+	
+	$(function() {
+	    $("#tabs").tabs();
+	    addEditAutocomplete = new AddEditAutocomplete();
+	    addEditAutocomplete.loadAutocompletDetails();
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+	    
+	    savedAction("autocomplete-manage-details", acId);
+	    hideShowActionButtons();
+	    
+	    if(acId==""){
+            let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+        }else{
+            addEditAutocomplete.getEntityRoles();
+        }
+        
+        <#if !(autocompleteVO.autocompleteId)?? && !(autocompleteVO.autocompleteId)?has_content>
+	        getAllDatasource(0);
+	        tableAutocomplete = $("#tableAutocomplete").autocomplete({
+		        autocompleteId: "table-autocomplete",
+		        prefetch : true,
+		        render: function(item) {
+		            let renderStr ="";
+		            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+		                renderStr = "<p>"+item.tableName+"</p>";
+		            }else{
+		                renderStr = item.emptyMsg;    
+		            }                                
+		            return renderStr;
+		        },
+		        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+		        },
+		        extractText: function(item) {
+		            return item.tableName;
+		        },
+		        select: function(item) {
+		            $("#tableAutocomplete").blur();
+		            $("#autocompleteTable").val(item.tableName);
+		            addEditAutocomplete.createQuery();
+		        },
+		        resetAutocomplete: function(){ 
+		        	$("#autocompleteTable").val("");
+		        	addEditAutocomplete.createQuery();
+		        }     
+		    });
+		<#else>
+			getAllDatasource(1);
+			$("#autoId").attr("readonly", "readonly");
+		</#if>
+		loadDefaultTab("autocomplete-default-template", addEditAutocomplete.updateAutocompleTemplate);
+	    $("a[href='#htmlContent']").click();
+	});
+	
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/autocomplete/addEditAutocomplete.js"></script>

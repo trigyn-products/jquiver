@@ -12,14 +12,17 @@ public class RestApiDaoQueries {
 
 	private Integer	queryType				= null;
 
+	private String	dataSourceId		= null;
+
 	public RestApiDaoQueries() {
 	}
 
-	public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence, Integer queryType) {
+	public RestApiDaoQueries(String jwsDaoQueryTemplate, String jwsResultVariableName, Integer jwsQuerySequence, Integer queryType, String	dataSourceId) {
 		this.jwsDaoQueryTemplate	= jwsDaoQueryTemplate;
 		this.jwsResultVariableName	= jwsResultVariableName;
 		this.jwsQuerySequence		= jwsQuerySequence;
 		this.queryType				= queryType;
+		this.dataSourceId = dataSourceId;
 	}
 
 	public String getJwsDaoQueryTemplate() {
@@ -69,6 +72,14 @@ public class RestApiDaoQueries {
 		this.queryType = queryType;
 	}
 
+	public String getDataSourceId() {
+		return dataSourceId;
+	}
+
+	public void setDataSourceId(String dataSourceId) {
+		this.dataSourceId = dataSourceId;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)
@@ -79,18 +90,20 @@ public class RestApiDaoQueries {
 		RestApiDaoQueries restApiDaoQueries = (RestApiDaoQueries) o;
 		return Objects.equals(jwsDaoQueryTemplate, restApiDaoQueries.jwsDaoQueryTemplate)
 				&& Objects.equals(jwsResultVariableName, restApiDaoQueries.jwsResultVariableName)
-				&& Objects.equals(jwsQuerySequence, restApiDaoQueries.jwsQuerySequence);
+				&& Objects.equals(jwsQuerySequence, restApiDaoQueries.jwsQuerySequence)
+				&& Objects.equals(dataSourceId, restApiDaoQueries.dataSourceId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jwsDaoQueryTemplate, jwsResultVariableName, jwsQuerySequence);
+		return Objects.hash(jwsDaoQueryTemplate, jwsResultVariableName, jwsQuerySequence, dataSourceId);
 	}
 
 	@Override
 	public String toString() {
 		return "{" + " jwsDaoQueryTemplate='" + getJwsDaoQueryTemplate() + "'" + ", jwsResultVariableName='" + getJwsResultVariableName()
-				+ "'" + ", jwsQuerySequence='" + getJwsQuerySequence() + "'" + "}";
+				+ "'" + ", jwsQuerySequence='" + getJwsQuerySequence() + "'"
+				+ "'" + ", dataSourceId='" + getDataSourceId() + "'"+ "}";
 	}
 
 }

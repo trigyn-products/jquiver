@@ -1,0 +1,17 @@
+<div>
+	<ul class="notification_list">
+		<#list notifications as currentNotf >
+			<li>
+				<#if  currentNotf?api.getMessageType() == "Error" >
+					<div class="notification_list_div">                             
+				<#elseif    currentNotf?api.getMessageType() == "Informative" >
+					<div class="notification_list_div">
+				<#elseif   currentNotf?api.getMessageType() == "Warning" >
+					<div class="notification_list_div">                                            
+				</#if>
+						${ currentNotf?api.getMessageText() }
+					</div>                   
+			</li>
+		</#list>
+	</ul>
+</div>

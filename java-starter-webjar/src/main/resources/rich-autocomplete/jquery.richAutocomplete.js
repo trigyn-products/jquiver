@@ -417,7 +417,7 @@
         //find if any items are currently highlighted
         var highlighted = this.list.find('.highlighted');
 
-        if (highlighted.length === 0) {debugger;
+        if (highlighted.length === 0) {
             // no item is currently highlighted so hide the list
             this.hideList();
         } else if (this.listVisible() && this.filteredItems.length > 0) {
@@ -454,7 +454,7 @@
                     this.list.scrollTop(highlightTop);
                 }
 
-            } else if (currentIndex === minIndex) {debugger;
+            } else if (currentIndex === minIndex) {
                 this.hideList();
             }
         }

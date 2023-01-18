@@ -34,13 +34,14 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
-import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynarest.entities.ApiClientDetails;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.gridutils.entities.GridDetails;
-import com.trigyn.jws.notification.entities.GenericUserNotification;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.TemplateModule;
@@ -56,17 +57,18 @@ import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
+import com.trigyn.jws.webstarter.vo.GenericUserNotification;
 import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
-import com.trigyn.jws.webstarter.xml.DynaRestXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
 import com.trigyn.jws.webstarter.xml.PropertyMasterXMLVO;
 import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
 import com.trigyn.jws.webstarter.xml.RoleXMLVO;
+import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
 
@@ -81,6 +83,9 @@ public class ExportService {
 
 	@Autowired
 	private TemplateModule					templateDownloadUploadModule	= null;
+
+	@Autowired
+	private DynaRestModule					dynaRestModule	= null;
 
 	@Autowired
 	@Qualifier("dynamic-form")
@@ -123,13 +128,13 @@ public class ExportService {
 		return importExportCrudDAO.getAllEntityCount();
 	}
 
-	public String exportConfigData(HttpServletRequest request, HttpServletResponse response, Map<String, String> out) throws Exception {
+	public String exportConfigData(HttpServletRequest request, HttpServletResponse response, Map<String, String> out, boolean isExportToLocal) throws Exception {
 		try {
 			version = propertyMasterDAO.findPropertyMasterValue("system", "system", "version");
 			UserDetailsVO detailsVO = detailsService.getUserDetails();
 			userName = detailsVO.getUserName();
-
-			String	systemPath			= System.getProperty("user.dir");
+			
+			String	systemPath			= System.getProperty("java.io.tmpdir");
 			String	tempDownloadPath	= FileUtil.generateTemporaryFilePath(Constant.EXPORTTEMPPATH);
 			new File(tempDownloadPath).mkdir();
 			moduleListMap = new HashMap<>();
@@ -175,8 +180,14 @@ public class ExportService {
 			}
 
 			XMLUtil.generateMetadataXML(moduleListMap, null, tempDownloadPath, version, userName, htmlTableJSON);
-			String zipFilePath = ZipUtil.zipDirectory(tempDownloadPath, systemPath);
-			return zipFilePath;
+			
+			if(isExportToLocal == false) {
+				String zipFilePath = ZipUtil.zipDirectory(tempDownloadPath, systemPath);
+				return zipFilePath;
+			} else {
+				String targetLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+				return FileUtil.exportToLocal(tempDownloadPath, targetLocation);
+			}
 		} catch (Exception a_excep) {
 			logger.error("Error while exporting the configuration ", a_excep);
 			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Data mismatch while exporting")) {
@@ -229,13 +240,13 @@ public class ExportService {
 			return retrieveFileManagerExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.FILEMANAGER.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.DYNAREST.getModuleType())) {
-			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+			return downloadDynaRestExportData(systemConfigIncludeList, customConfigExcludeList, downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.DYNAREST.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.PERMISSION.getModuleType())) {
 			return retrievePermissionExportData(systemConfigIncludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.PERMISSION.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.SITELAYOUT.getModuleType())) {
-			return retrieveSiteLayoutExportData(systemConfigIncludeList, moduleType,
+			return retrieveSiteLayoutExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.SITELAYOUT.getModuleType().toUpperCase()));
 		} else if (moduleType.equals(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType())) {
 			return retrieveAppConfigExportData(systemConfigIncludeList, moduleType,
@@ -266,6 +277,9 @@ public class ExportService {
 			return downloadAdditionalDatasourceExportData(systemConfigIncludeList, customConfigExcludeList,
 					downloadFolderLocation, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toUpperCase()));
+		} else if (moduleType.equals(Constant.MasterModuleType.SCHEDULER.getModuleType())) {
+			return retrieveSchedulerExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.SCHEDULER.getModuleType().toUpperCase()));
 		} else {
 			return null;
 		}
@@ -333,6 +347,27 @@ public class ExportService {
 			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
 		}
 		return autocompleteXMLVO;
+	}
+
+	private XMLVO retrieveSchedulerExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+		String moduleType, List<String> exportedList) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_SCHEDULER_DATA_FOR_EXPORT, systemConfigIncludeList, 2, customConfigExcludeList, 1);
+
+		validate(exportableList, exportedList, "Scheduler");
+
+		SchedulerXMLVO schedulerXMLVO = null;
+		if (exportableList != null && !exportableList.isEmpty()) {
+			schedulerXMLVO = new SchedulerXMLVO();
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((JqScheduler) obj).getSchedulerId())) {
+					throw new Exception("Data mismatch while exporting Scheduler.");
+				}
+				schedulerXMLVO.getSchedulerDetails().add(((JqScheduler) obj).getObject());
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return schedulerXMLVO;
 	}
 
 	private XMLVO retrieveNotificationExportData(List<String> customConfigExcludeList, String moduleType, List<String> exportedList)
@@ -406,25 +441,40 @@ public class ExportService {
 
 	}
 
-	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, String moduleType,
-		List<String> exportedList) throws Exception {
+	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, 
+			String downloadFolderLocation, String moduleType, List<String> exportedList) throws Exception {
 		List<Object> exportableList = importExportCrudDAO.getAllExportableData(CrudQueryStore.HQL_QUERY_TO_FETCH_DYNA_REST_DATA_FOR_EXPORT,
 				systemConfigIncludeList, 2, customConfigExcludeList, 1);
 
 		validate(exportableList, exportedList, "Dyna Rest");
 
-		DynaRestXMLVO dynaRestXMLVO = null;
+//		DynaRestXMLVO dynaRestXMLVO = null;
+//		if (exportableList != null && !exportableList.isEmpty()) {
+//			dynaRestXMLVO = new DynaRestXMLVO();
+//			for (Object obj : exportableList) {
+//				if (!exportedList.contains(((JwsDynamicRestDetail) obj).getJwsDynamicRestId())) {
+//					throw new Exception("Data mismatch while exporting Dyna Rest.");
+//				}
+//				dynaRestXMLVO.getDynaRestDetails().add(((JwsDynamicRestDetail) obj).getObject());
+//			}
+//			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+//		}
+//		return dynaRestXMLVO;
+		
 		if (exportableList != null && !exportableList.isEmpty()) {
-			dynaRestXMLVO = new DynaRestXMLVO();
 			for (Object obj : exportableList) {
 				if (!exportedList.contains(((JwsDynamicRestDetail) obj).getJwsDynamicRestId())) {
-					throw new Exception("Data mismatch while exporting Dyna Rest.");
+					throw new Exception("Data mismatch while exporting Rest API.");
 				}
-				dynaRestXMLVO.getDynaRestDetails().add(((JwsDynamicRestDetail) obj).getObject());
+				dynaRestModule.exportData(((JwsDynamicRestDetail) obj), downloadFolderLocation);
 			}
-			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+
+			XMLUtil.generateMetadataXML(null, dynaRestModule.getModuleDetailsMap(),
+					downloadFolderLocation + File.separator + com.trigyn.jws.dynarest.utils.Constants.DYNAMIC_REST_DIRECTORY_NAME, version,
+					userName, "");
 		}
-		return dynaRestXMLVO;
+		return null;
 	}
 
 	private XMLVO retrievePermissionExportData(List<String> systemConfigIncludeList, String moduleType, List<String> exportedList)
@@ -448,10 +498,11 @@ public class ExportService {
 		return permissionXMLVO;
 	}
 
-	private XMLVO retrieveSiteLayoutExportData(List<String> systemConfigIncludeList, String moduleType, List<String> exportedList)
+	private XMLVO retrieveSiteLayoutExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList, 
+			String moduleType, List<String> exportedList)
 			throws Exception {
 		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
-				CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT, systemConfigIncludeList, null, null, null);
+				CrudQueryStore.HQL_QUERY_TO_FETCH_SITE_LAYOUT_DATA_FOR_EXPORT, systemConfigIncludeList, 2, customConfigExcludeList, 1);
 
 		validate(exportableList, exportedList, "SIte Layout");
 

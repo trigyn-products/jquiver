@@ -37,6 +37,9 @@ public class JwsRole {
 	@Column(name = "role_priority")
 	private Integer									rolePriority					= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer									isCustomUpdated					= 1;
+
 	@OneToMany(mappedBy = "role")
 	private List<JwsRoleMasterModulesAssociation>	jwsRoleMasterModulesAssociation	= null;
 
@@ -90,8 +93,17 @@ public class JwsRole {
 		return jwsRoleMasterModulesAssociation;
 	}
 
-	public void setJwsRoleMasterModulesAssociation(List<JwsRoleMasterModulesAssociation> jwsRoleMasterModulesAssociation) {
+	public void setJwsRoleMasterModulesAssociation(
+			List<JwsRoleMasterModulesAssociation> jwsRoleMasterModulesAssociation) {
 		this.jwsRoleMasterModulesAssociation = jwsRoleMasterModulesAssociation;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 	public JwsRole getObject() {

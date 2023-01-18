@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
-import com.trigyn.jws.notification.entities.GenericUserNotification;
+import com.trigyn.jws.webstarter.vo.GenericUserNotification;
 
 @XmlRootElement(name = "genericUserNotificationData")
 @XmlAccessorType(XmlAccessType.FIELD)

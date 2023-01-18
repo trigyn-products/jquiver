@@ -1,0 +1,4 @@
+SELECT COUNT(*) AS isFavorite
+FROM jq_user_favorite_entity AS jufq
+WHERE jufq.user_email_id = :loggedInUserName AND jufq.entity_type = 
+:entityType AND jufq.entity_id = :entityId AND jufq.entity_name = :entityName

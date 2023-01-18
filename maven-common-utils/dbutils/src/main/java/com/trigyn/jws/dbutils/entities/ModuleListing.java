@@ -1,3 +1,4 @@
+
 package com.trigyn.jws.dbutils.entities;
 
 import java.io.Serializable;
@@ -56,6 +57,9 @@ public class ModuleListing implements Serializable {
 	@Column(name = "target_type_id")
 	private String						targetTypeId			= null;
 
+	@Column(name = "header_json")
+	private String						headerJson				= null;
+
 	@OneToMany(mappedBy = "moduleListing")
 	private List<ModuleListingI18n>		moduleListingI18ns		= null;
 
@@ -73,12 +77,25 @@ public class ModuleListing implements Serializable {
 	@Column(name = "module_type_id ")
 	private Integer						moduleTypeId			= 1;
 
+	@Column(name = "request_param_json")
+	private String						requestParamJson		= null;
+
+	@Column(name = "open_in_new_tab ")
+	private Integer						openInNewTab			= null;
+
+	@Column(name = "menu_style")
+	private String						menuStyle				= null;//New Column Added for displaying Menu Style
+
+	@Column(name = "is_custom_updated")
+	private Integer						isCustomUpdated			= 1;
+
 	public ModuleListing() {
 	}
 
-	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu, String targetTypeId,
-			List<ModuleListingI18n> moduleListingI18ns, List<ModuleRoleAssociation> moduleRoleAssociations,
-			ModuleTargetLookup moduleTargetLookup) {
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
+			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup,
+			Integer openInNewTab, String menuStyle) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -88,11 +105,14 @@ public class ModuleListing implements Serializable {
 		this.moduleListingI18ns		= moduleListingI18ns;
 		this.moduleRoleAssociations	= moduleRoleAssociations;
 		this.moduleTargetLookup		= moduleTargetLookup;
+		this.openInNewTab			= openInNewTab;
+		this.menuStyle				= menuStyle;//New Column Added for displaying Menu Style
 	}
 
-	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu, Integer targetLookupId,
-			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns, List<ModuleRoleAssociation> moduleRoleAssociations,
-			ModuleTargetLookup moduleTargetLookup) {
+	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
+			Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
+			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup,
+			Integer openInNewTab, String menuStyle) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -103,6 +123,8 @@ public class ModuleListing implements Serializable {
 		this.moduleListingI18ns		= moduleListingI18ns;
 		this.moduleRoleAssociations	= moduleRoleAssociations;
 		this.moduleTargetLookup		= moduleTargetLookup;
+		this.openInNewTab			= openInNewTab;
+		this.menuStyle				= menuStyle;//New Column Added for displaying Menu Style
 	}
 
 	public String getModuleId() {
@@ -235,6 +257,14 @@ public class ModuleListing implements Serializable {
 		this.isHomePage = isHomePage;
 	}
 
+	public String getHeaderJson() {
+		return headerJson;
+	}
+
+	public void setHeaderJson(String headerJson) {
+		this.headerJson = headerJson;
+	}
+
 	public Date getUpdatedDate() {
 		return updatedDate;
 	}
@@ -249,6 +279,30 @@ public class ModuleListing implements Serializable {
 
 	public void setModuleTypeId(Integer moduleTypeId) {
 		this.moduleTypeId = moduleTypeId;
+	}
+
+	public String getRequestParamJson() {
+		return requestParamJson;
+	}
+
+	public void setRequestParamJson(String requestParamJson) {
+		this.requestParamJson = requestParamJson;
+	}
+
+	public Integer getOpenInNewTab() {
+		return openInNewTab;
+	}
+
+	public void setOpenInNewTab(Integer openInNewTab) {
+		this.openInNewTab = openInNewTab;
+	}
+
+	public String getMenuStyle() {
+		return menuStyle;
+	}
+
+	public void setMenuStyle(String menuStyle) {
+		this.menuStyle = menuStyle;
 	}
 
 	public ModuleListing getObject() {
@@ -284,13 +338,18 @@ public class ModuleListing implements Serializable {
 		moduleListing.setModuleTargetLookup(moduleTargetLookup.getObject());
 		moduleListing.setUpdatedDate(updatedDate);
 		moduleListing.setModuleTypeId(moduleTypeId);
+		moduleListing.setHeaderJson(headerJson);
+		moduleListing.setRequestParamJson(requestParamJson);
+		moduleListing.setOpenInNewTab(openInNewTab);//Added for Open New Tab Column
+		moduleListing.setMenuStyle(menuStyle); //Added for Menu Style Column
 		return moduleListing;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns, moduleRoleAssociations,
-				moduleTargetLookup, moduleUrl, parentId, sequence, targetLookupId, targetTypeId, updatedDate);
+		return Objects.hash(headerJson, includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns,
+				moduleRoleAssociations, moduleTargetLookup, moduleTypeId, moduleUrl, parentId, sequence, targetLookupId,
+				targetTypeId, updatedDate, headerJson, requestParamJson);
 	}
 
 	@Override
@@ -305,26 +364,48 @@ public class ModuleListing implements Serializable {
 			return false;
 		}
 		ModuleListing other = (ModuleListing) obj;
-		return Objects.equals(includeLayout, other.includeLayout) && Objects.equals(isHomePage, other.isHomePage)
-				&& Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
+		return Objects.equals(headerJson, other.headerJson) && Objects.equals(includeLayout, other.includeLayout)
+				&& Objects.equals(isHomePage, other.isHomePage) && Objects.equals(isInsideMenu, other.isInsideMenu)
+				&& Objects.equals(moduleId, other.moduleId)
 				&& Objects.equals(moduleListingI18ns, other.moduleListingI18ns)
 				&& Objects.equals(moduleRoleAssociations, other.moduleRoleAssociations)
-				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup) && Objects.equals(moduleUrl, other.moduleUrl)
+				&& Objects.equals(moduleTargetLookup, other.moduleTargetLookup)
+				&& Objects.equals(moduleTypeId, other.moduleTypeId) && Objects.equals(moduleUrl, other.moduleUrl)
 				&& Objects.equals(parentId, other.parentId) && Objects.equals(sequence, other.sequence)
-				&& Objects.equals(targetLookupId, other.targetLookupId) && Objects.equals(targetTypeId, other.targetTypeId)
-				&& Objects.equals(updatedDate, other.updatedDate);
+				&& Objects.equals(targetLookupId, other.targetLookupId)
+				&& Objects.equals(targetTypeId, other.targetTypeId) && Objects.equals(updatedDate, other.updatedDate)
+				&& Objects.equals(headerJson, other.headerJson)
+				&& Objects.equals(requestParamJson, other.requestParamJson);
+	}
+	//
+	// @Override
+	// public String toString() {
+	// StringBuilder builder = new StringBuilder();
+	// builder.append("ModuleListing [moduleId=").append(moduleId).append(",
+	// moduleUrl=").append(moduleUrl).append(", parentId=")
+	// .append(parentId).append(", sequence=").append(sequence).append(",
+	// isInsideMenu=").append(isInsideMenu)
+	// .append(", includeLayout=").append(includeLayout).append(",
+	// isHomePage=").append(isHomePage).append(", targetLookupId=")
+	// .append(targetLookupId).append(",
+	// targetTypeId=").append(targetTypeId).append(",
+	// headerJson=").append(headerJson)
+	// .append(", moduleListingI18ns=").append(moduleListingI18ns).append(",
+	// moduleRoleAssociations=")
+	// .append(moduleRoleAssociations).append(",
+	// moduleTargetLookup=").append(moduleTargetLookup).append(", updatedDate=")
+	// .append(updatedDate).append(", moduleTypeId=").append(moduleTypeId).append(",
+	// headerJson=").append(headerJson)
+	// .append(", requestParamJson=").append(requestParamJson).append("]");
+	// return builder.toString();
+	// }
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("ModuleListing [moduleId=").append(moduleId).append(", moduleUrl=").append(moduleUrl).append(", parentId=")
-				.append(parentId).append(", sequence=").append(sequence).append(", isInsideMenu=").append(isInsideMenu)
-				.append(", includeLayout=").append(includeLayout).append(", isHomePage=").append(isHomePage).append(", targetLookupId=")
-				.append(targetLookupId).append(", targetTypeId=").append(targetTypeId).append(", moduleListingI18ns=")
-				.append(moduleListingI18ns).append(", moduleRoleAssociations=").append(moduleRoleAssociations)
-				.append(", moduleTargetLookup=").append(moduleTargetLookup).append(", updatedDate=").append(updatedDate).append("]");
-		return builder.toString();
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 }

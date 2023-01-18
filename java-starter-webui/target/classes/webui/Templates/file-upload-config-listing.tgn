@@ -1,0 +1,97 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+</head>
+
+<div class="container">
+        <div class="topband">
+        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.fileUploadConfig')}</h2> 
+        <div class="float-right">
+       		<span onclick="fileUploadMaster();">
+				<input id="fileUploadBtn" class="btn btn-primary pull-left margin-r-5" name="fileUploadBtn" value="${messageSource.getMessage('jws.commonfiles')}" type="button">
+			</span>
+		  <form id="formFileUpload" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+                <input type="hidden" name="formId" value="40289d3d750decc701750e3f1e3c0000"/>
+                <input type="hidden" name="fileBinId" id="fileBinId" value=""/>
+                <button type="submit" class="btn btn-primary">${messageSource.getMessage('jws.addFileConfiguration')}</button>
+            </form>
+			<span onclick="backToWelcomePage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span>	   
+        </div>
+        
+        <div class="clearfix"></div>        
+        </div>
+        
+        <div id="divFileConfigListingGrid"></div>
+
+</div>
+
+
+
+<script>
+	contextPath = "${(contextPath)!''}";
+	
+	$(function () {
+		let formElement = $("#formFileUpload")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("file-upload-config", formDataJson);
+		
+	    let colM = [
+	        { title: "${messageSource.getMessage('jws.filebinid')}", width: 130, dataIndx: "fileBinId", align: "left", halign: "center", 
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "${messageSource.getMessage('jws.filetypesupported')}", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+	        { title: "${messageSource.getMessage('jws.maxfilesize')}", width: 160, dataIndx: "maxFileSize", align: "left", halign: "center", 
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+			{ title: "${messageSource.getMessage('jws.noOfFiles')}", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
+	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 160, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate },
+	        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editFileUploadConfig, sortable: false}
+	    ];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
+    	};	    
+	    let grid = $("#divFileConfigListingGrid").grid({
+	      gridId: "fileUploadConfigGrid",
+	      colModel: colM,
+          dataModel: dataModel
+	  	});
+  	});
+  	
+  	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
+	function editFileUploadConfig(uiObject) {
+		const fileBinId = uiObject.rowData.fileBinId;
+		return '<span id="'+fileBinId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit file configuration"></i></span>'.toString();
+	}
+	
+	function submitForm(element) {
+	  $("#fileBinId").val(element.id);
+	  $("#formFileUpload").submit();
+	}
+	
+		
+    function fileUploadMaster() {
+		location.href = contextPath+"/view/fum";
+	}
+	
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
+</script>

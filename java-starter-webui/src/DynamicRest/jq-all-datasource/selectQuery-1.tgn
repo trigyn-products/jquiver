@@ -1,0 +1,7 @@
+SELECT jad.additional_datasource_id AS additionalDatasourceId, jad.datasource_name AS datasourceName, jdl.database_product_name AS databaseProductName, ad.datasource_id AS selectedDataSource  
+FROM jq_additional_datasource AS jad
+INNER JOIN jq_datasource_lookup AS jdl ON jdl.datasource_lookup_id = jad.datasource_lookup_id 
+LEFT OUTER JOIN jq_autocomplete_details AS ad ON ad.datasource_id = jad.additional_datasource_id 
+AND ad.ac_id = "table-autocomplete"
+WHERE jad.is_deleted = 0 
+ORDER BY datasourceName

@@ -91,6 +91,15 @@ public class Dashlet implements Serializable {
 	@Column(name = "datasource_id")
 	private String								datasourceId			= null;
 
+	@Column(name = "result_variable_name")
+	private String								resultVariableName		= null;
+
+	@Column(name = "dao_query_type")
+	private Integer								daoQueryType			= null;
+
+	@Column(name = "is_custom_updated")
+	private Integer								isCustomUpdated			= 1;
+
 	@OneToMany(mappedBy = "dashlet", fetch = FetchType.EAGER)
 	private List<DashletProperties>				properties				= new ArrayList<>();
 
@@ -104,10 +113,11 @@ public class Dashlet implements Serializable {
 	public Dashlet() {
 	}
 
-	public Dashlet(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate, Integer yCoordinate, Integer width,
-			Integer height, String contextId, Integer showHeader, String dashletQuery, String dashletBody, String createdBy,
-			Date createdDate, String updatedBy, Date lastUpdatedTs, Integer isActive, String dashletQueryChecksum,
-			String dashletBodyChecksum, Integer dashletTypeId, String datasourceId) {
+	public Dashlet(String dashletId, String dashletName, String dashletTitle, Integer xCoordinate, Integer yCoordinate,
+			Integer width, Integer height, String contextId, Integer showHeader, String dashletQuery,
+			String dashletBody, String createdBy, Date createdDate, String updatedBy, Date lastUpdatedTs,
+			Integer isActive, String dashletQueryChecksum, String dashletBodyChecksum, Integer dashletTypeId,
+			String datasourceId, String resultVariableName, Integer daoQueryType) {
 		this.dashletId				= dashletId;
 		this.dashletName			= dashletName;
 		this.dashletTitle			= dashletTitle;
@@ -128,6 +138,8 @@ public class Dashlet implements Serializable {
 		this.dashletBodyChecksum	= dashletBodyChecksum;
 		this.dashletTypeId			= dashletTypeId;
 		this.datasourceId			= datasourceId;
+		this.resultVariableName		= resultVariableName;
+		this.daoQueryType			= daoQueryType;
 	}
 
 	public String getDashletId() {
@@ -314,11 +326,35 @@ public class Dashlet implements Serializable {
 		this.datasourceId = datasourceId;
 	}
 
+	public String getResultVariableName() {
+		return resultVariableName;
+	}
+
+	public void setResultVariableName(String resultVariableName) {
+		this.resultVariableName = resultVariableName;
+	}
+
+	public Integer getDaoQueryType() {
+		return daoQueryType;
+	}
+
+	public void setDaoQueryType(Integer daoQueryType) {
+		this.daoQueryType = daoQueryType;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, contextMaster, createdBy, dashboardAssociation, dashletBody, dashletBodyChecksum, dashletId,
-				dashletName, dashletQuery, dashletQueryChecksum, dashletTitle, dashletTypeId, height, isActive, properties, showHeader,
-				updatedBy, width, xCoordinate, yCoordinate);
+		return Objects.hash(contextId, contextMaster, createdBy, dashboardAssociation, dashletBody, dashletBodyChecksum,
+				dashletId, dashletName, dashletQuery, dashletQueryChecksum, dashletTitle, dashletTypeId, height,
+				isActive, properties, showHeader, updatedBy, width, xCoordinate, yCoordinate);
 	}
 
 	@Override
@@ -334,30 +370,35 @@ public class Dashlet implements Serializable {
 		}
 		Dashlet other = (Dashlet) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(contextMaster, other.contextMaster)
-				&& Objects.equals(createdBy, other.createdBy) && Objects.equals(dashboardAssociation, other.dashboardAssociation)
-				&& Objects.equals(dashletBody, other.dashletBody) && Objects.equals(dashletBodyChecksum, other.dashletBodyChecksum)
+				&& Objects.equals(createdBy, other.createdBy)
+				&& Objects.equals(dashboardAssociation, other.dashboardAssociation)
+				&& Objects.equals(dashletBody, other.dashletBody)
+				&& Objects.equals(dashletBodyChecksum, other.dashletBodyChecksum)
 				&& Objects.equals(dashletId, other.dashletId) && Objects.equals(dashletName, other.dashletName)
-				&& Objects.equals(dashletQuery, other.dashletQuery) && Objects.equals(dashletQueryChecksum, other.dashletQueryChecksum)
-				&& Objects.equals(dashletTitle, other.dashletTitle) && Objects.equals(dashletTypeId, other.dashletTypeId)
-				&& Objects.equals(height, other.height) && Objects.equals(isActive, other.isActive)
-				&& Objects.equals(properties, other.properties) && Objects.equals(showHeader, other.showHeader)
-				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(width, other.width)
-				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate);
+				&& Objects.equals(dashletQuery, other.dashletQuery)
+				&& Objects.equals(dashletQueryChecksum, other.dashletQueryChecksum)
+				&& Objects.equals(dashletTitle, other.dashletTitle)
+				&& Objects.equals(dashletTypeId, other.dashletTypeId) && Objects.equals(height, other.height)
+				&& Objects.equals(isActive, other.isActive) && Objects.equals(properties, other.properties)
+				&& Objects.equals(showHeader, other.showHeader) && Objects.equals(updatedBy, other.updatedBy)
+				&& Objects.equals(width, other.width) && Objects.equals(xCoordinate, other.xCoordinate)
+				&& Objects.equals(yCoordinate, other.yCoordinate);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Dashlet [dashletId=").append(dashletId).append(", dashletName=").append(dashletName).append(", dashletTitle=")
-				.append(dashletTitle).append(", xCoordinate=").append(xCoordinate).append(", yCoordinate=").append(yCoordinate)
-				.append(", width=").append(width).append(", height=").append(height).append(", contextId=").append(contextId)
-				.append(", showHeader=").append(showHeader).append(", dashletQuery=").append(dashletQuery).append(", dashletBody=")
-				.append(dashletBody).append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate)
-				.append(", updatedBy=").append(updatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs).append(", isActive=")
-				.append(isActive).append(", dashletQueryChecksum=").append(dashletQueryChecksum).append(", dashletBodyChecksum=")
-				.append(dashletBodyChecksum).append(", dashletTypeId=").append(dashletTypeId).append(", properties=").append(properties)
-				.append(", dashboardAssociation=").append(dashboardAssociation).append(", contextMaster=").append(contextMaster)
-				.append("]");
+		builder.append("Dashlet [dashletId=").append(dashletId).append(", dashletName=").append(dashletName)
+				.append(", dashletTitle=").append(dashletTitle).append(", xCoordinate=").append(xCoordinate)
+				.append(", yCoordinate=").append(yCoordinate).append(", width=").append(width).append(", height=")
+				.append(height).append(", contextId=").append(contextId).append(", showHeader=").append(showHeader)
+				.append(", dashletQuery=").append(dashletQuery).append(", dashletBody=").append(dashletBody)
+				.append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate)
+				.append(", updatedBy=").append(updatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
+				.append(", isActive=").append(isActive).append(", dashletQueryChecksum=").append(dashletQueryChecksum)
+				.append(", dashletBodyChecksum=").append(dashletBodyChecksum).append(", dashletTypeId=")
+				.append(dashletTypeId).append(", properties=").append(properties).append(", dashboardAssociation=")
+				.append(dashboardAssociation).append(", contextMaster=").append(contextMaster).append("]");
 		return builder.toString();
 	}
 
@@ -384,7 +425,8 @@ public class Dashlet implements Serializable {
 		dashlet.setDashletId(dashletId != null ? dashletId.trim() : dashletId);
 		dashlet.setDashletName(dashletName != null ? dashletName.trim() : dashletName);
 		dashlet.setDashletQuery(dashletQuery != null ? dashletQuery.trim() : dashletQuery);
-		dashlet.setDashletQueryChecksum(dashletQueryChecksum != null ? dashletQueryChecksum.trim() : dashletQueryChecksum);
+		dashlet.setDashletQueryChecksum(
+				dashletQueryChecksum != null ? dashletQueryChecksum.trim() : dashletQueryChecksum);
 
 		dashlet.setDashletTitle(dashletTitle != null ? dashletTitle.trim() : dashletTitle);
 		dashlet.setDashletTypeId(dashletTypeId);

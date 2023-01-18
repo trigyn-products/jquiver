@@ -1,0 +1,34 @@
+
+<script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+ 
+<div dashlet-id="${dashletId}" class="grid-stack-item" data-gs-x="${xCord}" data-gs-y="${yCord}" data-gs-width="${width}" data-gs-height="${height}" style="position: absolute;">
+    <div class="panel panel-default grid-stack-item-content">
+        <div class="row heading panel-heading dashlet-header-panel">
+        
+          <div class="dashlet_header_block">
+              <div class="dashlet_title_name">
+                      <span class="float-left"><b>${dashletTitle}</b></span>
+              </div>
+              
+              <div class="dashlet_header_buttons">
+                   <span class="dashlet_common_button" onclick="refreshDashletContent('${dashletId}');">
+                   <i class="fa fa-refresh" aria-hidden="true"></i>
+                 </span>
+              
+                 <span class="dashlet_common_button" onclick="openConfigurationDialog('${dashletId}');">
+                  <i class="fa fa-cog" aria-hidden="true"></i>
+                 </span>
+              </div>
+          
+          </div>
+          
+        </div>
+        <div class="panel-body">
+            <div id="dashlet_${dashletId}">
+              ${content}
+            </div>        
+      </div>
+    </div>
+</div>

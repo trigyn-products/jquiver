@@ -1,0 +1,244 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<#if (resultSet)?? && (resultSet)?has_content>
+		    <h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.editProperty" "Edit property"/></h2> 
+        <#else>
+            <h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.addProperty" "Add property"/></h2> 
+        </#if>
+		<div class="clearfix"></div>		
+	</div>
+	
+	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>	
+	<form method="post" name="addEditForm" id="addEditForm">
+		
+		<div class="row">
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<input type="hidden" id="propertyMasterId" name="propertyMasterId" value="">
+					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownerid')}</label>
+					<input type="text" id="ownerId" name="ownerId" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="ownerType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownertype')}</label>
+					<input type="text" id="ownerType" name="ownerType" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="appVersion" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.appversion')}</label>
+					<input type="number" id="appVersion" name="appVersion" value="" maxlength="7" required class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyname')}</label>
+					<input type="text" id="propertyName" name="propertyName" value="" required maxlength="100" class="form-control">
+				</div>
+			</div>
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyvalue')}</label>
+					<textarea id="propertyValue" name="propertyValue" rows="4" required class="form-control">${(resultSetObject?api.get("property_value"))!""}</textarea>
+				</div>
+			</div>
+
+			
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+					<label for="comment" style="white-space:nowrap">${messageSource.getMessage('jws.comments')}</label>
+					<textarea id="comment" name="comment" rows="4" onkeydown="calculateLength();" onkeyup="calculateLength();" maxlength="100" class="form-control"></textarea>
+
+                <div style = "position:relative; left:320px;">
+                    <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="100" >
+                </div>
+                </div>
+			</div>
+			
+			<input type="hidden" id="primaryKey" name="primaryKey">
+			<input type="hidden" id="entityName" name="entityName" value="jq_property_master">
+		    </div>
+		
+		
+	</form>
+	<div class="row margin-t-10">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropup custom-grp-btn">
+			      <div id="savedAction">
+		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		     	   </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		           	<div class="dropdown-menu action-cls"  id="actionDiv">
+		               	<ul class="dropdownmenu">
+		                  	<li id="saveAndCreateNew" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		    	            <li id="saveAndEdit" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+			            </ul>
+		            </div> 
+	            </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+		
+
+</div>
+
+
+
+<script>
+	contextPath = "${contextPath}";
+	let formId = "${formId}";
+	let edit = 0;
+	
+	function saveData (){
+	    if(validateFields() == false){
+	        $("#errorMessage").show();
+	        return false;
+	    }
+	    let isDataSaved = false;
+		let propertyValue = $('#propertyValue').val().replace(/\\/g, "\\\\");
+        $("#propertyValue").val(propertyValue);
+		let formData = $("#addEditForm").serialize() + "&formId="+formId;
+		$.ajax({
+		  type : "POST",
+		  async: false,
+		  url : contextPath+"/cf/sdf",
+		  data : formData,
+          success : function(data) {
+          	isDataSaved = true;
+			showMessage("Information saved successfully", "success");
+			enableVersioning(formData);
+		  },
+	      error : function(xhr, error){
+			showMessage("Error occurred while saving", "error");
+	      },
+     	});
+     	refreshMailConfiguration();
+     	return isDataSaved;
+	}
+	
+	function refreshMailConfiguration(){
+		$.ajax({
+			type : "POST",
+        	async: false,
+        	url : contextPath+"/cf/rp",
+        	data : {
+            	ownerId: $("#ownerId").val(),
+            	ownerType: $("#ownerType").val(),
+            	propertyName: $("#propertyName").val(),
+            	propertyValue: $("#propertyValue").val(),
+        	},
+        	success : function(data) {
+	
+        	},
+        	error : function(xhr, error){
+            	showMessage("Error occurred while updating property configuration", "error");
+        	},
+      	});
+  	}
+	
+	function updatePropertyMaster(){
+		$.ajax({
+        	type : "GET",
+            async: false,
+            url : contextPath+"/cf/upml",
+            success : function(data) {
+            
+            },error : function(xhr, error){
+				showMessage("Error occurred while updating property master details", "error");
+	      	},
+        });  
+	}
+	
+    function validateFields(){
+        const ownerId = $("#ownerId").val().trim();
+        const ownerType = $("#ownerType").val().trim();
+        const propertyName = $("#propertyName").val().trim();
+        const propertyValue = $("#propertyValue").val().trim();
+        const appVersion = $("#appVersion").val().trim();
+        const comment = $("#comment").val().trim();
+        if(ownerId == "" || ownerType == "" || propertyName == "" 
+                || propertyValue == "" || appVersion == "" ){
+            $("#errorMessage").html("Fields marked with an * are required");
+    		return false;
+        }
+        return true;
+    }
+	
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/pml"
+	}
+	
+	$(function() {
+	    <#if (resultSet)?? && resultSet?has_content>
+        	<#list resultSet as resultSetList>
+				edit = 1;
+				$("#propertyMasterId").val('${resultSetList?api.get("property_master_id")}');
+				$("#primaryKey").val('${resultSetList?api.get("property_master_id")}');
+        		$("#ownerId").val('${resultSetList?api.get("owner_id")}');
+        		$("#ownerType").val('${resultSetList?api.get("owner_type")}');
+        		$("#propertyName").val('${resultSetList?api.get("property_name")}');
+				<#outputformat "RTF">
+					
+				</#outputformat>
+        		$("#comment").val('${resultSetList?api.get("comments")}');
+        		$("#appVersion").val('${resultSetList?api.get("app_version")}');
+                var num = parseInt(document.getElementById('comment').value.length);
+                var num2 = 100;
+                var num3 = num2-num;
+                $('#countdown').val(num3);
+                 
+        	</#list>
+        <#else>
+			const generatedPrimaryKey = uuidv4();
+			let version = 0;
+            <#list systemProperties as key, value>
+                <#if key.propertyName == "version">
+                    version = "${value}".substring(8, 13).trim();
+                </#if>
+            </#list>
+            let arr = version.split("."); // Split the string using dot as separator
+            arr.pop(); // Remove the last element
+
+            $("#appVersion").val(arr.join("."));
+			$("#propertyMasterId").val(generatedPrimaryKey);
+			$("#primaryKey").val(generatedPrimaryKey);
+   
+        </#if>
+		savedAction("property-master-form", edit);
+        hideShowActionButtons();
+	});
+
+    
+    function calculateLength() {
+        var limitNum=100;
+        var commentField = $("#comment").val();
+        var limitCount = $('#countdown').val();
+        limitCount = (limitNum) - commentField.length;
+        $('#countdown').val(limitCount);
+        
+    }
+
+    
+</script>

@@ -66,10 +66,6 @@ public class GenericGridParams {
 				}
 				if (request.getParameter(reqParamKey).contains("str_")) {
 					obj = request.getParameter(reqParamKey).replace("str_", "");
-					if(obj != null && obj.toString().equalsIgnoreCase("__loggedInUserName")) {
-						UserDetailsVO detailsVO = detailsService.getUserDetails();
-						obj = detailsVO.getUserId();
-					}
 				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
@@ -109,10 +105,6 @@ public class GenericGridParams {
 				} /*
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
-				if(obj != null && obj.toString().equalsIgnoreCase("__loggedInUserName")) {
-					UserDetailsVO detailsVO = detailsService.getUserDetails();
-					obj = detailsVO.getUserId();
-				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
 		}
@@ -174,23 +166,27 @@ public class GenericGridParams {
 				} /*
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
-				if(obj != null && obj.toString().equalsIgnoreCase("_loggedInUserName")) {
-					UserDetailsVO detailsVO = detailsService.getUserDetails();
-					obj = detailsVO.getUserId();
-				}
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
 			}
 		}
 	}
 
-	public GenericGridParams getPQGridDataParams(HttpServletRequest request) throws JsonParseException, JSONException, IOException {
+	public GenericGridParams getPQGridDataParams(HttpServletRequest request, IUserDetailsService detailsService) throws JsonParseException, JSONException, IOException {
+		// sorting functionality
+		String strPQSort = request.getParameter("pq_sort");
+		String filters = request.getParameter("pq_filter");
+	
+		return getPQGridDataParams(request, detailsService, strPQSort, filters);
+	}
+
+	public GenericGridParams getPQGridDataParams(HttpServletRequest request, IUserDetailsService detailsService, String strPQSort, String filters) throws JsonParseException, JSONException, IOException {
+
 		this.rowsPerPage	= Integer.parseInt(request.getParameter("pq_rpp"));
-		this.pageIndex		= Integer.parseInt(request.getParameter("pq_curpage")) == 0 ? 1
+		this.pageIndex		= request.getParameter("pq_curpage") == null || Integer.parseInt(request.getParameter("pq_curpage")) == 0 ? 1
 				: Integer.parseInt(request.getParameter("pq_curpage"));
 		this.startIndex		= rowsPerPage * (pageIndex - 1);
 
 		// sorting functionality
-		String strPQSort = request.getParameter("pq_sort");
 		if (strPQSort != null) {
 			JSONArray	jsonArrSort	= new JSONArray(strPQSort);
 			JSONObject	jsonObjSort	= jsonArrSort.getJSONObject(0);
@@ -205,7 +201,6 @@ public class GenericGridParams {
 			}
 		}
 
-		String filters = request.getParameter("pq_filter");
 		if (filters != null) {
 			FilterParams		filterParams	= new FilterParams();
 			List<SearchFields>	lstSearch		= new ArrayList<SearchFields>();
@@ -239,7 +234,8 @@ public class GenericGridParams {
 					obj = Double.parseDouble(request.getParameter(reqParamKey).replace("flt_", ""));
 				} else if (request.getParameter(reqParamKey).contains("str_")) {
 					obj = request.getParameter(reqParamKey).replace("str_", "");
-				} /*
+				} 
+				/*
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
@@ -267,6 +263,7 @@ public class GenericGridParams {
 		}
 
 		return this;
+	
 	}
 
 	public String getSortIndex() {

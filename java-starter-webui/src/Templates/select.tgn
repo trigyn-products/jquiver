@@ -1,0 +1,15 @@
+<script type="text/javascript">
+	var selectOptions =  "${innerTemplateObj.propertyValue!''}";
+	var selectId = "${innerTemplateObj.propertyId!''}";
+	if(selectOptions.trim() !== ""){ 
+		let optionArray = selectOptions.split(", "); 
+		$.each(optionArray, function(index, optionValue){
+			$("#"+selectId).append("<option value='"+optionValue+"'>"+optionValue+"</option>");
+		})
+	}
+	$("#"+selectId).val("${innerTemplateObj.defaultValue!''}");
+</script>
+<div class="col-12 margin-b-10">
+	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+	<select id="${innerTemplateObj.propertyId!''}" class="select form-control" name="${innerTemplateObj.propertyId!''}"></select>
+</div>

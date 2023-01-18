@@ -21,7 +21,12 @@ public class ModuleDetailsVO implements Serializable {
 	private String				targetLookupName	= null;
 	private String				targetTypeId		= null;
 	private Long				subModuleCount		= null;
+	private String				headerJson			= null;
 	private List<String>		roleIdList			= null;
+	private String				requestParamJson	= null;
+	private String				externalURL			= null;
+	private Integer				openInNewTab		= null;
+	private String				menuStyle			= null;
 
 	public ModuleDetailsVO() {
 
@@ -29,7 +34,7 @@ public class ModuleDetailsVO implements Serializable {
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
 			Integer sequence, Integer isInsideMenu, Integer includeLayout, Integer targetLookupId, String targetLookupDesc,
-			String targetTypeId) {
+			String targetTypeId, String headerJson, String requestParamJson, Integer openInNewTab, String menuStyle) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
 		this.moduleURL			= moduleURL;
@@ -41,6 +46,10 @@ public class ModuleDetailsVO implements Serializable {
 		this.targetLookupId		= targetLookupId;
 		this.targetLookupDesc	= targetLookupDesc;
 		this.targetTypeId		= targetTypeId;
+		this.headerJson			= headerJson;
+		this.requestParamJson 	= requestParamJson;
+		this.openInNewTab 		= openInNewTab;
+		this.menuStyle 			= menuStyle;
 	}
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL) {
@@ -60,11 +69,29 @@ public class ModuleDetailsVO implements Serializable {
 		this.subModuleCount		= subModuleCount;
 	}
 
-	public ModuleDetailsVO(String moduleURL, Integer targetLookupId, String targetTypeId, Integer includeLayout) {
-		this.moduleURL		= moduleURL;
-		this.targetLookupId	= targetLookupId;
-		this.targetTypeId	= targetTypeId;
-		this.includeLayout	= includeLayout;
+	public ModuleDetailsVO(String moduleURL, Integer targetLookupId, String targetTypeId, Integer includeLayout, String headerJson, String requestParamJson) {
+		this.moduleURL			= moduleURL;
+		this.targetLookupId		= targetLookupId;
+		this.targetTypeId		= targetTypeId;
+		this.includeLayout		= includeLayout;
+		this.headerJson			= headerJson;
+		this.requestParamJson 	= requestParamJson;
+	}
+	
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+			Integer sequence, Long subModuleCount, String targetTypeId, Integer targetLookupId, String requestParamJson, Integer openInNewTab, String menuStyle) {
+		this.moduleId			= moduleId;
+		this.moduleName			= moduleName;
+		this.moduleURL			= moduleURL;
+		this.parentModuleId		= parentModuleId;
+		this.parentModuleName	= parentModuleName;
+		this.sequence			= sequence;
+		this.subModuleCount		= subModuleCount;
+		this.targetTypeId		= targetTypeId;
+		this.targetLookupId		= targetLookupId;
+		this.requestParamJson 	= requestParamJson;
+		this.openInNewTab		= openInNewTab;
+		this.menuStyle 			= menuStyle;
 	}
 
 	public String getModuleId() {
@@ -189,10 +216,34 @@ public class ModuleDetailsVO implements Serializable {
 		this.parentModuleId = parentModuleId;
 	}
 
+	public String getHeaderJson() {
+		return headerJson;
+	}
+
+	public void setHeaderJson(String headerJson) {
+		this.headerJson = headerJson;
+	}
+
+	public String getRequestParamJson() {
+		return requestParamJson;
+	}
+
+	public void setRequestParamJson(String requestParamJson) {
+		this.requestParamJson = requestParamJson;
+	}
+	
+	public String getExternalURL() {
+		return externalURL;
+	}
+
+	public void setExternalURL(String externalURL) {
+		this.externalURL = externalURL;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(includeLayout, isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId, parentModuleName, roleIdList,
-				sequence, subModuleCount, targetLookupDesc, targetLookupId, targetLookupName, targetTypeId);
+		return Objects.hash(headerJson, includeLayout, isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId, parentModuleName,
+				roleIdList, sequence, subModuleCount, targetLookupDesc, targetLookupId, targetLookupName, targetTypeId);
 	}
 
 	@Override
@@ -207,13 +258,14 @@ public class ModuleDetailsVO implements Serializable {
 			return false;
 		}
 		ModuleDetailsVO other = (ModuleDetailsVO) obj;
-		return Objects.equals(includeLayout, other.includeLayout) && Objects.equals(isInsideMenu, other.isInsideMenu)
-				&& Objects.equals(moduleId, other.moduleId) && Objects.equals(moduleName, other.moduleName)
-				&& Objects.equals(moduleURL, other.moduleURL) && Objects.equals(parentModuleId, other.parentModuleId)
-				&& Objects.equals(parentModuleName, other.parentModuleName) && Objects.equals(roleIdList, other.roleIdList)
-				&& Objects.equals(sequence, other.sequence) && Objects.equals(subModuleCount, other.subModuleCount)
-				&& Objects.equals(targetLookupDesc, other.targetLookupDesc) && Objects.equals(targetLookupId, other.targetLookupId)
-				&& Objects.equals(targetLookupName, other.targetLookupName) && Objects.equals(targetTypeId, other.targetTypeId);
+		return Objects.equals(headerJson, other.headerJson) && Objects.equals(includeLayout, other.includeLayout)
+				&& Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
+				&& Objects.equals(moduleName, other.moduleName) && Objects.equals(moduleURL, other.moduleURL)
+				&& Objects.equals(parentModuleId, other.parentModuleId) && Objects.equals(parentModuleName, other.parentModuleName)
+				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(sequence, other.sequence)
+				&& Objects.equals(subModuleCount, other.subModuleCount) && Objects.equals(targetLookupDesc, other.targetLookupDesc)
+				&& Objects.equals(targetLookupId, other.targetLookupId) && Objects.equals(targetLookupName, other.targetLookupName)
+				&& Objects.equals(targetTypeId, other.targetTypeId);
 	}
 
 	@Override
@@ -224,9 +276,24 @@ public class ModuleDetailsVO implements Serializable {
 				.append(", sequence=").append(sequence).append(", isInsideMenu=").append(isInsideMenu).append(", includeLayout=")
 				.append(includeLayout).append(", targetLookupId=").append(targetLookupId).append(", targetLookupDesc=")
 				.append(targetLookupDesc).append(", targetLookupName=").append(targetLookupName).append(", targetTypeId=")
-				.append(targetTypeId).append(", subModuleCount=").append(subModuleCount).append(", roleIdList=").append(roleIdList)
-				.append("]");
+				.append(targetTypeId).append(", subModuleCount=").append(subModuleCount).append(", headerJson=").append(headerJson)
+				.append(", roleIdList=").append(roleIdList).append("]");
 		return builder.toString();
 	}
 
+	public Integer getOpenInNewTab() {
+		return openInNewTab;
+	}
+
+	public void setOpenInNewTab(Integer openInNewTab) {
+		this.openInNewTab = openInNewTab;
+	}
+
+	public String getMenuStyle() {
+		return menuStyle;
+	}
+
+	public void setMenuStyle(String menuStyle) {
+		this.menuStyle = menuStyle;
+	}
 }

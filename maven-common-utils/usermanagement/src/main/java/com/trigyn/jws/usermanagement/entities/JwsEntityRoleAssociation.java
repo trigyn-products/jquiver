@@ -53,6 +53,9 @@ public class JwsEntityRoleAssociation {
 	@Column(name = "module_type_id")
 	private Integer	moduleTypeId	= 0;
 
+	@Column(name = "is_custom_updated")
+	private Integer	isCustomUpdated	= 1;
+
 	@ManyToOne
 	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
 	private JwsRole	jwsRole			= null;
@@ -125,16 +128,24 @@ public class JwsEntityRoleAssociation {
 		return jwsRole;
 	}
 
-	public Integer getModuleTypeId() {
-		return moduleTypeId;
-	}
-
 	public void setJwsRole(JwsRole jwsRole) {
 		this.jwsRole = jwsRole;
 	}
 
+	public Integer getModuleTypeId() {
+		return moduleTypeId;
+	}
+
 	public void setModuleTypeId(Integer moduleTypeId) {
 		this.moduleTypeId = moduleTypeId;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 	public JwsEntityRoleAssociation getObject() {
@@ -147,7 +158,7 @@ public class JwsEntityRoleAssociation {
 		role.setLastUpdatedDate(lastUpdatedDate);
 		role.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		role.setIsActive(isActive);
-		role.setJwsRole(jwsRole.getObject());
+		// role.setJwsRole(jwsRole.getObject());
 		return role;
 	}
 }

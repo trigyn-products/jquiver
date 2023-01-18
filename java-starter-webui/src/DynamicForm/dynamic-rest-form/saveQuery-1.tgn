@@ -1,0 +1,41 @@
+<#if  (formData?api.getFirst("isEdit"))?has_content &&
+(formData?api.getFirst("isEdit")) == "1">
+    UPDATE jq_dynamic_rest_details SET 
+        jws_dynamic_rest_url = '${formData?api.getFirst("dynarestUrl")}'
+        ,jws_method_name = '${formData?api.getFirst("dynarestMethodName")}'
+        ,jws_method_description = '${formData?api.getFirst("dynarestMethodDescription")}'
+        ,jws_request_type_id = '${formData?api.getFirst("dynarestRequestTypeId")}'
+        ,jws_response_producer_type_id = '${formData?api.getFirst("dynarestProdTypeId")}'
+        ,jws_rbac_id = 1
+        ,jws_service_logic = '${formData?api.getFirst("serviceLogic")}'
+        ,jws_platform_id = '${formData?api.getFirst("dynarestPlatformId")}'
+        ,jws_allow_files = '${formData?api.getFirst("allowFiles")}'
+        ,jws_header_json = '${formData?api.getFirst("headerJson")}'
+        ,last_updated_by = :loggedInUserName
+        ,last_updated_ts = NOW()
+	,is_custom_updated = 1
+	,hide_dao_query = '${formData?api.getFirst("hidedaoquery")}'
+    WHERE jws_dynamic_rest_id = '${formData?api.getFirst("dynarestId")}'   ;
+<#else>
+    INSERT INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, 
+    jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_header_json ,
+    created_by, created_date, last_updated_ts, is_custom_updated,hide_dao_query)
+    VALUES (
+		 '${formData?api.getFirst("dynarestId")}',
+         '${formData?api.getFirst("dynarestUrl")}'
+         , '${formData?api.getFirst("dynarestMethodName")}'
+         , '${formData?api.getFirst("dynarestMethodDescription")}'
+         , 1
+         , '${formData?api.getFirst("dynarestRequestTypeId")}'
+         , '${formData?api.getFirst("dynarestProdTypeId")}'
+         ,'${formData?api.getFirst("serviceLogic")}'
+         , '${formData?api.getFirst("dynarestPlatformId")}'
+         , '${formData?api.getFirst("allowFiles")}'
+         , '${formData?api.getFirst("headerJson")}'
+         , :loggedInUserName
+         , NOW()
+         , NOW()
+	 , 1
+	  , '${formData?api.getFirst("hidedaoquery")}'
+    );
+</#if>

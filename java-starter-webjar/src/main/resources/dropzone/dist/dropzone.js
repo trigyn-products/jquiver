@@ -2955,7 +2955,30 @@ function (_Emitter) {
     }
   }, {
     key: "_handleUploadError",
-    value: function _handleUploadError(files, xhr, response) {
+    value: function _handleUploadError(files, xhr, response) {		
+            
+	    if(xhr.status == null || xhr.status == "500" || xhr.status == "412" || xhr.status == "403") {
+	            if(xhr.status == null || xhr.status == "500") {
+	                        showMessage("Internal Server Error.", "error");
+	                } else if(xhr.status == "412") {
+	                        if(xhr.response == "INVALID_EXTENSION") {
+	                                showMessage("File with specified extension is not allowed.", "warn");
+	                        } else if(xhr.response == "INVALID_SIZE") {
+	                                showMessage("File size exceeds more than allowed size.", "warn");
+	                        } else if(xhr.response == "INVALID_NO_OF_FILES") {
+	                                showMessage("Files exceed more than allowed number.", "warn");
+	                        } else {
+	                                showMessage(xhr.response, "warn");
+	                        }
+	                } else if(xhr.status == "403") {
+	                        showMessage("You don't have enough privileges to upload file.", "warn");
+	                }
+	            var event = new Event("remove");
+	                event.preventDefault();
+	                event.stopPropagation();
+	                this.removeFile(files[0]);
+	                return;
+	    }
       if (files[0].status === Dropzone.CANCELED) {
         return;
       }
@@ -3116,7 +3139,7 @@ Dropzone.forElement = function (element) {
 }; // Set to false if you don't want Dropzone to automatically find and attach to .dropzone elements.
 
 
-Dropzone.autoDiscover = true; // Looks for all .dropzone elements and creates a dropzone for them
+Dropzone.autoDiscover = false; // Looks for all .dropzone elements and creates a dropzone for them
 
 Dropzone.discover = function () {
   var dropzones;

@@ -1,0 +1,29 @@
+var HashMap =  Java.type("java.util.HashMap");
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var currentUser;
+
+params.put('messagevalidfrom', requestDetails.messagevalidfrom);
+params.put('messagevalidtill', requestDetails.messagevalidtill);
+params.put('messagetext', requestDetails.messagetext);
+params.put('messageType', requestDetails.messageType);
+params.put('selectioncriteria', requestDetails.selectioncriteria);
+params.put('notificationid', requestDetails.notificationid);
+params.put('displayOnceTxt', requestDetails.displayOnceTxt);
+
+function upsertRecord(){
+var notificationCountQuery = jq_getDBResult("SELECT COUNT(*) AS cnt FROM jq_generic_user_notification WHERE DATE(creation_date) = CURDATE()",null,null).data_list;
+var dailyNotificationCount = jq_getDBResult("SELECT property_value As dailyNotificationCount FROM jq_property_master WHERE property_name='daily-notification-count'", null, null).data_list[0].dailyNotificationCount;
+for(var counter =0; counter < notificationCountQuery.length; counter++) {
+    var count = notificationCountQuery[counter].cnt;
+        if(count<dailyNotificationCount){
+            if(requestDetails.isEdit == 0){
+            jq_updateDBQuery("INSERT INTO jq_generic_user_notification (notification_id,message_valid_from,message_valid_till,message_text,message_type, display_once, selection_criteria,created_by,creation_date,updated_by,updated_date, is_custom_updated) VALUES (UUID(),STR_TO_DATE(:messagevalidfrom, '%d-%b-%Y') ,STR_TO_DATE(:messagevalidtill, '%d-%b-%Y') ,:messagetext,:messageType,:displayOnceTxt,:selectioncriteria,'"+requestDetails.loggedInUserName+"',NOW(),'"+requestDetails.loggedInUserName+"', NOW(), 1 )", null, params);
+        }else{
+            jq_updateDBQuery("UPDATE jq_generic_user_notification SET message_valid_from = STR_TO_DATE(:messagevalidfrom, '%d-%b-%Y') ,message_valid_till = STR_TO_DATE(:messagevalidtill, '%d-%b-%Y') ,message_text = :messagetext,message_type = :messageType,selection_criteria = :selectioncriteria, display_once=:displayOnceTxt ,updated_by = '"+requestDetails.loggedInUserName+"',updated_date = NOW(), is_custom_updated=1  WHERE notification_id = :notificationid", null, params);
+        }
+        }
+    }
+}
+
+upsertRecord();

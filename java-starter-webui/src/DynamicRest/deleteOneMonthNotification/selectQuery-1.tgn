@@ -1,0 +1,4 @@
+DELETE FROM jq_generic_user_notification WHERE 'message_valid_till' < NOW() - INTERVAL 
+(SELECT pm.property_value FROM jq_property_master pm, jq_property_master pm2
+WHERE pm.property_name = 'notification-validity'
+AND pm2.property_name = 'auto-delete-notification' AND pm2.property_value = 'true') DAY

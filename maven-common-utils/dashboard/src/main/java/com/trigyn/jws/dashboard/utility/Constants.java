@@ -87,4 +87,71 @@ public final class Constants {
 			return status;
 		}
 	}
+
+	public enum QueryType {
+		SELECT(1), JS(2);
+
+		final int queryType;
+
+		QueryType(int queryType) {
+			this.queryType = queryType;
+		}
+
+		public int getQueryType() {
+			return queryType;
+		}
+	}
+
+	public enum Modules {
+
+		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"), FILEBIN("File Bin"),
+		HELPMANUAL("Help Manual"),DASHLETS("DashLets");
+
+		final String moduleName;
+
+		Modules(String moduleName) {
+			this.moduleName = moduleName;
+		}
+
+		public String getModuleName() {
+			return moduleName;
+		}
+	}
+
+	public enum Changetype {
+		SYSTEM("System", 2), CUSTOM("Custom", 1);
+
+		final String	changetype;
+		final int		typeInt;
+
+		Changetype(String typeName, int a_typeInt) {
+			changetype	= typeName;
+			typeInt		= a_typeInt;
+		}
+
+		public String getChangetype() {
+			return changetype;
+		}
+
+		public int getChangeTypeInt() {
+			return typeInt;
+		}
+
+	}
+
+	public enum Action {
+		ADD("ADD"), EDIT("EDIT"), DELETE("DELETE"), OPEN("OPEN");
+
+		final String action;
+
+		Action(String i) {
+			action = i;
+		}
+
+		public String getAction() {
+			return action;
+		}
+
+	}
 }

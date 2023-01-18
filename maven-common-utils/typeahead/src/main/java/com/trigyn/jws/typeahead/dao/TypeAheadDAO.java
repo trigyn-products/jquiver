@@ -1,11 +1,10 @@
 package com.trigyn.jws.typeahead.dao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -17,6 +16,7 @@ import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
@@ -27,8 +27,8 @@ import com.trigyn.jws.dbutils.utils.DBExtractor;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.typeahead.entities.Autocomplete;
 import com.trigyn.jws.typeahead.model.AutocompleteParams;
-import com.trigyn.jws.typeahead.utility.Constant;
 
 @Repository
 public class TypeAheadDAO extends DBConnection {
@@ -62,6 +62,12 @@ public class TypeAheadDAO extends DBConnection {
 		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
 		sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
 		String						list		= (String) sqlQuery.uniqueResult();
+		Map<String, Object> criteriaParams = autocompleteParams.getCriteriaParams();
+		for (Entry<String, Object> entry : criteriaParams.entrySet()) {
+			String key = entry.getKey();
+			Object val = entry.getValue();
+			requestParamMap.put(key, val); 
+		}
 		String						query		= templatingUtils.processTemplateContents(list, "typeAheadQuery", requestParamMap);
 		List<Map<String, Object>>	displayList	= getAutocompleteDetails(query, autocompleteParams);
 		return displayList;
@@ -165,6 +171,21 @@ public class TypeAheadDAO extends DBConnection {
 			logger.error("Error while fetching data from DB ", a_exc);
 		}
 		return resultSet;
+	}
+
+	public Autocomplete findAutocomplete(String autocompleteId) {
+		Autocomplete autocomplete =  hibernateTemplate.get(Autocomplete.class, autocompleteId);
+		if(autocomplete != null) getCurrentSession().evict(autocomplete);
+		return autocomplete;
+	}
+
+	@Transactional(readOnly = false)
+	public void saveAutocomplete(Autocomplete autocomplete) {
+		if(autocomplete.getAutocompleteId() == null || findAutocomplete(autocomplete.getAutocompleteId()) == null) {
+			getCurrentSession().save(autocomplete);			
+		}else {
+			getCurrentSession().saveOrUpdate(autocomplete);
+		}
 	}
 
 }

@@ -1,0 +1,152 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+
+</head> 
+
+<div class="container"> 
+
+		<div class="row topband">
+			<div class="col-8">
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashboard")}</h2>  
+		        </#if>
+		   	</div>
+	    
+	        <div class="col-4">   
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+			        <#assign ufAttributes = {
+			            "entityType": "Dashboard",
+			            "entityId": "dashboardId",
+			            "entityName": "dashboardName"
+			        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	     		</#if> 
+			</div>
+			
+		<div class="clearfix"></div>		
+	</div>
+
+	<div id="formDiv">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	 
+	 	<div class="row">
+			<input type="hidden" id = "dashboardId" name = "dashboardId" value = "${(dashboard?api.getDashboardId())!''}">
+			
+			<div class="col-3" id="dashboardTypeDiv">
+				<div class="col-inner-form full-form-fields">
+					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
+					<input type="text"  id = "dashboardName" name = "dashboardName" value = "${(dashboard?api.getDashboardName())!''}" maxlength="100" class="form-control">
+				</div>
+			</div>
+	 
+		
+			<div class="col-3" id="contextIdDiv" >
+				<div class="col-inner-form full-form-fields">
+					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
+					<select id="contextId" name="contextId" onchange="addEditDashboardFn.populateDashlets();" class="form-control">
+						<option value="">Select</option>
+						<#if (contextDetails)??>
+							<#list contextDetails as contextId, contextName>
+								<#if contextId??>
+									<#if (dashboard?api.getContextId())?? && contextId == dashboard?api.getContextId()>
+										<option value="${contextId}" selected>${contextName}</option>
+									<#elseif contextId??>
+										<option value="${contextId}">${contextName}</option>
+									</#if>
+								</#if>
+							</#list>
+						</#if>
+					</select>								
+				</div>
+			</div>
+							
+		    <div class="col-3 margin-t-20">
+				<div id="draagableDiv">
+					<input class="pull-left comman_checkbox form-control" type="checkbox" id="isDraggableId"  name="isDraggable" value="${(dashboard?api.getIsDraggable())!''}" ${(dashboard?api.getIsDraggable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeDraggableValue();">
+					<label class="pull-left" for="isDraggableId">${messageSource.getMessage("jws.draggableDashboard")}</label>
+				</div>	
+				<div class="clearfix"></div>
+		    </div>
+	
+			<div class="col-3 margin-t-20"> 			
+				<div class="inpugrp pull-left" id="exportableDiv" >
+					<input type="checkbox" id="isExportableId" class="pull-left comman_checkbox form-control"  name="isExportable" value="${(dashboard?api.getIsExportable())!''}" ${(dashboard?api.getIsExportable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeExportableValue();">
+					<label class="pull-left" for="isExportableId">${messageSource.getMessage("jws.exportableDashboard")}</label>
+      			</div>
+				<div class="clearfix"></div>
+    		</div>
+		 	
+			<div class="col-12">
+	     		<div class="col-inner-form full-form-fields"> 
+		  			<label  class="pull-left label-name-cls full-width"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashlets")}</label>
+		  			<div id = "associatedDashlets"></div>
+		  			<div class="clearfix"></div>
+				</div>
+			</div>
+			
+    		<div class="clearfix"></div>
+     	</div>
+	 
+	 	<div class="row">
+			<div class="col-3">   
+	 			<input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    			<@templateWithoutParams "role-autocomplete"/>
+    		</div>
+    	</div>	
+		
+		<div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropup custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="addEditDashboardFn.backToDashboardListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>		
+	
+	
+</div>
+
+<script>
+	contextPath = "${(contextPath)!''}";
+	const contextId ="${(dashboard?api.getContextId())!''}";
+	const dashboardId = "${(dashboard?api.getDashboardId())!''}"; 
+	let addEditDashboardFn;
+	
+	$(function() {
+		  
+	  	const addEditDashboard = new AddEditDashboard(contextId, dashboardId);
+	  	addEditDashboardFn = addEditDashboard.fn;
+	  	addEditDashboardFn.loadDashboardPage();
+	  
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+	  	
+	  	savedAction("dashboard-manage-details", dashboardId);
+	  	hideShowActionButtons();
+	});
+
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/dashboard/addEditDashboard.js"></script>

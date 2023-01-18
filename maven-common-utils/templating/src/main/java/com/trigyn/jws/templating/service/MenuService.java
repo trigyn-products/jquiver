@@ -15,6 +15,8 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -48,8 +50,11 @@ public class MenuService {
 	@Autowired
 	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
 
+	@Autowired
+	private PropertyMasterDetails				propertyMasterDetails				= null;
+	
 	public String getTemplateWithSiteLayout(String templateName, Map<String, Object> templateDetails) throws Exception {
-		logger.debug("Inside MenuService.getTemplateWithSiteLayout(templateName{}, templateDetails{})", templateName, templateDetails);
+		logger.debug("Inside MenuService.getTemplateWithSiteLayout(templateName: {}, templateDetails: {})", templateName, templateDetails);
 		String					jquiverVersion		= propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE,
 				Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object>		templateMap			= new HashMap<>();
@@ -62,7 +67,30 @@ public class MenuService {
 		templateMap.put("isAuthEnabled", applicationSecurityDetails.getIsAuthenticationEnabled());
 		templateMap.putAll(templateDetails);
 		TemplateVO	templateVO				= templatingService.getTemplateByName("home-page");
+		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		if(suffix == null) suffix = "";
+		if(templatingService.getTemplateByNameWithoutAuthorization(templateName) != null) {
+			templateName = templateName+suffix;
+		}
 		TemplateVO	templateInnerVO			= templatingService.getTemplateByName(templateName);
+		if(templateInnerVO == null) {
+
+			Integer statusCode = ApplicationContextUtils.getThreadLocal().get();
+			if(statusCode == null) {
+				templateDetails.put("statusCode", 500);
+			} else {
+				templateDetails.put("statusCode", statusCode);
+				if(statusCode == 403) {
+					templateDetails.put("errorMessage", "<#noparse>You do not have enough privilege to access this module </#noparse>");
+				} 
+			}
+			if(templatingService.getTemplateByNameWithoutAuthorization("error-page") != null) {
+				templateInnerVO = templatingService.getTemplateByName("error-page"+suffix);;
+			} else {
+				templateInnerVO = templatingService.getTemplateByName("error-page");
+			}
+		}
+		
 		String		enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
 		String		googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
 		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
@@ -87,8 +115,8 @@ public class MenuService {
 	}
 
 	public String getTemplateWithSiteLayoutWithoutProcess(String templateContent, Map<String, Object> templateDetails) throws Exception {
-		logger.debug("Inside MenuService.getTemplateWithSiteLayoutWithoutProcess(templateContent{}, templateDetails{})", templateContent,
-				templateDetails);
+		logger.debug("Inside MenuService.getTemplateWithSiteLayoutWithoutProcess(templateContent: {}, templateDetails: {})",
+				templateContent, templateDetails);
 		String					jquiverVersion		= propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE,
 				Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object>		templateMap			= new HashMap<>();
@@ -99,7 +127,14 @@ public class MenuService {
 				"enable-user-management");
 		templateMap.put("isAuthEnabled", Boolean.parseBoolean(propertyMaster.getPropertyValue()));
 		templateMap.put("isAuthEnabled", applicationSecurityDetails.getIsAuthenticationEnabled());
-		TemplateVO			templateVO				= templatingService.getTemplateByName("home-page");
+		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		if(suffix == null) suffix = "";
+		TemplateVO			templateVO				= null;
+		if(templatingService.getTemplateByNameWithoutAuthorization("home-page") != null) {
+			templateVO				= templatingService.getTemplateByName("home-page"+suffix);;
+		} else {
+			templateVO				= templatingService.getTemplateByName("home-page");
+		}
 		Map<String, String>	childTemplateDetails	= new HashMap<>();
 		childTemplateDetails.put("template-body", templateContent);
 
@@ -122,12 +157,29 @@ public class MenuService {
 	}
 
 	public String getTemplateWithoutLayout(String template, Map<String, Object> templateParamMap) throws Exception {
-		logger.debug("Inside MenuService.getTemplateWithoutLayout(template{}, templateParamMap{})", template, templateParamMap);
+		logger.debug("Inside MenuService.getTemplateWithoutLayout(template: {}, templateParamMap: {})", template, templateParamMap);
 		Map<String, Object> templateMap = new HashMap<>();
 		if (templateParamMap != null) {
 			templateMap.putAll(templateParamMap);
 		}
+		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		if(suffix == null) suffix = "";
+		if(templatingService.getTemplateByNameWithoutAuthorization(template) != null) {
+			template = template+suffix;
+		}
 		TemplateVO	templateVO				= templatingService.getTemplateByName(template);
+		if(templateVO == null) {
+			Integer statusCode = ApplicationContextUtils.getThreadLocal().get();
+			if(statusCode == null) {
+				templateMap.put("statusCode", 500);
+			} else {
+				templateMap.put("statusCode", statusCode);
+				if(statusCode == 403) {
+					templateMap.put("errorMessage", "<#noparse>You do not have enough privilege to access this module </#noparse>");
+				} 
+			}
+			templateVO = templatingService.getTemplateByName("error-page");
+		}
 		String		enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
 		String		googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");
 		templateMap.put("enableGoogleAnalytics", enableGoogleAnalytics);
@@ -137,7 +189,7 @@ public class MenuService {
 	}
 
 	public String getDashletWithLayout(String template, Map<String, Object> templateParamMap) throws Exception {
-		logger.debug("Inside MenuService.getDashletTemplateWithLayout(template{}, templateParamMap{})", template, templateParamMap);
+		logger.debug("Inside MenuService.getDashletTemplateWithLayout(template: {}, templateParamMap: {})", template, templateParamMap);
 		String				jquiverVersion	= propertyMasterService.findPropertyMasterValue(Constant.SYSTEM_OWNER_TYPE,
 				Constant.SYSTEM_OWNER_ID, Constant.JQUIVER_VERSION_PROPERTY_NAME);
 		Map<String, Object>	templateMap		= new HashMap<>();
@@ -170,10 +222,15 @@ public class MenuService {
 	}
 
 	public String getDashletWithoutLayout(String templateName, String template, Map<String, Object> templateParamMap) throws Exception {
-		logger.debug("Inside MenuService.getTemplateWithoutLayout(template{}, templateParamMap{})", template, templateParamMap);
+		logger.debug("Inside MenuService.getTemplateWithoutLayout(template: {}, templateParamMap: {})", template, templateParamMap);
 		Map<String, Object> templateMap = new HashMap<>();
 		if (templateParamMap != null) {
 			templateMap.putAll(templateParamMap);
+		}
+		String suffix = propertyMasterDetails.getAllProperties().get("template_suffix");
+		if(suffix == null) suffix = "";
+		if(templatingService.getTemplateByNameWithoutAuthorization(templateName) != null) {
+			templateName = templateName+suffix;
 		}
 		String	enableGoogleAnalytics	= propertyMasterDAO.findPropertyMasterValue("system", "system", "enable-google-analytics");
 		String	googleAnalyticsKey		= propertyMasterDAO.findPropertyMasterValue("system", "system", "google-analytics-key");

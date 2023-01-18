@@ -48,12 +48,15 @@ public class TemplateMaster implements Serializable {
 	@Column(name = "checksum")
 	private String				checksum			= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer				isCustomUpdated		= 1;
+
 	public TemplateMaster() {
 
 	}
 
-	public TemplateMaster(String templateId, String templateName, String template, Integer templateTypeId, String createdBy,
-			String updatedBy, Date updatedDate) {
+	public TemplateMaster(String templateId, String templateName, String template, Integer templateTypeId,
+			String createdBy, String updatedBy, Date updatedDate) {
 		this.templateId		= templateId;
 		this.templateName	= templateName;
 		this.template		= template;
@@ -127,9 +130,18 @@ public class TemplateMaster implements Serializable {
 		this.checksum = checksum;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(checksum, createdBy, template, templateId, templateName, templateTypeId, updatedBy, updatedDate);
+		return Objects.hash(checksum, createdBy, template, templateId, templateName, templateTypeId, updatedBy,
+				updatedDate);
 	}
 
 	@Override
@@ -146,16 +158,17 @@ public class TemplateMaster implements Serializable {
 		TemplateMaster other = (TemplateMaster) obj;
 		return Objects.equals(checksum, other.checksum) && Objects.equals(createdBy, other.createdBy)
 				&& Objects.equals(template, other.template) && Objects.equals(templateId, other.templateId)
-				&& Objects.equals(templateName, other.templateName) && Objects.equals(templateTypeId, other.templateTypeId)
-				&& Objects.equals(updatedBy, other.updatedBy) && Objects.equals(updatedDate, other.updatedDate);
+				&& Objects.equals(templateName, other.templateName)
+				&& Objects.equals(templateTypeId, other.templateTypeId) && Objects.equals(updatedBy, other.updatedBy)
+				&& Objects.equals(updatedDate, other.updatedDate);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder stringBuilder = new StringBuilder().append("{ vmMasterId = ").append(templateId).append(", vmName = ")
-				.append(templateName).append(", vmTemplate = ").append(template).append(", templateTypeId = ").append(templateTypeId)
-				.append(", createdBy = ").append(createdBy).append(", updatedBy = ").append(updatedBy).append(", updatedDate = ")
-				.append(updatedDate).append(" }");
+		StringBuilder stringBuilder = new StringBuilder().append("{ vmMasterId = ").append(templateId)
+				.append(", vmName = ").append(templateName).append(", vmTemplate = ").append(template)
+				.append(", templateTypeId = ").append(templateTypeId).append(", createdBy = ").append(createdBy)
+				.append(", updatedBy = ").append(updatedBy).append(", updatedDate = ").append(updatedDate).append(" }");
 		return stringBuilder.toString();
 	}
 

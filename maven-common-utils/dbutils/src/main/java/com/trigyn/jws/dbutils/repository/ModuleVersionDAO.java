@@ -110,15 +110,20 @@ public class ModuleVersionDAO extends DBConnection {
 	}
 
 	public Integer getVersionIdCount(String entityId, String entityName) throws Exception {
-		Integer	versionIdCount	= null;
-		Query	query			= getCurrentSession().createQuery(HQL_QUERY_TO_GET_VERSION_ID_COUNT);
-		query.setParameter("entityId", entityId);
-		query.setParameter("entityName", entityName);
-		Object versionIdObj = query.uniqueResult();
-		if (versionIdObj != null) {
-			versionIdCount = Integer.parseInt(versionIdObj.toString());
+		try {
+
+			Integer	versionIdCount	= null;
+			Query	query			= getCurrentSession().createQuery(HQL_QUERY_TO_GET_VERSION_ID_COUNT);
+			query.setParameter("entityId", entityId);
+			query.setParameter("entityName", entityName);
+			Object versionIdObj = query.uniqueResult();
+			if (versionIdObj != null) {
+				versionIdCount = Integer.parseInt(versionIdObj.toString());
+			}
+			return versionIdCount;
+		} catch(Exception a_exc) {
+			return 1;
 		}
-		return versionIdCount;
 	}
 
 	public void deleteOldRecords(String entityId, String entityName) throws Exception {

@@ -1,0 +1,1 @@
+select manual_type, entry_name, entry_content, sort_index, manual_entry_id from jq_manual_entry where manual_type = :manualId order by sort_index asc

@@ -35,6 +35,7 @@ import com.trigyn.jws.dbutils.service.DataSourceFactory;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
 import com.trigyn.jws.dbutils.vo.DatasourceLookUpVO;
+import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 
@@ -48,7 +49,7 @@ public class DataSourceService {
 	@Autowired
 	private AdditionalDatasourceRepository	additionalDatasourceRepo	= null;
 
-	public Map<String, Object> getAvailableDBDrivers(HttpServletRequest a_httpServletRequest,
+	public Map<String, Object> getAvailableDBDrivers(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files,
 			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		logger.debug("Inside DataSourceService.getAvailableDBDrivers()");
 
@@ -90,7 +91,7 @@ public class DataSourceService {
 	}
 
 	@ResponseBody
-	public ResponseEntity<String> saveDatasourceDetails(HttpServletRequest a_httpServletRequest,
+	public ResponseEntity<String> saveDatasourceDetails(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files,
 			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		logger.debug("Inside DataSourceService.saveDatasourceDetails()");
 
@@ -108,6 +109,7 @@ public class DataSourceService {
 		Optional<AdditionalDatasource>	additionalDatasourceOp	= additionalDatasourceRepo
 				.findById(additionalDatasourceId);
 		AdditionalDatasource			additionalDatasource	= new AdditionalDatasource();
+		additionalDatasource.setIsCustomUpdated(1);
 
 		if (additionalDatasourceOp.isEmpty() == false) {
 			additionalDatasource = additionalDatasourceOp.get();
@@ -175,7 +177,7 @@ public class DataSourceService {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not connect to the database");
 	}
 
-	public ResponseEntity<String> testDatabaseConnection(HttpServletRequest a_httpServletRequest,
+	public ResponseEntity<String> testDatabaseConnection(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files,
 			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		logger.debug("Inside DataSourceService.testDatabaseConnection()");
 

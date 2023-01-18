@@ -20,14 +20,14 @@ public class GenericUtilsService {
 	@Autowired
 	private GridUtilsDAO		genericUtilsDAO	= null;
 
-	public Integer findCount(String gridId, GenericGridParams gridParams) {
+	public Integer findCount(String gridId, GenericGridParams gridParams, Map<String, Object> requestParam) throws Exception {
 		GridDetails gridDetails = getGridDetails(gridId);
-		return genericUtilsDAO.findCount(gridDetails, gridParams);
+		return genericUtilsDAO.findCount(gridDetails, gridParams, requestParam);
 	}
 
-	public List<Map<String, Object>> findAllRecords(String gridId, GenericGridParams gridParams) {
+	public List<Map<String, Object>> findAllRecords(String gridId, GenericGridParams gridParams, Map<String, Object> requestParam) throws Exception {
 		GridDetails					gridDetails	= getGridDetails(gridId);
-		List<Map<String, Object>>	allRecords	= genericUtilsDAO.findAllRecords(gridDetails, gridParams);
+		List<Map<String, Object>>	allRecords	= genericUtilsDAO.findAllRecords(gridDetails, gridParams, requestParam);
 		return allRecords;
 	}
 

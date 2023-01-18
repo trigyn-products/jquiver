@@ -1,0 +1,7 @@
+<#if manualSequenceDetailsList?? && manualSequenceDetailsList?size != 0>
+    <#list manualSequenceDetailsList as manualSequenceDetails>
+        <#if (manualSequenceDetails.sortIndex)?? && (manualSequenceDetails.sortIndex)?has_content>
+        	${manualSequenceDetails.sortIndex}
+        </#if>
+    </#list>
+</#if>

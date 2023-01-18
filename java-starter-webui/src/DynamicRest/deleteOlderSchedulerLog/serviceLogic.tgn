@@ -1,0 +1,14 @@
+function deleteOlderSchedulerLog(requestDetails, daoResults) {
+    if(daoResults["schedulerIds"] != null) {
+        var i=0;
+        for(i=0; i<daoResults["schedulerIds"].length; i++ ) {
+            var schedulerId = daoResults["schedulerIds"][i];
+            var HashMap =  Java.type("java.util.HashMap");
+            var params = new HashMap();
+            params.put('schedulerId', schedulerId.scheduler_id);
+            jq_updateDBQuery("DELETE FROM jq_job_scheduler_log WHERE scheduler_log_id NOT IN (SELECT * FROM (SELECT scheduler_log_id FROM `jq_job_scheduler_log` WHERE scheduler_id=:schedulerId ORDER BY request_time DESC LIMIT 0,50) AS t) AND scheduler_id=:schedulerId", null, params);
+        }
+    }
+}
+
+deleteOlderSchedulerLog(requestDetails, daoResults);

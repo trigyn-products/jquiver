@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -57,14 +58,14 @@ public class DashboardController {
 	@ResponseBody
 	@Authorized(moduleName = com.trigyn.jws.usermanagement.utils.Constants.DASHBOARD)
 	public String dashlets(@RequestParam(value = "dashboardId") String dashboardId,
-		@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
+		@RequestHeader(value = "user-id", required = false) String userId, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		List<String> roleIdList = new ArrayList<>();
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId		= detailsVO.getUserId();
 			roleIdList	= detailsVO.getRoleIdList();
 		}
-		return dashletService.getDashletUI(userId, false, dashboardId, roleIdList, true);
+		return dashletService.getDashletUI(userId, false, dashboardId, roleIdList, true, httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping(value = "/sdc")
@@ -80,12 +81,12 @@ public class DashboardController {
 	@PostMapping(value = "/rdc")
 	public String refreshDashletContent(@RequestHeader(value = "user-id", required = false) String userId,
 		@RequestParam(value = "dashletId") String dashletId, @RequestParam(value = "paramArray[]") String[] paramArray,
-		@RequestParam(value = "dashboardId") String dashboardId) throws Exception {
+		@RequestParam(value = "dashboardId") String dashboardId, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId = detailsVO.getUserId();
 		}
-		return dashletService.refreshDashletContent(userId, dashletId, paramArray, dashboardId);
+		return dashletService.refreshDashletContent(userId, dashletId, paramArray, dashboardId, httpServletRequest, httpServletResponse);
 	}
 
 	@PostMapping(value = "/oc")

@@ -9,7 +9,10 @@ import javax.sql.DataSource;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.trigyn.jws.dbutils.entities.ModuleListing;
+import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.utils.Constant;
 
 @Repository
@@ -57,5 +60,33 @@ public class ModuleDAO extends DBConnection {
 		}
 		return sequence;
 	}
+
+	public ModuleListing findModuleListingById(String moduleId) {
+		ModuleListing moduleListing =  hibernateTemplate.get(ModuleListing.class, moduleId);
+		if(moduleListing != null) getCurrentSession().evict(moduleListing);
+		return moduleListing;
+	}
+
+	@Transactional(readOnly = false)
+	public void saveModuleListing(ModuleListing moduleListing, List<ModuleListingI18n>	moduleListingI18ns) {
+		if(moduleListing.getModuleId() == null || findModuleListingById(moduleListing.getModuleId()) == null) {
+			getCurrentSession().save(moduleListing);			
+		}else {
+			getCurrentSession().saveOrUpdate(moduleListing);
+		}
+		
+		deleteModuleListingI18n(moduleListing.getModuleId());
+		for(ModuleListingI18n moduleI18ns : moduleListingI18ns) {
+			getCurrentSession().saveOrUpdate(moduleI18ns);
+		}
+	}
+
+	public void deleteModuleListingI18n(String moduleId) {
+		Query query = getCurrentSession().createQuery("DELETE FROM ModuleListingI18n AS mli WHERE mli.id.moduleId = :moduleId");
+		query.setParameter("moduleId", moduleId);
+		query.executeUpdate();
+	
+	}
+
 
 }

@@ -47,6 +47,12 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 	@JoinColumn(name = "jws_dynamic_rest_details_id", referencedColumnName = "jws_dynamic_rest_id", insertable = false, updatable = false)
 	private JwsDynamicRestDetail	jwsDynamicRestDetail	= null;
 
+	@Column(name = "datasource_id")
+	private String								datasourceId					= null;
+
+	@Column(name = "dao_query_checksum")
+	private String						daoQueryChecksum		= null;
+
 	public JwsDynamicRestDaoDetail() {
 	}
 
@@ -114,9 +120,25 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 		this.jwsDynamicRestDetailId = jwsDynamicRestDetailId;
 	}
 
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
+	}
+
+	public String getDaoQueryChecksum() {
+		return daoQueryChecksum;
+	}
+
+	public void setDaoQueryChecksum(String daoQueryChecksum) {
+		this.daoQueryChecksum = daoQueryChecksum;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(jwsDaoDetailsId, jwsDaoQueryTemplate, jwsDynamicRestDetail, jwsResultVariableName);
+		return Objects.hash(jwsDaoDetailsId, jwsDaoQueryTemplate, jwsDynamicRestDetail, jwsResultVariableName, datasourceId);
 	}
 
 	@Override
@@ -133,28 +155,31 @@ public class JwsDynamicRestDaoDetail implements Serializable {
 		JwsDynamicRestDaoDetail other = (JwsDynamicRestDaoDetail) obj;
 		return Objects.equals(jwsDaoDetailsId, other.jwsDaoDetailsId) && Objects.equals(jwsDaoQueryTemplate, other.jwsDaoQueryTemplate)
 				&& Objects.equals(jwsDynamicRestDetail, other.jwsDynamicRestDetail)
-				&& Objects.equals(jwsResultVariableName, other.jwsResultVariableName);
+				&& Objects.equals(jwsResultVariableName, other.jwsResultVariableName)
+				&& Objects.equals(datasourceId, other.datasourceId);
 	}
 
 	@Override
 	public String toString() {
 		return "JwsDynamicRestDaoDetail [jwsDaoDetailsId=" + jwsDaoDetailsId + ", jwsDaoQueryTemplate=" + jwsDaoQueryTemplate
-				+ ", jwsResultVariableName=" + jwsResultVariableName + ", jwsDynamicRestDetail=" + jwsDynamicRestDetail + "]";
+				+ ", jwsResultVariableName=" + jwsResultVariableName + ", jwsDynamicRestDetail=" + jwsDynamicRestDetail
+				+ ", datasourceId=" + datasourceId + "]";
 	}
 
 	public JwsDynamicRestDaoDetail getObject() {
 		JwsDynamicRestDaoDetail dynaRest = new JwsDynamicRestDaoDetail();
 		dynaRest.setJwsDaoDetailsId(jwsDaoDetailsId);
 		if (jwsDaoQueryTemplate != null) {
-			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate.trim() + "]]>"));
+			dynaRest.setJwsDaoQueryTemplate(jwsDaoQueryTemplate.trim());
 		} else {
-			dynaRest.setJwsDaoQueryTemplate(StringEscapeUtils.unescapeXml("<![CDATA[" + jwsDaoQueryTemplate + "]]>"));
+			dynaRest.setJwsDaoQueryTemplate(jwsDaoQueryTemplate);
 		}
 
 		dynaRest.setJwsDynamicRestDetailId(jwsDynamicRestDetailId != null ? jwsDynamicRestDetailId.trim() : jwsDynamicRestDetailId);
 		dynaRest.setJwsQuerySequence(jwsQuerySequence);
 		dynaRest.setJwsResultVariableName(jwsResultVariableName != null ? jwsResultVariableName.trim() : jwsResultVariableName);
 		dynaRest.setQueryType(queryType);
+		dynaRest.setDatasourceId(datasourceId != null ? datasourceId.trim() : datasourceId);
 		return dynaRest;
 	}
 

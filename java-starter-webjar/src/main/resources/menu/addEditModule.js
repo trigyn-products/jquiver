@@ -8,6 +8,8 @@ class AddEditModule {
     	let context = this;		
     	let moduleDetails = new Object();	
     	let isDataSaved = false;
+    	let targetLookupId = $("#targetLookupType").find(":selected").val();
+    	
     	if($("#moduleId").val() !== ""){
 			moduleDetails.moduleId = $("#moduleId").val();
 		}	
@@ -20,16 +22,39 @@ class AddEditModule {
 		if(context.validateExistingData()){
 			return false;
 		}
+		if(targetLookupId === "7") {
+			moduleDetails.moduleURL = $("#externalURL").val();
+			moduleDetails.targetTypeId = $("#targetType").val();
+   		}else{
+			moduleDetails.moduleURL = $("#moduleURL").val();
+			moduleDetails.targetTypeId = $("#targetTypeNameId").val();
+		}
 		
 		moduleDetails.moduleName = $("#moduleName").val();
-		moduleDetails.parentModuleId = $("#parentModuleName").find(":selected").val();
-		moduleDetails.moduleURL = $("#moduleURL").val();
+		moduleDetails.parentModuleId = $("#parentModuleName").find(":selected").val();		
 		moduleDetails.sequence = $("#sequence").val();
-		moduleDetails.targetLookupId = $("#targetLookupType").find(":selected").val();
-		moduleDetails.targetTypeId = $("#targetTypeNameId").val();
+		moduleDetails.targetLookupId = targetLookupId;
+		//moduleDetails.targetTypeId = $("#targetTypeNameId").val();
 		moduleDetails.isInsideMenu =  $("#isInsideMenu").val();
 		moduleDetails.includeLayout =  $("#includeLayout").val();
-		
+		let contextHeaderJson = context.headerJson();
+		if(!contextHeaderJson['Powered-By']) {
+			contextHeaderJson['Powered-By'] = "JQuiver";
+		}
+		moduleDetails.headerJson = JSON.stringify(contextHeaderJson);
+		if( $('#openInNewTab').is(':checked') ){
+    		moduleDetails.openInNewTab =  1;
+		}
+		else{
+		   moduleDetails.openInNewTab =  0;
+		}
+		moduleDetails.menuStyle =  $("#menuStyle").val();
+
+        let reqParam = context.requestParamJson();
+        if(reqParam == -1) {
+            return false;
+        }
+        moduleDetails.requestParamJson = JSON.stringify(reqParam);
 		$.ajax({
 				type : "POST",
 				url : contextPath+"/cf/sm",
@@ -69,7 +94,7 @@ class AddEditModule {
    		}
    		
    		let contextName = $("#targetTypeName").val();
-   		if(contextName === "" && contextType != "6"){
+   		if(contextName === "" && contextType != "6" && contextType != "7"){
    			$("#targetTypeName").focus();
    			$('#errorMessage').html("Please select context name");
    			return false;
@@ -83,10 +108,20 @@ class AddEditModule {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("#") != -1) && contextType != "6"){
+   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("#") != -1) && contextType != "7" && contextType != "6"){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
+   		}
+   		
+   		
+   		if(contextType === "7"){
+			let externalURL = $("#externalURL").val().trim();
+			if(externalURL === ""){
+				$("#externalURL").focus();
+   				$('#errorMessage').html("Please enter valid URL");
+   				return false;
+			}
    		}
    		return true;
    		 
@@ -99,6 +134,10 @@ class AddEditModule {
 		let sequence = $("#sequence").val();
 		let moduleName = $("#moduleName").val();
     	let moduleURL = $("#moduleURL").val();
+    	let targetLookupId = $("#targetLookupType").find(":selected").val();
+    	if(targetLookupId === "7") {
+			moduleURL = $("#externalURL").val();
+		}
     	let moduleId = $("#moduleId").val();
     	$.ajax({
 			type : "GET",
@@ -116,7 +155,9 @@ class AddEditModule {
 				if(data != ""){
 	    			let moduleIdName = data.moduleIdName;
 	    			let moduleIdSequence = data.moduleIdSequence;
-	    			let moduleIdURL = data.moduleIdURL
+	    			let moduleIdURL = data.moduleIdURL;
+	    			let parentModuleURL = data.parentModuleURL;
+	    			let moduleId		=	$("#moduleId").val();
 	    			if(moduleIdName != undefined && moduleIdName != moduleId){
 	    				isDataExist = true;
 	    				$('#errorMessage').html("Module name already exist");
@@ -125,9 +166,15 @@ class AddEditModule {
 	    				isDataExist = true;
 	    				$('#errorMessage').html("Sequence number already exist");
 	    			}
-	    			if(isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId && moduleURL !== "#"){
+	    			if(isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId && moduleURL !== "#" && targetLookupId != "7"){
 	    				isDataExist = true;
 	    				$('#errorMessage').html("Module URL already exist");
+	    			}
+	    			if(moduleId=="" && parentModuleURL != undefined && targetLookupId == "6"){
+	    				isDataExist = false;
+	    				var existModUrl = $("#moduleURL").val();
+	    				existModUrl=parentModuleURL+"#";
+	    				$("#moduleURL").val(existModUrl);
 	    			}
 	    		}
 		   	},
@@ -147,9 +194,23 @@ class AddEditModule {
     	let context = this;
     	let targetLookupId = $("#targetLookupType").find(":selected").val();
     	$("#targetTypeName").prop('disabled',true);
+    	
+    	if(targetLookupId === "7") {
+			$("#divModuleURL").hide();
+			$("#divContextName").hide();
+			$("#includeLayoutDiv").hide();
+			$("#divTargetType").show();
+			$("#divExternalURL").show();
+		}
     	if(targetLookupId === "6") {
+			$("#divModuleURL").show();
+			$("#divContextName").show();
+			$("#includeLayoutDiv").show();
+			$("#divTargetType").hide();
+			$("#divExternalURL").hide();
+			
 	    	$("#targetTypeName").val("");
-	    	$("#moduleURL").val("#");
+	    	//$("#moduleURL").val("#");
 	    	$("#parentModuleName").val("");
 	    	$("#targetTypeName").attr('disabled','disabled');
 	    	$("#moduleURL").attr('disabled','disabled');
@@ -160,7 +221,12 @@ class AddEditModule {
 		    	$("#includeLayoutCheckbox").prop('disabled',true);
 	    		context.getSequenceByGroup();
 	    	}
-    	}else{
+    	}else if(targetLookupId !== "6" && targetLookupId !== "7"){
+			$("#divModuleURL").show();
+			$("#divContextName").show();
+			$("#includeLayoutDiv").show();
+			$("#divTargetType").hide();
+			$("#divExternalURL").hide();
     		$("#parentModuleName").val(context.parentModuleId);
     		$("#targetTypeName").prop('disabled',false);
 	    	$("#moduleURL").prop('disabled',false);
@@ -322,5 +388,186 @@ class AddEditModule {
 		    }
         });
 	}
-    
+	
+	addRow = function(key, value){
+		let selectedLanguageId = getCookie("locale");
+		let context = this;	
+		let trId = uuidv4();
+		let row = '<tr id='+trId+'><td> ';
+		if(key !== undefined && value !== undefined){			
+			if(key == "Content-Type"){
+				row += '<input class="key" type="hidden">'+key+'</td><td><input class="value" type="text">';
+			}else if(key == "Content-Language"){
+				row += '<input class="key" type="hidden">'+key+'</td><td><input class="value" type="hidden">'+selectedLanguageId;
+			}else{
+				row += '<input class="key" type="hidden">'+key+'</td><td><input class="value" type="hidden">'+value;
+			}
+		}else{
+			row += '<input class="key" type="text"></td><td><input class="value" type="text" >';
+		}		
+		
+		row += '</td><td>';
+		if(key != "Powered-By" && key != "Content-Language" && key != "Content-Type") {
+			row+='<span id="btn_'+trId+'" onclick="addEditModule.deleteRow(this)" class="cusrorhandcls"><i class="fa fa-minus-circle" aria-hidden="true"></i></span>';			
+		} 
+		row+='</td></tr>';
+		$('#headerTable tr:last').after(row);
+		if(key !== undefined && value !== undefined){
+			if(key == "Content-Language") {
+				$('#headerTable tr:last').find('td input.key').val(key);
+				$('#headerTable tr:last').find('td input.value').val(selectedLanguageId);
+			} else {
+				$('#headerTable tr:last').find('td input.key').val(key);
+				$('#headerTable tr:last').find('td input.value').val(value);
+			}
+		}
+	}
+
+	addRowForRequestParam = function(key, value){
+		 let context = this;             
+         let trId = uuidv4();
+         $('#requestParamTable tr:last').after('<tr id='+trId+'><td><input class="key" type="text"></td><td><input class="value" type="text"></td><td class="centercls"><span class="cusrorhandcls" id="btn_'+trId+'" onclick="addEditModule.deleteRow(this)"><i class="fa fa-minus-circle" aria-hidden="true"></i></span></td></tr>');
+         if(key !== undefined && value !== undefined){
+                        $('#requestParamTable tr:last').find('td input.key').val(key);
+                        $('#requestParamTable tr:last').find('td input.value').val(value);
+         }
+	}
+	
+	deleteRow = function(rowElement){
+		$("#deleteHeader").html("Are you sure you want to delete?");
+		$("#deleteHeader").dialog({
+		bgiframe	: true,
+		autoOpen	: true, 
+		modal		: true,
+		closeOnEscape : true,
+		draggable	: true,
+		resizable	: false,
+		title		: "Delete",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons : [{
+				text		:"Cancel",
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			},
+			{
+				text		: "Delete",
+				click	: function(){
+					$(this).dialog('close');
+					let rowId = $(rowElement).attr('id').split("_")[1];
+					$('#'+rowId).remove();
+				}
+           	},
+       ],	
+	   open: function( event, ui ) {
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
+	   });
+		
+		
+	}
+	
+	headerJson = function(){
+		let headerJson = {};
+		$("#headerTable").find('tr').each(function() {
+			let key = $(this).find("input.key").val();
+			if(key !== undefined){
+				let value = $(this).find("input.value").val();
+				headerJson[key] = value;
+			}
+		});
+		return headerJson;
+	}
+
+	requestParamJson = function(){
+		let requestParamJson = {};
+        $("#requestParamTable").find('tr').each(function() {
+        	let key = $(this).find("input.key").val();
+			if(key == "") {
+				showMessage("Key is empty in request param", "error");
+				requestParamJson =  -1;
+				return requestParamJson;
+			}
+            if(key !== undefined){
+             	let value = $(this).find("input.value").val();
+				if(value == undefined || value == "" || value == null) {
+					showMessage("Value is null or empty in request param", "error");
+					requestParamJson = -1;
+					return requestParamJson;
+				}
+                requestParamJson[key] = value;
+             }
+        });
+        return requestParamJson;
+	}
+	
+	createHeaderResponseTable = function(){
+		if(savedHeaderJson !== ''){
+			Object.keys(savedHeaderJson).forEach(function(key) {
+				addEditModule.addRow(key, savedHeaderJson[key]);
+			});	
+		}
+	}
+
+	createRequestParamTable = function(){
+		if(savedRequestParamJson !== ''){
+			Object.keys(savedRequestParamJson).forEach(function(key) {
+				addEditModule.addRowForRequestParam(key, savedRequestParamJson[key]);
+			});	
+		}
+	}
+	
+	copyUrl = function(){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val('${contextPath}' + "/view/" + $("#moduleURL").val()).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Copied successfully.", "success");
+	}
+	
+	copyUrlActualPath = function(urlPrefix) {
+		var $temp = $("<input>");
+	    $("body").append($temp);
+		//var uriPrefix = $("#moduleURL").text();
+		var moduleURL = $("#moduleURL").val();
+	    $temp.val(urlPrefix+moduleURL).select();	
+	    document.execCommand("copy");
+	    $temp.remove();
+	    showMessage("Copied successfully.", "success");
+	}
+	
+	copyUrlActualPath = function(urlPrefix, elementId) {
+		var $temp = $("<input>");
+	    $("body").append($temp);
+		var elementVal = $("#"+elementId).val();
+		if(elementVal == ''){
+      		$("#"+elementId).focus();	
+      		return;
+   		}
+	    $temp.val(urlPrefix+elementVal).select();	
+	    document.execCommand("copy");
+	    $temp.remove();
+	    showMessage("Copied successfully.", "success");
+	}
+	
+	copyUrlContextPath = function(elementId){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val('${contextPath}' + "/view/" + $("#"+elementId).val()).select();
+        document.execCommand("copy");
+        input.remove();
+	}
+	
+	copyTargetUrl = function(elementId){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val($("#"+elementId).val()).select();
+        document.execCommand("copy");
+        input.remove();
+	}
 }

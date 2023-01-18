@@ -31,6 +31,7 @@ public final class Constant {
 	public static final String	IMPORTTEMPPATH					= "importTempPath";
 	public static final String	HELP_MANUAL_DIRECTORY_NAME		= "HelpManual";
 	public static final String	FILE_UPLOAD_DIRECTORY_NAME		= "FileBin";
+	public static final String	GENERIC_USER_NOTIFICATION		= "notification-listing";
 
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
@@ -52,7 +53,8 @@ public final class Constant {
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
-		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource");
+		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
+		SCHEDULER("Scheduler");
 
 		final String moduleType;
 
@@ -70,7 +72,8 @@ public final class Constant {
 		DASHBOARD("jq_dashboard"), DASHLET("jq_dashlet"), DASHLETS("jq_dashlet"), DYNAREST("jq_dynamic_rest_details"),
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
 		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
-		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource");
+		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),
+		SCHEDULER("jq_job_scheduler");
 
 		final String tableName;
 

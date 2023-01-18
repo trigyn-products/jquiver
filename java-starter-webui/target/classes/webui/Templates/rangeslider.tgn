@@ -1,0 +1,7 @@
+<div class="col-12 margin-b-10">
+<div class="range-slider">
+	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+	<input type="range" id="" class="range-slider__range" name="${innerTemplateObj.propertyId!''}" value="" min="0" max="${innerTemplateObj.defaultValue!'0'}" step="1"/>
+	<span id="slider-value_" class="range-slider__value"></span>
+</div>
+</div>

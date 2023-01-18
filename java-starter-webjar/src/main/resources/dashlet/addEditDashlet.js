@@ -9,13 +9,14 @@ class AddEditDashlet {
 
 AddEditDashlet.prototype.fn = {
 	
-	loadAddEditDashletPage : function(){
+	loadAddEditDashletPage : function(variableName, datasourceId, queryType){
 		let context = this;
 		let isActive = $("#isActive").val();
 		let showHeader = $("#showHeader").val();
 		
-		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }});
+		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120});
     	require(["vs/editor/editor.main"], function() {
+
         dashletSQLEditor = monaco.editor.create(document.getElementById("sqlEditor"), {
 		        	value: $("#sqlContent").val().trim(),
 		            language: "sql",
@@ -35,9 +36,44 @@ AddEditDashlet.prototype.fn = {
 		    		$('#errorMessage').hide();
 				});
 	        	$("#sqlContent").remove();
+	        	
+
+	    		let index = dashletSQLEditor.length;
+				
+				let datasource = retrieveDatasource();
+		    	let inputElement = "<div class='col-3'><label for='inputcontainer_0"+"' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_0"+"' type ='text' class='form-control' /></div>";
+		    	let selectElement = "<div class='col-3'><label for='selectcontainer_0"+"' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_0"+"' class='form-control' onchange='addEdit.updateDatasourceState(this);'><option value='1'>Select Query</option><option value='2'>Javascript</option></select></div>";
+		    	let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_0"+"' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_0"+"' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
+		    	
+		    	if(datasource != null || datasource != undefined || datasource != "") {
+		    		datasource.forEach(function(dataSourceObj) {
+		    			datasourceEditor +="<option value="+dataSourceObj.additionalDatasourceId+" data-product-name="+dataSourceObj.databaseProductName+">"+dataSourceObj.datasourceName+"</option>";
+			        });
+		    	}
+		    	datasourceEditor +='</select></div></div>'
+		    	
+	    		let daoContainer = $("<div id='daoContainerDiv_0"+"' class='margin-t-25'><div class='row'>"+ inputElement +""+ selectElement +""+datasourceEditor +"</div></div>");
+		    	
+		    	daoContainer.insertBefore($("#sqlContainer"));
+
+				if(variableName){
+					$("#inputcontainer_0").val(variableName);
+				}
+
+				if(datasourceId != undefined && datasourceId != "" ){
+		    		$("#datasourcecontainer_0").val(datasourceId);
+		    	}
+				
+				if(queryType != undefined){
+		    		$("#selectcontainer_0").val(queryType);
+		    		if(queryType == 4) {
+						$("#datasourcecontainer_0").closest('div').hide();
+		    		}
+		    	}
+		    	
+
     	});
 
-    	
     	require(["vs/editor/editor.main"], function() {
         dashletHTMLEditor = monaco.editor.create(document.getElementById("htmlEditor"), {
 		        	value: $("#htmlContent").val().trim(),
@@ -112,8 +148,13 @@ AddEditDashlet.prototype.fn = {
 			dashlet.width = $("#width").val();
 			dashlet.height = $("#height").val();
 			dashlet.contextId = $("#contextId").find(":selected").val();
-			dashlet.dataSourceId = $("#dataSource").find(":selected").val()
 			dashlet.dashletPropertVOList = dashletPropertVOList;
+			dashlet.resultVariableName = $('#inputcontainer_0').val();
+			dashlet.daoQueryType = $('#selectcontainer_0').val();
+			
+			if($('#datasourcecontainer_0').val() != "") {
+				dashlet.dataSourceId = $('#datasourcecontainer_0').val();
+			}
 
 			if (jQuery("#isActiveCheckbox").prop("checked")) {
 				dashlet.isActive = 1;
@@ -212,6 +253,19 @@ AddEditDashlet.prototype.fn = {
 			$('#errorMessage').html("Please enter html script");
 			return false;
 		}
+		
+    	if($("#inputcontainer_0") .val()=== "") {
+			showMessage("Variable name can not be blank", "error");
+    		return false;
+		}
+
+		let dashletSQLEditorValidation=dashletSQLEditor.getValue().trim();
+		if(dashletSQLEditorValidation ==""){
+			$("#htmlEditor").focus();	
+			$('#errorMessage').html("Please enter SQL/JS script");
+			return false;
+		}
+		
 		return true;
 	},
 	
@@ -243,14 +297,14 @@ AddEditDashlet.prototype.fn = {
 
         
         if(dashletPropertiesCount === 1){
-        	moverUpContext = $('<span id="upArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-arrow-up"></i></span>');
-        	moverDownContext = $('<span id="downArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-arrow-down"></i></span>');
+        	moverUpContext = $('<span id="upArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-chevron-up"></i></span>');
+        	moverDownContext = $('<span id="downArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-chevron-down"></i></span>');
         			  
 		}else{
-			moverUpContext = $('<span id="upArrow_'+dashletPropertiesCount+'" class="tblicon pull-left"><i class="fa fa-arrow-up"></i></span>');
+			moverUpContext = $('<span id="upArrow_'+dashletPropertiesCount+'" class="tblicon pull-left"><i class="fa fa-chevron-up"></i></span>');
         	$("#dashletProps tr:last td:last").find("span[id*='down']").removeClass("disable_cls");
 		} 
-		moverDownContext = $('<span id="downArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-arrow-down"></i></span>');
+		moverDownContext = $('<span id="downArrow_'+dashletPropertiesCount+'"  class="tblicon pull-left disable_cls"><i class="fa fa-chevron-down"></i></span>');
 		deletePropertyContext = $('<span id="removeProperty_'+dashletPropertiesCount+'" class="tblicon pull-left"><i class="fa fa-trash-o"></i></span>');
 		moverUpContext.click(function(){
 			let objectId = moverUpContext[0].id;

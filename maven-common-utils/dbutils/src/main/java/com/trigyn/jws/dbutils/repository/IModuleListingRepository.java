@@ -19,11 +19,11 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 	List<ModuleDetailsVO> getAllParentModules(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId, Integer isInsideMenu);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ALL_MODULES_DETAILS)
-	List<ModuleDetailsVO> getAllModulesDetails(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId);
+	List<ModuleDetailsVO> getAllModulesDetails(Integer languageId, Integer defaultLanguageId);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_ROLE_SPECIFIC_MENU_MODULES_DETAILS)
-	List<ModuleDetailsVO> getRoleSpecificModulesDetails(Integer isNotHomePage, Integer languageId, Integer defaultLanguageId,
-		List<String> roleList, String jeraModuleID);
+	List<ModuleDetailsVO> getRoleSpecificModulesDetails(Integer languageId, Integer defaultLanguageId, List<String> roleList,
+		String jeraModuleID);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_MODULE_ID_BY_NAME)
 	String getModuleIdByName(String moduleName, Integer languageId, Integer defaultLanguageId);
@@ -54,5 +54,8 @@ public interface IModuleListingRepository extends JpaRepositoryImplementation<Mo
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_HOME_PAGE_URL_BY_ROLE_IDS)
 	List<String> getModuleURLByRoleId(List<String> roleIdList, Integer isHomePage);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_IS_HOME_PAGE_BY_URL)
+	Integer getIsHomePageByUrl(String targetName);
 
 }

@@ -1,0 +1,367 @@
+<head>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+    <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>`
+    <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+
+</head>
+
+<div class="container">
+
+    <div class="topband">
+        <#if (moduleDetailsVO?api.getModuleId())??>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editModule")}</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addModule")}</h2> 
+        </#if>
+        <div class="float-right">
+            <span onclick="addEditModule.backToModuleListingPage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span>
+        </div>
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div id="formDiv">
+        <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+
+        <div class="row">
+            <input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''}">
+            <div class="col-4">
+                <div class="col-inner-form full-form-fields">
+                    <label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
+                    <input type="text"  id = "moduleName" name = "moduleName" value = "${(moduleDetailsVO?api.getModuleName())!''}" maxlength="100" class="form-control">
+                </div>
+            </div>
+            <input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''}">
+            <div class="col-4">
+                <div class="col-inner-form full-form-fields">
+                    <label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+                    <select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
+                        <option value="">Root</option>
+                        <#if (moduleListingVOList)??>
+                            <#list moduleListingVOList as moduleListingVO>
+                                    <#if (moduleListingVO?api.getModuleId())?? && (moduleDetailsVO?api.getParentModuleId())?? && (moduleDetailsVO?api.getParentModuleId()) == moduleListingVO?api.getModuleId()>
+                                        <option value="${moduleListingVO?api.getModuleId()}" selected>${moduleListingVO?api.getModuleName()!''}</option>
+                                    <#else>
+                                        <option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''}</option>
+                                    </#if>
+                            </#list>
+                        </#if>
+                    </select>
+                </div>
+            </div>
+               <div class="col-4">
+                <div class="col-inner-form full-form-fields">
+                    <label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
+                    <#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
+                        <input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''}" maxlength="100" class="form-control">
+                    <#else>
+                        <input type="number"  id = "sequence" name = "sequence" value = "${(defaultSequence)!''}" maxlength="100" class="form-control">
+                    </#if>
+                </div>
+            </div>
+            <div class="col-4" id="includeLayoutDiv">               
+
+                <div style="display:Flex">
+
+                <div class="cutombtnradio">
+                <div class="col-inner-form full-form-fields">
+                                <label for="contextType">${messageSource.getMessage("jws.includeLayout")}
+                                    </label>                       
+                                 <div class="col-inner-form full-form-fields customradionbtn">
+                                 <div class="onoffswitch">
+                                    <input type="hidden" id="includeLayout" name="includeLayout" value="${(moduleDetailsVO?api.getIncludeLayout())!'0'}">
+                                    <#if (moduleDetailsVO?api.getIncludeLayout())?? && moduleDetailsVO?api.getIncludeLayout() == 1>
+                                        <input type="checkbox" id="includeLayoutCheckbox" onchange="addEditModule.includeLayout();" checked name="includeLayoutCheckbox" class="onoffswitch-checkbox">
+                                    <#else>
+                                        <input type="checkbox" id="includeLayoutCheckbox" onchange="addEditModule.includeLayout();" name="includeLayoutCheckbox" class="onoffswitch-checkbox">
+                                    </#if>
+                                    <label class="onoffswitch-label" for="includeLayoutCheckbox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                                </div>
+                     </div>
+                    </div>		
+                    </div>       
+                </div>
+			 </div>
+           
+                <div class="col-4">
+            <div class="col-inner-form full-form-fields">
+                    <label for="openInNewTab" style="white-space:nowrap">${messageSource.getMessage("jws.openinnewtab")}</label>
+                    <div class="onoffswitch">
+                        <input type="hidden" id="isOpenInNewTab" name="isOpenInNewTab" value="${(moduleDetailsVO?api.getOpenInNewTab())!''}">
+                        <#if (moduleDetailsVO?api.getOpenInNewTab())?? && moduleDetailsVO?api.getOpenInNewTab() == 1>
+                            <input type="checkbox" id="openInNewTab" checked name="openInNewTab" class="onoffswitch-checkbox">
+                        <#else>
+                            <input type="checkbox" id="openInNewTab"  name="openInNewTab" class="onoffswitch-checkbox">
+                        </#if>
+                        <label class="onoffswitch-label" for="openInNewTab">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                </div>
+                </div>    
+                             
+            <div class="col-4">
+ 			<div class="cutombtnradio" >
+                <div class="col-inner-form full-form-fields">
+                    <label for="contextType">${messageSource.getMessage("jws.includeInMenu")}</label>
+                    <div class="onoffswitch">
+                        <input type="hidden" id="isInsideMenu" name="isInsideMenu" value="${(moduleDetailsVO?api.getIsInsideMenu())!''}">
+                        <#if (moduleDetailsVO?api.getIsInsideMenu())?? && moduleDetailsVO?api.getIsInsideMenu() == 1>
+                            <input type="checkbox" id="insideMenuCheckbox" onchange="addEditModule.insideMenuOnChange();" checked name="insideMenuCheckbox" class="onoffswitch-checkbox">
+                        <#else>
+                            <input type="checkbox" id="insideMenuCheckbox" onchange="addEditModule.insideMenuOnChange();" name="insideMenuCheckbox" class="onoffswitch-checkbox">
+                        </#if>
+                        <label class="onoffswitch-label" for="insideMenuCheckbox">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <div class="row">    
+              <div class="col-4">
+                    <div class="col-inner-form full-form-fields">
+                    <label for="menuStyle" style="white-space:nowrap">${messageSource.getMessage("jws.menuStyle")}</label>
+                    <input type="text"  id = "menuStyle" name = "menuStyle" value = "${(moduleDetailsVO?api.getMenuStyle())!''}" maxlength="100" placeholder="Enter your CSS Class Name" class="form-control">
+                </div>  
+                 </div>
+                   
+            <div class="col-4">
+                <div class="col-inner-form full-form-fields">
+                    <label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextType")}</label>
+                    <select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
+                        <#if (moduleTargetLookupVOList)??>
+                            <#list moduleTargetLookupVOList as moduleTargetLookupVO>
+                                    <#if (moduleTargetLookupVO?api.getLookupId())?? && (moduleDetailsVO?api.getTargetLookupId())?? 
+                                        && (moduleTargetLookupVO?api.getLookupId()) == moduleDetailsVO?api.getTargetLookupId()>
+                                        <option value="${moduleTargetLookupVO?api.getLookupId()}" selected>${moduleTargetLookupVO?api.getDescription()!''}</option>
+                                    <#else>
+                                        <option value="${moduleTargetLookupVO?api.getLookupId()}">${moduleTargetLookupVO?api.getDescription()!''}</option>
+                                    </#if>
+                            </#list>
+                        </#if>
+                    </select>
+                </div>
+            </div>
+            <div class="col-4" id="divContextName">
+                <div class="col-inner-form full-form-fields">
+                    <label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
+                        <div class="search-cover">
+                        <input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                </div>
+                <input type="hidden" id="targetTypeNameId" value="${(moduleDetailsVO?api.getTargetTypeId())!''}" name="targetTypeNameId" class="form-control">
+                </div>
+            </div>
+            <div class="col-4" id="divTargetType" style="display:none">
+				<label for="divTargetType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.requestType")}</label>
+				<select id="targetType" name="targetType" class="form-control">
+					<option value="DELETE">DELETE</option>
+					<option value="GET">GET</option>
+					<option value="POST">POST</option>
+					<option value="PUT">PUT</option>
+				</select>
+			</div> 
+            <div class="col-6" id="divModuleURL">
+                <div class="col-inner-form full-form-fields">			
+                    <label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleUrl")}</label>  
+                    <span class="copyblockcls" >				
+						${(urlPrefix)!''} 				
+					<i class="fa fa-clipboard" aria-hidden="true"  onclick="addEditModule.copyUrl()" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyUrlActualPath('${urlPrefix}','moduleURL')" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
+					</span>
+                    <input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''}" maxlength="200" class="form-control">
+                </div>
+            </div>		
+			<div class="col-6" id="divExternalURL" style="display:none">
+                <div class="col-inner-form full-form-fields">
+                    <label for="externalURL" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.externalURL")}</label>
+                    <span class="copyblockcls" style="float:none !important;" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>">
+                     	<input type="text" id="externalURL" value= "" name="externalURL" autocomplete="off" class="form-control"/>  
+						<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyTargetUrl('externalURL')"></i>
+            		</span>               
+                </div>`
+            </div>      
+                   </div> 
+        
+        <div class="row">
+            <div class="col-6">             
+                    <table id="headerTable" class="customtblecls">
+                         <tr>
+                            <th colspan="3">   
+                                <div class="displyflx">                             
+                                 <span class="titleclsnm">${messageSource.getMessage("jws.responseheader")}</span>                                    
+                                </div>
+                            </th>
+                        </tr>     
+                        <tr>
+                            <td class="bgtd">${messageSource.getMessage("jws.name")}</td>
+                            <td class="bgtd">${messageSource.getMessage("jws.value")} </td>
+                            <td class="bgtd"><button class="plusticon" onclick="addEditModule.addRow()"><i class="fa fa-plus-circle" aria-hidden="true"></i>
+</button></td>
+                        </tr>
+                        <#if !(moduleDetailsVO?api.getModuleId())?? && !(moduleDetailsVO?api.getModuleId())?has_content>
+                            <tr id="567028a5-3836-4c6a-a3b3-10a36b77c9ad">
+                                <td><input class="key" type="hidden" value="Powered-By">Powered-By</td>
+                                <td><input class="value" type="hidden" value="JQuiver">JQuiver</td>
+                            </tr>
+                            <tr id="2c6e71f7-e68e-4a50-8a7a-43161134290d">
+                                <td><input class="key" type="hidden" value="Content-Type">Content-Type</td>
+                                <td><input class="value" type="text" value="text/html; charset=UTF-8"></td>                                
+                            </tr>
+                            <tr id="2aa2812f-b61d-4b5b-b0a3-5ba289df1c3b">
+                                <td><input class="key" type="hidden" value="Content-Language">Content-Language</td>
+                                <td><label for="txtContentLang" id="txtContentLangLabel"><input id="txtContentLang" class="value" type="hidden"></label></td>
+                            </tr>
+                        </#if>
+                    </table>
+            </div>
+             
+            <div class="col-6">
+            <div class="col-inner-form full-form-fields">
+                    <table id="requestParamTable"  class="customtblecls">
+                         <tr>
+                            <th colspan="3">   
+                                <div class="displyflx">                             
+                                 <span class="titleclsnm">${messageSource.getMessage("jws.requestparameters")}</span>                                    
+                                </div>
+                            </th>
+                        </tr>      
+                        <tr>
+                            <td class="bgtd">${messageSource.getMessage("jws.name")}</td>
+                            <td class="bgtd">${messageSource.getMessage("jws.value")} </td>
+                            <td class="bgtd centercls"  width="10%"><button class="plusticon" onclick="addEditModule.addRowForRequestParam()"><i class="fa fa-plus-circle" aria-hidden="true"></i></button></td>
+                        </tr>                    
+                    </table>
+                    </div>
+            </div>
+            <div class="col-4">
+                <input id="masterModuleId" value="c6cc466a-0ed3-11eb-94b2-f48e38ab9348" name="masterModuleId"  type="hidden">
+                <@templateWithoutParams "role-autocomplete"/> 
+            </div>      
+        </div>      
+
+        <div class="row">
+            <div class="col-12">
+                <div id="buttons" class="pull-right">
+                    <div class="btn-group dropup custom-grp-btn">
+                        <div id="savedAction">
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        </div>
+                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <div class="dropdown-menu action-cls"  id="actionDiv">
+                            <ul class="dropdownmenu">
+                                <li id="saveAndCreateNew" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            </ul>
+                        </div>  
+                    </div>
+                    <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage('jws.cancel')}" onclick="addEditModule.backToModuleListingPage();">
+                </div>
+            </div>
+        </div>
+        
+    <div id="deleteHeader"></div>
+    </div>
+
+<script>
+contextPath = "${(contextPath)!''}";
+let addEditModule;
+let autocomplete;
+let sequence = "${(moduleDetailsVO?api.getSequence())!''}";
+let savedHeaderJson = "";
+let savedRequestParamJson = "";
+let selectedLanguageId = getCookie("locale");
+<#noparse>
+	<#if (moduleDetailsVO?api.getHeaderJson())?has_content>
+	    savedHeaderJson = JSON.parse('${(moduleDetailsVO?api.getHeaderJson())!""}');
+	</#if>
+	<#if (moduleDetailsVO?api.getRequestParamJson())?has_content>
+	    savedRequestParamJson = JSON.parse('${(moduleDetailsVO?api.getRequestParamJson())!""}');
+	</#if>
+</#noparse>
+$(function() {
+    $("#targetLookupType option[value='4']").remove();
+    let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''}";
+    let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''}";
+    let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''}";
+    let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''}";
+    let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
+    let moduleURL = "${(moduleDetailsVO?api.getModuleURL())!''}";
+	$("#txtContentLang").val(selectedLanguageId);
+	$("#txtContentLangLabel").text(selectedLanguageId);
+    savedAction("module-manage-details", moduleId);
+    hideShowActionButtons();
+    
+    if(targetLookupId === ""){
+        $("#targetLookupType").val(6);
+    }
+    if(targetLookupId === "7"){
+        $("#externalURL").val(moduleURL);
+        $("#targetType option[value='${(moduleDetailsVO?api.getTargetTypeId())!''}']").attr("selected", "selected");
+    }
+    let selectedTargetDetails = new Object();
+    addEditModule = new AddEditModule(moduleTypeId, parentModuleId);
+    if(moduleTypeId != "") {
+        selectedTargetDetails["targetTypeId"] = moduleTypeId;
+        selectedTargetDetails["targetTypeName"] = moduleName;
+    }
+    let autocompleteIdByType = addEditModule.getAutocompleteId();
+    autocomplete = $('#targetTypeName').autocomplete({
+        autocompleteId: autocompleteIdByType,
+        enableClearText : true,
+        render: function(item) {
+            var renderStr ='';
+            if(item.emptyMsg == undefined || item.emptyMsg === '')
+            {
+                renderStr = '<p>'+item.targetTypeName+'</p>';
+            }
+            else
+            {
+                renderStr = item.emptyMsg;  
+            }                               
+            return renderStr;
+        },
+        additionalParamaters: {languageId: 1},
+        extractText: function(item) {
+            return item.targetTypeName;
+        },
+        select: function(item) {
+            $("#targetTypeName").blur();
+            $("#targetTypeNameId").val(item.targetTypeId)
+        },
+        resetAutocomplete: function(autocompleteObj){ 
+            $("#targetTypeNameId").val("");
+        },      
+    }, selectedTargetDetails);
+    
+      addEditModule.createHeaderResponseTable();
+      addEditModule.createRequestParamTable();
+      addEditModule.getTargeTypeNames('isAddEdit');
+      hideShowActionButtons();
+    <#if (!(moduleDetailsVO?api.getModuleId())??)>
+        let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+            multiselect.setSelectedObject(defaultAdminRole);
+    <#else>
+        addEditModule.getEntityRoles();
+    </#if>
+});
+
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/menu/addEditModule.js"></script>

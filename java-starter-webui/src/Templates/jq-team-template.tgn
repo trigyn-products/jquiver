@@ -1,0 +1,127 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+
+</head>
+<div class="container text-center">
+
+    <div class="teamtitle">
+        <h3>${messageSource.getMessage('jws.meetourteam')}</h3>
+    </div>    
+
+    <div class="row  align-items-center justify-content-center" >
+        <div class="col-xs-12 col-sm-6 col-lg-3 profilepic">
+
+                 <span class="namcls">The Architect</span>
+            <a href="https://www.linkedin.com/in/adchowdhury/" target="_blank">
+                <img class="team-img" width="150px" src="${(contextPath)!''}/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0" alt="aNIRUDDHA" title="The Architect"/>
+
+                <div class="udetails">  
+                <span class="desg">Aniruddha Chowdhury</span>  
+                </div>
+            </a>
+        </div>
+    </div>
+ 
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                 <span class="namcls">Sr Software Engineer</span>
+            <a href="https://www.linkedin.com/in/abde17/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/756de33e-b86a-11eb-9690-f48e38ab8cd7" alt="Abhay Desai" title="Sr Software Engineer"/>
+
+                 <div class="udetails">             
+               <span class="desg">Abhay Desai</span>
+                   
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+            <span class="namcls">Sr Technical Analyst</span>
+                   
+            <a href="https://www.linkedin.com/in/akram-bhasha-mohammad-80778841/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/1f4e7749-3365-400a-98de-2716a1de01fc" alt="Akram Bhasha" title="Sr Technical Analyst"/>
+                 <div class="udetails">                
+             
+                <span class="desg">Akram Bhasha Mohammad</span>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                 <span class="namcls">Sr Technical Analyst</span>
+                
+            <a href="https://www.linkedin.com/in/aman-prasad-0bba71bb/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/4efc83a2-4ef9-40bd-a60b-a5d639d1bea5" alt="Aman Prasad" title="Sr Technical Analyst"/>
+                 <div class="udetails">
+                 <span class="desg">Aman Prasad</span>
+                
+                </div>
+            </a>
+        </div>
+    
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                <span class="namcls">Lead Consutant- UI</span>
+            <a href="https://www.linkedin.com/in/amit-jadhav-3308782b/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/bc03c67f-a5a0-4063-8ef4-c50ed8f076f3" alt="Amit Jadhav" title="Lead Consutant- UI"/>
+                 <div class="udetails">
+               <span class="desg">Amit Jadhav</span>
+                   
+               
+                </div>
+            </a>
+        </div>
+     
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Sr Technical Analyst</span>
+            <a href="https://www.linkedin.com/in/mini-pillai-b01807112/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4" alt="Mini Pillai" title="Sr Technical Analyst"/>
+                  <div class="udetails">
+             <span class="desg">Mini Pillai</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                    
+                <span class="namcls">Sr Software Engineer</span>
+            <a href="https://www.linkedin.com/in/ravi-gowda-9a5a6aa9" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/e3dd0b7c-242a-47b3-9a36-c23ef378b10f" alt="Ravi Gowda" title="Sr Software Engineer"/>
+                  <div class="udetails">
+               <span class="desg">Ravi Gowda</span>
+               
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                <span class="namcls">Sr Technical Analyst</span>
+            <a href="https://www.linkedin.com/in/satishchandra-pandey-4b490031/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/6b268691-ddfc-4d3f-9abd-bbc88bbfe974" alt="Satish Pandey" title="Sr Technical Analyst"/>
+                  <div class="udetails">
+                     
+              <span class="desg">Satish Pandey</span>
+               
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Designer- UI</span>
+            <a href="https://www.linkedin.com/in/satyawan-sawant-06925212a/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/c91b58b7-0a29-45c1-960d-3648821d4547" alt="Satyawan Sawant" title="Designer- UI"/>
+                <div class="udetails">
+                 
+                <span class="desg">Satyawan Sawant</span>
+               
+                </div>
+            </a>
+        </div>
+    </div>
+    
+</div>

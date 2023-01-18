@@ -1,0 +1,137 @@
+<script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
+<div class="container-fluid ">
+    <div class="pg-manual-display">
+        <div class="row">
+            <div class="topband  help-manual-title-band">
+                <h2 id="title" class="title-cls-name float-left help-manual-title"> </h2>
+                <div class="cm-searchwithicon">
+                        <div class="form-group has-search clearfix searchblockcyst"> <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
+                               <span id="manualSearchClear" onclick="clearManualSearch()" class="manual-clear-txt">
+                    			<i class="fa fa-times" aria-hidden="true"></i>
+                			</span>  
+                        </div>
+                         <div class="backclsmanual"> <span onclick="back();">
+                       		 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button" style="display:none">
+                    			</span> 
+                   			 </div>
+                    
+            </div>
+        </div>  
+        	
+        				<div id="cm-errormsg-div" class="" style="display: none;">
+                			 <div class="cm-empty-data">                 
+              				   <div class="cm-empty-messege">${messageSource.getMessage('jws.searchdidntmatch')}</div>
+                					 <p> ${messageSource.getMessage('jws.trywithdifferent')}</p>
+                 				</div>
+           				   </div>
+                   		 </div>
+                   		 
+            <div id="manual-container" class="cm-rightbar">
+                <div class="row cm-bottom-border">
+                    <span> <i class="icon icon-s-information"></i></span>
+                </div>
+
+                <div class="helpmanualblock cm-main-wrapper preview">
+                
+                	<span class="spiralbinding"> </span>
+                    
+                    <div class="cm-left-wrapper cm-scrollbar helpmanual_left">
+                        <div id="tabs" class=" tabs  "></div>
+
+                    </div>
+                    <div id="contentDiv" class="cm-right-wrapper helpmanual_right">
+                        
+                        <div id="previews" class="previews  cm-scrollbar"></div>
+                    </div>
+                    
+                </div>
+
+                <div class="row">
+                <div class="col-md-3">
+                    <div id="previewDiv" style="display:none;">
+                        <textarea id="previewContent" style="display:none;"></textarea>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+            
+    <script>
+    contextPath = "${contextPath}";
+    <#if !mt?? || !mt?has_content>
+        location.href = contextPath+"/cf/not-found";
+    </#if>
+let manual = new HelpManual();
+let manualTypes = manual.getManualDetails();
+$("#title").html(manualTypes.find(manual => {
+    return manual["manual_id"] == "${mt!''}"
+})["name"]);
+manual.getManualEntities("${mt!''}");
+for(let counter = 0; counter < manual.helpManualDetails.length; counter++) {
+    let data = manual.helpManualDetails[counter];
+    $("#tabs").append("<button id='" + data["manual_entry_id"] + "' class='tablinks'  onclick='manual.loadManualPreview(event, this)'>" + "<img src='${(contextPath)!''}/webjars/1.0/images/s-information1.svg' >" + data["entry_name"]  + "</button>");
+    let simplemde = new SimpleMDE({
+        initialValue: manual.helpManualDetails[counter]["entry_content"],
+        renderingConfig: {
+            codeSyntaxHighlighting: true,
+        }
+    });
+    manual.helpManualDetails[counter]["divContent"] = $(simplemde.options.previewRender(simplemde.value())).text();
+}
+$("#tabs button")[0].click();
+<#if sl?? && sl?has_content && sl == "1">
+	$("#backBtn").hide();
+<#else>
+	$("#backBtn").show();
+</#if>
+function back() {
+    location.href = contextPath + "/cf/help"
+}
+
+function search(event, value) {
+    let searchText = value.toLowerCase();
+        let noOfManualVisible = 0;
+        let firstManual;
+        $.each( manual.helpManualDetails, function(index, manual){
+            let divContent = manual.divContent.toLowerCase();
+            if(divContent.indexOf(searchText) !== -1){
+                if(firstManual === undefined){
+                    firstManual = index;
+                }
+                $("#"+manual.manual_entry_id).show();
+                noOfManualVisible++;
+            }else{
+                $("#"+manual.manual_entry_id).hide();
+            }
+        });
+        
+        if(noOfManualVisible > 0){
+            $("#manual-container").show();
+            $("#contentDiv").show();
+            $("#cm-errormsg").hide();
+            $("#cm-errormsg-div").hide();
+            $("#tabs button")[firstManual].click();
+        }else{
+            $("#cm-errormsg").show();
+            $("#cm-errormsg-div").show();
+            $("#contentDiv").hide();
+            $("#cm-errormsg").text("Your search - "+$("#searchInputField").val().trim()+" - did not match any manual documents.");
+            $("#manual-container").hide();
+        }
+}
+
+function clearManualSearch(){
+	$("#searchInputField").val("");
+	search("", "");
+}
+    </script>

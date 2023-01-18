@@ -1,0 +1,147 @@
+/*This is a Custom css which will be used for Styling purpose by the implementor*/
+
+
+ /************** Use Following Classes for the Header and Navigation/
+ 
+ .navbar{
+ 
+ }
+ .navbar-brand{
+ 
+ }
+ 
+ /************** Indside Menu ********************/
+ .nav-inside{
+ 
+ }
+ 
+ 
+ .hamburger {
+ 
+ }
+ 
+ /************** Menu Mouse hover ********************/
+ .mennuhover{
+ 	
+ }
+ 
+ /**************hamburger Close button ********************/
+ .closebtn {
+ 
+ }
+ 
+ /**************Menu Sub Category ********************/  
+ .subcategory{
+ 
+ }
+ 
+ /**************Menu Links ********************/
+ .nav-link{
+ 
+ }
+ 
+ /**************To use of more menu link ********************/
+ .morebtnblock{
+ 
+ }
+ 
+ 
+  /**************To use of Search ********************/
+ .searchblock{
+ 
+ }
+ 
+ 
+ 
+ /************Use this class when navgiation required in horizontal line************/
+ .horzintal-navbar{
+ 
+ }
+ 
+ /**************Home page header ********************/ 
+ .page-header{
+ 
+ } 
+ 
+ /**************Home page logo ********************/ 
+ .homepagelogoimg{
+ 
+ }
+ 
+  /**************Common Classes ********************/
+  
+ /**************Custom Checkbox Parent div class********************/  
+.onoffswitch{
+
+}
+
+/**************Custom Checkbox label class********************/ 
+.onoffswitch-label{
+
+}
+
+/**************Custom Checkbox Slider********************/ 
+.onoffswitch-inner{
+
+}
+
+/**************Custom Checkbox switch********************/
+onoffswitch-switch{
+
+} 
+
+/**************Page Header top band Classes ********************/
+.topband {
+
+}
+
+/**************Page Title ********************/ 
+.title-cls-name{
+
+}
+
+/**************Input field parent div ********************/
+.col-inner-form {
+
+}
+
+/**************Input field Class********************/
+.form-control{
+
+}
+
+/**************Action button Class********************/
+.btn{
+
+}
+
+/**************Secondary Action button Class********************/
+.secondary{
+
+}
+
+/**************Primary Action button Class********************/
+.btn-primary{
+
+}
+
+/**************Table grid Action button Class********************/
+.grid_action_icons{
+
+}
+
+/**************Table grid Action Footer Class********************/
+div.pq-grid-footer{
+
+}
+
+/************** Favourite  Action buttton Class********************/
+.fav-image{
+
+}
+
+/************** Home page tiles icon Class********************/
+.home_list_icon{
+
+}
+

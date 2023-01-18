@@ -46,8 +46,7 @@ AddEditDashboard.prototype.fn = {
     					$("#associatedDashlets").append(dashletDiv);
     				}
     			}else if(dashboardId !== undefined && dashboardId !== ""){
-    				$("#errorMessage").html("");
-    				$("#errorMessage").html("Sorry no dashlets avaiable for this context");
+    				showMessage("Sorry no dashlets avaiable for this context", "error");
     			}
     		},
     		error: function (xhr, error) {
@@ -130,8 +129,7 @@ AddEditDashboard.prototype.fn = {
 		validateDashletDetails : function(){
 			if($("#dashboardName").val()==""){
 				$("#dashboardName").select();
-				$("#errorMessage").html("Please enter dashboard name");
-				$("#errorMessage").show();
+				showMessage("Please enter dashboard name", "error");
 				return false;
 			}else{
 				$("#errorMessage").hide();
@@ -150,8 +148,7 @@ AddEditDashboard.prototype.fn = {
 					return true;
 				}
 			}
-			$("#errorMessage").html("Please select at least one user role");
-			$("#errorMessage").show();
+			showMessage("Please select at least one user role","error");
 			return false;
 		},
 		
@@ -161,13 +158,11 @@ AddEditDashboard.prototype.fn = {
 			for(let iCounter = 0; iCounter < checkBoxCount.length; ++iCounter){
 				if($("#"+$(".dashlets")[iCounter].id).prop("checked") === true){
 					$("#errorMessage").hide();
-					$("#errorMessage").html("");
 					isDahletSelected = true;
 					return true;
 				}
 			}
-			$("#errorMessage").html("Please select at least one dashlet");
-			$("#errorMessage").show();
+			showMessage("Please select at least one dashlet","error");
 			return isDahletSelected;
 		},
 		

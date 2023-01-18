@@ -147,9 +147,34 @@
     }
 
     class Multiselect extends TypeAhead {
-        selectedObjects = new Array();
+    	selectedObjects = new Array();
         constructor(element, options, selectedItems) {
-            super(element, options);
+        	super(element, options);
+        	const context = this;
+        	let multiselectId = element.attr("id");
+        	let multiselectClearDiv = $('<div class="multiselectcount_clear_block"></div>');
+        	let multiselectRemoveDiv = $('<div id="'+multiselectId+'_removeAll" class="pull-right disable_cls"></div>');
+        	let multiselectCountDiv = $('<div id="'+multiselectId+'_count" class="multiselectcount pull-right disable_cls"></div>');
+        	if(options.enableClearAll === false){
+        		multiselectRemoveDiv.append('<span id="'+multiselectId+'_removeAllSpan" class="clearall-disabled-cls">'+resourceBundleData("jws.clearAll")+'</span>');
+        	}else{
+        		multiselectRemoveDiv.append('<span id="'+multiselectId+'_removeAllSpan" class="clearall-cls" >'+resourceBundleData("jws.clearAll")+'</span>');
+        	}
+        	multiselectCountDiv.append('<span title="hide show" style="pointer-events:none">0</span>');
+        	multiselectClearDiv.append(multiselectRemoveDiv).append(multiselectCountDiv);
+        	$(element).parent().before(multiselectClearDiv);
+        	$(element).parent().after('<div id="'+multiselectId+'_selectedOptions"></div>');
+        	context.options.multiselectItem = $("#"+multiselectId+"_selectedOptions");
+        	
+        	$("#"+multiselectId+"_count").bind("click", function() {
+        		context.showHideDataDiv(multiselectId+"_selectedOptions");
+        	});
+        	if(options.enableClearAll !== false){
+	        	$("#"+multiselectId+"_removeAllSpan").bind("click", function() {
+	        		context.removeAllElements(multiselectId);
+	        	});
+        	}
+            
             if(this.options.prefetch === undefined){
             	this.options.prefetch = true;
             }
@@ -298,7 +323,7 @@
 				    		$("#"+multiselectId+"_removeAll > span" ).css('pointer-events','none');
 				    	}
 				        $(element.parent()).remove();
-						context.selectedObjects = $.grep(context.selectedObjects, function( savedObj ) {
+						context.selectedObjects = $.grep(context.selectedObjects, function(savedObj, i) {
     						return savedObj.key !== item.key;
 						});
 						$(this).dialog("destroy");

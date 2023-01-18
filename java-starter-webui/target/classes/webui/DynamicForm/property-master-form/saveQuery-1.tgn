@@ -1,0 +1,26 @@
+
+REPLACE INTO jq_property_master (
+   property_master_id
+  ,owner_type
+  ,owner_id
+  ,property_name
+  ,property_value
+  ,is_deleted
+  ,last_modified_date
+  ,modified_by
+  ,app_version
+  ,comments
+  ,is_custom_updated
+) VALUES (
+  '${formData?api.getFirst("propertyMasterId")}' 
+  ,'${formData?api.getFirst("ownerId")}' 
+  ,'${formData?api.getFirst("ownerType")}'
+  ,'${formData?api.getFirst("propertyName")}'
+  ,'${formData?api.getFirst("propertyValue")}'
+  ,0
+  ,NOW()
+  ,'admin'
+  ,${formData?api.getFirst("appVersion")}
+  ,'${formData?api.getFirst("comment")}'
+  , 1
+);

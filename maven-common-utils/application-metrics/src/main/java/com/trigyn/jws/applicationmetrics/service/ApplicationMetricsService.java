@@ -20,18 +20,23 @@ import org.springframework.context.ApplicationContext;
 
 import com.sun.management.OperatingSystemMXBean;
 import com.trigyn.jws.applicationmetrics.interceptor.ApplicationServiceInterceptor;
+import com.trigyn.jws.dbutils.service.ApplicationContextProvider;
+import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.usermanagement.utils.SessionCounter;
 
 public class ApplicationMetricsService {
 
-	private ApplicationContext applicationContext = null;
+	private ApplicationContext	applicationContext	= null;
+
+	private SessionCounter		sessionCounter		= ApplicationContextProvider.getBean(SessionCounter.class);
 
 	public ApplicationMetricsService() {
 
 	}
 
-	public Map<String, Object> getJvmMetrics(HttpServletRequest a_httpServletRequest, Map<String, Object> daoResultSets,
-		UserDetailsVO userDetails) {
+	public Map<String, Object> getJvmMetrics(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files,
+			Map<String, Object> daoResultSets, UserDetailsVO userDetails) {
 		Map<String, Object>		actuatorMap			= new HashMap<String, Object>();
 
 		List<MemoryPoolMXBean>	memoryPools			= new ArrayList<MemoryPoolMXBean>(ManagementFactory.getMemoryPoolMXBeans());
@@ -118,11 +123,15 @@ public class ApplicationMetricsService {
 
 		Map<String, Object>	classLoadingGCMetricMap	= new HashMap<String, Object>();
 		ClassLoadingMXBean	clMxBean				= ManagementFactory.getClassLoadingMXBean();
-		classLoadingGCMetricMap.put("classes-loaded ", clMxBean.getLoadedClassCount());
-		classLoadingGCMetricMap.put("classes-unloaded ", clMxBean.getUnloadedClassCount());
-		classLoadingGCMetricMap.put("total-classes-loaded ", clMxBean.getTotalLoadedClassCount());
+		classLoadingGCMetricMap.put("classes-loaded", clMxBean.getLoadedClassCount());
+		classLoadingGCMetricMap.put("classes-unloaded", clMxBean.getUnloadedClassCount());
+		classLoadingGCMetricMap.put("total-classes-loaded", clMxBean.getTotalLoadedClassCount());
 
 		actuatorMap.put("classloading-metrics", classLoadingGCMetricMap);
+
+		Map<String, Object> userDetailsMap = new HashMap<String, Object>();
+		userDetailsMap.put("total-active-sessions", sessionCounter.getActiveSessionCount());
+		actuatorMap.put("user-details", userDetailsMap);
 
 		// MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		// Set names = mbs.queryNames(null, null);

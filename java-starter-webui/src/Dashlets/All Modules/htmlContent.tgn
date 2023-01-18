@@ -1,0 +1,82 @@
+<script src="${(contextPath)!''}/webjars/1.0/chartjs/chart.js"></script>
+<div class="jws-dashlet-view">
+      <div class="row">
+          
+         <div class="col-12">
+            <div class="bs-example">
+               <div class="accordion" id="accordionExample">
+                  <div class="card">
+                     <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                           <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne">Modules Count <i class="fa fa-plus"></i></button>									
+                        </h2>
+                     </div>
+                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                        <div class="card-body">
+                           <div id="dashlet-module-content">
+                              <canvas id="dashlet-module-chart" width="500" height="200"></canvas>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+</div>
+
+<script>
+$(function() {
+	contextPath = "${(contextPath)!''}";
+    let startDate = "${startDate!''}";
+    let endDate = "${endDate!''}";
+    let gridName = "${gridName!''}";
+    
+
+    $.ajax({
+        type : "GET",
+        async : false,
+        url : contextPath+"/api/dashlet-module-details",
+        data : {
+            startDate: startDate,
+            endDate: endDate,
+            gridName : gridName
+        }, 
+        success : function(data) {
+           createModuleChart(data);
+        }
+    });
+});
+
+function createModuleChart(data){
+    let labels = new Array();
+    $.each(Object.keys(data), function(index, label){
+        labels.push(label.charAt(0).toUpperCase() + label.slice(1));
+    });
+    let datasets = new Array();
+    let dataValue = {
+	  label: "Module count",
+	  backgroundColor: "rgba(0, 0, 0, 1)",
+	  borderColor: "rgba(0, 0, 0, 1)",
+	  pointColor: "rgba(0, 0, 0, 1)",
+	}
+    let pointValues = new Array();
+	for(let counter = 0; counter < Object.keys(data).length; counter++) {
+		let pointValue = Object.keys(data[Object.keys(data)[counter]][0]);
+        let moduleObj = data[Object.keys(data)[counter]][0];
+        let moduleKey = Object.keys(moduleObj)[0];
+	    pointValues.push(moduleObj[moduleKey]);
+	}
+	dataValue["data"] = pointValues;
+	datasets.push(dataValue);
+    let chartData = {labels: labels, datasets: datasets}
+	let ctx = document.getElementById("dashlet-module-chart").getContext("2d");
+	let dashletModuleChart = new Chart(ctx, {
+		type: "bar",
+		data: chartData,
+		options: {
+			animation: false
+		}
+	}); 
+}
+</script>

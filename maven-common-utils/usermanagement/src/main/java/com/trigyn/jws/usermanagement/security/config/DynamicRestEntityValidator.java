@@ -64,8 +64,12 @@ public class DynamicRestEntityValidator implements EntityValidator {
 				reqObject.getRequestURI(), reqObject, roleNameList, a_joinPoint);
 
 		String requestUri = reqObject.getRequestURI().substring(reqObject.getContextPath().length());
-		requestUri = requestUri.replaceFirst("/api/", "");
-		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICREST.getModuleName(), requestUri);
+		if (requestUri.startsWith("/japi/")) {
+			requestUri = requestUri.replaceFirst("/japi/", "");
+		} else {
+			requestUri = requestUri.replaceFirst("/api/", "");
+		}
+		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId("REST API", requestUri);
 	}
 
 }

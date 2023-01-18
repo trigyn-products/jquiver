@@ -21,14 +21,14 @@ import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
 import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ManualEntryDetailsExportVO;
-import com.trigyn.jws.dynamicform.dao.FileUploadRepository;
-import com.trigyn.jws.dynamicform.dao.IFileUploadConfigRepository;
 import com.trigyn.jws.dynamicform.dao.IManualEntryDetailsRepository;
-import com.trigyn.jws.dynamicform.entities.FileUpload;
-import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
 import com.trigyn.jws.dynamicform.entities.ManualEntryDetails;
 import com.trigyn.jws.dynamicform.entities.ManualType;
-import com.trigyn.jws.dynamicform.service.FilesStorageServiceImpl;
+import com.trigyn.jws.dynarest.entities.FileUpload;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.repository.FileUploadRepository;
+import com.trigyn.jws.dynarest.repository.IFileUploadConfigRepository;
+import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.webstarter.vo.HelpManual;
 
 @Component
@@ -102,7 +102,8 @@ public class HelpManualImportExportModule {
 						StringEscapeUtils.unescapeXml("<![CDATA[" + med.getEntryContent().trim() + "]]>"), med.getSortIndex(),
 						med.getLastUpdatedBy(), med.getLastModifiedOn(), fileUploadExportVOList));
 
-				fileUploadConfigId = fileUploads.get(0).getFileBinId();
+				if(fileUploads != null && fileUploads.isEmpty() == false)
+					fileUploadConfigId = fileUploads.get(0).getFileBinId();
 			}
 		}
 		FileUploadConfigExportVO fileUploadConfigExportVO = null;

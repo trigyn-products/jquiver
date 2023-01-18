@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -63,16 +64,23 @@ public class DynamicForm {
 	@Column(name = "last_updated_ts")
 	private Date						lastUpdatedTs			= null;
 
-	@OneToMany(mappedBy = "dynamicForm")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "dynamicForm")
 	private List<DynamicFormSaveQuery>	dynamicFormSaveQueries	= null;
+
+	@Column(name = "query_type")
+	private Integer						selectQueryType			= null;
+
+	@Column(name = "is_custom_updated")
+	private Integer						isCustomUpdated			= 1;
 
 	public DynamicForm() {
 
 	}
 
-	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody, Integer formTypeId,
-			String createdBy, Date createdDate, String datasourceId, String formSelectChecksum, String formBodyChecksum,
-			String lastUpdatedBy, Date lastUpdatedTs, List<DynamicFormSaveQuery> dynamicFormSaveQueries) {
+	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
+			Integer formTypeId, String createdBy, Date createdDate, String datasourceId, String formSelectChecksum,
+			String formBodyChecksum, String lastUpdatedBy, Date lastUpdatedTs,
+			List<DynamicFormSaveQuery> dynamicFormSaveQueries, Integer selectQueryType) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
@@ -87,6 +95,7 @@ public class DynamicForm {
 		this.lastUpdatedBy			= lastUpdatedBy;
 		this.lastUpdatedTs			= lastUpdatedTs;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
+		this.selectQueryType		= selectQueryType;
 	}
 
 	public String getFormId() {
@@ -201,7 +210,23 @@ public class DynamicForm {
 		this.lastUpdatedTs = lastUpdatedTs;
 	}
 
-	public DynamicForm getObject() {
+	public Integer getSelectQueryType() {
+		return selectQueryType;
+	}
+
+	public void setSelectQueryType(Integer selectQueryType) {
+		this.selectQueryType = selectQueryType;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public DynamicForm getObject(Boolean isImport) {
 		DynamicForm obj = new DynamicForm();
 		obj.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
 		obj.setCreatedDate(createdDate);
@@ -216,11 +241,12 @@ public class DynamicForm {
 		obj.setFormTypeId(formTypeId);
 		obj.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		obj.setLastUpdatedTs(lastUpdatedTs);
+		obj.setSelectQueryType(selectQueryType);
 
 		List<DynamicFormSaveQuery> dfsOtr = new ArrayList<>();
 		if (dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {
 			for (DynamicFormSaveQuery dfs : dynamicFormSaveQueries) {
-				dfsOtr.add(dfs.getObject());
+				dfsOtr.add(dfs.getObject(isImport));
 			}
 			obj.setDynamicFormSaveQueries(dynamicFormSaveQueries);
 		} else
@@ -231,8 +257,9 @@ public class DynamicForm {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(createdBy, datasourceId, dynamicFormSaveQueries, formBody, formBodyChecksum, formDescription, formId, formName,
-				formSelectChecksum, formSelectQuery, formTypeId, lastUpdatedBy);
+		return Objects.hash(createdBy, datasourceId, dynamicFormSaveQueries, formBody, formBodyChecksum,
+				formDescription, formId, formName, formSelectChecksum, formSelectQuery, formTypeId, lastUpdatedBy,
+				selectQueryType);
 	}
 
 	@Override
@@ -248,23 +275,27 @@ public class DynamicForm {
 		}
 		DynamicForm other = (DynamicForm) obj;
 		return Objects.equals(createdBy, other.createdBy) && Objects.equals(datasourceId, other.datasourceId)
-				&& Objects.equals(dynamicFormSaveQueries, other.dynamicFormSaveQueries) && Objects.equals(formBody, other.formBody)
-				&& Objects.equals(formBodyChecksum, other.formBodyChecksum) && Objects.equals(formDescription, other.formDescription)
-				&& Objects.equals(formId, other.formId) && Objects.equals(formName, other.formName)
-				&& Objects.equals(formSelectChecksum, other.formSelectChecksum) && Objects.equals(formSelectQuery, other.formSelectQuery)
-				&& Objects.equals(formTypeId, other.formTypeId) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy);
+				&& Objects.equals(dynamicFormSaveQueries, other.dynamicFormSaveQueries)
+				&& Objects.equals(formBody, other.formBody) && Objects.equals(formBodyChecksum, other.formBodyChecksum)
+				&& Objects.equals(formDescription, other.formDescription) && Objects.equals(formId, other.formId)
+				&& Objects.equals(formName, other.formName)
+				&& Objects.equals(formSelectChecksum, other.formSelectChecksum)
+				&& Objects.equals(formSelectQuery, other.formSelectQuery)
+				&& Objects.equals(formTypeId, other.formTypeId) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
+				&& Objects.equals(selectQueryType, other.selectQueryType);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("DynamicForm [formId=").append(formId).append(", formName=").append(formName).append(", formDescription=")
-				.append(formDescription).append(", formSelectQuery=").append(formSelectQuery).append(", formBody=").append(formBody)
-				.append(", formTypeId=").append(formTypeId).append(", createdBy=").append(createdBy).append(", createdDate=")
+		builder.append("DynamicForm [formId=").append(formId).append(", formName=").append(formName)
+				.append(", formDescription=").append(formDescription).append(", formSelectQuery=")
+				.append(formSelectQuery).append(", formBody=").append(formBody).append(", formTypeId=")
+				.append(formTypeId).append(", createdBy=").append(createdBy).append(", createdDate=")
 				.append(createdDate).append(", datasourceId=").append(datasourceId).append(", formSelectChecksum=")
-				.append(formSelectChecksum).append(", formBodyChecksum=").append(formBodyChecksum).append(", lastUpdatedBy=")
-				.append(lastUpdatedBy).append(", lastUpdatedDate=").append(lastUpdatedTs).append(", dynamicFormSaveQueries=")
-				.append(dynamicFormSaveQueries).append("]");
+				.append(formSelectChecksum).append(", formBodyChecksum=").append(formBodyChecksum)
+				.append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedDate=").append(lastUpdatedTs)
+				.append(", dynamicFormSaveQueries=").append(dynamicFormSaveQueries).append(selectQueryType).append("]");
 		return builder.toString();
 	}
 

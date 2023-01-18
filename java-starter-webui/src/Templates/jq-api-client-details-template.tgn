@@ -1,0 +1,95 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.apiclients')}</h2> 
+        <div class="float-right">
+             <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+    <div id="api_client_details_grid"></div>
+
+    <div id="snackbar"></div>
+</div>
+
+<script>
+    contextPath = "${(contextPath)!''}";
+    let primaryKeyDetails = {"clientid":""};
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "${messageSource.getMessage('jws.clientid')}", hidden : true, width: 130, dataIndx: "client_id", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.clientname')}", hidden : false, width: 130, dataIndx: "client_name", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.clientkey')}", hidden : false, width: 130, dataIndx: "client_key", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.encryptionalgorithm')}", hidden : false, width: 130, dataIndx: "encryption_algo_name", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.updatedBy')}", hidden : false, width: 130, dataIndx: "updated_by", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.createdBy')}", hidden : false, width: 130, dataIndx: "created_by", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.updatedDate')}", hidden : false, width: 130, dataIndx: "updated_date", align: "left", align: "left", halign: "center",render:dateRenderer,
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            { title: "<@resourceBundle 'jws.action' />", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+        ];
+    
+    	let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
+    //System will fecth grid data based on gridId
+        let grid = $("#api_client_details_grid").grid({
+          gridId: "jq_api_client_details_grid",
+          colModel: colM,
+          dataModel: dataModel
+        });
+    
+    });
+    
+    //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function manageRecord(uiObject) {
+        let rowIndx = uiObject.rowIndx;
+        return '<span id="'+rowIndx+'" onclick=\'createNew("'+uiObject.rowData.client_id+'")\' class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+    }
+     
+    function dateRenderer(ui){
+        const lastUpdatedTs = ui.rowData.updated_date;
+        return formatDate(lastUpdatedTs);
+    }
+    
+    //Add logic to navigate to create new record
+    function createNew(client_id) {
+        primaryKeyDetails["clientid"] = client_id;
+        openAddEditScreen();
+    }
+
+    function openAddEditScreen() {
+    	  let formId = "2acd30d0-ef07-4ce2-b4f4-02cbfd29bf67";
+    	  openForm(formId, primaryKeyDetails);
+    }
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath+"/cf/dynl";
+    }
+</script>

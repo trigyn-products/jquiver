@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
-import com.trigyn.jws.dynamicform.dao.FileUploadRepository;
-import com.trigyn.jws.dynamicform.entities.FileUpload;
-import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
-import com.trigyn.jws.dynamicform.service.FilesStorageServiceImpl;
+import com.trigyn.jws.dynarest.entities.FileUpload;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.repository.FileUploadRepository;
+import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.webstarter.vo.FileUploadConfigImportEntity;
 
 @Component

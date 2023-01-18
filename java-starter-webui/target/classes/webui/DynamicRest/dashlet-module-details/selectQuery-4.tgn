@@ -1,0 +1,2 @@
+SELECT COUNT(DISTINCT(rb.resource_key)) AS resourceBundleCount 
+FROM jq_resource_bundle AS rb

@@ -1,5 +1,7 @@
 package com.trigyn.jws.dbutils.vo.xml;
 
+import java.util.Date;
+
 public class TemplateExportVO {
 
 	private String	templateId			= null;
@@ -10,16 +12,20 @@ public class TemplateExportVO {
 
 	private String	templateFileName	= null;
 
+	private Date	updatedDate			= null;
+
 	public TemplateExportVO() {
 
 	}
 
-	public TemplateExportVO(String templateId, String templateName, Integer templateTypeId, String templateFileName) {
+	public TemplateExportVO(String templateId, String templateName, Integer templateTypeId, String templateFileName,
+			Date updatedDate) {
 		super();
 		this.templateId			= templateId;
 		this.templateName		= templateName;
 		this.templateTypeId		= templateTypeId;
 		this.templateFileName	= templateFileName;
+		this.updatedDate		= updatedDate;
 	}
 
 	public String getTemplateId() {
@@ -52,6 +58,14 @@ public class TemplateExportVO {
 
 	public void setTemplateFileName(String templateFileName) {
 		this.templateFileName = templateFileName;
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+
+	public void setUpdatedDate(Date updatedDate) {
+		this.updatedDate = updatedDate;
 	}
 
 }

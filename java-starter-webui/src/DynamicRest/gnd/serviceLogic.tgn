@@ -1,0 +1,29 @@
+var HashMap =  Java.type("java.util.HashMap");
+var ArrayList =  Java.type("java.util.ArrayList");
+var NamedParameterJdbcTemplate =  Java.type("org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate");
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+
+function loadNotifications(daoResults) {
+    var validNotificationList = new ArrayList();	
+	var counter=0;	
+	for(counter=0; counter < daoResults["allNotifications"].length;counter++) {
+	    var selectCriteria = daoResults["allNotifications"][counter]["selection_criteria"];
+		/**Added Datasource Id col. in Notification Module, based on which the Selection Criteria Query will be executed.**/
+		var dataSourceId = daoResults["allNotifications"][counter]["datasource_id"];
+			var map = new HashMap();   	
+			var resultList = jq_getDBResult(selectCriteria,dataSourceId, null);
+				if(resultList.data_list != undefined && resultList["actionStatus"] != false){
+				if(resultList != null && resultList.isEmpty() == false && resultList.data_list[0]["noti_count"] >=1) {
+				map.put("notificationId", daoResults["allNotifications"][counter]["notification_id"]);
+				map.put("messageText", daoResults["allNotifications"][counter]["message_text"]);
+				map.put("messageType", daoResults["allNotifications"][counter]["message_type"]);
+				map.put("msgValidFrom", daoResults["allNotifications"][counter]["message_valid_from"]);
+				validNotificationList.add(map);					
+			}
+		  }
+		}
+	return validNotificationList;
+}
+
+loadNotifications(daoResults);

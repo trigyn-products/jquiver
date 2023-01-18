@@ -1,0 +1,169 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script>
+  contextPath = "${(contextPath)!''}";
+</script>
+</head>
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
+		<div class="float-right">
+		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+            </select>
+			<#if environment == "dev">
+				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
+				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
+			</#if>
+			<a href="${(contextPath)!''}/cf/ad"> 
+				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
+			</a>
+			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage('jws.createNewDashlet')}" type="button" onclick="dashletListing.submitForm(this)">
+    		<span onclick="dashletListing.backToDashboarListing();">
+    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+    	 	</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="divdDashletMasterGrid"></div>
+
+</div>
+
+<form action="${(contextPath)!''}/cf/aedl" method="POST" id="formDMRedirect">
+	<input type="hidden" id="dashletId" name="dashlet-id">
+</form>
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="entityName" name="entityName" value="jq_dashlet">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/sdlv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dlm">
+</form>
+<script>
+	let dashletListing;
+	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		dashletListing = new DashletListing();
+		let formElement = $("#formDMRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dashlet-manage-details", formDataJson);
+		
+		let colM = [
+			{ title: "${messageSource.getMessage('jws.dashletName')}", width: 180, dataIndx: "dashletName" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.dashletTitle')}", width: 180, dataIndx: "dashletTitle", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.createdBy')}", hidden: true, width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.createdDate')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center", render: formatCreatedDate},
+			{ title: "${messageSource.getMessage('jws.updatedBy')}", hidden: true, width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.updatedDate')}", width: 100, dataIndx: "lastUpdatedTs" , align: "left", halign: "center", render: formatLastUpdatedDate},
+			{ title: "${messageSource.getMessage('jws.status')}", width: 80, dataIndx: "status" , align: "left", halign: "center", render: dashletStatus},
+			{ title: "${messageSource.getMessage('jws.action')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashlet, sortable: false}
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
+    	};
+		let grid = $("#divdDashletMasterGrid").grid({
+			gridId: "dashletMasterListingGrid",
+			colModel: colM,
+          	dataModel: dataModel,
+          additionalParameters: {"cr_dashletTypeId":"str_1"}
+	  });
+	  
+	});
+	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dashletMasterListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dashletMasterListingGrid" 
+                    ,"cr_dashletTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divdDashletMasterGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+       
+	function dashletType(uiObject){
+		const dashletTypeId = uiObject.rowData.dashletTypeId;
+		if(dashletTypeId === 1){
+			return "Default";
+		}else{
+			return "System";
+		}
+	}
+	
+	function dashletStatus(uiObject){
+		const status = uiObject.rowData.status;
+		if(status == 1){
+			return 'Active';
+		}else{
+			return 'Inactive';
+		}
+	}
+	
+	function formatCreatedDate(uiObject){
+        const createdDate = uiObject.rowData.createdDate;
+        return formatDate(createdDate);
+    }
+    
+	function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+    
+	function editDashlet(uiObject) {
+		const dashletId = uiObject.rowData.dashletId;
+		const dashletName = uiObject.rowData.dashletName;
+		const revisionCount = uiObject.rowData.revisionCount;
+					
+		let actionElement;
+		<#if environment == "dev">
+			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'><i class='fa fa-pencil' title='${messageSource.getMessage("jws.editDashlet")}'></i></span>";
+      		actionElement = actionElement + "<span id='"+dashletId+"' class= 'grid_action_icons' onclick='dashletListing.downloadDashletById(this)'><i class='fa fa-download'></i></span>";
+          	actionElement = actionElement + "<span id='"+dashletId+"_upload' name='"+dashletName+"' class= 'grid_action_icons' onclick='dashletListing.uploadDashletById(this)'><i class='fa fa-upload'></i></span>";
+		<#else>
+			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'  onclick='dashletListing.submitForm(this)' title='${messageSource.getMessage("jws.editDashlet")}'><i class='fa fa-pencil'></i></span>";	
+			if(revisionCount > 1){
+				actionElement = actionElement + '<span id="'+dashletId+'_entity" name="'+dashletName+'" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+			}else{
+				actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+			}
+			return actionElement;		
+			
+		</#if>
+		return actionElement;
+	}
+	
+
+	
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/dashlet/dashletListing.js"></script>

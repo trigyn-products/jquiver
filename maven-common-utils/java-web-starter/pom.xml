@@ -4,15 +4,17 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.4.4-SNAPSHOT</version>
+		<version>1.5.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>java-web-starter</artifactId>
-	<version>1.4.4-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<name>java-web-starter</name>
 	<description>A admin panel for all trigyn core apps</description>
 
 	<properties>
 		<java.version>11</java.version>
+		<freemarker.version>2.3.31</freemarker.version>
+        <jws.version>${project.version}</jws.version>
 	</properties>
 
 	<dependencies>
@@ -20,73 +22,61 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dbutils</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.trigyn</groupId>
-			<artifactId>notification</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dashboard</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>resourcebundle</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>typeahead</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-rest</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>usermanagement</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.trigyn</groupId>
-			<artifactId>security-management</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>dynamic-form</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>application-metrics</artifactId>
-			<version>1.4.4-SNAPSHOT</version>
+			<version>1.5.0-SNAPSHOT</version>
 		</dependency>
 			
 		<dependency>
@@ -99,9 +89,21 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>webjars</artifactId>
-			<version>1.2.19</version>
+			<version>1.3.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.trigyn</groupId>
+			<artifactId>webui</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.11.0</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -113,10 +115,27 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+			    <groupId>org.codehaus.mojo</groupId> 
+			    <artifactId>properties-maven-plugin</artifactId> 
+			    <version>1.0.0</version> 
+			    <executions> 
+			        <execution> 
+			            <phase>generate-resources</phase> 
+			            <goals> 
+			                <goal>write-project-properties</goal> 
+			            </goals> 
+			            <configuration> 
+			                <outputFile>${project.build.outputDirectory}/jws-pom.properties</outputFile> 
+			            </configuration> 
+			        </execution> 
+			    </executions> 
+			</plugin>
 		    <plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

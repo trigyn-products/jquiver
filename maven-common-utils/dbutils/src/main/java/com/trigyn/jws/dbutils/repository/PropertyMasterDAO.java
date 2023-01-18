@@ -27,6 +27,9 @@ public class PropertyMasterDAO extends DBConnection {
 
 	private final static String	QUERY_TO_GET_ALL_PROPERTY_MASTER_DETAILS	= " SELECT pm.ownerId AS ownerId, pm.ownerType AS ownerType, pm.propertyName AS propertyName, pm.propertyValue AS propertyValue FROM PropertyMaster AS pm ";
 
+	private final static String	QUERY_TO_GET_PROPERTY_MASTER_ID		= " SELECT pm.propertyMasterId FROM PropertyMaster pm WHERE pm.ownerType=:ownerType"
+			+ " AND pm.ownerId=:ownerId AND pm.propertyName=:propertyName";
+
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {
 		String	propertyValue	= null;
 		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_DETAILS);
@@ -49,4 +52,38 @@ public class PropertyMasterDAO extends DBConnection {
 		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 		return query.list();
 	}
+
+	public PropertyMaster findPropertyMasterById(String propertyMasterId) {
+		PropertyMaster propertyMaster =  hibernateTemplate.get(PropertyMaster.class, propertyMasterId);
+		if(propertyMaster != null) getCurrentSession().evict(propertyMaster);
+		return propertyMaster;
+	}
+
+	public PropertyMaster findPropertyMasterByName(String propertyName) {
+		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_ID);
+		query.setParameter("ownerType", "system");
+		query.setParameter("ownerId", "system");
+		query.setParameter("propertyName", propertyName);
+		Object propertValueObj = query.uniqueResult();
+		if (propertValueObj != null) {
+			String propertyId = propertValueObj.toString();
+			PropertyMaster propertyMaster =  hibernateTemplate.get(PropertyMaster.class, propertyId);
+			return propertyMaster;
+		}
+		return null;		
+	}
+
+	@Transactional(readOnly = false)
+	public void savePropertyMaster(PropertyMaster propertyMaster) {
+		PropertyMaster prop = findPropertyMasterByName(propertyMaster.getPropertyName());
+		if(prop != null) getCurrentSession().evict(prop);
+		if(propertyMaster.getPropertyMasterId() == null || (findPropertyMasterById(propertyMaster.getPropertyMasterId()) == null
+				&& prop == null)) {
+			getCurrentSession().save(propertyMaster);			
+		}else {
+			if(prop != null) propertyMaster.setPropertyMasterId(prop.getPropertyMasterId());
+			getCurrentSession().saveOrUpdate(propertyMaster);
+		}
+	}
+
 }

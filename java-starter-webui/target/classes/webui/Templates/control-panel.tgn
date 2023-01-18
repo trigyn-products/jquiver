@@ -1,0 +1,306 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+</head>
+
+ <div class="container ">
+    <div class="page-header homepageheader">
+        <img src="${(contextPath)!''}/webjars/1.0/images/jquiver_blue_trans.png" class="homepagelogoimg">
+         <div class="col-05 float-right" style="width:300px;">
+                <div class="col-inner-form full-form-fields" >
+                    <div class="search-cover">
+                    	<input class="form-control" id="quickJumpAutocomplete" type="text" >
+                    	<i class="fa fa-search" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div> 
+       <div class="col-05 float-right"> 
+        ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>
+                <option value="3">${messageSource.getMessage('jws.favourite')}</option>                 
+            </select>
+         </div>
+         
+ 
+ 
+        <p>
+            <i>
+                ${messageSource.getMessage('jws.opinionatedview')}
+            </i>
+        </p>
+        
+    </div>
+ 
+    <div class="list-group custom-list-home">
+    
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/mg" class="list-group-item list-group-item-action mg">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/manage_master.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage('jws.masterGenerator')}</span></h5>                   
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtusingfreemarker')} </p>
+                <small>${messageSource.getMessage('jws.nowanymaster')}</small>
+            </div>
+        </a>
+        
+        </div>
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/gd" class="list-group-item list-group-item-action gu">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/grid.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage('jws.gridUtils')}</span></h5>
+                     
+                </div>
+                <p class="mb-1"> ${messageSource.getMessage('jws.builtusingpqgrid')} </p>
+                <small>${messageSource.getMessage('jws.nowmasterlisting')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/adl" class="list-group-item list-group-item-action ta">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/autotype.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.typeAheadAutocomplete')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtjqueryplugin')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.anyautocomplete')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/fucl" class="list-group-item list-group-item-action fb">
+           	<div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/upload_management.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"> <span>${messageSource.getMessage('jws.fileUploadConfig')}</span></h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtusingfreemarker')} </p>
+                <small>${messageSource.getMessage('jws.configurefileupload')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/te" class="list-group-item list-group-item-action tepmlating">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/template.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.templating')}</h5>
+                 
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.generateshtml')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/dfl" class="list-group-item list-group-item-action fbu">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/daynamicreport.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.formBuilder')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.createdynamicforms')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/dynl" class="list-group-item list-group-item-action ra">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/API_listing_icon.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.restAPIBuilder')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.createdynamicforms')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/mul" class="list-group-item list-group-item-action sl">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/Menu_icon.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.siteLayout')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.createmenuapplication')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+                
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/rb" class="list-group-item list-group-item-action mu">
+            <div class="home_list_icon m_icon"><img src="${(contextPath)!''}/webjars/1.0/images/database.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.multilingual')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtusinginterceptors')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.anywebapplication')}</small>
+            </div>
+        </a>
+        </div>                
+
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/dbm" class="list-group-item list-group-item-action dash">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/dashboard.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.dashboard')}</h5>
+                 
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtusingresource')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.createdailyreporting')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/nl" class="list-group-item list-group-item-action notf">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/notification.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.notification')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.createappnotification')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/um" class="list-group-item list-group-item-action um">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/user_management.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.userManagement')}</h5>
+                 
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtusingfreemarkerpqgrid')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.manageusers')}</small>
+            </div>
+        </a>
+        </div>
+    
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/pml" class="list-group-item list-group-item-action ac">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/application_configuration.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.applicationConfiguration')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.builtfreemarker')} </p>
+                <small class="text-muted">${messageSource.getMessage('jws.createmenuapplication')}</small>
+            </div>
+        </a>
+        </div>
+        
+        
+        <div class="home_block col-12">
+        <a href="${(contextPath)!''}/cf/help" class="list-group-item list-group-item-action hm">
+            <div class="home_list_icon"><img src="${(contextPath)!''}/webjars/1.0/images/user_help.svg"></div> 
+            <div class="home_list_content">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${messageSource.getMessage('jws.helpManuals')}</h5>
+                     
+                </div>
+                <p class="mb-1">${messageSource.getMessage('jws.helpManuals')}</p>
+                <small class="text-muted">${messageSource.getMessage('jws.createhelpmanuals')}</small>
+            </div>
+        </a>
+        </div>
+		
+	    <div class="home_block col-12">
+			<div class="cm-iconboxwrap ex">
+	            <a href="${(contextPath)!''}/cf/vimp">
+		            <div class="cm-importicon">
+		                <div class="btn cm-impobtn outline"><i class="fa fa-download"></i> ${messageSource.getMessage('jws.import')}</div>
+		            </div>
+	            </a>
+
+                <div class="home_list_content">
+                     <small class="text-muted">${messageSource.getMessage('jws.manageexport')}</small>
+                </div>
+	            <a href="${(contextPath)!''}/cf/vexp">
+		            <div class="cm-exporticon">
+		                <div class="btn cm-expobtn outline">${messageSource.getMessage('jws.export')}<i class="fa fa-upload"></i></div>
+		            </div>
+	             </a>
+			</div>
+        </div>
+    </div>
+</div>
+<script>
+	contextPath = "${(contextPath)!''}";
+    let autocompleteQJ;
+    $(function () {
+        //for implementing QuickJump Autocomplete..
+        autocompleteQJ = $( "#quickJumpAutocomplete" ).autocomplete({
+        autocompleteId: "quickJumpAutocomplete",
+        prefetch : true,
+        enableClearText: true,
+        additionalParamaters: {type_id: $('#typeSelect').val()},
+        render: function(item) {
+            var renderStr = "";
+            imageName = getImageNameByType(item.entityType);
+           if(item.emptyMsg == undefined || item.emptyMsg === ""){
+                renderStr = '<div class="user-favorite-img-cls"><img src="${(contextPath)!''}/webjars/1.0/images/'+imageName+'.svg"><p>'+item.entityName+'</p></div>';
+               }else{
+                    renderStr = item.emptyMsg;	
+                    }
+                    return renderStr;
+                },
+                extractText: function(item) {
+                    return item.entityName;
+                 },
+                select: function(item) {
+                    submitForm(item);
+                    $("#quickJumpAutocomplete").blur();
+                    /**Added for clearing the Autocomplete Value after selecting*/
+                    $('#quickJumpAutocomplete').val('');
+                }, 
+                
+            });
+        });
+   
+    $(function() {
+		localStorage.removeItem("imporatableData");
+		localStorage.removeItem("importedIdList");
+	});
+
+</script>

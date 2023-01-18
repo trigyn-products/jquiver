@@ -17,11 +17,6 @@ public class DynaServiceLayer {
 
 	private ApplicationContext applicationContext = null;
 
-	/**
-	 * 
-	 * Method to get employee details
-	 *
-	 */
 	public ResponseEntity<String> getEmployeeDetails(HttpServletRequest a_httpServletRequest,
 			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		Map<String, Object> response = new HashMap<>();

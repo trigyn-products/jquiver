@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.entities.PropertyMaster;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.templating.service.MenuService;
 
@@ -32,6 +34,9 @@ public class PropertyMasterController {
 
 	@Autowired
 	private PropertyMasterDetails	propertyMasterDetails	= null;
+	
+	@Autowired
+	private PropertyMasterDAO		propertyMasterDAO		= null;
 
 	@GetMapping(value = "/pml", produces = MediaType.TEXT_HTML_VALUE)
 	public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException {
@@ -70,6 +75,15 @@ public class PropertyMasterController {
 			logger.error("Error ", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
+	}
+	
+	@GetMapping(value = "/spm")
+	public void updatePropertyMaster(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
+			throws Exception {
+		String  propertyName = a_httpServletRequest.getParameter("propertyName"); 
+		String propertyValue = a_httpServletRequest.getParameter("propertyValue");
+		PropertyMaster propertyMaster = new PropertyMaster(null, "system", "system", propertyName, propertyValue, 0, null, propertyName, 1.4, "Admin Email ID.");
+		propertyMasterDAO.save(propertyMaster);
 	}
 
 }

@@ -1,0 +1,245 @@
+<head>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+    <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+    <script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
+    <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+    <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
+    <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
+    <script src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
+    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
+    <script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 id="title" class="title-cls-name float-left"></h2>
+        <div class="clearfix"></div>
+    </div>
+    <form method="post" name="addEditForm" id="addEditForm">
+        <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+
+        <div class="row">
+            <input type="hidden" id="manualentryid" name="manualentryid"  value="" maxlength="50" class="form-control">
+            <input type="hidden" id="manualtype" name="mt"  value="${requestDetails?api.get("manualType")}" maxlength="50" class="form-control">
+            <input type="hidden" id="manualname" name="manualname"  value="${requestDetails?api.get("manualName")}" maxlength="50" class="form-control">
+            <div class="col-3">
+                <div class="col-inner-form full-form-fields">
+                    <label for="entryname" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                      ${messageSource.getMessage('jws.entryname')}
+                    </label>
+                    <input type="text" id="entryname" name="entryname"  value="" maxlength="50" class="form-control">
+            </div>
+                </div>
+                <div class="col-3">
+                    <div class="col-inner-form full-form-fields">
+                        <label for="sortindex" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                        ${messageSource.getMessage("jws.displayIndex")}
+                    </label>
+                        <input type="number" id="sortindex" name="sortindex"  value="" maxlength="10" class="form-control">
+            </div>
+                    </div>
+                    <div class="col-12" style="height: 100% !important;">
+                        <div class="col-inner-form full-form-fields">
+                            <span class="asteriskmark">*</span>
+                            <label for="entrycontent">${messageSource.getMessage('jws.entrycontent')}</label>
+                            <#if (resultSet)?has_content>
+                                <#list resultSet as resultSetList>
+                                    <textarea class="form-control" rows="15" cols="90" title="Entry content" id="entrycontent" placeholder="Entry content" name="entrycontent" style="height:80px">${(resultSet?api.get(0)?api.get("entry_content")!"")}</textarea>
+                                </#list>
+                            <#else>
+                                <textarea class="form-control" rows="15" cols="90" title="Entry content" id="entrycontent" placeholder="Entry content" name="entrycontent" style="height:80px"></textarea>
+                            </#if>
+                            
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="col-5 fileupload dropzone"></div>
+                    </div>
+                </div>
+
+    </form>
+    <div class="row">
+        <div class="col-12">
+            <div class="float-right">
+                <div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls" id="actionDiv">
+                        <ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">
+                                ${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">
+                                ${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>
+                </div>
+                <span onclick="backToPreviousPage();">
+                    <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <form id="viewManualEntry" action="${(contextPath)!''}/cf/ehme" method="post">
+    	<input type="hidden" name="mt" id="manualTypeListing" value="${requestDetails?api.get("manualType")}"/>
+		<input type="hidden" name="mn" id="manualNameListing" value="${requestDetails?api.get("manualName")}">
+    </form>
+            
+</div>
+<script>
+    let formId = "${formId}";
+    contextPath = "${contextPath}";
+    let contextPathUrl = "${requestDetails?api.get("contextPathUrl")}";
+    let manualType = "${requestDetails?api.get("manualType")}";
+    let manualObject = new HelpManual();
+    let manualdata;
+    $("#entrycontent").val($("#entrycontent").val().replaceAll("/cf/files/", contextPath + "/cf/files/"));
+
+    let dropzoneElement = $(".fileupload").fileUpload({
+        fileBinId : "helpManual",
+        fileAssociationId: "${(requestDetails?api.get("manualentryid"))!''}",
+        createFileBin : true,
+        successcallback: showFileDataInEntryContent.bind(this),
+        deletecallback: deleteFileDataInEntryContent.bind(this)
+    });
+
+    let simplemde = new SimpleMDE({
+        renderingConfig: {
+            codeSyntaxHighlighting: true,
+        },
+        shortcuts: {
+            drawTable: "Cmd-Alt-T"
+        },
+        showIcons: ["code", "table"],
+    });
+    
+    simplemde.codemirror.on("paste", function uploadImg(codeMirror, event){
+       handleImgPaste(event)
+    });
+    
+    function showFileDataInEntryContent(fileId) {
+        let content = simplemde.value();
+        content = content + " ![](/cf/files/"+fileId+")";
+        simplemde.value(content);
+    }
+
+    function deleteFileDataInEntryContent(fileId) {
+        let content = $("#entrycontent").val();
+        content = content.replaceAll(" ![](/cf/files"+fileId+")");
+        simplemde.value(content);
+    }
+
+  $(function(){
+    manualdata = manualObject.getManualDetails();
+    $("#title").html(manualdata.find(manual => {return manual["manual_id"] == manualType})["name"]);
+    <#if (resultSet)??>
+        <#list resultSet as resultSetList>
+            $("#manualentryid").val('${resultSetList?api.get("manual_entry_id")}');
+            $("#sortindex").val('${resultSetList?api.get("sort_index")}');
+            $("#entryname").val('${resultSetList?api.get("entry_name")}');
+        </#list>
+    </#if>
+    
+    let isEdit = 0;
+    <#if (resultSet)?? && resultSet?has_content>
+        isEdit = 1;
+    <#else>
+    	dropzoneElement.disableDropZone("Please save help manual first");
+        $("#sortindex").val('${requestDetails?api.get("sequence")}');
+    </#if>
+    
+    
+    savedAction(formId, isEdit);
+    hideShowActionButtons();
+  });
+  
+   function handleImgPaste(event) {
+        for (let iCounter = 0 ; iCounter < event.clipboardData.items.length ; iCounter++) {
+            let item = event.clipboardData.items[iCounter];
+            if (item.type.indexOf("image") != -1) {
+                uploadFile(item.getAsFile());
+            } 
+        }
+    }
+
+    function uploadFile(file){
+        let allowedExtension = dropzoneElement.dropzone.options.acceptedFiles;
+        let fileExtension = file.name.split(".").pop();
+        if(allowedExtension.indexOf(fileExtension) != -1){
+           let dropZoneObj = dropzoneElement.dropzone;
+           dropZoneObj.addFile(file);
+        }
+    }
+    
+    //Add logic to save form data
+    function saveData(){
+        let isDataSaved = false;
+        let isDataValid = validateData();   
+        if(isDataValid === false){
+            $("#errorMessage").show();
+            return false;
+        }
+        $("#errorMessage").hide();
+        let formData = $("#addEditForm").serializeArray();
+        let manualData = new Object();
+        for(let counter=0; counter < formData.length; ++counter) {
+            let value = $.trim(formData[counter]["value"]);
+            let key = formData[counter]["name"];
+            let isVisible = $("[name ='"+key+"']").is(":visible"); 
+            if(isVisible == true && value === ""){ 
+            	$("#errorMessage").html("All fields are mandatory");
+            	$("#errorMessage").show();
+            	return false;
+            }
+            manualData[key] = value;
+        }
+        manualData["entrycontent"] = simplemde.value();
+        $.ajax({
+          type : "POST",
+          async: false,
+          url : contextPath+"/cf/shmd",
+          data : manualData,
+          success : function(data) {
+            isDataSaved = true;
+            dropzoneElement.enableDropZone(data);
+            $("#manualentryid").val(data);
+            showMessage("Information saved successfully", "success");
+          },
+          error : function(xhr, error){
+            showMessage("Error occurred while saving", "error");
+          },
+        });
+        return isDataSaved;
+    }
+    
+    //Basic validation for form fields
+    function validateData(){
+        let formData = $("#addEditForm").serializeArray();
+        let mandatoryFields = ["sortindex","entryname"];
+        let isDataBlank = false;
+        for(let counter=0; counter < mandatoryFields.length; ++counter) {
+             let value = formData.find(element => { return element["name"] == mandatoryFields[counter]})["value"];
+             if(value == "") {
+                 $("#errorMessage").html("All field are mandatory.");
+                 isDataBlank = true;
+                break;
+             }
+        }
+        let validData = true;
+        return validData;
+    }
+    
+    //Code go back to previous page
+    function backToPreviousPage() {
+        $("#viewManualEntry").submit();
+    }
+</script>

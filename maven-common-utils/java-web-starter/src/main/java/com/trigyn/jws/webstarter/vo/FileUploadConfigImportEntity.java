@@ -2,8 +2,8 @@ package com.trigyn.jws.webstarter.vo;
 
 import java.util.List;
 
-import com.trigyn.jws.dynamicform.entities.FileUpload;
-import com.trigyn.jws.dynamicform.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.entities.FileUpload;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 
 public class FileUploadConfigImportEntity {
 

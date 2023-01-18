@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
@@ -37,6 +39,12 @@ public class JwsUserVO implements Serializable {
 	private int					failedAttempt			= 0;
 
 	private Date				lastPasswordUpdatedDate	= null;
+	
+	private String	oneTimePassword						= null;
+	
+	private Date	otpRequestedTime					= null;
+	
+	private String formData = null;
 
 	public String getUserId() {
 		return userId;
@@ -142,6 +150,30 @@ public class JwsUserVO implements Serializable {
 		this.lastPasswordUpdatedDate = lastPasswordUpdatedDate;
 	}
 
+	public String getFormData() {
+		return formData;
+	}
+
+	public void setFormData(String formData) {
+		this.formData = formData;
+	}
+	
+	public String getOneTimePassword() {
+		return oneTimePassword;
+	}
+
+	public void setOneTimePassword(String oneTimePassword) {
+		this.oneTimePassword = oneTimePassword;
+	}
+
+	public Date getOtpRequestedTime() {
+		return otpRequestedTime;
+	}
+
+	public void setOtpRequestedTime(Date otpRequestedTime) {
+		this.otpRequestedTime = otpRequestedTime;
+	}
+	
 	public JwsUser convertVOToEntity(JwsUserVO userData) {
 
 		JwsUser jwsUser = new JwsUser();
@@ -153,6 +185,8 @@ public class JwsUserVO implements Serializable {
 		jwsUser.setPassword(userData.getPassword());
 		jwsUser.setFailedAttempt(userData.getFailedAttempt());
 		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
+		jwsUser.setOneTimePassword(userData.getOneTimePassword());
+		jwsUser.setOtpRequestedTime(userData.getOtpRequestedTime());
 		return jwsUser;
 	}
 

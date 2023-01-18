@@ -1,0 +1,47 @@
+<emails>
+   <email>
+	   <header>
+	      <property name="">value here</property>
+	      <property name="">value here</property>
+	   </header>
+	   <sender>
+	      <name ></name>
+	      <mailid ></mailid>
+	   </sender>
+	   <recepients>
+	      <recepient type="to|cc|bcc">
+	         <name ></name>
+	         <mailid ></mailid>
+	      </recepient>
+	      <recepient type="to|cc|bcc">
+	         <name ></name>
+	         <mailid ></mailid>
+	      </recepient>
+	      <recepient type="to|cc|bcc">
+	         <name ></name>
+	         <mailid ></mailid>
+	      </recepient>
+	   </recepients>
+        <failedrecepients>
+	      <failedrecepient type="to">
+	         <name ></name>
+	         <mailid ></mailid>
+	      </failedrecepient>
+	     </failedrecepients>
+       <subject><!-- Mail subject to be included here --></subject>
+	   <body contenttype="text/html | text/plain" content="1|2|3">
+		<!-- if content = 1 then email body which doesnot require processing| 2 then template name to be included| 3 template content to be processed and included as body -->
+	   	<![CDATA[
+			<!-- Mail Body to be included here -->
+		]]>
+	   </body>
+	   <attachments>
+	      <attachment type="1|2|3" hasEmbeddedImage="imageName"> <!-- hasEmbeddedImageis optional -->
+	         <!-- 1=internal uploaded file;2=filesystem;3=uploaded file in this call -->
+	          <name ></name>
+	         <path></path>
+	         <!-- if type=1 then fileuploadid;else absolute file path,else the uploaded file -->
+	      </attachment>
+	   </attachments>
+   </email>
+</emails>

@@ -4,7 +4,8 @@ CREATE PROCEDURE moduleTargetType(targetLookupId INT(11), targetTypeId VARCHAR(5
 BEGIN
 
 IF NOT targetLookupId IS NULL THEN
-
+ 	SET @targetTypeId= REPLACE(targetTypeId,"'","''");
+ 	SET @targetLookupId= REPLACE(targetLookupId,"'","''");
   IF targetLookupId = 1 THEN 
     SET @targetQuery = " SELECT dashboard_id AS targetTypeId, dashboard_name AS targetTypeName FROM jq_dashboard WHERE is_deleted = 0";
   ELSEIF targetLookupId = 2 THEN 
@@ -13,6 +14,8 @@ IF NOT targetLookupId IS NULL THEN
     SET @targetQuery = " SELECT jws_dynamic_rest_id AS targetTypeId, jws_method_name AS targetTypeName FROM jq_dynamic_rest_details ";
   ELSEIF targetLookupId = 5 THEN 
     SET @targetQuery = " SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM jq_template_master  ";
+  ELSE
+    SET @targetQuery = " SELECT @targetTypeId AS targetTypeId, @targetLookupId AS targetTypeName  ";
   END IF;
   
 END IF;
@@ -39,6 +42,7 @@ END IF;
  EXECUTE stmt;
  DEALLOCATE PREPARE stmt;
 END;
+REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (7,'Target URL');
 
 REPLACE INTO jq_module_target_lookup (lookup_id,description) VALUES (6,'Root');
 

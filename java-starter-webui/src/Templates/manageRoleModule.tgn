@@ -1,0 +1,97 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="box-block">
+ 
+  <form method="post" name="addEditModule" id="addEditModule">
+    
+           
+          <#if roles ??>
+             <#assign roleIds = roles?map(role -> role?api.getRoleId())>
+           <table class="default-table-cls">
+              <tr> 
+                <th>${messageSource.getMessage('jws.modules')}</th>
+                  <#list roles as role>
+                  <th id="th_${role?api.getRoleId()}" class="toggleClass" style="display:none;">  ${role?api.getRoleName()} </th>
+                </#list>
+              </tr>
+             
+              
+                <#if masterModules ??>
+                  <#list masterModules as module>
+                    <tr>
+                    <td>${module?api.getModuleName()}</td>
+                    <#list roleIds as roleId>
+                      <td id="td_${roleId}" class="td_${roleId} toggleClass" style="display:none;">
+                            <div class="onoffswitch">
+                                 <input type="checkbox" onchange="saveModuleData(this);" name="isActiveCheckbox" class="onoffswitch-checkbox" id="${module?api.getModuleId()}_${roleId}" />
+                                <label class="onoffswitch-label" for="${module?api.getModuleId()}_${roleId}">
+                                    <span class="onoffswitch-inner"></span>
+                                    <span class="onoffswitch-switch"></span>
+                                 </label>
+                             </div> 
+                       
+                       </td>
+                    </#list>
+                    </tr>
+                  </#list>
+                </#if>
+              
+            </table> 
+          </#if>  
+         
+    
+  </form>
+
+<script>
+
+	contextPath = "${contextPath}";
+  
+  $(function(){
+    // setting value on edit.
+     <#if roleModulesAssociations ??>
+                  <#list roleModulesAssociations as roleModule>
+                    <#if roleModule?api.getIsActive() == 1>
+                      $("#${roleModule?api.getModuleId()}_${roleModule?api.getRoleId()}")
+                        .attr("roleModuleId","${roleModule?api.getRoleModuleId()}").attr("checked",true);
+                    <#else>  
+                        $("#${roleModule?api.getModuleId()}_${roleModule?api.getRoleId()}")
+                        .attr("roleModuleId","${roleModule?api.getRoleModuleId()}").attr("checked",false);
+                     </#if> 
+                  </#list>
+      </#if> 
+    
+  });
+  
+	//Add logic to save form data
+	function saveModuleData (thisObj){
+
+	  let roleModule = new Object();
+	  var roleModuleArray = thisObj.id.split("_")
+	  roleModule.roleModuleId = thisObj.getAttribute("roleModuleId");
+	  roleModule.moduleId = roleModuleArray[0];
+	  roleModule.roleId = roleModuleArray[1];
+	  roleModule.isActive = ($(thisObj).is(":checked") ? 1 : 0);
+
+		$.ajax({
+		     		type : "POST",
+           			contentType : "application/json",
+		     		url : contextPath+"/cf/srm",
+		     		data : JSON.stringify(roleModule),
+		            success: function(data) {
+		            }
+		     	});
+	}
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		location.href = contextPath+"/cf/um";
+	}
+</script>

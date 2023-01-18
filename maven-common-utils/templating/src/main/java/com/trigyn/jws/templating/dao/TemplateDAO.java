@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.templating.entities.TemplateMaster;
@@ -21,7 +22,9 @@ public class TemplateDAO extends DBConnection {
 	}
 
 	public TemplateMaster findTemplateById(String templateId) {
-		return hibernateTemplate.get(TemplateMaster.class, templateId);
+		TemplateMaster template =  hibernateTemplate.get(TemplateMaster.class, templateId);
+		if(template != null) getCurrentSession().evict(template);
+		return template;
 	}
 
 	public Map<String, Object> getVelocityDataById(String vmMasterId) throws Exception {
@@ -37,9 +40,15 @@ public class TemplateDAO extends DBConnection {
 		String data = (String) query.uniqueResult();
 		return data;
 	}
-
+	
+	@Transactional(readOnly = false)
 	public void saveVelocityTemplateData(TemplateMaster templateDetails) throws Exception {
 		getCurrentSession().saveOrUpdate(templateDetails);
+	}
+	
+	@Transactional(readOnly = false)
+	public void saveTemplateData(TemplateMaster templateDetails) throws Exception {
+		getCurrentSession().save(templateDetails);
 	}
 
 	public void updateChecksum(TemplateVO templateVO) {
@@ -57,7 +66,7 @@ public class TemplateDAO extends DBConnection {
 	}
 
 	public Long getTemplateCount(String templateId) {
-		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
+ 		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM TemplateMaster AS d WHERE d.templateId = :templateId");
 		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
 		query.setParameter("templateId", templateId);
 		return (Long) query.uniqueResult();

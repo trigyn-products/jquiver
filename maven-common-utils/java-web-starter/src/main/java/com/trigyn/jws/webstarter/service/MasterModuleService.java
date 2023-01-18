@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,12 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.service.DashletService;
 import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
@@ -30,6 +35,8 @@ import com.trigyn.jws.webstarter.utils.Constant;
 @Service
 @Transactional
 public class MasterModuleService {
+
+	private final static Logger			logger						= LogManager.getLogger(MasterModuleService.class);
 
 	@Autowired
 	private ModuleService				moduleService				= null;
@@ -49,6 +56,9 @@ public class MasterModuleService {
 	@Autowired
 	private JwsMasterModulesRepository	jwsMasterModulesRepository	= null;
 
+	@Autowired
+	private SessionLocaleResolver		sessionLocaleResolver		= null;
+
 	public List<JwsMasterModules> getModules() {
 
 		List<JwsMasterModules> masterModules = new ArrayList<>();
@@ -58,27 +68,69 @@ public class MasterModuleService {
 	}
 
 	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl,
-			HttpServletResponse httpServletResponse) throws Exception {
-		StringBuilder queryString = new StringBuilder();
-		if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
-			queryString.append("?").append(httpServletRequest.getQueryString());
+			HttpServletResponse httpServletResponse) {
+		try {
+			StringBuilder queryString = new StringBuilder();
+			if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
+				queryString.append("?").append(httpServletRequest.getQueryString());
+			}
+			if ("".equals(moduleUrl)) {
+				return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+			}
+			Map<String, Object> moduleDetailsMap = getModuleDetails(moduleUrl, httpServletRequest);
+			if (CollectionUtils.isEmpty(moduleDetailsMap) == true) {
+				StringBuilder moduleUrlWithParam = new StringBuilder(moduleUrl).append(queryString);
+				moduleDetailsMap = moduleService.getModuleTargetByURL(moduleUrlWithParam.toString());
+			}
+
+			Map<String, String> requestMap = new HashMap<String, String>();
+			if (moduleDetailsMap != null && moduleDetailsMap.containsKey("requestParamJson")
+					&& moduleDetailsMap.get("requestParamJson") != null) {
+				String	requestParam	= String.valueOf(moduleDetailsMap.get("requestParamJson"));
+
+				Gson	g				= new Gson();
+				if (requestParam != null && requestParam.isEmpty() == false) {
+					Map<String, String> requestBodyMap = g.fromJson(requestParam.toString(), Map.class);
+					if (requestBodyMap != null && requestBodyMap.isEmpty() == false) {
+						for (Entry<String, String> entry : requestBodyMap.entrySet()) {
+							requestMap.put(entry.getKey(), entry.getValue());
+						}
+					}
+				}
+			}
+			String template = renderTemplate(httpServletRequest, moduleDetailsMap, requestMap, httpServletResponse);
+			;
+			if (template != null && CollectionUtils.isEmpty(moduleDetailsMap) == false
+					&& StringUtils.isBlank((String) moduleDetailsMap.get("headerJson")) == false) {
+				Gson				gson			= new Gson();
+				Map<String, String>	headerConfig	= gson.fromJson(moduleDetailsMap.get("headerJson").toString(),
+						Map.class);
+				headerConfig.forEach((key, value) -> {
+					if ("Content-Language".equals(key) == false) {
+						httpServletResponse.setHeader(key, value);
+					}
+				});
+				String localeId = sessionLocaleResolver.resolveLocale(httpServletRequest).toString();
+				httpServletResponse.setHeader("Content-Language", localeId);
+
+				if (StringUtils.isBlank(httpServletResponse.getContentType()) == false) {
+					httpServletResponse.flushBuffer();
+				}
+
+			}
+			return template;
+		} catch (Exception a_exc) {
+			logger.error("Error while loading master module ", a_exc);
+			throw new RuntimeException(a_exc.getMessage());
 		}
-		if ("".equals(moduleUrl)) {
-			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
-		}
-		Map<String, Object> moduleDetailsMap = getModuleDetails(moduleUrl, httpServletRequest);
-		if (CollectionUtils.isEmpty(moduleDetailsMap) == true) {
-			StringBuilder moduleUrlWithParam = new StringBuilder(moduleUrl).append(queryString);
-			moduleDetailsMap = moduleService.getModuleTargetByURL(moduleUrlWithParam.toString());
-		}
-		return renderTemplate(httpServletRequest, moduleDetailsMap, httpServletResponse);
 	}
 
 	public String renderTemplate(HttpServletRequest httpServletRequest, Map<String, Object> moduleDetailsMap,
-			HttpServletResponse httpServletResponse) throws Exception {
+			Map<String, String> requestMap, HttpServletResponse httpServletResponse) throws Exception {
 		if (CollectionUtils.isEmpty(moduleDetailsMap) == false) {
-			Map<String, Object>	parameterMap		= validateAndProcessRequestParams(httpServletRequest);
-			List<String>		pathVariableList	= getPathVariables(httpServletRequest);
+			Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
+			parameterMap.putAll(requestMap);
+			List<String> pathVariableList = getPathVariables(httpServletRequest);
 			if (CollectionUtils.isEmpty(pathVariableList) == false) {
 				pathVariableList.remove(0);
 			}
@@ -87,6 +139,7 @@ public class MasterModuleService {
 			String	templateName	= moduleDetailsMap.get("targetTypeName").toString();
 			String	targetTypeId	= moduleDetailsMap.get("targetTypeId").toString();
 			Integer	includeLayout	= Integer.parseInt(moduleDetailsMap.get("includeLayout").toString());
+
 			if (targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
 				if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
 					return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
@@ -98,7 +151,7 @@ public class MasterModuleService {
 				String				userId		= detailsVO.getUserId();
 				List<String>		roleIdList	= detailsVO.getRoleIdList();
 				templateMap.put("templateName", templateName);
-				String template = dashletService.getDashletUI(userId, false, targetTypeId, roleIdList, false);
+				String template = dashletService.getDashletUI(userId, false, targetTypeId, roleIdList, false, httpServletRequest, httpServletResponse);
 				if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
 					return menuService.getDashletWithLayout(template, templateMap);
 				}
@@ -111,11 +164,12 @@ public class MasterModuleService {
 				return template;
 			}
 		}
+
 		httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
 		return null;
 	}
 
-	private Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {
+	public Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {
 		Map<String, Object> requestParams = new HashMap<>();
 		for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
 			requestParams.put(requestParamKey, httpServletRequest.getParameter(requestParamKey));
@@ -123,11 +177,12 @@ public class MasterModuleService {
 		return requestParams;
 	}
 
-	private Map<String, Object> getModuleDetails(String requestUrl, HttpServletRequest httpServletRequest)
+	public Map<String, Object> getModuleDetails(String requestUrl, HttpServletRequest httpServletRequest)
 			throws Exception {
 		Map<String, Object>			moduleDetailsMap	= new HashMap<>();
 
 		StringBuilder				moduleUrl			= new StringBuilder();
+		StringBuilder				fixedModuleUrl		= new StringBuilder();
 		List<String>				pathVariableList	= getPathVariables(httpServletRequest);
 
 		List<Map<String, Object>>	moduleDetailsList	= moduleService.getModuleTargetTypeURL(requestUrl);
@@ -136,12 +191,16 @@ public class MasterModuleService {
 			if (CollectionUtils.isEmpty(moduleDetailsList) == false) {
 				if (StringUtils.isBlank(moduleUrl) == false) {
 					moduleUrl.append("/");
+					fixedModuleUrl.append("/");
 				}
 				moduleUrl.append(pathVariable);
+				fixedModuleUrl.append(pathVariable);
 				moduleUrl.append("/**");
+
 				for (Map<String, Object> moduleDetailsMapDB : moduleDetailsList) {
 					String moduleUrlDB = (String) moduleDetailsMapDB.get("moduleUrl");
-					if (StringUtils.isBlank(moduleUrlDB) == false && moduleUrlDB.equals(moduleUrl.toString())) {
+					if (StringUtils.isBlank(moduleUrlDB) == false && (moduleUrlDB.equals(moduleUrl.toString())
+							|| moduleUrlDB.equals(fixedModuleUrl.toString()))) {
 						moduleDetailsMap.putAll(moduleDetailsMapDB);
 						break;
 					}
@@ -161,7 +220,7 @@ public class MasterModuleService {
 		return moduleDetailsMap;
 	}
 
-	private List<String> getPathVariables(HttpServletRequest httpServletRequest) {
+	public List<String> getPathVariables(HttpServletRequest httpServletRequest) {
 		List<String>	pathVariableList	= new ArrayList<>();
 		String			moduleUrl			= httpServletRequest.getRequestURI()
 				.substring(httpServletRequest.getContextPath().length());
@@ -174,4 +233,5 @@ public class MasterModuleService {
 		}
 		return pathVariableList;
 	}
+
 }

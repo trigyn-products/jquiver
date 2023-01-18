@@ -1,0 +1,1 @@
+ALTER TABLE jq_generic_user_notification ADD COLUMN `datasource_id` VARCHAR(50) NULL ;

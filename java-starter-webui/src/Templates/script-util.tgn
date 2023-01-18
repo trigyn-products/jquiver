@@ -1,0 +1,150 @@
+
+var jq_scriptUtilClass = Java.type('com.trigyn.jws.dynarest.cipher.utils.ScriptUtil');
+var jq_scriptUtilObject = new jq_scriptUtilClass();
+
+function jq_getSystemProperty(a_propertyName){
+	return jq_scriptUtilObject.getSystemProperty(a_propertyName);
+}
+
+function jq_getSystemEnvironment(a_propertyName){
+	return jq_scriptUtilObject.getSystemEnvironment(a_propertyName);
+}
+
+function jq_updateCookies(a_strKey, a_strValue){
+	return jq_scriptUtilObject.updateCookies(a_strKey, a_strValue);
+}
+
+function jq_updateCookies(a_strKey, a_strValue, maxAge){
+	return jq_scriptUtilObject.updateCookies(a_strKey, a_strValue, maxAge);
+}
+
+function jq_updateCookies(a_strKey, a_strValue, httpOnly){
+	return jq_scriptUtilObject.updateCookies(a_strKey, a_strValue, httpOnly);
+}
+
+function jq_updateCookies(a_strKey, a_strValue, maxAge, httpOnly){
+	return jq_scriptUtilObject.updateCookies(a_strKey, a_strValue, maxAge, httpOnly);
+}
+
+function jq_updateCookieSecurity(a_strKey, isSecured){
+	return jq_scriptUtilObject.updateCookieSecurity(a_strKey, isSecured);
+}
+	
+function jq_getCookiesFromRequest(a_strKey){
+	return jq_scriptUtilObject.getCookiesFromRequest(a_strKey);
+}
+	
+function jq_haveCookie(a_strKey){
+	return jq_scriptUtilObject.haveCookie(a_strKey);
+}
+	
+function jq_deleteCookie(a_strKey){
+	return jq_scriptUtilObject.deleteCookie(a_strKey);
+}
+	
+function jq_updateSession(a_strKey, a_strValue){
+	return jq_scriptUtilObject.updateSession(a_strKey, a_strValue);
+}
+	
+function jq_getValueFromSession(a_strKey){
+	return jq_scriptUtilObject.getValueFromSession(a_strKey);
+}
+	
+function jq_haveSessionKey(a_strKey){
+	return jq_scriptUtilObject.haveSessionKey(a_strKey);
+}
+	
+function jq_deleteSessionKey(a_strKey){
+	return jq_scriptUtilObject.deleteSessionKey(a_strKey);
+}
+	
+function jq_getCreationTime(){
+	return jq_scriptUtilObject.getCreationTime();
+}
+	
+function jq_getLastAccessedTime(){
+	return jq_scriptUtilObject.getLastAccessedTime();
+}
+		
+function jq_getAllFiles(a_filePath){
+	return jq_scriptUtilObject.getAllFiles(a_filePath);
+}
+	
+function jq_deleteFile(a_filePath){
+	return jq_scriptUtilObject.deleteFile(a_filePath);
+}
+	
+function jq_saveFile(a_strFileContent, a_strTargetFileName){
+	return jq_scriptUtilObject.saveFile(a_strFileContent, a_strTargetFileName);
+}
+
+function saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID){
+	return jq_scriptUtilObject.saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID);
+}
+
+function jq_saveFileBin(a_strFileContent, a_strTargetFileName, a_strFileBinID, a_strcontextID){
+	return jq_scriptUtilObject.saveFileBin(a_strFileContent, a_strTargetFileName, a_strFileBinID, a_strcontextID);
+}
+
+function jq_getFileContent(a_strAbsolutePath){
+	return jq_scriptUtilObject.getFileContent(a_strAbsolutePath);
+}
+
+function jq_getFileBinContent(a_strfileUploadID){
+	return jq_scriptUtilObject.getFileBinContent(a_strfileUploadID);
+}
+
+function jq_copyFile(sourceFilePath, destinationFilePath) {
+	return jq_scriptUtilObject.copyFile(sourceFilePath, destinationFilePath);
+}
+
+function jq_copyFile(sourceFilePath, destinationFilePath, a_strTargetFileName) {
+	return jq_scriptUtilObject.copyFile(sourceFilePath, destinationFilePath, a_strTargetFileName);
+}
+
+function jq_copyFileBinId(a_strfileUploadID, destinationFilePath) {
+	return jq_scriptUtilObject.jq_copyFileBinId(a_strfileUploadID, destinationFilePath);
+}
+
+function jq_getDBResult(a_strQuery, a_strdataSourceID, a_requestParams){
+	return jq_scriptUtilObject.getDBResult(a_strQuery, a_strdataSourceID, a_requestParams);
+}
+
+function jq_callStoredProcedure(a_strQuery, a_strdataSourceID, a_requestParams){
+	return jq_scriptUtilObject.callStoredProcedure(a_strQuery, a_strdataSourceID, a_requestParams);
+}
+
+function jq_updateDBQuery(a_strQuery, a_strdataSourceID, a_requestParams){
+	return jq_scriptUtilObject.updateDBQuery(a_strQuery, a_strdataSourceID, a_requestParams);
+}
+
+function jq_executeRESTCall(a_strRestXML){
+	return jq_scriptUtilObject.executeRESTCall(a_strRestXML);
+}
+
+function jq_sendMail(a_strMailXML){
+	return jq_scriptUtilObject.sendMail(a_strMailXML);
+}
+
+function jq_evalTemplateByName(a_strTemplateName, a_requestParams){
+	return jq_scriptUtilObject.evalTemplateByName(a_strTemplateName, a_requestParams);
+}
+
+function jq_evalTemplateByContent(a_strTemplateContent, a_requestParams){
+	return jq_scriptUtilObject.evalTemplateByContent(a_strTemplateContent, a_requestParams);
+}
+
+function jq_convertToPDFFromTemplate(a_strTemplateName, a_contextValues, a_strImageFolder){
+	return jq_scriptUtilObject.convertToPDFFromTemplate(a_strTemplateName, a_contextValues, a_strImageFolder);
+}
+
+function jq_convertToPDFFromString(a_strSourceBody, a_strImageFolder){
+	return jq_scriptUtilObject.convertToPDFFromString(a_strSourceBody, a_strImageFolder);
+}
+
+function jq_logActivity(a_requestParams){
+	return jq_scriptUtilObject.logActivity(a_requestParams);
+}
+function jq_addNotifications(a_requestParams){
+	return jq_scriptUtilObject.addNotification(a_requestParams);
+}

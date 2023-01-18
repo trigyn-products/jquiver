@@ -1,8 +1,10 @@
 package com.trigyn.jws.dynarest.cipher.utils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
@@ -37,8 +39,8 @@ public class HttpServletRequestWritableWrapper extends HttpServletRequestWrapper
 	@Override
 	public ServletInputStream getInputStream() throws UnsupportedEncodingException {
 		return new ServletInputStream() {
-			private InputStream in = new ByteArrayInputStream(
-					modifyRequestBody.getBytes(orginalRequest.getCharacterEncoding()));
+			private InputStream in = new ByteArrayInputStream((orginalRequest.getCharacterEncoding() != null) ? 
+					modifyRequestBody.getBytes(orginalRequest.getCharacterEncoding()) : modifyRequestBody.getBytes());
 
 			@Override
 			public int read() throws IOException {
@@ -113,5 +115,14 @@ public class HttpServletRequestWritableWrapper extends HttpServletRequestWrapper
 			};
 		}
 		return super.getHeaders(name);
+	}
+	
+	 public BufferedReader getReader() throws IOException {
+		 return new BufferedReader(new InputStreamReader(this.getInputStream()));
+		 
+	 }
+
+	public String getModifyRequestBody() {
+		return modifyRequestBody;
 	}
 }

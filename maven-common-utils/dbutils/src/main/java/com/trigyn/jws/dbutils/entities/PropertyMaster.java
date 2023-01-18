@@ -54,8 +54,12 @@ public class PropertyMaster implements Serializable {
 	@Column(name = "comments")
 	private String				comments			= null;
 
-	public PropertyMaster(String propertyMasterId, String ownerType, String ownerId, String propertyName, String propertyValue,
-			Integer isDeleted, Date lastModifiedDate, String modifiedBy, Double appVersion, String comments) {
+	@Column(name = "is_custom_updated")
+	private Integer				isCustomUpdated		= 1;
+
+	public PropertyMaster(String propertyMasterId, String ownerType, String ownerId, String propertyName,
+			String propertyValue, Integer isDeleted, Date lastModifiedDate, String modifiedBy, Double appVersion,
+			String comments) {
 		this.propertyMasterId	= propertyMasterId;
 		this.ownerType			= ownerType;
 		this.ownerId			= ownerId;
@@ -152,10 +156,18 @@ public class PropertyMaster implements Serializable {
 		this.comments = comments;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(appVersion, comments, isDeleted, lastModifiedDate, modifiedBy, ownerId, ownerType, propertyMasterId,
-				propertyName, propertyValue);
+		return Objects.hash(appVersion, comments, isDeleted, lastModifiedDate, modifiedBy, ownerId, ownerType,
+				propertyMasterId, propertyName, propertyValue);
 	}
 
 	@Override
@@ -171,17 +183,21 @@ public class PropertyMaster implements Serializable {
 		}
 		PropertyMaster other = (PropertyMaster) obj;
 		return Objects.equals(appVersion, other.appVersion) && Objects.equals(comments, other.comments)
-				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(lastModifiedDate, other.lastModifiedDate)
+				&& Objects.equals(isDeleted, other.isDeleted)
+				&& Objects.equals(lastModifiedDate, other.lastModifiedDate)
 				&& Objects.equals(modifiedBy, other.modifiedBy) && Objects.equals(ownerId, other.ownerId)
-				&& Objects.equals(ownerType, other.ownerType) && Objects.equals(propertyMasterId, other.propertyMasterId)
-				&& Objects.equals(propertyName, other.propertyName) && Objects.equals(propertyValue, other.propertyValue);
+				&& Objects.equals(ownerType, other.ownerType)
+				&& Objects.equals(propertyMasterId, other.propertyMasterId)
+				&& Objects.equals(propertyName, other.propertyName)
+				&& Objects.equals(propertyValue, other.propertyValue);
 	}
 
 	@Override
 	public String toString() {
-		return "PropertyMaster [propertyMasterId=" + propertyMasterId + ", ownerType=" + ownerType + ", ownerId=" + ownerId
-				+ ", propertyName=" + propertyName + ", propertyValue=" + propertyValue + ", isDeleted=" + isDeleted + ", lastModifiedDate="
-				+ lastModifiedDate + ", modifiedBy=" + modifiedBy + ", appVersion=" + appVersion + ", comments=" + comments + "]";
+		return "PropertyMaster [propertyMasterId=" + propertyMasterId + ", ownerType=" + ownerType + ", ownerId="
+				+ ownerId + ", propertyName=" + propertyName + ", propertyValue=" + propertyValue + ", isDeleted="
+				+ isDeleted + ", lastModifiedDate=" + lastModifiedDate + ", modifiedBy=" + modifiedBy + ", appVersion="
+				+ appVersion + ", comments=" + comments + "]";
 	}
 
 	public PropertyMaster getObject() {

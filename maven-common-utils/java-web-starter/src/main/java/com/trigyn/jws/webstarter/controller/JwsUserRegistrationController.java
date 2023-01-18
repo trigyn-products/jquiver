@@ -17,25 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dynarest.service.SendMailService;
+import com.trigyn.jws.dynarest.vo.Email;
+import com.trigyn.jws.dynarest.vo.EmailAttachedFile;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
@@ -51,17 +38,34 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
 import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
-import com.trigyn.jws.usermanagement.security.config.oauth.OAuthDetails;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
-import com.trigyn.jws.webstarter.service.SendMailService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
-import com.trigyn.jws.webstarter.utils.Email;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 @RequestMapping("/cf")
 public class JwsUserRegistrationController {
+
+	private final static Logger			logger						= LogManager.getLogger(JwsUserRegistrationController.class);
 
 	@Autowired
 	private JwsUserRepository					userRepository					= null;
@@ -100,23 +104,20 @@ public class JwsUserRegistrationController {
 	private JwsUserRoleAssociationRepository	userRoleRepository				= null;
 
 	@Autowired
-	private OAuthDetails						oAuthDetails					= null;
-
-	@Autowired
 	private PropertyMasterService				propertyMasterService			= null;
 
 	@Autowired
 	private ServletContext						servletContext					= null;
 
 	@Autowired
-	private IUserDetailsService			userDetails					= null;
+	private IUserDetailsService					userDetails						= null;
 
 	@GetMapping("/login")
 	@ResponseBody
 	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
 
-		UserDetailsVO	userDetailsVO		= userDetails.getUserDetails();
-		if(userDetailsVO != null && !userDetailsVO.getUserName().equalsIgnoreCase("anonymous")) {
+		UserDetailsVO userDetailsVO = userDetails.getUserDetails();
+		if (userDetailsVO != null && !userDetailsVO.getUserName().equalsIgnoreCase("anonymous")) {
 			response.sendRedirect(servletContext.getContextPath() + "/cf/home");
 			return null;
 		} else {
@@ -139,17 +140,7 @@ public class JwsUserRegistrationController {
 				}
 				session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
 			}
-			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-				mapDetails.put("authenticationType", applicationSecurityDetails.getAuthenticationType());
-				if (Integer.parseInt(applicationSecurityDetails.getAuthenticationType()) == Constants.AuthType.OAUTH.getAuthType()
-						&& oAuthDetails != null) {
-					mapDetails.put("client", oAuthDetails.getOAuthClient());
-				}
-				userConfigService.getConfigurableDetails(mapDetails);
-			} else {
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-				return null;
-			}
+			userConfigService.getConfigurableDetails(mapDetails);
 			TemplateVO templateVO = templatingService.getTemplateByName("jws-login");
 			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 		}
@@ -161,17 +152,10 @@ public class JwsUserRegistrationController {
 		Map<String, Object>	mapDetails						= new HashMap<>();
 		String				enableRegistrationPropertyName	= "enableRegistration";
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			Integer					authType			= Integer.parseInt(applicationSecurityDetails.getAuthenticationType());
-			JwsAuthenticationType	authenticationType	= authenticationTypeRepository.findById(authType)
-					.orElseThrow(() -> new Exception("No auth type found with id : " + authType));
-			JSONArray				jsonArray			= new JSONArray(authenticationType.getAuthenticationProperties());
-
-			JSONObject				jsonObject			= null;
-			jsonObject = getJsonObjectFromPropertyValue(jsonObject, jsonArray, enableRegistrationPropertyName);
-			if (jsonObject != null && jsonObject.getString("value").equalsIgnoreCase("false")) {
+			userConfigService.getConfigurableDetails(mapDetails);
+			if (mapDetails.get(enableRegistrationPropertyName)!=null && mapDetails.get(enableRegistrationPropertyName).toString().equalsIgnoreCase("false")) {
 				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			}
-			userConfigService.getConfigurableDetails(mapDetails);
 		} else {
 			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;
@@ -235,7 +219,9 @@ public class JwsUserRegistrationController {
 					String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
 							subjectTemplateVO.getTemplateName(), mailDetails);
 					email.setSubject(subject);
-
+					/*For inserting notification in case of mail failure only on access of Admin*/
+					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+					email.setLoggedInUserRole(userDetails.getUserDetails().getRoleIdList());
 					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
 					mailDetails.put("baseURL", baseURL);
 
@@ -288,7 +274,9 @@ public class JwsUserRegistrationController {
 				Email email = new Email();
 				email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
 				email.setSubject("TOTP Login");
-				email.setMailFrom("admin@jquiver.com");
+				String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system", "adminEmailId");
+				String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io" : propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+				email.setMailFrom(InternetAddress.parse(adminEmail));
 				Map<String, Object>	mailDetails	= new HashMap<>();
 				TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
 				String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
@@ -296,14 +284,15 @@ public class JwsUserRegistrationController {
 				email.setBody(mailBody);
 				System.out.println(mailBody);
 
-				List<File> attachedFiles = new ArrayList<>();
-				attachedFiles.add(file);
-				email.setAttachementsArray(attachedFiles);
+				List<EmailAttachedFile> attachedFiles = new ArrayList<>();
+				EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
+				emailAttachedFile.setFile(file);
+				attachedFiles.add(emailAttachedFile);
 				viewName = "jws-successfulRegisteration";
 
 				CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
 				if (mailSuccess.isDone()) {
-					email.getAttachementsArray().stream().forEach(f -> f.delete());
+					email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
 				}
 
 			}
@@ -384,6 +373,20 @@ public class JwsUserRegistrationController {
 		OutputStream outputStream = response.getOutputStream();
 		CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream);
 		outputStream.close();
+	}
+
+	@GetMapping(value = "/profile")
+	public String profilePage(HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			return userManagementService.getProfilePage();
+		} catch (Exception a_exception) {
+			logger.error("Error ", a_exception);
+			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+				return null;
+			}
+			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			return null;
+		}
 	}
 
 }

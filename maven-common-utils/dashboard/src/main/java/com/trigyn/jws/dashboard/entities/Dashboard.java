@@ -62,6 +62,9 @@ public class Dashboard implements Serializable {
 	@Column(name = "is_exportable")
 	private Integer								isExportable				= 0;
 
+	@Column(name = "is_custom_updated")
+	private Integer								isCustomUpdated				= 1;
+
 	@OneToMany(mappedBy = "dashboard", fetch = FetchType.EAGER)
 	private List<DashboardRoleAssociation>		dashboardRoles				= new ArrayList<>();
 
@@ -75,8 +78,9 @@ public class Dashboard implements Serializable {
 
 	}
 
-	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType, String createdBy, Date createdDate,
-			Date lastUpdatedTs, Integer isDeleted, Integer isDraggable, Integer isExportable, List<DashboardRoleAssociation> dashboardRoles,
+	public Dashboard(String dashboardId, String dashboardName, String contextId, Integer dashboardType,
+			String createdBy, Date createdDate, Date lastUpdatedTs, Integer isDeleted, Integer isDraggable,
+			Integer isExportable, List<DashboardRoleAssociation> dashboardRoles,
 			List<DashboardDashletAssociation> dashboardDashlets) {
 		this.dashboardId		= dashboardId;
 		this.dashboardName		= dashboardName;
@@ -196,6 +200,14 @@ public class Dashboard implements Serializable {
 		this.dashboardRoleAssociations = dashboardRoleAssociations;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public Dashboard dashboardId(String dashboardId) {
 		this.dashboardId = dashboardId;
 		return this;
@@ -208,8 +220,9 @@ public class Dashboard implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(contextId, createdBy, createdDate, dashboardDashlets, dashboardId, dashboardName, dashboardRoleAssociations,
-				dashboardRoles, dashboardType, isDeleted, isDraggable, isExportable, lastUpdatedTs);
+		return Objects.hash(contextId, createdBy, createdDate, dashboardDashlets, dashboardId, dashboardName,
+				dashboardRoleAssociations, dashboardRoles, dashboardType, isDeleted, isDraggable, isExportable,
+				lastUpdatedTs);
 	}
 
 	@Override
@@ -225,22 +238,25 @@ public class Dashboard implements Serializable {
 		}
 		Dashboard other = (Dashboard) obj;
 		return Objects.equals(contextId, other.contextId) && Objects.equals(createdBy, other.createdBy)
-				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(dashboardDashlets, other.dashboardDashlets)
+				&& Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(dashboardDashlets, other.dashboardDashlets)
 				&& Objects.equals(dashboardId, other.dashboardId) && Objects.equals(dashboardName, other.dashboardName)
 				&& Objects.equals(dashboardRoleAssociations, other.dashboardRoleAssociations)
-				&& Objects.equals(dashboardRoles, other.dashboardRoles) && Objects.equals(dashboardType, other.dashboardType)
-				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(isDraggable, other.isDraggable)
-				&& Objects.equals(isExportable, other.isExportable) && Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
+				&& Objects.equals(dashboardRoles, other.dashboardRoles)
+				&& Objects.equals(dashboardType, other.dashboardType) && Objects.equals(isDeleted, other.isDeleted)
+				&& Objects.equals(isDraggable, other.isDraggable) && Objects.equals(isExportable, other.isExportable)
+				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs);
 	}
 
 	@Override
 	public String toString() {
-		return "{" + " dashboardId='" + getDashboardId() + "'" + ", dashboardName='" + getDashboardName() + "'" + ", contextId='"
-				+ getContextId() + "'" + ", dashboardType='" + getDashboardType() + "'" + ", createdBy='" + getCreatedBy() + "'"
-				+ ", createdDate='" + getCreatedDate() + "'" + ", lastUpdatedTs='" + getLastUpdatedTs() + "'" + ", isDeleted='"
-				+ getIsDeleted() + "'" + ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
-				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets() + "'"
-				+ ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
+		return "{" + " dashboardId='" + getDashboardId() + "'" + ", dashboardName='" + getDashboardName() + "'"
+				+ ", contextId='" + getContextId() + "'" + ", dashboardType='" + getDashboardType() + "'"
+				+ ", createdBy='" + getCreatedBy() + "'" + ", createdDate='" + getCreatedDate() + "'"
+				+ ", lastUpdatedTs='" + getLastUpdatedTs() + "'" + ", isDeleted='" + getIsDeleted() + "'"
+				+ ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
+				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets()
+				+ "'" + ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
 	}
 
 	public Dashboard getObject() {

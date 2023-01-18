@@ -1,0 +1,1 @@
+ALTER TABLE jq_module_listing ADD COLUMN header_json mediumtext DEFAULT NULL;

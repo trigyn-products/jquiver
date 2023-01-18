@@ -1,0 +1,5 @@
+SELECT me.manual_entry_id, manual_type, entry_name, entry_content, sort_index, GROUP_CONCAT(mefa.file_upload_id) as fileIds FROM jq_manual_entry as me 
+left outer join jq_manual_entry_file_association as mefa
+on me.manual_entry_id = mefa.manual_entry_id
+WHERE me.manual_entry_id = "${manualentryid}"
+group by me.manual_entry_id

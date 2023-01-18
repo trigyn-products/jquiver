@@ -328,10 +328,10 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 										public boolean accept(File current, String name) {
 											if (!StringUtils.isBlank(uploadFileName)) {
 												if (name.equalsIgnoreCase(uploadFileName)) {
-													return new File(current, name).isDirectory();
+													return current.isDirectory();
 												}
 											} else {
-												return new File(current, name).isDirectory();
+												return current.isDirectory();
 											}
 											return false;
 										}

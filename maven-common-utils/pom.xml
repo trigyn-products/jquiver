@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.3.RELEASE</version>
+		<version>2.3.12.RELEASE</version>
 	</parent>
 	<groupId>com.trigyn</groupId>
 	<artifactId>commonutils</artifactId>
-	<version>1.4.4-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>JQuiver</name>
 	<description>Common utils</description>
@@ -46,6 +46,13 @@
 			<organizationUrl>https://trigyn.com</organizationUrl>
 			<timezone>UTC+05:30</timezone>
 		</developer>
+		<developer>
+			<name>Abhay Desai</name>
+			<email>abcoll786@gmail.com</email>
+			<organization>Trigyn</organization>
+			<organizationUrl>https://trigyn.com</organizationUrl>
+			<timezone>UTC+05:30</timezone>
+		</developer>
 	</developers>
 
 	<scm>
@@ -65,11 +72,9 @@
 	<modules>
 		<module>dbutils</module>
 		<module>usermanagement</module>
-		<module>security-management</module>
 		<module>resourcebundle</module>
 		<module>templating</module>
 		<module>gridutils</module>
-		<module>notification</module>
 		<module>dashboard</module>
 		<module>typeahead</module>
 		<module>dynamic-form</module>

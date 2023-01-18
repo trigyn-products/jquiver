@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.repository.DBConnection;
@@ -24,7 +25,6 @@ import com.trigyn.jws.dbutils.utils.DBExtractor;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
-import com.trigyn.jws.dynamicform.utils.Constant;
 
 @Repository
 public class DynamicFormCrudDAO extends DBConnection {
@@ -44,7 +44,16 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public DynamicForm findDynamicFormById(String formId) {
-		return hibernateTemplate.get(DynamicForm.class, formId);
+		DynamicForm dynamicForm =  hibernateTemplate.get(DynamicForm.class, formId);
+		return dynamicForm;
+	
+	}
+
+	public DynamicForm findDynamicFormByIdWithEvict(String formId) {
+		DynamicForm dynamicForm =  hibernateTemplate.get(DynamicForm.class, formId);
+		if(dynamicForm != null) getCurrentSession().evict(dynamicForm);
+		return dynamicForm;
+	
 	}
 
 	public List<Map<String, Object>> getFormData(String dataSourceId, String selectionQuery) throws Exception {
@@ -54,14 +63,37 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return data;
 	}
 
-	public void saveFormData(String dataSourceId, String saveTemplateQuery, Map<String, Object> parameters) {
+	public Integer saveFormData(String dataSourceId, String saveTemplateQuery, Map<String, Object> parameters) {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(
 				dataSourceId);
-		namedParameterJdbcTemplate.update(saveTemplateQuery, parameters);
+		return namedParameterJdbcTemplate.update(saveTemplateQuery, parameters);
+	}
+
+	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
+		return namedParameterJdbcTemplate.queryForList(query, parameterMap);
 	}
 
 	public void saveDynamicFormData(DynamicForm dynamicForm) {
 		getCurrentSession().saveOrUpdate(dynamicForm);
+	}
+
+	@Transactional(readOnly = false)
+	public void saveDynamicForm(DynamicForm dynamicForm) {  
+		List<DynamicFormSaveQuery>	dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
+		dynamicForm.setDynamicFormSaveQueries(null);
+		if(dynamicForm.getFormId() == null || findDynamicFormByIdWithEvict(dynamicForm.getFormId()) == null) {
+			getCurrentSession().save(dynamicForm);			
+		}else {
+			getCurrentSession().saveOrUpdate(dynamicForm);
+		}
+
+		deleteFormQueries(dynamicForm.getFormId());
+		if(dynamicFormSaveQueries != null) {
+			for(DynamicFormSaveQuery dfsq : dynamicFormSaveQueries) {
+				getCurrentSession().save(dfsq);
+			}
+		}
 	}
 
 	public List<DynamicFormSaveQuery> findDynamicFormQueriesById(String formId) {

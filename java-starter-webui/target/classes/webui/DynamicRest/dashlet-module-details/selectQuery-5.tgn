@@ -1,0 +1,2 @@
+SELECT COUNT(dl.dashlet_id) AS dashletCount
+FROM jq_dashlet AS dl

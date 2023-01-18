@@ -64,7 +64,7 @@ public class HomeController {
 //					}
 //				}
 //			}
-			return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+			return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

@@ -1,0 +1,5 @@
+function additionalDatsource(requestDetails, daoResults) {
+    return daoResults["additionalDatsourceList"];
+}
+
+additionalDatsource(requestDetails, daoResults);

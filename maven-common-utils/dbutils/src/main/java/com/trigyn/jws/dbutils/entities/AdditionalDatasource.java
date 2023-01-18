@@ -54,6 +54,9 @@ public class AdditionalDatasource implements Serializable {
 	@Column(name = "datasource_lookup_id")
 	private String				datasourceLookupId		= null;
 
+	@Column(name = "is_custom_updated")
+	private Integer				isCustomUpdated			= 1;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "datasource_lookup_id", insertable = false, updatable = false)
 	private DatasourceLookUp	datasourceLookup		= null;
@@ -62,9 +65,9 @@ public class AdditionalDatasource implements Serializable {
 
 	}
 
-	public AdditionalDatasource(String additionalDatasourceId, String createdBy, Date createdDate, String datasourceConfiguration,
-			String datasourceName, Integer isDeleted, String lastUpdatedBy, Date lastUpdatedTs, String datasourceLookupId,
-			DatasourceLookUp datasourceLookup) {
+	public AdditionalDatasource(String additionalDatasourceId, String createdBy, Date createdDate,
+			String datasourceConfiguration, String datasourceName, Integer isDeleted, String lastUpdatedBy,
+			Date lastUpdatedTs, String datasourceLookupId, DatasourceLookUp datasourceLookup) {
 		this.additionalDatasourceId		= additionalDatasourceId;
 		this.createdBy					= createdBy;
 		this.createdDate				= createdDate;
@@ -157,10 +160,18 @@ public class AdditionalDatasource implements Serializable {
 		this.datasourceLookup = datasourceLookup;
 	}
 
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(additionalDatasourceId, createdBy, createdDate, datasourceConfiguration, datasourceLookup, datasourceLookupId,
-				datasourceName, isDeleted, lastUpdatedTs, lastUpdatedBy);
+		return Objects.hash(additionalDatasourceId, createdBy, createdDate, datasourceConfiguration, datasourceLookup,
+				datasourceLookupId, datasourceName, isDeleted, lastUpdatedTs, lastUpdatedBy);
 	}
 
 	@Override
@@ -175,22 +186,25 @@ public class AdditionalDatasource implements Serializable {
 			return false;
 		}
 		AdditionalDatasource other = (AdditionalDatasource) obj;
-		return Objects.equals(additionalDatasourceId, other.additionalDatasourceId) && Objects.equals(createdBy, other.createdBy)
-				&& Objects.equals(createdDate, other.createdDate) && Objects.equals(datasourceConfiguration, other.datasourceConfiguration)
-				&& Objects.equals(datasourceLookup, other.datasourceLookup) && Objects.equals(datasourceLookupId, other.datasourceLookupId)
+		return Objects.equals(additionalDatasourceId, other.additionalDatasourceId)
+				&& Objects.equals(createdBy, other.createdBy) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(datasourceConfiguration, other.datasourceConfiguration)
+				&& Objects.equals(datasourceLookup, other.datasourceLookup)
+				&& Objects.equals(datasourceLookupId, other.datasourceLookupId)
 				&& Objects.equals(datasourceName, other.datasourceName) && Objects.equals(isDeleted, other.isDeleted)
-				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy);
+				&& Objects.equals(lastUpdatedTs, other.lastUpdatedTs)
+				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("AdditionalDatasource [additionalDatasourceId=").append(additionalDatasourceId).append(", createdBy=")
-				.append(createdBy).append(", createdDate=").append(createdDate).append(", datasourceConfiguration=")
-				.append(datasourceConfiguration).append(", datasourceName=").append(datasourceName).append(", isDeleted=").append(isDeleted)
-				.append(", updatedBy=").append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
-				.append(", datasourceLookupId=").append(datasourceLookupId).append(", datasourceLookup=").append(datasourceLookup)
-				.append("]");
+		builder.append("AdditionalDatasource [additionalDatasourceId=").append(additionalDatasourceId)
+				.append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate)
+				.append(", datasourceConfiguration=").append(datasourceConfiguration).append(", datasourceName=")
+				.append(datasourceName).append(", isDeleted=").append(isDeleted).append(", updatedBy=")
+				.append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs).append(", datasourceLookupId=")
+				.append(datasourceLookupId).append(", datasourceLookup=").append(datasourceLookup).append("]");
 		return builder.toString();
 	}
 
@@ -208,25 +222,26 @@ public class AdditionalDatasource implements Serializable {
 		additionalDatasource.setLastUpdatedBy(lastUpdatedBy);
 		additionalDatasource.setLastUpdatedTs(lastUpdatedTs);
 		additionalDatasource.setDatasourceLookUp(datasourceLookup.getObject());
-		
+
 		return additionalDatasource;
 	}
 
 	public AdditionalDatasourceVO convertEntityToVO(AdditionalDatasource additionalDatasource) {
 
 		AdditionalDatasourceVO additionalDatasourceVO = new AdditionalDatasourceVO();
-		
+
 		additionalDatasourceVO.setAdditionalDatasourceId(additionalDatasource.getAdditionalDatasourceId());
 		additionalDatasourceVO.setCreatedBy(additionalDatasource.getCreatedBy());
 		additionalDatasourceVO.setCreatedDate(additionalDatasource.getCreatedDate());
 		additionalDatasourceVO.setDatasourceConfiguration(additionalDatasource.getDatasourceConfiguration());
 		additionalDatasourceVO.setDatasourceLookupId(additionalDatasource.getDatasourceLookupId());
-		additionalDatasourceVO.setDatasourceLookupVO(additionalDatasource.getDatasourceLookUp().convertEntityToVO(additionalDatasource.getDatasourceLookUp()));
+		additionalDatasourceVO.setDatasourceLookupVO(additionalDatasource.getDatasourceLookUp()
+				.convertEntityToVO(additionalDatasource.getDatasourceLookUp()));
 		additionalDatasourceVO.setDatasourceName(additionalDatasource.getDatasourceName());
 		additionalDatasourceVO.setIsDeleted(additionalDatasource.getIsDeleted());
 		additionalDatasourceVO.setLastUpdatedBy(additionalDatasource.getLastUpdatedBy());
 		additionalDatasourceVO.setLastUpdatedTs(additionalDatasource.getLastUpdatedTs());
-		
+
 		return additionalDatasourceVO;
 	}
 }

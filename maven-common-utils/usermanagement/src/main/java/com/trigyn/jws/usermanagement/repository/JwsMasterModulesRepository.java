@@ -16,7 +16,7 @@ public interface JwsMasterModulesRepository extends JpaRepository<JwsMasterModul
 	@Query(" SELECT jmm FROM JwsMasterModules jmm WHERE isPermSupported=:isPermSupported order by sequence")
 	List<JwsMasterModules> findAllModulesForPermission(Integer isPermSupported);
 
-	@Query(" SELECT jmm FROM JwsMasterModules jmm WHERE isEntityPermSupported=:isEntityPermSupported order by sequence")
+	@Query(" SELECT jmm FROM JwsMasterModules jmm WHERE isEntityPermSupported=:isEntityPermSupported order by moduleName")
 	List<JwsMasterModules> findAllModulesForEntityLevelPermission(Integer isEntityPermSupported);
 
 	@Query(" SELECT jmm FROM JwsMasterModules jmm WHERE isImpExpSupported=:isImpExpSupported order by sequence")

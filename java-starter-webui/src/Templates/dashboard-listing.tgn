@@ -1,0 +1,160 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.dashboard')}</h2> 
+		<div class="float-right">
+		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+            </select>
+			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage('jws.createNewDashboard')}" type="button" onclick="submitForm(this)">
+			<input class="btn btn-primary" name="manageDashlets" value="${messageSource.getMessage('jws.manageDashblet')}" type="button" onclick="openDashlets(this)">
+			<span onclick="backToWelcomePage();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span>	
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="dashboardMasterGrid"></div>
+
+
+</div>
+
+<form action="${(contextPath)!''}/cf/aedb" method="POST" id="formDBRedirect">
+	<input type="hidden" id="dashboardId" name="dashboard-id">
+</form>
+<form action="${(contextPath)!''}/cf/dls" method="POST" id="formDLSRedirect" target="_blank">
+	<input type="hidden" id="dashboardIdView" name="dashboardId">
+</form>
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+ 	<input type="hidden" id="entityName" name="entityName" value="jq_dashboard">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="dashboard">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/sdbv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dbm">
+</form>
+<script>
+	contextPath = "${(contextPath)!''}";
+	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		let formElement = $("#formDBRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("dashboard-manage-details", formDataJson);
+		
+		let colM = [
+			{ title: "", dataIndx: "dashboardId", hidden: true},
+			{ title: "${messageSource.getMessage('jws.dashboardName')}", width: 180, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.dashboardType')}", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
+			{ title: "${messageSource.getMessage('jws.contextDescription')}", width: 100, dataIndx: "contextDescription", align: "left", align: "left", halign: "center", 
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+			{ title: "${messageSource.getMessage('jws.createdBy')}", hidden: true, width: 100, dataIndx: "createdBy", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
+			{ title: "${messageSource.getMessage('jws.createdDate')}", width: 100, dataIndx: "createdDate" , align: "left", halign: "center", render: formatCreatedDate },
+			{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, dataIndx: "lastUpdatedTs" , align: "left", halign: "center", render: formatLastUpdatedDate },
+			{ title: "${messageSource.getMessage('jws.action')}", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: editDashboard, sortable: false}
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "down",
+    	};	
+		let grid = $("#dashboardMasterGrid").grid({
+	      gridId: "dashboardMasterListingGrid",
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_dashboardType":"str_1"}
+	  	});
+	
+	});
+	
+	function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"dashboardMasterListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"dashboardMasterListingGrid" 
+                    ,"cr_dashboardType":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#dashboardMasterGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+    
+    function formatCreatedDate(uiObject){
+        const createdDate = uiObject.rowData.createdDate;
+        return formatDate(createdDate);
+    }
+     
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
+      
+	function editDashboard(uiObject) {
+		let actionElement;
+		const dashboardId = uiObject.rowData.dashboardId;
+		const dashboardName = uiObject.rowData.dashboardName;		
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		actionElement = '<span id="'+dashboardId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="${messageSource.getMessage("jws.editDashboard")}"></i></span><span id="'+dashboardId+'" onclick="viewDashlets(this)" class= "grid_action_icons"><i class="fa fa-eye"  title="${messageSource.getMessage("jws.viewDashboard")}"></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+dashboardId+'_entity" name="'+dashboardName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+		return actionElement;
+	}
+	
+	function submitForm(element) {
+		$("#dashboardId").val(element.id);
+		$("#formDBRedirect").submit();
+	}
+	
+	function viewDashlets(element){
+		$("#dashboardIdView").val(element.id);
+		$("#formDLSRedirect").submit();
+	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+	
+	function openDashlets(element) {
+		location.href = contextPath+"/cf/dlm";
+	}
+	
+	function backToWelcomePage() {
+		location.href = contextPath+"/cf/home";
+	}
+</script>

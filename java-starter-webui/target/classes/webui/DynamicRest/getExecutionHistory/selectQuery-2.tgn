@@ -1,0 +1,1 @@
+SELECT COUNT(`jjsl`.`response_time`) AS `responses` FROM jq_job_scheduler_log AS jjsl WHERE jjsl.`scheduler_id` = :schedulerID

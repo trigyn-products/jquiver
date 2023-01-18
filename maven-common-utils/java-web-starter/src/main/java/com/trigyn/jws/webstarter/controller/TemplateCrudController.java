@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.TemplateCrudService;
 
 @RestController
@@ -34,25 +40,32 @@ import com.trigyn.jws.webstarter.service.TemplateCrudService;
 @PreAuthorize("hasPermission('module','Templating')")
 public class TemplateCrudController {
 
-	private final static Logger	logger				= LogManager.getLogger(TemplateCrudController.class);
+	private final static Logger logger = LogManager.getLogger(TemplateCrudController.class);
 
 	@Autowired
-	private DBTemplatingService	dbTemplatingService	= null;
+	private DBTemplatingService dbTemplatingService = null;
 
 	@Autowired
-	private TemplateCrudService	templateCrudService	= null;
+	private TemplateCrudService templateCrudService = null;
 
 	@Autowired
-	private PropertyMasterDAO	propertyMasterDAO	= null;
+	private PropertyMasterDAO propertyMasterDAO = null;
 
 	@Autowired
-	private MenuService			menuService			= null;
+	private MenuService menuService = null;
 
+	@Autowired
+	private IUserDetailsService userDetailsService = null;
+
+	@Autowired
+	private ActivityLog activitylog = null;
+	
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
-	public String templatePage(HttpServletResponse httpServletResponse) throws IOException {
+	public String templatePage(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
-			Map<String, Object>	modelMap	= new HashMap<>();
-			String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+
+			Map<String, Object> modelMap = new HashMap<>();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
 		} catch (Exception a_exception) {
@@ -65,16 +78,31 @@ public class TemplateCrudController {
 		}
 	}
 
+	@RequestMapping(value = "/gtbn")
+	public String getTemplateByName(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		String templateName = request.getParameter("templateName");
+		return menuService.getTemplateWithoutLayout(templateName, new HashMap<>());
+	}
+
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
-	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
+	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
-			String				templateId		= request.getParameter("vmMasterId");
-			Map<String, Object>	vmTemplateData	= new HashMap<>();
+			String templateId = request.getParameter("vmMasterId");
+			Map<String, Object> vmTemplateData = new HashMap<>();
 			if (!StringUtils.isBlank(templateId)) {
 				TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
 				templateDetails.setTemplate("");
 				vmTemplateData.put("templateDetails", templateDetails);
+				String templateName = templateDetails.getTemplateName();
+				Integer typeSelect = templateDetails.getTemplateType();
+				/* Method called for implementing Activity Log */
+				logActivity(templateName, typeSelect);
 			}
+			/* ContextPath Suggestion in Monaco Editor */
+			String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
+			vmTemplateData.put("suggestions", contextSuggestions);
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
@@ -86,11 +114,39 @@ public class TemplateCrudController {
 		}
 	}
 
+	/**
+	 * Purpose of this method is to log activities</br>
+	 * in Templating Module.
+	 * 
+	 * @author Bibhusrita.Nayak
+	 * @param templateName
+	 * @param typeSelect
+	 * @throws Exception
+	 */
+	private void logActivity(String entityName, Integer typeSelect) throws Exception {
+		Map<String, String> requestParams = new HashMap<>();
+		UserDetailsVO detailsVO = userDetailsService.getUserDetails();
+		String masterModuleType = Constants.Modules.TEMPLATING.getModuleName();
+		Date activityTimestamp = new Date();
+		if (typeSelect == Constants.Changetype.CUSTOM.getChangeTypeInt()) {
+			requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
+		} else {
+			requestParams.put("typeSelect", Constants.Changetype.SYSTEM.getChangetype());
+		}
+		requestParams.put("entityName", entityName);
+		requestParams.put("masterModuleType", masterModuleType);
+		requestParams.put("userName", detailsVO.getUserName());
+		requestParams.put("message", "");
+		requestParams.put("date", activityTimestamp.toString());// activityTimestamp
+		requestParams.put("action", Constants.Action.OPEN.getAction());
+		activitylog.activitylog(requestParams);
+	}
+
 	@RequestMapping(value = "/ctd")
 	@ResponseBody
 	public String checkTemplateData(HttpServletRequest request, HttpServletResponse response) {
-		String	templateName	= request.getParameter("templateName");
-		String	templateId		= null;
+		String templateName = request.getParameter("templateName");
+		String templateId = null;
 		try {
 			templateId = templateCrudService.checkVelocityData(templateName);
 			return templateId;
@@ -102,8 +158,9 @@ public class TemplateCrudController {
 
 	@GetMapping(value = "/gtbi")
 	public String getTemplateByTemplateId(HttpServletRequest request) throws Exception {
-		String		templateId		= request.getParameter("templateId");
-		TemplateVO	templateDetails	= dbTemplatingService.getVelocityDataById(templateId);
+
+		String templateId = request.getParameter("templateId");
+		TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
 		return templateDetails.getTemplate();
 	}
 
@@ -113,10 +170,10 @@ public class TemplateCrudController {
 	}
 
 	@PostMapping(value = "/stdv")
-	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
-			throws Exception {
-		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper	objectMapper	= new ObjectMapper();
+	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest,
+			HttpServletResponse a_httpServletResponse) throws Exception {
+		String modifiedContent = a_httpServletRequest.getParameter("modifiedContent");
+		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		TemplateVO templateVO = objectMapper.readValue(modifiedContent, TemplateVO.class);
 		dbTemplatingService.saveTemplate(templateVO);
@@ -145,11 +202,14 @@ public class TemplateCrudController {
 	}
 
 	@PostMapping(value = "/gadc")
-	public String getAutocompleteDefaultContent(HttpSession a_httpSession, HttpServletRequest a_httpServletRequest) throws Exception {
-		String				templateName		= a_httpServletRequest.getParameter("templateName");
-		String				selectedTab			= a_httpServletRequest.getParameter("selectedTab");
-		Map<String, Object>	templateParamMap	= new HashMap<>();
+	public String getAutocompleteDefaultContent(HttpSession a_httpSession, HttpServletRequest a_httpServletRequest)
+			throws Exception {
+		String templateName = a_httpServletRequest.getParameter("templateName");
+		String selectedTab = a_httpServletRequest.getParameter("selectedTab");
+
+		Map<String, Object> templateParamMap = new HashMap<>();
 		templateParamMap.put("selectedTab", selectedTab);
 		return menuService.getTemplateWithoutLayout(templateName, templateParamMap);
+
 	}
 }
