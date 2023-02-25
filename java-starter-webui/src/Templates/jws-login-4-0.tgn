@@ -1,4 +1,4 @@
-
+<#compress>
 <div class="socialloginblock">
 <#if innerTemplateObj?? && (innerTemplateObj.regisrationIds)??> 
 	<#list innerTemplateObj.regisrationIds as regisrationId>
@@ -8,7 +8,7 @@
 					<div class="ms-content">    
 						<div class="logo">  
 							<img src="${(contextPath)!''}/webjars/1.0/images/jc-microsoft.svg"> 
-		                    <@resourceBundleWithDefault "jws.microsoftsignin" "JQuiver"/>
+		                    <@resourceBundleWithDefault "jws.microsoftsignin" "Microsoft"/>
 						</div>  
 					</div>  
 				</a>		 
@@ -23,7 +23,7 @@
 			<div class="google-content">    
 				<div class="logo">  
 					<img src="${(contextPath)!''}/webjars/1.0/images/jc-google.svg">    
-                    <@resourceBundleWithDefault "jws.googlesignin" "JQuiver"/>
+                    <@resourceBundleWithDefault "jws.googlesignin" "Google"/>
 				</div>  
  			</div>  
 		</a>    
@@ -37,7 +37,7 @@
 				<div class="fb-content">    
 					<div class="logo">  
 						<img src="${(contextPath)!''}/webjars/1.0/images/jc-facebook.svg">  
-                        <@resourceBundleWithDefault "jws.facebooksignin" "JQuiver"/>
+                        <@resourceBundleWithDefault "jws.facebooksignin" "Facebook"/>
 					</div>  
 				   
 				</div>  
@@ -46,3 +46,4 @@
 	</div>  
 </#if>
 </div>
+</#compress>

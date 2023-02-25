@@ -15,6 +15,7 @@
 
 	<div class="container">
 		<div class="row topband">
+            <#outputformat "HTML">
 			<div class="col-8">
 				<#if (autocompleteVO.autocompleteId)??>
 				    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editautocomplete')}</h2> 
@@ -185,6 +186,7 @@
 					</span> 
 				</div>
 			</div>
+           </#outputformat>
 	</div>
  	
 <textarea id="sqlContentDiv" style="display: none">
@@ -193,15 +195,17 @@
   
 <script>
 	contextPath = "${(contextPath)!''}";
-	const acId = "${(autocompleteVO.autocompleteId)!''}";
   /*Written for Updating Monaco Suggestions*/
     const monacoSugg = '${(suggestions)!""}';
     var suggestionArray = JSON.parse(monacoSugg);
+    <#outputformat "HTML">
+    const acId = "${(autocompleteVO.autocompleteId)!''}";
 	let addEditAutocomplete;
 	let tableAutocomplete;
 	let oldAutocompleteId;
 	
 	$(function() {
+         
 	    $("#tabs").tabs();
 	    addEditAutocomplete = new AddEditAutocomplete();
 	    addEditAutocomplete.loadAutocompletDetails();
@@ -253,9 +257,11 @@
 		<#else>
 			getAllDatasource(1);
 			$("#autoId").attr("readonly", "readonly");
+            
 		</#if>
 		loadDefaultTab("autocomplete-default-template", addEditAutocomplete.updateAutocompleTemplate);
 	    $("a[href='#htmlContent']").click();
+         </#outputformat>
 	});
 	
 </script>

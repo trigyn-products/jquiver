@@ -21,10 +21,14 @@ $(function () {
         autocompleteId: "rolesAutocomplete",
         enableClearAll: false,
         render: function(item) {
-        	var renderStr ="";
+        	var renderStr ="";  
+            /**Written for preventing Cross Site Scripting*/
+            var roleName = item.roleName;
+            var encodedName = $('<div />').text(roleName).html();     
+            /**Ends Here*/
         	if(item.emptyMsg == undefined || item.emptyMsg === "")
     		{
-        		renderStr = "<p>"+item.roleName+"</p>";
+        		renderStr = "<p>"+encodedName+"</p>";
     		}
         	else
     		{
@@ -51,8 +55,12 @@ $(function () {
         if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
         	context.selectedObject.push(itemData);
             const element = context.options.selectedItemRender(itemData);
+            /**Written for preventing Cross Site Scripting*/
+            var roleName = element;
+            encodedName = $('<div />').text(roleName).html();
+            /**Ends Here*/
             let listsElement = $("<li></li>");
-            let itemSpan = $('<span class="ml-selected-item" id="'+itemData.roleId+'">'+element+'</span>');
+            let itemSpan = $('<span class="ml-selected-item" id="'+itemData.roleId+'">'+encodedName+'</span>');
             listsElement.append(itemSpan);
             let deleteItemContext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
             if(itemData.roleName != "ADMIN"){

@@ -107,6 +107,7 @@
             
 		</div>
         <div class="row">
+        <#outputformat "HTML">
             <div class="col-4">
 
 				<div class="col-inner-form full-form-fields">
@@ -121,10 +122,10 @@
 					${messageSource.getMessage("jws.moduleUrl")}					
 					</label>
 					
-					<span class="copyblockcls" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>" onclick="event.stopPropagation();copyModuleURL('moduleURL');">				
-					${(urlPrefix)!''}					
-					<i class="fa fa-clipboard" aria-hidden="true"></i>
-					<i id="moduleUrlIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','moduleURL');"></i>
+					<span class="copyblockcls" />				
+					 <span class="copytexturl">${(urlPrefix)!''}</span>					
+					<i class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyModuleURL('moduleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="moduleUrlIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','moduleURL');" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
 					</span>
 					 
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
@@ -143,6 +144,7 @@
 					</select>
 				</div>
 			</div>
+			</#outputformat>
         </div>
 
         <div class="row">
@@ -176,10 +178,11 @@
 				<div class="col-inner-form full-form-fields">
 					<label for="formModuleURL" style="white-space:nowrap">${messageSource.getMessage('jws.form')} ${messageSource.getMessage("jws.moduleUrl")}</label>
 					
-					<span class="copyblockcls" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>" onclick="copyModuleURL('formModuleURL');">				
-					${(urlPrefix)!''}				
-					<i class="fa fa-clipboard" aria-hidden="true"></i>
-					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','formModuleURL');"></i>
+					<span class="copyblockcls">				
+					 <span class="copytexturl">${(urlPrefix)!''}	</span>			
+					<i class="fa fa-clipboard" aria-hidden="true"  onclick="copyModuleURL('formModuleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','formModuleURL');"
+					title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>"></i>
 					</span>
 					
 					
@@ -227,6 +230,7 @@
 
 
 <script>
+	document.title = "Master Module Generator";
 	contextPath = "${contextPath}";
     let gridDetails = new Array();
     let formDetails = new Array();

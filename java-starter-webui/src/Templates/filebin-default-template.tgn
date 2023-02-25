@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
     <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
     <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+    <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 </head>
 <!-- HTML Body -->
 
@@ -17,6 +18,7 @@
     <input type="text" id="copyFilePathInput" name="copyFilePathInput" style="display:none">
     <div class="clearfix"></div>        
 
+	<!-- use this if you are using default file bin UI -->
 	<div class="col-12">
         <div id="fileUploadMaster" class="col-8 fileupload dropzone"></div>
     </div>
@@ -26,7 +28,7 @@
 <#elseif selectedTab == "jsContent">
 ```JavaScript
 <#noparse>
-	    contextPath = "${(contextPath)!''}";
+	let contextPath = "${(contextPath)!''}";
 
     let dropZone = $(".fileupload").fileUpload({
         fileBinId : "yourFileBinId",
@@ -59,14 +61,14 @@
 	 * adding any custom button in the listing as per the business need
 	 */
     function fileConfigRenderer(fileObj) {
-        let fileUploadId = fileObj["id"];
-        let fileName = fileObj["name"];
-        let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
-        
-        let actionElem = "<div><span  title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'" +
-            "onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span><span  title='"+btnTxt["jws.fileName"]+"'>" + 
-        	"<i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span></div>";	
-        return actionElem;
+		let fileUploadId = fileObj["id"];
+		let fileName = fileObj["name"];
+		let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+		
+		let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span>" +
+		"<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span>"+ 
+		"<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFileById('"+fileUploadId+"')\"></i></span></div>";		
+		return actionElem;
 	}
 	
 	/*

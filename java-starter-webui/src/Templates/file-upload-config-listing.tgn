@@ -48,7 +48,7 @@
 		sessionStorage.setItem("file-upload-config", formDataJson);
 		
 	    let colM = [
-	        { title: "${messageSource.getMessage('jws.filebinid')}", width: 130, dataIndx: "fileBinId", align: "left", halign: "center", 
+	        { title: "${messageSource.getMessage('jws.filebinid')}", width: 130, dataIndx: "fileBinId", align: "left", halign: "center", render: formatFileBinId,
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.filetypesupported')}", width: 100, dataIndx: "fileTypeSupported", align: "left", halign: "center", 
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -75,7 +75,14 @@
         const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
         return formatDate(lastUpdatedTs);
     }
-    
+
+     /*Written for preventing Cross Site Scripting*/
+     function formatFileBinId(uiObject){   
+        const fileid = uiObject.rowData.fileBinId;
+        var encodedId = $('<div />').text(fileid).html();
+        return encodedId;             
+    }
+    /**Ends Here*/
 	function editFileUploadConfig(uiObject) {
 		const fileBinId = uiObject.rowData.fileBinId;
 		return '<span id="'+fileBinId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit file configuration"></i></span>'.toString();

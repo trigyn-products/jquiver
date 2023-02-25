@@ -21,32 +21,35 @@ $(document).ready(function(){
 		<div class="row">
 			<div class="col-7">
 				<div class="loginbg">
-					 <#if messageSource.getMessage("jws.projectName") != "JQuiver">
-	 			            <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
-	 		         <#else>
-	 			            <img src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png">
-	 		        </#if> 	
+                    <img src="${(contextPath)!''}/webjars/1.0/images/LoginBg.jpg">
 				</div>
 			</div>
 			<div class="col-5">            
 
 				<h2 class="form-signin-heading text-center">
-					<@resourceBundleWithDefault "jws.welcometo" "JQuiver"/> <span
-						class="cm-logotext"><img
-						src="/hrsSIT/webjars/1.0/images/jquiver_blue_trans.png"
-						class="homepagelogoimg"></span>
+					<@resourceBundleWithDefault "jws.welcometo" "JQuiver"/> 
+                    <span class="cm-logotext">
+                        
+                        <#if messageSource.getMessage("jws.projectName") != "JQuiver">
+                                <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+                        <#else>
+                            <img src="/hrsSIT/webjars/1.0/images/jquiver_blue_trans.png" class="homepagelogoimg">
+                        </#if> 	
+                    </span>
 				</h2>
 				<#if queryString?? && queryString?has_content>	
 					<#if queryString=="error">		
 						<#if exceptionMessage?? && exceptionMessage?has_content>			  
 							<div class="alert alert-danger" role="alert">${exceptionMessage}</div>	
 						<#elseif queryString?? &&  queryString=="logout">
-							<div class="alert alert-success" role="alert">You have been signed out</div>
+							<div class="alert alert-success" role="alert"><@resourceBundleWithDefault "jws.signedout" "JQuiver"/></div>
 						<#else>
-							<div class="alert alert-danger" role="alert">Bad Credentials</div> 
+							<div class="alert alert-danger" role="alert"><@resourceBundleWithDefault "jws.badcredentials" "JQuiver"/></div> 
 						</#if>
 					</#if>
 				</#if>
+				<div id="emailRequiredError" class="alert alert-danger" role="alert" style="display: none">Email is required</div>
+				<div class="alert alert-danger" id="userNotFoundError" role="alert" style="display:none"><@resourceBundleWithDefault "jws.usernotfound" "JQuiver"/></div>
 				<#if (activeAutenticationDetails)?? && activeAutenticationDetails?has_content>			
 					<#assign numConvert ="databaseauth"> 
 					<#assign labelConvert ="Database"> 
@@ -69,12 +72,13 @@ $(document).ready(function(){
 									<#if (authenticationType ==2 || authenticationType ==3)>	
 										<#if authenticationType ==2 > 
 											<#assign numConvert ="databaseauth"> 
-											<#assign labelConvert = "Internal"> 
+										
+											<#assign labelConvert><@resourceBundleWithDefault "jws.internal" "JQuiver"/></#assign>
 											<#assign daoAuth = true> 
 										<#elseif (authenticationType)?? && authenticationType?has_content && authenticationType ==3 >
 											<#assign ldapAuth = true>
 											<#assign numConvert = "ldaputh">
-											<#assign labelConvert ="LDAP">										
+											<#assign labelConvert><@resourceBundleWithDefault "jws.ldap" "JQuiver"/></#assign>
 										</#if>
 										<li role="presentation" ><a href="#${numConvert}" aria-controls="${numConvert}" role="tab" data-toggle="tab">	${labelConvert}</a>
 										</li>									

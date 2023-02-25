@@ -60,7 +60,7 @@
 		sessionStorage.setItem("module-manage-details", formDataJson);
 		let colM = [
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
-	        { title: "${messageSource.getMessage('jws.moduleName')}", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
+	        { title: "${messageSource.getMessage('jws.moduleName')}", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",render: formatModuleName,
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.moduleUrl')}", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -137,6 +137,14 @@
   	    div.innerText = text;
   	    return div.innerHTML;
   	}
+    /*Written for preventing Cross Site Scripting*/
+    function formatModuleName(uiObject){   
+        const modulename = uiObject.rowData.moduleName;
+        var encodedName = $('<div />').text(modulename).html();
+        return encodedName;             
+    }
+    /**Ends Here*/
+
     function openModuleListing(moduleURL) {
 		window.open(contextPath+"/view/"+moduleURL);
     }

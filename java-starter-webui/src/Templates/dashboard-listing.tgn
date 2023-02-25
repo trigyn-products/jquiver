@@ -63,7 +63,7 @@
 		
 		let colM = [
 			{ title: "", dataIndx: "dashboardId", hidden: true},
-			{ title: "${messageSource.getMessage('jws.dashboardName')}", width: 180, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.dashboardName')}", width: 180, dataIndx: "dashboardName", align: "left", align: "left", halign: "center",render: formatDashBoardName,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "${messageSource.getMessage('jws.dashboardType')}", width: 130, dataIndx: "dashboardType" , align: "left", align: "left", halign: "center", 
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
@@ -116,6 +116,14 @@
         const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
         return formatDate(lastUpdatedTs);
     }
+
+     /*Written for preventing Cross Site Scripting*/
+     function formatDashBoardName(uiObject){   
+        const dashboardname = uiObject.rowData.dashboardName;
+        var encodedName = $('<div />').text(dashboardname).html();
+        return encodedName;             
+    }
+    /**Ends Here*/
       
 	function editDashboard(uiObject) {
 		let actionElement;

@@ -1,6 +1,6 @@
+<#compress>
 <head>
 <link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
-<script src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
@@ -9,6 +9,7 @@
 <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
@@ -86,6 +87,7 @@
 
 <div class="container-fluid ">
 	<div class="row">
+        <#outputformat "HTML">
 		<nav id="mySidenav"  class=" bg-dark sidenav sidebar">
 			<div class="nav-inside">
 				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter()">
@@ -116,7 +118,7 @@
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
 													<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
 														<li>
-															<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
+															<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}','${openTarget}')" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
 														</li>
 													<#else>
 														<li>
@@ -133,7 +135,7 @@
 								<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
 									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 										<span data-feather="file"></span>
-										<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}</a>
+										<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}','${openTarget}')" class="nav-link">${moduleDetailsVO?api.getModuleName()!''}</a>
 									</li>
 								<#else>
 									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
@@ -147,9 +149,9 @@
 					</#if>
 				</div>
 			</nav>
-	
+	</#outputformat>
 	<main id="main" class="main-container">
-		<div id="bodyDiv" onclick="homePageFn.closeNavigation();">
+		<div id="bodyDiv">
 			<#include "template-body">
 		</div>
 	</main>
@@ -193,8 +195,15 @@
         	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
       	</#if>
       </#list>
-      retrieveProfilePic();
-      getLanguageOption();     
+      setTimeout(function() {
+	      retrieveProfilePic();
+	      getLanguageOption();          
+      }, 5000);    
+
+		$("#bodyDiv").click(function(){
+			homePageFn.closeNavigation();
+		});    
+
       
 	});
 
@@ -223,7 +232,7 @@
 		});
     }
 
-	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId) {
+	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId, openTarget) {
 		let requestParams = $("#"+requestParamsModuleId).val();
 		let form = $('<form id="targetUrlForm"' + requestParamsModuleId + '" action="' + moduleURL + '" method="' + actionType + '">');
 		if(requestParams != ''){
@@ -233,7 +242,7 @@
 			});
 		}
 		form.append('</form>');
-		$(form).attr('target', '_blank');
+		$(form).attr('target', openTarget);
 		$('body').append(form);
 		$(form).submit();
 		$("#targetUrlForm"+requestParamsModuleId).remove();
@@ -251,3 +260,4 @@
 "entityName": entityName
 }>
 <@templateWithParams "google-analytics-template" gaAttributes />
+</#compress>

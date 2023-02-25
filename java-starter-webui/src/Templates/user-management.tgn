@@ -213,6 +213,15 @@ $(document).ready(function () {
 		testLdapAuth(this);
 	});
 	
+	$('#adminModalDialog').on(".modal", function() {
+        if(isAdminEmailExist == false) {
+            $("#isAuthenticationEnabled").prop("checked",false).trigger("change");
+        }else{
+            $("#isAuthenticationEnabled").prop("checked",true).trigger("change");
+        }
+        
+    });
+	
 	$('#btnRestartServer').on('click', function(e){
 		e.preventDefault();	
 		$.ajax({
@@ -301,7 +310,7 @@ function validateFormSubmit(){
 		try {
 			new RegExp(regexPattern);
 			 
-		} catch (e) {
+		} catch (exeception) {
 			showMessage("Invalid regular expression!", "error");
 			$('input[name = regexPattern]').focus();
 			errorFlag = true;
@@ -324,6 +333,22 @@ function validateFormSubmit(){
 		return errorFlag;
 	}
 	
+	let validateRegisrations = [];
+	if( $("input[name='registration-id']").length ){		
+		const oAuthRegElements = document.querySelectorAll(`input[name="registration-id"]`);	
+		oAuthRegElements.forEach(element => {			
+			var oAuthRegClientVal = $("#"+element.id).val();			 
+			var oAuthRegValArry = jQuery.inArray(oAuthRegClientVal, validateRegisrations);		 
+			if (oAuthRegValArry == -1) {				
+				validateRegisrations.push(oAuthRegClientVal);			
+			}else{				
+				var errorMessage = oAuthRegClientVal+" already exist."
+				showMessage(errorMessage, "error");	
+				errorFlag = true;
+				return errorFlag;
+			}			  		  
+		});
+	}	
 	return errorFlag;
 }
 

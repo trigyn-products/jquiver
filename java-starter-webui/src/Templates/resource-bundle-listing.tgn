@@ -70,7 +70,7 @@
 		sessionStorage.setItem("resource-bundle-manage-details", formDataJson);
 		
 	    let colM = [
-	        { title: "${messageSource.getMessage('jws.resourceKey')}", width: 130, dataIndx: "resourceKey", align: "left", halign: "center", 
+	        { title: "${messageSource.getMessage('jws.resourceKey')}", width: 130, dataIndx: "resourceKey", align: "left", halign: "center", render: formatResourceKey,
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.languageName')}", width: 100, dataIndx: "languageName", align: "left", halign: "center", 
 	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -124,6 +124,14 @@
 		}
 		return actionElement;
 	}
+
+    /*Written for preventing Cross Site Scripting*/
+     function formatResourceKey(uiObject){   
+        const resourcekey = uiObject.rowData.resourceKey;
+        var encodedKey = $('<div />').text(resourcekey).html();
+        return encodedKey;             
+    }
+    /**Ends Here*/
 	
 	function submitForm(element) {
 	  $("#resource-key").val(element.id);

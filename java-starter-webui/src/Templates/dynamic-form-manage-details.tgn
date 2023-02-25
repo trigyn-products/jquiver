@@ -37,6 +37,7 @@
     <form id="dynamicform" method="post" >
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
+             <#outputformat "HTML">
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span>
@@ -167,6 +168,7 @@
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
 				</div>
+                 </#outputformat>
 			</div>
 		</div>
 
@@ -192,8 +194,6 @@
 	let dashletSAVESQLEditor;
 	let dashletSQLEditors = [];
 	let formQueryIds = [];
-	let formName = "${(dynamicForm?api.getFormName())!''}";
-	let formId = "${(dynamicForm?api.getFormId())!''}";
 	let initialFormData;
 	let tableAutocomplete;
 	let monacoSugg;
@@ -201,7 +201,7 @@
     let jsSuggestionArray;
     let jsSugg;
     let selectQueryType;
-	formName = $.trim(formName);
+	
 	const addEdit = new AddEditDynamicForm();
     /*For Updating Monaco Suggestions*/
     selectQueryType = document.getElementById("selectQueryType").value;
@@ -209,7 +209,12 @@
     suggestionArray = JSON.parse(monacoSugg);
     jsSugg = '${(JSsuggestions)!""}';
     jsSuggestionArray = JSON.parse(jsSugg);
+    <#outputformat "HTML">
+    let formName = "${(dynamicForm?api.getFormName())!''}";
+	let formId = "${(dynamicForm?api.getFormId())!''}";
     
+    formName = $.trim(formName);
+     </#outputformat>
   	$(function () {
   		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
   		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2") {
@@ -258,7 +263,9 @@
 		<#else>
 			getAllDatasource(1);
 			$("#formName").prop("disabled", true);
+            
 	    </#if>
+        
   	});
 
 	function updateSelectDataSource(element) {

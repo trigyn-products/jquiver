@@ -61,13 +61,13 @@
 		sessionStorage.setItem("property-master-form", formDataJson);
 		
 		let colM = [
-			{ title: "${messageSource.getMessage('jws.ownerid')}", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.ownerid')}", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",render: formatOwnerId,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.ownertype')}", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.ownertype')}", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",render: formatOwnerType,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.propertyname')}", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.propertyname')}", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",render: formatpropName,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.propertyvalue')}", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.propertyvalue')}", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",render: formatpropValue,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "${messageSource.getMessage('jws.modifiedBy')}", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -102,7 +102,28 @@
 		}
 		return actionElement;
 	}
-	
+	 /*Written for preventing Cross Site Scripting*/
+     function formatOwnerId(uiObject){   
+        const ownerid = uiObject.rowData.ownerId;
+        var encodedId = $('<div />').text(ownerid).html();
+        return encodedId;             
+    }
+     function formatOwnerType(uiObject){   
+        const ownertype = uiObject.rowData.ownerType;
+        var encodedType = $('<div />').text(ownertype).html();
+        return encodedType;             
+    }
+    function formatpropName(uiObject){   
+        const propName = uiObject.rowData.propertyName;
+        var encodedName = $('<div />').text(propName).html();
+        return encodedName;             
+    }
+     function formatpropValue(uiObject){   
+        const propValue = uiObject.rowData.propertyValue;
+        var encodedValue = $('<div />').text(propValue).html();
+        return encodedValue;             
+    }
+    /**Ends Here*/
 	function submitForm(element) {
 		$("#propertyMasterId").val(element.id);
 		$("#addEditProperty").submit();

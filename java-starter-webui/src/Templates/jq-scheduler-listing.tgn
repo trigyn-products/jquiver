@@ -45,7 +45,7 @@
     $(function () {
     //Add all columns that needs to be displayed in the grid
         let colM = [
-            	{ title: "${messageSource.getMessage('jws.schedulername')}", hidden : false, width: 130, dataIndx: "scheduler_name", align: "left", halign: "center",
+            	{ title: "${messageSource.getMessage('jws.schedulername')}", hidden : false, width: 130, dataIndx: "scheduler_name", align: "left", halign: "center",render: formatName,
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             	{ title: "${messageSource.getMessage('jws.targetapi')}", hidden : false, width: 130, dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -95,6 +95,14 @@
         gridNew.pqGrid( "option", "dataModel.postData", postData);
         gridNew.pqGrid( "refreshDataAndView" );  
     }
+
+    /*Written for preventing Cross Site Scripting*/
+function formatName(uiObject){   
+    const schedName = uiObject.rowData.scheduler_name;
+    var encodedName = $('<div />').text(schedName).html();
+    return encodedName;             
+}
+      /**Ends Here*/
         
     function statusRenderer(uiObject){
         let statusElement =  "Active";

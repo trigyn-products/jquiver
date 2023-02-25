@@ -67,9 +67,9 @@
 		sessionStorage.setItem("dashlet-manage-details", formDataJson);
 		
 		let colM = [
-			{ title: "${messageSource.getMessage('jws.dashletName')}", width: 180, dataIndx: "dashletName" , align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.dashletName')}", width: 180, dataIndx: "dashletName" , align: "left", halign: "center",render: formatDashletName,
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-			{ title: "${messageSource.getMessage('jws.dashletTitle')}", width: 180, dataIndx: "dashletTitle", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.dashletTitle')}", width: 180, dataIndx: "dashletTitle", align: "left", halign: "center",render: formatDashletTitle,
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 			{ title: "${messageSource.getMessage('jws.createdBy')}", hidden: true, width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
@@ -120,7 +120,18 @@
 			return "System";
 		}
 	}
-	
+	/*Written for preventing Cross Site Scripting*/
+     function formatDashletName(uiObject){   
+        const dashletname = uiObject.rowData.dashletName;
+        var encodedName = $('<div />').text(dashletname).html();
+        return encodedName;             
+    }
+     function formatDashletTitle(uiObject){   
+        const dashletTitle = uiObject.rowData.dashletTitle;
+        var encodedTitle = $('<div />').text(dashletTitle).html();
+        return encodedTitle;             
+    }
+    /**Ends Here*/
 	function dashletStatus(uiObject){
 		const status = uiObject.rowData.status;
 		if(status == 1){
@@ -162,8 +173,5 @@
 		</#if>
 		return actionElement;
 	}
-	
-
-	
 </script>
 <script src="${(contextPath)!''}/webjars/1.0/dashlet/dashletListing.js"></script>

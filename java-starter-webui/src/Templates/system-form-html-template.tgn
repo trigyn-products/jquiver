@@ -1,12 +1,5 @@
 <head>
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/css/starter.style.css" />
 <#if (columnDetails)??>
 	<#list columnDetails as columnDetailsList>
         <#if columnDetailsList?api.get('columnType') == "datetime">

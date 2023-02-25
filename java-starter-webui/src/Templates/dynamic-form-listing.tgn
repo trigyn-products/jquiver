@@ -66,9 +66,9 @@
 		sessionStorage.setItem("dynamic-form-manage-details", formDataJson);
 		
 			let colM = [
-				{ title: "${messageSource.getMessage('jws.formname')}", width: 130, dataIndx: "formName" , align: "left", halign: "center",
+				{ title: "${messageSource.getMessage('jws.formname')}", width: 130, dataIndx: "formName" , align: "left", halign: "center",render: formatFormName,
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "${messageSource.getMessage('jws.formdescription')}", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
+				{ title: "${messageSource.getMessage('jws.formdescription')}", width: 130, dataIndx: "formDescription", align: "left", halign: "center",render: formatFormDesc,
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy" ,hidden: true, align: "left", halign: "center",
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
@@ -120,6 +120,19 @@
         return formatDate(lastUpdatedTs);
     }
     
+     /*Written for preventing Cross Site Scripting*/
+     function formatFormDesc(uiObject){   
+        const formdesc = uiObject.rowData.formDescription;
+        var encodedDesc = $('<div />').text(formdesc).html();
+        return encodedDesc;             
+    }
+     function formatFormName(uiObject){   
+        const formname = uiObject.rowData.formName;
+        var encodedName = $('<div />').text(formname).html();
+        return encodedName;             
+    }
+    /**Ends Here*/
+
 	function editDynamicFormFormatter(uiObject) {	
 		let dynamicFormId = uiObject.rowData.formId;
 		let dynamicFormName = uiObject.rowData.formName;

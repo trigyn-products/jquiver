@@ -83,9 +83,9 @@
 		let colM = [
 	        { title: "", width: 130, align: "center", dataIndx: "moduleId", align: "left", halign: "center", hidden : true },
 	        { title: "", width: 130, align: "center", dataIndx: "roleId", align: "left", halign: "center", hidden : true },
-	        { title: "${messageSource.getMessage('jws.role')}", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center",
+	        { title: "${messageSource.getMessage('jws.role')}", width: 100, align: "center", dataIndx: "roleName", align: "left", halign: "center", render: formatroleName,
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.moduleName')}", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center",
+	        { title: "${messageSource.getMessage('jws.moduleName')}", width: 100, align: "center",  dataIndx: "moduleName", align: "left", halign: "center", render: formatmoduleName,
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.moduleUrl')}", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -110,9 +110,13 @@
 	        enableClearText : true,
 	        render: function(item) {
 	            var renderStr ="";
+                /**Written for preventing Cross Site Scripting*/
+                var moduleName = item.text;
+                var encodedName = $('<div />').text(moduleName).html();
+                /**Ends Here*/
 	            if(item.emptyMsg == undefined || item.emptyMsg === "")
 	            {
-	                renderStr = "<p>"+item.text+"</p>";
+	                renderStr = "<p>"+encodedName+"</p>";
 	            }else
 	            {
 	                renderStr = item.emptyMsg;    
@@ -133,16 +137,29 @@
 		});
 		
 	});
-  
+   /*Written for preventing Cross Site Scripting*/
+     function formatroleName(uiObject){   
+        const roleName = uiObject.rowData.roleName;
+        var encodedName = $('<div />').text(roleName).html();
+        return encodedName;             
+    }
+    function formatmoduleName(uiObject){   
+        const moduleName = uiObject.rowData.moduleName;
+        var encodedName = $('<div />').text(moduleName).html();
+        return encodedName;             
+    }
+    /**Ends Here*/
+	
   	function formatActionCol(uiObject) {
 		const roleId = uiObject.rowData.roleId;
 		const moduleId = uiObject.rowData.moduleId;
 		const moduleName = uiObject.rowData.moduleName;
+        var modulename = $('<div />').text(moduleName).html();
 		const roleName = uiObject.rowData.roleName;
-		const moduleURL = uiObject.rowData.moduleURL;
+        const moduleURL = uiObject.rowData.moduleURL;
 		let actionElement = "";
 		if(moduleId !== null){ 
-			actionElement += '<span id="'+roleId+'" data-module-id="'+moduleId+'" data-module-name="'+moduleName+'" data-role-name="'+roleName+'" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>'.toString();
+			actionElement += '<span id="'+roleId+'" data-module-id="'+moduleId+'" data-module-name="'+modulename+'" data-role-name="'+roleName+'" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>'.toString();
 		} else {
 			actionElement += '<span id="'+roleId+'" data-role-name="'+roleName+'" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>'.toString();
 		}

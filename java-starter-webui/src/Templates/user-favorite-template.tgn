@@ -30,8 +30,12 @@ let autocompletePF;
             render: function(item) {
                 var renderStr = "";
                 imageName = getImageNameByType(item.entityType);
+                /*Written for preventing Cross Site Scripting*/
+                var entityName = item.entityName;
+                var encodedName = $('<div />').text(entityName).html();
+                /**Ends Here*/
                 if(item.emptyMsg == undefined || item.emptyMsg === ""){
-                   renderStr = '<div class="user-favorite-img-cls"><img src="${(contextPath)!''}/webjars/1.0/images/'+imageName+'.svg"><p>'+item.entityName+'</p></div>';
+                   renderStr = '<div class="user-favorite-img-cls"><img src="${(contextPath)!''}/webjars/1.0/images/'+imageName+'.svg"><p>'+encodedName+'</p></div>';
                 }else{
                     renderStr = item.emptyMsg;	
                 }	    				        
@@ -44,6 +48,8 @@ let autocompletePF;
             select: function(item) {
                 submitForm(item);
                $("#rbAutocompletePF").blur();
+            /**Added for clearing the Autocomplete Value after selecting*/
+                $('#rbAutocompletePF').val('');
             }, 
         });
     });

@@ -1,18 +1,17 @@
-
-
 <#if innerTemplateObj.enableGoogleAnalytics ?? && innerTemplateObj.googleAnalyticsKey?? 
 	&& innerTemplateObj.enableGoogleAnalytics=="true">
 					
 	<script async src="https://www.googletagmanager.com/gtag/js?id=${innerTemplateObj.googleAnalyticsKey}"></script>
 	<script>
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag("js", new Date());
+        setTimeout(function(){ 
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag("js", new Date());
 
-	gtag("config", "${innerTemplateObj.googleAnalyticsKey}", {
-		"page_title" : "Your custom title",
-		"page_path": "/${innerTemplateObj.entityType}/${innerTemplateObj.entityName}"
-	});
-
+                gtag("config", "${innerTemplateObj.googleAnalyticsKey}", {
+                    "page_title" : document.title,
+                    "page_path": "/${innerTemplateObj.entityType}/${innerTemplateObj.entityName}"
+                });
+            }, 50);
 	</script>
 </#if>

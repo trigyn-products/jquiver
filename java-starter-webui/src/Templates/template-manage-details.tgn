@@ -35,6 +35,7 @@
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<div class="row">
+        <#outputformat "HTML">
 	    	<div class="col-9">
 				<div class="col-inner-form full-form-fields">
 					 <input type="hidden" id="templateId" name="templateId" value="${(templateDetails.templateId)!0}"/>
@@ -107,11 +108,11 @@
 				</div>
 			</div>
 		</div>
-
+</#outputformat>
 </div>
 
 <script>
-  
+	document.title = "Edit Template Details"; 
     contextPath = "${(contextPath)!''}";
     let monacoSugg;
     let suggestionArray;
@@ -130,15 +131,27 @@
 			$.ajax({
 				type : "GET",
 				url : contextPath+"/api/defaultTemplates",
-				success : function(data){
-					defaultTemplates = data["defaultTemplates"];
+				success : function(data){ 
+                    defaultTemplates = data["defaultTemplates"];
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
-						$("#defaultTemplateId").append("<option>"+defaultTemplates[counter]["name"]+"</option>");
+                       let defaultArray = defaultTemplates[counter]["NAME"];
+                       let splitValue = defaultArray.split('-');
+                       let result = "";
+                       for(let iCounter = 1; iCounter<splitValue.length; ++iCounter)
+                       {   
+                            result += " " +splitValue[iCounter].charAt(0).toUpperCase() + splitValue[iCounter].slice(1);
+                       }                 
+                       $("#defaultTemplateId").append("<option id='"+defaultArray+"'>"+result+"</option>");
 					}
 					$("#defaultTemplateId").change(function(event){
-						templateMaster.editor.setValue(defaultTemplates.find(te => te.name == event.currentTarget.value).template);
-					});
-				}
+                        for(var iCounter=0; iCounter<defaultTemplates.length;iCounter++) {
+                            if(event.currentTarget.selectedOptions[0].id == defaultTemplates[iCounter]["NAME"]) {
+                                templateMaster.editor.setValue(defaultTemplates[iCounter].template);
+                                break;
+                            }
+                     }
+                });
+			    }
 			});
 			let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
             multiselect.setSelectedObject(defaultAdminRole);

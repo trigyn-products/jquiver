@@ -38,29 +38,6 @@
          
         
       </div>
-      <div class="row">
-          
-         <div class="col-12">
-            <div class="bs-example">
-               <div class="accordion" id="accordionExample">
-                  <div class="card">
-                     <div class="card-header" id="headingOne">
-                        <h2 class="mb-0">
-                           <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne">GC Metrics <i class="fa fa-plus"></i></button>									
-                        </h2>
-                     </div>
-                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-                        <div class="card-body">
-                           <div id="gc-metrics-content">
-                              <canvas id="gc-metrics-chart"></canvas>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
       
 	<div class="row">
          <div class="col-6">
@@ -177,6 +154,7 @@
    </div>
 </div>
 <script>
+	document.title = "Application Metrics"
     contextPath = "${contextPath}";
     let appMetrics = new ApplicationMetrics();
 

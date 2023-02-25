@@ -50,11 +50,11 @@ $(function () {
 	let formDataJson = JSON.stringify(formElement);
 	sessionStorage.setItem("add-edit-user", formDataJson);
 	let colM = [
-        { title: "${messageSource.getMessage('jws.firstName')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.firstName')}", width: 130, align: "center", dataIndx: "first_name", align: "left", halign: "center",render: formatFirstName,
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "${messageSource.getMessage('jws.lastName')}", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.lastName')}", width: 130, align: "center", dataIndx: "last_name", align: "left", halign: "center",render: formatLastName,
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "${messageSource.getMessage('jws.email')}", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.email')}", width: 100, align: "center",  dataIndx: "email", align: "left", halign: "center",render: formatEmail,
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.isActive')}", width: 160, align: "center", dataIndx: "is_active", render: userStatus , align: "left", halign: "center"},
         { title: "${messageSource.getMessage('jws.action')}", width: 30, minWidth: 115, align: "center", render: editUser, dataIndx: "action", sortable: false }
@@ -76,6 +76,24 @@ function editUser(uiObject) {
   		return '<span id="'+userId+'" onclick="submitForm(this);" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>'.toString();
 	}
 }	
+/*Written for preventing Cross Site Scripting*/
+function formatFirstName(uiObject){   
+    const firstName = uiObject.rowData.first_name;
+    var encodedName = $('<div />').text(firstName).html();
+    return encodedName;             
+}
+function formatLastName(uiObject){   
+    const lastName = uiObject.rowData.last_name;
+    var encodedName = $('<div />').text(lastName).html();
+    return encodedName;             
+}
+function formatEmail(uiObject){   
+    const email = uiObject.rowData.email;
+    var encodedEmail = $('<div />').text(email).html();
+    return encodedEmail;             
+}
+    
+      /**Ends Here*/
 function submitForm(element) {
 	$("#userId").val(element.id);
  	$("#addEditUser").submit();

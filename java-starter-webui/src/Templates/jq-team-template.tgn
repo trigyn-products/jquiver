@@ -62,9 +62,9 @@
         </div>
     
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
-                <span class="namcls">Lead Consutant- UI</span>
+                <span class="namcls">Associate Architect-UI</span>
             <a href="https://www.linkedin.com/in/amit-jadhav-3308782b/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/bc03c67f-a5a0-4063-8ef4-c50ed8f076f3" alt="Amit Jadhav" title="Lead Consutant- UI"/>
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/bc03c67f-a5a0-4063-8ef4-c50ed8f076f3" alt="Amit Jadhav" title="Associate Architect-UI"/>
                  <div class="udetails">
                <span class="desg">Amit Jadhav</span>
                    
@@ -75,9 +75,22 @@
      
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
 
-                <span class="namcls">Sr Technical Analyst</span>
+                <span class="namcls">Sr. Software Engineer</span>
+            <a href="https://www.linkedin.com/in/bibhusrita-nayak-819330231/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/0802831f-e1ee-4b3d-9bf9-e5bb9ba809c6" alt="Bibhusrita Nayak" title="Sr. Software Engineer"/>
+                  <div class="udetails">
+             <span class="desg">Bibhusrita Nayak</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+     
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Team Lead</span>
             <a href="https://www.linkedin.com/in/mini-pillai-b01807112/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4" alt="Mini Pillai" title="Sr Technical Analyst"/>
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4" alt="Mini Pillai" title="Team Lead"/>
                   <div class="udetails">
              <span class="desg">Mini Pillai</span>
                       
@@ -122,6 +135,20 @@
                 </div>
             </a>
         </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Associate Technical Lead</span>
+            <a href="https://www.linkedin.com/in/shrinath-halki-1848b230/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/cf/files/9181f855-edd3-42fd-8a5f-f8063553db4a" alt="Shrinath Halki" title="Associate Technical Lead"/>
+                  <div class="udetails">
+             <span class="desg">Shrinath Halki</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+     
     </div>
     
 </div>

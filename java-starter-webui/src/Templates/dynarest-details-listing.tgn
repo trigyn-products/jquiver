@@ -40,7 +40,7 @@
                 <button type="submit" class="btn btn-primary">
                         ${messageSource.getMessage('jws.addrestapi')}
                 </button>
-            </form>
+             </form>
 			<span onclick="backToWelcomePage();">
   		        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
   		    </span>	

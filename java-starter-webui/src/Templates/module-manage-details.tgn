@@ -34,6 +34,7 @@
         <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 
         <div class="row">
+            <#outputformat "HTML">
             <input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''}">
             <div class="col-4">
                 <div class="col-inner-form full-form-fields">
@@ -275,6 +276,7 @@
                     <input id="cancelBtn" type="button" class="btn btn-secondary" value="${messageSource.getMessage('jws.cancel')}" onclick="addEditModule.backToModuleListingPage();">
                 </div>
             </div>
+            </#outputformat>
         </div>
         
     <div id="deleteHeader"></div>
@@ -288,6 +290,7 @@ let sequence = "${(moduleDetailsVO?api.getSequence())!''}";
 let savedHeaderJson = "";
 let savedRequestParamJson = "";
 let selectedLanguageId = getCookie("locale");
+  
 <#noparse>
 	<#if (moduleDetailsVO?api.getHeaderJson())?has_content>
 	    savedHeaderJson = JSON.parse('${(moduleDetailsVO?api.getHeaderJson())!""}');
@@ -298,12 +301,15 @@ let selectedLanguageId = getCookie("locale");
 </#noparse>
 $(function() {
     $("#targetLookupType option[value='4']").remove();
+     <#outputformat "HTML">
     let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''}";
-    let moduleName = "${(moduleDetailsVO?api.getTargetLookupName())!''}";
+    let modulename = "${(moduleDetailsVO?api.getTargetLookupName())!''}";
+    let moduleName = $('<div />').text(modulename).html();
     let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''}";
     let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''}";
     let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
     let moduleURL = "${(moduleDetailsVO?api.getModuleURL())!''}";
+    
 	$("#txtContentLang").val(selectedLanguageId);
 	$("#txtContentLangLabel").text(selectedLanguageId);
     savedAction("module-manage-details", moduleId);
@@ -322,15 +328,20 @@ $(function() {
         selectedTargetDetails["targetTypeId"] = moduleTypeId;
         selectedTargetDetails["targetTypeName"] = moduleName;
     }
+    </#outputformat>
     let autocompleteIdByType = addEditModule.getAutocompleteId();
     autocomplete = $('#targetTypeName').autocomplete({
         autocompleteId: autocompleteIdByType,
         enableClearText : true,
         render: function(item) {
             var renderStr ='';
+             /**Written for preventing Cross Site Scripting*/
+            var targetName = item.targetTypeName;
+            var encodedName = $('<div />').text(targetName).html();
+            /**Ends Here*/
             if(item.emptyMsg == undefined || item.emptyMsg === '')
             {
-                renderStr = '<p>'+item.targetTypeName+'</p>';
+                renderStr = '<p>'+encodedName+'</p>';
             }
             else
             {
@@ -361,6 +372,7 @@ $(function() {
     <#else>
         addEditModule.getEntityRoles();
     </#if>
+     
 });
 
 </script>

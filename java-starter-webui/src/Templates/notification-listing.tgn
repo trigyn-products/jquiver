@@ -19,7 +19,7 @@
     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.notificationlisting')}</h2> 
         <div class="float-right">
-         <a href="${(contextPath)!''}/cf/ad"> 
+            <a href="${(contextPath)!''}/cf/ad"> 
 					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
 				</a>
              <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.createnew')} </button>
@@ -52,7 +52,7 @@
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             	{ title: "${messageSource.getMessage('jws.msgvalidtill')}", hidden : false, width: 130, dataIndx: "validTill", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-            	{ title: "${messageSource.getMessage('jws.msgtext')}", hidden : false, width: 130, dataIndx: "messageText", align: "left", halign: "center",
+            	{ title: "${messageSource.getMessage('jws.msgtext')}", hidden : false, width: 130, dataIndx: "messageText", align: "left", halign: "center",render: formatMsgText,
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
             	{ title: "${messageSource.getMessage('jws.msgtype')}", hidden : false, width: 130, dataIndx: "messageType", align: "left", halign: "center", render:messageTypeRenderer ,
                 filter: { type: "select", condition: "equal",options : messageTypeOption, listeners: ["change"]} },
@@ -84,6 +84,14 @@
 	actionElement += '<span onclick=\'openDeletConfirmation("not1Grid","'+uiObject.rowData.notificationId+'","6ac6a54c-8d3f-11eb-8dcd-0242ac130003","","")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
 return actionElement;
     }
+    /*Written for preventing Cross Site Scripting*/
+     function formatMsgText(uiObject){   
+        const msgtext = uiObject.rowData.messageText;
+        var encodedText = $('<div />').text(msgtext).html();
+        return encodedText;             
+    }
+      /**Ends Here*/
+    
     
     function messageTypeRenderer(uiObject) {
         if(uiObject.rowData.messageType == 0){

@@ -1,3 +1,4 @@
+<#compress>
 <div>
    <form class="form-signin" method="post" action="${(contextPath)!''}/cf/login" autocomplete="off">
      
@@ -7,37 +8,37 @@
       	 </#if> 
 	  </#if>            
       <p class="divdeform">   
-         <label for="username" class="formlablename"><@resourceBundleWithDefault "jws.email" "JQuiver"/></label>   
+         <label for="username" class="formlablename"><@resourceBundleWithDefault "jws.email" "Email"/></label>   
          <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>    
-         <input type="email" id="email" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "JQuiver"/>" required autofocus> 
+         <input type="email" id="email" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>" required autofocus> 
       </p>
       <#if innerTemplateObj.verificationType?? && innerTemplateObj.verificationType=="1">   
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
          <span class="formicosn"><i class="fa fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "JQuiver"/>" required>   
+         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Password"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p>
       <#if innerTemplateObj.enableCaptcha == "true">     
       <div class="captchablock"> 
          <img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''}/cf/captcha/loginCaptcha">   
          <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>    
-         <label for="captcha" class="sr-only"><@resourceBundleWithDefault "jws.entercaptcha" "JQuiver"/></label>  
-         <input type="text" id="captcha" name="captcha" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entercaptcha" "JQuiver"/>" required autofocus >    
+         <label for="captcha" class="sr-only"><@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/></label>  
+         <input type="text" id="captcha" name="captcha" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/>" required autofocus >    
       </div>
       </#if>  
       <span class="remebermeblock">   
-      <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "JQuiver"/></label>  
+      <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
       </span>     
       <span class="forgotpassword">   
-      <a href="${(contextPath)!''}/cf/resetPasswordPage"><@resourceBundleWithDefault "jws.forgotpassword" "JQuiver"/>?</a>     
+      <a href="${(contextPath)!''}/cf/resetPasswordPage"><@resourceBundleWithDefault "jws.forgotpassword" "Forgot Password"/>?</a>     
       </span>                           
       </#if> 
       <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/>               
-      <button class="btn btn-lg btn-primary btn-block" type="submit"><@resourceBundleWithDefault "jws.signin" "JQuiver"/></button> 
+      <button class="btn btn-lg btn-primary btn-block" type="submit"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> 
       <#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
-      <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "JQuiver"/>?   
-         <a href="${(contextPath)!''}/cf/register"> <@resourceBundleWithDefault "jws.registerhere" "JQuiver"/></a>   
+      <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "New User"/>?   
+         <a href="${(contextPath)!''}/cf/register"> <@resourceBundleWithDefault "jws.registerhere" "Register"/></a>   
       </p>
       </#if>  
    </form>
@@ -67,3 +68,4 @@
    });
    
 </script>
+</#compress>

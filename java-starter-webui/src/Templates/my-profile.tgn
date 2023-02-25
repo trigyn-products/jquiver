@@ -1,6 +1,7 @@
 <head>
      <title>${messageSource.getMessage('jws.myprofile')} </title>
      <script>
+     	document.title = "My Profile";
 		</script>
 </head>
 <body>

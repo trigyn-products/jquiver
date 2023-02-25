@@ -39,7 +39,7 @@
         let colM = [
             	{ title: "${messageSource.getMessage('jws.clientid')}", hidden : true, width: 130, dataIndx: "client_id", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-            	{ title: "${messageSource.getMessage('jws.clientname')}", hidden : false, width: 130, dataIndx: "client_name", align: "left", align: "left", halign: "center",
+            	{ title: "${messageSource.getMessage('jws.clientname')}", hidden : false, width: 130, dataIndx: "client_name", align: "left", align: "left", halign: "center",render: formatName,
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             	{ title: "${messageSource.getMessage('jws.clientkey')}", hidden : false, width: 130, dataIndx: "client_key", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
@@ -87,6 +87,14 @@
     	  let formId = "2acd30d0-ef07-4ce2-b4f4-02cbfd29bf67";
     	  openForm(formId, primaryKeyDetails);
     }
+
+    /*Written for preventing Cross Site Scripting*/
+    function formatName(uiObject){   
+        const clientName = uiObject.rowData.client_name;
+        var encodedName = $('<div />').text(clientName).html();
+        return encodedName;             
+    }
+      /**Ends Here*/
 
     //Code go back to previous page
     function backToWelcomePage() {

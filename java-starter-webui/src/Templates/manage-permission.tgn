@@ -5,6 +5,7 @@
 </head>
 <div class="container">
     <div class="topband">
+         <#outputformat "HTML">
         <h2 class="title-cls-name float-left"> ${messageSource.getMessage('jws.managepermissions')} </h2>
         <div class="float-right">
             <select class="typeSelectDropDown" id="typeRole" onchange="handleEntityRole()">
@@ -17,6 +18,7 @@
             <span onclick="backToPreviousPage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span>
+                 </#outputformat>
         </div>
         <div class="clearfix"></div>
     </div>
@@ -27,7 +29,7 @@
 contextPath = "${contextPath}";
 
 $(function () {
-   
+   <#outputformat "HTML">
 	let colM = [
 		 { title: "${messageSource.getMessage('jws.moduleName')}", align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
         filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
@@ -40,6 +42,7 @@ $(function () {
         </#list>
  
 	];
+    </#outputformat>
 	let dataModel = {
 	   	url: contextPath+"/cf/pq-grid-data",
     };

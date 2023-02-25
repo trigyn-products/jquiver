@@ -1,4 +1,4 @@
-
+<#compress>
 <div>
 	<form class="form-signin" method="post"
 		action="${(contextPath)!''}/cf/login" autocomplete="off">
@@ -8,26 +8,24 @@
 				</div>
 			</#if>
 		</#if>
-		<div id="emailRequiredError" class="alert alert-danger" role="alert"
-			style="display: none">Email is required</div>
 		<p class="divdeform">
 			<label for="username" class="formlablename">
-			<@resourceBundleWithDefault "jws.email" "JQuiver"/></label> <span class="formicosn">
+			<@resourceBundleWithDefault "jws.email" "Email"/></label> <span class="formicosn">
 			<i class="fa fa-user" aria-hidden="true"></i></span> <input type="email"
 				id="email" name="email" class="form-control"
-				placeholder="<@resourceBundleWithDefault "jws.enteremail" "JQuiver"/>"
+				placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>"
 			required autofocus>
 		</p>
 		<#if innerTemplateObj.verificationType?? && innerTemplateObj.verificationType=="0">
 		<p class="divdeform">
 			<label for="password" class="formlablename"><@resourceBundleWithDefault
-				"jws.enterotp" "JQuiver"/></label> <span class="formicosn"><i
+				"jws.enterotp" "Enter OTP"/></label> <span class="formicosn"><i
 				class="fa fa-key" aria-hidden="true"></i></span> <input
 				id="btnSendOtp" class="otplink" name="btnSendOtp"
-				value="<@resourceBundleWithDefault "jws.sendotp" "JQuiver"/>"
+				value="<@resourceBundleWithDefault "jws.sendotp" "Send OTP"/>"
 			type="submit" onclick="saveOtpAndSendMail();"> <input type="text"
 				id="password" name="password" class="form-control"
-				placeholder="<@resourceBundleWithDefault "jws.enterotp" "JQuiver"/>"
+				placeholder="<@resourceBundleWithDefault "jws.enterotp" "Enter OTP"/>"
 			required autofocus >
 
 		</p>
@@ -38,9 +36,9 @@
 				src="${(contextPath)!''}/cf/captcha/loginCaptcha"> <span
 				id="reloadCaptcha"><i class="fa fa-refresh"
 				aria-hidden="true"></i></span> <label for="captcha" class="sr-only"><@resourceBundleWithDefault
-				"jws.entercaptcha" "JQuiver"/></label> <input type="text" id="captcha"
+				"jws.entercaptcha" "Enter Captcha"/></label> <input type="text" id="captcha"
 				name="captcha" class="form-control"
-				placeholder="<@resourceBundleWithDefault " jws.entercaptcha" "JQuiver"/>"
+				placeholder="<@resourceBundleWithDefault " jws.entercaptcha" "Enter Captcha"/>"
 			required autofocus >
 		</p>
 		
@@ -48,11 +46,16 @@
 		<input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/> 
 		<span class="remebermeblock"> <input type="checkbox"
 			name="remember-me" id="remember-me"> <label for="remember-me"><@resourceBundleWithDefault
-				"jws.rememberme" "JQuiver"/></label>
+				"jws.rememberme" "Remember Me"/></label>
 		</span> <#--span class="forgotpassword"> <a href="#">Not
 			Received? Resend</a> </span></#if-->
 		<button class="btn btn-lg btn-primary btn-block" type="submit"><@resourceBundleWithDefault
-			"jws.signin" "JQuiver"/></button>
+			"jws.signin" "Sign In"/></button>
+		<#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
+	      <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "New User"/>?   
+	         <a href="${(contextPath)!''}/cf/register"> <@resourceBundleWithDefault "jws.registerhere" "Register here"/></a>   
+	      </p>
+      </#if>
 	</form>
 
 </div>
@@ -78,13 +81,13 @@ function disableSendOtpBtn() {
 function saveOtpAndSendMail() {
 	$(".alert-danger").hide();
 	disableSendOtpBtn();
-				var otp 	= 	generateOTP();
-				var email	=	$("#email").val();
-				if(email==''){
-					$("#emailRequiredError").show();
-					$("#email").focus();
-					return false;
-				}
+	var otp 	= 	generateOTP();
+	var email	=	$("#email").val();
+	if(email==''){
+		$("#emailRequiredError").show();
+		$("#email").focus();
+		return false;
+	}
 	$.ajax({
 	  type : "GET",
 	  async: false,
@@ -97,7 +100,11 @@ function saveOtpAndSendMail() {
                       
 	  },
       error : function(xhr, error){
-		showMessage("Error occurred while saving", "error");
+      	if (xhr != undefined && xhr.status == 404) {
+			$("#userNotFoundError").show();
+		}else{
+			showMessage("Error occurred while saving", "error");
+      	}
       }
 	});
 	
@@ -110,3 +117,4 @@ function saveOtpAndSendMail() {
         });         
     });
 </script>
+</#compress>

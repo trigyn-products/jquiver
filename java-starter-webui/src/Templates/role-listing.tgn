@@ -41,9 +41,9 @@ $(function () {
 	let formDataJson = JSON.stringify(formElement);
 	sessionStorage.setItem("add-edit-role", formDataJson);
 	let colM = [
-        { title: "${messageSource.getMessage('jws.role')}", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.role')}", width: 130, align: "center", dataIndx: "role_name", align: "left", halign: "center",render: formatRoleName,
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "${messageSource.getMessage('jws.roledescription')}", width: 100, align: "center",  dataIndx: "role_description", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.roledescription')}", width: 100, align: "center",  dataIndx: "role_description", align: "left", halign: "center",render: formatRoleDesc,
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.priority')}", width: 160, align: "center", dataIndx: "role_priority", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
@@ -69,6 +69,19 @@ function editRole(uiObject) {
 	  	return '<span id="'+roleId+'" onclick="submitForm(this);" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>'.toString();
 	}
 }	
+/*Written for preventing Cross Site Scripting*/
+    function formatRoleName(uiObject){   
+        const roleName = uiObject.rowData.role_name;
+        var encodedName = $('<div />').text(roleName).html();
+        return encodedName;             
+    }
+    function formatRoleDesc(uiObject){   
+        const roleDesc = uiObject.rowData.role_description;
+        var encodedDesc = $('<div />').text(roleDesc).html();
+        return encodedDesc;             
+    }
+    
+      /**Ends Here*/
 function submitForm(element) {
 	$("#roleId").val(element.id);
  	$("#addEditRole").submit();

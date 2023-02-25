@@ -60,9 +60,9 @@
         let fileUploadId = fileObj["id"];
         let fileName = fileObj["name"];
         let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
-        let actionElem = "<div><span  title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span>" +
-        	"<span  title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span>"+ 
-        	"<span  title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFile('"+fileUploadId+"')\"></i></span></div>";
+        let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i>" +
+        	"<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i>"+ 
+        	"<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFile('"+fileUploadId+"')\"></i></span></div>";
         return actionElem;
 	}
 	
