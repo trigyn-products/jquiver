@@ -1,0 +1,138 @@
+<#assign l_offset = offset?number>
+<div id="restApiDetailsDiv">
+<#if dynaResult?? && dynaResult?size != 0>
+
+  <#list dynaResult as dynaList>  
+            <div id="accordion" class="accordion">
+              <div class="card mb-0">
+                  <div class="card-header-block collapsed" data-toggle="collapse" href="#collapseOne">
+                      <a class="card-title">
+                       <div class="type-block">
+                         <div class="methodtypeblock methodtypeblock-${dynaList.jws_request_type_lower}" id="methodTypeDiv_${dynaList.dynarestId}">
+                           <input type = "checkbox" id="checkboxDiv_${dynaList.dynarestId}" name="check" class="checkall_${dynaList.dynarestId}"></input>
+                          ${dynaList.jws_request_type}
+                         </div>
+                          <div class="methodurlblock">
+                           ${dynaList.rest_api_url}
+                          </div>
+                      </div>
+                      </a>
+                  </div>
+
+                  <div id="collapseOne" class="card-body-block collapse" data-parent="#accordion" >
+
+                   <div class="dataparameterblock">
+                    <h3>Data Parameters</h3>
+                     <div class="row">
+                          <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>HTTP Produces Type</label>
+                                <input type="text" value="${dynaList.http_produces_type}" class="form-control" disabled="" >
+                              </div>
+                          </div>
+
+                            <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>Rest Method Name</label>
+                                <input type="text" value="${dynaList.dynarestMethodName}" class="form-control" disabled="" >
+                              </div>
+                            </div>
+
+                             <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>Method Desc</label>
+                                <input type="text" value=" ${dynaList.dynarestMethodDescription}" class="form-control" disabled="" >
+                              </div>
+                            </div>
+                         </div>                      
+                      </div>  
+
+                    
+                       <div class="reponseheader">
+
+                       <div class="row">
+                        <div class="col-6">
+                          <h3>Response Header</h3>
+                          <div class="row" id="headerJsonDiv_${dynaList.dynarestId}"></div>
+                        </div>
+
+                        <div class="col-6">
+                          <h3>Roles</h3>
+                          <div class="rolsemainblock" id="RolesDiv_${dynaList.dynarestId}">
+                        </div>
+                       </div>                       
+                       </div>
+                      </div>
+                  </div>
+                  
+              </div>
+          </div>       
+
+    </div>
+    </br>
+ </#list>
+</#if>
+</div>
+<#if ((l_offset + 1) * 10 < responseCount[0].responses?number)>
+<center><button onclick="loadRestAPI(${l_offset + 1},'${jws_dynamic_rest_url}')">Load More</button></center>
+</#if>
+<#if dynaResult?? && dynaResult?size != 0>
+  <#list dynaResult as dynaList> 
+<script>
+ $( function() { 
+    let jsonStr = '${dynaList.header_json}';
+     let savedHeaderJson = "";
+     let new_div = '';
+     if(jsonStr !== ''){
+       savedHeaderJson = JSON.parse(jsonStr);
+      } 
+      if(savedHeaderJson !== ''){
+        Object.keys(savedHeaderJson).forEach(function(key) {
+          new_div ='<div class="col-6"> <div class="form-control customformcont">'+key + '</div></div>' + '<div class="col-6"> <div class="form-control customformcont">'+savedHeaderJson[key] + '</div></div>';
+          $("#headerJsonDiv_"+'${dynaList.dynarestId}').append(new_div);
+      });        
+    }  
+      var str = '';
+      let roles_div = '';
+      let roles = '${dynaList.Role_Name}';
+      var textArray = roles.split(',');
+      for(var iCounter =0;iCounter<textArray.length;iCounter++){
+        str = textArray[iCounter];
+        roles_div = '<div class="rolseblock" >'+ str + '</div>';
+        $("#RolesDiv_"+'${dynaList.dynarestId}').append(roles_div);
+      }    
+     });
+     function CheckedAll(){    
+     if (document.getElementById('selectAll').checked) {
+         for(i=0; i<document.getElementsByName('check').length;i++){
+            document.getElementsByName('check')[i].checked = true;
+         }
+     }
+     else {
+         for(i=0; i<document.getElementsByName('check').length;i++){
+            document.getElementsByName('check')[i].checked = false;
+         }
+     }
+   }
+
+  $('#selectAll').change(function () {
+    $('.checkall_${dynaList.dynarestId}').prop('checked',this.checked);
+  });
+
+  $('.checkall_${dynaList.dynarestId}').change(function () {
+    if ($('.checkall_${dynaList.dynarestId}:checked').length == $('.checkall_${dynaList.dynarestId}').length){
+        $('#selectAll').prop('checked',true);
+    }
+    else {
+        $('#selectAll').prop('checked',false);
+    }
+  });
+  
+</script>
+ </#list>
+</#if>
+
+
+
+ 
+

@@ -36,9 +36,21 @@
 
 		deleteFileById(fileId) {
 			let index = this.dropzone.getAcceptedFiles().map(file =>
-			file.id != undefined ? file.id : JSON.parse(file.xhr.response).fileIds[0]).indexOf(fileId);
-			
-			let file = this.dropzone.getAcceptedFiles()[index];
+				file.id != undefined ? file.id : JSON.parse(file.xhr.response).fileIds[0]).indexOf(fileId);
+			var file = "";
+			if (index != -1)
+				file = this.dropzone.getAcceptedFiles()[index];
+			else {
+				if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+					let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
+					$.each(fileBinJsonArrTemp, function(key, cookieData) {
+						//console.log(cookieData.id+ " = "+fileId);
+						if (cookieData.id != undefined && cookieData.id == fileId) {
+							file = { name: cookieData.name, size: cookieData.size, id: cookieData.id, accepted: true };
+						}
+					});
+				}
+			}
 			this.removeFileEvent(new Event("remove"), this.dropzone, file)
 		}
 
@@ -56,15 +68,8 @@
 					success: function(data) {
 						for (let iCounter = 0; iCounter < data.length; ++iCounter) {
 							let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
-							dropzone.emit("addedfile", file);
-							dropzone.emit("complete", file);
-							dropzone.files.push(file);
-							let viewButton = Dropzone.createElement("<i class='fileupload-actions fa fa-download float-right' title='" + resourceBundleData("jws.viewFile") + "'></i>");
-							let fileId = data[iCounter]["fileId"];
-							viewButton.addEventListener("click", function(event) {
-								context.viewFileEvent(event, fileId)
-							});
-							file.previewElement.appendChild(viewButton);
+							let options = this.options;
+							appendFileToUI(context, dropzone, options, file);
 						}
 					}, error: function(data, errorMessage, xhr) {
 						let customErrorMessage;
@@ -162,12 +167,14 @@
 			let cookieFileUploadIds = [];
 			let fileUploadTemps = [];
 			if (options.fileBinId != undefined) {
+
 				// below code is used to prepare cookieFileUploadIds stored in cookie and passed to clear on load.
 				if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
-					let fileBinJsonArr = JSON.parse(getCookie("fileBinDetails"));
-					if (fileBinJsonArr != undefined) {
-						$.each(fileBinJsonArr, function(key, data) {
-							if (data.fileUploadTempId != undefined && options.fileBinId == data.fileBinId && options.fileAssociationId == data.fileAssociationId) {
+
+					let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
+					if (fileBinJsonArrTemp != undefined) {
+						$.each(fileBinJsonArrTemp, function(key, data) {
+							if (data.fileUploadTempId != undefined && options.fileBinId != undefined && options.fileAssociationId != undefined && options.fileBinId == data.fileBinId && options.fileAssociationId == data.fileAssociationId) {
 								fileUploadTemps.push(data.fileUploadTempId);
 								cookieFileUploadIds.push(data.id);
 							}
@@ -186,23 +193,21 @@
 					},
 					success: function(data) {
 						for (let iCounter = 0; iCounter < data.length; ++iCounter) {
-							let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
-							appendFileToUI(context, dropzone, options, file);
-
+							if(data[iCounter]["warningMessage"] === "FOUND"){
+								let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
+								appendFileToUI(context, dropzone, options, file);	
+							}else{
+								showMessage(data[iCounter]["warningMessage"], "warn");
+							}
 						}
-						for (let iCounter = 0; iCounter < cookieFileUploadIds.length; ++iCounter) {
-							deleteFileUploadTempIdCookie(cookieFileUploadIds[iCounter]);
-						}
-						//appendFileToUI using cookie stored values
-						if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
-							let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
-							$.each(fileBinJsonArrTemp, function(key, cookieData) {
-								if (cookieData.fileUploadTempId = !undefined && cookieData.fileAssociationId != undefined && options.fileBinId == cookieData.fileBinId && options.fileAssociationId == cookieData.fileAssociationId) {
-									let file = { name: cookieData.name, size: cookieData.size, id: cookieData.id, accepted: true };
-									appendFileToUI(context, dropzone, options, file);
-								}
+						//clearFileBinCookie();
+						if (cookieFileUploadIds != "" && cookieFileUploadIds != undefined) {
+							$.each(cookieFileUploadIds, function(key, cookieData) {
+								deleteFileUploadTempIdCookie(cookieData);
 							});
 						}
+						//append Files To UI using cookie stored values
+						appendFileFromCookieToUI(options);
 					}, error: function(data, errorMessage, xhr) {
 						let customErrorMessage;
 						if (data.status == 403) {
@@ -303,58 +308,61 @@
 			let context = this;
 			let options = this.options;
 			if (options.fileBinId != undefined) {
-				$.ajax({
-					type: "GET",
-					async: false,
-					url: contextPath + "/cf/fdbbi",
-					data: {
-						fileBinId: options.fileBinId,
-						fileAssociationId: options.fileAssociationId,
-						isEdit: options.isEdit
-					},
-					success: function(data) {
-						dropzone.removeAllFiles(true);
-						//this is for saved files from server
-						for (let iCounter = 0; iCounter < data.length; ++iCounter) {
-							let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
-							appendFileToUI(context, dropzone, options, file);
-						}//end of for loop
-
-						//these are temp files which are not permanently saved
-						//appendFileToUI using cookie stored values
-						if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
-							let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
-							$.each(fileBinJsonArrTemp, function(key, cookieData) {
-								if (cookieData.fileUploadTempId = !undefined && cookieData.fileAssociationId != undefined && options.fileBinId == cookieData.fileBinId && options.fileAssociationId == cookieData.fileAssociationId) {
-									let file = { name: cookieData.name, size: cookieData.size, id: cookieData.id, accepted: true };
+				if (dropzone != undefined) {
+					dropzone.removeAllFiles(true);
+				}
+				// Display Options 0 - All (default), 1 - Persistant storage , 2 - cookie
+				var displayOptions = options.displayOptions != undefined ? options.displayOptions : 0;
+				//Display Options 2 : appendFileToUI using cookie stored values
+				if (displayOptions == 0 || displayOptions == 2) {
+					appendFileFromCookieToUI(options);
+				}
+				if (displayOptions == 0 || displayOptions == 1) {
+					$.ajax({
+						type: "GET",
+						async: false,
+						url: contextPath + "/cf/fdbbi",
+						data: {
+							fileBinId: options.fileBinId,
+							fileAssociationId: options.fileAssociationId,
+							isEdit: options.isEdit
+						},
+						success: function(data) {
+							//append Files To UI without using cookies (From persistant table)
+							if (dropzone != undefined) {
+								//dropzone.removeAllFiles(true);
+								//this is for saved files from server
+								for (let iCounter = 0; iCounter < data.length; ++iCounter) {
+									let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
 									appendFileToUI(context, dropzone, options, file);
-								}
-							});
-						}
-					}, error: function(data, errorMessage, xhr) {
-						if (data != undefined && data.status == 403) {
-							showMessage("You don't have enough privilege to access this module", "error");
-						} else {
-							showMessage(errorMessage, "error");
-						}
-					},
-				});
+								}//end of for loop	
+							}
+
+						}, error: function(data, errorMessage, xhr) {
+							if (data != undefined && data.status == 403) {
+								showMessage("You don't have enough privilege to access this module", "error");
+							} else {
+								showMessage(errorMessage, "error");
+							}
+						},
+					});
+				}
 			}
 		}
 
 		disableDropZone(message) {
 			this.dropzone.disable();
-			$(this.dropzone.element).find(".dropzone-title").html(message);
-			$(this.dropzone.element).find(".cm-uploadicon").addClass("dropzone-disable-img-cls");
-			$(this.dropzone.element).find(".dropzone-title").addClass("dropzone-disable-message-cls");
+			//$(this.dropzone.element).find(".dropzone-title").html(message);
+			//$(this.dropzone.element).find(".cm-uploadicon").addClass("dropzone-disable-img-cls");
+			//$(this.dropzone.element).find(".dropzone-title").addClass("dropzone-disable-message-cls");
 		}
 
 		enableDropZone(fileAssocId) {
 			this.dropzone.enable();
 			this.options.fileAssociationId = fileAssocId;
-			$(this.dropzone.element).find(".cm-uploadicon").removeClass("dropzone-disable-img-cls");
-			$(this.dropzone.element).find(".dropzone-title").removeClass("dropzone-disable-message-cls");
-			$(this.dropzone.element).find(".dropzone-title").html('Drag and drop your files or <span class="browse">browse</span> your files');
+			//$(this.dropzone.element).find(".cm-uploadicon").removeClass("dropzone-disable-img-cls");
+			//$(this.dropzone.element).find(".dropzone-title").removeClass("dropzone-disable-message-cls");
+			//$(this.dropzone.element).find(".dropzone-title").html('Drag and drop your files or <span class="browse">browse</span> your files');
 		}
 	}
 
@@ -374,6 +382,20 @@
 			a_fileObject.previewElement.appendChild(cutomButton);
 		}
 	}
+	
+	function appendFileFromCookieToUI(a_options) {
+		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+			let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
+			$.each(fileBinJsonArrTemp, function(key, cookieData) {
+				if (cookieData.fileUploadTempId = !undefined && cookieData.fileAssociationId != undefined && a_options.fileBinId == cookieData.fileBinId && a_options.fileAssociationId == cookieData.fileAssociationId) {
+					let file = { name: cookieData.name, size: cookieData.size, id: cookieData.id, accepted: true };
+					if (typeof a_options.renderer !== undefined && typeof a_options.renderer === "function") {
+						a_options.renderer(file);
+					}
+				}
+			});
+		}
+	}
 
 	/**
 	 * This is to support multiple file association id for one file bin.
@@ -391,14 +413,13 @@
 					break;
 				}
 			}
-			if (hasFileBinEntry == false) {
+			if (hasFileBinEntry == false && options.fileUploadTempId != undefined) {
 				fileBins[fileBins.length] = { "FileBinID": options.fileBinId, "fileAssociationID": options.fileAssociationId, "valueType": "fileBin", "fileUploadTempId": options.fileUploadTempId };
 			}
 		}
 	}
 	//this is to hold temp file in memory
 	//
-	var fileBinJsonArr = new Array();
 	$.fn.fileUpload = function(options, selectedFiles) {
 		let fileUpload = new FileUpload(this, options, selectedFiles);
 		let fileUploadId = "";
@@ -452,10 +473,8 @@
 					$(context).dropzone({
 						url: contextPath + "/cf/m-upload",
 						paramName: "files",
-						clickable: true,					
-						maxFilesize: fileUpload.getByteSize(data["max_file_size"]),
-						autoProcessQueue: false,
-						autoQueue: false,
+						clickable: true,
+						maxFilesize: fileUpload.getByteSize(data["max_file_size"]).toFixed(2),
 						uploadMultiple: true,
 						maxFiles: Number.parseInt(data["no_of_files"]),
 						acceptedFiles: data["file_type_supported"],
@@ -472,13 +491,11 @@
 							options.fileUploadTempId = Object.values(tempDetais)[0];
 							fileObj.fileUploadTempId = Object.values(tempDetais)[0];
 							fileObj.size = data.upload.total;
-							appendAssociationID(options, options.fileAssociationId);
+
 							updateFileBinCookie(options, fileObj);
-
 							showMessage("File uploaded successfully", "success");
 
-							showMessage("File uploaded successfully", "success");
-							let viewButton = Dropzone.createElement("<i class='fileupload-actions float-right' title='" + resourceBundleData("jws.viewFile") + "'></i>");
+							let viewButton = Dropzone.createElement("<div class='fileicons'><span class='iconcovercls'><i class='fileupload-actions float-right' title='" + resourceBundleData("jws.viewFile") + "'></i></span></div>");
 							let fileId = JSON.parse(data.xhr.response)["fileIds"][0];
 							viewButton.addEventListener("click", function(e) {
 								fileUpload.viewFileEvent(e, fileId)
@@ -500,16 +517,22 @@
 								showMessage(errorMessage, "error");
 							}
 							fileUpload.removeUploadedFile(new Event("remove"), this, data);
+							$("#confirm").dialog('destroy').remove();
 						},
 						init: function() {
 							fileUpload.dropzone = this;
 							this.on("sending", function(file, xhr, formData) {
 								formData.append("fileBinId", options.fileBinId);
 								formData.append("fileAssociationId", options.fileAssociationId);
-								formData.append("isReplaceExistingFile", isReplaceExistingFile);
-								formData.append("existingFileId", existingFileId);
+								if (isReplaceExistingFile != undefined) {
+									formData.append("isReplaceExistingFile", isReplaceExistingFile);
+								}
+								if (existingFileId != undefined) {
+									formData.append("existingFileId", existingFileId);
+								}
+
 							});
-							
+
 							if ((fileUpload.options.renderer instanceof Function) == false) {
 								this.on("addedfile", function(file) {
 									let removeButton = Dropzone.createElement("<div class='fileicons'><span class='iconcovercls'><i class='fileupload-actions fa fa-trash float-left'  title='" + resourceBundleData("jws.deleteFile") + "'></i></span></div>");
@@ -521,16 +544,20 @@
 								});
 							}
 							fileUpload.dropzone.on("addedfile", function(file) {
-								isDuplicate = false;
 								isUploadValid = false;
-
+								isReplaceExistingFile = "false";
 								if (this.files.length) {
 									var fileCount = this.files.length;
 									if (fileCount > 1 && document.readyState === 'complete') {
 										for (iFileCounter = 0, iFileLen = this.files.length; iFileCounter < iFileLen - 1; iFileCounter++) {
 											if (this.files[iFileCounter].name.toUpperCase() === file.name.toUpperCase()) {
+												fileUpload.dropzone.options.autoProcessQueue = false;
 												var existFileRef = this.files[iFileCounter];
-
+												fileUploadId = existFileRef.id;
+												// Below code is used when we have to delete the file by temp id
+												if (fileUploadId == undefined) {
+													fileUploadId = getFileUploadIdUsingCookie(file.name.toUpperCase());
+												}
 												$("<div id='confirm' class='hide'>File already exist! Are you sure you want to upload?</div>").
 													dialog({
 														bgiframe: true,
@@ -545,24 +572,26 @@
 														buttons: [{
 															text: "Duplicate",
 															click: function() {
+																isProcessQueue = true;
 																file.status = "queued";
 																fileUpload.dropzone.processQueue();
 																$(this).dialog('close');
-																showMessage("File uploaded successfully", "success");
-
 															}
 														}, {
 															text: "Replace",
 															click: function() {
+																
 																isReplaceExistingFile = "true";
-																existingFileId = existFileRef.id;
+																existingFileId = fileUploadId;
 																fileUpload.dropzone.removeFile(existFileRef);
+																file.status = "queued";
 																fileUpload.dropzone.processQueue();
 																$(this).dialog('close');
 															},
 														}, {
 															text: "Cancel",
 															click: function() {
+																isProcessQueue = false;
 																fileUpload.dropzone.removeFile(file);
 																$(this).dialog('close');
 															},
@@ -575,22 +604,17 @@
 																.prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
 														}
 													});
-
-												isDuplicate = true;
-												return false;
+												
 											}
 										}
 
 									}
-									if (isDuplicate == false && document.readyState === 'complete') {
-										file.status = "queued";
-										fileUpload.dropzone.processQueue();
-									}
+
 								}
 
 							});
 
-							fileUpload.showSelectedFiles(selectedFiles, this, fileUpload.options.renderer);
+							fileUpload.showSelectedFiles(this.selectedFiles, this, fileUpload.options.renderer);
 							fileUpload.loadSelectedFiles();
 						}
 					});
@@ -604,11 +628,11 @@
 			return fileUpload;
 		}
 	}
-	
+
 	/*
-		 * Method 		: deleteFileUploadTempIdFromCookie
-		 * Description 	: This method is used to delete the id from cookie
-		 */
+	 * Method 		: deleteFileUploadTempIdFromCookie
+	 * Description 	: This method is used to delete the id from cookie
+	 */
 	function deleteFileUploadTempIdCookie(fileUploadId) {
 		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
 			let fileBinJsonLocalArr = JSON.parse(getCookie("fileBinDetails"));
@@ -623,14 +647,30 @@
 				});
 
 				if (tempFileBinJsonArr != undefined) {
-					//clearFileBinCookie();
 					setCookie("fileBinDetails", JSON.stringify(tempFileBinJsonArr), 1);
 				}
-				//let fileBinJsonArr1 = JSON.parse(getCookie("fileBinDetails"));
+				let fileBinJsonArr1 = JSON.parse(getCookie("fileBinDetails"));
 				//console.log('After = ' + fileBinJsonArr1.length);
 			}
 
 		}
+	}
+
+	function getFileUploadIdUsingCookie(name) {
+		let id = "";
+		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+			let fileBinJsonLocalArr = JSON.parse(getCookie("fileBinDetails"));
+			if (fileBinJsonLocalArr.length > 0) {
+				$.each(fileBinJsonLocalArr, function(key, cookieData) {
+					if (cookieData.name.toUpperCase() === name.toUpperCase()) {
+						id = cookieData.id;
+						return false;
+					}
+				});
+			}
+		}
+
+		return id;
 	}
 
 	/*
@@ -647,7 +687,6 @@
 	/*
 	 * Method 		: updateFileBinCookie
 	 * Description 	: This method is used to add the temp id to the cookie
-	 * 
 	 */
 	function updateFileBinCookie(options, fileObj) {
 		var filebinJson = {
@@ -658,19 +697,25 @@
 			"fileAssociationId": options.fileAssociationId,
 			"fileUploadTempId": options.fileUploadTempId
 		}
-		if (filebinJson != undefined) {
-			fileBinJsonArr.push(filebinJson);
-			setCookie("fileBinDetails", JSON.stringify(fileBinJsonArr), 1);
+		let fileBinJsonLocalArr = [];
+		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+			fileBinJsonLocalArr = JSON.parse(getCookie("fileBinDetails"));
 		}
+		if (filebinJson != undefined) {
+			fileBinJsonLocalArr.push(filebinJson);
+		}
+		setCookie("fileBinDetails", JSON.stringify(fileBinJsonLocalArr), 1);
+		appendAssociationID(options, options.fileAssociationId);
 	}
 
 }(jQuery));
 // Added new  section to paste section
 // It will support multiple dropzone on a single form
 $(document).ready(function() {
-	$(".copyblock").on("paste", function(pasteEevent) {
+	$(".fileupload").on("paste", function(pasteEevent) {
+		var fileUploadElement = $(this);
 		pasteEevent.preventDefault();
-		var dropzoneEleId = $(this).parent().closest('.dropzone').attr('id');
+		var dropzoneEleId = fileUploadElement.attr('id');
 		if (dropzoneEleId != undefined) {
 			var items = (pasteEevent.clipboardData || pasteEevent.originalEvent.clipboardData).items;
 			for (index in items) {

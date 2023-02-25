@@ -3460,9 +3460,13 @@ Dropzone.isValidFile = function (file, acceptedFiles) {
       validType = validType.trim();
 
       if (validType.charAt(0) === ".") {
-        if (file.name.toLowerCase().indexOf(validType.toLowerCase(), file.name.length - validType.length) !== -1) {
-          return true;
-        }
+    	  if(validType.length == 1 && validType == "*") {
+         	 return true;
+          } else if(validType.length == 2 && validType.charAt(1) === "*") {
+          	 return true;
+          } else if (file.name.toLowerCase().indexOf(validType.toLowerCase(), file.name.length - validType.length) !== -1) {
+             return true;
+         }
       } else if (/\/\*$/.test(validType)) {
         // This is something like a image/* mime type
         if (baseMimeType === validType.replace(/\/.*$/, "")) {

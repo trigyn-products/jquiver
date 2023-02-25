@@ -172,7 +172,7 @@ public class MultiHttpSecurityConfig {
 												.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail",
 														"/cf/resetPasswordPage", "/cf/sendResetPasswordMail",
 														"/cf/resetPassword", "/cf/authenticate",
-														"/cf/saveOtpAndSendMail")
+														"/cf/saveOtpAndSendMail","/cf/getResourceBundleData")
 												.permitAll()
 												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
 														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
@@ -195,7 +195,7 @@ public class MultiHttpSecurityConfig {
 												.antMatchers("/cf/createPassword", "/cf/sendResetPasswordMail",
 														"/cf/resetPasswordPage", "/cf/sendResetPasswordMail",
 														"/cf/resetPassword", "/cf/authenticate",
-														"/cf/saveOtpAndSendMail")
+														"/cf/saveOtpAndSendMail","/cf/getResourceBundleData")
 												.permitAll()
 												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
 														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
@@ -231,7 +231,7 @@ public class MultiHttpSecurityConfig {
 											http.authorizeRequests().antMatchers("/cf/confirm-account").denyAll()
 													.antMatchers("/webjars/**").permitAll()
 													.antMatchers("/login/**", "/logout/**").permitAll()
-													.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
+													.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf","/cf/getResourceBundleData")
 													.permitAll()
 													// below line will enable redirection to authentication page, if
 													// user

@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
-import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
@@ -65,9 +64,6 @@ public class JwsUserManagementController {
 
 	@Autowired
 	private MenuService					menuService					= null;
-
-	@Autowired
-	private PropertyMasterDetails		propertyMasterDetails		= null;
 
 	@Autowired
 	private UserManagementService		userManagementService		= null;
@@ -510,6 +506,11 @@ public class JwsUserManagementController {
 		String	generatedOtp	= request.getParameter("generatedOtp");
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			Map<String, Object>	mapDetails	= new HashMap<>();
+			JwsUser	existingUser	= userManagementService.findByEmailIgnoreCase(userEmailId);
+	        if(existingUser == null) {
+	        	response.sendError(HttpStatus.NOT_FOUND.value(), "User not found");
+				return null;
+	        }
 			boolean				isOtpValid	= otpService.validateOTP(userEmailId, Integer.valueOf(generatedOtp));
 			if (!isOtpValid) {
 				userConfigService.getConfigurableDetails(mapDetails);

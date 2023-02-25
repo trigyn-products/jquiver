@@ -4,3 +4,10 @@
 <#macro resourceBundleWithDefault resourceKey defaultValue>
 	${messageSource.getMessageWithDefault(resourceKey, defaultValue)}
 </#macro>
+<#function getSystemProperty keyName>    
+	<#list systemProperties as key, value>  
+		<#if key.propertyName == keyName>  
+			<#return value>  
+		</#if>  
+	</#list>
+</#function>

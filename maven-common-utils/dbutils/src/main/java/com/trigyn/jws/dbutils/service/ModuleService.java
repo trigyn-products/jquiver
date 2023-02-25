@@ -224,12 +224,18 @@ public class ModuleService {
 		}else {
 			List<ModuleDetailsVO> moduleDetailsVOList = iModuleListingRepository.getTargetTypeURL(moduleURL);
 			String maxModuleUrl = "#";
+			boolean moduleUrlExist = false;
 			if(moduleDetailsVOList.size()>0) {
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-					if(moduleDetailsVO.getModuleURL().length()>maxModuleUrl.length() && allCharactersSame(moduleURL)) {
+					if(moduleDetailsVO.getModuleURL().length() >= maxModuleUrl.length() && moduleDetailsVO.getModuleURL().matches("#+")) {
 						maxModuleUrl = moduleDetailsVO.getModuleURL();
+						moduleUrlExist = true;
 					}
 				}
+			}
+			// Below code is used append # for root module for first time.
+			if(maxModuleUrl.length() == 1 && moduleUrlExist == false) {
+				maxModuleUrl = "";
 			}
 			moduleDetailsMap.put("parentModuleURL", maxModuleUrl);	
 		}
@@ -518,12 +524,4 @@ public class ModuleService {
 		return jsonString;
 	}
 	
-	private boolean allCharactersSame(String moduleUrl) {
-		int cntModuleUrlChars = moduleUrl.length();
-		for (int iCharCounter = 1; iCharCounter < cntModuleUrlChars; iCharCounter++)
-			if (moduleUrl.charAt(iCharCounter) != '#')
-				return false;
-
-		return true;
-	}
 }

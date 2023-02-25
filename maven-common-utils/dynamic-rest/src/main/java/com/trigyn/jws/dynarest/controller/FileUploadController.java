@@ -104,6 +104,7 @@ public class FileUploadController {
 			return message;
 		}
 	}
+	
 	@PostMapping(value = "/m-upload", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public ResponseEntity<String> uploadFiles(@RequestParam("files[0]") MultipartFile[] files, HttpServletRequest httpServletRequest,
@@ -117,19 +118,21 @@ public class FileUploadController {
 				Constants.UPLOAD_FILE_VALIDATOR, requestParamsMap);
 		try {
 			if (isAllowed > 0) {
-				Boolean isExtensionSupported = storageService.isExtensionSupported(fileBinId, files);
-				Boolean isMaxFileSizeExceed = storageService.isMaxFileSizeExceed(fileBinId, files);
-				
-				if(isExtensionSupported == null || isExtensionSupported == false) {
-					logger.info("File with specified extension is not allowed.");
-					//httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have enough privileges to delete this file");
+				Boolean	isExtensionSupported	= storageService.isExtensionSupported(fileBinId, files);
+				Boolean	isMaxFileSizeExceed		= storageService.isMaxFileSizeExceed(fileBinId, files);
+
+				if (isExtensionSupported == null || isExtensionSupported == false) {
+					logger.error("File with specified extension is not allowed.");
+					// httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have
+					// enough privileges to delete this file");
 					return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("INVALID_EXTENSION");
-				} else if(isMaxFileSizeExceed == null || isMaxFileSizeExceed == false) {
-					logger.info("File size exceeds more than allowed size.");
-					//httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have enough privileges to delete this file");
+				} else if (isMaxFileSizeExceed == null || isMaxFileSizeExceed == false) {
+					logger.error("File size exceeds more than allowed size.");
+					// httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have
+					// enough privileges to delete this file");
 					return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("INVALID_SIZE");
 				}
-				
+
 				List<String>		fileNames			= new ArrayList<>();
 				Map<String, String>	updateTempDetails	= new HashMap<>();
 
@@ -137,33 +140,47 @@ public class FileUploadController {
 					String					fileId					= "";
 					List<FileUploadTemp>	tempFileUploadDetails	= null;
 					String					fileUploadTempId		= "";
-					if (Boolean.valueOf(isReplaceExistingFile) == false) {
-						fileId					= storageService.save(file, fileBinId, fileAssociationId);
-						tempFileUploadDetails	= fileUploadTempRepository.findAllTempFileUpload(fileId);
-						fileNames.add(fileId);
-						fileUploadTempId = tempFileUploadDetails.get(0).getFileUploadTempId();
-						updateTempDetails.put(fileId, fileUploadTempId);
-					} else {
-						try {
-							fileId = storageService.update(file, existingFileUploadId);
-							fileNames.add(fileId);
-						} catch (Exception exception) {
-							String message = "Fail to upload files!";
-							logger.error(message, exception);
+					try {
+						//Replace Image : Below code is changed for fixing up the replace image
+						if(isReplaceExistingFile!=null) {
+							if (Boolean.valueOf(isReplaceExistingFile)) {
+								boolean isTempFileExist = storageService.checkFileExistByUploadId(existingFileUploadId);
+								//Replace Image : Below code is added for fixing up the replace image from FileUploadTemp table
+								if (isTempFileExist) {
+										fileId = storageService.updateFileUploadTemp(file, existingFileUploadId, fileBinId, fileAssociationId);
+								}else {
+									//Replace Image : Below code is changed to update the files for FileUpload
+									fileId = storageService.update(file, existingFileUploadId);
+								}
+								fileNames.add(fileId);
+								
+							} else if (Boolean.valueOf(isReplaceExistingFile) == false) {
+									fileId					= storageService.save(file, fileBinId, fileAssociationId);
+									tempFileUploadDetails	= fileUploadTempRepository.findAllTempFileUpload(fileId);
+									fileNames.add(fileId);
+									fileUploadTempId = tempFileUploadDetails.get(0).getFileUploadTempId();
+									updateTempDetails.put(fileId, fileUploadTempId);
+							}
 						}
+						
+					} catch (Exception exception) {
+						String message = "Fail to upload files!";
+						logger.error(message, exception);
 					}
+
 				});
 				Map<String, Object> uploadDetails = new HashMap<String, Object>();
 				uploadDetails.put("fileIds", fileNames);
 				uploadDetails.put("success", "1");
-				if(updateTempDetails != null) {
+				if (updateTempDetails != null) {
 					uploadDetails.put("updateTempDetails", updateTempDetails);
 				}
 				return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString(uploadDetails));
 			}
 
 			logUnauthorizedAccess("upload");
-//			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have enough privileges to upload file");
+			// httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "You don't have
+			// enough privileges to upload file");
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You don't have enough privileges to upload file");
 		} catch (Exception exception) {
 			String message = "Fail to upload files!";
@@ -171,7 +188,8 @@ public class FileUploadController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-//			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), message);
+			// httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+			// message);
 			return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -276,8 +294,6 @@ public class FileUploadController {
 			if (isAllowed > 0) {
 				Map<String, Object>	fileInfo	= storageService.load(fileUploadId);
 				HttpHeaders			headers		= new HttpHeaders();
-				if (fileInfo == null)
-					return new ResponseEntity<InputStreamResource>(streamResource, headers, HttpStatus.NOT_FOUND);
 				String mimeType = (String) fileInfo.get("mimeType");
 				if (StringUtils.isBlank(mimeType) == false) {
 					ContentDisposition contentDisposition = ContentDisposition.builder(mimeType).build();
@@ -299,8 +315,8 @@ public class FileUploadController {
 					"You don't have enough privileges to view this file");
 			return null;
 		} catch (Exception exception) {
-			message = "Fail to retrieve file!";
-			logger.error(message, exception);
+			message = "Fail to retrieve file! " + exception.getMessage();
+			logger.error(message);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

@@ -92,15 +92,15 @@
 	hideShowActionButtons();
     // setting value on edit.
       <#if (jwsRole?api.getRoleId()??)>
-      	
+          <#outputformat "HTML">
       		$("#roleId").val("${jwsRole?api.getRoleId()}");
-		    $("#roleName").val("${jwsRole?api.getRoleName()}"); 
-		    $("#roleDescription").val("${jwsRole?api.getRoleDescription()}"); 
+            $("#roleName").val($('<div></div>').html('${jwsRole?api.getRoleName()}').text());
+            $("#roleDescription").val($('<div></div>').html('${jwsRole?api.getRoleDescription()}').text()); 
             $("#rolePriority").val("${jwsRole?api.getRolePriority()!''}"); 
             if(${jwsRole?api.getIsActive()} == 1){ 
             	 $("#isActive").attr("checked",true);
             }
-    
+    </#outputformat>
       </#if>
     
   });

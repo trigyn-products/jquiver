@@ -26,9 +26,9 @@ public class LdapConfigHelper {
 	private final static Logger logger = LogManager.getLogger(LdapConfigHelper.class);
 
 	/**
-	 * @param  ldapAuthSecurityDetails
-	 * @param  ldapServerDisplayId
-	 * @return
+	 * @param  ldapAuthSecurityDetails is the security details object
+	 * @param  ldapServerDisplayId is the ldap server display id
+	 * @return LdapContextSource or null
 	 */
 	public LdapContextSource getLdapContextSource(final MultiAuthSecurityDetailsVO ldapAuthSecurityDetails,
 			String ldapServerDisplayId) {
@@ -87,8 +87,8 @@ public class LdapConfigHelper {
 	}
 
 	/**
-	 * @param  formLdapData
-	 * @return
+	 * @param  formLdapData hold the ldap details data
+	 * @return LdapContextSource or null
 	 */
 	public LdapContextSource getLdapContextSource(MultiValueMap<String, Object> formLdapData) {
 		LdapContextSource	sourceLdapCtx		= new LdapContextSource();

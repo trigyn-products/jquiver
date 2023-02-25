@@ -9,6 +9,8 @@ REPLACE INTO jq_file_upload(file_upload_id, file_bin_id, file_path, original_fil
 ('bc03c67f-a5a0-4063-8ef4-c50ed8f076f3', 'default', '/images', 'Amit-Jadhav.jpg', 'b7b9c9fd-3bbc-46d3-bf59-d5e343f2e332', 'admin@jquiver.com', NOW(), 'default'), 
 ('c91b58b7-0a29-45c1-960d-3648821d4547', 'default', '/images', 'Satyawan-Sawant.jpg', '9eb15762-540b-42b1-948b-29242ffcb20e', 'admin@jquiver.com', NOW(), 'default'), 
 ('e3dd0b7c-242a-47b3-9a36-c23ef378b10f', 'default', '/images', 'Ravi-Gowda.png', '6b7d7cb1-8b51-4626-8135-6181fcb88fe5', 'admin@jquiver.com', NOW(), 'default'),
-('fa498f47-ba98-4f07-bb61-efc2508b21f4', 'default', '/images', 'Mini-Pillai.jpg', '960c885c-b4d9-4ea5-a58d-4cbd95ce82f6', 'admin@jquiver.com', NOW(), 'default');
+('fa498f47-ba98-4f07-bb61-efc2508b21f4', 'default', '/images', 'Mini-Pillai.jpg', '960c885c-b4d9-4ea5-a58d-4cbd95ce82f6', 'admin@jquiver.com', NOW(), 'default'),
+('0802831f-e1ee-4b3d-9bf9-e5bb9ba809c6', 'default', '/images', 'Bibhusrita_Nayak.jpg', '99cea41d-e465-440e-85cd-b349b09e25e1', 'admin@jquiver.com', NOW(), 'default'),
+('9181f855-edd3-42fd-8a5f-f8063553db4a', 'default', '/images', 'Shrinath_halki.jpg', '8a5a71ad-56c0-4ad2-a119-81e148eb6c9e', 'admin@jquiver.com', NOW(), 'default');
 
 SET FOREIGN_KEY_CHECKS=1;

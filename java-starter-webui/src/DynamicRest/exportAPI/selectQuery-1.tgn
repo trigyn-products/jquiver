@@ -1,0 +1,12 @@
+SELECT jdrd.jws_dynamic_rest_id AS dynarestId,jws_dynamic_rest_url AS rest_api_url,jws_method_name AS dynarestMethodName, 
+jws_method_description AS dynarestMethodDescription, 
+jws_header_json AS header_json ,jws_request_type, LOWER(jws_request_type) as jws_request_type_lower , jws_response_producer_type AS http_produces_type ,
+GROUP_CONCAT(role_name SEPARATOR ',') AS Role_Name 
+FROM jq_dynamic_rest_details AS jdrd 
+LEFT OUTER JOIN jq_request_type_details AS jrtd ON jdrd.jws_request_type_id = jrtd.jws_request_type_details_id 
+LEFT OUTER JOIN jq_response_producer_details AS jrpd ON jdrd.jws_response_producer_type_id = jrpd.jws_response_producer_type_id
+LEFT OUTER JOIN jq_entity_role_association AS jqra ON jdrd.jws_dynamic_rest_id = jqra.entity_id AND jqra.module_id = '47030ee1-0ecf-11eb-94b2-f48e38ab9348'
+INNER JOIN jq_role AS jqr ON jqra.role_id = jqr.role_id
+WHERE jws_dynamic_rest_type_id ='1'
+GROUP BY jqra.entity_id
+ORDER BY jws_dynamic_rest_url ASC

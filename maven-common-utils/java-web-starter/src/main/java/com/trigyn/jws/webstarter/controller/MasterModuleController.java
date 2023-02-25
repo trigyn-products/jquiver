@@ -54,49 +54,52 @@ public class MasterModuleController {
 			}
 			Map<String, Object>	moduleDetailsMap	= masterModuleService.getModuleDetails(moduleUrl,
 					httpServletRequest);
-			Integer				targetLookupId		= Integer
-					.parseInt(moduleDetailsMap.get("targetLookupId").toString());
-			if ("POST".equals(httpServletRequest.getMethod())
-					&& targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())) {
-				Map<String, Object>	parameterMap	= masterModuleService
-						.validateAndProcessRequestParams(httpServletRequest);
-				Map<String, String>	requestMap		= new HashMap<String, String>();
-				if (moduleDetailsMap != null && moduleDetailsMap.containsKey("requestParamJson")
-						&& moduleDetailsMap.get("requestParamJson") != null) {
-					String	requestParam	= String.valueOf(moduleDetailsMap.get("requestParamJson"));
+			if(moduleDetailsMap.get("targetLookupId")!=null && moduleDetailsMap.get("targetLookupId").toString()!=null) {
+				Integer				targetLookupId		= Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
+				if ("POST".equals(httpServletRequest.getMethod())
+						&& targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())) {
+					Map<String, Object>	parameterMap	= masterModuleService
+							.validateAndProcessRequestParams(httpServletRequest);
+					Map<String, String>	requestMap		= new HashMap<String, String>();
+					if (moduleDetailsMap != null && moduleDetailsMap.containsKey("requestParamJson")
+							&& moduleDetailsMap.get("requestParamJson") != null) {
+						String	requestParam	= String.valueOf(moduleDetailsMap.get("requestParamJson"));
 
-					Gson	gsonReqParamMap				= new Gson();
-					if (requestParam != null && requestParam.isEmpty() == false) {
-						Map<String, String> requestBodyMap = gsonReqParamMap.fromJson(requestParam.toString(), Map.class);
-						if (requestBodyMap != null && requestBodyMap.isEmpty() == false) {
-							for (Entry<String, String> entry : requestBodyMap.entrySet()) {
-								requestMap.put(entry.getKey(), entry.getValue());
+						Gson	gsonReqParamMap				= new Gson();
+						if (requestParam != null && requestParam.isEmpty() == false) {
+							Map<String, String> requestBodyMap = gsonReqParamMap.fromJson(requestParam.toString(), Map.class);
+							if (requestBodyMap != null && requestBodyMap.isEmpty() == false) {
+								for (Entry<String, String> entry : requestBodyMap.entrySet()) {
+									requestMap.put(entry.getKey(), entry.getValue());
+								}
 							}
 						}
 					}
-				}
-				parameterMap.putAll(requestMap);
-				
-				Map<String, String[]> extraParams = new TreeMap<String, String[]>();
-				extraParams.put("formId", new String[]{moduleDetailsMap.get("targetTypeId").toString()});
-				HttpServletRequest wrappedRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
-				ServletRequestAttributes attributes = new ServletRequestAttributes(wrappedRequest);
-				RequestContextHolder.setRequestAttributes(attributes);
-				
-				List<String> pathVariableList = masterModuleService.getPathVariables(httpServletRequest);
-				if (CollectionUtils.isEmpty(pathVariableList) == false) {
-					pathVariableList.remove(0);
-				}
-				parameterMap.put("pathVariableList", pathVariableList);
+					parameterMap.putAll(requestMap);
+					
+					Map<String, String[]> extraParams = new TreeMap<String, String[]>();
+					extraParams.put("formId", new String[]{moduleDetailsMap.get("targetTypeId").toString()});
+					HttpServletRequest wrappedRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
+					ServletRequestAttributes attributes = new ServletRequestAttributes(wrappedRequest);
+					RequestContextHolder.setRequestAttributes(attributes);
+					
+					List<String> pathVariableList = masterModuleService.getPathVariables(httpServletRequest);
+					if (CollectionUtils.isEmpty(pathVariableList) == false) {
+						pathVariableList.remove(0);
+					}
+					parameterMap.put("pathVariableList", pathVariableList);
 
-				return dynamicFormController.saveDynamicFormV2(wrappedRequest, httpServletResponse, parameterMap);
-			} else if ("GET".equals(httpServletRequest.getMethod())) {
-				return masterModuleService.loadTemplate(httpServletRequest, moduleUrl, httpServletResponse);
+					return dynamicFormController.saveDynamicFormV2(wrappedRequest, httpServletResponse, parameterMap);
+				} else if ("GET".equals(httpServletRequest.getMethod())) {
+					return masterModuleService.loadTemplate(httpServletRequest, moduleUrl, httpServletResponse);
+				} else {
+					httpServletResponse.sendError(HttpStatus.METHOD_NOT_ALLOWED.value(), "Request not supported");
+					return null;
+				}
 			} else {
-				httpServletResponse.sendError(HttpStatus.METHOD_NOT_ALLOWED.value(), "Request not supported");
+				httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/");
 				return null;
 			}
-
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

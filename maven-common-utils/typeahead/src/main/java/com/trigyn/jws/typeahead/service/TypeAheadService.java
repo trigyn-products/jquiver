@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -65,8 +66,13 @@ public class TypeAheadService {
 
 	public AutocompleteVO getAutocompleteDetailsId(String autocompleteId) throws Exception {
 		logger.debug("Inside TypeAheadService.getAutocompleteDetailsId(autocompleteId: {})", autocompleteId);
-		Autocomplete	autocomplete	= typeAheadRepository.findById(autocompleteId)
-				.orElseThrow(() -> new Exception("Autocomplete not found with id : " + autocompleteId));
+		/**Written for Preventing Cross Site Scripting*/
+		//  Avoid anything between script tags  added - paranoid regex
+		Pattern scriptPattern = Pattern.compile("<script(.*?)[\r\n]*(.*?)/script>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+		String encodedAutoCompleteId = scriptPattern.matcher(autocompleteId).replaceAll("");
+		/**Ends Here*/
+		Autocomplete	autocomplete	= typeAheadRepository.findById(encodedAutoCompleteId)
+				.orElseThrow(() -> new Exception("Autocomplete not found with id : " + encodedAutoCompleteId));
 		String			selectQuery		= "<#noparse>" + autocomplete.getAutocompleteSelectQuery() + "</#noparse>";
 		AutocompleteVO	autocompleteVO	= new AutocompleteVO(autocomplete.getAutocompleteId(),
 				autocomplete.getAutocompleteDesc(), selectQuery, autocomplete.getDatasourceId());

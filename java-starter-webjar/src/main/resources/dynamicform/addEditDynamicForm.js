@@ -55,16 +55,6 @@ class AddEditDynamicForm {
 							} else {
 								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
 							}
-						} else if (model.id == "$model3") {
-							let str = model.id;
-							let indexCount = str.slice(-1);
-							let index = indexCount - 3;
-							if ($("#selectcontainer_" + index).val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							}
-							else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
 						}
 					}
 				}
@@ -81,15 +71,44 @@ class AddEditDynamicForm {
 							var textArray = lineContent.split('');
 							var line = dashletSQLEditor.getPosition().lineNumber;
 							var col = dashletSQLEditor.getPosition().column;
+							var newTextArray = lineContent.split('');
+							var sugPostion;
 							if (textArray.includes("$")) {
 								var textToInsert = ""; // text to be inserted
-								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+								while (newTextArray.lastIndexOf("$") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								}
+								sugPostion = newTextArray.lastIndexOf("$");
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
 								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
 								dashletSQLEditor.focus();
 							}
 							else {
 								splitedText[position.endLineNumber - 1];
+								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
+								dashletSQLEditor.focus();
+							}
+						}
+					}
+					else if (selectQueryType == "1") {
+						if (e.source == "snippet") {
+							var position = e.oldSelections[0]; // Get current mouse position
+							var text = dashletSQLEditor.getValue(position);
+							var splitedText = text.split("\n");
+							var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+							var line = dashletSQLEditor.getPosition().lineNumber;
+							var col = dashletSQLEditor.getPosition().column;
+							var newTextArray = lineContent.split('');
+							var sugPostion;
+							if (lineContent.includes("$<")) {
+								var textToInsert = ""; // text to be inserted
+								while (newTextArray.lastIndexOf("$") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								}
+								sugPostion = newTextArray.lastIndexOf("$");
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
 								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
 								dashletSQLEditor.focus();
@@ -148,6 +167,30 @@ class AddEditDynamicForm {
 							suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
 						}
 					}
+				}
+			});
+			dashletHTMLEditor.onDidChangeCursorSelection((e) => {
+
+				if (e.source == "snippet") {
+					var position = e.oldSelections[0]; // Get current mouse position
+					var text = dashletHTMLEditor.getValue(position);
+					var splitedText = text.split("\n");
+					var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+					var line = dashletHTMLEditor.getPosition().lineNumber;
+					var col = dashletHTMLEditor.getPosition().column;
+					var newTextArray = lineContent.split('');
+					var sugPostion;
+					if (lineContent.includes("$<")) {
+						var textToInsert = ""; // text to be inserted
+						while (newTextArray.lastIndexOf("$") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+						}
+						sugPostion = newTextArray.lastIndexOf("$");
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+						dashletHTMLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						dashletHTMLEditor.setPosition({ lineNumber: line, column: col });
+						dashletHTMLEditor.focus();
+					} 
 				}
 			});
 
@@ -214,12 +257,14 @@ class AddEditDynamicForm {
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120 });
 		require(["vs/editor/editor.main"], function() {
 			let index = dashletSQLEditors.length;
+			let finalindex = "";
+			let indexCount = "";
 			let parentElement;
 			if (element != null) {
 				parentElement = $(element).parent().parent().parent().parent();
 			}
 			let datasource = retrieveDatasource();
-			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' class='form-control' /></div>";
+			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
@@ -233,6 +278,57 @@ class AddEditDynamicForm {
 
 			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>" + inputElement + "" + selectElement + "" + datasourceEditor + "<div class='col-3 margin-t-25 float-right'>" + buttonElement + "</div></div></div>");
 			daoContainer.append("<div id='container_" + index + "' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_" + index + "' class='ace-editor-container'><div id='saveSqlEditor_" + index + "' class='ace-editor'></div></div></div></div></div>");
+
+			var newSuggestionsArray = [];
+			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
+				var suggestion = suggestionArray[iCounter];
+				newSuggestionsArray.push({
+					label: suggestion.label,
+					kind: suggestion.kinda,
+					insertText: suggestion.insertText,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+				});
+			}
+			var newJSSuggestionsArray = [];
+			for (var iCounter = 0; iCounter < jsSuggestionArray.length; iCounter++) {
+				var suggestion = jsSuggestionArray[iCounter];
+				newJSSuggestionsArray.push({
+					label: suggestion.label,
+					kind: suggestion.kinda,
+					insertText: suggestion.insertText,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+				});
+			}
+			monaco.languages.registerCompletionItemProvider('sql', {
+				triggerCharacters: ["$"],
+				provideCompletionItems: (model, position) => {
+					var textUntilPosition = model.getValueInRange({
+						startLineNumber: position.lineNumber,
+						startColumn: position.column - 1,
+						endLineNumber: position.lineNumber,
+						endColumn: position.column
+					});
+					let str = model.id;
+					indexCount = str.slice(-1);
+					let str1 = str.slice(0, 6);
+					finalindex = indexCount - index;
+					if (textUntilPosition == '$') {
+						if (model.id != "$model1") {
+							if (model.id == str1 + finalindex) {
+								let str = model.id;
+								let indexCount = str.slice(-1);
+								let index = indexCount - 3;
+								if ($("#selectcontainer_" + index).val() == "4") {
+									return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
+								}
+								else {
+									return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
+								}
+							}
+						}
+					}
+				}
+			});
 
 			if (parentElement != undefined) {
 				daoContainer.insertAfter(parentElement);
@@ -269,7 +365,7 @@ class AddEditDynamicForm {
 			});
 
 			dashletSAVESQLEditor.onDidChangeCursorSelection((e) => {
-				if (dashletSAVESQLEditor._id == "3") {
+				if (dashletSAVESQLEditor._id == indexCount) {
 					let str = dashletSAVESQLEditor._id;
 					let indexCount = str;
 					let index = indexCount - 3;
@@ -282,9 +378,15 @@ class AddEditDynamicForm {
 							var textArray = lineContent.split('');
 							var line = dashletSAVESQLEditor.getPosition().lineNumber;
 							var col = dashletSAVESQLEditor.getPosition().column;
+							var newTextArray = lineContent.split('');
+							var sugPostion;
 							if (textArray.includes("$")) {
 								var textToInsert = ""; // text to be inserted
-								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+								while (newTextArray.lastIndexOf("$") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								}
+								sugPostion = newTextArray.lastIndexOf("$");
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 								dashletSAVESQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
 								dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
 								dashletSAVESQLEditor.focus();
@@ -295,6 +397,30 @@ class AddEditDynamicForm {
 								dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
 								dashletSAVESQLEditor.focus();
 							}
+						}
+					}
+					else if ($("#selectcontainer_" + index).val() == "2") {
+						if (e.source == "snippet") {
+							var position = e.oldSelections[0]; // Get current mouse position
+							var text = dashletSAVESQLEditor.getValue(position);
+							var splitedText = text.split("\n");
+							var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+							var line = dashletSAVESQLEditor.getPosition().lineNumber;
+							var col = dashletSAVESQLEditor.getPosition().column;
+							var newTextArray = lineContent.split('');
+							var sugPostion;
+							if (lineContent.includes("$<")) {
+								var textToInsert = ""; // text to be inserted
+								while (newTextArray.lastIndexOf("$") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								}
+								sugPostion = newTextArray.lastIndexOf("$");
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+								dashletSAVESQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+								dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
+								dashletSAVESQLEditor.focus();
+							}
+
 						}
 					}
 				}

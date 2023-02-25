@@ -1,1 +1,3 @@
-select template_name as name, template as template from jq_template_master where template_name like ("default-%")
+SELECT template_name AS NAME, template AS template FROM jq_template_master WHERE template_name LIKE ("default-%")
+UNION
+SELECT template_name AS NAME, template AS template FROM jq_template_master WHERE template_name IN ("jq-email-xml-template" , "jq-web-client-call-xml" )

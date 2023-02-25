@@ -12,33 +12,30 @@ public interface IMonacoSuggestion {
 	public AdditionalDatasourceRepository additionalDatasourceRepository = null;
 
 	public static final String templateSuggestion[][] = {
-			{ "loggedInUserName", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
+			{ "loggedInUserEmail", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
 			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList!\\'\\'}</#noparse>" },
-			{ "templateWithoutParams ", "<#noparse>{templateWithoutParams !\\'\\'}</#noparse>" },
-			{ "templateWithParams  ", "<#noparse>{templateWithParams  !\\'\\'}</#noparse>" },
-			{ "resourceBundle ", "<#noparse>{resourceBundle !\\'\\'}</#noparse>" },
-			{ "resourceBundleWithDefault  ", "<#noparse>{resourceBundleWithDefault  !\\'\\'}</#noparse>" },
+			{ "templateWithoutParams ", "<#noparse><@templateWithoutParams \\'your-template-name\\'/></#noparse>" },
+			{ "templateWithParams  ", "<#noparse><@templateWithParams templateName freemarker-variable-name /></#noparse>" },
+			{ "resourceBundle ", "<#noparse><@resourceBundle \\'your.key\\' /></#noparse>" },
+			{ "resourceBundleWithDefault  ", "<#noparse><@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/></#noparse>" },
 			{ "loggedInUserId  ", "<#noparse>{loggedInUserId  !\\'\\'}</#noparse>" },
-			{ "fullName  ", "<#noparse>{fullName  !\\'\\'}</#noparse>" },
-			{ "userObject  ", "<#noparse>{userObject  !\\'\\'}</#noparse>" },
+			{ "loggedInUserFullName  ", "<#noparse>{fullName  !\\'\\'}</#noparse>" },
+			{ "userObject  ", "<#noparse>{userObject.userid  !\\'\\'}</#noparse>" },
 			{ "contextPath  ", "<#noparse>{contextPath  !\\'\\'}</#noparse>" },
-			{ "messageSource  ", "<#noparse>{messageSource  !\\'\\'}</#noparse>" },
-			{ "dynamicTemplate  ", "<#noparse>{dynamicTemplate  !\\'\\'}</#noparse>" },
-			{ "systemProperties  ", "<#noparse>{systemProperties }</#noparse>"+ "-Application Configuration Map" } };
+			{ "messageSource  ", "<#noparse>{messageSource.getMessage(\\'your.key\\')  !\\'\\'}</#noparse>" },
+			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"} };
 	
 	public static final String JStemplateSuggestions[][] = {
-			{ "loggedInUserName","requestDetails[\\\\\"loggedInUserName\\\\\"]" },
+			{ "loggedInUserEmail","requestDetails[\\\\\"loggedInUserName\\\\\"]" },
 			{ "loggedInUserRoleList", "requestDetails[\\\\\"loggedInUserRoleList\\\\\"]" },
 			{ "templateWithoutParams ", "requestDetails[\\\\\"templateWithoutParams\\\\\"]" },
 			{ "templateWithParams  ", "requestDetails[\\\\\"templateWithParams\\\\\"]" },
 			{ "resourceBundle ", "requestDetails[\\\\\"resourceBundle\\\\\"]" },
 			{ "resourceBundleWithDefault  ", "requestDetails[\\\\\"resourceBundleWithDefault\\\\\"]" },
 			{ "loggedInUserId  ", "requestDetails[\\\\\"loggedInUserId\\\\\"]" },
-			{ "fullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
+			{ "loggedInUserFullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
 			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"]" },
 			{ "contextPath  ", "requestDetails[\\\\\"contextPath\\\\\"]" },
-			{ "messageSource  ", "requestDetails[\\\\\"messageSource\\\\\"]" },
-			{ "dynamicTemplate  ", "requestDetails[\\\\\"dynamicTemplate\\\\\"]" },
 			{ "systemProperties  ", "requestDetails[\\\\\"systemProperties\\\\\"]"+ "-Application Configuration Map" } };
 
 	public static final String JSSuggestions[][] = { { "jq_getSystemProperty", "jq_getSystemProperty(a_propertyName)" },

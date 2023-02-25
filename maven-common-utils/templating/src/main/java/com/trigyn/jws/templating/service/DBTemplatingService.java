@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -79,8 +80,13 @@ public class DBTemplatingService {
 	}
 
 	public TemplateVO getVelocityDataById(String templateId) throws Exception {
-		TemplateMaster templateMaster = dbTemplatingRepository.findById(templateId)
-				.orElseThrow(() -> new Exception("Template not found with id : " + templateId));
+		/**Written for Preventing Cross Site Scripting*/
+		//  Avoid anything between script tags  added - paranoid regex
+		Pattern scriptPattern = Pattern.compile("<script(.*?)[\r\n]*(.*?)/script>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+		String encodedTemplateId = scriptPattern.matcher(templateId).replaceAll("");
+		/**Ends Here*/
+		TemplateMaster templateMaster = dbTemplatingRepository.findById(encodedTemplateId)
+				.orElseThrow(() -> new Exception("Template not found with id : " + encodedTemplateId));
 		return new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
 				templateMaster.getTemplate(), templateMaster.getChecksum(), templateMaster.getTemplateTypeId());
 	}

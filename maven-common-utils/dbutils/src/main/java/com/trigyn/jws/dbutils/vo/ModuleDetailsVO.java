@@ -1,8 +1,18 @@
 package com.trigyn.jws.dbutils.vo;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import org.springframework.util.LinkedCaseInsensitiveMap;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ModuleDetailsVO implements Serializable {
 
@@ -217,6 +227,43 @@ public class ModuleDetailsVO implements Serializable {
 	}
 
 	public String getHeaderJson() {
+		try {
+			Map<String, String>	modifiedHeaderData	= new LinkedCaseInsensitiveMap<>();
+			Map<String, String>	savedHeaderData		= new LinkedCaseInsensitiveMap<>();
+			ObjectMapper		objectMapper		= new ObjectMapper();
+			if (this.headerJson != null && this.headerJson.isEmpty() == false) {
+				savedHeaderData = objectMapper.readValue(this.headerJson, Map.class);
+				if (savedHeaderData.containsKey("Powered-By") == false) {
+					modifiedHeaderData.put("Powered-By", "JQuiver");
+				}
+				if (savedHeaderData.containsKey("Content-Type") == false) {
+					modifiedHeaderData.put("Content-Type", "text/html; charset=UTF-8");
+				}
+
+				if (savedHeaderData.containsKey("Content-Language") == false) {
+					modifiedHeaderData.put("Content-Language", "en_US");
+				}
+
+			} else {
+				modifiedHeaderData.put("Powered-By", "JQuiver");
+				modifiedHeaderData.put("Content-Type", "text/html; charset=UTF-8");
+				modifiedHeaderData.put("Content-Language", "en_US");
+			}
+			if (savedHeaderData!=null && savedHeaderData.size() > 0) {
+				for (Map.Entry<String, String> entry : savedHeaderData.entrySet()) {
+					if (entry.getKey().equalsIgnoreCase("Content-Type")) {
+						modifiedHeaderData.put("Content-Type", entry.getValue());
+					}else {
+						modifiedHeaderData.put(entry.getKey(), entry.getValue());
+					}
+				}
+			}
+			objectMapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			headerJson = objectMapper.writeValueAsString(modifiedHeaderData);
+		} catch (JsonProcessingException exception) {
+			exception.printStackTrace();
+		}
 		return headerJson;
 	}
 

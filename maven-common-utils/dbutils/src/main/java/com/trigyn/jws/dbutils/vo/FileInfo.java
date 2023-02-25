@@ -1,9 +1,9 @@
 package com.trigyn.jws.dbutils.vo;
 
 public class FileInfo {
-	
-	public static enum FileType{
-		Physical,FileBin
+
+	public static enum FileType {
+		Physical, FileBin
 	}
 
 	private String		fileId			= null;
@@ -12,32 +12,33 @@ public class FileInfo {
 	private Long		sizeInBytes		= null;
 	private FileType	fileType		= FileType.FileBin;
 	private Long		createdTime		= null;
-	private Integer 	returnAction 	= null;
-	private String 		mimeType 		= null;
+	private Integer		returnAction	= null;
+	private String		mimeType		= null;
+	private String		warningMessage	= "FOUND";
 
 	public FileInfo() {
-		
+
 	}
-	
+
 	public FileInfo(String fileId, String fileName, Long sizeInBytes) {
 		super();
 		this.fileId			= fileId;
 		this.fileName		= fileName;
 		this.sizeInBytes	= sizeInBytes;
 	}
-	
+
 	public String getAbsolutePath() {
 		return absolutePath;
 	}
-	
+
 	public void setAbsolutePath(String absolutePath) {
 		this.absolutePath = absolutePath;
 	}
-	
+
 	public FileType getFileType() {
 		return fileType;
 	}
-	
+
 	public void setFileType(FileType fileType) {
 		this.fileType = fileType;
 	}
@@ -88,6 +89,14 @@ public class FileInfo {
 
 	public void setMimeType(String mimeType) {
 		this.mimeType = mimeType;
+	}
+
+	public String getWarningMessage() {
+		return warningMessage;
+	}
+
+	public void setWarningMessage(String warningMessage) {
+		this.warningMessage = warningMessage;
 	}
 
 }

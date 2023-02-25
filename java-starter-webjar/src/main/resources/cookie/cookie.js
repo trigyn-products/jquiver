@@ -1,5 +1,24 @@
 // Default Cookie implementation //
 
+/**This method was initially present in home.js */
+
+const resourceBundleData = function(resourceKeys) {
+	let resourceBundleDataMap;
+	$.ajax({
+		async: false,
+		type: "POST",
+		cache: false,
+		url: contextPath + '/cf/getResourceBundleData',
+		data: {
+			resourceKeys: resourceKeys,
+		},
+		success: function(data) {
+			resourceBundleDataMap = data;
+		}
+	});
+	return resourceBundleDataMap;
+}
+
 window.onload = function() { cookieConsent(); };
 
 function pureFadeIn(elem, display) {
@@ -56,7 +75,7 @@ function eraseCookie(name) {
 
 function cookieConsent() {
 	if (!getCookieNew('purecookieDismiss')) {
-		document.body.innerHTML += '<div class="cookieConsentContainer" id="cookieConsentContainer"><div class="cookietitle"><div class="cookieimg"><img src="' + contextPath + '/webjars/1.0/images/cookie.svg"></div><div class="cookieTitle"><h3>' + 'Lets have a cookie.' + '</h3></div></div><div class="designcreator"><div class="cookieDesc"><p>' + 'This website uses cookies to ensure you get the best experience on our website.' + '</p></div><div class="cookieButton"><a class="class="cokibtn"" onClick="purecookieDismiss();">' + 'Understood' + '</a></div></div>';
+		document.body.innerHTML += '<div class="cookieConsentContainer" id="cookieConsentContainer"><div class="cookietitle"><div class="cookieimg"><img src="' + contextPath + '/webjars/1.0/images/cookie.svg"></div><div class="cookieTitle"><h3>' + resourceBundleData("jws.cookieTitle") + '</h3></div></div><div class="designcreator"><div class="cookieDesc"><p>' + resourceBundleData("jws.cookieDesc") + '</p></div><div class="cookieButton"><a class="class="cokibtn"" onClick="purecookieDismiss();">' + resourceBundleData("jws.cookieButton") + '</a></div></div>';
 		pureFadeIn("cookieConsentContainer");
 	}
 }

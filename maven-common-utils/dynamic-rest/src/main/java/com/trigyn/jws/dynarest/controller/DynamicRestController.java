@@ -3,6 +3,7 @@ package com.trigyn.jws.dynarest.controller;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -247,6 +248,10 @@ public class DynamicRestController {
 				}
 				rootCause = rootCause.getCause();
 			}
+			if (a_throwable instanceof FileNotFoundException) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND.getReasonPhrase(),
+						HttpStatus.NOT_FOUND);
+			}
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -282,8 +287,8 @@ public class DynamicRestController {
 		requestParams.put("userName", detailsVO.getUserName());
 		requestParams.put("message", "");
 		requestParams.put("date", activityTimestamp.toString());
-		if (!("false".equalsIgnoreCase(isFromRestAPI))) {
-			activitylog.activitylog(requestParams);
+		if (isFromRestAPI != null && ("false".equalsIgnoreCase(isFromRestAPI)) == false ) {
+			activitylog.activitylog(requestParams, isFromRestAPI);
 		}
 	}
 

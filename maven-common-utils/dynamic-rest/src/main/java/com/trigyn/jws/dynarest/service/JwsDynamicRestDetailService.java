@@ -10,11 +10,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
 
 import javax.mail.internet.AddressException;
@@ -35,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -378,8 +381,11 @@ public class JwsDynamicRestDetailService {
 					List<RecepientXMLVO> recepientXMLVOList = recepientsXMLVO.getRecepientXMLVO();
 					/* Written for Failure Mail Notification */
 					FailedRecipientsXMLVO failedrecepientsXMLVO = emailObj.getFailedrecepientsXMLVO();
-					List<FailedRecipientXMLVO> failedrecepientXMLVOList = failedrecepientsXMLVO
-							.getFailedrecipientXMLVO();
+					List<FailedRecipientXMLVO> failedrecepientXMLVOList = new ArrayList<>();
+					
+					if(failedrecepientsXMLVO != null) {
+						failedrecepientXMLVOList = failedrecepientsXMLVO.getFailedrecipientXMLVO();
+					}
 					List<AttachmentXMLVO> attachmentXMLVOList = emailObj.getAttachmentXMLVO();
 					if (CollectionUtils.isEmpty(attachmentXMLVOList) == false) {
 						for (AttachmentXMLVO attachmentXMLVO : attachmentXMLVOList) {
@@ -466,9 +472,11 @@ public class JwsDynamicRestDetailService {
 					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 					email.setLoggedInUserRole(detailsService.getUserDetails().getRoleIdList());
 					/* Written for Failure Mail Notification */
-					for (FailedRecipientXMLVO failedrecepientXMLVO : failedrecepientXMLVOList) {
-						frEmailIdStrJoiner.add(failedrecepientXMLVO.getMailId());
-						frEmailIdList.add(failedrecepientXMLVO.getMailId());
+					if(failedrecepientXMLVOList != null) {
+						for (FailedRecipientXMLVO failedrecepientXMLVO : failedrecepientXMLVOList) {
+							frEmailIdStrJoiner.add(failedrecepientXMLVO.getMailId());
+							frEmailIdList.add(failedrecepientXMLVO.getMailId());
+						}
 					}
 					email.setInternetAddressToArray(InternetAddress.parse(toEmailIdStrJoiner.toString()));
 					email.setInternetAddressCCArray(InternetAddress.parse(ccEmailIdStrJoiner.toString()));
@@ -618,6 +626,7 @@ public class JwsDynamicRestDetailService {
 		MultiValueMap<String, String> bodyMultipvalueMap = new LinkedMultiValueMap<String, String>();
 		MultiValueMap<String, String> queryParamMultipvalueMap = new LinkedMultiValueMap<String, String>();
 		Mono<ResponseEntity<String>> responseContent = null;
+		MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
 		if (webClientRequestVO != null) {
 			List<WebClientParamVO> webClientParamList = webClientRequestVO.getHeaderParamVOList();
@@ -645,6 +654,7 @@ public class JwsDynamicRestDetailService {
 							List<String> list = new ArrayList<>();
 							list.add(webClientParamVO.getParameterValue());
 							bodyMultipvalueMap.put(webClientParamVO.getParameterName(), list);
+							builder.part(webClientParamVO.getParameterName(), webClientParamVO.getParameterValue(), MediaType.TEXT_PLAIN);
 							if ("json".equals(webClientParamVO.getDataType())) {
 								org.json.JSONObject jsonObj = new org.json.JSONObject(
 										webClientParamVO.getParameterValue());
@@ -668,7 +678,7 @@ public class JwsDynamicRestDetailService {
 			byte[] fileByte = null;
 			File attachedFile = null;
 			Map<String, Object> fileInfo = new HashMap<>();
-			ArrayList<File> filePaths = new ArrayList<>();
+			Map<String, File> fileMap = new HashMap<>();
 			if (CollectionUtils.isEmpty(webClientRequestVO.getAttachmnetParamVOList()) == false) {
 				for (WebClientAttacmentVO webClientAttachVO : webClientRequestVO.getAttachmnetParamVOList()) {
 					hasAttachment = true;
@@ -684,7 +694,7 @@ public class JwsDynamicRestDetailService {
 								attachedFile = new File(webClientAttachVO.getFileName());
 								try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 									fos.write(fileByte);
-									filePaths.add(attachedFile);
+									fileMap.put(webClientAttachVO.getFileName(), attachedFile);
 								} catch (Exception exception) {
 									logger.error("Error occurred while accessing file", exception);
 								}
@@ -695,13 +705,13 @@ public class JwsDynamicRestDetailService {
 																												// filesystem.
 						File aFile = new File(webClientAttachVO.getFilePath());
 						if (aFile != null && aFile.exists()) {
-							attachedFile = new File(webClientAttachVO.getFileName());
+							attachedFile = new File(aFile.getName());
 							InputStream in = new FileInputStream(webClientAttachVO.getFilePath());
 							fileByte = ByteStreams.toByteArray(in);
-							filePaths.add(attachedFile);
 							in.close();
 							try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 								fos.write(fileByte);
+								fileMap.put(webClientAttachVO.getFileName(), attachedFile);
 							} catch (Exception exception) {
 								logger.error("Error occurred while accessing file", exception);
 							}
@@ -714,18 +724,18 @@ public class JwsDynamicRestDetailService {
 			RequestBodySpec reqBodySpec = webClient.method(HttpMethod.resolve(webClientVO.getRequestType()))
 					.uri(webClientVO.getWebClientURL(), uri -> uri.queryParams(queryParamMultipvalueMap).build());
 			if (hasAttachment == true) {
-				MultipartBodyBuilder builder = new MultipartBodyBuilder();
-				for (int iCounter = 0; iCounter < filePaths.size(); iCounter++) {
+				for (Entry<String, File> entry : fileMap.entrySet()) {
 					try {
-						File file = filePaths.get(iCounter);
+						File file = entry.getValue();
 						InputStream in = new FileInputStream(file);
 						fileByte = ByteStreams.toByteArray(in);
-						builder.part("file[]", fileByte).header("Content-Disposition",
-								"form-data; name=\"" + file.getName() + "\"; filename=\"" + file.getName() + "\"");
+						builder.part(entry.getKey(), new FileSystemResource(file.getAbsolutePath())).filename(file.getPath());
+						
 					} catch (Exception exception) {
 						logger.error("Error occurred while accessing file", exception);
 					}
 				}
+				
 				reqHeaderSpec = reqBodySpec.contentType(MediaType.MULTIPART_FORM_DATA)
 						.body(BodyInserters.fromMultipartData(builder.build()));
 			} else if (webClientRequestVO.getBody() != null

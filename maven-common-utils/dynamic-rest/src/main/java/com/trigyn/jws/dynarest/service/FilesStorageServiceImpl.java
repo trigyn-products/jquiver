@@ -29,14 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.google.common.io.ByteStreams;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
@@ -124,7 +122,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				Files.createDirectories(Paths.get(location.toString()));
 			}
 			FileUploadTemp	fileUpload	= saveFileTempDetails(location.toString(), file.getOriginalFilename(),
-					fileBinId, fileAssociationId, UUID.randomUUID().toString(), 1);
+					fileBinId, fileAssociationId, UUID.randomUUID().toString(), 1, null);
 			Path			root		= Paths.get(location.toString());
 			Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
 			CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(),
@@ -137,13 +135,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	public FileUploadTemp saveFileTempDetails(String location, String originalFilename, String fileBinId,
-			String fileAssociationId, String fileUploadId, Integer action) {
+			String fileAssociationId, String fileUploadId, Integer action, String fileUploadTempId) {
 		logger.debug(
 				"Inside FilesStorageServiceImpl.saveFileTempDetails(location: {}, originalFilename: {}, fileBinId: {}, fileAssociationId: {})",
 				location, originalFilename, fileBinId, fileAssociationId);
 
 		UserDetailsVO	userDetailsVO	= userdetailsService.getUserDetails();
 		FileUploadTemp	fileUpload		= new FileUploadTemp();
+		fileUpload.setFileUploadTempId(fileUploadTempId);
 		fileUpload.setFileUploadId(fileUploadId);
 		fileUpload.setFilePath(location);
 		fileUpload.setOriginalFileName(originalFilename);
@@ -173,7 +172,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	@Override
-	public Map<String, Object> load(String fileUploadId) {
+	public Map<String, Object> load(String fileUploadId) throws Exception {
 		logger.debug("Inside FilesStorageServiceImpl.load(fileUploadId: {})", fileUploadId);
 
 		try {
@@ -206,7 +205,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 						+ fileUploadDetails.getPhysicalFileName();
 				InputStream	in			= FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
 				if (in == null) {
-					throw new RuntimeException("Could not read the file!");
+					throw new Exception("Could not read the file with name - " + fileUploadDetails.getOriginalFileName()
+							+ " : fileBinId : " + fileUploadDetails.getFileBinId() + " : fileUploadId : "
+							+ fileUploadDetails.getFileUploadId());
 				} else {
 					byte[] byteArray = ByteStreams.toByteArray(in);
 					in.close();
@@ -219,9 +220,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			details.put("mimeType", mimeType);
 			return details;
 		} catch (Exception a_exc) {
-			logger.error("Error: ", a_exc.getMessage());
+			logger.error("Error: " + a_exc.getMessage());
+			throw new Exception(a_exc.getMessage());
 		}
-		return null;
 	}
 
 	@Override
@@ -276,13 +277,15 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 		List<FileUpload>	fileUploadList		= new ArrayList<>();
 		FileUploadConfig	fileUploadConfig	= fileUploadConfigRepository.getFileUploadConfig(fileBinId);
-		String				queryContent		= fileUploadConfig.getSelectQueryContent();
-		if (StringUtils.isBlank(queryContent) == false) {
-			requestParamMap.put("fileAssociationId", fileAssociationId);
-			String query = templatingUtils.processTemplateContents(queryContent, "fileViewQuery", requestParamMap);
-			fileUploadList = fileUploadConfigDAO.executeSelectQuery(null, query, requestParamMap);
-		} else {
-			fileUploadList = fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
+		if (fileUploadConfig != null) {
+			String queryContent = fileUploadConfig.getSelectQueryContent();
+			if (StringUtils.isBlank(queryContent) == false) {
+				requestParamMap.put("fileAssociationId", fileAssociationId);
+				String query = templatingUtils.processTemplateContents(queryContent, "fileViewQuery", requestParamMap);
+				fileUploadList = fileUploadConfigDAO.executeSelectQuery(null, query, requestParamMap);
+			} else {
+				fileUploadList = fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
+			}
 		}
 		List<FileInfo> fileInfoList = convertFileUploadToFileInfo(fileUploadList);
 		return fileInfoList;
@@ -298,13 +301,23 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (file.length() == 0) {
 				InputStream in = FilesStorageServiceImpl.class.getResourceAsStream(filePath);
 				if (in == null) {
-					throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+					System.out.println("File Not Found : fileBinId: " + fileUploadEntity.getFileBinId()
+							+ " : filePath : " + filePath);
+					FileInfo fileInfo = new FileInfo();
+					fileInfo.setFileName(fileUploadEntity.getOriginalFileName());
+					fileInfo.setFileId(fileUploadEntity.getFileUploadId());
+					// byte[] byteArray = null;
+					// byteArray = ByteStreams.toByteArray(in);
+					fileInfo.setSizeInBytes(file.length());
+					fileInfo.setWarningMessage("File Not Found with name - " + fileUploadEntity.getOriginalFileName());
+					fileInfos.add(fileInfo);
+					// throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+				} else {
+					byte[] byteArray = null;
+					byteArray = ByteStreams.toByteArray(in);
+					fileInfos.add(new FileInfo(fileUploadEntity.getFileUploadId(),
+							fileUploadEntity.getOriginalFileName(), Long.valueOf(byteArray.length)));
 				}
-				byte[] byteArray = null;
-				byteArray = ByteStreams.toByteArray(in);
-				fileInfos.add(new FileInfo(fileUploadEntity.getFileUploadId(), fileUploadEntity.getOriginalFileName(),
-						Long.valueOf(byteArray.length)));
-
 			} else {
 				fileInfos.add(new FileInfo(fileUploadEntity.getFileUploadId(), fileUploadEntity.getOriginalFileName(),
 						file.length()));
@@ -321,13 +334,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		if (fileUploadDetails != null) {
 			saveFileTempDetails(fileUploadDetails.getFilePath().toString(), fileUploadDetails.getOriginalFileName(),
 					fileUploadDetails.getFileBinId(), fileUploadDetails.getFileAssociationId(),
-					fileUploadDetails.getFileUploadId(), -1);
+					fileUploadDetails.getFileUploadId(), -1, null);
 		} else {
 			List<FileUploadTemp> tempFileUploadDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
 			if (tempFileUploadDetails != null) {
 				for (FileUploadTemp fileTemp : tempFileUploadDetails) {
 					saveFileTempDetails(fileTemp.getFilePath().toString(), fileTemp.getOriginalFileName(),
-							fileTemp.getFileBinId(), fileTemp.getFileAssociationId(), fileTemp.getFileUploadId(), -1);
+							fileTemp.getFileBinId(), fileTemp.getFileAssociationId(), fileTemp.getFileUploadId(), -1,
+							fileTemp.getFileUploadTempId());
 				}
 			}
 		}
@@ -708,11 +722,11 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	@Override
 	public void clearTempFileBin(String fileBinId, String fileAssociationId) throws Exception {
-		List<FileUploadTemp>				fileUploadDetails	= fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
+		List<FileUploadTemp> fileUploadDetails = fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
 				fileAssociationId, null);
-		if(fileUploadDetails != null && fileUploadDetails.size() > 0) {
-			String[] fileTempIds = new String[fileUploadDetails.size()];
-			int fileCounter = 0;
+		if (fileUploadDetails != null && fileUploadDetails.size() > 0) {
+			String[]	fileTempIds	= new String[fileUploadDetails.size()];
+			int			fileCounter	= 0;
 			for (FileUploadTemp fileUpload : fileUploadDetails) {
 				if (fileUpload != null) {
 					fileTempIds[fileCounter] = fileUpload.getFileUploadId();
@@ -728,7 +742,13 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			FileUploadConfig fileUploadConfig = fileUploadConfigRepository.getFileUploadConfig(fileBinId);
 			if (fileUploadConfig != null) {
 				String supportedExtensions = fileUploadConfig.getFileTypSupported();
-				if(supportedExtensions != null && supportedExtensions.isEmpty() == false && files != null && files.length > 0 && files[0] != null) {
+				if (supportedExtensions != null
+						&& (supportedExtensions.equals("*") || supportedExtensions.equals(".*"))) {
+					return true;
+				}
+
+				if (supportedExtensions != null && supportedExtensions.isEmpty() == false && files != null
+						&& files.length > 0 && files[0] != null) {
 					MultipartFile	file		= files[0];
 					String			fileName	= file.getOriginalFilename();
 					if (fileName.contains(".")) {
@@ -766,15 +786,15 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	@Override
 	public void clearTempFileBin(String fileBinId, String fileAssociationId, String[] fileUploadTempIds)
 			throws Exception {
-		
-		if(fileUploadTempIds == null || fileBinId == null || fileAssociationId == null) {
+
+		if (fileUploadTempIds == null || fileBinId == null || fileAssociationId == null) {
 			logger.error("Error: Parameters are empty. Could not clear the bile bin's.");
 			return;
 		}
 		for (int iFileCounter = 0; iFileCounter < fileUploadTempIds.length; iFileCounter++) {
-			String fileUploadTempId = fileUploadTempIds[iFileCounter];
-			List<FileUploadTemp>				fileUploadDetails	= fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
-					fileAssociationId, fileUploadTempId);
+			String					fileUploadTempId	= fileUploadTempIds[iFileCounter];
+			List<FileUploadTemp>	fileUploadDetails	= fileUploadTempRepository
+					.getAllTempDeletedFileUploadId(fileBinId, fileAssociationId, fileUploadTempId);
 			fileUploadConfigDAO.clearTempFileBin(fileBinId, fileAssociationId, fileUploadTempId);
 
 			for (FileUploadTemp fileUpload : fileUploadDetails) {
@@ -792,4 +812,50 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			}
 		}
 	}
+
+	@Override
+	public boolean checkFileExistByUploadId(String fileUploadId) throws Exception {
+		List<FileUploadTemp> tempFileUploadDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
+		if (tempFileUploadDetails != null && tempFileUploadDetails.size() > 0)
+			return true;
+		else
+			return false;
+	}
+
+	@Override
+	public String updateFileUploadTemp(MultipartFile file, String fileUploadId, String fileBinId,
+			String fileAssociationId) throws Exception {
+		logger.debug("Inside FilesStorageServiceImpl.updateFileUploadTemp(fileBinId: {}, fileAssociationId: {})",
+				fileBinId, fileAssociationId);
+
+		try {
+			LocalDate		localDate		= LocalDate.now();
+			Integer			year			= localDate.getYear();
+			Integer			month			= localDate.getMonthValue();
+			Integer			date			= localDate.getDayOfMonth();
+			String			fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
+			StringJoiner	location		= new StringJoiner("" + File.separatorChar);
+			location.add(fileUploadDir);
+			location.add(year.toString()).add(month.toString()).add(date.toString());
+			if (Boolean.FALSE.equals(new File(location.toString()).exists())) {
+				Files.createDirectories(Paths.get(location.toString()));
+			}
+			List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
+			if (fileUploadTempDetails.size() > 0) {
+				FileUploadTemp	fileUpload	= saveFileTempDetails(location.toString(), file.getOriginalFilename(),
+						fileBinId, fileAssociationId, fileUploadTempDetails.get(0).getFileUploadId(), 1,
+						fileUploadTempDetails.get(0).getFileUploadTempId());
+				Path			root		= Paths.get(location.toString());
+				Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
+				CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(),
+						root.resolve(fileUpload.getPhysicalFileName()).toFile());
+				return fileUpload.getFileUploadId();
+			}
+		} catch (Exception a_exc) {
+			logger.error("Could not store the file. Error: ", a_exc);
+			return null;
+		}
+		return null;
+	}
+
 }

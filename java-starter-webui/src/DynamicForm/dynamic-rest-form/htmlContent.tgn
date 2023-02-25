@@ -1,4 +1,3 @@
-
 <head>
 	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
@@ -59,7 +58,7 @@
 				</div>
 			</div>
 
-			<div class="col-3">
+			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestMethodName">${messageSource.getMessage('jws.restmtdname')}</label>
 					<span id="dynarestMethodNameSpan">
@@ -67,16 +66,6 @@
                     </span>
 				</div>
 			</div>
-
-			<div class="col-3">
-				<div class="col-inner-form full-form-fields">
-					<label for="dynarestMethodDescription">${messageSource.getMessage('jws.restmtdDesc')}</label>
-					<span id="dynarestMethodDescriptionSpan">
-                    	<input type="text" class="form-control" id="dynarestMethodDescription"  name= "dynarestMethodDescription" placeholder="Method Description" />
-                    </span>
-				</div>
-			</div>
-
             
 
 			<div class="col-3">
@@ -95,7 +84,7 @@
 				</div>
 			</div>
 			
-			<div class="col-3">
+			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestPlatformId">${messageSource.getMessage('jws.platformtype')}</label>
 					<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this.value)" name="dynarestPlatformId" title="Platform Id">
@@ -141,6 +130,17 @@
 		                    </table>
 		            </div>
 	            </div>
+                <div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<label for="dynarestMethodDescription">${messageSource.getMessage('jws.restmtdDesc')}</label>
+					<span id="dynarestMethodDescriptionSpan">
+                    <textarea class="form-control" rows="6" cols="90" data-type="text"  id="dynarestMethodDescription" placeholder="Method Description" name="dynarestMethodDescription"  maxlength="500" onkeydown="calculateLength();" onkeyup="calculateLength();"></textarea>
+                    </span>
+                    <div style = "position:relative;float:right;">
+                    <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="500" >
+                    </div>
+				</div>
+			</div>
             </div>
 			<div id="deleteHeader"></div>		
 			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
@@ -378,12 +378,14 @@
 	  $("#methodSignatureDiv").hide();
 	  <#if (resultSet)?? && resultSet?has_content>
 		<#list resultSet as resultSetList>
+        
 			<#if resultSetList?is_first>
+            <#outputformat "HTML">
 				$("#dynarestId").val('${(resultSetList?api.get("dynarestId"))!''}');
 				$("#primaryKey").val('${(resultSetList?api.get("dynarestId"))!''}');
 				$("#dynarestUrl").val('${(resultSetList?api.get("dynarestUrl"))!''}');
 				$("#dynarestMethodName").val('${(resultSetList?api.get("dynarestMethodName"))!''}');
-				$("#dynarestMethodDescription").val('${(resultSetList?api.get("dynarestMethodDescription"))!''}');
+                $("#dynarestMethodDescription").val($('<div></div>').html('${resultSetList?api.get("dynarestMethodDescription")}').text());
 				$("#dynarestPlatformId option[value='${(resultSetList?api.get("dynarestPlatformId"))!''}']").prop("selected", "selected");
 				$("#allowFiles").val('${(resultSetList?api.get("allowFiles"))!''}');
                 /**Added a new column for implementing hiding of DAO Query Container*/
@@ -391,8 +393,9 @@
                 /**Ends here*/
                 $("#createdDate").val('${(resultSetList?api.get("createdDate"))!''}');
                 let produceTypeText = dynarest.populateDetails('${(resultSetList?api.get("dynarestRequestTypeId"))!''}',
-                '${(resultSetList?api.get("dynarestProdTypeId"))!''}','${(resultSetList?api.get("dynarestUrl"))!''}');
+                '${(resultSetList?api.get("dynarestProdTypeId"))!''}','${(resultSetList?api.get("dynarestUrl"))!''}'); 
 				$("#isEdit").val(1);
+                </#outputformat>    
 	            let jsonStr = '${resultSetList?api.get("header_json")!""}';
 	          	if(jsonStr !== ''){
 	            	savedHeaderJson = JSON.parse(jsonStr);
@@ -426,8 +429,15 @@
                  }
                 /**Ends here*/
     			</#if>
+           
 		</#list>
 		getAllDatasource(1);
+        /*Written for updating the count of Selection Criteria and Message Text in Edit Form*/
+            var mtdDesc_count = parseInt(document.getElementById('dynarestMethodDescription').value.length);
+            var maxCount = 500;
+            var finalselcount = maxCount-mtdDesc_count; 
+            $('#countdown').val(finalselcount);   
+        /*Ends Here*/
 	<#else>
    
         let tableRow = '<tr id="Powered-By"><td><input class="key" type="hidden" value="Powered-By">Powered-By</td><td><input class="value" type="hidden" value="JQuiver">JQuiver</td>';
@@ -455,6 +465,7 @@
             document.getElementById("hidedaoquery").value = 1;
          }   
         /**Ends here*/
+          
 	</#if>
 	
 	createHeaderResponseTable();
@@ -567,5 +578,14 @@
       /**Ends here*/
     }
     /**Ends here*/
+     /* Written for Limit Count Validation in Method Description Text Area*/
+     function calculateLength() {
+        var limitNum=500;
+        var methodDesc = $("#dynarestMethodDescription").val();
+        var limitCount = $('#countdown').val();
+        limitCount = (limitNum) - methodDesc.length;
+        $('#countdown').val(limitCount);   
+    }
+    /**Ends Here*/	
     
 </script>

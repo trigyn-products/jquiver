@@ -143,9 +143,16 @@ input:checked + .slider:before {
       
       <div class="col-12"> 
         <fieldset class="hm-fieldset">
-         <legend class="hm-legend"> ${messageSource.getMessage('jws.authentication')} <label class="switch"> 
-        <input type="checkbox" id="isSmtpAutheticatedId" onclick="authenticationChecked($(this));">
-        <span class="slider round"></span>
+         <legend class="hm-legend" style="display:flex;"> ${messageSource.getMessage('jws.authentication')} <label class="switch" style="margin-left:15px;margin-right:15px;"> 
+
+                         <div class="onoffswitch">
+                                <input class="onoffswitch-checkbox" type="checkbox" name="isSmtpAutheticatedId" id="isSmtpAutheticatedId" onclick="authenticationChecked($(this));">
+                                <label class="onoffswitch-label" for="isSmtpAutheticatedId">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+        
      </label></legend>
       
       <div class="col-6 float-left"">
@@ -205,11 +212,20 @@ input:checked + .slider:before {
       </div>
       
       <div  class="col-12"> 
-      <fieldset class="hm-fieldset"  style="height: 163px;">
-         <legend class="hm-legend">
-      ${messageSource.getMessage('jws.mailfooter')} <label class="switch"> 
-        <input type="checkbox" id="isMailFooterRequiredId" onclick="mailFooterReuired($(this));">
-        <span class="slider round"></span>
+      <fieldset class="hm-fieldset">
+         <legend class="hm-legend" style="display:flex;     margin-bottom: 30px;">
+      ${messageSource.getMessage('jws.mailfooter')} <label class="switch"  style="margin-left:15px;margin-right:15px;"> 
+
+
+                             <div class="onoffswitch">
+                                <input class="onoffswitch-checkbox" type="checkbox" name="isMailFooterRequiredId" id="isMailFooterRequiredId" onclick="mailFooterReuired($(this));">
+                                <label class="onoffswitch-label" for="isMailFooterRequiredId">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+
+  
      </label></legend>
      
       
@@ -235,7 +251,7 @@ input:checked + .slider:before {
             </label>
             <input type="hidden" id="noOfFailedMails" name="noOfFailedMails">
             <p class="failed-mail-slider-cls"><span id="failedMailsSliderSpan" class="no-of-files-counter"></span></p>
-		    <div class="file-slider-div-cls" id="failedMailsSliderDiv"></div>
+		    <div class="file-slider-div-cls" id="failedMailsSliderDiv" style="margin: 10px 0px !important;"></div>
 		</div>
 	</div>
       

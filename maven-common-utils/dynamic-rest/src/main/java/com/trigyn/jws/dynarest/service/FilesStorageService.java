@@ -33,7 +33,7 @@ public interface FilesStorageService {
 
 	public String save(MultipartFile file, String fileBinId, String fileAssociationId);
 
-	public Map<String, Object> load(String filename);
+	public Map<String, Object> load(String filename) throws Exception;
 
 	public void deleteAll();
 
@@ -67,4 +67,8 @@ public interface FilesStorageService {
 	//Fix for Session Id :  This method will delete the files from jq_file_upload_temp with fileUploadTempIds
 	public void clearTempFileBin(String fileBinId, String fileAssociationId, String[] fileUploadTempIds) throws Exception;
 
+	public boolean checkFileExistByUploadId(String fileUploadId) throws Exception;
+
+	public String updateFileUploadTemp(MultipartFile file, String fileUploadId, String fileBinId, String fileAssociationId) throws Exception;
+	
 }

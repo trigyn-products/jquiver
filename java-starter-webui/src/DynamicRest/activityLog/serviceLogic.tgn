@@ -1,27 +1,45 @@
 var System = Java.type("java.lang.System");
 function activityLog() {
-
-    if(requestDetails["action"]=="ADD"||requestDetails["action"]=="EDIT"||requestDetails["action"]=="OPEN"||requestDetails["action"]=="Api Executed"||requestDetails["action"]=="Api Execution Failed" ||requestDetails["action"]=="DOWNLOAD" ||requestDetails["action"]=="DELETE" ||requestDetails["action"]=="UPLOAD" ||requestDetails["action"]=="PERMISSION ACTIVATED" ||requestDetails["action"]=="PERMISSION INACTIVATED" ||requestDetails["action"]=="SCHEDULER EXECUTION FAILED"  ||requestDetails["action"]=="SCHEDULER EXECUTED SUCCESSFULLY"){
-    System.out.println(requestDetails["action"]);
-    System.out.println(requestDetails["entityName"]);
-    System.out.println(requestDetails["typeSelect"]);
-    System.out.println(requestDetails["masterModuleType"]);
-    System.out.println(requestDetails["userName"]);
-    System.out.println(requestDetails["message"]);
-    System.out.println(requestDetails["date"]);
-    }
-    else{
-    var String = Java.type("java.lang.String");
-    var body = new String(requestBody);
-    var jsonObject = JSON.parse(body);
-	System.out.println("action:" + jsonObject["action"]); 
-    System.out.println("entityName:" + jsonObject["templateName"]); 
-    System.out.println("TypeSelect:" + jsonObject["typeSelect"]);
-    System.out.println("masterModuleType:" + jsonObject["masterModuleType"]);
-    System.out.println("userName:" + jsonObject["userName"]);
-    System.out.println("message:" + jsonObject["message"]);
-    System.out.println("date:" + jsonObject["date"]);
-    }
-   
+    
+	/**
+     * Below, if part is written for recording the Activity Log, when the request parameters come in requestDetails, for e.g when we save Notification form , Activity Log  gets called while saving a new form or saving an existing form or opening the form for which the different actions are mentioned below. All values passed will be available here.
+     */
+    if(requestDetails && requestDetails["isFromRestAPI"] && requestDetails["isFromRestAPI"] == "false"){
+           logActivity(requestDetails);           
+     } else {
+        /**This is called when jq_logActivity(Map<String, String> requestParams) is called from serverside javascript or directly form ScriptUtil class*/    
+            var String = Java.type("java.lang.String");
+            var body = new String(requestBody);
+            var jsonObject = JSON.parse(body);
+            if(jsonObject["isFromRestAPI"] == "true") {
+                logActivity(jsonObject);
+            }
+     } 
 }  
+
+/**
+ *
+ * Following variables will be available in the call as parameters. The parameters are available in the string format and json object format.
+ * If the "isFromRestAPI" parameter is true, then the parameters are in the form of json object else string.
+ * masterModuleType: This identifies the entity type, like template, dynamic-form or your custom entity etc.
+ * typeSelect: This helps to identify if the entity is system or custom. Values are like "system", "custom". 
+ * Also it is important for default inbuilt entity types. 
+ * entityName: This helps to identify the name of the entity .
+ * userName  : This helps to identify the user whether anonymous, admin or authenticated e.g- xyz@trigyn.com.
+ * action    : This helps to identify what kind of action is performed like Add, Edit, Open , Delete etc.
+ * message   : This parameter is left blank for the user to write his customised message if any.
+ * date      : This helps to identify when the action is performed. Format of the date will be new Date() format . E.g - Fri Feb 17 11:21:58 IST 2023.
+ * Any other parameters that you pass will be available.
+ */
+function logActivity(a_paramaters){
+    if(a_paramaters["isFromRestAPI"] == "true") {
+         Object.keys(a_paramaters).forEach(function(a_item, index) {
+      	    System.out.println(a_item + " : " + a_paramaters[a_item]);
+        });
+    } else {
+         a_paramaters.forEach(function(a_item, a_index){
+            System.out.println(a_item + " : " + a_paramaters[a_item]);
+        });
+    }
+}
 activityLog();

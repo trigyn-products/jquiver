@@ -124,7 +124,6 @@ class DynamicRest {
 					}
 				}
 			});
-
 			context.serviceLogicContent.onDidChangeCursorSelection((e) => {
 				if (e.source == "snippet") {
 					var position = e.oldSelections[0]; // Get current mouse position
@@ -132,12 +131,29 @@ class DynamicRest {
 					var splitedText = text.split("\n");
 					var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
 					var textArray = lineContent.split('');
+					var newTextArray = lineContent.split('');
 					var line = context.serviceLogicContent.getPosition().lineNumber;
 					var col = context.serviceLogicContent.getPosition().column;
+					var sugPostion;
 					if ($("#dynarestPlatformId").val() == "2") {
-						if (textArray.includes("#")) {
+						if (lineContent.includes("#{")) {
 							var textToInsert = "$"; // text to be inserted
-							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+							while (newTextArray.lastIndexOf("#") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
+							}
+							sugPostion = newTextArray.lastIndexOf("#");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+							context.serviceLogicContent.setValue(splitedText.join("\n"));
+							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
+							context.serviceLogicContent.focus();
+						}
+						else if(lineContent.includes("#<")){
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("#") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
+							}
+							sugPostion = newTextArray.lastIndexOf("#");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 							context.serviceLogicContent.setValue(splitedText.join("\n"));
 							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
 							context.serviceLogicContent.focus();
@@ -152,7 +168,11 @@ class DynamicRest {
 					} else if ($("#dynarestPlatformId").val() == "3") {
 						if (textArray.includes("#")) {
 							var textToInsert = ""; // text to be inserted
-							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+							while (newTextArray.lastIndexOf("#") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
+							}
+							sugPostion = newTextArray.lastIndexOf("#");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 							context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
 							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
 							context.serviceLogicContent.focus();
@@ -161,13 +181,9 @@ class DynamicRest {
 							context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
 							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
 							context.serviceLogicContent.focus();
-
 						}
-
 					}
 				}
-
-
 			});
 			/**Ends Here */
 			context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
@@ -177,6 +193,7 @@ class DynamicRest {
 				resizeMonacoEditor(context.serviceLogicContent, "htmlContainer", "htmlEditor");
 			});
 		});
+
 	}
 
 	addSaveQueryEditor = function(element, daoDetailsId, versionDetails, variableName, saveQueryContent, queryType, datasourceId) {
@@ -194,7 +211,7 @@ class DynamicRest {
 				$("#versionSelect_" + index).append("<option value='' selected>Select</option>");
 			}
 			let datasource = retrieveDatasource();
-			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' class='form-control' /></div>";
+			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='dynarest.getRESTXMLStructure(this);'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>REST Client</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
@@ -208,6 +225,45 @@ class DynamicRest {
 
 			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>" + inputElement + "" + selectElement + "" + datasourceEditor + "<div class='col-3 margin-t-25 float-right'>" + buttonElement + "</div></div></div>");
 			daoContainer.append("<div id='container_" + index + "' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_" + index + "' class='ace-editor-container'><div id='saveSqlEditor_" + index + "' class='ace-editor'></div></div></div></div></div>");
+
+/**Added for displaying Custom Suggestions in Monaco Editor */
+			var newSuggestionsArray = [];
+			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
+				var suggestion = suggestionArray[iCounter];
+				newSuggestionsArray.push({
+					label: suggestion.label,
+					kind: suggestion.kinda,
+					insertText: suggestion.insertText,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+				});
+			}
+			monaco.languages.registerCompletionItemProvider('sql', {
+				triggerCharacters: ["#"],
+				provideCompletionItems: (model, position) => {
+					var textUntilPosition = model.getValueInRange({
+						startLineNumber: position.lineNumber,
+						startColumn: position.column - 1,
+						endLineNumber: position.lineNumber,
+						endColumn: position.column
+					});
+					let str = model.id;
+					let indexCount = str.slice(-1);
+					let str1 = str.slice(0,6);
+					let finalindex = indexCount - index;
+					if (textUntilPosition == '#') {
+						if (model.id == str1 + finalindex) {
+							let str = model.id;
+							let indexCount = str.slice(-1);
+							let index = indexCount - 2;
+							if ($("#selectcontainer_" + index).val() == "1" || $("#selectcontainer_" + index).val() == "2") {
+								return {
+									suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
+								}
+							}
+						}
+					}
+				}
+			});
 
 			if (parentElement != undefined) {
 				daoContainer.insertAfter(parentElement);
@@ -242,67 +298,50 @@ class DynamicRest {
 				wordWrapMinified: true,
 				wrappingIndent: "indent"
 			});
-			/**Added for displaying Custom Suggestions in Monaco Editor */
-			var newSuggestionsArray = [];
-			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
-				var suggestion = suggestionArray[iCounter];
-				newSuggestionsArray.push({
-					label: suggestion.label,
-					kind: suggestion.kinda,
-					insertText: suggestion.insertText,
-					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-				});
-			}
-			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["#"],
-				provideCompletionItems: (model, position) => {
-					var textUntilPosition = model.getValueInRange({
-						startLineNumber: position.lineNumber,
-						startColumn: position.column - 1,
-						endLineNumber: position.lineNumber,
-						endColumn: position.column
-					});
-					if (textUntilPosition == '#') {
-						if (model.id == "$model2") {
-							let str = model.id;
-							let indexCount = str.slice(-1);
-							let index = indexCount - 2;
-							if ($("#selectcontainer_" + index).val() == "1" || $("#selectcontainer_" + index).val() == "2") {
-								return {
-									suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
-								}
-							}
-						}
-					}
-				}
-			});
+
 			saveUpdateEditor.onDidChangeCursorSelection((e) => {
 				if (e.source == "snippet") {
 					var position = e.oldSelections[0]; // Get current mouse position
-					console.log("position::" + e.oldSelections[0]);
-					console.log("position.lineNumber::" + position.lineNumber);
-					console.log("position.column::" + position.column);
 					var text = saveUpdateEditor.getValue(position);
 					var splitedText = text.split("\n");
 					var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-					var textArray = lineContent.split('');
-					if (textArray.includes("#")) {
+					var line = saveUpdateEditor.getPosition().lineNumber;
+					var col = saveUpdateEditor.getPosition().column;
+					var newTextArray = lineContent.split('');
+					var sugPostion;
+					if (lineContent.includes("#{")) {
 						var textToInsert = "$"; // text to be inserted
-						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+						while (newTextArray.lastIndexOf("#") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
+						}
+						sugPostion = newTextArray.lastIndexOf("#");
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 						saveUpdateEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						saveUpdateEditor.setPosition({ lineNumber: 10, column: 2 });
+						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
 						saveUpdateEditor.focus();
 					}
+					else if(lineContent.includes("#<")){
+						var textToInsert = ""; // text to be inserted
+						while (newTextArray.lastIndexOf("#") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
+						}
+						sugPostion = newTextArray.lastIndexOf("#");
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+						saveUpdateEditor.setValue(splitedText.join("\n"));
+						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
+						saveUpdateEditor.focus();
+						}
 					else {
 						splitedText[position.endLineNumber - 1];
 						saveUpdateEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						saveUpdateEditor.setPosition({ lineNumber: 10, column: 2 });
+						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
 						saveUpdateEditor.focus();
 					}
 				}
 
 			});
 			/**Ends Here */
+
 			let editorObj = new Object();
 			editorObj["index"] = index;
 			editorObj["editor"] = saveUpdateEditor;
@@ -325,6 +364,7 @@ class DynamicRest {
 			context.updateVariableSeq();
 			disableInputSuggestion();
 		});
+
 	}
 
 	removeSaveQueryEditor = function(element) {

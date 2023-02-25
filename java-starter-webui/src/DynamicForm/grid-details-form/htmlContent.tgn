@@ -45,6 +45,7 @@
 	<form method="post" name="addEditForm" id="addEditForm">
 		
 		<div class="row">
+            
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridid')}</label>
@@ -150,7 +151,7 @@
 	        </div>
         </div>
     </div> 
-    
+    	
      <div id="manual-container" class="cm-rightbar">
         <div class="row">
             <div class="col-md-3">
@@ -189,6 +190,7 @@
 </div>
 
 <script>
+
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	let oldGridId = "yourGridId";
@@ -197,16 +199,20 @@
 		loadDefaultTab("grid-default-template", updateDefaultTemplate);
 	    <#if (resultSet)??>
     	    <#list resultSet as resultSetList>
-        		$("#gridId").val('${resultSetList?api.get("gridId")}');
-        		$("#gridName").val('${resultSetList?api.get("gridName")}'); 
-        		$("#gridDescription").val('${resultSetList?api.get("gridDescription")}');
-        		$("#gridTableName").val('${resultSetList?api.get("gridTableName")}');
-        		$("#gridColumnName").val('${resultSetList?api.get("gridColumnName")}');
+            /** Made changes for preventing Cross Site Scripting*/
+            <#outputformat "HTML">
+                $("#gridId").val($('<div></div>').html('${resultSetList?api.get("gridId")}').text());
+        		$("#gridName").val($('<div></div>').html('${resultSetList?api.get("gridName")}').text()); 
+                $("#gridDescription").val($('<div></div>').html('${resultSetList?api.get("gridDescription")}').text());
+                $("#gridTableName").val($('<div></div>').html('${resultSetList?api.get("gridTableName")}').text());
+                $("#gridColumnName").val($('<div></div>').html('${resultSetList?api.get("gridColumnName")}').text());
         		$("#dataSourceId").val('${(resultSetList?api.get("datasourceId"))!""}');
         		$("#queryType option[value='${resultSetList?api.get("queryType")}']").attr("selected", "selected");
+            </#outputformat>
+            /**Ends Here*/
     	    </#list>
         </#if>
-        
+        	
         let isEdit = 0;
       	<#if (resultSet)?? && resultSet?has_content>
       		isEdit = 1;
@@ -220,11 +226,13 @@
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		}
-		
+	
 		getAllDatasource(isEdit);
 		savedAction("grid-details-form", isEdit);
 		hideShowActionButtons();
+     
 		$("a[href='#htmlContent']").click();
+      
 	});   
 
 	function validateFields(){

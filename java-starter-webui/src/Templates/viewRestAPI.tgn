@@ -1,0 +1,110 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+
+</head>
+
+<form id="dynaForm"></form>
+<div class="container">
+
+     <div class="restapibtns">
+        <div class="restapiselect"><input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="CheckedAll();">Select All</input></div>
+        <button type="button" id="expand" class="listlinkcls">Expand All</button>        
+            
+            <div class="sortdrop">
+                <a class="listlinkcls" data-toggle="collapse" href="#sortdropdown" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Sort
+                </a>
+                <div class="collapse sortvisbleblock" id="sortdropdown">
+                    <div class="sorticondiv">
+                        <span class="sorticoncls active" onclick="loadRestAPI(0,'jws_method_name','ASC')" >
+                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                        </span>
+                         <span class="sorticoncls sortup"  onclick="loadRestAPI(0,'jws_method_name','DESC')"  >
+                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                        </span>
+                     
+                    </div>
+                <ul> 
+                    <li class="activecls" onclick="loadRestAPI(0,'jws_method_name','ASC')">By Name</li>
+                    <li class="activecls" onclick="loadRestAPI(0,'jws_dynamic_rest_url','ASC')">By Type</li>
+                </ul>
+                </div>
+            </div>
+
+        <!-- <button type="button" id="sortbtn" class="listlinkcls" onclick="loadRestAPI(0,'jws_method_name','ASC')">
+        Sort</button> -->
+        <!-- <button type="button" class="fa fa-caret-up" onclick="loadRestAPI(0,'jws_method_name','ASC')" aria-hidden="true"></button>  
+        <button type="button" class="fa fa-caret-down" onclick="loadRestAPI(0,'jws_method_name','DESC')" aria-hidden="true"></button>             -->
+            <button type="button" id="export" onclick="getDynaExport();" class="listlinkcls">Export</button>
+        </div> 
+
+     <div id="getRestAPIDetails" class="getapidetailsblock">
+        <div id="viewRestAPI"></div>
+    </div> 
+</div>
+<script>
+
+contextPath = "${(contextPath)!''}";
+$(function() {
+    loadRestAPI(0,"jws_dynamic_rest_url","ASC");
+});
+
+function loadRestAPI(a_offset,columnName,sort_order) {
+    if(a_offset == 0) {
+        $("#viewRestAPI").html("");
+    }
+     $("#viewRestAPI").find("button").remove()
+        $.ajax({
+            type : "POST",
+            async: true,
+            url : "${contextPath!''}/api/getRestAPI",
+            data:{"offset": a_offset,
+                  "columnName": columnName,
+                  "sort_order": sort_order},
+            success : function(data) {
+               $("#viewRestAPI").append(data);
+            },
+            error: function(jqXHR, exception){
+               showMessage("Error occurred while fetching text responses", "error");
+            }  
+        });
+}
+function getDynaExport() {
+
+$.ajax({
+        type : "POST",
+        async: true,
+        url : "${contextPath!''}/api/exportAPI",
+            success : function(data) {
+              var a_strSourceBody = data;
+              var mapForm = document.getElementById("dynaForm");
+              mapForm.target ="_self"||"_blank";
+              mapForm.id="stmtForm";
+              mapForm.method = "POST";
+              mapForm.action = "${contextPath!''}/api/getDynaExport";
+              var mapInput = document.createElement("input");
+              mapInput.type = "hidden";
+              mapInput.name = "a_strSourceBody";
+              mapInput.value = data;
+              mapForm.appendChild(mapInput);
+              document.body.appendChild(mapForm);
+              mapForm.submit();
+        },
+            error: function(jqXHR, exception){
+            showMessage("Error occurred while fetching text responses", "error");
+        }  
+    });
+
+}
+function getExport() {
+    if (document.getElementById('selectAll').checked) {
+       getDynaExport(document.getElementById('restApiDetailsDiv'));
+    }
+}
+</script>

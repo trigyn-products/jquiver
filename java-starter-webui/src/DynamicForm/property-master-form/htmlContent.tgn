@@ -193,16 +193,18 @@
 	$(function() {
 	    <#if (resultSet)?? && resultSet?has_content>
         	<#list resultSet as resultSetList>
+             <#outputformat "HTML">
 				edit = 1;
 				$("#propertyMasterId").val('${resultSetList?api.get("property_master_id")}');
 				$("#primaryKey").val('${resultSetList?api.get("property_master_id")}');
-        		$("#ownerId").val('${resultSetList?api.get("owner_id")}');
-        		$("#ownerType").val('${resultSetList?api.get("owner_type")}');
-        		$("#propertyName").val('${resultSetList?api.get("property_name")}');
+                $("#ownerId").val($('<div></div>').html('${resultSetList?api.get("owner_id")}').text());
+                $("#ownerType").val($('<div></div>').html('${resultSetList?api.get("owner_type")}').text());
+                $("#propertyName").val($('<div></div>').html('${resultSetList?api.get("property_name")}').text());
+                $("#comment").val($('<div></div>').html('${resultSetList?api.get("comments")}').text());
+                </#outputformat>
 				<#outputformat "RTF">
 					
 				</#outputformat>
-        		$("#comment").val('${resultSetList?api.get("comments")}');
         		$("#appVersion").val('${resultSetList?api.get("app_version")}');
                 var num = parseInt(document.getElementById('comment').value.length);
                 var num2 = 100;

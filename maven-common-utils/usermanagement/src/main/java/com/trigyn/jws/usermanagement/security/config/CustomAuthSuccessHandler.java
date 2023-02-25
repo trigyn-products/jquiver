@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -100,47 +101,51 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 				List<JwsUserLoginVO>	multiAuthLoginVO	= (List<JwsUserLoginVO>) authenticationDetails
 						.get("activeAutenticationDetails");
 				String					authType			= request.getParameter("enableAuthenticationType");
-				if (multiAuthLoginVO != null && authType.equals("2")) {
+				if (multiAuthLoginVO != null && authType !=null && authType.equals("2")) {
 					for (JwsUserLoginVO jwsUserLoginVO : multiAuthLoginVO) {
-						Map<String, Object> daoAuthAttributes = jwsUserLoginVO.getLoginAttributes();
-						if (daoAuthAttributes != null && daoAuthAttributes.containsKey("enableVerificationStep")) {
-							String enableVerificationStepValue = (String) daoAuthAttributes
-									.get("enableVerificationStep");
-							if (enableVerificationStepValue.equalsIgnoreCase("true")) {
-								String verficationType = (String) daoAuthAttributes.get("verificationType");
-								if (verficationType != null && Constants.VerificationType.PASSWORD.getVerificationType()
-										.equals(verficationType)) {
+						Integer	authTypeId = jwsUserLoginVO.getAuthenticationType().intValue();
+						if(authTypeId == Constants.AuthType.DAO.getAuthType() && authentication instanceof UsernamePasswordAuthenticationToken) {
+							Map<String, Object> daoAuthAttributes = jwsUserLoginVO.getLoginAttributes();
+							if (daoAuthAttributes != null && daoAuthAttributes.containsKey("enableVerificationStep")) {
+								String enableVerificationStepValue = (String) daoAuthAttributes
+										.get("enableVerificationStep");
+								if (enableVerificationStepValue.equalsIgnoreCase("true")) {
+									String verficationType = (String) daoAuthAttributes.get("verificationType");
+									if (verficationType != null && Constants.VerificationType.PASSWORD.getVerificationType()
+											.equals(verficationType)) {
 
-									String passwordExpiry = (String) daoAuthAttributes.get("passwordExpiry");
-									if (passwordExpiry != null) {
-										Integer expiryDays = Integer.parseInt(passwordExpiry);
-										if (expiryDays != 0) {
-											LocalDate	currentDate	= LocalDate.now();
-											Calendar	cal			= Calendar.getInstance();
-											cal.setTime(user.getLastPasswordUpdatedDate());
-											LocalDate lastUpdatedDate = user.getLastPasswordUpdatedDate().toInstant()
-													.atZone(ZoneId.systemDefault()).toLocalDate();
-											if (user.getForcePasswordChange() == 1
-													|| currentDate.isAfter(lastUpdatedDate.plusDays(expiryDays))) {
-												logout(request, response, authentication, user);
-												redirectUrl = new StringBuilder()
-														.append(servletContext.getContextPath())
-														.append("/cf/changePassword?token=").append(user.getUserId())
-														.append("&icp=1").toString();
+										String passwordExpiry = (String) daoAuthAttributes.get("passwordExpiry");
+										if (passwordExpiry != null) {
+											Integer expiryDays = Integer.parseInt(passwordExpiry);
+											if (expiryDays != 0) {
+												LocalDate	currentDate	= LocalDate.now();
+												Calendar	cal			= Calendar.getInstance();
+												cal.setTime(user.getLastPasswordUpdatedDate());
+												LocalDate lastUpdatedDate = user.getLastPasswordUpdatedDate().toInstant()
+														.atZone(ZoneId.systemDefault()).toLocalDate();
+												if (user.getForcePasswordChange() == 1
+														|| currentDate.isAfter(lastUpdatedDate.plusDays(expiryDays))) {
+													logout(request, response, authentication, user);
+													redirectUrl = new StringBuilder()
+															.append(servletContext.getContextPath())
+															.append("/cf/changePassword?token=").append(user.getUserId())
+															.append("&icp=1").toString();
+												}
 											}
 										}
+									} else if (verficationType != null && Constants.VerificationType.OTP
+											.getVerificationType().equals(verficationType)) {
+										if (user != null) {
+											user.setOneTimePassword(null);
+											user.setOtpRequestedTime(null);
+											userManagementDAO.updateUserData(user);
+										}
 									}
-								} else if (verficationType != null && Constants.VerificationType.OTP
-										.getVerificationType().equals(verficationType)) {
-									if (user != null) {
-										user.setOneTimePassword(null);
-										user.setOtpRequestedTime(null);
-										userManagementDAO.updateUserData(user);
-									}
-								}
 
+								}
 							}
 						}
+						
 					}
 				}
 			}

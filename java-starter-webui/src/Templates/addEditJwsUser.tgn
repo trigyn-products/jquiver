@@ -241,15 +241,17 @@
     }
      
     // setting value on edit.
-		 <#if (jwsUser?api.getUserId())??>
+	<#if (jwsUser?api.getUserId())??>
+        <#outputformat "HTML">
         $("#userId").val("${jwsUser?api.getUserId()}");
-		 $("#firstName").val("${jwsUser?api.getFirstName()}"); 
-        $("#lastName").val("${jwsUser?api.getLastName()}");
-        $("#email").val("${jwsUser?api.getEmail()}"); 
-         $("#email").attr("disabled",true);
-         if(${jwsUser?api.getForcePasswordChange()} == 1){ 
-            	 $("#forcePasswordChange").prop("checked",true);
-            }
+        $("#firstName").val($('<div></div>').html('${jwsUser?api.getFirstName()}').text());
+        $("#lastName").val($('<div></div>').html('${jwsUser?api.getLastName()}').text());
+        $("#email").val($('<div></div>').html('${jwsUser?api.getEmail()}').text());
+        $("#email").attr("disabled",true);
+        </#outputformat>
+        if(${jwsUser?api.getForcePasswordChange()} == 1){ 
+            $("#forcePasswordChange").prop("checked",true);
+        }
             
          if(${jwsUser?api.getIsActive()} == 1){ 
          	 $("#isActive").prop("checked",true);
@@ -258,6 +260,7 @@
           <#list userRoleIds as roleId>
               $("#${roleId}").attr("checked",true);
           </#list>    
+        
 		    </#if>
         <#else>
         	 $("#isActive").prop("checked",true);
@@ -279,7 +282,22 @@
 		$("#isSendMail").prop("disabled",false);
 	}
 }
-
+ /**Email ID Validation*/
+	function validateEmail() {
+    // Get value on emails input as a string
+        var emails = $('#email').val();
+    // Split string by comma into an array
+        emails = emails.split(",");
+        var valid = true;
+        var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        for (var i = 0; i < emails.length; i++) {
+            if( emails[i] === "" || !regex.test(emails[i].replace(/\s/g, ""))){
+                valid = false;
+            }
+        }
+        return valid;
+}
+/**Ends Here*/
 	//Add logic to save form data
 	function saveData (){
 		let emailIdExist = checkEmailIdExist();
@@ -287,6 +305,15 @@
             showMessage("User email id already exists", "error");
             return;
         }
+        /** Written for validation of Email*/
+        var returnval = validateEmail();
+        if (returnval == false){
+            showMessage("Please enter valid mail id", "error");
+            $('#email').closest("div").parent().effect("highlight", {}, 3000);
+            $('#email').focus();
+            return;
+        }
+        /**Ends Here*/
     let userData = new Object();
     userData.userId = $("#userId").val();
     userData.firstName =  $("#firstName").val().trim();
@@ -355,8 +382,8 @@
         }
         return emailIdExist;
     }
-	
-	//Code go back to previous page
+   
+ 	//Code go back to previous page
 	function backToPreviousPage() {
 		<#if !isProfilePage >
 			location.href = contextPath+"/cf/ul";

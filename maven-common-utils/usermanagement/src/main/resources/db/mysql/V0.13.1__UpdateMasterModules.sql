@@ -1,0 +1,1 @@
+ALTER TABLE `jq_user` CHANGE `one_time_password` `one_time_password` VARCHAR(100) NULL;

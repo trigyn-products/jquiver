@@ -1,1 +1,1 @@
-SELECT jws_request_type_details_id AS value, jws_request_type AS name FROM jq_request_type_details
+SELECT jws_request_type_details_id AS value, jws_request_type AS name FROM jq_request_type_details ORDER BY priority ASC

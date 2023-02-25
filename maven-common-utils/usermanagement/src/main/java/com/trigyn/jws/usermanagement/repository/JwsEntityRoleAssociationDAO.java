@@ -38,6 +38,20 @@ public class JwsEntityRoleAssociationDAO extends DBConnection {
 			String jeraId = jeraValueObj.toString();
 			JwsEntityRoleAssociation entityRole =  hibernateTemplate.get(JwsEntityRoleAssociation.class, jeraId);
 			return entityRole;
+		} else {
+			String queryStr = " SELECT jera.entityRoleId FROM JwsEntityRoleAssociation jera WHERE jera.entityId=:entityId"
+					+ " AND jera.moduleId=:moduleId AND jera.roleId=:roleId";
+			query			= getCurrentSession().createQuery(queryStr);
+			query.setParameter("entityId", entityId);
+			query.setParameter("moduleId", moduleId);
+			query.setParameter("roleId", roleId);
+			jeraValueObj = query.uniqueResult();
+			if (jeraValueObj != null) {
+				String jeraId = jeraValueObj.toString();
+				JwsEntityRoleAssociation entityRole =  hibernateTemplate.get(JwsEntityRoleAssociation.class, jeraId);
+				return entityRole;
+			}
+			
 		}
 		return null;		
 	}

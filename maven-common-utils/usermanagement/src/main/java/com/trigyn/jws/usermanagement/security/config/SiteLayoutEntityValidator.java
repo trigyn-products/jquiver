@@ -41,6 +41,9 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 		Long	count			= 0L;
 		String	moduleUrlStr	= reqObject.getRequestURI().substring(reqObject.getContextPath().length());
 		moduleUrlStr = moduleUrlStr.replaceFirst("/view/", "");
+		if("/view".equals(moduleUrlStr)) {
+			moduleUrlStr = moduleUrlStr.replaceFirst("/view", "");
+		}
 		String requestUrl = moduleUrlStr;
 
 		if (moduleUrlStr.indexOf("/") != -1) {
@@ -107,6 +110,9 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 
 		String moduleUrl = reqObject.getRequestURI().substring(reqObject.getContextPath().length());
 		moduleUrl = moduleUrl.replaceFirst("/view/", "");
+		if("/view".equals(moduleUrl)) {
+			moduleUrl = moduleUrl.replaceFirst("/view", "");
+		}
 		String requestUrl = moduleUrl;
 
 		if (moduleUrl.indexOf("/") != -1) {
@@ -131,6 +137,9 @@ public class SiteLayoutEntityValidator implements EntityValidator {
 		List<String>	pathVariableList	= new ArrayList<>();
 		String			moduleUrl			= httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
 		moduleUrl = moduleUrl.replaceFirst("/view/", "");
+		if("/view".equals(moduleUrl)) {
+			moduleUrl = moduleUrl.replaceFirst("/view", "");
+		}
 
 		if (moduleUrl.indexOf("/") != -1) {
 			pathVariableList = Stream.of(moduleUrl.split("/")).map(urlElement -> new String(urlElement)).collect(Collectors.toList());

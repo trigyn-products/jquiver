@@ -286,8 +286,8 @@
 	initDetails() {
 		this.createClassLoadingDetails(this.applicationDetails["classloading-metrics"]);
 		
-	    this.createGCDetails(this.applicationDetails["gc-metrics"]);
-	    setInterval(this.createGCDetails.bind(), 1000 * 30);
+	    //this.createGCDetails(this.applicationDetails["gc-metrics"]);
+	    //setInterval(this.createGCDetails.bind(), 1000 * 30);
 	    
 	    this.createSystemDetails(this.applicationDetails["system-metrics"]);
 	    setInterval(this.createSystemDetails.bind(), 6000);

@@ -67,11 +67,14 @@ function loadNotificationView() {
 					}
 
 					let msg_text = jsonObject[counter]["messageText"];
+					/**Written for preventing Cross Site Scripting*/
+					let encodedMsgtxt = $('<div />').text(msg_text).html();
+					/**Ends Here*/
 					let valid_from_date = jsonObject[counter]["msgValidFrom"];
 					let validFromDt = new Date(valid_from_date);
 					let currDt =new Date(Date.now());
 					let displayDate = calculateDays(validFromDt, currDt);
-					new_div += '<div id="notificationblockmain" class="popupnotificationlist">' +'<div class="notificationtext">' + msg_text +'</div>'    ;
+					new_div += '<div id="notificationblockmain" class="popupnotificationlist">' +'<div class="notificationtext">' + encodedMsgtxt +'</div>'    ;
 					
 					if (msgType === "success") {
 						new_div += '<div class="infocls notificationicons"></div>';

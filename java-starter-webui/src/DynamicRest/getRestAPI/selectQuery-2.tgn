@@ -1,0 +1,1 @@
+SELECT COUNT(*) As responses FROM jq_dynamic_rest_details where jws_dynamic_rest_type_id ='1'

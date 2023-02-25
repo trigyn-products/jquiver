@@ -108,7 +108,7 @@ class AddEditModule {
    		}
    		
    		let moduleURL = $("#moduleURL").val().trim();
-   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("#") != -1) && contextType != "7" && contextType != "6"){
+   		if((moduleURL === ""  || moduleURL.length > 200	|| moduleURL.indexOf("#") != -1 || moduleURL.indexOf(" ") != -1) && contextType != "7" && contextType != "6"){
    			$("#moduleURL").focus();
    			$('#errorMessage').html("Please enter valid URL");
    			return false;
@@ -117,12 +117,29 @@ class AddEditModule {
    		
    		if(contextType === "7"){
 			let externalURL = $("#externalURL").val().trim();
-			if(externalURL === ""){
+			if(externalURL === "" || externalURL.indexOf(" ") != -1){
 				$("#externalURL").focus();
    				$('#errorMessage').html("Please enter valid URL");
    				return false;
 			}
    		}
+   		var errorExist = false;
+		$.each($('.key'), function() {
+			if ($(this).val().length == 0) {
+				$('#errorMessage').html("Please enter response header key");
+				errorExist =  true;
+			}
+			
+		});
+		$.each($('.value'), function() {
+			if ($(this).val().length == 0) {
+				$('#errorMessage').html("Please enter response header value");
+				errorExist =  true;
+			}
+			
+		});
+		if(errorExist == true)
+			return false;
    		return true;
    		 
     }
@@ -545,10 +562,6 @@ class AddEditModule {
 		var $temp = $("<input>");
 	    $("body").append($temp);
 		var elementVal = $("#"+elementId).val();
-		if(elementVal == ''){
-      		$("#"+elementId).focus();	
-      		return;
-   		}
 	    $temp.val(urlPrefix+elementVal).select();	
 	    document.execCommand("copy");
 	    $temp.remove();
@@ -569,5 +582,6 @@ class AddEditModule {
         input.val($("#"+elementId).val()).select();
         document.execCommand("copy");
         input.remove();
+        showMessage("Copied successfully.", "success");
 	}
 }

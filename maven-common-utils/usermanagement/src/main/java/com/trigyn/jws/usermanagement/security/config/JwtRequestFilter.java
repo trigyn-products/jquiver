@@ -166,19 +166,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private String retrieveUsernameFromJwtToken(String token) throws Exception {
 		try {
 			DecodedJWT	jwt			= JWT.decode(token);
+			if(jwt!=null && jwt.getKeyId()!=null) {
+				JwkProvider	provider	= null;
+				Jwk			jwk			= null;
+				Algorithm	algorithm	= null;
 
-			JwkProvider	provider	= null;
-			Jwk			jwk			= null;
-			Algorithm	algorithm	= null;
+				provider = new UrlJwkProvider(new URL("https://login.microsoftonline.com/common/discovery/keys"));
+				System.out.println(jwt.getKeyId());
+				jwk			= provider.get(jwt.getKeyId());
+				algorithm	= Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
+				algorithm.verify(jwt);// if the token signature is invalid, the method will throw
+										// SignatureVerificationException
 
-			provider = new UrlJwkProvider(new URL("https://login.microsoftonline.com/common/discovery/keys"));
-			System.out.println(jwt.getKeyId());
-			jwk			= provider.get(jwt.getKeyId());
-			algorithm	= Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
-			algorithm.verify(jwt);// if the token signature is invalid, the method will throw
-									// SignatureVerificationException
-
-			return jwt.getClaim("upn").asString();
+				return jwt.getClaim("upn").asString();
+			}
+			
 		} catch (Exception a_exc) {
 			logger.error("Error while retrieving user name from jwt token of OAUTH authentication", a_exc);
 		}

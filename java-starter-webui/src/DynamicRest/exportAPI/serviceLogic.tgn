@@ -1,0 +1,91 @@
+<div id="restApiDetailsDiv">
+<#if dynaResult?? && dynaResult?size != 0>
+  <#list dynaResult as dynaList>  
+  
+            <div id="accordion" class="accordion">
+              <div class="card mb-0">
+                  <div class="card-header-block collapsed" data-toggle="collapse" href="#collapseOne">
+                      <a class="card-title">
+                       <div class="type-block">
+                         <div class="methodtypeblock methodtypeblock-${dynaList.jws_request_type_lower}" id="methodTypeDiv_${dynaList.dynarestId}">
+                          ${dynaList.jws_request_type}
+                         </div>
+                          <div class="methodurlblock">
+                           ${dynaList.rest_api_url}
+                          </div>
+                      </div>
+                      </a>
+                  </div>
+
+                  <div id="collapseOne" class="card-body-block collapse" data-parent="#accordion" >
+
+                   <div class="dataparameterblock">
+                    <h3>Data Parameters</h3>
+                     <div class="row">
+                          <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>HTTP Produces Type</label>
+                                <input type="text" value="${dynaList.http_produces_type}" class="form-control" disabled="" >
+                              </div>
+                          </div>
+
+                            <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>Rest Method Name</label>
+                                <input type="text" value="${dynaList.dynarestMethodName}" class="form-control" disabled="" >
+                              </div>
+                            </div>
+
+                             <div class="col-4">
+                              <div class="col-inner-form full-form-fields">
+                                <label>Method Desc</label>
+                                <input type="text" value=" ${dynaList.dynarestMethodDescription}" class="form-control" disabled="" >
+                              </div>
+                            </div>
+                         </div>                      
+                      </div>  
+          
+                  <div class="reponseheader">
+                    <div class="row">
+                      <div class="col-6">
+                        <h3>Response Header</h3>
+                <#assign responseHeaderList = "${dynaList.header_json}">
+                <#if responseHeaderList?? && responseHeaderList?has_content>
+                   <#assign responseHeaderMap =  responseHeaderList?eval>
+                   <#list responseHeaderMap as key, value>
+                        <div class="row" id="headerJsonDiv_${dynaList.dynarestId}" >
+                          <div> 
+                              <input type="text" value="${key}" class="form-control" disabled="" >
+                          </div>
+                          <div>
+                              <input type="text" value="${value}" class="form-control" disabled="" >
+                          </div>   
+                        </div>
+                    </#list>
+                </#if>
+                      </div>
+   
+                        <div class="col-6">
+                          <h3>Roles</h3>
+                          <#assign roleList = "${dynaList.Role_Name}">
+                            <#if roleList?? && roleList?has_content>
+                            <#list roleList?split(",") as Value>
+                              ${Value}
+                       
+                          <div class="rolsemainblock" id="RolesDiv_${dynaList.dynarestId}">
+                        </div>
+                       </div>
+                       </#list>
+                </#if>                       
+                       </div>
+                      </div>
+                  </div>
+                  
+              </div>
+          </div>       
+
+    </div>
+    </br>
+ </#list>
+</#if>
+</div>

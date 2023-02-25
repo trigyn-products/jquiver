@@ -75,7 +75,7 @@ public class MasterModuleService {
 				queryString.append("?").append(httpServletRequest.getQueryString());
 			}
 			if ("".equals(moduleUrl)) {
-				return menuService.getTemplateWithSiteLayout("home", new HashMap<String, Object>());
+				return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
 			}
 			Map<String, Object> moduleDetailsMap = getModuleDetails(moduleUrl, httpServletRequest);
 			if (CollectionUtils.isEmpty(moduleDetailsMap) == true) {

@@ -196,11 +196,13 @@
    
 	<#if (resultSet)?? && resultSet?has_content>
 		<#list resultSet as resultSetList>
+         <#outputformat "HTML">
 			isEdit = 1;
 			$("#messageType option[value='${resultSetList?api.get("message_type")}']").attr("selected", "selected");
 			$("#messagevalidfrom").val(Calendar.printDate(Calendar.parseDate('${resultSetList?api.get("message_valid_from")}',false),"%d-%b-%Y"));
 			$("#messagevalidtill").val(Calendar.printDate(Calendar.parseDate('${resultSetList?api.get("message_valid_till")}',false),"%d-%b-%Y"));
-			$("#messageText").val('${resultSetList?api.get("message_text")!""}');
+            $("#messageText").val('${resultSetList?api.get("message_text")!""}');
+             </#outputformat>
 			if(${resultSetList?api.get("display_once")!""} == 1){ 
             	 $("#displayOnce").prop("checked",true);
             	 $("#displayOnceTxt").val(1);
@@ -226,7 +228,7 @@
             $('#countdown').val(finalselcount);
             $('#countdown_msg').val(finalmsgcount);
             /*Ends Here*/
-           
+          
 		</#list>
         
         document.title = "Edit Details";
@@ -243,9 +245,7 @@
         /*Setting Datasource Id value in Add Tab*/
         document.title = "Add Details";
 	</#if>
-   
-	hideShowActionButtons();
-    
+	    hideShowActionButtons();  
   });
   
   function updateDisplatOnceText() {

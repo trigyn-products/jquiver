@@ -1,6 +1,8 @@
 class HomePage {
 	constructor() {
-		getNotifications();
+        setTimeout(function() {
+    		getNotifications();
+        }, 5000);    
 
 	}
 }
@@ -93,23 +95,6 @@ HomePage.prototype.fn = {
 	}
 }
 
-const resourceBundleData = function(resourceKeys) {
-	let resourceBundleDataMap;
-	$.ajax({
-		async: false,
-		type: "POST",
-		cache: false,
-		url: contextPath + '/cf/getResourceBundleData',
-		data: {
-			resourceKeys: resourceKeys,
-		},
-		success: function(data) {
-			resourceBundleDataMap = data;
-		}
-	});
-	return resourceBundleDataMap;
-	}
-
 const uuidv4 = function() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		let r = Math.random() * 16 | 0;
@@ -118,34 +103,29 @@ const uuidv4 = function() {
 	});
 }
 
+let messageTypeClass = new Object();
+messageTypeClass["success"] = "alert-success";
+messageTypeClass["info"] = "alert-info";
+messageTypeClass["warn"] = "alert-warning";
+messageTypeClass["error"] = "alert-danger";
+
 const showMessage = function(a_messageText, a_messageType) {
 	$(".jwsValidationDivCls").each(function(index, a_element) {
 		$(a_element).css({ top: $(a_element).position().top + 100 })
 	});
 	const currentDivID = "jwsValidationDiv" + uuidv4();
 	let messageType = a_messageType.toLowerCase();
-	let validationElement = $('<div id="' + currentDivID + '" class="jwsValidationDivCls"><div class="notificationcont" id="insidecont"></div></div>');
+	let validationElement = $('<div id="' + currentDivID + '" class="jwsValidationDivCls alert common-validation-cls jws-alert-div"><div class="notificationcont"></div></div>');
 	$("body").append(validationElement);
 	let validationDiv = $("#" + currentDivID);
-	let testmd = $("#insidecont");
+	let innerDiv = $(validationDiv).find(".notificationcont");
 
-
-	if (messageType === "success") {
-		validationDiv.addClass("alert alert-success common-validation-cls");
-		validationDiv.addClass("alert alert-success common-validation-cls jws-alert-div");
-	} else if (messageType === "info") {
-		validationDiv.addClass("alert alert-info common-validation-cls");
-		validationDiv.addClass("alert alert-info common-validation-cls jws-alert-div");
-	} else if (messageType === "warn") {
-		validationDiv.addClass("alert alert-warning common-validation-cls");
-		validationDiv.addClass("alert alert-warning common-validation-cls jws-alert-div");
-	} else if (messageType === "error") {
-		validationDiv.addClass("alert alert-danger common-validation-cls");
-		validationDiv.addClass("alert alert-danger common-validation-cls jws-alert-div");
+	if(a_messageType && messageTypeClass[a_messageType]){
+		validationDiv.addClass(messageTypeClass[a_messageType]);
 	}
 	
-	testmd.append(a_messageText);
-	testmd.appendTo(validationDiv);
+	innerDiv.append(a_messageText);
+	innerDiv.appendTo(validationDiv);
 	setTimeout(function() {
 		$("#" + currentDivID).fadeOut();
 		$("#" + currentDivID).remove();
@@ -509,7 +489,7 @@ const getLanguageOption = function() {
 					options += "<option value='" + data[i].localeId + "'>" + data[i].languageName + "</option>";
 				}
 			}
-			$("#languageOptions").append(options);
+			$("#languageOptions").empty().append(options);
 		},
 		error: function(xhr, error) {
 			showMessage("Error occurred while getting language list", "error");
@@ -518,13 +498,33 @@ const getLanguageOption = function() {
 
 }
 
+/**Commented As this method is moved to cookie.js */
+
+/*const resourceBundleData = function(resourceKeys) {
+	let resourceBundleDataMap;
+	$.ajax({
+		async: false,
+		type: "POST",
+		cache: false,
+		url: contextPath + '/cf/getResourceBundleData',
+		data: {
+			resourceKeys: resourceKeys,
+		},
+		success: function(data) {
+			resourceBundleDataMap = data;
+		}
+	});
+	return resourceBundleDataMap;
+	}*/
+
+
 const copyGenericContent = function(contentComponentId) {
-	var $temp = $("<input>");
+	var $temp = $("<textarea>");
 	$("body").append($temp);
 	$temp.val($("#" + contentComponentId).text()).select();
 	document.execCommand("copy");
 	$temp.remove();
-	showMessage("Copied successfully.", "info")
+	showMessage("Copied successfully.", "success")
 }
 
 const copyModuleURL = function(contentComponentId) {
@@ -534,7 +534,7 @@ const copyModuleURL = function(contentComponentId) {
 	input.val('${contextPath}' + "/view/" + moduleURL).select();
 	document.execCommand("copy");
 	input.remove();
-	showMessage("REST URL copied successfully", "success");
+	showMessage("Copied successfully.", "success");
 }
 
 const copyUrlContent = function(urlPrefix, contentComponentId) {
@@ -543,7 +543,7 @@ const copyUrlContent = function(urlPrefix, contentComponentId) {
 	$temp.val(urlPrefix + $("#" + contentComponentId).val()).select();
 	document.execCommand("copy");
 	$temp.remove();
-	showMessage("Copied successfully.", "info");
+	showMessage("Copied successfully.", "success");
 }
 /*For getting the images for all entities using Quick Jump Autocomplete and User-favourite-Autocomplete*/
 function getImageNameByType(entityType) {
@@ -610,8 +610,13 @@ function deleteCookie(name) {
 	document.cookie = name + '=; Max-Age=-99999999;; path=/';
 }
 
-
-
-
-
-
+$(function () {
+	$.fn.bindFirst = function(name, fn) {
+	    this.on(name, fn);
+	    this.each(function() {
+	        var handlers = $._data(this, 'events')[name.split('.')[0]];
+	        var handler = handlers.pop();
+	        handlers.splice(0, 0, handler);
+	    });
+	};
+});

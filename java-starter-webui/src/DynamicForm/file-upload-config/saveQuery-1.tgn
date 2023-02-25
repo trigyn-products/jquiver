@@ -3,10 +3,10 @@
     file_type_supported = '${formData?api.getFirst("fileTypeSupported")}'
     ,max_file_size = '${formData?api.getFirst("maxFileSize")}'
     ,no_of_files = '${formData?api.getFirst("noOfFiles")}'
-    ,select_query_content = <#if formData?api.getFirst("selectValidator_query")?? && formData?api.getFirst("selectValidator_query")?has_content>${formData?api.getFirst("selectValidator_query")}<#else>NULL</#if>
-    ,upload_query_content = <#if formData?api.getFirst("uploadValidator_query")?? && formData?api.getFirst("uploadValidator_query")?has_content>${formData?api.getFirst("uploadValidator_query")}<#else>NULL</#if>
-    ,view_query_content = <#if formData?api.getFirst("viewValidator_query")?? && formData?api.getFirst("viewValidator_query")?has_content>${formData?api.getFirst("viewValidator_query")}<#else>NULL</#if>
-    ,delete_query_content = <#if formData?api.getFirst("deleteValidator_query")?? && formData?api.getFirst("deleteValidator_query")?has_content>${formData?api.getFirst("deleteValidator_query")}<#else>NULL</#if>
+    ,select_query_content = <#if formData?api.getFirst("selectValidator_query")?? && formData?api.getFirst("selectValidator_query")?has_content>'${formData?api.getFirst("selectValidator_query")}'<#else>NULL</#if>
+    ,upload_query_content = <#if formData?api.getFirst("uploadValidator_query")?? && formData?api.getFirst("uploadValidator_query")?has_content>'${formData?api.getFirst("uploadValidator_query")}'<#else>NULL</#if>
+    ,view_query_content = <#if formData?api.getFirst("viewValidator_query")?? && formData?api.getFirst("viewValidator_query")?has_content>'${formData?api.getFirst("viewValidator_query")}'<#else>NULL</#if>
+    ,delete_query_content = <#if formData?api.getFirst("deleteValidator_query")?? && formData?api.getFirst("deleteValidator_query")?has_content>'${formData?api.getFirst("deleteValidator_query")}'<#else>NULL</#if>
     ,last_updated_by = :loggedInUserName
     ,last_updated_ts = NOW() 
 	,is_deleted = 0
@@ -28,7 +28,7 @@
     INSERT INTO jq_file_upload_config (file_bin_id, file_type_supported, max_file_size, no_of_files, select_query_content, upload_query_content, view_query_content, delete_query_content, is_deleted, created_by, created_date, last_updated_ts, select_query_type, upload_query_type, view_query_type, delete_query_type, datasource_select_validator, datasource_upload_validator, datasource_view_validator, datasource_delete_validator,is_custom_updated) 
     VALUES ('${formData?api.getFirst("fileBinId")}','${formData?api.getFirst("fileTypeSupported")}'
     , '${formData?api.getFirst("maxFileSize")}','${formData?api.getFirst("noOfFiles")}'
-    , <#if formData?api.getFirst("selectValidator_query")?? && formData?api.getFirst("selectValidator_query")?has_content>${formData?api.getFirst("selectValidator_query")}<#else>NULL</#if>
+    , <#if formData?api.getFirst("selectValidator_query")?? && formData?api.getFirst("selectValidator_query")?has_content>'${formData?api.getFirst("selectValidator_query")}'<#else>NULL</#if>
     , <#if formData?api.getFirst("uploadValidator_query")?? && formData?api.getFirst("uploadValidator_query")?has_content>'${formData?api.getFirst("uploadValidator_query")}'<#else>NULL</#if>
     , <#if formData?api.getFirst("viewValidator_query")?? && formData?api.getFirst("viewValidator_query")?has_content>'${formData?api.getFirst("viewValidator_query")}'<#else>NULL</#if>
     , <#if formData?api.getFirst("deleteValidator_query")?? && formData?api.getFirst("deleteValidator_query")?has_content>'${formData?api.getFirst("deleteValidator_query")}'<#else>NULL</#if>

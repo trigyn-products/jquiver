@@ -101,7 +101,11 @@ public class AuthorizedValidator {
 					}
 				} else {
 					if(roleNames.contains("ANONYMOUS")) {
-						requestObject.getSession().setAttribute("CUSTOM_REDIRECT_URL", requestObject.getRequestURL());
+						String requestURL = requestObject.getRequestURL().toString();
+						if(requestObject.getQueryString() != null && requestObject.getQueryString().isEmpty() == false) {
+							requestURL += "?" + requestObject.getQueryString();
+						}
+						requestObject.getSession().setAttribute("CUSTOM_REDIRECT_URL", requestURL);
 						StringBuilder	redirectUrl		= new StringBuilder().append(servletContext.getContextPath()).append("/cf/login");
 						responseObject.sendRedirect(redirectUrl.toString());
 					} else {

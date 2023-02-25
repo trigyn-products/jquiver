@@ -78,45 +78,52 @@ function  deleteEntityData(requestDetails, daoResults){
 }
 
 function activityLog(masterModuleType,templateName,userName,typeSelect,date){
-    var baseUrl = jq_getDBResult("SELECT property_value As baseUrl FROM jq_property_master WHERE property_name='base-url'", null, new HashMap()).data_list[0].baseUrl;
-    var contextPath = requestDetails["contextPath"];
-    var restXML = '<rest>';      
-    restXML+='<url>'+baseUrl+''+contextPath+'/api/activityLog</url>';
-    restXML+='<type>GET</type>';
-    restXML+='<request>';
-    restXML+='<body>';
-    restXML+='<parameter>';
-    restXML+='<name>action</name>';
-    restXML+='<value>DELETE</value>';
-    restXML+='</parameter>';
-    restXML+='<parameter>';
-    restXML+='<name>templateName</name>';
-    restXML+='<value>'+templateName+'</value>';
-    restXML+='</parameter>'; 
-    restXML+='<parameter>';
-    restXML+='<name>typeSelect</name>';
-    restXML+='<value>'+typeSelect+'</value>';
-    restXML+='</parameter>';
-    restXML+='<parameter>';
-    restXML+='<name>masterModuleType</name>';
-    restXML+='<value>'+masterModuleType+'</value>';
-    restXML+='</parameter>';
-    restXML+='<parameter>';
-    restXML+='<name>userName</name>';
-    restXML+='<value>'+userName+'</value>';
-    restXML+='</parameter>';
-    restXML+='<parameter>';
-    restXML+='<name>message</name>';
-    restXML+='<value></value>';
-    restXML+='</parameter>';
-     restXML+='<parameter>';
-    restXML+='<name>date</name>';
-    restXML+='<value>'+date+'</value>';
-    restXML+='</parameter>';
-    restXML+=' </body>';
-    restXML+='</request>';
-    restXML+='</rest>';
-    jq_executeRESTCall(restXML);
+    var isActivityLogEnabled = jq_getDBResult("SELECT property_value As activityEnabled FROM jq_property_master WHERE property_name='isActivityLogEnabled'", null, new HashMap()).data_list[0].activityEnabled;
+    if(isActivityLogEnabled == 'true'){
+        var baseUrl = jq_getDBResult("SELECT property_value As baseUrl FROM jq_property_master WHERE property_name='base-url'", null, new HashMap()).data_list[0].baseUrl;
+        var contextPath = requestDetails["contextPath"];
+        var restXML = '<rest>';      
+        restXML+='<url>'+baseUrl+''+contextPath+'/api/activityLog</url>';
+        restXML+='<type>GET</type>';
+        restXML+='<request>';
+        restXML+='<body>';
+        restXML+='<parameter>';
+        restXML+='<name>action</name>';
+        restXML+='<value>DELETE</value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>entityName</name>';
+        restXML+='<value>'+templateName+'</value>';
+        restXML+='</parameter>'; 
+        restXML+='<parameter>';
+        restXML+='<name>typeSelect</name>';
+        restXML+='<value>'+typeSelect+'</value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>masterModuleType</name>';
+        restXML+='<value>'+masterModuleType+'</value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>userName</name>';
+        restXML+='<value>'+userName+'</value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>message</name>';
+        restXML+='<value></value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>date</name>';
+        restXML+='<value>'+date+'</value>';
+        restXML+='</parameter>';
+        restXML+='<parameter>';
+        restXML+='<name>isFromRestAPI</name>';
+        restXML+='<value>true</value>';
+        restXML+='</parameter>';
+        restXML+=' </body>';
+        restXML+='</request>';
+        restXML+='</rest>';
+        jq_executeRESTCall(restXML);
+    }
 }
 
 if(requestDetails["loggedInUserRoleList"].indexOf("ADMIN") > -1) {

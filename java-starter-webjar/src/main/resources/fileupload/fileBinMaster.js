@@ -126,6 +126,29 @@ class FileBinMaster {
 						}
 					}
 				}
+				else if ($("#queryType_selectValidator").val() == "1") {
+					if (e.source == "snippet") {
+						var position = e.oldSelections[0]; // Get current mouse position
+						var text = context.selectValidator.getValue(position);
+						var splitedText = text.split("\n");
+						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+						var line = context.selectValidator.getPosition().lineNumber;
+						var col = context.selectValidator.getPosition().column;
+						var newTextArray = lineContent.split('');
+						var sugPostion;
+						if (lineContent.includes("$<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("$") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							}
+							sugPostion = newTextArray.lastIndexOf("$");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+							context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							context.selectValidator.setPosition({ lineNumber: line, column: col });
+							context.selectValidator.focus();
+						}
+					}
+				}
 			});
 			context.selectValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
@@ -163,6 +186,7 @@ class FileBinMaster {
 						var text = context.uploadValidator.getValue(position);
 						var splitedText = text.split("\n");
 						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+						debugger;
 						var textArray = lineContent.split('');
 						var line = context.uploadValidator.getPosition().lineNumber;
 						var col = context.uploadValidator.getPosition().column;
@@ -174,6 +198,29 @@ class FileBinMaster {
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
+							context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							context.uploadValidator.setPosition({ lineNumber: line, column: col });
+							context.uploadValidator.focus();
+						}
+					}
+				}
+				else if ($("#queryType_uploadValidator").val() == "1") {
+					if (e.source == "snippet") {
+						var position = e.oldSelections[0]; // Get current mouse position
+						var text = context.uploadValidator.getValue(position);
+						var splitedText = text.split("\n");
+						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+						var line = context.uploadValidator.getPosition().lineNumber;
+						var col = context.uploadValidator.getPosition().column;
+						var newTextArray = lineContent.split('');
+						var sugPostion;
+						if (lineContent.includes("$<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("$") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							}
+							sugPostion = newTextArray.lastIndexOf("$");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 							context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
 							context.uploadValidator.setPosition({ lineNumber: line, column: col });
 							context.uploadValidator.focus();
@@ -234,6 +281,29 @@ class FileBinMaster {
 						}
 					}
 				}
+				else if ($("#queryType_viewValidator").val() == "1") {
+					if (e.source == "snippet") {
+						var position = e.oldSelections[0]; // Get current mouse position
+						var text = context.viewValidator.getValue(position);
+						var splitedText = text.split("\n");
+						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+						var line = context.viewValidator.getPosition().lineNumber;
+						var col = context.viewValidator.getPosition().column;
+						var newTextArray = lineContent.split('');
+						var sugPostion;
+						if (lineContent.includes("$<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("$") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							}
+							sugPostion = newTextArray.lastIndexOf("$");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+							context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							context.viewValidator.setPosition({ lineNumber: line, column: col });
+							context.viewValidator.focus();
+						}
+					}
+				}
 			});
 			context.viewValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
@@ -282,6 +352,29 @@ class FileBinMaster {
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
+							context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							context.deleteValidator.setPosition({ lineNumber: line, column: col });
+							context.deleteValidator.focus();
+						}
+					}
+				}
+				else if ($("#queryType_deleteValidator").val() == "1") {
+					if (e.source == "snippet") {
+						var position = e.oldSelections[0]; // Get current mouse position
+						var text = context.deleteValidator.getValue(position);
+						var splitedText = text.split("\n");
+						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+						var line = context.deleteValidator.getPosition().lineNumber;
+						var col = context.deleteValidator.getPosition().column;
+						var newTextArray = lineContent.split('');
+						var sugPostion;
+						if (lineContent.includes("$<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("$") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							}
+							sugPostion = newTextArray.lastIndexOf("$");
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 							context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
 							context.deleteValidator.setPosition({ lineNumber: line, column: col });
 							context.deleteValidator.focus();

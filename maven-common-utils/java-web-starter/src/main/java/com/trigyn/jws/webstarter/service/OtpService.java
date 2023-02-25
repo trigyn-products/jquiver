@@ -15,7 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +29,7 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 
@@ -90,11 +90,11 @@ public class OtpService implements InitializingBean{
         return updatedUserInfo;
     }
    
-    public Boolean validateOTP(String email, Integer otpNumber) {
+    public Boolean validateOTP(String email, Integer otpNumber) throws Exception{
         Boolean isOtpValid 		= false;
         JwsUser	existingUser	= userManagementService.findByEmailIgnoreCase(email);
         if(existingUser == null) {
-        	throw new UsernameNotFoundException("User not found");
+        	throw new InvalidLoginException("User not found");
         }
         isOtpValid = validateOtpFromDb(email, otpNumber);
         if(!isOtpValid) {

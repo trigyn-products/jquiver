@@ -50,8 +50,8 @@ public class ApplicationMetricsService {
 
 		actuatorMap.put("system-env-map", systemEnvMap);
 		actuatorMap.put("system-properties", systemProperties);
-
-		actuatorMap.put("memory-pool-metric", jvmMemoryPoolMap);
+		if(jvmMemoryPoolMap.size()>0)
+			actuatorMap.put("memory-pool-metric", jvmMemoryPoolMap);
 
 		ThreadMXBean	threadPools			= ManagementFactory.getThreadMXBean();
 		int				totalThreadCount	= threadPools.getThreadCount();
@@ -86,8 +86,8 @@ public class ApplicationMetricsService {
 		threadMetricMap.put(Thread.State.BLOCKED.name(), nbBlocked);
 		threadMetricMap.put(Thread.State.NEW.name(), nbNew);
 		threadMetricMap.put(Thread.State.TERMINATED.name(), nbTerminated);
-
-		actuatorMap.put("thread-metrics", threadMetricMap);
+		if(threadMetricMap.size()>0)
+			actuatorMap.put("thread-metrics", threadMetricMap);
 
 		Map<String, Object>	systemMetricMap	= new HashMap<String, Object>();
 		DecimalFormat		df				= new DecimalFormat("0.00");
@@ -139,8 +139,8 @@ public class ApplicationMetricsService {
 		// System.getProperty("line.separator")));
 		System.gc();
 
-		Map<String, Object> gcMetricMap = GCInformation.printGCInfo();
-		actuatorMap.put("gc-metrics", gcMetricMap);
+		//Map<String, Object> gcMetricMap = GCInformation.printGCInfo();
+		//actuatorMap.put("gc-metrics", gcMetricMap);
 		actuatorMap.put("http-trace-metrics", ApplicationServiceInterceptor.getTimeInfo());
 		return actuatorMap;
 	}

@@ -608,6 +608,7 @@ public class DynamicFormService {
 		UserDetailsVO detailsVO = userDetailsService.getUserDetails();
 		Date activityTimestamp = new Date();
 		if (formData != null) {
+			// TODO :- Activity Log not implemented for Custom entities.
 			for (Map<String, String> data : formData) {
 				String action = "";
 				String valueType = data.getOrDefault("valueType", VARCHAR);

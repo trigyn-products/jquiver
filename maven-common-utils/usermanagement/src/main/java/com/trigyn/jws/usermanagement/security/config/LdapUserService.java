@@ -54,9 +54,9 @@ public class LdapUserService {
 
 	/**
 	 * Finding for user information, using userName
-	 * @param ldapServerDisplayId
-	 * @param userName
-	 * @return JwsUserVO
+	 * @param ldapServerDisplayId is the ldap server display id
+	 * @param userName logged in user name
+	 * @return JwsUserVO or null
 	 */
 	@SuppressWarnings("unchecked")
 	public JwsUserVO findUserInfoFromLdap(String ldapServerDisplayId, String userName) {
@@ -82,8 +82,9 @@ public class LdapUserService {
 	/**
 	 * Searching for one user, using {@link PersonAttributesMapper}
 	 * 
-	 * @param  dn distinguaged name for the person
-	 * @return    person
+	 * @param  userName distinguished name for the person
+	 * @param  ldapTemplate ldap details
+	 * @return list of users
 	 */
 	public List<JwsUserVO> findPerson(String userName, LdapTemplate ldapTemplate) {
 		AndFilter andFilter = new AndFilter();
@@ -113,8 +114,8 @@ public class LdapUserService {
 	}
 
 	/**
-	 * @param userVo
-	 * @return
+	 * @param userVo JwsUserVO details
+	 * @return JwsUser or null
 	 */
 	public JwsUser createUserFromLdap(JwsUserVO userVo) {
 		JwsUser user = new JwsUser();

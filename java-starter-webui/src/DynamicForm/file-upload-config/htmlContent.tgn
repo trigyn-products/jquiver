@@ -106,11 +106,20 @@
           </div>		
 	<div class="row margin-t-b">
 		<div class="col-12">
-			<h3 class="titlename"><span class="file-validator-title" data-query-name="selectValidator_span">		${messageSource.getMessage("jws.selectFileSQL")}</span>
-				<label class="select-validator-label switch"> 
+			<h3 class="titlename"><span style="margin-top: -6px; margin-right:10px;" class="file-validator-title" data-query-name="selectValidator_span">		${messageSource.getMessage("jws.selectFileSQL")}</span>
+				
+				   			<div class="onoffswitch">
+                                <input  class="onoffswitch-checkbox" type="checkbox" name="selectValidator_chkbox" id="selectValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('selectValidator');">
+                                <label class="onoffswitch-label" for="selectValidator_chkbox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+                            
+				 <!--<label class="select-validator-label switch"> 
 					<input type="checkbox" id="selectValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('selectValidator');">
 					<span class="slider round"></span>
-				</label>
+				</label>-->
 			</h3>			
 			<div class="row">			   
 			   <div class="col-3">
@@ -146,10 +155,16 @@
 	<div class="row margin-t-b">
 		<div class="col-12">
 			<h3 class="titlename"><span class="file-validator-title" data-query-name="uploadValidator_span">${messageSource.getMessage("jws.uploadFileSQL")}</span>
-				<label class="upload-validator-label switch"> 
-					<input type="checkbox" id="uploadValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('uploadValidator');">
-					<span class="slider round"></span>
-				</label>
+				            <div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
+                                <input  class="onoffswitch-checkbox" type="checkbox" name="uploadValidator_chkbox" id="uploadValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('uploadValidator');">
+                                <label class="onoffswitch-label" for="uploadValidator_chkbox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+                
+                
+                
 			</h3>			
 			<div class="row">			  
 			   <div class="col-3">
@@ -185,10 +200,16 @@
 	<div class="row margin-t-b">
 		<div class="col-12">
 			<h3 class="titlename"><span class="file-validator-title" data-query-name="viewValidator_span">${messageSource.getMessage("jws.viewFileSQL")}</span>
-				<label class="view-validator-label switch"> 
-					<input type="checkbox" id="viewValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('viewValidator');">
-					<span class="slider round"></span>
-				</label>
+				
+                        <div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
+                                <input  class="onoffswitch-checkbox" type="checkbox" name="viewValidator_chkbox" id="viewValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('viewValidator');">
+                                <label class="onoffswitch-label" for="viewValidator_chkbox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+                
+                
 			</h3>			
 			<div class="row">			   
 			   <div class="col-3">
@@ -225,10 +246,15 @@
 	<div class="row margin-t-b">
 		<div class="col-12">
 			<h3 class="titlename"><span class="file-validator-title" data-query-name="deleteValidator_span">${messageSource.getMessage("jws.deleteFileSQL")}</span>
-				<label class="delete-validator-label switch"> 
-					<input type="checkbox" id="deleteValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('deleteValidator');">
-					<span class="slider round"></span>
-				</label>    
+				
+                <div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
+                                <input  class="onoffswitch-checkbox" type="checkbox" name="deleteValidator_chkbox" id="deleteValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('deleteValidator');">
+                                <label class="onoffswitch-label" for="deleteValidator_chkbox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+          
 			</h3>			
 			<div class="row">			   
 			   <div class="col-3">
@@ -295,6 +321,10 @@
         <div id="htmlContent">
 	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
 	            <div id="contentDiv">
+                    <span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
+           			Copy HTML 				 
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+					</span>
 	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
 	            </div>
 	        </div>
@@ -302,6 +332,10 @@
         <div id="jsContent">
 	        <div class="cm-main-wrapper preview cm-scrollbar clearfix">
 	            <div id="contentDiv">
+	             <span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
+           			Copy Javascript 				 
+ 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+					</span>
 	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
 	            </div>
 	        </div>

@@ -4,7 +4,7 @@
     <packaging>jar</packaging>
     <groupId>com.trigyn</groupId>
     <artifactId>webui</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <name>webui</name>
     <description>WebUI for Java starter project.</description>
     <url>https://github.com/trigyn-products/java-web-starter</url>
