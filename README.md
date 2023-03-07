@@ -22,15 +22,9 @@ Also the development is live development. Developers can work right on the SIT s
 |---|----|----|
 |Java|Oracle 11|https://www.oracle.com/in/java/technologies/javase/jdk11-archive-downloads.html|
 |MariaDB|10.5|https://mariadb.com/resources/blog/installing-mariadb-10-on-centos-7-rhel-7/|
-|SQLYog|Community|https://github.com/webyog/sqlyog-community/wiki/Downloads|
 |Maven|Latest|https://maven.apache.org/download.cgi|
 |Git Client|Latest|https://git-scm.com/downloads|
-
-To install JQuiver application use below command, assuming  you know about Basic Maven and Java.
-
-```
-mvn archetype:generate -DarchetypeGroupId=com.trigyn  -DarchetypeArtifactId=jquiver -DarchetypeVersion=LATEST -DgroupId=com.mygroup -DartifactId=myartifact
-```
+|SQLYog|Community|https://github.com/webyog/sqlyog-community/wiki/Downloads|
 
 **Start JQuiver Implementation**<br>
 <b>1)</b> Run below command after all required tools are successfully installed on your machine. Feel free to change the DgroupId & DartifactId as per your project
