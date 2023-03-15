@@ -11,15 +11,15 @@
 <div class="container">
 
 	<div class="row topband">
-        <div class="col-8">
+        <div class="col-4">
 			<#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>
 			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editTemplate')}</h2> 
 	        <#else>
 	            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addTemplateDetails')}</h2> 
 	        </#if> 
-	    </div>
+	    </div>  
        
-        <div class="col-4">   
+        <div class="col-8">   
 	        <#if (templateDetails.templateId)?? && (templateDetails.templateId)?has_content>                                     
 		        <#assign ufAttributes = {
 		            "entityType": "Templating",
@@ -112,7 +112,7 @@
 </div>
 
 <script>
-	document.title = "Edit Template Details"; 
+	document.title = "Manage Template Details"; 
     contextPath = "${(contextPath)!''}";
     let monacoSugg;
     let suggestionArray;

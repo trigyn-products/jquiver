@@ -14,7 +14,7 @@
 <div class="container">
 
 	<div class="row topband">
-		<div class="col-8">
+		<div class="col-4">
 			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
 			    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
 		    <#else>
@@ -22,7 +22,7 @@
 		    </#if> 
 		</div>
         
-	    <div class="col-4">
+	    <div class="col-8">
 			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
 				<#assign ufAttributes = {
 			    	"entityType": "Dashlet",
@@ -296,6 +296,7 @@
 	 <div id="deletePropertyConfirm"></div>
 </div>
 <script>
+	document.title = "Manage Dashlet Details";
 	contextPath = "${(contextPath)!''}";
 	let dashletSQLEditor;
 	var dashletHTMLEditor;

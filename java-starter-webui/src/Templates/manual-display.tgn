@@ -67,6 +67,7 @@
     
             
     <script>
+    document.title = "JQuvier Help Manual";
     contextPath = "${contextPath}";
     <#if !mt?? || !mt?has_content>
         location.href = contextPath+"/cf/not-found";

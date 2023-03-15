@@ -42,13 +42,16 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 
 		try {
 			String	schedulerId				= request.getHeader("schId");
-			String	url						= request.getRequestURI();
+			String	uri						= request.getRequestURI();
 
 			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
-			String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system", "adminEmailId");
-			String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io" : propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
-			if (url != null && schedulerUrlProperty != null && url.contains(schedulerUrlProperty) && schedulerId != null
-					&& schedulerId.isEmpty() == false) {
+			String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+					"adminEmailId");
+			String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+			String	apiUrlProperty			= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
+			if (uri != null && schedulerUrlProperty != null && uri.contains("/" + schedulerUrlProperty + "/")
+					&& schedulerId != null && schedulerId.isEmpty() == false) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(adminEmail);
 
 				if (userDetails == null) {
@@ -60,22 +63,32 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 				usernamePasswordAuthenticationToken
 						.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-
 				chain.doFilter(new HttpServletRequestWrapper(request) {
-
 					@Override
 					public String getRequestURI() {
-						return url.replace(schedulerUrlProperty, "api");
+						return uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + "api" + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
-						return new StringBuffer(url.replace(schedulerUrlProperty, "api"));
+						return new StringBuffer(uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
 					}
 
 				}, response);
 			} else {
-				chain.doFilter(request, response);
+				chain.doFilter(new HttpServletRequestWrapper(request) {
+
+					@Override
+					public String getRequestURI() {
+						return uri.replace("/" + apiUrlProperty + "/", "/" + "api" + "/");
+					}
+
+					@Override
+					public StringBuffer getRequestURL() {
+						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/", "/" + "api" + "/"));
+					}
+
+				}, response);
 			}
 
 		} catch (ExpiredJwtException expiredException) {

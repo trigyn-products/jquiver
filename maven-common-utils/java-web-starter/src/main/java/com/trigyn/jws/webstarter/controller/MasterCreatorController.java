@@ -1,15 +1,19 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +45,8 @@ public class MasterCreatorController {
 	private ModuleService			moduleService			= null;
 
 	@GetMapping(value = "/mg", produces = MediaType.TEXT_HTML_VALUE)
-	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
+	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			throws IOException {
 		try {
 			return masterCreatorService.getModuleDetails(httpServletRequest);
 		} catch (Exception a_exception) {
@@ -56,8 +61,8 @@ public class MasterCreatorController {
 
 	@PostMapping(value = "/cm", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public void createMasterModulePages(@RequestBody MultiValueMap<String, String> formData, HttpServletResponse httpServletResponse)
-			throws IOException {
+	public void createMasterModulePages(@RequestBody MultiValueMap<String, String> formData,
+			HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object>	details			= masterCreatorService.initMasterCreationScript(formData);
 			ObjectMapper		objectMapper	= new ObjectMapper();
@@ -74,10 +79,13 @@ public class MasterCreatorController {
 
 	@GetMapping(value = "/mtd", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Map<String, Object>> getTableDetails(
-			@RequestParam(required = true, name = "tableName") String tableName,@RequestParam(required = true, name = "dbProductID") String additionalDataSourceId,
-			HttpServletResponse httpServletResponse) throws IOException {
-		try {;
-			return masterCreatorService.getTableDetailsByTableName(tableName, additionalDataSourceId);
+			@RequestParam(required = true, name = "tableName") String tableName,
+			@RequestParam(required = true, name = "dbProductID") String additionalDataSourceId,
+			HttpServletResponse httpServletResponse) throws Exception {
+		try {
+			List<Map<String, Object>> masterList = masterCreatorService.getTableDetailsByTableName(tableName,
+					additionalDataSourceId);
+			return masterList;
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
@@ -87,8 +95,8 @@ public class MasterCreatorController {
 
 	@GetMapping(value = "/vmsd", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public Map<String, Object> getExistingData(@RequestHeader(name = "module-name", required = false) String moduleName,
-		@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
-		@RequestHeader(name = "module-url", required = false) String moduleURL) throws Exception {
+			@RequestHeader(name = "parent-module-id", required = false) String parentModuleId,
+			@RequestHeader(name = "module-url", required = false) String moduleURL) throws Exception {
 		return moduleService.getExistingModuleData(null, moduleName, parentModuleId, null, moduleURL);
 	}
 }

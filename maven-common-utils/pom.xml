@@ -40,17 +40,32 @@
 
 	<developers>
 		<developer>
-			<name>Aman Prasad</name>
-			<email>akprasad1995@gmail.com</email>
+			<name>Aniruddha DuttaChowdhury</name>
+			<email>a.d.chowdhury@gmail.com</email>
+			<url>https://jquiver.io/view/team</url>
 			<organization>Trigyn</organization>
-			<organizationUrl>https://trigyn.com</organizationUrl>
+			<organizationUrl>https://www.trigyn.com</organizationUrl>
+			<roles>
+		        <role>architect</role>
+		        <role>developer</role>
+	      	</roles>
+	      	<properties>
+        		<picUrl>https://jquiver.io/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0</picUrl>
+      		</properties>	      	
 			<timezone>UTC+05:30</timezone>
 		</developer>
 		<developer>
-			<name>Abhay Desai</name>
-			<email>abcoll786@gmail.com</email>
+			<name>Mini Pillai</name>
+			<email>minipillaister@gmail.com</email>
+			<url>https://jquiver.io/view/team</url>
 			<organization>Trigyn</organization>
-			<organizationUrl>https://trigyn.com</organizationUrl>
+			<organizationUrl>https://www.trigyn.com</organizationUrl>
+			<roles>
+		        <role>developer</role>
+	      	</roles>
+	      	<properties>
+        		<picUrl>https://jquiver.io/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4</picUrl>
+      		</properties>
 			<timezone>UTC+05:30</timezone>
 		</developer>
 	</developers>

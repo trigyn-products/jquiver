@@ -8,50 +8,62 @@
             <div class="col-2">
                 <div class="fav-image" data-hover="&#9733" onclick="addRemoveFav()">&#9734;</div>         
             </div>
-            <div class="col-10 float-right">
-                <div class="col-inner-form full-form-fields">
+
+            <div class="col-3"> 
+                ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>
+                <option value="3">${messageSource.getMessage('jws.favourite')}</option>                 
+            </select>
+         </div>
+
+             <div class="col-4 float-right" style="width:300px;">
+                <div class="col-inner-form full-form-fields" >
                     <div class="search-cover">
-                    	<input class="form-control" id="rbAutocompletePF" type="text">
+                    	<input class="form-control" id="quickJumpAutocomplete" type="text" >
                     	<i class="fa fa-search" aria-hidden="true"></i>
                     </div>
                 </div>
-            </div>          
+            </div> 
+       
         </div>
 <script>
 contextPath = "${(contextPath)!''}";	
-let autocompletePF;
+
 
 	$(function () {
-        let imageName;
-        autocompletePF = $("#rbAutocompletePF").autocomplete({
-            autocompleteId: "user-favorite-entity-autocomplete",
-            prefetch : true,
-            enableClearText: true,
-            render: function(item) {
-                var renderStr = "";
-                imageName = getImageNameByType(item.entityType);
-                /*Written for preventing Cross Site Scripting*/
-                var entityName = item.entityName;
-                var encodedName = $('<div />').text(entityName).html();
-                /**Ends Here*/
-                if(item.emptyMsg == undefined || item.emptyMsg === ""){
-                   renderStr = '<div class="user-favorite-img-cls"><img src="${(contextPath)!''}/webjars/1.0/images/'+imageName+'.svg"><p>'+encodedName+'</p></div>';
-                }else{
-                    renderStr = item.emptyMsg;	
-                }	    				        
-                return renderStr;
+        //for implementing QuickJump Autocomplete..
+        autocompleteQJ = $( "#quickJumpAutocomplete" ).autocomplete({
+        autocompleteId: "quickJumpAutocomplete",
+        prefetch : true,
+        enableClearText: true,
+        additionalParamaters: {type_id: $('#typeSelect').val()},
+        render: function(item) {
+            var renderStr = "";
+            imageName = getImageNameByType(item.entityType);
+            /**Written for preventing Cross Site Scripting*/
+            var entityName = item.entityName;
+            var encodedName = $('<div />').text(entityName).html();
+            /**Ends Here*/
+        if(item.emptyMsg == undefined || item.emptyMsg === ""){
+            renderStr = '<div class="user-favorite-img-cls"><img src="${(contextPath)!''}/webjars/1.0/images/'+imageName+'.svg"><p>'+encodedName+'</p></div>';
+        } else {
+            renderStr = item.emptyMsg;	
+            }
+            return renderStr;
             },
-            additionalParamaters: {languageId: 1},
             extractText: function(item) {
                 return item.entityName;
             },
-            select: function(item) {
-                submitForm(item);
-               $("#rbAutocompletePF").blur();
+        select: function(item) {
+            submitForm(item);
+            $("#quickJumpAutocomplete").blur();
             /**Added for clearing the Autocomplete Value after selecting*/
-                $('#rbAutocompletePF').val('');
-            }, 
-        });
+            $('#quickJumpAutocomplete').val('');
+        }, 
+                
+            });
     });
     
     function addRemoveFav(){
@@ -69,7 +81,7 @@ let autocompletePF;
                 isChecked: isChecked,
 	        }, 
 			success : function(data) {
-				autocompletePF.resetAutocomplete();
+				autocompleteQJ.resetAutocomplete();
 				showMessage("Successfully updated favorite", "success");
 			},
 			error : function(xhr, error){
@@ -99,5 +111,18 @@ let autocompletePF;
 			}, 
 	    }); 
     }
+    function changeType() {
+	var type_id = $("#typeSelect").val();
+	if (type_id == '3') {
+		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
+		autocompleteQJ.resetAutocomplete();
+	} else {
+		if (autocompleteQJ.options["autocompleteId"] == "user-favorite-entity-autocomplete") {
+			autocompleteQJ.options["autocompleteId"] = "quickJumpAutocomplete";
+		}
+		autocompleteQJ.options["additionalParamaters"]["type_id"] = type_id;
+		autocompleteQJ.resetAutocomplete();
+	}
+}
     
 </script>

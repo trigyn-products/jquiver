@@ -73,6 +73,7 @@
 
 
 <script>
+	document.title = "Home Page Module List";
 	contextPath = "${(contextPath)!''}";
 	let slAutocomplete;
 	

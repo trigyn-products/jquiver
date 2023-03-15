@@ -18,22 +18,37 @@
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.formBuilder')}</h2> 
 		<div class="float-right">
+            <div class="addonbtnblock">
             ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
+            
+             <a href="${(contextPath)!''}/cf/ad"> 
+                <span class="addonicons shedulericon" title="Additional Datasource"> 
+                    <img src="../webjars/1.0/images/adddatasource.svg">
+
+                    </span>					 
+				</a>
+				
 			<#if environment == "dev">
-				<input id="downloadForm" class="btn btn-primary" onclick= "downloadForm();" name="downloadForm" value="${messageSource.getMessage('jws.downloadforms')}" type="button">
-				<input id="uploadForm" class="btn btn-primary" onclick= "uploadForm();" name="uploadForm" value="${messageSource.getMessage('jws.uploadforms')}" type="button">
+				<input id="downloadForm" class="btn btn-primary" style="margin-left:5px;margin-right:5px;" onclick= "downloadForm();" name="downloadForm" value="${messageSource.getMessage('jws.downloadforms')}" type="button">
+				<input id="uploadForm" class="btn btn-primary"  style="margin: 0 5px 0 0;" onclick= "uploadForm();" name="uploadForm" value="${messageSource.getMessage('jws.uploadforms')}" type="button">
 			</#if>
-    		<a href="${(contextPath)!''}/cf/ad"> 
+
+           
+
+    		<!-- <a href="${(contextPath)!''}/cf/ad"> 
 				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
-			</a>
+			</a> -->
+
+
 			<input class="btn btn-primary" name="addNewDynamicForm" value="${messageSource.getMessage('jws.addform')}" type="button" onclick="submitForm(this)">
-    		<span onclick="backToHome();">
+    		<span onclick="backToHome();" class="backbtncls">
     	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
     		</span>	
+            </div>
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -66,9 +81,9 @@
 		sessionStorage.setItem("dynamic-form-manage-details", formDataJson);
 		
 			let colM = [
-				{ title: "${messageSource.getMessage('jws.formname')}", width: 130, dataIndx: "formName" , align: "left", halign: "center",render: formatFormName,
+				{ title: "${messageSource.getMessage('jws.formname')}", width: 130, dataIndx: "formName" , align: "left", halign: "center",
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				{ title: "${messageSource.getMessage('jws.formdescription')}", width: 130, dataIndx: "formDescription", align: "left", halign: "center",render: formatFormDesc,
+				{ title: "${messageSource.getMessage('jws.formdescription')}", width: 130, dataIndx: "formDescription", align: "left", halign: "center",
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy" ,hidden: true, align: "left", halign: "center",
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
@@ -120,19 +135,6 @@
         return formatDate(lastUpdatedTs);
     }
     
-     /*Written for preventing Cross Site Scripting*/
-     function formatFormDesc(uiObject){   
-        const formdesc = uiObject.rowData.formDescription;
-        var encodedDesc = $('<div />').text(formdesc).html();
-        return encodedDesc;             
-    }
-     function formatFormName(uiObject){   
-        const formname = uiObject.rowData.formName;
-        var encodedName = $('<div />').text(formname).html();
-        return encodedName;             
-    }
-    /**Ends Here*/
-
 	function editDynamicFormFormatter(uiObject) {	
 		let dynamicFormId = uiObject.rowData.formId;
 		let dynamicFormName = uiObject.rowData.formName;

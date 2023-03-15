@@ -2,7 +2,7 @@
 <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 <#if (columnDetails)??>
 	<#list columnDetails as columnDetailsList>
-        <#if columnDetailsList?api.get('columnType') == "datetime">
+        <#if columnDetailsList?api.get('columnType') == "date">
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/jscal2.css" />
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/border-radius.css" />
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/steel/steel.css" />
@@ -31,39 +31,53 @@
 	    		<div class="col-3">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
-						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date">
+						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap">
+						            <#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse>
 						            </label>
 								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control">
-				            <#elseif (columnDetailsList.columnType) == "datetime">
-				                    <span class="asteriskmark">*</span>
+				            <#elseif (columnDetailsList.columnType) == "date">
+				                   <#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 				                    <label for="${(columnDetailsList.columnName)}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse></label>
 				                    <span>
-										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/></#noparse> />
+										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/></#noparse> />
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
 							<#else>
-								<span class="asteriskmark">*</span>
+								<#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 								<label for="${(columnDetailsList.columnName)!""}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse></label>
 								<textarea class="form-control" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> name="${(columnDetailsList.columnName)!""}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
 							</#if>
 							
 						<#else>	
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "datetime">
-						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap"><span class="asteriskmark">*</span>
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date">
+						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap">
+									<#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 						            	${columnDetailsList?api.get('fieldName')!''}
 						            </label>
 								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
-				            <#elseif (columnDetailsList.columnType) == "datetime">
-				                    <span class="asteriskmark">*</span>
+				            <#elseif (columnDetailsList.columnType) == "date">
+				                    <#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 				                    <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 				                    <span>
-										<input id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}" class="form-control" placeholder="${(columnDetailsList.fieldName)!''}">
+										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control" placeholder="${(columnDetailsList.fieldName)!''}">
 				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
 							<#else>
-								<span class="asteriskmark">*</span>
+								<#if (columnDetailsList.isMandatory)>
+						            <span class="asteriskmark">*</span>
+						            </#if>
 								<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 								<textarea class="form-control" rows="4" cols="90" data-type="text" <#noparse></#noparse> id="${(columnDetailsList.columnName)}" placeholder="${(columnDetailsList.fieldName)!''}" name="${(columnDetailsList.columnName)}" ><#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse></textarea>
 							</#if>
@@ -103,6 +117,7 @@
 	</#noparse>
 </div>
 <script>
+	document.title = "Manage ${(formName)!''}";
   <#noparse>
 	contextPath = "${contextPath}";	 
     formId = "${formId}";
@@ -113,7 +128,7 @@
     // setting value on edit.
     <#if (columnDetails)??>
         <#list columnDetails as columnDetailsList>
-        <#if (columnDetailsList.columnType) == "datetime">
+        <#if (columnDetailsList.columnType) == "date">
         Calendar.setup({
 			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
 			inputField : "${(columnDetailsList.columnName)!""}",
@@ -137,7 +152,7 @@
     </#noparse>  		
       		<#if (columnDetails)??>
     	        <#list columnDetails as columnDetailsList>
-                    <#if (columnDetailsList.columnType) == "datetime">
+                    <#if (columnDetailsList.columnType) == "date">
                        $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName)}<#noparse>)}</#noparse>',false),"%d-%b-%Y"));
                     </#if>
                 </#list>    
@@ -150,10 +165,10 @@
      <#noparse>
       <#if (resultSet)?? && resultSet?has_content>
       	isEdit = 1;
-	document.title = "Edit Details";
-	$(".pageHeader").html("Edit Details");
+	
+	$(".pageHeader").html("Edit Details ${(formName)!''}");
       <#else>
-	document.title = "Add Details";
+	
       </#if>
     </#noparse>
     

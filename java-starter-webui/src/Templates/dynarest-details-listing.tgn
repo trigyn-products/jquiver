@@ -17,8 +17,13 @@
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.restAPIBuilder')}</h2> 
 		<div class="float-right">
+
 			<form id="addEditDynarest" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
-                ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+              
+                
+                <div class="addonbtnblock">
+                  ${messageSource.getMessage('jws.show')}
+                <select id="typeSelect" class="typeSelectDropDown" onchange="changeType()"  style="    margin-right: 4px; margin-top: -2px;">   
                         <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                         <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                         <option value="2">${messageSource.getMessage('jws.system')}</option>                 
@@ -27,23 +32,44 @@
                 <input type="hidden" name="primaryId" id="primaryId" value=""/>
                 <input type="hidden" name="urlPrefix" id="urlPrefix" value="${urlPrefix}"/>
                
+
+            
                 <a href="${(contextPath)!''}/cf/ad"> 
-					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
+                <span class="addonicons shedulericon" title="Additional Datasource"> 
+<img src="${(contextPath)!''}/webjars/1.0/images/adddatasource.svg">
+
+</span>
+					<!-- <input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button"> -->
 				</a>
                 <a href="${(contextPath)!''}/cf/acd"> 
-                    <input id="apiClientDetails" class="btn btn-primary" value="${messageSource.getMessage('jws.apiclients')}" type="button">
+                 <span class="addonicons shedulericon" title="API Clients"><img src="${(contextPath)!''}/webjars/1.0/images/APIClients.svg">
+</span>
+                    <!-- <input id="apiClientDetails" class="btn btn-primary" value="${messageSource.getMessage('jws.apiclients')}" type="button"> -->
                     
                 </a>
                 <a href="${(contextPath)!''}/cf/sl"> 
-					<input id="scheduleRest" class="btn btn-primary" value="${messageSource.getMessage('jws.scheduler')}" type="button">
+                <span class="addonicons shedulericon" title="Scheduler"><img src="${(contextPath)!''}/webjars/1.0/images/Sedulericon.svg"></span>
+					<!-- <input id="scheduleRest" class="btn btn-primary" value="${messageSource.getMessage('jws.scheduler')}" type="button"> -->
 				</a>
-                <button type="submit" class="btn btn-primary">
+
+                 
+  		    <a href="${(contextPath)!''}/view/viewRestAPI"> 
+               <span class="addonicons shedulericon" title="View Rest API"><img src="${(contextPath)!''}/webjars/1.0/images/viewapi.svg"></span> 
+			 <!-- <input id="viewRestAPI" class="btn btn-primary" value="View Rest API" type="button">   -->
+				</a>
+
+                 <button type="submit" class="btn btn-primary">
                         ${messageSource.getMessage('jws.addrestapi')}
                 </button>
-             </form>
-			<span onclick="backToWelcomePage();">
+                
+                <span onclick="backToWelcomePage();" style="margin-left: 5px;">
   		        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-  		    </span>	
+  		    </span>
+
+                </div>
+            </form>
+				
+		 
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -64,6 +90,7 @@
 	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dynl">
 </form>
 <script>
+document.title = "Dynamic REST API Module List";
 contextPath = "${(contextPath)!''}";
 let requestType = [{"": "All"}];
 let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}, {"3": "Javascript"}];

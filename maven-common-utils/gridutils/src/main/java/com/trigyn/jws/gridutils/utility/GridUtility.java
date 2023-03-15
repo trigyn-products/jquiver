@@ -34,7 +34,7 @@ public class GridUtility {
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? AND ", " WHERE ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				String criteriaParam = criteriaParams.getValue() == null ? null : escapeSql(criteriaParams.getValue().toString());
+				String criteriaParam = criteriaParams.getKey() == null ? null : escapeSql(criteriaParams.getKey().toString());
 				joiner.add(criteriaParam);
 			}
 
@@ -47,17 +47,32 @@ public class GridUtility {
 		if (filterParamsPresent) {
 			String			groupOn			= gridParams.getFilterParams().getGroupOp();
 			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
-			StringJoiner	stringJoiner	= new StringJoiner(conditionType, criteriaParamsPressent ? conditionType : " WHERE ", " ");
-			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
+			query.append(" WHERE ");
+			int counter = 0;
+			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					stringJoiner.add("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else {
-					stringJoiner.add(sf.getField() + " LIKE ? ");
+					query.append("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+				} else {					
+					query.append("("+sf.getField() + " LIKE ? ");
+				}
+
+				if(sf.getData() != null) {
+					String values[] = sf.getData().split(",");
+					for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
+						if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+							query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+						} else {
+						query.append( "OR " + sf.getField() + " LIKE ? ");
+						}
+					}
+				}
+				query.append(") ");
+				if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
+					query.append(conditionType);
+					counter++;
 				}
 			}
-			query.append(stringJoiner.toString());
 		}
-
 		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
 
 		return query.toString();
@@ -83,8 +98,15 @@ public class GridUtility {
 			}
 		}
 		if (filterParamsPresent) {
-			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-				params.add("%" + escapeSql(sf.getData()) + "%");
+			for (SearchFields sf : gridParams.getFilterParams().getRules()) {				
+				if(sf.getData() != null) {
+					String originalData = sf.getData();
+					String data;
+					for(String oData : originalData.split(",")) {
+						data = escapeSql(oData);
+						params.add("%" + data + "%");
+					}
+				}
 			}
 		}
 		return params.toArray();
@@ -104,7 +126,8 @@ public class GridUtility {
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? AND ", " WHERE ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
-				joiner.add(criteriaParams.getKey());
+				String criteriaParam = criteriaParams.getKey() == null ? null : escapeSql(criteriaParams.getKey().toString());
+				joiner.add(criteriaParam);
 			}
 
 			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
@@ -116,16 +139,31 @@ public class GridUtility {
 		if (filterParamsPresent) {
 			String			groupOn			= gridParams.getFilterParams().getGroupOp();
 			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
-			StringJoiner	stringJoiner	= new StringJoiner(conditionType.toString(), criteriaParamsPressent ? conditionType : " WHERE ",
-					" ");
-			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
+			query.append(" WHERE ");
+			int counter = 0;
+			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					stringJoiner.add("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else {
-					stringJoiner.add(sf.getField() + " LIKE ? ");
+					query.append("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+				} else {					
+					query.append("("+sf.getField() + " LIKE ? ");
+				}
+
+				if(sf.getData() != null) {
+					String values[] = sf.getData().split(",");
+					for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
+						if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+							query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+						} else {
+						query.append( "OR " + sf.getField() + " LIKE ? ");
+						}
+					}
+				}
+				query.append(") ");
+				if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
+					query.append(conditionType);
+					counter++;
 				}
 			}
-			query.append(stringJoiner.toString());
 		}
 
 		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
@@ -153,7 +191,6 @@ public class GridUtility {
 			Map<String, String> QUERY_NAME_MAP = Constants.getLimitClause();
 			query.append(QUERY_NAME_MAP.get(dbProductName));
 		}
-
 		return query.toString();
 	}
 
@@ -193,8 +230,13 @@ public class GridUtility {
 		}
 		if (filterParamsPresent) {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-				String data = escapeSql(sf.getData());
-				params.add("%" + data + "%");
+				String originalData = sf.getData();
+				String data;
+				for(String oData : originalData.split(",")) {
+					data = escapeSql(oData);
+					params.add("%" + data + "%");
+				}
+				
 			}
 		}
 		params.add(gridParams.getStartIndex());
@@ -226,8 +268,8 @@ public class GridUtility {
 		}
 		if (filterParamsPresent) {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
-				inParamMap.put(sf.getField(), escapeSql(sf.getData()));
-				columns.remove(sf.getField());
+					inParamMap.put(sf.getField(), escapeSql(sf.getData()));
+					columns.remove(sf.getField());
 			}
 		}
 
@@ -280,5 +322,4 @@ public class GridUtility {
 		data	= data.replace("'", "''");
 		return data;
 	}
-
 }

@@ -84,7 +84,7 @@ function activityLog(masterModuleType,templateName,userName,typeSelect,date){
         var contextPath = requestDetails["contextPath"];
         var restXML = '<rest>';      
         restXML+='<url>'+baseUrl+''+contextPath+'/api/activityLog</url>';
-        restXML+='<type>GET</type>';
+        restXML+='<type>POST</type>';
         restXML+='<request>';
         restXML+='<body>';
         restXML+='<parameter>';

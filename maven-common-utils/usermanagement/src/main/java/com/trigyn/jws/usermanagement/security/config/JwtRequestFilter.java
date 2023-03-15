@@ -9,23 +9,13 @@ import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,12 +25,20 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
-
 public class JwtRequestFilter extends OncePerRequestFilter {
 
 	private final static Logger			logger						= LogManager.getLogger(JwtRequestFilter.class);
@@ -55,6 +53,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Autowired
 	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
 
+	@Autowired
+	@Lazy
+	private PropertyMasterService		propertyMasterService		= null;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
@@ -62,6 +64,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
 
 		try {
+			String	url				= request.getRequestURI();
+
+			String	apiUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
+
+			if (url != null && apiUrlProperty != null && url.contains("/" + apiUrlProperty + "/")) {
+				chain.doFilter(new HttpServletRequestWrapper(request) {
+
+					@Override
+					public String getRequestURI() {
+						return url.replace("/" + apiUrlProperty + "/", "/" + "api" + "/");
+					}
+
+					@Override
+					public StringBuffer getRequestURL() {
+						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/", "/" + "api" + "/"));
+					}
+
+				}, response);
+				return;
+			}
+
 			if (authenticationDetails != null) {
 
 				@SuppressWarnings("unchecked")
@@ -80,24 +103,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 								|| (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
 							if (requestUri.startsWith("/japi/") && !requestUri.equals("/japi/error")) {
 								if ((authType == Constants.AuthType.DAO.getAuthType()
-										&& "enableDatabaseAuthentication".equals(
-												multiAuthLogin.getConnectionDetailsVO().getAuthenticationType().getName())
-										&& "true".equals(
-												multiAuthLogin.getConnectionDetailsVO().getAuthenticationType().getValue())
-										&& Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey().equals(authTypeHeader.trim()))
-										|| (authType == Constants.AuthType.LDAP.getAuthType() && "enableLdapAuthentication".equals(
-												multiAuthLogin.getConnectionDetailsVO().getAuthenticationType().getName())
-												&& Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey().equals(authTypeHeader.trim()))) {
+										&& "enableDatabaseAuthentication".equals(multiAuthLogin.getConnectionDetailsVO()
+												.getAuthenticationType().getName())
+										&& "true".equals(multiAuthLogin.getConnectionDetailsVO().getAuthenticationType()
+												.getValue())
+										&& Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey()
+												.equals(authTypeHeader.trim()))
+										|| (authType == Constants.AuthType.LDAP.getAuthType()
+												&& "enableLdapAuthentication".equals(multiAuthLogin
+														.getConnectionDetailsVO().getAuthenticationType().getName())
+												&& Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey()
+														.equals(authTypeHeader.trim()))) {
 									if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 										jwt			= authorizationHeader.substring(7);
 										username	= jwtUtil.extractUsername(jwt);
 									}
 								} else if (authType == Constants.AuthType.OAUTH.getAuthType()
-										&& "oauth-clients".equals(
-												multiAuthLogin.getConnectionDetailsVO().getAuthenticationType().getName())
-										&& "true".equals(
-												multiAuthLogin.getConnectionDetailsVO().getAuthenticationType().getValue())
-										&& Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey().equals(authTypeHeader.trim())) {
+										&& "oauth-clients".equals(multiAuthLogin.getConnectionDetailsVO()
+												.getAuthenticationType().getName())
+										&& "true".equals(multiAuthLogin.getConnectionDetailsVO().getAuthenticationType()
+												.getValue())
+										&& Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey()
+												.equals(authTypeHeader.trim())) {
 									if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 										jwt			= authorizationHeader.substring(7);
 										username	= retrieveUsernameFromJwtToken(jwt);
@@ -165,8 +192,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 	private String retrieveUsernameFromJwtToken(String token) throws Exception {
 		try {
-			DecodedJWT	jwt			= JWT.decode(token);
-			if(jwt!=null && jwt.getKeyId()!=null) {
+			DecodedJWT jwt = JWT.decode(token);
+			if (jwt != null && jwt.getKeyId() != null) {
 				JwkProvider	provider	= null;
 				Jwk			jwk			= null;
 				Algorithm	algorithm	= null;
@@ -180,7 +207,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 				return jwt.getClaim("upn").asString();
 			}
-			
+
 		} catch (Exception a_exc) {
 			logger.error("Error while retrieving user name from jwt token of OAUTH authentication", a_exc);
 		}

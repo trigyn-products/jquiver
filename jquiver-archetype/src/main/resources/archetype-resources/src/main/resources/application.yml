@@ -11,6 +11,8 @@ spring:
     url: jdbc:mysql://${DB_URL}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=true&serverTimezone=UTC&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    #comment url, username & password and uncomment below property if you want to use JDNI instead of direct connection
+    #jndi-name: java:comp/env/jdbc/yourJNDI
 logging:
   level:
     root: info

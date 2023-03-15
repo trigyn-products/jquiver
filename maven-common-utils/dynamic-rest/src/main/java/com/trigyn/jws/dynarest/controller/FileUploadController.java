@@ -408,7 +408,7 @@ public class FileUploadController {
 					storageService.commitChanges(formEntry.get("FileBinID"), formEntry.get("fileAssociationID"), formEntry.get("fileUploadTempId"));
 				}
 			}
-			return new ResponseEntity<>(HttpStatus.OK);
+			return ResponseEntity.status(HttpStatus.OK).body(new ObjectMapper().writeValueAsString("Success"));
 		} catch (Exception a_exc) {
 			logger.error("Error occurred while processing request: ", a_exc);
 			Throwable rootCause = a_exc;

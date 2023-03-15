@@ -449,6 +449,7 @@ public class DynamicFormService {
 		Map<String, Object> saveTemplateMap = new HashMap<>();
 		saveTemplateMap.put("formData", formData);
 
+		formData.forEach((key, value) -> saveTemplateMap.put(key, value));
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		String saveQuery = "saveQuery-";
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicFormDAO.findDynamicFormQueriesById(formId);
@@ -820,6 +821,7 @@ public class DynamicFormService {
 		Map<String, String> templatesMap = new HashMap<>();
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
+		parameters.put("formName", tableName);
 		if (StringUtils.isBlank(moduleURL) == false) {
 			parameters.put("moduleURL", moduleURL);
 		}
@@ -841,7 +843,7 @@ public class DynamicFormService {
 		return dynamicFormDAO.getTableInformationByName(tableName);
 	}
 
-	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId) {
+	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId) throws Exception {
 		logger.debug("Inside DynamicFormService.getTableInformationByName(tableName: {}, additionalDataSourceId: {})",
 				tableName, additionalDataSourceId);
 		return dynamicFormDAO.getTableDetailsByTableName(additionalDataSourceId, tableName);

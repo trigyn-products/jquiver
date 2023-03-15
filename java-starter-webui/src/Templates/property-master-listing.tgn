@@ -51,6 +51,7 @@
 
 
 <script>
+	document.title = "Application Configuration Module List";
 	contextPath = "${(contextPath)!''}";
 	let grid;
 	$(function () {

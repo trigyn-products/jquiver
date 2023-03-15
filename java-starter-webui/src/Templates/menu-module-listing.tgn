@@ -50,6 +50,7 @@
 	
 </form>
 <script>
+	document.title = "Site Layout Module List";
 	contextPath = "${(contextPath)!''}";
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";

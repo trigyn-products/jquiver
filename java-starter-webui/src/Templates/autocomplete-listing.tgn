@@ -19,21 +19,36 @@
 		<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.typeAheadAutocomplete')}</h2> 
 		<div class="float-right">
+
+            <div class="addonbtnblock">
 		    ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
+
+            <a href="${(contextPath)!''}/cf/ad"> 
+                <span class="addonicons shedulericon" title="Additional Datasource"> 
+                    <img src="../webjars/1.0/images/adddatasource.svg">
+
+                    </span>					 
+				</a>
+
+
             <a href="${(contextPath)!''}/cf/da"> 
 				<input id="demoAutocomplete" class="btn btn-primary" value="${messageSource.getMessage('jws.demo')}" type="button">
 			</a>
-			<a href="${(contextPath)!''}/cf/ad"> 
+
+            
+
+			<!-- <a href=""> 
 				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
-			</a>
-			<input id="addAutocompleteDetails" onclick="submitForm()" class="btn btn-primary" value="${messageSource.getMessage('jws.addautocomplete')}" type="button">
-			<span onclick="backToWelcomePage();">
+			</a> -->
+			<input id="addAutocompleteDetails" onclick="submitForm()" class="extramargin btn btn-primary" value="${messageSource.getMessage('jws.addautocomplete')}" type="button">
+			<span onclick="backToWelcomePage();" class="backbtncls">
   		  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
   		 	</span>	
+            </div>
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -57,7 +72,6 @@
 	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/adl">
 </form>
 <script>
-	document.title = "Autocomplete Module List";
 	contextPath = "${(contextPath)!''}";
 	$(function () {
 		$("#typeSelect").each(function () {
@@ -68,9 +82,9 @@
 		sessionStorage.setItem("autocomplete-manage-details", formDataJson);
 		
 		let colM = [
-	        { title: "${messageSource.getMessage('jws.autocompleteid')}", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",render: formatAutoId,
+	        { title: "${messageSource.getMessage('jws.autocompleteid')}", width: 130, align: "center", dataIndx: "autocompleteId", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.description')}", width: 150, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",render: formatAutoDesc,
+	        { title: "${messageSource.getMessage('jws.description')}", width: 150, align: "center",  dataIndx: "autocompleteDescription", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}",width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate },
 	        { title: "${messageSource.getMessage('jws.action')}", width: 30, maxWidth: 145, align: "left", render: editAutocomplete, dataIndx: "action", sortable: false }
@@ -119,19 +133,6 @@
         const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
         return formatDate(lastUpdatedTs);
     }
-
-    /*Written for preventing Cross Site Scripting*/
-     function formatAutoDesc(uiObject){   
-        const autodesc = uiObject.rowData.autocompleteDescription;
-        var encodedDesc = $('<div />').text(autodesc).html();
-        return encodedDesc;             
-    }
-    function formatAutoId(uiObject){   
-        const autoid = uiObject.rowData.autocompleteId;
-        var encodedId = $('<div />').text(autoid).html();
-        return encodedId;             
-    }
-    /**Ends Here*/
     
 	function editAutocomplete(uiObject) {
 		const autocompleteId = uiObject.rowData.autocompleteId;

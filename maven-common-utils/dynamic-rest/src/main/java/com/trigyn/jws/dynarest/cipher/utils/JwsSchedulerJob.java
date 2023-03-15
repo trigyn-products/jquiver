@@ -98,7 +98,7 @@ public class JwsSchedulerJob implements Job {
 			String requestType = jwsDynamicRestDetail.getJwsRequestTypeDetail().getJwsRequestType();
 
 			String restApiUrl = fullRestApiUrl.toString();
-			restApiUrl = restApiUrl.replace("api", schedulerUrlProperty);
+			restApiUrl = restApiUrl.replace("/api/", "/sch-api/" + schedulerUrlProperty + "/");
 
 			MultiValueMap<String, String> multipvalueMap = new LinkedMultiValueMap<String, String>();
 			if (jqScheduler.getRequestParamJson() != null && jqScheduler.getRequestParamJson().isEmpty() == false) {

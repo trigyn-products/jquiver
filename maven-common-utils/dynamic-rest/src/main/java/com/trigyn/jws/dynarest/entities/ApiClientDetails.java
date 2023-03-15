@@ -153,7 +153,6 @@ public class ApiClientDetails {
 		vo.setClientName(apiClientDetails.getClientName());
 		vo.setClientSecret(apiClientDetails.getClientSecret());
 		vo.setEncryptionAlgoId(Integer.valueOf(apiClientDetails.getEncryptionAlgoId()));
-		vo.setInclusionURLPattern(apiClientDetails.getInclusionURLPattern());
 
 		return vo;
 	}

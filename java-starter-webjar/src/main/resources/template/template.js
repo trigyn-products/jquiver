@@ -33,9 +33,8 @@ class TemplateEngine {
 					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
 				});
 			}
-
 			monaco.languages.registerCompletionItemProvider('html', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -43,7 +42,7 @@ class TemplateEngine {
 						endLineNumber: position.lineNumber,
 						endColumn: position.column
 					});
-					if (textUntilPosition == '$') {
+					if (textUntilPosition == '@') {
 						return {
 							suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
 						}
@@ -51,27 +50,38 @@ class TemplateEngine {
 				}
 			});
 			context.editor.onDidChangeCursorSelection((e) => {
-			if (e.source == "snippet") {
-				var position = e.oldSelections[0]; // Get current mouse position
-				var text = context.editor.getValue(position);
-				var splitedText = text.split("\n");
-				var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-				var line = context.editor.getPosition().lineNumber;
-				var col = context.editor.getPosition().column;
-				var newTextArray = lineContent.split('');
-				var sugPostion;
-				if (lineContent.includes("$<")) {
-					var textToInsert = ""; // text to be inserted
-					while (newTextArray.lastIndexOf("$") > position.endColumn) {
-						newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+				if (e.source == "snippet") {
+					var position = e.oldSelections[0]; // Get current mouse position
+					var text = context.editor.getValue(position);
+					var splitedText = text.split("\n");
+					var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+					var line = context.editor.getPosition().lineNumber;
+					var col = context.editor.getPosition().column;
+					var newTextArray = lineContent.split('');
+					var sugPostion;
+					if (lineContent.includes("@{")) {
+						var textToInsert = "$"; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+						}
+						sugPostion = newTextArray.lastIndexOf("@");
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+					} else if (lineContent.includes("@<")) {
+						var textToInsert = ""; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+						}
+						sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+					} else {
+						splitedText[position.endLineNumber - 1];
 					}
-					sugPostion = newTextArray.lastIndexOf("$");
-					splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 					context.editor.setValue(splitedText.join("\n")); // Save the value back to the Editor
 					context.editor.setPosition({ lineNumber: line, column: col });
 					context.editor.focus();
-				} 
-			}
+				}
 			});
 			context.setTemplateValue();
 			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {

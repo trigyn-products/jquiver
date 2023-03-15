@@ -67,10 +67,10 @@ public class AuthorizedValidatorDAO extends DBConnection {
 	public Long hasAccessToDynamicRest(String requestUri, String requestMethod, List<String> roleNames) {
 		Query query = getCurrentSession().createQuery(
 				" SELECT COUNT (*) from JwsEntityRoleAssociation jera INNER JOIN JwsDynamicRestDetail jdrd ON jera.entityId = jdrd.jwsDynamicRestId "
-						+ " INNER JOIN jdrd.jwsRequestTypeDetail jrtd  INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
-						+ " AND  jdrd.jwsDynamicRestUrl=:requestUri AND  jrtd.jwsRequestType=:requestMethod");
+						+ "  INNER JOIN JwsRole jr ON jera.roleId = jr.roleId  WHERE  jera.isActive=:isActive AND jr.roleName IN(:roleNames)"
+						+ " AND  jdrd.jwsDynamicRestUrl=:requestUri");
 		query.setParameter("requestUri", requestUri);
-		query.setParameter("requestMethod", requestMethod);
+//		query.setParameter("requestMethod", requestMethod);
 		query.setParameter("isActive", Constants.ISACTIVE);
 		query.setParameterList("roleNames", roleNames);
 		Long count = (Long) query.uniqueResult();

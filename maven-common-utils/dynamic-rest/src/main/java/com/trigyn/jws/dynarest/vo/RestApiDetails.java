@@ -23,13 +23,15 @@ public class RestApiDetails {
 	private String	methodType			= null;
 
 	private String	headerJson			= null;
+	
+	private Integer isSecured			= null;
 
 	public RestApiDetails() {
 	}
 
 	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
 			String methodDescription, String reponseType, String serviceLogic, Integer platformId, String methodType,
-			String headerJson) {
+			String headerJson, Integer isSecured) {
 		this.dynamicId			= dynamicId;
 		this.dynamicRestUrl		= dynamicRestUrl;
 		this.rbacId				= rbacId;
@@ -40,6 +42,7 @@ public class RestApiDetails {
 		this.platformId			= platformId;
 		this.methodType			= methodType;
 		this.headerJson			= headerJson;
+		this.isSecured			= isSecured;
 	}
 
 	public String getDynamicId() {
@@ -202,6 +205,14 @@ public class RestApiDetails {
 				.append(", serviceLogic=").append(serviceLogic).append(", platformId=").append(platformId)
 				.append(", methodType=").append(methodType).append(headerJson).append("]");
 		return builder.toString();
+	}
+
+	public Integer getIsSecured() {
+		return isSecured;
+	}
+
+	public void setIsSecured(Integer isSecured) {
+		this.isSecured = isSecured;
 	}
 
 }

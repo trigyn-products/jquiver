@@ -30,7 +30,7 @@ class AddEditAutocomplete {
 				});
 			}
 			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -38,7 +38,7 @@ class AddEditAutocomplete {
 						endLineNumber: position.lineNumber,
 						endColumn: position.column
 					});
-					if (textUntilPosition == '$') {
+					if (textUntilPosition == '@') {
 						return {
 							suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
 						}
@@ -46,27 +46,38 @@ class AddEditAutocomplete {
 				}
 			});
 			context.sqlQuery.onDidChangeCursorSelection((e) => {
-			if (e.source == "snippet") {
-				var position = e.oldSelections[0]; // Get current mouse position
-				var text = context.sqlQuery.getValue(position);
-				var splitedText = text.split("\n");
-				var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-				var line = context.sqlQuery.getPosition().lineNumber;
-				var col = context.sqlQuery.getPosition().column;
-				var newTextArray = lineContent.split('');
-				var sugPostion;
-				if (lineContent.includes("$<")) {
-					var textToInsert = ""; // text to be inserted
-					while (newTextArray.lastIndexOf("$") > position.endColumn) {
-						newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+				if (e.source == "snippet") {
+					var position = e.oldSelections[0]; // Get current mouse position
+					var text = context.sqlQuery.getValue(position);
+					var splitedText = text.split("\n");
+					var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
+					var line = context.sqlQuery.getPosition().lineNumber;
+					var col = context.sqlQuery.getPosition().column;
+					var newTextArray = lineContent.split('');
+					var sugPostion;
+					if (lineContent.includes("@{")) {
+						var textToInsert = "$"; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+						}
+						sugPostion = newTextArray.lastIndexOf("@");
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+					} else if (lineContent.includes("@<")) {
+						var textToInsert = ""; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+						}
+						sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+					} else {
+						splitedText[position.endLineNumber - 1];
 					}
-					sugPostion = newTextArray.lastIndexOf("$");
-					splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
 					context.sqlQuery.setValue(splitedText.join("\n")); // Save the value back to the Editor
 					context.sqlQuery.setPosition({ lineNumber: line, column: col });
 					context.sqlQuery.focus();
-				} 
-			}
+				}
+
 			});
 			context.sqlQuery.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 				typeOfAction('autocomplete-manage-details', $("#savedAction").find("button"),
@@ -107,7 +118,7 @@ class AddEditAutocomplete {
 			success: function(data) {
 				isDataSaved = true;
 				context.saveEntityRoleAssociation(data);
-				showMessage("Information saved successfully", "success");
+				showMessage("Autocomplete saved successfully", "success");
 			},
 			error: function(xhr, error) {
 				showMessage("Error occurred while saving", "error");
@@ -123,13 +134,15 @@ class AddEditAutocomplete {
 		let autocompleteQuery = $.trim(context.sqlQuery.getValue().toString());
 
 		if (autocompleteId === "") {
-			$('#errorMessage').html("Please enter valid autocomplete id");
-			$('#errorMessage').show();
+			showMessage("Please enter valid autocomplete id", "warn");
+			$("#autoId").focus();
+			$("#autoId").closest("div").parent().effect("highlight", {}, 3000);
 			return false;
 		}
 		if (autocompleteQuery === "") {
-			$('#errorMessage').html("Please enter valid autocomplete query");
-			$('#errorMessage').show();
+			showMessage("Please enter valid autocomplete query", "warn");
+			$(context.sqlQuery).focus();
+			$(context.sqlQuery).closest("div").parent().effect("highlight", {}, 3000);
 			return false;
 		}
 		return true;

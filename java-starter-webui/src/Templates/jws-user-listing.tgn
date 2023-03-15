@@ -43,6 +43,7 @@
 	<div id="snackbar"></div>
 </div>
 <script>
+document.title = "User Master Module List";
 contextPath = "${contextPath}";
 var userArray = ["111415ae-0980-11eb-9a16-f48e38ab9348"];
 $(function () {

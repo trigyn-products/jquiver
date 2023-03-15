@@ -1,0 +1,1 @@
+SELECT encryption_algo_id AS encryptionAlgoId, encryption_algo_name AS encryptionAlgoName FROM jq_encryption_algorithms_lookup

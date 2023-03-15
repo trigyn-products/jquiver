@@ -106,6 +106,7 @@
 </div>
 <textarea style="display:none;" id="txtTemp" >${(resultSetObject.datasource_configuration)!""}</textarea>
 <script>
+	document.title = "Manage Additional Datasource";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	 let isEdit = 0;
@@ -205,11 +206,14 @@
         	return false;
         }
         if(connectionUrl.includes(driverList[selectedDBType].datasourceName) === false){
-        	showMessage("Invalid connection url", "error");
+            $("#connectionurl").focus();
+            $("#connectionurl").closest("div").parent().effect("highlight", {}, 3000);
+        	showMessage("Invalid connection url", "warn");
         	return false;
         }
         if(formData === undefined){
-			showMessage("All fields are mandatory", "error");
+			showMessage("All fields are mandatory", "warn");
+            $("#addEditForm div.row").effect("highlight", {}, 3000);
 			return false;
 		}
         let additionalDatasourceId = $("#additionalDatasourceId").val().trim();
@@ -231,7 +235,7 @@
             },
             success : function(data) {
                 isDataSaved = true;
-			    showMessage("Information saved successfully", "success");
+			    showMessage("Datasource saved successfully", "success");
 		    },
 	        error : function(xhr, error){
 		        showMessage(xhr.responseText, "error");
@@ -262,6 +266,28 @@
         let connectionUrl = $("#connectionurl").val().trim();
         let userName = $("#username").val().trim();
         let password = $("#password").val().trim();
+        let selectedDBType = $("#allDBDrivers").find(":selected").val();
+
+        if(connectionUrl.includes(driverList[selectedDBType].datasourceName) === false){
+            $("#connectionurl").focus();
+            $("#connectionurl").closest("div").parent().effect("highlight", {}, 3000);
+        	showMessage("Invalid connection url", "warn");
+        	return false;
+        }
+
+        if(userName.length < 1){
+            $("#username").focus();
+            $("#username").closest("div").parent().effect("highlight", {}, 3000);
+        	showMessage("Username is mandatory", "warn");
+        	return false;
+        }
+
+         if(password.length < 1){
+            $("#password").focus();
+            $("#password").closest("div").parent().effect("highlight", {}, 3000);
+        	showMessage("Password is mandatory", "warn");
+        	return false;
+        }
         
         $.ajax({
 		    type : "POST",

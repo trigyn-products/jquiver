@@ -13,8 +13,7 @@
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
-        
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>  
 </head>
 
 <div class="container">
@@ -69,7 +68,10 @@
 						            <label for="messagetext" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.msgtext')}
 						            </label>
+                            <div class="txtWrapper">
 							 <textarea class="form-control" rows="4" cols="90" data-type="text"  id="messagetext" placeholder="Message Text" name="messagetext" onkeydown="calculateLengthMsgTxt();" onkeyup="calculateLengthMsgTxt();" maxlength="500" >${(resultSetObject.message_text)!""}</textarea>
+                             <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
+                    </div>	
 					<div style = "position:relative;float:right;">
                     <input style="border:none" readonly type="text" id="countdown_msg" name="countdown_msg" size="1" value="500" >
                 </div>
@@ -96,10 +98,13 @@
 					<div class="col-inner-form full-form-fields">
 								<span class="asteriskmark">*</span>
 								<label for="selectioncriteria">${messageSource.getMessage('jws.selectioncriteria')}</label>
-                                	 <a class="tipsicon tipslabelright collapsed" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                	 <a class="tipsicon tipslabelright collapsed" style="padding-right: 25px;" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
                                         <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                                     </a>
+                                <div class="txtWrapper">
 								<textarea class="form-control" rows="4" cols="90" data-type="text"  id="selectioncriteria" placeholder="Selection Criteria" name="selectioncriteria" onkeydown="calculateLength();" onkeyup="calculateLength();"  maxlength="500">${(resultSetObject.selection_criteria)!""}</textarea>
+                                <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
+                                </div>
                                 <div style = "position:relative;float:right;">
                                 <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="500" >
                             </div>
@@ -116,13 +121,22 @@
 			</div>
 				
 				 
-                   <div id="ftlParameterDiv" class="col-12">
+                   <div id="ftlParameterDiv" class="col-12" style="margin-bottom :20px">
                             <div class="collapse tipsdetailsblock" id="tipscolpase">
                                 <div class="tipscontent">
                             
                                     <h3 class="titlename method-sign-info">
                                     <label for="ftlParameter">${messageSource.getMessage('jws.sql/ftlparamandmacros')} :</label>   </h3>
                                     <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+                                     <h3 class="titlename method-sign-info">
+                                    <label for="ftlParameter">Sample Query :</label>   </h3>
+                                  <span id="ftlParameter"><pre style="font-family: Verdana, sans-serif;">
+                                      <label style="font-style: italic; user-select: none;">The query should return a numerical column named noti_count. If the value is more than zero (0) then the notification will be shown to the user</label>
+                                      <label style="font-style: italic; user-select: none;">Asssuming you want to notify a user having more than 10 number of files total</label>
+                                      SELECT COUNT(*) > 10 AS noti_count FROM jq_file_upload AS jfu 
+                                      WHERE jfu.updated_by = :loggedInUserName
+                                      </pre>   
+                                  </span>
                                 </div>
                             </div>    
                      </div>
@@ -161,10 +175,27 @@
  
  
 <script>
+	document.title = "Manage Notification Details";
+
 	contextPath = "${contextPath}";	 
     formId = "${formId}";
 	let isEdit = 0;  
     $(function(){
+
+        $( ".txtWrapper i" ).click(function() {
+            let elem = $(this).prev().get()[0];
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+            
+            $(this).prev().focus();
+        });
+
+
    Calendar.setup({
 			trigger    : "fromDate-trigger",
 			inputField : "messagevalidfrom",
@@ -231,7 +262,6 @@
           
 		</#list>
         
-        document.title = "Edit Details";
 	    $(".pageHeader").html("Edit Details");
 	<#else>
 		const generatedNotificationId = uuidv4();
@@ -243,7 +273,6 @@
         /*Added for fetching Datasource ID*/
         getAllDatasource(0);
         /*Setting Datasource Id value in Add Tab*/
-        document.title = "Add Details";
 	</#if>
 	    hideShowActionButtons();  
   });

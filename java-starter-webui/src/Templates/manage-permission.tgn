@@ -26,6 +26,7 @@
 </div>
 
 <script>
+document.title = "Manage Permissions";
 contextPath = "${contextPath}";
 
 $(function () {

@@ -40,7 +40,7 @@ class AddEditDynamicForm {
 				});
 			}
 			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -48,7 +48,7 @@ class AddEditDynamicForm {
 						endLineNumber: position.lineNumber,
 						endColumn: position.column
 					});
-					if (textUntilPosition == '$') {
+					if (textUntilPosition == '@') {
 						if (model.id == "$model1") {
 							if (selectQueryType == "2") {
 								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
@@ -73,23 +73,20 @@ class AddEditDynamicForm {
 							var col = dashletSQLEditor.getPosition().column;
 							var newTextArray = lineContent.split('');
 							var sugPostion;
-							if (textArray.includes("$")) {
+							if (textArray.includes("@")) {
 								var textToInsert = ""; // text to be inserted
-								while (newTextArray.lastIndexOf("$") > position.endColumn) {
-									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 								}
-								sugPostion = newTextArray.lastIndexOf("$");
+								sugPostion = newTextArray.lastIndexOf("@");
 								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
-								dashletSQLEditor.focus();
-							}
-							else {
+
+							} else {
 								splitedText[position.endLineNumber - 1];
-								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
-								dashletSQLEditor.focus();
 							}
+							dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							dashletSQLEditor.setPosition({ lineNumber: line, column: col });
+							dashletSQLEditor.focus();
 						}
 					}
 					else if (selectQueryType == "1") {
@@ -102,20 +99,31 @@ class AddEditDynamicForm {
 							var col = dashletSQLEditor.getPosition().column;
 							var newTextArray = lineContent.split('');
 							var sugPostion;
-							if (lineContent.includes("$<")) {
-								var textToInsert = ""; // text to be inserted
-								while (newTextArray.lastIndexOf("$") > position.endColumn) {
-									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							if (lineContent.includes("@{")) {
+								var textToInsert = "$"; // text to be inserted
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 								}
-								sugPostion = newTextArray.lastIndexOf("$");
+								sugPostion = newTextArray.lastIndexOf("@");
 								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-								dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-								dashletSQLEditor.setPosition({ lineNumber: line, column: col });
-								dashletSQLEditor.focus();
+							} else if (lineContent.includes("@<")) {
+								var textToInsert = ""; // text to be inserted
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+								}
+								sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+							} else {
+								splitedText[position.endLineNumber - 1];
 							}
+							dashletSQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							dashletSQLEditor.setPosition({ lineNumber: line, column: col });
+							dashletSQLEditor.focus();
 						}
 					}
 				}
+
 			});
 
 			dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
@@ -154,7 +162,7 @@ class AddEditDynamicForm {
 				});
 			}
 			monaco.languages.registerCompletionItemProvider('html', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -162,7 +170,7 @@ class AddEditDynamicForm {
 						endLineNumber: position.lineNumber,
 						endColumn: position.column
 					});
-					if (textUntilPosition == '$') {
+					if (textUntilPosition == '@') {
 						return {
 							suggestions: JSON.parse(JSON.stringify(newSuggestionsArray))
 						}
@@ -180,17 +188,28 @@ class AddEditDynamicForm {
 					var col = dashletHTMLEditor.getPosition().column;
 					var newTextArray = lineContent.split('');
 					var sugPostion;
-					if (lineContent.includes("$<")) {
-						var textToInsert = ""; // text to be inserted
-						while (newTextArray.lastIndexOf("$") > position.endColumn) {
-							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+					if (lineContent.includes("@{")) {
+						var textToInsert = "$"; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 						}
-						sugPostion = newTextArray.lastIndexOf("$");
+						sugPostion = newTextArray.lastIndexOf("@");
 						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-						dashletHTMLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						dashletHTMLEditor.setPosition({ lineNumber: line, column: col });
-						dashletHTMLEditor.focus();
-					} 
+					} else if (lineContent.includes("@<")) {
+						var textToInsert = ""; // text to be inserted
+						while (newTextArray.lastIndexOf("@") > position.endColumn) {
+							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+						}
+						sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+					} else {
+						splitedText[position.endLineNumber - 1];
+					}
+					dashletHTMLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+					dashletHTMLEditor.setPosition({ lineNumber: line, column: col });
+					dashletHTMLEditor.focus();
+
 				}
 			});
 
@@ -264,7 +283,7 @@ class AddEditDynamicForm {
 				parentElement = $(element).parent().parent().parent().parent();
 			}
 			let datasource = retrieveDatasource();
-			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result' class='form-control' /></div>";
+			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + (index + 1) + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
@@ -300,7 +319,7 @@ class AddEditDynamicForm {
 				});
 			}
 			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -312,7 +331,7 @@ class AddEditDynamicForm {
 					indexCount = str.slice(-1);
 					let str1 = str.slice(0, 6);
 					finalindex = indexCount - index;
-					if (textUntilPosition == '$') {
+					if (textUntilPosition == '@') {
 						if (model.id != "$model1") {
 							if (model.id == str1 + finalindex) {
 								let str = model.id;
@@ -380,12 +399,12 @@ class AddEditDynamicForm {
 							var col = dashletSAVESQLEditor.getPosition().column;
 							var newTextArray = lineContent.split('');
 							var sugPostion;
-							if (textArray.includes("$")) {
+							if (textArray.includes("@")) {
 								var textToInsert = ""; // text to be inserted
-								while (newTextArray.lastIndexOf("$") > position.endColumn) {
-									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 								}
-								sugPostion = newTextArray.lastIndexOf("$");
+								sugPostion = newTextArray.lastIndexOf("@");
 								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 								dashletSAVESQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
 								dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
@@ -409,230 +428,253 @@ class AddEditDynamicForm {
 							var col = dashletSAVESQLEditor.getPosition().column;
 							var newTextArray = lineContent.split('');
 							var sugPostion;
-							if (lineContent.includes("$<")) {
-								var textToInsert = ""; // text to be inserted
-								while (newTextArray.lastIndexOf("$") > position.endColumn) {
-									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+							if (lineContent.includes("@{")) {
+								var textToInsert = "$"; // text to be inserted
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 								}
-								sugPostion = newTextArray.lastIndexOf("$");
+								sugPostion = newTextArray.lastIndexOf("@");
 								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-								dashletSAVESQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-								dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
-								dashletSAVESQLEditor.focus();
-							}
+							} else if (lineContent.includes("@<")) {
+								var textToInsert = ""; // text to be inserted
+								while (newTextArray.lastIndexOf("@") > position.endColumn) {
+									newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+								}
+								sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+								splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
 
+							} else {
+								splitedText[position.endLineNumber - 1];
+							}
+							dashletSAVESQLEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+							dashletSAVESQLEditor.setPosition({ lineNumber: line, column: col });
+							dashletSAVESQLEditor.focus();
 						}
+
 					}
 				}
+			
 			});
 
-			dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
-					addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
-			});
-			dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
-				resizeMonacoEditor(dashletSAVESQLEditor, "daoContainerDiv_" + index, "saveSqlEditor_" + index);
-			});
-			dashletSAVESQLEditor.onDidChangeModelContent(function() {
-				$('#errorMessage').hide();
-			});
-			let editorObj = new Object();
-			editorObj["index"] = index;
-			editorObj["editor"] = dashletSAVESQLEditor;
-			dashletSQLEditors.push(editorObj);
-			$("#removeTemplate_0").remove();
+		dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
+			typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+				addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
+		});
+		dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
+			resizeMonacoEditor(dashletSAVESQLEditor, "daoContainerDiv_" + index, "saveSqlEditor_" + index);
+		});
+		dashletSAVESQLEditor.onDidChangeModelContent(function() {
+			$('#errorMessage').hide();
+		});
+		let editorObj = new Object();
+		editorObj["index"] = index;
+		editorObj["editor"] = dashletSAVESQLEditor;
+		dashletSQLEditors.push(editorObj);
+		$("#removeTemplate_0").remove();
 
-			initialFormData = context.getFormData();
+		initialFormData = context.getFormData();
+	});
+}
+
+removeSaveQueryEditor(element) {
+	let index = element.id.split("_")[1];
+	if (index != 0) {
+		jqOpenDeletConfirmation(function() {
+			$("#daoContainerDiv_" + index).remove();
+			removeByAttribute(dashletSQLEditors, "index", index);
 		});
 	}
+}
 
-	removeSaveQueryEditor(element) {
-		let index = element.id.split("_")[1];
-		if (index != 0) {
-			jqOpenDeletConfirmation(function() {
-				$("#daoContainerDiv_" + index).remove();
-				removeByAttribute(dashletSQLEditors, "index", index);
-			});
+saveDynamicForm() {
+	let context = this;
+	let isDataSaved = false;
+	let formValid = addEdit.validateDynamicForm();
+	if (formValid) {
+		let serializedForm = context.getFormData();
+		if (initialFormData === serializedForm) {
+			showMessage("Information saved successfully", "success");
+			return true;
 		}
-	}
+		initialFormData = serializedForm;
 
-	saveDynamicForm() {
-		let context = this;
-		let isDataSaved = false;
-		let formValid = addEdit.validateDynamicForm();
-		if (formValid) {
-			let serializedForm = context.getFormData();
-			if (initialFormData === serializedForm) {
-				showMessage("Information saved successfully", "success");
-				return true;
-			}
-			initialFormData = serializedForm;
-
-			$.ajax({
-				async: false,
-				type: "GET",
-				cache: false,
-				url: contextPath + "/cf/cdd",
-				data: {
-					formName: $("#formName").val(),
-				},
-				success: function(data) {
-					if (data != "") {
-						if (data != $("#formId").val()) {
-							return false;
-						} else {
-							isDataSaved = AddEditDynamicForm.prototype.saveFormData(serializedForm);
-						}
+		$.ajax({
+			async: false,
+			type: "GET",
+			cache: false,
+			url: contextPath + "/cf/cdd",
+			data: {
+				formName: $("#formName").val(),
+			},
+			success: function(data) {
+				if (data != "") {
+					if (data != $("#formId").val()) {
+						showMessage("Form with same name already exists. Choose something else.", "warn");
+						$("#formName").focus();
+						return false;
 					} else {
 						isDataSaved = AddEditDynamicForm.prototype.saveFormData(serializedForm);
 					}
+				} else {
+					isDataSaved = AddEditDynamicForm.prototype.saveFormData(serializedForm);
 				}
-			});
-		}
-		return isDataSaved;
-	}
-
-	getFormData() {
-		$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
-		$("#formBody").val(dashletHTMLEditor.getValue().toString());
-		//		let queries = new Array();	
-		//		for(let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter){
-		//			let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
-		//			let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
-		//			let queryContent = (editorObject["editor"].getValue().toString().trim());
-		//			if(queryContent !== ""){
-		//				queries.push(queryContent);
-		//			}
-		//		}
-		//		$("#formSaveQuery").val(JSON.stringify(queries));
-
-
-		let context = this;
-		let isDataSaved = false;
-		let queries = new Array();
-		let variableNameArray = new Array();
-		let queryTypeArray = new Array();
-		let datasourceArray = new Array();
-		let daoQueryArray = new Array();
-		let dashletDetails = new Object();
-
-		let form = $("#dynamicform");
-		form.append('<input name="daoDetailsIds" id="daoDetailsIds" type="hidden" />');
-		form.append('<input name="variableName" id="variableName" type="hidden" />');
-		form.append('<input name="queryType" id="queryType" type="hidden" />');
-		form.append('<input name="daoQueryDetails" id="daoQueryDetails" type="hidden" />');
-		form.append('<input name="datasourceDetails" id="datasourceDetails" type="hidden" />');
-
-		let saveEditorLength = $("[id^=daoContainerDiv_]").length;
-		for (let iCounter = 0; iCounter < saveEditorLength; ++iCounter) {
-			let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
-			let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
-			let variableName = $('#inputcontainer_' + index).val();
-			let queryType = $('#selectcontainer_' + index).val();
-			let datasourceId = $('#datasourcecontainer_' + index).val();
-			let daoQuery = (editorObject["editor"].getValue().toString().trim());
-			variableNameArray.push(variableName);
-			queryTypeArray.push(queryType);
-			daoQueryArray.push(daoQuery);
-			if (datasourceId == '') {
-				datasourceId = null;
 			}
-			datasourceArray.push(datasourceId);
-		}
-
-		$("#variableName").val(JSON.stringify(variableNameArray));
-		$("#queryType").val(JSON.stringify(queryTypeArray));
-		$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
-		$("#datasourceDetails").val(JSON.stringify(datasourceArray));
-
-		return $("#dynamicform").serialize();
-	}
-
-	saveFormData(formData) {
-		const context = this;
-		let isDataSaved = false;
-		$.ajax({
-			type: "POST",
-			async: false,
-			url: contextPath + "/cf/sdfd",
-			data: formData,
-			success: function(data) {
-				isDataSaved = true;
-				$("#formId").val(data);
-				saveEntityRoleAssociation(data);
-				showMessage("Information saved successfully", "success");
-			},
-			error: function(xhr, error) {
-				showMessage("Error occurred while saving", "error");
-			},
-
 		});
-		return isDataSaved;
+	}
+	return isDataSaved;
+}
+
+getFormData() {
+	$("#formSelectQuery").val(dashletSQLEditor.getValue().toString());
+	$("#formBody").val(dashletHTMLEditor.getValue().toString());
+
+	let context = this;
+	let isDataSaved = false;
+	let queries = new Array();
+	let variableNameArray = new Array();
+	let queryTypeArray = new Array();
+	let datasourceArray = new Array();
+	let daoQueryArray = new Array();
+	let dashletDetails = new Object();
+
+	let form = $("#dynamicform");
+	form.append('<input name="daoDetailsIds" id="daoDetailsIds" type="hidden" />');
+	form.append('<input name="variableName" id="variableName" type="hidden" />');
+	form.append('<input name="queryType" id="queryType" type="hidden" />');
+	form.append('<input name="daoQueryDetails" id="daoQueryDetails" type="hidden" />');
+	form.append('<input name="datasourceDetails" id="datasourceDetails" type="hidden" />');
+
+	let saveEditorLength = $("[id^=daoContainerDiv_]").length;
+	for (let iCounter = 0; iCounter < saveEditorLength; ++iCounter) {
+		let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
+		let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
+		let variableName = $('#inputcontainer_' + index).val();
+		let queryType = $('#selectcontainer_' + index).val();
+		let datasourceId = $('#datasourcecontainer_' + index).val();
+		let daoQuery = (editorObject["editor"].getValue().toString().trim());
+		variableNameArray.push(variableName);
+		queryTypeArray.push(queryType);
+		daoQueryArray.push(daoQuery);
+		if (datasourceId == '') {
+			datasourceId = null;
+		}
+		datasourceArray.push(datasourceId);
 	}
 
-	updateDatasourceState = function(selectedElem) {
+	$("#variableName").val(JSON.stringify(variableNameArray));
+	$("#queryType").val(JSON.stringify(queryTypeArray));
+	$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
+	$("#datasourceDetails").val(JSON.stringify(datasourceArray));
 
-		let context = this;
-		let selectedOptionVal = $(selectedElem).find(":selected").val();
-		let editorIndex = $(selectedElem).attr("id").split("_")[1];
-		let editorObject = dashletSQLEditors.find(editors => editors["index"] == editorIndex);
-		(editorObject["editor"]).setValue("");
-		if (selectedOptionVal === "4") {
-			$("#datasourcecontainer_" + editorIndex).val(null);
-			$("#datasourcecontainer_" + editorIndex).closest('div').hide();
-		} else {
-			$("#datasourcecontainer_" + editorIndex).closest('div').show();
-		}
+	return $("#dynamicform").serialize();
+}
+
+saveFormData(formData) {
+	const context = this;
+	let isDataSaved = false;
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: contextPath + "/cf/sdfd",
+		data: formData,
+		success: function(data) {
+			isDataSaved = true;
+			$("#formId").val(data);
+			saveEntityRoleAssociation(data);
+			showMessage("Information saved successfully", "success");
+		},
+		error: function(xhr, error) {
+			showMessage("Error occurred while saving", "error");
+		},
+
+	});
+	return isDataSaved;
+}
+
+updateDatasourceState = function(selectedElem) {
+
+	let context = this;
+	let selectedOptionVal = $(selectedElem).find(":selected").val();
+	let editorIndex = $(selectedElem).attr("id").split("_")[1];
+	let editorObject = dashletSQLEditors.find(editors => editors["index"] == editorIndex);
+	(editorObject["editor"]).setValue("");
+	if (selectedOptionVal === "4") {
+		$("#datasourcecontainer_" + editorIndex).val(null);
+		$("#datasourcecontainer_" + editorIndex).closest('div').hide();
+	} else {
+		$("#datasourcecontainer_" + editorIndex).closest('div').show();
 	}
+}
 
-	validateDynamicForm = function() {
-		let formName = $("#formName").val().trim();
-		let selectQuery = $.trim(dashletSQLEditor.getValue().toString());
-		let htmlQuery = $.trim(dashletHTMLEditor.getValue().toString());
-		if (formName === "") {
-			showMessage("Please enter valid form name", "error");
-			return false;
-		}
-		if (selectQuery === "") {
-			showMessage("Select query can not be blank", "error");
-			return false;
-		}
-		if (htmlQuery === "") {
-			showMessage("HTML content can not be blank", "error");
-			return false;
-		}
-		let saveUpdateQuery;
-		let isVariableEmpty = false;
-		for (let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter) {
-			let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
-			let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
-			let queryContent = (editorObject["editor"].getValue().toString().trim());
-			let variableName = $('#inputcontainer_' + index).val();
-			if (variableName === "") {
-				isVariableEmpty = true;
-				break;
-			}
+validateDynamicForm = function() {
+	let formName = $("#formName").val().trim();
+	let selectQuery = $.trim(dashletSQLEditor.getValue().toString());
+	let htmlQuery = $.trim(dashletHTMLEditor.getValue().toString());
+	if (formName === "") {
+		$("#formName").focus();
+		showMessage("Please enter valid form name", "warn");
+		return false;
+	}
+	if (selectQuery === "") {
+		showMessage("Select query can not be blank", "warn");
+		try{
+			$(dashletSQLEditor).focus();
+		}catch(error){}
+		$(".tipsicon").get()[0].scrollIntoView();
+		return false;
+	}
+	if (htmlQuery === "") {
+		$($(".html_script")[1]).get()[0].scrollIntoView();
+		try{
+			$(dashletHTMLEditor).focus();
+		}catch(error){}
+		showMessage("HTML content can not be blank", "warn");
+		return false;
+	}
+	let saveUpdateQuery;
+	let isVariableEmpty = false;
+	let varNamList = new Array();
 
-			saveUpdateQuery = queryContent;
+	for (let iCounter = 0; iCounter < dashletSQLEditors.length; ++iCounter) {
+		let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
+		let editorObject = dashletSQLEditors.find(editors => editors["index"] == index);
+		let queryContent = (editorObject["editor"].getValue().toString().trim());
+		let variableName = $.trim($('#inputcontainer_' + index).val());
+		if (variableName === "") {
+			isVariableEmpty = true;
+			break;
+		}
 
-			if (saveUpdateQuery === "") {
-				break;
-			}
-		}
-		if (isVariableEmpty === true) {
-			showMessage("Variable name can not be blank", "error");
-			return false;
-		}
+		saveUpdateQuery = queryContent;
+
 		if (saveUpdateQuery === "") {
-			showMessage("Save/update query can not be blank", "error");
-			return false;
+			break;
 		}
-		return true;
+
+		if(varNamList.includes(variableName)){
+			showMessage("Variable name should be unique", "warn");
+			$('#inputcontainer_' + index).focus();
+			return false;
+		}else{
+			varNamList.push(variableName);
+		}
+	}
+	if (isVariableEmpty === true) {
+		showMessage("Variable name can't be blank", "warn");
+		return false;
+	}
+	if (saveUpdateQuery === "") {
+		showMessage("Save/update query can't be blank", "warn");
+		return false;
 	}
 
-	hideErrorMessage() {
-		$('#errorMessage').hide();
-	}
+	
+	return true;
+}
+
+hideErrorMessage() {
+	$('#errorMessage').hide();
+}
 }
 
 let saveEntityRoleAssociation = function(savedFormId) {

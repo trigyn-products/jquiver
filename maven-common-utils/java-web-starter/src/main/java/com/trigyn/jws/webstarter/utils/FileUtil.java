@@ -13,7 +13,7 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 
 public class FileUtil {
 
-	public static String generateTemporaryFilePath(String tempFolderName) {
+	public static String generateTemporaryFilePath(String tempFolderName, String randomId) {
 
 		String	systemPath			= System.getProperty("java.io.tmpdir");
 		String	tempFilePath	= systemPath + File.separator + tempFolderName;
@@ -23,6 +23,11 @@ public class FileUtil {
 			f.delete();
 		}
 		new File(tempFilePath).mkdir();
+		
+		if(randomId != null) {
+			tempFilePath = tempFilePath + File.separator + randomId;
+			new File(tempFilePath).mkdir();
+		}
 
 		return tempFilePath;
 	}

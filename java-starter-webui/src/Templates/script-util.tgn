@@ -78,7 +78,7 @@ function jq_saveFile(a_strFileContent, a_strTargetFileName){
 	return jq_scriptUtilObject.saveFile(a_strFileContent, a_strTargetFileName);
 }
 
-function saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID){
+function jq_saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID){
 	return jq_scriptUtilObject.saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID);
 }
 

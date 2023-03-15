@@ -44,6 +44,7 @@
 </div>
 
 <script>
+	document.title="Upload Common Files";
     formId = "${formId}";
 	 let isEdit = 0;
     contextPath = "${(contextPath)!''}";

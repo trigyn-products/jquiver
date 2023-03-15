@@ -13,7 +13,7 @@
 <div class="container"> 
 
 		<div class="row topband">
-			<div class="col-8">
+			<div class="col-4">
 				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
 				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
 		        <#else>
@@ -21,7 +21,7 @@
 		        </#if>
 		   	</div>
 	    
-	        <div class="col-4">   
+	        <div class="col-8">   
 				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
 			        <#assign ufAttributes = {
 			            "entityType": "Dashboard",
@@ -129,6 +129,7 @@
 </div>
 
 <script>
+	document.title = "Manage Dashboard Module Details";
 	contextPath = "${(contextPath)!''}";
 	const contextId ="${(dashboard?api.getContextId())!''}";
 	const dashboardId = "${(dashboard?api.getDashboardId())!''}"; 

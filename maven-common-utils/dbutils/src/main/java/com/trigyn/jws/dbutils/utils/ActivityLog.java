@@ -69,7 +69,7 @@ public class ActivityLog {
 						.defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
 						.defaultHeader(HttpHeaders.USER_AGENT, "JQuiver");
 				WebClient webClient = builder.build();
-				Mono<ResponseEntity<String>> responseContent = webClient.method(HttpMethod.resolve("GET"))
+				Mono<ResponseEntity<String>> responseContent = webClient.method(HttpMethod.resolve("POST"))
 						.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build()).retrieve()
 						.onStatus(HttpStatus::is4xxClientError, response -> {
 							return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {

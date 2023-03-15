@@ -107,6 +107,7 @@
 	
 </div>
 <script>
+doucment.title = "Autocomplete Demo";
 contextPath = "${(contextPath)!''}";
 function backToListingPage() {
     location.href = contextPath+"/cf/adl";

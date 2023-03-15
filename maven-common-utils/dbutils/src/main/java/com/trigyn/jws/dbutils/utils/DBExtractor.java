@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,19 +18,19 @@ public final class DBExtractor {
 	private DBExtractor() {
 		throw new RuntimeException("You are not supposed to instantiate this java class.");
 	}
-	
+
 	public Object readResolve() {
 		throw new RuntimeException("You are not supposed to instantiate this java class.");
 	}
-	
+
 	public static List<Map<String, Object>> getCols(String a_tableName, DataSource dataSource) throws Throwable {
-		List<Map<String,Object>> listOfMap = new ArrayList<>();
-		Map<String,Object> map = new HashMap<>();
-		String query = "";
-		Connection			con		= dataSource.getConnection();
-		ResultSet			rs		= con.createStatement().executeQuery("select *  from " + a_tableName);
-		ResultSetMetaData	rsmd	= rs.getMetaData();
-		String				colName	= null;
+		List<Map<String, Object>>	listOfMap	= new ArrayList<>();
+		Map<String, Object>			map			= new HashMap<>();
+		String						query		= "";
+		Connection					con			= dataSource.getConnection();
+		ResultSet					rs			= con.createStatement().executeQuery("select *  from " + a_tableName);
+		ResultSetMetaData			rsmd		= rs.getMetaData();
+		String						colName		= null;
 		for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
 			colName = rsmd.getColumnName(iColCounter);
 			if (iColCounter > 1) {
@@ -42,16 +43,18 @@ public final class DBExtractor {
 		return listOfMap;
 	}
 
-	public static List<Map<String, Object>> getDBStructure(String a_tableName, DataSource dataSource) {
+	public static List<Map<String, Object>> getDBStructure(String a_tableName, DataSource dataSource)
+			throws SQLException {
 		List<Map<String, Object>>	dbStructure	= new ArrayList<Map<String, Object>>();
 		List<String>				cols		= new ArrayList<String>();
 		Map<String, Object>			dbCol		= null;
 		try {
+
 			Connection			con		= dataSource.getConnection();
 			ResultSet			rs		= con.createStatement().executeQuery("select *  from " + a_tableName);
 			ResultSetMetaData	rsmd	= rs.getMetaData();
 			DatabaseMetaData	dbmd	= con.getMetaData();
-			
+
 			String				colName	= null;
 			for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
 				dbCol	= new HashMap<String, Object>();
@@ -63,7 +66,13 @@ public final class DBExtractor {
 				dbCol.put("fieldName", toCamelCase(colName.replace("_", " ")));
 
 				dbCol.put("columnKey", "");
-				dbCol.put("dataType", getDataType(rsmd.getColumnTypeName(iColCounter)));
+				String dataType = getDataType(rsmd.getColumnTypeName(iColCounter));
+				if (dataType == null) {
+					dbCol.put("dataType", rsmd.getColumnTypeName(iColCounter));
+					dbCol.put("_unsupported", true);
+				} else {
+					dbCol.put("dataType", dataType);
+				}
 
 				dbCol.put("columnType",
 						getDBType(rsmd.getColumnType(iColCounter), rsmd.getColumnDisplaySize(iColCounter)));
@@ -71,7 +80,7 @@ public final class DBExtractor {
 				dbCol.put("isMandatory", rsmd.isNullable(iColCounter) == 0);
 				dbCol.put("precision", rsmd.getPrecision(iColCounter));
 				dbCol.put("isAutoIncrement", rsmd.isAutoIncrement(iColCounter));
-				
+
 				dbStructure.add(dbCol);
 			}
 
@@ -79,7 +88,7 @@ public final class DBExtractor {
 			String	schemaName	= rsmd.getSchemaName(1);
 
 			if ((dbmd.getDriverName().contains("Microsoft") && dbmd.getDriverName().contains("SQL Server"))
-					|| dbmd.getDriverName().contains("Oracle") ) {
+					|| dbmd.getDriverName().contains("Oracle")) {
 				catalogName	= null;
 				schemaName	= null;
 			}
@@ -88,10 +97,10 @@ public final class DBExtractor {
 				colName = rsPK.getString("COLUMN_NAME");
 				dbStructure.get(cols.indexOf(colName)).put("columnKey", "PK");// instead of PRI please use PK
 			}
-
 		} catch (Throwable a_th) {
 			a_th.printStackTrace();
 		}
+
 		return dbStructure;
 	}
 

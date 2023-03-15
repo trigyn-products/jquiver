@@ -278,7 +278,8 @@ const enableVersioning = function(formData) {
 		success: function(data) {
 		},
 		error: function(xhr, error) {
-			showMessage("Error occurred saving versioning information", "error");
+			//No need to show this error. It comes when page get's redirected.
+			//showMessage("Error occurred saving versioning information", "error");
 		},
 	});
 }
@@ -497,26 +498,6 @@ const getLanguageOption = function() {
 	});
 
 }
-
-/**Commented As this method is moved to cookie.js */
-
-/*const resourceBundleData = function(resourceKeys) {
-	let resourceBundleDataMap;
-	$.ajax({
-		async: false,
-		type: "POST",
-		cache: false,
-		url: contextPath + '/cf/getResourceBundleData',
-		data: {
-			resourceKeys: resourceKeys,
-		},
-		success: function(data) {
-			resourceBundleDataMap = data;
-		}
-	});
-	return resourceBundleDataMap;
-	}*/
-
 
 const copyGenericContent = function(contentComponentId) {
 	var $temp = $("<textarea>");

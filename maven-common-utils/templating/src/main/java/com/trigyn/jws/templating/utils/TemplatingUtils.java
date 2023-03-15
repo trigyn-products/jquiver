@@ -115,10 +115,13 @@ public class TemplatingUtils {
 		Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
 		Locale								locale				= null;
 		
-		if(getRequest() == null) {
+		HttpServletRequest requestObject = getRequest();
+		
+		if(requestObject == null) {
 			locale = Locale.ENGLISH;
 		} else {
-			locale = localeResolver.resolveLocale(getRequest());
+			locale = localeResolver.resolveLocale(requestObject);
+			modelMap.put("httpRequestObject", requestObject);
 		}
 
 		modelMap.put("contextPath", contextPath);
@@ -138,6 +141,8 @@ public class TemplatingUtils {
 			modelMap.put("fullName", detailsVO.getFullName());
 			modelMap.put("userObject", detailsVO);
 		}
+		
+		
 	}
 
 	private HttpServletRequest getRequest() {

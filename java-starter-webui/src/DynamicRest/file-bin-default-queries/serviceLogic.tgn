@@ -1,5 +1,5 @@
 function getFileBinQueries(requestDetails, daoResults) {
-    return daoResults["fileBinQueryList"];
+    return daoResults["fileBinQueryList"][0].defaultQuery;
 }
 
 getFileBinQueries(requestDetails, daoResults);

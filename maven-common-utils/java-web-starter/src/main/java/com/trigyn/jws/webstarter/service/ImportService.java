@@ -346,7 +346,7 @@ public class ImportService {
 	public Map<String, Object> importConfig(Part file, boolean isImportfromLocal) throws Exception {
 
 		if (isImportfromLocal == false) {
-			unZipFilePath = FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH);
+			unZipFilePath = FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH, null);
 			unZipFilePath = ZipUtil.unzip(file.getInputStream(), unZipFilePath);
 		} else {
 			unZipFilePath = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
@@ -364,7 +364,7 @@ public class ImportService {
 	public Map<String, Object> importFile(File file, boolean isDevMode) throws Exception {
 
 		if (isDevMode == false) {
-			unZipFilePath	= FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH);
+			unZipFilePath	= FileUtil.generateTemporaryFilePath(Constant.IMPORTTEMPPATH, null);
 			unZipFilePath	= ZipUtil.unzip(new FileInputStream(file), unZipFilePath);
 			unZipFilePath	= unZipFilePath + "webui";
 		} else {

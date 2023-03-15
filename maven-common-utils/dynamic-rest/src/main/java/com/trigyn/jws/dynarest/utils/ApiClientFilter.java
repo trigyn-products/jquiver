@@ -1,35 +1,33 @@
 package com.trigyn.jws.dynarest.utils;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletRequestWritableWrapper;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletResponseReadableWrapper;
 import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
+import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
+import com.trigyn.jws.dynarest.vo.RestApiDetails;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class ApiClientFilter implements Filter {
+@Component
+public class ApiClientFilter extends OncePerRequestFilter {
 
 	private final static Logger			logger						= LogManager.getLogger(ApiClientFilter.class);
 
@@ -38,14 +36,54 @@ public class ApiClientFilter implements Filter {
 
 	@Autowired
 	private PropertyMasterService		propertyMasterService		= null;
+	
+	@Autowired
+	private JwsDynamicRestDetailService jwsService 					= null;
 
 	@Override
-	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-			throws IOException, ServletException {
+	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain chain)
+			throws ServletException, IOException {
 
-		HttpServletRequest	httpServletRequest	= (HttpServletRequest) servletRequest;
-		HttpServletResponse	httpServletResponse	= (HttpServletResponse) servletResponse;
+		boolean isDoFilter = true;
 		try {
+			
+			String requestURL = httpServletRequest.getRequestURL().toString();
+			
+			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
+			if (requestURL != null && schedulerUrlProperty != null && requestURL.contains("/"+schedulerUrlProperty+"/")) {
+				chain.doFilter(new HttpServletRequestWrapper(httpServletRequest) {
+					@Override
+					public String getRequestURI() {
+						return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/");
+					}
+
+					@Override
+					public StringBuffer getRequestURL() {
+						return new StringBuffer(requestURL.replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
+					}
+
+				}, httpServletResponse);
+				return;
+			}
+			
+			//run normally if it's not an API call
+			if(requestURL.indexOf("/api/") < 0 && requestURL.indexOf("/japi/") < 0) {
+				chain.doFilter(httpServletRequest, httpServletResponse);
+				return;
+			}
+			String subString = requestURL.substring(requestURL.lastIndexOf("/") + 1);
+			
+			RestApiDetails restAPI =  jwsService.getRestApiDetails(subString);
+			//get the restapi object here, and check if not secured
+			if(restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_NOT_SECURED) {
+				chain.doFilter(httpServletRequest, httpServletResponse);
+				return;
+			}
+			
+			//secured API without client key
+			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED && httpServletRequest!=null && httpServletRequest.getHeader("ck") == null) {
+				httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "API Client key not found.");
+			}
 
 			if (httpServletRequest.getHeader("ck") != null) {
 				String				clientKey			= httpServletRequest.getHeader("ck");
@@ -53,8 +91,7 @@ public class ApiClientFilter implements Filter {
 				ApiClientDetailsVO	apiClientDetailsVO	= apiClientDetailsRepository
 						.findClientDetailsByClientKey(clientKey);
 
-				if ("NA".equals(apiClientDetailsVO.getEncryptionAlgorithmName()) == false && validateURLPattern(
-						httpServletRequest.getRequestURL().toString(), apiClientDetailsVO.getInclusionURLPattern())) {
+				if ("NA".equals(apiClientDetailsVO.getEncryptionAlgorithmName()) == false) {
 					String	decryptedRequestBody	= null;
 
 					String	requestBody;
@@ -84,7 +121,7 @@ public class ApiClientFilter implements Filter {
 									requestWrapper.getParameterMap().put(requestParamKey, value);
 								}
 							}
-							
+							isDoFilter = false;
 							chain.doFilter(requestWrapper, responseWrapper);
 							
 							String encryptedResponseBody = "";
@@ -113,18 +150,13 @@ public class ApiClientFilter implements Filter {
 									.getBytes(responseWrapper.getCharacterEncoding());
 							httpServletResponse.setContentLength(responseData.length);
 							httpServletResponse.getWriter().write(encryptedResponseBody);
-						} else {
-							chain.doFilter(servletRequest, servletResponse);
 						}
-					} else {
-						chain.doFilter(servletRequest, servletResponse);
 					}
-				} else {
-					chain.doFilter(servletRequest, servletResponse);
 				}
-
-			} else {
-				chain.doFilter(servletRequest, servletResponse);
+				
+			} 
+			if(isDoFilter) {
+				chain.doFilter(httpServletRequest, httpServletResponse);
 			}
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
@@ -138,26 +170,7 @@ public class ApiClientFilter implements Filter {
 			}
 			return;
 		}
-	}
-
-	private boolean validateURLPattern(String requestURL, String urlPatterns) throws Exception {
-		String contextPath = propertyMasterService.findPropertyMasterValue("base-url");
-		if (contextPath.endsWith("/") == false) {
-			contextPath = contextPath + "/";
-		}
-		if (urlPatterns != null) {
-			List<String> inclusionUrlPatterns = Arrays.asList(urlPatterns.split(", ", 0));
-			for (String inclusionUrlPattern : inclusionUrlPatterns) {
-				if (inclusionUrlPattern.startsWith("/") == false) {
-					inclusionUrlPattern = "/" + inclusionUrlPattern;
-				}
-				if (requestURL.startsWith(contextPath.concat("api").concat(inclusionUrlPattern))) {
-					return true;
-				} else if (requestURL.startsWith(contextPath.concat("japi").concat(inclusionUrlPattern))) {
-					return true;
-				}
-			}
-		}
-		return true;
+	
+		
 	}
 }

@@ -1,6 +1,6 @@
 package com.trigyn.jws.gridutils.utility;
 
-public class SearchFields {
+public class SearchFields implements Cloneable{
 
 	private String	field;
 	private String	op;
@@ -21,24 +21,42 @@ public class SearchFields {
 		return field;
 	}
 
-	public void setField(String field) {
+	public SearchFields setField(String field) {
 		this.field = field;
+		return this;
 	}
 
 	public String getOp() {
 		return op;
 	}
 
-	public void setOp(String op) {
+	public SearchFields setOp(String op) {
 		this.op = op;
+		return this;
 	}
 
 	public String getData() {
 		return data;
 	}
 
-	public void setData(String data) {
+	public SearchFields setData(String data) {
 		this.data = data;
+		return this;
 	}
 
+	@Override
+	public String toString() {
+		if(field == null) {
+			return  data;
+		}
+		if(data == null) {
+			return  field;
+		}
+		return field + " " + op + " " + data;
+	}
+	
+	@Override
+	public SearchFields clone() throws CloneNotSupportedException {
+		return new SearchFields(field, op, data);
+	}
 }

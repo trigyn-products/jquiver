@@ -12,8 +12,7 @@ public interface IApiClientDetailsRepository extends JpaRepositoryImplementation
 
 	@Query("SELECT new com.trigyn.jws.dynarest.vo.ApiClientDetailsVO(cd.clientId AS clientId, cd.clientName AS clientName, "
 			+ "cd.clientKey AS clientKey, cd.clientSecret AS clientSecret, "
-			+ "ea.encryptionAlgorithmId AS encryptionAlgorithmId, ea.encryptionAlgorithmName AS encryptionAlgorithmName, "
-			+ "cd.inclusionURLPattern AS inclusionURLPattern)"
+			+ "ea.encryptionAlgorithmId AS encryptionAlgorithmId, ea.encryptionAlgorithmName AS encryptionAlgorithmName)"
 			+ "FROM ApiClientDetails cd, EncryptionAlgorithms ea WHERE "
 			+ "cd.encryptionAlgoId = ea.encryptionAlgorithmId AND cd.clientKey=:clientKey ")
 	ApiClientDetailsVO findClientDetailsByClientKey(String clientKey);

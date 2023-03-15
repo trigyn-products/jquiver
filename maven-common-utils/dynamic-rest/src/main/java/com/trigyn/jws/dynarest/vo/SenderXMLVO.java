@@ -16,6 +16,11 @@ public class SenderXMLVO {
 
 	@XmlElement(name = "mailid")
 	private String	mailId			= null;
+	
+	/** Added replyTo tag*/
+	@XmlElement(name = "replyTo")
+	private String	replyTo			= null;
+	/**Ends here*/
 
 	public String getName() {
 		return name;
@@ -32,10 +37,19 @@ public class SenderXMLVO {
 	public void setMailId(String mailId) {
 		this.mailId = mailId;
 	}
+	/**Added getter and setter for replyTo*/
+	public String getReplyTo() {
+		return replyTo;
+	}
 
+	public void setReplyTo(String replyTo) {
+		this.replyTo = replyTo;
+	}
+	/**Ends Here*/
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(mailId, name);
+		return Objects.hash(mailId, name, replyTo);
 	}
 
 	@Override
@@ -50,14 +64,11 @@ public class SenderXMLVO {
 			return false;
 		}
 		SenderXMLVO other = (SenderXMLVO) obj;
-		return Objects.equals(mailId, other.mailId) && Objects.equals(name, other.name);
+		return Objects.equals(mailId, other.mailId) && Objects.equals(name, other.name) && Objects.equals(replyTo, other.replyTo);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("RecepientXMLVO [recepientType=").append(", name=").append(name).append(", mailId=")
-				.append(mailId).append("]");
-		return builder.toString();
+		return "SenderXMLVO [name=" + name + ", mailId=" + mailId + ", replyTo=" + replyTo + "]";
 	}
 }

@@ -58,8 +58,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
 		ServletRequestAttributes	sra			= (ServletRequestAttributes) RequestContextHolder
 				.getRequestAttributes();
-		HttpServletRequest			request		= sra.getRequest();
-		HttpSession					session		= request.getSession();
+		
 		Map<String, Object>			mapDetails	= new HashMap<>();
 		try {
 			userConfigService.getConfigurableDetails(mapDetails);
@@ -71,59 +70,62 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException("Not found!");
 		}
-
-		@SuppressWarnings("unchecked")
-		List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) mapDetails.get("activeAutenticationDetails");
-		if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false) {
-			String					loginType			= request.getParameter("enableAuthenticationType");
-			if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false && loginType!=null && loginType.equals(Constants.DAO_ID)) {
-				for (JwsUserLoginVO multiAuthLogin : multiAuthLoginVOs) {
-					if (Constants.AuthType.DAO.getAuthType() == multiAuthLogin.getAuthenticationType()) {
-						Map<String, Object> loginAttributes = multiAuthLogin.getLoginAttributes();
-						if (loginAttributes != null && loginAttributes.isEmpty() == false) {
-							if (loginAttributes.containsKey("enableCaptcha")) {
-								String captcaValue = (String) loginAttributes.get("enableCaptcha");
-								if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
-									if (!(request.getParameter("captcha")!=null && request.getParameter("captcha")
-											.equals(session.getAttribute("loginCaptcha").toString()))) {
-										session.removeAttribute("loginCaptcha");
-										throw new InvalidLoginException("Please verify captcha!");
-									}
-								}
-								if (loginAttributes.containsKey("verificationType")) {
-									String verificationTypeValue = (String) loginAttributes.get("verificationType");
-									if (verificationTypeValue != null
-											&& verificationTypeValue.equals(VerificationType.TOTP.getVerificationType())) {
-										user.setPassword(new BCryptPasswordEncoder()
-												.encode(new TwoFactorGoogleUtil().getTOTPCode(user.getSecretKey())));
-									}
-									if (verificationTypeValue != null
-											&& verificationTypeValue.equals(VerificationType.OTP.getVerificationType())
-											&& user.getOneTimePassword() != null && user.getOtpRequestedTime() != null) {
-										try {
-											Date	otpSentTime			= user.getOtpRequestedTime();
-											Date	currentTime			= java.util.Calendar.getInstance().getTime();
-											long	maxOtpActiveTime	= Long.valueOf(
-													propertyMasterService.findPropertyMasterValue("otp_expiry_time"));
-											long	diffInMinutes		= TimeUnit.MILLISECONDS
-													.toMinutes(currentTime.getTime() - otpSentTime.getTime());
-											if (diffInMinutes > maxOtpActiveTime) {
-												throw new InvalidLoginException("Invalid OTP. Please verify again!");
-											}
-											user.setPassword(user.getOneTimePassword());
-										} catch (Exception exception) {
-											throw new InvalidLoginException("Invalid OTP. Please verify again!");
+		
+		if(sra != null) {
+			HttpServletRequest			request		= sra.getRequest();
+			HttpSession					session		= request.getSession();
+			@SuppressWarnings("unchecked")
+			List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) mapDetails.get("activeAutenticationDetails");
+			if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false) {
+				String					loginType			= request.getParameter("enableAuthenticationType");
+				if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false && loginType!=null && loginType.equals(Constants.DAO_ID)) {
+					for (JwsUserLoginVO multiAuthLogin : multiAuthLoginVOs) {
+						if (Constants.AuthType.DAO.getAuthType() == multiAuthLogin.getAuthenticationType()) {
+							Map<String, Object> loginAttributes = multiAuthLogin.getLoginAttributes();
+							if (loginAttributes != null && loginAttributes.isEmpty() == false) {
+								if (loginAttributes.containsKey("enableCaptcha")) {
+									String captcaValue = (String) loginAttributes.get("enableCaptcha");
+									if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
+										if (!(request.getParameter("captcha")!=null && request.getParameter("captcha")
+												.equals(session.getAttribute("loginCaptcha").toString()))) {
+											session.removeAttribute("loginCaptcha");
+											throw new InvalidLoginException("Please verify captcha!");
 										}
 									}
-								}
+									if (loginAttributes.containsKey("verificationType")) {
+										String verificationTypeValue = (String) loginAttributes.get("verificationType");
+										if (verificationTypeValue != null
+												&& verificationTypeValue.equals(VerificationType.TOTP.getVerificationType())) {
+											user.setPassword(new BCryptPasswordEncoder()
+													.encode(new TwoFactorGoogleUtil().getTOTPCode(user.getSecretKey())));
+										}
+										if (verificationTypeValue != null
+												&& verificationTypeValue.equals(VerificationType.OTP.getVerificationType())
+												&& user.getOneTimePassword() != null && user.getOtpRequestedTime() != null) {
+											try {
+												Date	otpSentTime			= user.getOtpRequestedTime();
+												Date	currentTime			= java.util.Calendar.getInstance().getTime();
+												long	maxOtpActiveTime	= Long.valueOf(
+														propertyMasterService.findPropertyMasterValue("otp_expiry_time"));
+												long	diffInMinutes		= TimeUnit.MILLISECONDS
+														.toMinutes(currentTime.getTime() - otpSentTime.getTime());
+												if (diffInMinutes > maxOtpActiveTime) {
+													throw new InvalidLoginException("Invalid OTP. Please verify again!");
+												}
+												user.setPassword(user.getOneTimePassword());
+											} catch (Exception exception) {
+												throw new InvalidLoginException("Invalid OTP. Please verify again!");
+											}
+										}
+									}
 
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-
 		List<JwsRoleVO> rolesVOs = userRoleAssociationRepository.getUserRoles(Constants.ISACTIVE, user.getUserId());
 		return new UserInformation(user, rolesVOs);
 	}

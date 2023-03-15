@@ -20,7 +20,9 @@
 		
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.gridUtils')}</h2> 
 		<div class="float-right">
+           
 		<form id="addEditGridForm" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+         <div class="addonbtnblock">
 		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
@@ -28,15 +30,28 @@
             </select>
 	            <input type="hidden" name="formId" value="8a80cb8174bebc3c0174bec1892c0000"/>
 	            <input type="hidden" name="primaryId" id="primaryId" value=""/>
-	            <a href="${(contextPath)!''}/cf/ad"> 
+
+
+	            <!-- <a href="${(contextPath)!''}/cf/ad"> 
 					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
+				</a> -->
+
+                <a href="${(contextPath)!''}/cf/ad"> 
+                <span class="addonicons shedulericon" title="Additional Datasource"> 
+                    <img src="../webjars/1.0/images/adddatasource.svg">
+
+                    </span>					 
 				</a>
-	            <button type="submit" class="btn btn-primary">${messageSource.getMessage('jws.addgrid')}</button>
+
+
+	            <button type="submit" class="btn btn-primary ">${messageSource.getMessage('jws.addgrid')}</button>
         	</form>
 
-         <span onclick="backToWelcomePage();">
+         <span onclick="backToWelcomePage();" class="backbtncls">
           	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-         </span>	
+         </span>
+
+		</div>	
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -58,7 +73,6 @@
 
 
 <script>
-    document.title = "Grid Module List";
 	contextPath = "${(contextPath)!''}";
 	function backToWelcomePage() {
 			location.href = contextPath+"/cf/home";
@@ -72,15 +86,15 @@
 		sessionStorage.setItem("grid-details-form", formDataJson);
 		
 		let colM = [
-	        { title: "${messageSource.getMessage('jws.gridid')}", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",render: formatGridId,
+	        { title: "${messageSource.getMessage('jws.gridid')}", width: 130, align: "center", dataIndx: "gridId", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.gridname')}", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",render: formatGridName,
+	        { title: "${messageSource.getMessage('jws.gridname')}", width: 100, align: "center",  dataIndx: "gridName", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.gridDescription')}", width: 160, align: "center",hidden: true, dataIndx: "gridDesc", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.gridtablename')}", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center", render: formatGridTableName,
+	        { title: "${messageSource.getMessage('jws.gridtablename')}", width: 200, align: "center", dataIndx: "gridTableName", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.gridcolnames')}", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",render: formatGridcolName,
+	        { title: "${messageSource.getMessage('jws.gridcolnames')}", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
 	        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, align: "left", render: editGridDetails, dataIndx: "action", sortable: false }
@@ -130,42 +144,17 @@
         const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
         return formatDate(lastUpdatedTs);
     }
-    /*Written for preventing Cross Site Scripting*/
-     function formatGridName(uiObject){   
-        const gridname = uiObject.rowData.gridName;
-        var encodedName = $('<div />').text(gridname).html();
-        return encodedName;             
-    }
-    function formatGridId(uiObject){   
-        const gridid = uiObject.rowData.gridId;
-        var encodedId = $('<div />').text(gridid).html();
-        return encodedId;             
-    }
-    function formatGridTableName(uiObject){   
-        const gridTableName = uiObject.rowData.gridTableName;
-        var encodedName = $('<div />').text(gridTableName).html();
-        return encodedName;             
-    }
-    function formatGridcolName(uiObject){   
-        const gridColumnName = uiObject.rowData.gridColumnName;
-        var encodedcolName = $('<div />').text(gridColumnName).html();
-        return encodedcolName;             
-    }
-    /**Ends Here*/
 	
 	function editGridDetails(uiObject) {
-        <#outputformat "HTML">
 		const gridId = uiObject.rowData.gridId;
-        var encodedId = $('<div />').text(gridId).html();
 		const gridName = uiObject.rowData.gridName;
-        var encodedName = $('<div />').text(gridName).html();
         const updatedDate = uiObject.rowData.lastUpdatedTs;
        const revisionCount = uiObject.rowData.revisionCount;
 		
 		let actionElement;
-		actionElement = '<span id="'+encodedId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
+		actionElement = '<span id="'+gridId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" title=""></i></span>';
 		if(revisionCount > 1){
-			actionElement = actionElement + '<span id="'+encodedId+'_entity" name="'+encodedName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+			actionElement = actionElement + '<span id="'+gridId+'_entity" name="'+gridName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
 		}else{
 			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
 		}
@@ -173,15 +162,13 @@
         <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
         	<#list loggedInUserRoleList as loggedInUserRole>
             	<#if (loggedInUserRole == "ADMIN")>    
-        			actionElement += '<span onclick=\'openDeletConfirmation("divGridDetailsListing","'+encodedId+'","07067149-098d-11eb-9a16-f48e38ab9348","'+encodedName+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
+        			actionElement += '<span onclick=\'openDeletConfirmation("divGridDetailsListing","'+gridId+'","07067149-098d-11eb-9a16-f48e38ab9348","'+gridName+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
         			<#break>
         		</#if>
         	</#list>
         </#if>
         }
-      
 		return actionElement;
-          </#outputformat>
 	}
 	
 	function submitForm(element) {

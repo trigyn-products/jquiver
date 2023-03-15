@@ -48,9 +48,12 @@
             	{ title: "<#noparse><@resourceBundle</#noparse> 'jws.action' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
     
+    	//uncomment below section if you want sorting on any specific column by default
     	let dataModel = {
-        	url: contextPath+"/cf/pq-grid-data",
+    		/*sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
     	};
+    	
     //System will fecth grid data based on gridId
         let grid = $("#${gridId}").grid({
           gridId: "${gridId}",
@@ -59,6 +62,15 @@
         });
     
     });
+    
+    //uncomment below method and set as formatter for your column if 
+    //you want date format
+    //render: dateFormatter
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.rowData.yourColumn;
+    	return formatDate(dateToBeFormatted);
+    }*/
     
     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
     function manageRecord(uiObject) {

@@ -1,0 +1,1 @@
+ALTER TABLE jq_dynamic_rest_details ADD COLUMN `is_secured` TINYINT(1) DEFAULT 0 NULL;

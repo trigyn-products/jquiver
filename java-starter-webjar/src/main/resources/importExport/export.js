@@ -88,6 +88,7 @@
 	}
 
 	let map = new Map();
+	let defaultMap = new Map();
 
 	function openTab(evt, gridID, moduleType) {
 	  	var i, tabcontent, tablinks;
@@ -1167,7 +1168,7 @@
 				let customConfigExcludeList = [];
 				let exportableDataListMap = new Map();
 				
-				let exportableDataListMap1 = map.get(key).getExportableDataListMap();
+				let exportableDataListMap1 = defaultMap.get(key).getExportableDataListMap();
 				for (let exportData of exportableDataListMap1.values()){
 					let id = exportData.getModuleId();
 					let modType = exportData.getModuleType();

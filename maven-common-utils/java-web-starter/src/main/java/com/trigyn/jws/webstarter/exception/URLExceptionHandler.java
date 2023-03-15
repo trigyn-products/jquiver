@@ -62,7 +62,7 @@ public class URLExceptionHandler implements ErrorController {
 			if (url.contains("webjars")) {
 				return new ResponseEntity<String>("", HttpStatus.OK);
 			}
-			if (url.contains("/japi/")) {
+			if (url.contains("/japi/") || url.contains("/api/")) {
 				// mobile
 				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();
@@ -76,6 +76,23 @@ public class URLExceptionHandler implements ErrorController {
 				}
 				return new ResponseEntity<String>(errorMessage, httpStatus);
 			}
+			
+			if(httpServletRequest.getHeader("X-Requested-With") != null &&
+					httpServletRequest.getHeader("X-Requested-With").equalsIgnoreCase("XMLHttpRequest")) {
+				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
+				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();
+				
+				HttpStatus hStatus = null;
+				try {
+					hStatus = HttpStatus.valueOf(Integer.parseInt(errorStatusCode));
+				} catch (Throwable a_th) {
+					hStatus = HttpStatus.FAILED_DEPENDENCY;
+					a_th.printStackTrace();
+				}
+				
+				return new ResponseEntity<String>(errorMessage, hStatus);
+			}
+			
 			if (statusCode == HttpStatus.NOT_FOUND.value()) {
 				String fallbackTemplate = null;
 				if ("/".equals(url)) {

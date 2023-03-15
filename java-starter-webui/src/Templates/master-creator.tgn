@@ -72,8 +72,8 @@
             <div class="col-12 margin-t-b">
                 <table id="listingDetailsTable">
                     <tr>
-                        <th><input type="checkbox" id="chkSelectAllIncludedListing" onclick="selectAllIncludedListing()"/> ${messageSource.getMessage('jws.included')}</th>
-                        <th><input type="checkbox" id="chkSelectAllHiddenListing" onclick="selectAllHiddenListing()"/> ${messageSource.getMessage('jws.hidden')}</th>
+                       <th><input type="checkbox" id="chkSelectAllIncludedListing" onclick="selectAllIncludedListing()"/> <label style="cursor:pointer" for="chkSelectAllIncludedListing">${messageSource.getMessage('jws.included')}</label></th>
+                        <th><input type="checkbox" id="chkSelectAllHiddenListing" onclick="selectAllHiddenListing()"/> <label for="chkSelectAllHiddenListing" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></th>
                         <th>${messageSource.getMessage('jws.columnName')}</th>
                         <th>${messageSource.getMessage('jws.resourcekey')}</th>
                         <th>${messageSource.getMessage('jws.displayName')}</th>
@@ -88,15 +88,15 @@
 
         <div class="cm-menutable">
 
-        <div class="row">
+        <div class="row" style="display:none">
             <div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="showInMenu" style="white-space:nowrap"><span class="asteriskmark">*</span>
+					<label for="showInMenu" style="white-space:nowrap">
                         ${messageSource.getMessage('jws.showInMenu')}
                     </label>
 					<div class="onoffswitch">
                         <input type="hidden" id="isMenuAddActive" name="isMenuAddActive" value=""/>
-                        <input type="checkbox" name="showInMenu" class="onoffswitch-checkbox" id="showInMenu" onchange="enableDisableMenuAdd()" />
+                        <input type="checkbox" checked name="showInMenu" class="onoffswitch-checkbox" id="showInMenu" onchange="enableDisableMenuAdd()" />
                         <label class="onoffswitch-label" for="showInMenu">
                             <span class="onoffswitch-inner"></span>
                             <span class="onoffswitch-switch"></span>
@@ -111,7 +111,7 @@
             <div class="col-4">
 
 				<div class="col-inner-form full-form-fields">
-					<label for="menuDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.moduleName")}</label>
+					<label for="menuDisplayName" style="white-space:nowrap">Menu Display Name</label>
 					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
 				</div>
 			</div>
@@ -155,8 +155,8 @@
             <div class="col-12 margin-t-b">
                 <table id="formDetailsTable">
                     <tr>
-                        <th><input type="checkbox" id="chkSelectAllIncludedForm" onclick="selectAllIncludedForm()"/> ${messageSource.getMessage('jws.included')}</th>
-                        <th><input type="checkbox" id="chkSelectAllHiddenForm" onclick="selectAllHiddenForm()"/> ${messageSource.getMessage('jws.hidden')}</th>
+                        <th><input type="checkbox" id="chkSelectAllIncludedForm" onclick="selectAllIncludedForm()"/> <label style="cursor:pointer" for="chkSelectAllIncludedForm">${messageSource.getMessage('jws.included')}</label></th>
+                        <th><input type="checkbox" id="chkSelectAllHiddenForm" onclick="selectAllHiddenForm()"/> <label for="chkSelectAllHiddenForm" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></th>
                         <th>${messageSource.getMessage('jws.columnName')}</th>
                         <th>${messageSource.getMessage('jws.resourcekey')}</th>
                         <th>${messageSource.getMessage('jws.displayName')}</th>
@@ -236,7 +236,7 @@
     let formDetails = new Array();
     let menuDetails = new Object();
     let dynamicFormModuleDetails = new Object();
-    $("#showInMenu").prop("checked",false);
+    $("#showInMenu").prop("checked",true);
 	$("#showInMenu").trigger("change");
 	let tableAutocomplete;
 	let resourceKeyMap = new Map();

@@ -36,8 +36,8 @@
                         <label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
                             ${messageSource.getMessage('jws.encryptionalgorithm')}</label>
                         <div class="search-cover">
-                            <input class="form-control" id="algoAutocomplete" type="text">
-                            <i class="fa fa-search" aria-hidden="true"></i>
+                            <select class="form-control" id="algoAutocomplete" name="algoAutocomplete" onchange="changeEncAlgorithm()">	
+							</select>
                         </div>
                     </div>
 				</div>
@@ -53,7 +53,7 @@
                         </div>
 					</div>
 				</div>
-	    		<div id="publicKeyDiv" class="col-6" style="display:none;">
+	    		<div id="publicKeyDiv" class="col-12" style="display:none;">
 					<div class="col-inner-form full-form-fields">
                         <label id="lblPublicKey" for="publicKey" style="white-space:nowrap;"><span id="astr_1" class="asteriskmark">*</span>
 			            	${messageSource.getMessage('jws.publickey')}
@@ -65,7 +65,7 @@
                         </div>
                     </div>
 				</div>
-	    		<div class="col-6">
+	    		<div class="col-12">
 					<div class="col-inner-form full-form-fields">
                         
 						    <label id="lblClientSecret" for="clientsecret" style="white-space:nowrap"><span id="astr_2" class="asteriskmark">*</span>
@@ -78,7 +78,7 @@
                         </div>
 					</div>
 				</div>
-	    		<div class="col-6">
+	    		<!--div class="col-6">
 					<div class="col-inner-form full-form-fields">
 						    <label id="lblInclusionUrlPattern" for="inclusionUrlPattern" style="white-space:nowrap"><span id="astr_3" class="asteriskmark">*</span>
 						      	${messageSource.getMessage('jws.inclusionpattern')}
@@ -86,7 +86,7 @@
                         <textarea rows="3" data-type="varchar" id="inclusionUrlPattern" name="inclusionUrlPattern" maxlength="1000" placeholder="Inclusion Pattern" class="form-control">${(resultSetObject.inclusion_url_pattern)!""}</textarea>
 					            
                     </div>
-				</div>
+				</div-->
                 <div class="col-6">
 					<div class="col-inner-form full-form-fields">
 						    <label for="inputText" style="white-space:nowrap">
@@ -143,6 +143,7 @@
 	</div>
 </div>
 <script>
+	document.title = "Manage API Client Details";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	 let isEdit = 0;
@@ -183,39 +184,15 @@
           obj["encryptionAlgoId"] = '0';
       }
 
-if(obj != null && obj["encryptionAlgoName"] == "NA") {
-    handleNAElements();
-} else  {
-    handleNonNAElements();
-}
-
-    autocomplete = $('#algoAutocomplete').autocomplete({
-        autocompleteId: "encryptAlgoAutocomplete",
-        pageSize: 10,//Default page size is 10
-        prefetch : true,
-        render: function(item) {
-            var renderStr ='';
-            if(item.emptyMsg == undefined || item.emptyMsg === '') {
-                renderStr = '<p>'+item.encryptionAlgoName+'</p>';
-            } else {
-                renderStr = item.emptyMsg;    
-            }                                
-            return renderStr;
-        },
-        extractText: function(item) {
-            return item.encryptionAlgoName;
-        },
-        select: function(item) {
-           autocomplete.setSelectedObject(item);
-           toggleTextField(item);
-        },     
-        resetAutocomplete: function(){ 
-            //This function will be executed onblur or when user click on clear text button
-            //Code to reset dependent JavaScript variables, input fields etc.
-        }, 
-    });
+	if(obj != null && obj["encryptionAlgoName"] == "NA") {
+	    handleNAElements();
+	} else  {
+	    handleNonNAElements();
+	}
     
-    autocomplete.setSelectedObject(obj);
+    getAlgoAutocomplete();
+	toggleTextField(obj["encryptionAlgoName"]);
+	$('#algoAutocomplete option[value="'+obj["encryptionAlgoId"]+'"]').attr("selected", "selected");
 	savedAction(formId, isEdit);
 	hideShowActionButtons();
   });
@@ -244,7 +221,7 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
             url : contextPath+"/cf/enc",
             data: {
                 inputData: $("#inputText").val(),
-                algo: autocomplete.getSelectedObject()["encryptionAlgoName"],
+                algo: $("#algoAutocomplete").find('option:selected').text(),
                 pk: $("#clientsecret").val()
             },
             success : function(data) {
@@ -259,7 +236,8 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
 
   function decrypt() {
       let secretKey;
-      if(autocomplete.getSelectedObject()["encryptionAlgoName"] == "RSA") {
+      let selectedAlgText = $("#algoAutocomplete").find('option:selected').text();
+      if(selectedAlgText == "RSA") {
           secretKey = $("#publicKey").val();
       } else {
           secretKey = $("#clientsecret").val();
@@ -271,7 +249,7 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
             url : contextPath+"/cf/dec",
             data: {
                 inputData: $("#inputText").val(),
-                algo: autocomplete.getSelectedObject()["encryptionAlgoName"],
+                algo: selectedAlgText,
                 pk: secretKey,
             },
             success : function(data) {
@@ -285,7 +263,8 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
   }
 
   function validateTestEncDec(secretKey) {
-       if(autocomplete.getSelectedObject()["encryptionAlgoName"] == "NA") {
+      let selectedAlgText = $("#algoAutocomplete").find('option:selected').text();
+       if(selectedAlgText == "NA") {
             showMessage("No algorithm is selected", "error");
             return false;   
       } else if($("#inputText").val() == null || $("#inputText").val() == undefined || $("#inputText").val() == "") {
@@ -294,7 +273,7 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
       } else if(secretKey == null || secretKey == undefined || secretKey == "") {
             showMessage("Client secret key is required to test", "error");
             return false;
-      } else if(autocomplete.getSelectedObject()["encryptionAlgoName"] == "DES" && secretKey.length <= 25) {
+      } else if(selectedAlgText == "DES" && secretKey.length <= 25) {
           	showMessage("Client secret key should be more than 25 characters for DES", "error");
             return false;
       }
@@ -303,7 +282,7 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
 
   function toggleTextField(item) {
       handleNonNAElements();
-      if(item.encryptionAlgoName == "RSA") {
+      if(item == "RSA") {
         $("#publicKeyDiv").show();
         $("#lblClientSecret").html("<span class='asteriskmark'>*</span> Private Key");
         $("#clientsecret").attr("placeholder", "Private Key");
@@ -312,7 +291,6 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
       } else {
           $("#publicKeyDiv").hide();
         $("#keyPairGeneratorDiv").hide();
-          $("#publicKey").val("");
           $("#lblClientSecret").html("<span class='asteriskmark'>*</span> Client Secret");
           $("#clientsecret").attr("placeholder", "Client Secret");
 
@@ -344,12 +322,12 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
 	//Add logic to save form data
 	function saveData(){
 		let isDataSaved = false;
-        
-        if(autocomplete.getSelectedObject()["encryptionAlgoId"] == null || autocomplete.getSelectedObject()["encryptionAlgoId"] == undefined) {
+        let selectedAlgValue = $("#algoAutocomplete").val();
+        if(selectedAlgValue == null || selectedAlgValue == undefined) {
             showMessage("All fields are mandatory", "error");
 			return false;
         } else {
-            selectedAlgo = autocomplete.getSelectedObject()["encryptionAlgoName"];
+            selectedAlgo = $("#algoAutocomplete").val();
         }
 		let formData = validateData();	
 		if(formData === undefined){
@@ -365,7 +343,7 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
 		
         let formIdObj = new Object();
 		formIdObj["name"] = "encryptionalgoid";
-		formIdObj["value"] = autocomplete.getSelectedObject()["encryptionAlgoId"]+"";
+		formIdObj["value"] = selectedAlgValue+"";
 		formIdObj["valueType"] = "int";
         formData.push(formIdObj);
 		
@@ -414,6 +392,29 @@ if(obj != null && obj["encryptionAlgoName"] == "NA") {
 	//Code go back to previous page
 	function backToPreviousPage() {
 			location.href = contextPath+"/cf/acd";
+	}
+	
+	function getAlgoAutocomplete(){       
+		$.ajax({
+			type : "GET",
+			url : contextPath+"/api/jq_encryption_algorithms_lookup",
+			success : function(data) {				
+				for (let property in data) {					
+					if(data[property].encryptionAlgoName != undefined){
+						$("#algoAutocomplete").append("<option value="+property+">"+data[property].encryptionAlgoName+"</option>");
+					}                	    				
+				}
+				
+			},
+			error : function(xhr, error){
+				showMessage("Error occurred while fetching encryption algorithms", "error");
+			},
+		});
+    }
+    
+    function changeEncAlgorithm(){
+		var item = $("#algoAutocomplete").find('option:selected').text();
+		toggleTextField(item)
 	}
 	
 </script>

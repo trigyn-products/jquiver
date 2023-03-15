@@ -33,10 +33,10 @@
                     <option value="2">${messageSource.getMessage('jws.system')}</option>                 
                 </select>
                 <span class="calndercutom">
-                     <label>${messageSource.getMessage('jws.modifiedafter')} </label>
-                    <input type="checkbox" id="chkDatePicker" onchange="selectAsperDate()">
-                    <input id="modifiedAfter" data-type="varchar" class="custtexbox" name="modifiedAfter" placeholder="Modified After" autocomplete="off"/>
-                         <button id="modifiedAfter-trigger" class="calender_icon">
+                     <label for="chkDatePicker" style="cursor:pointer">${messageSource.getMessage('jws.modifiedafter')} </label>
+                    <input type="checkbox" id="chkDatePicker" onchange="selectAsperDate()" >
+                    <input disabled id="modifiedAfter" data-type="varchar" class="custtexbox" name="modifiedAfter" placeholder="Modified After" autocomplete="off"/>
+                         <button disabled id="modifiedAfter-trigger" class="calender_icon">
                         <i class="fa fa-calendar" aria-hidden="true"></i>
                         </button>
                 </span>
@@ -132,9 +132,16 @@
 		</div>
 		</div>
 		<div id="nextTabBtn" style="display: none;">
-            <input id="exportBtn" class="btn btn-primary" style="float: right;" name="exportBtn"
-			    value="Export" type="button" onclick="exportData()">
-		    <input id="prevBtn" class="btn btn-primary" style="float: right;" name="prevBtn"
+            <button id="exportBtn" class="btn btn-primary" style="float: right;" name="exportBtn"
+			    type="button" onclick="exportData()">
+                Export <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+                </button>
+            <#if serverProfile?? && serverProfile == "dev">    
+			<button id="download" class="btn btn-secondary" style="float: right;" name="downloadBtn"
+			     type="button" onclick="downloadAll()">Download <i class="fa fa-download" aria-hidden="true"></i></button>
+
+			</#if>
+            <input id="prevBtn" class="btn btn-primary" style="float: right;" name="prevBtn"
 			    value="Previous" type="button" onclick="gotoPrevPage()">
 		</div>
         </div>
@@ -143,6 +150,7 @@
 </div>
 </div>
 <script>
+document.title = "Export Configuration Module";
 let isDeselectedAll = false;
 let selectedType = 1;
 contextPath = "${contextPath}";
@@ -152,6 +160,9 @@ let selectDateCal;
 let profile;
 
 function selectAsperDate() {
+    $("#modifiedAfter").prop("disabled", !$("#chkDatePicker")[0].checked);
+	$("#modifiedAfter-trigger").prop("disabled", !$("#chkDatePicker")[0].checked);
+
     if($("#chkDatePicker")[0].checked) {
         isSelectAsPerDate = true;
         if($("#modifiedAfter").val() != null && $("#modifiedAfter").val() != "") {
@@ -236,8 +247,10 @@ $(function () {
 					exportableDataListMapNew = new Map();
 					exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, enityType, 					exportableDataListMapNew);					
 					map.set(enityType, exportObjNew);
+					defaultMap.set(enityType, exportObjNew);
 				}
 				map.get(enityType).getExportableDataListMap().set(id, exportableData);
+				defaultMap.get(enityType).getExportableDataListMap().set(id, exportableData);
 			}
 		</#list>
 	</#if>

@@ -15,11 +15,12 @@
         ,last_updated_ts = NOW()
 	,is_custom_updated = 1
 	,hide_dao_query = '${formData?api.getFirst("hidedaoquery")}'
+	,is_secured = '${formData?api.getFirst("dynarestSecured")}'
     WHERE jws_dynamic_rest_id = '${formData?api.getFirst("dynarestId")}'   ;
 <#else>
     INSERT INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, 
     jws_response_producer_type_id, jws_service_logic, jws_platform_id, jws_allow_files, jws_header_json ,
-    created_by, created_date, last_updated_ts, is_custom_updated,hide_dao_query)
+    created_by, created_date, last_updated_ts, is_custom_updated,hide_dao_query,is_secured)
     VALUES (
 		 '${formData?api.getFirst("dynarestId")}',
          '${formData?api.getFirst("dynarestUrl")}'
@@ -37,5 +38,6 @@
          , NOW()
 	 , 1
 	  , '${formData?api.getFirst("hidedaoquery")}'
+	  ,is_secured = '${formData?api.getFirst("dynarestSecured")}'
     );
 </#if>

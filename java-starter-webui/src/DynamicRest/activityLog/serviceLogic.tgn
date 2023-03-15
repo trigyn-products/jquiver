@@ -1,26 +1,53 @@
 var System = Java.type("java.lang.System");
-function activityLog() {
-    
+var HashMap =  Java.type("java.util.HashMap");
+
+/**This method should not be updated by user.*/
+function _activityLog() {
+    var a_requestParamMap = new HashMap();
 	/**
      * Below, if part is written for recording the Activity Log, when the request parameters come in requestDetails, for e.g when we save Notification form , Activity Log  gets called while saving a new form or saving an existing form or opening the form for which the different actions are mentioned below. All values passed will be available here.
+     *  If the "isFromRestAPI" parameter is true, then the parameters are in the form of json object else string.
      */
     if(requestDetails && requestDetails["isFromRestAPI"] && requestDetails["isFromRestAPI"] == "false"){
-           logActivity(requestDetails);           
-     } else {
-        /**This is called when jq_logActivity(Map<String, String> requestParams) is called from serverside javascript or directly form ScriptUtil class*/    
-            var String = Java.type("java.lang.String");
-            var body = new String(requestBody);
-            var jsonObject = JSON.parse(body);
-            if(jsonObject["isFromRestAPI"] == "true") {
-                logActivity(jsonObject);
+       requestDetails.forEach(function(a_item, a_index){
+            if(a_item == "serviceLogic" || a_item == "systemProperties"               
+                || a_item == "dynamicTemplate" || a_item == "messageSource"              
+                || a_item == "scriptUtil" || a_item == "platformId"              
+                || a_item == "dynamicRestUrl" || a_item == "methodDescription"              
+                || a_item == "methodName" || a_item == "dynamicId"              
+                || a_item == "headerJson" || a_item == "result"              
+                || a_item == "methodType" || a_item == "reponseType"              
+                || a_item == "rbacId"){                
+                 return;             
             }
-     } 
-}  
+            a_requestParamMap.put(a_item,requestDetails[a_item]);
+        });
+                     
+     } else {
+    /**This is called when jq_logActivity(Map<String, String> requestParams) is called from serverside javascript or directly form ScriptUtil class*/    
+        var String = Java.type("java.lang.String");
+        var body = new String(requestBody);
+        var jsonObject = JSON.parse(body);
+        Object.keys(jsonObject).forEach(function(a_item, index) {
+            if(a_item == "serviceLogic" || a_item == "systemProperties"               
+                || a_item == "dynamicTemplate" || a_item == "messageSource"              
+                || a_item == "scriptUtil" || a_item == "platformId"              
+                || a_item == "dynamicRestUrl" || a_item == "methodDescription"              
+                || a_item == "methodName" || a_item == "dynamicId"              
+                || a_item == "headerJson" || a_item == "result"              
+                || a_item == "methodType" || a_item == "reponseType"              
+                || a_item == "rbacId"){                
+                 return;             
+            }
+            a_requestParamMap.put(a_item,jsonObject[a_item]);
+        });  
+    }
+    logActivity(a_requestParamMap); 
+} 
 
 /**
  *
- * Following variables will be available in the call as parameters. The parameters are available in the string format and json object format.
- * If the "isFromRestAPI" parameter is true, then the parameters are in the form of json object else string.
+ * Following variables will be available in the call as parameters in a map. The parameters are available in the string format and json object format.
  * masterModuleType: This identifies the entity type, like template, dynamic-form or your custom entity etc.
  * typeSelect: This helps to identify if the entity is system or custom. Values are like "system", "custom". 
  * Also it is important for default inbuilt entity types. 
@@ -31,15 +58,9 @@ function activityLog() {
  * date      : This helps to identify when the action is performed. Format of the date will be new Date() format . E.g - Fri Feb 17 11:21:58 IST 2023.
  * Any other parameters that you pass will be available.
  */
-function logActivity(a_paramaters){
-    if(a_paramaters["isFromRestAPI"] == "true") {
-         Object.keys(a_paramaters).forEach(function(a_item, index) {
-      	    System.out.println(a_item + " : " + a_paramaters[a_item]);
-        });
-    } else {
-         a_paramaters.forEach(function(a_item, a_index){
-            System.out.println(a_item + " : " + a_paramaters[a_item]);
-        });
-    }
+function logActivity(a_requestParamMap){
+   a_requestParamMap.forEach(function(key, value) {
+	    System.out.println(key + " : " + value);
+   })
 }
-activityLog();
+_activityLog();

@@ -28,6 +28,7 @@
 <#elseif selectedTab == "jsContent">
 ```JavaScript
 <#noparse>
+	document.title = "Manage File Bin Configuration";
 	let contextPath = "${(contextPath)!''}";
 
     let dropZone = $(".fileupload").fileUpload({

@@ -34,6 +34,7 @@
 	<div id="snackbar"></div>
 </div>
 <script>
+document.title = "Role Master Module List";
 contextPath = "${contextPath}";
 var rolesArray = ["2ace542e-0c63-11eb-9cf5-f48e38ab9348","ae6465b3-097f-11eb-9a16-f48e38ab9348","b4a0dda1-097f-11eb-9a16-f48e38ab9348"];
 $(function () {

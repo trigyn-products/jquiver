@@ -2,6 +2,7 @@ package com.trigyn.jws.dbutils.utils;
 
 import java.util.List;
 
+import org.apache.logging.log4j.core.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
@@ -13,9 +14,9 @@ public interface IMonacoSuggestion {
 
 	public static final String templateSuggestion[][] = {
 			{ "loggedInUserEmail", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
-			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList!\\'\\'}</#noparse>" },
+			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList[<sequence>] !\\'\\'}</#noparse>" },
 			{ "templateWithoutParams ", "<#noparse><@templateWithoutParams \\'your-template-name\\'/></#noparse>" },
-			{ "templateWithParams  ", "<#noparse><@templateWithParams templateName freemarker-variable-name /></#noparse>" },
+			{ "templateWithParams  ", "<#noparse><@templateWithParams \\'your-template-Name\\' templateParam/></#noparse>" },
 			{ "resourceBundle ", "<#noparse><@resourceBundle \\'your.key\\' /></#noparse>" },
 			{ "resourceBundleWithDefault  ", "<#noparse><@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/></#noparse>" },
 			{ "loggedInUserId  ", "<#noparse>{loggedInUserId  !\\'\\'}</#noparse>" },
@@ -23,22 +24,28 @@ public interface IMonacoSuggestion {
 			{ "userObject  ", "<#noparse>{userObject.userid  !\\'\\'}</#noparse>" },
 			{ "contextPath  ", "<#noparse>{contextPath  !\\'\\'}</#noparse>" },
 			{ "messageSource  ", "<#noparse>{messageSource.getMessage(\\'your.key\\')  !\\'\\'}</#noparse>" },
-			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"} };
+			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"},
+			{ "httpRequestObject  ", "<#noparse>{httpRequestObject?api.getMethod()  !\\'\\'}</#noparse>" } };
 	
 	public static final String JStemplateSuggestions[][] = {
 			{ "loggedInUserEmail","requestDetails[\\\\\"loggedInUserName\\\\\"]" },
 			{ "loggedInUserRoleList", "requestDetails[\\\\\"loggedInUserRoleList\\\\\"]" },
-			{ "templateWithoutParams ", "requestDetails[\\\\\"templateWithoutParams\\\\\"]" },
-			{ "templateWithParams  ", "requestDetails[\\\\\"templateWithParams\\\\\"]" },
-			{ "resourceBundle ", "requestDetails[\\\\\"resourceBundle\\\\\"]" },
-			{ "resourceBundleWithDefault  ", "requestDetails[\\\\\"resourceBundleWithDefault\\\\\"]" },
 			{ "loggedInUserId  ", "requestDetails[\\\\\"loggedInUserId\\\\\"]" },
 			{ "loggedInUserFullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
 			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"]" },
 			{ "contextPath  ", "requestDetails[\\\\\"contextPath\\\\\"]" },
-			{ "systemProperties  ", "requestDetails[\\\\\"systemProperties\\\\\"]"+ "-Application Configuration Map" } };
+			{ "systemProperties  ", "requestDetails[\\\\\"systemProperties\\\\\"]"+ "/*-Application Configuration Map*/" },
+			{ "requestDetails  ", "requestDetails[\\\\\"\\\\\"]" },
+			{ "daoResults  ", "daoResults[\\\\\"Query Variable Name\\\\\"]" },
+			{ "files", "files[\\\\\"<File Input Name>\\\\\"]"  },
+			{ "requestBody", "requestBody" },
+			{ "header", "requestHeaders[\\\\\"<Key Name>\\\\\"]"},
+			{ "session", "session[\\\\\"<Key Name>\\\\\"]" },
+			{ "httpRequestObject", "httpRequestObject" }
+			};
 
-	public static final String JSSuggestions[][] = { { "jq_getSystemProperty", "jq_getSystemProperty(a_propertyName)" },
+	public static final String JSSuggestions[][] = { 
+			{ "jq_getSystemProperty", "jq_getSystemProperty(a_propertyName)" },
 			{ "jq_getSystemEnvironment", "jq_getSystemEnvironment(a_propertyName)" },
 			{ "jq_updateCookies", "jq_updateCookies(a_strKey, a_strValue)" },
 			{ "jq_updateCookies_maxAge", "jq_updateCookies(a_strKey, a_strValue, maxAge)" },
@@ -54,7 +61,7 @@ public interface IMonacoSuggestion {
 			{ "jq_getCreationTime", "jq_getCreationTime()" }, { "jq_getLastAccessedTime", "jq_getLastAccessedTime()" },
 			{ "jq_getAllFiles", "jq_getAllFiles(a_filePath)" }, { "jq_deleteFile", "jq_deleteFile(a_filePath)" },
 			{ "jq_saveFile", "jq_saveFile(a_strFileContent, a_strTargetFileName)" },
-			{ "saveFileFromPath", "saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID)" },
+			{ "jq_saveFileFromPath", "jq_saveFileFromPath(a_strFilePath, a_strFileBinID, a_strcontextID)" },
 			{ "jq_saveFileBin",
 					"jq_saveFileBin(a_strFileContent, a_strTargetFileName, a_strFileBinID, a_strcontextID)" },
 			{ "jq_getFileContent", "jq_getFileContent(a_strAbsolutePath)" },

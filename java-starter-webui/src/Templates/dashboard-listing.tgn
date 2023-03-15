@@ -52,6 +52,7 @@
 	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dbm">
 </form>
 <script>
+	document.title = "Dashboard Module List";
 	contextPath = "${(contextPath)!''}";
 	$(function () {
 		$("#typeSelect").each(function () {

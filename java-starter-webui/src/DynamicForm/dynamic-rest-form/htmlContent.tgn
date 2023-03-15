@@ -11,7 +11,7 @@
 
 <div class="container">
 	<div class="row topband">
-		<div class="col-8">
+		<div class="col-4">
 			<#if (resultSet)?? && (resultSet)?has_content>
 			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editrestapi')}</h2> 
 	        <#else>
@@ -19,7 +19,7 @@
 	        </#if>
      	</div>
       
-	    <div class="col-4">   
+	    <div class="col-8">   
 		 	<#if (resultSet)?? && (resultSet)?has_content>  
 				<#assign ufAttributes = {
 			    	"entityType": "REST API",
@@ -84,7 +84,7 @@
 				</div>
 			</div>
 			
-			<div class="col-6">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestPlatformId">${messageSource.getMessage('jws.platformtype')}</label>
 					<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this.value)" name="dynarestPlatformId" title="Platform Id">
@@ -93,6 +93,20 @@
 	                        <option value="3"> ${messageSource.getMessage('jws.javaScriptContent')} </option>
 	                </select>
 	            </div>
+			</div>
+			
+			<div class="col-2">
+				<div class="col-inner-form full-form-fields">
+					<label for="dynarestSecuredChkBox">${messageSource.getMessage('jws.secured')}</label>
+					<div class="onoffswitch">
+						<input type="hidden" id="dynarestSecured" name="dynarestSecured"  value="1"/>
+						<input type="checkbox" name="dynarestSecuredChkBox" class="onoffswitch-checkbox" id="dynarestSecuredChkBox" onchange="updateSecuredVal()"/>
+						<label class="onoffswitch-label" for="dynarestSecuredChkBox">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>				
 			</div>
 			
 			<div id="allowFilesDiv" class="col-3" style="display:none;">
@@ -196,7 +210,7 @@
 
 		<div class="row margin-t-b">  
             <div class="col-12" id="button">
-                <button type="button" class=" btn btn-primary float-right" id="addDaoQuery" onclick="showDaoQuery();">Add DAO Query</button>
+                <button type="button" class=" btn btn-primary float-right" id="addDaoQuery" onclick="showDaoQuery();">${messageSource.getMessage('jws.addQuery')}</button>
  </div>           
 			<div class="col-12"  id="daoDiv">
 				<h3 id="titlename" class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.daoqueries')}</h3>               
@@ -244,7 +258,7 @@
     </div> 
 </div>
 <script type="text/javascript">
-
+	document.title = "Manage Dynamic REST API";
  $(document).ready(function(){
        // Add minus icon for collapse element which is open by default
        $(".collapse.show").each(function(){
@@ -393,7 +407,13 @@
                 /**Ends here*/
                 $("#createdDate").val('${(resultSetList?api.get("createdDate"))!''}');
                 let produceTypeText = dynarest.populateDetails('${(resultSetList?api.get("dynarestRequestTypeId"))!''}',
-                '${(resultSetList?api.get("dynarestProdTypeId"))!''}','${(resultSetList?api.get("dynarestUrl"))!''}'); 
+                '${(resultSetList?api.get("dynarestProdTypeId"))!''}','${(resultSetList?api.get("dynarestUrl"))!''}');
+                let isSecured = '${resultSetList?api.get("dynarestSecured")!0}';
+                if(isSecured == 1){
+                    $("#dynarestSecuredChkBox").attr("checked", "checked");
+                }
+                $("#dynarestSecured").val(isSecured);  
+                 
 				$("#isEdit").val(1);
                 </#outputformat>    
 	            let jsonStr = '${resultSetList?api.get("header_json")!""}';
@@ -456,7 +476,8 @@
         multiselect.setSelectedObject(defaultAdminRole);
 	    dynarest.populateDetails();
 	    getAllDatasource(0);
-
+        $("#dynarestSecuredChkBox").attr("checked", "");	
+        $("#dynarestSecured").val(0); 
         /**Setting the hidedaoquery value in the DB table based on the DAO Query button*/      
          if(document.getElementById("addDaoQuery").disabled == false)
          {
@@ -588,4 +609,8 @@
     }
     /**Ends Here*/	
     
+    function updateSecuredVal() {
+		let isChecked = $('#dynarestSecuredChkBox').is(':checked')? 1 : 0;		
+        $("#dynarestSecured").val(isChecked);  
+    }
 </script>

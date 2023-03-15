@@ -83,7 +83,7 @@
 		</div>
 </div>
 <script>
-
+	document.title = "Manage Role Details";
 	contextPath = "${contextPath}";
   let isEdit = "${jwsRole?api.getRoleId()!''}";
   $(function(){

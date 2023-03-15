@@ -22,8 +22,18 @@ function populateFields(tableName, dbProductID){
             let columns = data.map(element => element["tableColumnName"]);
             $("#columns").val(columns.toString());
             $("#primaryKey").val(primaryKey);
-            createTable(columns);
-        }
+            $("#menuDisplayName").val(selectedTable.replaceAll("_", "-"));
+            $("#moduleURL").val(selectedTable.replaceAll("_", "-"));
+            createTable(data);
+        },
+		error : function(xhr, error){
+			if(xhr.status == 406)
+				showMessage("Database reference has unsupported datatype, recheck!", "warn");			
+			else if(xhr.status == 409)
+				showMessage("Modules with given data already exists! Re enter form", "warn");
+			else
+				showMessage("Error occurred while creating master", "error");
+	   	},
     });
 }
 
@@ -37,16 +47,36 @@ function resetObjects(){
 	$("#parentModuleName").val("");
 	$("#moduleURL").val("");
 	$("#moduleName").val("");
+	$("#formDisplayName").val("");
+    $("#formModuleURL").val("");
 }
 
 function createTable(columns) {
     $(".details").remove();
+    
+    
     for(let iCounter = 0; iCounter < columns.length; ++iCounter) {
-        let trElement = $("<tr class='details'></tr>");
-        $(trElement).append("<td><input id='tenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToGridDetails(this)'></td>");
-        $(trElement).append("<td><input id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>");
-        let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
-        $(trElement).append("<td><label id='tcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
+        let trElement = null;
+        if(columns[iCounter]['_unsupported']){
+        	trElement =$("<tr class='details' style='border: 1px solid red;' ></tr>");
+        }else{
+        	trElement =$("<tr class='details' ></tr>");
+        }
+        $(trElement).append("<td><input class='grid_enable' id='tenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToGridDetails(this)'></td>");
+        $(trElement).append("<td><input class='grid_visible' id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>");
+        let displayName = capitalizeFirstLetter(columns[iCounter]['tableColumnName'].replaceAll("_", " "));
+        let nameCol = "<td>";
+        if(columns[iCounter]['_unsupported']){
+        	nameCol += '<i class="fa fa-exclamation-triangle _unsupported" aria-hidden="true" style="color:red" title="Unsupported Datatype : '+columns[iCounter]['dataType']+'"></i>&nbsp;';
+        }
+        if(columns[iCounter]['columnKey']=='PK'){
+        	nameCol+= ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key"></i> '
+        }else if(columns[iCounter]['isMandatory']==true){
+        	nameCol += '<span class="fromMandatory" title="Mandatory" style="font-size: 16px;color: red;filter: drop-shadow(0px 0px 1px black);"> &#9733; </span>';
+        }
+        nameCol += "<label id='tfcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
+        $(trElement).append(nameCol);
+        
         $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
         $(trElement).append("<td><input id='tdisplay_"+iCounter+"' disabled type='text' onchange='updateGridDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
         $(trElement).append("<input id='tdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
@@ -55,11 +85,27 @@ function createTable(columns) {
     }
 
     for(let iCounter = 0; iCounter < columns.length; ++iCounter) {
-        let trElement = $("<tr class='details'></tr>");
-        $(trElement).append("<td><input id='tfenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
-        $(trElement).append("<td><input id='tfhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
-        let displayName = capitalizeFirstLetter(columns[iCounter].replaceAll("_", " "));
-        $(trElement).append("<td><label id='tfcolumn_"+iCounter+"'>"+columns[iCounter]+"</label></td>");
+    	 let trElement = null;
+         if(columns[iCounter]['_unsupported']){
+         	trElement =$("<tr class='details' style='border: 1px solid red;' ></tr>");
+         }else{
+         	trElement =$("<tr class='details' ></tr>");
+         }
+        $(trElement).append("<td><input class='form_enable' id='tfenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
+        $(trElement).append("<td><input class='form_visible' id='tfhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
+        let displayName = capitalizeFirstLetter(columns[iCounter]['tableColumnName'].replaceAll("_", " "));
+        let nameCol = "<td>";
+        if(columns[iCounter]['_unsupported']){
+        	nameCol += '<i class="fa fa-exclamation-triangle _unsupported" aria-hidden="true" style="color:red" title="Unsupported Datatype : '+columns[iCounter]['dataType']+'"></i>&nbsp;';
+        }
+        
+        if(columns[iCounter]['columnKey']=='PK'){
+        	nameCol+= ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key"></i> '
+        }else if(columns[iCounter]['isMandatory']==true){
+        	nameCol += '<span class="fromMandatory" title="Mandatory" style="font-size: 16px;color: red;filter: drop-shadow(0px 0px 1px black);"> &#9733; </span>';
+        }
+        nameCol += "<label id='tfcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
+        $(trElement).append(nameCol);
         $(trElement).append("<td><input id='tfdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
         $(trElement).append("<td><input id='tfdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
 		$(trElement).append("<input id='tfdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
@@ -315,10 +361,11 @@ function createMaster() {
         	menuDetails: JSON.stringify(menuDetails),
         	dynamicFormModuleDetails: JSON.stringify(dynamicFormModuleDetails),
         	roleIds : JSON.stringify(roleIds),
-        	dbProductName : $("#dataSource").find(":selected").data("product-name")
+        	        	dbProductName : $("#dataSource").find(":selected").data("product-name")
         },
         type: 'POST',
         success: function(data) {
+        	
             showMessage("Master modules created successfully", "success");
             setTimeout(function(){
             	backToPreviousPage();
@@ -326,7 +373,12 @@ function createMaster() {
             
         },
 		error : function(xhr, error){
-			showMessage("Error occurred while creating master", "error");
+			if(xhr.status == 406)
+				showMessage("Database reference has unsupported datatype, recheck!", "warn");			
+			else if(xhr.status == 409)
+				showMessage("Modules with given data already exists! Re enter form", "warn");
+			else
+				showMessage("Error occurred while creating master", "error");
 	   	},
 				
     })
@@ -334,6 +386,7 @@ function createMaster() {
 
 
 function validateForm(){
+	
 	$('#errorMessage').hide();
 	
 	if($("#showInMenu").prop("checked")){
@@ -341,37 +394,31 @@ function validateForm(){
 			return false;
 		}
 	}
-	if(gridDetails.length >= 1){
-		let isColVisible = false;
-		gridDetails.forEach((element) => {
-    		if(element.hidden == false){
-    			isColVisible = true;
-    		}
-		});
-		if(isColVisible == false){
-			showMessage("Please mark at least one column as visible in grid", "error");
-			return false;
-		}
-	}else{
-		showMessage("Please include at least one column in grid", "error");
+	if($("._unsupported").length > 0){
+		showMessage("Please check for unsupported types tagged with " + '<i class="fa fa-exclamation-triangle _unsupported" aria-hidden="true" style="color:red"></i>', "warn");
+		isValid = false;
+	}
+	
+	if($(".grid_enable:checked").length < 1){
+		showMessage("Please mark at least one column as added in grid", "warn");
 		return false;
 	}
 	
-	if(formDetails.length >= 1){
-		let isColVisible = false;
-		formDetails.forEach((element) => {
-    		if(element.hidden == false){
-    			isColVisible = true;
-    		}
-		});
-		if(isColVisible == false){
-			showMessage("Please mark at least one column as visible in form", "error");
-			return false;
-		}
-	}else{
-		showMessage("Please include at least one column in form", "error");
+	if($(".grid_visible").length == $(".grid_visible:checked").length){
+		showMessage("Please mark at least one column as visible in grid", "warn");
 		return false;
 	}
+	
+	if($(".form_enable:checked").length < 1){
+		showMessage("Please mark at least one column as added in form", "warn");
+		return false;
+	}
+	
+	if($(".form_visible").length == $(".form_visible:checked").length){
+		showMessage("Please mark at least one column as visible in form", "warn");
+		return false;
+	}
+	
 	
 	let isValid = true;
 	$.each(gridDetails, function(iCounter, gridElement){
@@ -397,23 +444,27 @@ function validateSiteLayoutDetails(){
 	 let moduleName = $("#menuDisplayName").val().trim();
 	 let moduleUrl = $("#moduleURL").val().trim();
 	 if(moduleName === "" || moduleUrl === ""){
-	 	showMessage("Module Name and Module URL cannot be blank", "error");
+		 $("#menuDisplayName").focus();
+	 	showMessage("Module Name and Module URL cannot be blank", "warn");
 	 	return false;
 	 }
 	 let dfModuleName = $("#formDisplayName").val().trim();
 	 let dfModuleUrl = $("#formModuleURL").val().trim();
 	 if(dfModuleName === "" || dfModuleUrl === ""){
-	 	showMessage("Form Module Name and Module URL cannot be blank", "error");
+		 $("#formDisplayName").focus();
+	 	showMessage("Form Module Name and Module URL cannot be blank", "want");
 	 	return false;
 	 }
 	 
 	 if(moduleName === dfModuleName) {
-		 showMessage("Listing and Form module name cannot be same.", "error");
+		 $("#menuDisplayName").focus();
+		 showMessage("Listing and Form module name cannot be same.", "warn");
 		 	return false;
 	 }
 
 	 if(moduleUrl === dfModuleUrl) {
-		 showMessage("Listing and Form URL name cannot be same.", "error");
+		 $("#moduleURL").focus();
+		 showMessage("Listing and Form URL name cannot be same.", "warn");
 		 	return false;
 	 }
 	 $.ajax({
@@ -494,7 +545,7 @@ var removeByAttribute = function(arr, attr, value){
 function enableDisableMenuAdd(){
 		let context = this;
 		let isInsideMenu = $("#showInMenu").prop("checked");
-		//let targetLookupId = $("#targetLookupType").find(":selected").val();
+		// let targetLookupId = $("#targetLookupType").find(":selected").val();
 		if(!isInsideMenu){
 			$("#isMenuAddActive").val(0);
 			$("#parentModuleName").val("");

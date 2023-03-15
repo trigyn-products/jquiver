@@ -1,3 +1,5 @@
+let defaultQueries = new Object();
+
 class FileBinMaster {
 
 	constructor() {
@@ -54,7 +56,7 @@ class FileBinMaster {
 				});
 			}
 			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["$"],
+				triggerCharacters: ["@"],
 				provideCompletionItems: (model, position) => {
 					var textUntilPosition = model.getValueInRange({
 						startLineNumber: position.lineNumber,
@@ -62,7 +64,7 @@ class FileBinMaster {
 						endLineNumber: position.lineNumber,
 						endColumn: position.column
 					});
-					if (textUntilPosition == "$") {
+					if (textUntilPosition == "@") {
 						if (model.id == "$model1") {
 							if ($("#queryType_selectValidator").val() == "4") {
 								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
@@ -112,18 +114,17 @@ class FileBinMaster {
 						var textArray = lineContent.split('');
 						var line = context.selectValidator.getPosition().lineNumber;
 						var col = context.selectValidator.getPosition().column;
-						if (textArray.includes("$")) {
+						if (textArray.includes("@")) {
 							var textToInsert = ""; // text to be inserted
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.selectValidator.setPosition({ lineNumber: line, column: col });
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
-							context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.selectValidator.setPosition({ lineNumber: line, column: col });
-							context.selectValidator.focus();
+
 						}
+						context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.selectValidator.setPosition({ lineNumber: line, column: col });
+						context.selectValidator.focus();
 					}
 				}
 				else if ($("#queryType_selectValidator").val() == "1") {
@@ -136,17 +137,28 @@ class FileBinMaster {
 						var col = context.selectValidator.getPosition().column;
 						var newTextArray = lineContent.split('');
 						var sugPostion;
-						if (lineContent.includes("$<")) {
-							var textToInsert = ""; // text to be inserted
-							while (newTextArray.lastIndexOf("$") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+						if (lineContent.includes("@{")) {
+							var textToInsert = "$"; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 							}
-							sugPostion = newTextArray.lastIndexOf("$");
+							sugPostion = newTextArray.lastIndexOf("@");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.selectValidator.setPosition({ lineNumber: line, column: col });
-							context.selectValidator.focus();
+
+						} else if (lineContent.includes("@<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+							}
+							sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+						} else {
+							splitedText[position.endLineNumber - 1];
 						}
+						context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.selectValidator.setPosition({ lineNumber: line, column: col });
+						context.selectValidator.focus();
 					}
 				}
 			});
@@ -186,22 +198,20 @@ class FileBinMaster {
 						var text = context.uploadValidator.getValue(position);
 						var splitedText = text.split("\n");
 						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-						debugger;
 						var textArray = lineContent.split('');
 						var line = context.uploadValidator.getPosition().lineNumber;
 						var col = context.uploadValidator.getPosition().column;
-						if (textArray.includes("$")) {
+						if (textArray.includes("@")) {
 							var textToInsert = ""; // text to be inserted
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.uploadValidator.setPosition({ lineNumber: line, column: col });
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
 							context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.uploadValidator.setPosition({ lineNumber: line, column: col });
-							context.uploadValidator.focus();
 						}
+						context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.uploadValidator.setPosition({ lineNumber: line, column: col });
+						context.uploadValidator.focus();
 					}
 				}
 				else if ($("#queryType_uploadValidator").val() == "1") {
@@ -214,17 +224,28 @@ class FileBinMaster {
 						var col = context.uploadValidator.getPosition().column;
 						var newTextArray = lineContent.split('');
 						var sugPostion;
-						if (lineContent.includes("$<")) {
-							var textToInsert = ""; // text to be inserted
-							while (newTextArray.lastIndexOf("$") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+						if (lineContent.includes("@{")) {
+							var textToInsert = "$"; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 							}
-							sugPostion = newTextArray.lastIndexOf("$");
+							sugPostion = newTextArray.lastIndexOf("@");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.uploadValidator.setPosition({ lineNumber: line, column: col });
-							context.uploadValidator.focus();
+
+						} else if (lineContent.includes("@<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+							}
+							sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+						} else {
+							splitedText[position.endLineNumber - 1];
 						}
+						context.uploadValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.uploadValidator.setPosition({ lineNumber: line, column: col });
+						context.uploadValidator.focus();
 					}
 				}
 			});
@@ -267,18 +288,16 @@ class FileBinMaster {
 						var textArray = lineContent.split('');
 						var line = context.viewValidator.getPosition().lineNumber;
 						var col = context.viewValidator.getPosition().column;
-						if (textArray.includes("$")) {
+						if (textArray.includes("@")) {
 							var textToInsert = ""; // text to be inserted
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.viewValidator.setPosition({ lineNumber: line, column: col });
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
-							context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.viewValidator.setPosition({ lineNumber: line, column: col });
-							context.viewValidator.focus();
 						}
+						context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.viewValidator.setPosition({ lineNumber: line, column: col });
+						context.viewValidator.focus();
 					}
 				}
 				else if ($("#queryType_viewValidator").val() == "1") {
@@ -291,17 +310,29 @@ class FileBinMaster {
 						var col = context.viewValidator.getPosition().column;
 						var newTextArray = lineContent.split('');
 						var sugPostion;
-						if (lineContent.includes("$<")) {
-							var textToInsert = ""; // text to be inserted
-							while (newTextArray.lastIndexOf("$") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+						var sugPostion;
+						if (lineContent.includes("@{")) {
+							var textToInsert = "$"; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 							}
-							sugPostion = newTextArray.lastIndexOf("$");
+							sugPostion = newTextArray.lastIndexOf("@");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.viewValidator.setPosition({ lineNumber: line, column: col });
-							context.viewValidator.focus();
+
+						} else if (lineContent.includes("@<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+							}
+							sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+						} else {
+							splitedText[position.endLineNumber - 1];
 						}
+						context.viewValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.viewValidator.setPosition({ lineNumber: line, column: col });
+						context.viewValidator.focus();
 					}
 				}
 			});
@@ -344,18 +375,16 @@ class FileBinMaster {
 						var textArray = lineContent.split('');
 						var line = context.deleteValidator.getPosition().lineNumber;
 						var col = context.deleteValidator.getPosition().column;
-						if (textArray.includes("$")) {
+						if (textArray.includes("@")) {
 							var textToInsert = ""; // text to be inserted
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.deleteValidator.setPosition({ lineNumber: line, column: col });
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
-							context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.deleteValidator.setPosition({ lineNumber: line, column: col });
-							context.deleteValidator.focus();
 						}
+						context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.deleteValidator.setPosition({ lineNumber: line, column: col });
+						context.deleteValidator.focus();
 					}
 				}
 				else if ($("#queryType_deleteValidator").val() == "1") {
@@ -368,17 +397,29 @@ class FileBinMaster {
 						var col = context.deleteValidator.getPosition().column;
 						var newTextArray = lineContent.split('');
 						var sugPostion;
-						if (lineContent.includes("$<")) {
-							var textToInsert = ""; // text to be inserted
-							while (newTextArray.lastIndexOf("$") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("$"));
+						var sugPostion;
+						if (lineContent.includes("@{")) {
+							var textToInsert = "$"; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
 							}
-							sugPostion = newTextArray.lastIndexOf("$");
+							sugPostion = newTextArray.lastIndexOf("@");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.deleteValidator.setPosition({ lineNumber: line, column: col });
-							context.deleteValidator.focus();
+
+						} else if (lineContent.includes("@<")) {
+							var textToInsert = ""; // text to be inserted
+							while (newTextArray.lastIndexOf("@") > position.endColumn) {
+								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
+							}
+							sugPostion = (newTextArray.lastIndexOf("@")) - 2;
+							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
+
+						} else {
+							splitedText[position.endLineNumber - 1];
 						}
+						context.deleteValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.deleteValidator.setPosition({ lineNumber: line, column: col });
+						context.deleteValidator.focus();
 					}
 				}
 			});
@@ -453,21 +494,17 @@ class FileBinMaster {
 			context.enableDisableValidator(elementId);
 		});
 	}
-
+	
 	getDefaultQueries = function() {
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: contextPath + "/api/file-bin-default-queries",
 			async: false,
 			success: function(data) {
-				let defaultQueries = JSON.parse(data[0].defaultQuery.replace(/(\r\n|\n|\r)/gm, ""));
-				$.each(defaultQueries, function(index, queryObj) {
-					$.each(queryObj, function(key, value) {
-						if ($("#" + key).text().trim() === "") {
-							$("#" + key).text(value);
-						}
-					});
-				})
+				for(let iCounter = 0; iCounter < data.activeElement.children.length; iCounter++){
+					$("#" + data.activeElement.children[iCounter].id).text(data.activeElement.children[iCounter].childNodes[1].nodeValue);
+					defaultQueries[data.activeElement.children[iCounter].id] = data.activeElement.children[iCounter].childNodes[1].nodeValue;
+				}
 			},
 			error: function(xhr, error) {
 				showMessage("Error occurred while fetching default queries", "error");
@@ -574,13 +611,29 @@ class FileBinMaster {
 	validateForm = function() {
 		let fileBinId = $("#fileBinId").val().trim();
 		let maxFileSize = $("#maxFileSize").val().trim();
+		let fileTypeSupported = $("#fileTypeSupported").val().trim();
 		if (fileBinId !== "" && maxFileSize !== "" && maxFileSize >= 1) {
-			$("#errorMessage").hide();
 			return true;
 		}
-		if (fileBinId === "" || maxFileSize === "") {
-			$("#errorMessage").html("File Bin Id and Max File Size cannot be blank");
-			$("#errorMessage").show();
+		if (fileBinId === "") {
+			$("#fileBinId").focus();
+			$("#fileBinId").closest("div").parent().effect("highlight", {}, 3000);
+			showMessage("File Bin Id cannot be blank", "warn");
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+			return false;
+		}
+		if (fileTypeSupported === "") {
+			$("#fileTypeSupported").focus();
+			$("#fileTypeSupported").closest("div").parent().effect("highlight", {}, 3000);
+			showMessage("Supported file types cannot be blank", "warn");
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+			return false;
+		}
+		if (maxFileSize === "" || parseFloat(maxFileSize) < 1) {
+			$("#maxFileSizeUi").focus();
+			$("#maxFileSizeUi").closest("div").parent().effect("highlight", {}, 3000);
+			showMessage("Invalid Max File Size", "warn");
+			$("html, body").animate({ scrollTop: 0 }, "slow");
 			return false;
 		}
 		return true;
@@ -664,8 +717,13 @@ class FileBinMaster {
 		let selectedOptionQueryType = $("#queryType_" + editorIndex).find(":selected").val();
 		if (selectedOptionQueryType === "4") {
 			$("#dt-" + editorIndex).hide();
+			if(defaultQueries[editorIndex + "_script"]){
+				editor.setValue(defaultQueries[editorIndex + "_script"]);
+			}
 		} else {
 			$("#dt-" + editorIndex).show();
+			editor.setValue(defaultQueries[editorIndex + "_query"]);
+			
 		}
 	}
 

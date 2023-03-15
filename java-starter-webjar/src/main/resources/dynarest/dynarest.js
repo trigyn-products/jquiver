@@ -143,27 +143,22 @@ class DynamicRest {
 							}
 							sugPostion = newTextArray.lastIndexOf("#");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.serviceLogicContent.setValue(splitedText.join("\n"));
-							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
-							context.serviceLogicContent.focus();
+
 						}
-						else if(lineContent.includes("#<")){
+						else if (lineContent.includes("#<")) {
 							var textToInsert = ""; // text to be inserted
 							while (newTextArray.lastIndexOf("#") > position.endColumn) {
 								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
 							}
 							sugPostion = newTextArray.lastIndexOf("#");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.serviceLogicContent.setValue(splitedText.join("\n"));
-							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
-							context.serviceLogicContent.focus();
 						}
 						else {
 							splitedText[position.endLineNumber - 1];
-							context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
-							context.serviceLogicContent.focus();
 						}
+						context.serviceLogicContent.setValue(splitedText.join("\n"));
+						context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
+						context.serviceLogicContent.focus();
 
 					} else if ($("#dynarestPlatformId").val() == "3") {
 						if (textArray.includes("#")) {
@@ -173,15 +168,13 @@ class DynamicRest {
 							}
 							sugPostion = newTextArray.lastIndexOf("#");
 							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-							context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
-							context.serviceLogicContent.focus();
+
 						} else {
 							splitedText[position.endLineNumber - 1];
-							context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
-							context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
-							context.serviceLogicContent.focus();
 						}
+						context.serviceLogicContent.setValue(splitedText.join("\n")); // Save the value back to the Editor
+						context.serviceLogicContent.setPosition({ lineNumber: line, column: col });
+						context.serviceLogicContent.focus();
 					}
 				}
 			});
@@ -211,7 +204,7 @@ class DynamicRest {
 				$("#versionSelect_" + index).append("<option value='' selected>Select</option>");
 			}
 			let datasource = retrieveDatasource();
-			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result' class='form-control' /></div>";
+			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + index + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='dynarest.getRESTXMLStructure(this);'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>REST Client</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
@@ -226,7 +219,7 @@ class DynamicRest {
 			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>" + inputElement + "" + selectElement + "" + datasourceEditor + "<div class='col-3 margin-t-25 float-right'>" + buttonElement + "</div></div></div>");
 			daoContainer.append("<div id='container_" + index + "' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_" + index + "' class='ace-editor-container'><div id='saveSqlEditor_" + index + "' class='ace-editor'></div></div></div></div></div>");
 
-/**Added for displaying Custom Suggestions in Monaco Editor */
+			/**Added for displaying Custom Suggestions in Monaco Editor */
 			var newSuggestionsArray = [];
 			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
 				var suggestion = suggestionArray[iCounter];
@@ -248,7 +241,7 @@ class DynamicRest {
 					});
 					let str = model.id;
 					let indexCount = str.slice(-1);
-					let str1 = str.slice(0,6);
+					let str1 = str.slice(0, 6);
 					let finalindex = indexCount - index;
 					if (textUntilPosition == '#') {
 						if (model.id == str1 + finalindex) {
@@ -316,27 +309,22 @@ class DynamicRest {
 						}
 						sugPostion = newTextArray.lastIndexOf("#");
 						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-						saveUpdateEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
-						saveUpdateEditor.focus();
 					}
-					else if(lineContent.includes("#<")){
+					else if (lineContent.includes("#<")) {
 						var textToInsert = ""; // text to be inserted
 						while (newTextArray.lastIndexOf("#") > position.endColumn) {
 							newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("#"));
 						}
 						sugPostion = newTextArray.lastIndexOf("#");
 						splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-						saveUpdateEditor.setValue(splitedText.join("\n"));
-						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
-						saveUpdateEditor.focus();
-						}
+					}
 					else {
 						splitedText[position.endLineNumber - 1];
-						saveUpdateEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						saveUpdateEditor.setPosition({ lineNumber: line, column: col });
-						saveUpdateEditor.focus();
+
 					}
+					saveUpdateEditor.setValue(splitedText.join("\n")); // Save the value back to the Editor
+					saveUpdateEditor.setPosition({ lineNumber: line, column: col });
+					saveUpdateEditor.focus();
 				}
 
 			});
@@ -375,10 +363,10 @@ class DynamicRest {
 				$("#daoContainerDiv_" + index).remove();
 				$("#inputcontainer_" + index).remove();
 				$("#compareDiv_" + index).remove();
-				removeByAttribute(context.saveUpdateEditors, "index", index);
+				removeByAttribute(context.saveUpdateEditors, "index", parseInt(index));
 				if ($("#daoDetailsId_" + index).length == 1) {
 					$("#daoDetailsId_" + index).remove();
-					removeByAttribute(context.daoDetailsIds, "index", index);
+					removeByAttribute(context.daoDetailsIds, "index", parseInt(index));
 				}
 				context.updateVariableSeq();
 			});
@@ -405,10 +393,10 @@ class DynamicRest {
 		}
 		if (contextHeaderJson['Content-Type'] != $('#dynarestProdTypeId').find(":selected").text()) {
 			if ($('#dynarestProdTypeId').find(":selected").text() != "email/xml") {
-				showMessage("Produce type and response header content type should be same.", "error");
+				showMessage("Produce type and response header content type should be same.", "warn");
 				return false;
 			} else if ($('#dynarestProdTypeId').find(":selected").text() == "email/xml" && contextHeaderJson['Content-Type'] != "application/json") {
-				showMessage("Produce type for email/xml should be application/json", "error");
+				showMessage("Produce type for email/xml should be application/json", "warn");
 				return false;
 			}
 		}
@@ -428,7 +416,7 @@ class DynamicRest {
 				}
 			},
 			error: function(xhr, data) {
-				showMessage("Error occurred while saving", "error");
+				showMessage("Error occurred while saving", "warn");
 			},
 		});
 		return isDataSaved;
@@ -439,20 +427,20 @@ class DynamicRest {
 		let dynarestUrl = $("#dynarestUrl").val();
 		if (dynarestUrl === "" || dynarestUrl.indexOf(" ") != -1) {
 			$("#dynarestUrl").focus();
-			showMessage("Please enter valid URL", "error");
+			showMessage("Please enter valid URL", "warn");
 			return false;
 		}
 
 		let dynarestMethodName = $("#dynarestMethodName").val().trim();
 		if (dynarestMethodName === "" || dynarestMethodName.indexOf(" ") != -1) {
 			$("#dynarestMethodName").focus();
-			showMessage("Please enter valid method name", "error");
+			showMessage("Please enter valid method name", "warn");
 			return false;
 		}
 
 		let serviceLogicContent = $.trim(context.serviceLogicContent.getValue().toString());
 		if (serviceLogicContent === "") {
-			showMessage("Service logic can not be blank", "error");
+			showMessage("Service logic can not be blank", "warn");
 			return false;
 		}
 
@@ -461,56 +449,39 @@ class DynamicRest {
 			return false;
 		}
 
-		/**Written for validating DAO Query Container and Variable Name */
-		let saveEditorLength = $("[id^=daoContainerDiv_]").length;
-		for (let iCounter = 0; iCounter < saveEditorLength; ++iCounter) {
-			let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
-			let editorObject = context.saveUpdateEditors.find(editors => editors["index"] == index);
-			let daoQuery = (editorObject["editor"].getValue().toString().trim());
-			let variableName = $.trim($('#inputcontainer_' + index).val());
-			if (document.getElementById("addDaoQuery").disabled == false && document.getElementById("addDaoQuery").hidden == false) {
-				$.trim($('#inputcontainer_' + index).val('result'));
-				(editorObject["editor"].setValue('select 1'));
-			}
-			else if (document.getElementById("addDaoQuery").disabled == true) {
-				if (daoQuery === "") {
-					showMessage("DAO Query can not be blank", "error");
-					return false;
-				}
-				if (variableName === "" || variableName.indexOf(" ") != -1) {
-					$("#variableName").focus();
-					showMessage("Variable Name should not be blank", "error");
-					return false;
-				}
-			} else {
-				if (daoQuery === "") {
-					showMessage("DAO Query can not be blank", "error");
-					return false;
-				}
-				if (variableName === "" || variableName.indexOf(" ") != -1) {
-					$("#variableName").focus();
-					showMessage("Variable Name should not be blank", "error");
-					return false;
-				}
-			}
-			/**Ends here */
+		let queryEditorLength = context.saveUpdateEditors.length;
+		let varNamList = new Array();
 
-			let variableNameArray = new Array();
-			let saveEditorLength = $("[id^=daoContainerDiv_]").length;
-			for (let iCounter = 0; iCounter < saveEditorLength; ++iCounter) {
-				let index = $("[id^=daoContainerDiv_]")[iCounter].id.split("_")[1];
-				let variableName = $.trim($('#inputcontainer_' + index).val());
-				variableNameArray.push(variableName);
+		for (let iCounter = 0; iCounter < queryEditorLength; iCounter++) {
+			let editorObject = context.saveUpdateEditors[iCounter];
+			
+			if (document.getElementById("addDaoQuery").disabled == false && document.getElementById("addDaoQuery").hidden == false) {
+				$.trim($('#inputcontainer_' + iCounter).val('result'));
+				(editorObject["editor"].setValue('select 1'));
+				break;
 			}
-			if (context.checkIfDuplicateExists(variableNameArray)) {
-				showMessage("Variable name should be unique", "error");
+			
+			let daoQuery = (editorObject["editor"].getValue().toString().trim());
+			if (daoQuery === "") {
+				showMessage("Query can not be blank", "warn");
 				return false;
 			}
-			return true;
+			let variableName = $.trim($($("[id^=inputcontainer_]")[iCounter]).val());
+			if (variableName === "" || variableName.indexOf(" ") != -1) {
+				$("[id^=inputcontainer_]")[iCounter].focus();
+				showMessage("Variable Name should not be blank", "warn");
+				return false;
+			}
+
+			if(varNamList.includes(variableName)){
+				showMessage("Variable name should be unique", "warn");
+				return false;
+			}else{
+				varNamList.push(variableName);
+			}
 		}
-	}
-	checkIfDuplicateExists = function(variableNameArray) {
-		return new Set(variableNameArray).size !== variableNameArray.length
+
+		return true;
 	}
 
 
@@ -695,14 +666,14 @@ class DynamicRest {
 		$("#headerTable").find('tr').each(function() {
 			let key = $(this).find("input.key").val();
 			if (key == "") {
-				showMessage("Key is empty in header param", "error");
+				showMessage("Key is empty in header param", "warn");
 				breakLoop = true;
 				return false;
 			}
 			if (key !== undefined) {
 				let value = $(this).find("input.value").val();
 				if (value == undefined || value == "" || value == null) {
-					showMessage("Value is null or empty in header param", "error");
+					showMessage("Value is null or empty in header param", "warn");
 					breakLoop = true;
 					return false;
 				}

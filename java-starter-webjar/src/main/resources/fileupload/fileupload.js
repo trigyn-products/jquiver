@@ -88,6 +88,7 @@
 		  * This method is to save file informations w.r.t All associations.
 		  */
 		saveAllFiles() {
+			var returnMessage = "Success";
 			if (this.options.fileBinId != undefined) {
 				let options = this.options;
 				if (options.fileBinId != undefined) {
@@ -99,8 +100,18 @@
 							fileBinId: options.fileBinId
 						},
 						success: function(data) {
+							// below code is used to prepare cookieFileUploadIds stored in cookie and passed to clear on load.
+							if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+								let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
+								if (fileBinJsonArrTemp != undefined) {
+									$.each(fileBinJsonArrTemp, function(key, cookieData) {
+										deleteFileUploadTempIdCookie(data.id);
+									});
+								}
+							}
 							showMessage("File saved successfully", "success");
 						}, error: function(data, errorMessage, xhr) {
+							returnMessage = "Fail";
 							let customErrorMessage;
 							if (data.status == 403) {
 								customErrorMessage = "You don't have enough privilege to access this module";
@@ -112,17 +123,18 @@
 					});
 				}
 			}
+			return returnMessage;
 		}
 
 		/**
 		   * This method is to save file w.r.t selected association.
 		   */
-		saveSelectedFiles(a_filesBin) {
+		saveSelectedFiles(a_filesBin, formName) {
+			var returnMessage = "Success";
 			if (a_filesBin == null || a_filesBin == undefined) {
 				showMessage("File Bin is mandatory", "error");
 				return;
 			}
-			let formName = "addEditForm";
 			if (typeof getFormName == "function") {
 				formName = getFormName();
 			}
@@ -145,7 +157,18 @@
 					cache: false,
 					dataType: "json",
 					success: function(data) {
-						showMessage(successMsg, "success");
+						// below code is used to prepare cookieFileUploadIds stored in cookie and passed to clear on load.
+						if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+							let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
+							if (fileBinJsonArrTemp != undefined) {
+								$.each(fileBinJsonArrTemp, function(key, cookieData) {
+									if (cookieData.fileBinId != undefined && cookieData.fileBinId == a_filesBin) {
+										deleteFileUploadTempIdCookie(cookieData.id);
+									}
+								});
+							}
+						}
+						showMessage("File saved successfully", "success");
 					},
 					error: function(data, errorMessage, xhr) {
 						let customErrorMessage;
@@ -155,9 +178,12 @@
 						let spanElement = $("<span class='fa fa-ban' id='dropZoneErrorMessage'></span>")
 						$(".filepreviewcontainer").html(spanElement)
 						$("#dropZoneErrorMessage").text(customErrorMessage);
+						returnMessage = "Fail";
 					}
+
 				});
 			}
+			return returnMessage;
 		}
 
 		loadSelectedFiles() {
@@ -193,10 +219,10 @@
 					},
 					success: function(data) {
 						for (let iCounter = 0; iCounter < data.length; ++iCounter) {
-							if(data[iCounter]["warningMessage"] === "FOUND"){
+							if (data[iCounter]["warningMessage"] === "FOUND") {
 								let file = { name: data[iCounter]["fileName"], size: data[iCounter]["sizeInBytes"], id: data[iCounter]["fileId"], accepted: true };
-								appendFileToUI(context, dropzone, options, file);	
-							}else{
+								appendFileToUI(context, dropzone, options, file);
+							} else {
 								showMessage(data[iCounter]["warningMessage"], "warn");
 							}
 						}
@@ -234,6 +260,7 @@
 				closeOnEscape: true,
 				draggable: true,
 				resizable: false,
+				dialogClass: "deletepopupblock",
 				title: "Delete",
 				buttons: [{
 					text: "Cancel",
@@ -382,7 +409,7 @@
 			a_fileObject.previewElement.appendChild(cutomButton);
 		}
 	}
-	
+
 	function appendFileFromCookieToUI(a_options) {
 		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
 			let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
@@ -443,7 +470,6 @@
 			let tabindexText = tabindex.toString();
 			$(this).wrap('<div class="pg-form-dropzone"><div class="row"><div class="col-12 dropzone-wrapper"><div class="cm-dropzone-wrap"></div></div></div></div>');
 			// Added new div for paste section
-			// Added new div for paste section
 			let copyDiv = $('<div tabindex="' + tabindexText.trim() + '" contenteditable="true" class="copyblock dropzone-title"><div class="pastecontent"><img  src="' + contextPath + '/webjars/1.0/images/copy.png"><Strong>Click </strong> and paste here to add the file</div></div>');
 			let labelDiv = $('<label for="fileupload" class="dropzone-container dz-default dz-message"><div class="cm-uploadwrap clearfix"></div></label><div class="filepreviewcontainer cm-scrollbar"></div>');
 			$(this).append(labelDiv);
@@ -470,6 +496,14 @@
 					fileBinId: options.fileBinId
 				},
 				success: function(data) {
+					if(data["file_bin_id"] != options.fileBinId){
+						showMessage("Invalid filebin.", "error");
+						if(this.dropzone != undefined){
+							this.dropzone.disableDropZone("Invalid filebin.");
+							$(".fileupload").prop('disabled','disabled');
+						}
+						return false;
+					}
 					$(context).dropzone({
 						url: contextPath + "/cf/m-upload",
 						paramName: "files",
@@ -580,7 +614,7 @@
 														}, {
 															text: "Replace",
 															click: function() {
-																
+
 																isReplaceExistingFile = "true";
 																existingFileId = fileUploadId;
 																fileUpload.dropzone.removeFile(existFileRef);
@@ -604,7 +638,7 @@
 																.prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
 														}
 													});
-												
+
 											}
 										}
 
@@ -713,6 +747,35 @@
 // It will support multiple dropzone on a single form
 $(document).ready(function() {
 	$(".fileupload").on("paste", function(pasteEevent) {
+		var isFirefox = (navigator.userAgent.indexOf('Firefox') !== -1);
+		if (isFirefox) {
+			$("<div id='confirm' class='hide'>Copy paste file from Clipboard is not supprted. If you are trying to upload image, then take a snapshot or browse.</div>").
+				dialog({
+					bgiframe: true,
+					autoOpen: true,
+					modal: true,
+					draggable: true,
+					resizable: false,
+					closeOnEscape: true,
+					title: "Alert",
+					position: {
+						my: "center", at: "center"
+					},
+					buttons: [{
+						text: "Ok",
+						click: function() {							
+							$(this).dialog('close');
+						}
+					}
+
+					],
+					open: function(event, ui) {
+						$('.ui-dialog-titlebar')
+							.find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+							.prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+					}
+				});
+		}
 		var fileUploadElement = $(this);
 		pasteEevent.preventDefault();
 		var dropzoneEleId = fileUploadElement.attr('id');

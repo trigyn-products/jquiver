@@ -171,7 +171,7 @@
 </div>
 
 <script>
-
+	document.title = "Manage User Details";
 	let isProfilePage = ${isProfilePage?c};
 	let isEdit = "${jwsUser?api.getUserId()!''}";
 	contextPath = "${contextPath}";
@@ -314,6 +314,20 @@
             return;
         }
         /**Ends Here*/
+        //start name validation
+        let specials = /[A-Za-z 0-9]/g;
+        if(specials.test($("#firstName").val().trim())){
+        	showMessage("Invalid First Name", "warn");
+        	$("#firstName").focus();
+        	return;
+        }
+        
+        if(specials.test($("#lastName").val().trim())){
+        	showMessage("Invalid Last Name", "warn");
+        	$("#lastName").focus();
+        	return;
+        }
+        //end name validation
     let userData = new Object();
     userData.userId = $("#userId").val();
     userData.firstName =  $("#firstName").val().trim();

@@ -12,15 +12,15 @@ REPLACE INTO jq_property_master (
   ,comments
   ,is_custom_updated
 ) VALUES (
-  '${formData?api.getFirst("propertyMasterId")}' 
-  ,'${formData?api.getFirst("ownerId")}' 
-  ,'${formData?api.getFirst("ownerType")}'
-  ,'${formData?api.getFirst("propertyName")}'
-  ,'${formData?api.getFirst("propertyValue")}'
+  :propertyMasterId
+  ,:ownerId
+  ,:ownerType
+  ,:propertyName
+  ,:propertyValue
   ,0
   ,NOW()
-  ,'admin'
-  ,${formData?api.getFirst("appVersion")}
-  ,'${formData?api.getFirst("comment")}'
+  ,:loggedInUserName
+  ,:appVersion
+  ,:comment
   , 1
 );

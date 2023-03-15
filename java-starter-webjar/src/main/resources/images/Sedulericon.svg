@@ -1,0 +1,17 @@
+<svg id="calendar_2_" data-name="calendar (2)" xmlns="http://www.w3.org/2000/svg" width="94.051" height="94.051" viewBox="0 0 94.051 94.051">
+  <g id="Group_2" data-name="Group 2">
+    <g id="Group_1" data-name="Group 1">
+      <circle id="Ellipse_1" data-name="Ellipse 1" cx="3.5" cy="3.5" r="3.5" transform="translate(67 35)" fill="#005da3"/>
+      <path id="Path_4" data-name="Path 4" d="M79.356,7.348H74.579V3.674a3.674,3.674,0,1,0-7.348,0V7.348H50.516V3.674a3.674,3.674,0,0,0-7.348,0V7.348H26.636V3.674a3.674,3.674,0,0,0-7.348,0V7.348H14.7A14.712,14.712,0,0,0,0,22.043V79.356a14.712,14.712,0,0,0,14.7,14.7H42.8a3.674,3.674,0,1,0,0-7.348H14.7a7.356,7.356,0,0,1-7.348-7.348V22.043A7.356,7.356,0,0,1,14.7,14.7h4.592v3.674a3.674,3.674,0,0,0,7.348,0V14.7H43.168v3.674a3.674,3.674,0,0,0,7.348,0V14.7H67.232v3.674a3.674,3.674,0,1,0,7.348,0V14.7h4.776A7.356,7.356,0,0,1,86.7,22.043V42.984a3.674,3.674,0,0,0,7.348,0V22.043A14.712,14.712,0,0,0,79.356,7.348Z" fill="#005da3"/>
+      <path id="Path_5" data-name="Path 5" d="M292.227,270a22.227,22.227,0,1,0,22.227,22.227A22.252,22.252,0,0,0,292.227,270Zm0,37.106a14.879,14.879,0,1,1,14.879-14.879A14.9,14.9,0,0,1,292.227,307.106Z" transform="translate(-220.403 -220.403)" fill="#005da3"/>
+      <path id="Path_6" data-name="Path 6" d="M380,337.531h-1.653v-3.858a3.674,3.674,0,1,0-7.348,0v7.531a3.674,3.674,0,0,0,3.674,3.674H380a3.674,3.674,0,1,0,0-7.348Z" transform="translate(-302.85 -269.381)" fill="#005da3"/>
+      <ellipse id="Ellipse_2" data-name="Ellipse 2" cx="4" cy="3.5" rx="4" ry="3.5" transform="translate(51 35)" fill="#005da3"/>
+      <ellipse id="Ellipse_3" data-name="Ellipse 3" cx="3.5" cy="4" rx="3.5" ry="4" transform="translate(35 51)" fill="#005da3"/>
+      <circle id="Ellipse_4" data-name="Ellipse 4" cx="3.5" cy="3.5" r="3.5" transform="translate(19 35)" fill="#005da3"/>
+      <ellipse id="Ellipse_5" data-name="Ellipse 5" cx="3.5" cy="4" rx="3.5" ry="4" transform="translate(19 51)" fill="#005da3"/>
+      <circle id="Ellipse_6" data-name="Ellipse 6" cx="3.5" cy="3.5" r="3.5" transform="translate(19 67)" fill="#005da3"/>
+      <circle id="Ellipse_7" data-name="Ellipse 7" cx="3.5" cy="3.5" r="3.5" transform="translate(35 67)" fill="#005da3"/>
+      <circle id="Ellipse_8" data-name="Ellipse 8" cx="3.5" cy="3.5" r="3.5" transform="translate(35 35)" fill="#005da3"/>
+    </g>
+  </g>
+</svg>

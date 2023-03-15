@@ -16,7 +16,7 @@
 	<div class="container">
 		<div class="row topband">
             <#outputformat "HTML">
-			<div class="col-8">
+			<div class="col-4">
 				<#if (autocompleteVO.autocompleteId)??>
 				    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editautocomplete')}</h2> 
 		        <#else>
@@ -24,7 +24,7 @@
 		        </#if>
 		    </div>
 	    
-	        <div class="col-4">    
+	        <div class="col-8">    
 				<#if (autocompleteVO.autocompleteId)?? && (autocompleteVO.autocompleteId)?has_content>	 
 			        <#assign ufAttributes = {
 			            "entityType": "TypeAhead Autocomplete",
@@ -44,13 +44,13 @@
 	    <div class = "col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.autocompleteid')} </label>
-	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" onkeydown="addEditAutocomplete.updateOldVal()" onkeyup="addEditAutocomplete.updateAutocompleTemplate()" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!'""'}">
+	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" onkeydown="addEditAutocomplete.updateOldVal()" onkeyup="addEditAutocomplete.updateAutocompleTemplate()" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''}">
 			</div>
 	    </div>
 	    <div class="col-6">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoDesc">${messageSource.getMessage('jws.autocompletedescription')} </label>
-	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!'""'}">
+	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''}">
 			</div>
 	    </div>
 
@@ -194,6 +194,7 @@
 </textarea>
   
 <script>
+	document.title = "Manage Autocomplete Details";
 	contextPath = "${(contextPath)!''}";
   /*Written for Updating Monaco Suggestions*/
     const monacoSugg = '${(suggestions)!""}';

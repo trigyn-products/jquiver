@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -24,6 +24,7 @@ import javax.mail.internet.InternetAddress;
 import javax.net.ssl.SSLException;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -67,6 +68,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomResponseEntity;
 import com.trigyn.jws.dbutils.vo.FileInfo;
@@ -111,59 +113,69 @@ import reactor.netty.http.client.HttpClient;
 @Lazy
 public class JwsDynamicRestDetailService {
 
-	private final static Logger logger = LogManager.getLogger(JwsDynamicRestDetailService.class);
+	private final static Logger				logger							= LogManager
+			.getLogger(JwsDynamicRestDetailService.class);
 
-	private static final String Logger = null;
-
-	@Autowired
-	private TemplatingUtils templatingUtils = null;
+	private static final String				Logger							= null;
 
 	@Autowired
-	private JwsDynamicRestDAORepository dynamicRestDAORepository = null;
+	private TemplatingUtils					templatingUtils					= null;
 
 	@Autowired
-	private JwsDynarestDAO dynarestDAO = null;
+	private JwsDynamicRestDAORepository		dynamicRestDAORepository		= null;
 
 	@Autowired
-	private JwsDynamicRestDetailsRepository dyanmicRestDetailsRepository = null;
+	private JwsDynarestDAO					dynarestDAO						= null;
 
 	@Autowired
-	private IUserDetailsService detailsService = null;
+	private JwsDynamicRestDetailsRepository	dyanmicRestDetailsRepository	= null;
+
+	@Autowired
+	private IUserDetailsService				detailsService					= null;
 
 	@Autowired
 	@Lazy
-	private SendMailService sendMailService = null;
+	private SendMailService					sendMailService					= null;
 
 	@Autowired
-	private ApplicationContext applicationContext = null;
+	private ApplicationContext				applicationContext				= null;
 
 	@Autowired
 	@Qualifier("file-system-storage")
-	private FilesStorageService storageService = null;
+	private FilesStorageService				storageService					= null;
 
 	@Autowired
-	private DBTemplatingService templatingService = null;
-
-	@Autowired
-	@Lazy
-	private JwtUtil jwtUtil = null;
+	private DBTemplatingService				templatingService				= null;
 
 	@Autowired
 	@Lazy
-	private JwsUserDetailsService jwsUserDetailsService = null;
+	private JwtUtil							jwtUtil							= null;
 
 	@Autowired
 	@Lazy
-	private UserDetailsService userDetailsService = null;
+	private JwsUserDetailsService			jwsUserDetailsService			= null;
 
 	@Autowired
-	private ApplicationSecurityDetails applicationSecurityDetails = null;
+	@Lazy
+	private UserDetailsService				userDetailsService				= null;
+
+	@Autowired
+	private ApplicationSecurityDetails		applicationSecurityDetails		= null;
+
+	@Autowired
+	private PropertyMasterService			propertyMasterService			= null;
+
+	@Autowired
+	ServletContext							servletContext					= null;
+
+	@Autowired(required = false)
+	private HttpServletRequest				request							= null;
 
 	public Object createSourceCodeAndInvokeServiceLogic(Map<String, FileInfo> files,
 			HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap,
 			Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception {
-		ObjectMapper objectMapper = new ObjectMapper();
-		Map<String, Object> apiDetails = objectMapper.convertValue(restApiDetails, Map.class);
+		ObjectMapper		objectMapper	= new ObjectMapper();
+		Map<String, Object>	apiDetails		= objectMapper.convertValue(restApiDetails, Map.class);
 		requestParameterMap.putAll(apiDetails);
 
 		if (restApiDetails.getPlatformId().equals(Constants.Platforms.JAVA.getPlatform())) {
@@ -186,8 +198,8 @@ public class JwsDynamicRestDetailService {
 			requestParameterMap.putAll(daoResultSets);
 			requestParameterMap.putAll(files);
 
-			Map<String, String> headerMap = new HashMap<>();
-			Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+			Map<String, String>	headerMap	= new HashMap<>();
+			Enumeration<String>	headerNames	= httpServletRequest.getHeaderNames();
 			if (headerNames != null) {
 				while (headerNames.hasMoreElements()) {
 					String header = headerNames.nextElement();
@@ -210,11 +222,11 @@ public class JwsDynamicRestDetailService {
 	public Object invokeAndExecuteOnFileJava(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,
 			Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, ClassNotFoundException,
 			NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-		Class<?> serviceClass = Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE,
+		Class<?>	serviceClass		= Class.forName(restApiDetails.getServiceLogic(), Boolean.TRUE,
 				this.getClass().getClassLoader());
-		Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
+		Object		classInstance		= serviceClass.getDeclaredConstructor().newInstance();
 
-		Method serviceLogicMethod = serviceClass.getDeclaredMethod(restApiDetails.getMethodName(),
+		Method		serviceLogicMethod	= serviceClass.getDeclaredMethod(restApiDetails.getMethodName(),
 				HttpServletRequest.class, Map.class, Map.class, UserDetailsVO.class);
 		try {
 			Method applicationContextMethod = serviceClass.getDeclaredMethod("setApplicationContext",
@@ -240,13 +252,13 @@ public class JwsDynamicRestDetailService {
 	public Object invokeAndExecuteFileOnJavascript(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,
 			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails)
 			throws Exception {
-		TemplateVO templateVO = templatingService.getTemplateByName("script-util");
-		StringBuilder resultStringBuilder = new StringBuilder();
+		TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
+		StringBuilder	resultStringBuilder	= new StringBuilder();
 		resultStringBuilder.append(templateVO.getTemplate()).append("\n");
 
-		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+		ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
 
-		ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
+		ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
 		scriptEngine.put("requestDetails", requestParameterMap);
 		scriptEngine.put("daoResults", daoResultSets);
 		try {
@@ -261,8 +273,8 @@ public class JwsDynamicRestDetailService {
 			logger.error("Error occured while invoking the method ", e);
 		}
 
-		Map<String, String> headerMap = new HashMap<>();
-		Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+		Map<String, String>	headerMap	= new HashMap<>();
+		Enumeration<String>	headerNames	= httpServletRequest.getHeaderNames();
 		if (headerNames != null) {
 			while (headerNames.hasMoreElements()) {
 				String header = headerNames.nextElement();
@@ -271,6 +283,7 @@ public class JwsDynamicRestDetailService {
 			}
 		}
 
+		scriptEngine.put("httpRequestObject", httpServletRequest);
 		scriptEngine.put("requestHeaders", headerMap);
 		scriptEngine.put("session", httpServletRequest.getSession());
 
@@ -287,13 +300,13 @@ public class JwsDynamicRestDetailService {
 
 	public Map<String, Object> executeDAOQueries(String dynarestId, Map<String, Object> parameterMap,
 			Map<String, FileInfo> files) throws Exception {
-		List<RestApiDaoQueries> apiDaoQueries = dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
-		Map<String, Object> resultSetMap = new HashMap<>();
+		List<RestApiDaoQueries>	apiDaoQueries	= dynamicRestDAORepository.getRestApiDaoQueriesByApiId(dynarestId);
+		Map<String, Object>		resultSetMap	= new HashMap<>();
 		for (RestApiDaoQueries restApiDaoQueries : apiDaoQueries) {
-			String dataSourceId = restApiDaoQueries.getDataSourceId();
-			Integer queryType = restApiDaoQueries.getQueryType();
-			String queryContent = templatingUtils.processTemplateContents(restApiDaoQueries.getJwsDaoQueryTemplate(),
-					"apiQuery", parameterMap);
+			String	dataSourceId	= restApiDaoQueries.getDataSourceId();
+			Integer	queryType		= restApiDaoQueries.getQueryType();
+			String	queryContent	= templatingUtils
+					.processTemplateContents(restApiDaoQueries.getJwsDaoQueryTemplate(), "apiQuery", parameterMap);
 			/* Added for Rest Client Attachment */
 			if (files != null && files.size() > 0) {
 				resultSetMap.put("files", files);
@@ -302,16 +315,34 @@ public class JwsDynamicRestDetailService {
 			if (Constants.QueryType.WC.getQueryType() == queryType) {
 				CustomResponseEntity customResponseEntity = new CustomResponseEntity();
 				try {
-					JAXBContext jaxbContext = JAXBContext.newInstance(WebClientXMLVO.class);
-					Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-					StringReader reader = new StringReader(queryContent);
-					WebClientXMLVO webClientXMLVO = (WebClientXMLVO) unmarshaller.unmarshal(reader);
+					JAXBContext		jaxbContext		= JAXBContext.newInstance(WebClientXMLVO.class);
+					Unmarshaller	unmarshaller	= jaxbContext.createUnmarshaller();
+					StringReader	reader			= new StringReader(queryContent);
+					WebClientXMLVO	webClientXMLVO	= (WebClientXMLVO) unmarshaller.unmarshal(reader);
 					if (webClientXMLVO.getWebClientURL() != null
 							&& webClientXMLVO.getWebClientURL().equalsIgnoreCase("about:blank") == false) {
-						Date requestTime = new Date();
-						Mono<ResponseEntity<String>> responseContent = getWebClientResponse(webClientXMLVO);
-						ResponseEntity<String> responseString = responseContent.block();
-						Date responTime = new Date();
+						Date							requestTime		= new Date();
+						String	requestURLContextPath	= getAbsoluteContextPath();
+						String	serverBaseURL			= getServerBaseURL();
+						URI		requestedURL			= new URI(requestURLContextPath);
+						URI		serverUrl				= new URI(serverBaseURL);
+						if (requestedURL.compareTo(serverUrl) == 0) {
+							String	requestURL				= webClientXMLVO.getWebClientURL().toString();
+							if (requestURL.indexOf("/api/") > 0 || requestURL.indexOf("/japi/") > 0) {
+								String schedularURL =  propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
+								if(requestURL.indexOf("/api/") > 0) {
+									String replaceUrl = requestURL.replaceAll("api",schedularURL);
+									webClientXMLVO.setWebClientURL(replaceUrl);
+								}else if(requestURL.indexOf("/japi/") > 0) {
+									String replaceUrl = requestURL.replaceAll("japi",schedularURL);
+									webClientXMLVO.setWebClientURL(replaceUrl);
+								}
+								
+							}
+						}
+						Mono<ResponseEntity<String>>	responseContent	= getWebClientResponse(webClientXMLVO);
+						ResponseEntity<String>			responseString	= responseContent.block();
+						Date							responTime		= new Date();
 						customResponseEntity = convertResponseToVO(responseString);
 						customResponseEntity.setResponseDuration(responTime.getTime() - requestTime.getTime());
 					}
@@ -362,38 +393,38 @@ public class JwsDynamicRestDetailService {
 	}
 
 	public ResponseEntity<?> executeSendMail(Object emailXMLObj, Map<String, Object> requestParams) {
-		String emailXMLContent = (String) emailXMLObj;
-		JAXBContext jaxbContext = null;
-		Unmarshaller unmarshaller = null;
-		EmailListXMLVO emailListObj = null;
-		JsonArray jsonArray = new JsonArray();
+		String			emailXMLContent	= (String) emailXMLObj;
+		JAXBContext		jaxbContext		= null;
+		Unmarshaller	unmarshaller	= null;
+		EmailListXMLVO	emailListObj	= null;
+		JsonArray		jsonArray		= new JsonArray();
 		try {
-			jaxbContext = JAXBContext.newInstance(EmailListXMLVO.class);
-			unmarshaller = jaxbContext.createUnmarshaller();
+			jaxbContext		= JAXBContext.newInstance(EmailListXMLVO.class);
+			unmarshaller	= jaxbContext.createUnmarshaller();
 			StringReader reader = new StringReader(emailXMLContent);
 			emailListObj = (EmailListXMLVO) unmarshaller.unmarshal(reader);
 
 			if (emailListObj != null && emailListObj.getEmailXMLVO() != null) {
 				for (EmailXMLVO emailObj : emailListObj.getEmailXMLVO()) {
-					JsonObject json = new JsonObject();
-					List<EmailAttachedFile> attachedFileList = new ArrayList<>();
-					RecepientsXMLVO recepientsXMLVO = emailObj.getRecepientsXMLVO();
-					List<RecepientXMLVO> recepientXMLVOList = recepientsXMLVO.getRecepientXMLVO();
+					JsonObject					json						= new JsonObject();
+					List<EmailAttachedFile>		attachedFileList			= new ArrayList<>();
+					RecepientsXMLVO				recepientsXMLVO				= emailObj.getRecepientsXMLVO();
+					List<RecepientXMLVO>		recepientXMLVOList			= recepientsXMLVO.getRecepientXMLVO();
 					/* Written for Failure Mail Notification */
-					FailedRecipientsXMLVO failedrecepientsXMLVO = emailObj.getFailedrecepientsXMLVO();
-					List<FailedRecipientXMLVO> failedrecepientXMLVOList = new ArrayList<>();
-					
-					if(failedrecepientsXMLVO != null) {
+					FailedRecipientsXMLVO		failedrecepientsXMLVO		= emailObj.getFailedrecepientsXMLVO();
+					List<FailedRecipientXMLVO>	failedrecepientXMLVOList	= new ArrayList<>();
+
+					if (failedrecepientsXMLVO != null) {
 						failedrecepientXMLVOList = failedrecepientsXMLVO.getFailedrecipientXMLVO();
 					}
 					List<AttachmentXMLVO> attachmentXMLVOList = emailObj.getAttachmentXMLVO();
 					if (CollectionUtils.isEmpty(attachmentXMLVOList) == false) {
 						for (AttachmentXMLVO attachmentXMLVO : attachmentXMLVOList) {
-							EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
-							File attachedFile = null;
+							EmailAttachedFile	emailAttachedFile	= new EmailAttachedFile();
+							File				attachedFile		= null;
 							if (attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_FILEBIN)) {
-								String fileUploadId = attachmentXMLVO.getFilePath();
-								Integer isAllowed = storageService.hasPermission(null, null, fileUploadId,
+								String	fileUploadId	= attachmentXMLVO.getFilePath();
+								Integer	isAllowed		= storageService.hasPermission(null, null, fileUploadId,
 										Constants.VIEW_FILE_VALIDATOR, new HashMap<>());
 								if (isAllowed > 0) {
 									Map<String, Object> fileInfo = storageService.load(fileUploadId);
@@ -419,8 +450,8 @@ public class JwsDynamicRestDetailService {
 								File aFile = new File(attachmentXMLVO.getFilePath());
 								if (aFile != null && aFile.exists()) {
 									attachedFile = new File(attachmentXMLVO.getFileName());
-									InputStream in = new FileInputStream(attachmentXMLVO.getFilePath());
-									byte[] byteArray = ByteStreams.toByteArray(in);
+									InputStream	in			= new FileInputStream(attachmentXMLVO.getFilePath());
+									byte[]		byteArray	= ByteStreams.toByteArray(in);
 									in.close();
 									try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 										fos.write(byteArray);
@@ -442,14 +473,16 @@ public class JwsDynamicRestDetailService {
 							}
 						}
 					}
-					List<String> toEmailIdList = new ArrayList<>();
-					List<String> ccEmailIdList = new ArrayList<>();
-					List<String> bccEmailIdList = new ArrayList<>();
-					List<String> frEmailIdList = new ArrayList<>();// Created for Failure Mail notification
-					StringJoiner toEmailIdStrJoiner = new StringJoiner(", ");
-					StringJoiner ccEmailIdStrJoiner = new StringJoiner(", ");
-					StringJoiner bccEmailIdStrJoiner = new StringJoiner(", ");
-					StringJoiner frEmailIdStrJoiner = new StringJoiner(", ");// Created for Failure Mail notification
+					List<String>	toEmailIdList		= new ArrayList<>();
+					List<String>	ccEmailIdList		= new ArrayList<>();
+					List<String>	bccEmailIdList		= new ArrayList<>();
+					List<String>	frEmailIdList		= new ArrayList<>();		// Created for Failure Mail
+																					// notification
+					StringJoiner	toEmailIdStrJoiner	= new StringJoiner(", ");
+					StringJoiner	ccEmailIdStrJoiner	= new StringJoiner(", ");
+					StringJoiner	bccEmailIdStrJoiner	= new StringJoiner(", ");
+					StringJoiner	frEmailIdStrJoiner	= new StringJoiner(", ");	// Created for Failure Mail
+																					// notification
 
 					for (RecepientXMLVO recepientXMLVO : recepientXMLVOList) {
 						if (recepientXMLVO.getRecepientType().equals("to") == true
@@ -472,7 +505,7 @@ public class JwsDynamicRestDetailService {
 					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 					email.setLoggedInUserRole(detailsService.getUserDetails().getRoleIdList());
 					/* Written for Failure Mail Notification */
-					if(failedrecepientXMLVOList != null) {
+					if (failedrecepientXMLVOList != null) {
 						for (FailedRecipientXMLVO failedrecepientXMLVO : failedrecepientXMLVOList) {
 							frEmailIdStrJoiner.add(failedrecepientXMLVO.getMailId());
 							frEmailIdList.add(failedrecepientXMLVO.getMailId());
@@ -486,9 +519,13 @@ public class JwsDynamicRestDetailService {
 					if (emailObj.getSenderXMLVO() != null) {
 						email.setMailFrom(InternetAddress.parse(emailObj.getSenderXMLVO().getMailId()));
 						email.setMailFromName(emailObj.getSenderXMLVO().getName());
+						if (emailObj.getSenderXMLVO().getReplyTo() != null) {
+							email.setReplyToaddress(InternetAddress
+									.parse(emailObj.getSenderXMLVO().getReplyTo())); /** Added for ReplyTo */
+						}
 					}
-					EmailBodyXMLVO emailBodyXMLVO = emailObj.getBody();
-					String body = "";
+					EmailBodyXMLVO	emailBodyXMLVO	= emailObj.getBody();
+					String			body			= "";
 					if (emailBodyXMLVO.getContent() != null
 							&& emailBodyXMLVO.getContent() == Constants.EMAIL_CONTENT_TYPE_TWO) {
 						TemplateVO templateVO = templatingService.getTemplateByName(emailBodyXMLVO.getData().trim());
@@ -533,17 +570,17 @@ public class JwsDynamicRestDetailService {
 	public CustomResponseEntity executeRestXML(String queryContent) {
 		CustomResponseEntity customResponseEntity = new CustomResponseEntity();
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(WebClientXMLVO.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			StringReader reader = new StringReader(queryContent);
-			WebClientXMLVO webClientXMLVO = (WebClientXMLVO) unmarshaller.unmarshal(reader);
+			JAXBContext		jaxbContext		= JAXBContext.newInstance(WebClientXMLVO.class);
+			Unmarshaller	unmarshaller	= jaxbContext.createUnmarshaller();
+			StringReader	reader			= new StringReader(queryContent);
+			WebClientXMLVO	webClientXMLVO	= (WebClientXMLVO) unmarshaller.unmarshal(reader);
 
 			if (webClientXMLVO.getWebClientURL() != null
 					&& webClientXMLVO.getWebClientURL().equalsIgnoreCase("about:blank") == false) {
-				Date requestTime = new Date();
-				Mono<ResponseEntity<String>> responseContent = getWebClientResponse(webClientXMLVO);
-				ResponseEntity<String> responseString = responseContent.block();
-				Date responTime = new Date();
+				Date							requestTime		= new Date();
+				Mono<ResponseEntity<String>>	responseContent	= getWebClientResponse(webClientXMLVO);
+				ResponseEntity<String>			responseString	= responseContent.block();
+				Date							responTime		= new Date();
 				customResponseEntity = convertResponseToVO(responseString);
 				customResponseEntity.setResponseDuration(responTime.getTime() - requestTime.getTime());
 			}
@@ -555,8 +592,8 @@ public class JwsDynamicRestDetailService {
 				customResponseEntity.setResponseStatusCode(wcre.getStatusCode().value());
 				customResponseEntity.setStatusCode(wcre.getStatusCode());
 				customResponseEntity.setStatusText(wcre.getStatusText());
-				 customResponseEntity.setResponseBody(wcre.getResponseBodyAsString());
-				 customResponseEntity.setMessage(wcre.getMessage());
+				customResponseEntity.setResponseBody(wcre.getResponseBodyAsString());
+				customResponseEntity.setMessage(wcre.getMessage());
 				customResponseEntity.setHeaders(wcre.getHeaders().toSingleValueMap());
 			} else {
 				customResponseEntity.setResponseBody(stacktrace);
@@ -570,33 +607,42 @@ public class JwsDynamicRestDetailService {
 
 	private Mono<ResponseEntity<String>> getWebClientResponse(WebClientXMLVO webClientVO) throws Exception {
 
-		Integer responseTimeout = webClientVO.getResponseTimeOut() != null ? webClientVO.getResponseTimeOut()
+		Integer				responseTimeout		= webClientVO.getResponseTimeOut() != null
+				? webClientVO.getResponseTimeOut()
 				: Constants.DEFAULT_RESPONSE_TIMEOUT;
-		Integer sslHandshakeTimeout = webClientVO.getSslHandshakeTimeout() != null ? webClientVO.getResponseTimeOut()
+		Integer				sslHandshakeTimeout	= webClientVO.getSslHandshakeTimeout() != null
+				? webClientVO.getResponseTimeOut()
 				: Constants.SSL_HANDSHAKE_TIMEOUT;
-		Integer sslFlushTimeout = webClientVO.getSslFlushTimeout() != null ? webClientVO.getResponseTimeOut()
+		Integer				sslFlushTimeout		= webClientVO.getSslFlushTimeout() != null
+				? webClientVO.getResponseTimeOut()
 				: Constants.SSL_CLOSE_NOTIFY_FLUSH_TIMEOUT;
-		Integer sslReadTimeout = webClientVO.getResponseTimeOut() != null ? webClientVO.getResponseTimeOut()
+		Integer				sslReadTimeout		= webClientVO.getResponseTimeOut() != null
+				? webClientVO.getResponseTimeOut()
 				: Constants.SSL_CLOSE_NOTIFY_READ_TIMEOUT;
 
-		HttpClient httpClient = HttpClient.create().secure(spec -> {
-			try {
-				spec.sslContext(SslContextBuilder.forClient().build())
-						.handshakeTimeout(Duration.ofSeconds(sslHandshakeTimeout))
-						.closeNotifyFlushTimeout(Duration.ofSeconds(sslFlushTimeout))
-						.closeNotifyReadTimeout(Duration.ofSeconds(sslReadTimeout));
-			} catch (SSLException exception) {
-				logger.debug("SSLException ", exception);
-			}
-		}).responseTimeout(Duration.ofSeconds(responseTimeout));
-		ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient.wiretap(true));
-		Builder webClientBuilder = WebClient.builder().defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+		HttpClient			httpClient			= HttpClient.create().secure(spec -> {
+													try {
+														spec.sslContext(SslContextBuilder.forClient().build())
+																.handshakeTimeout(
+																		Duration.ofSeconds(sslHandshakeTimeout))
+																.closeNotifyFlushTimeout(
+																		Duration.ofSeconds(sslFlushTimeout))
+																.closeNotifyReadTimeout(
+																		Duration.ofSeconds(sslReadTimeout));
+													} catch (SSLException exception) {
+														logger.debug("SSLException ", exception);
+													}
+												})
+				.responseTimeout(Duration.ofSeconds(responseTimeout));
+		ClientHttpConnector	connector			= new ReactorClientHttpConnector(httpClient.wiretap(true));
+		Builder				webClientBuilder	= WebClient.builder()
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
 				.defaultHeader(HttpHeaders.USER_AGENT, "JQuiver");
-		WebClientRequestVO webClientRequestVO = webClientVO.getWebClientRequestVO();
-		String rawBody = "";
-		boolean hasHeader = false;
-		boolean isJsonContentType = false;
-		boolean hasAttachment = false;
+		WebClientRequestVO	webClientRequestVO	= webClientVO.getWebClientRequestVO();
+		String				rawBody				= "";
+		boolean				hasHeader			= false;
+		boolean				isJsonContentType	= false;
+		boolean				hasAttachment		= false;
 		if (webClientRequestVO != null) {
 			if (CollectionUtils.isEmpty(webClientRequestVO.getHeaderParamVOList()) == false) {
 				for (WebClientParamVO paramVO : webClientRequestVO.getHeaderParamVOList()) {
@@ -622,11 +668,11 @@ public class JwsDynamicRestDetailService {
 
 		}
 		webClientBuilder.filter(logRequest()).clientConnector(connector);
-		JSONObject json = new JSONObject();
-		MultiValueMap<String, String> bodyMultipvalueMap = new LinkedMultiValueMap<String, String>();
-		MultiValueMap<String, String> queryParamMultipvalueMap = new LinkedMultiValueMap<String, String>();
-		Mono<ResponseEntity<String>> responseContent = null;
-		MultipartBodyBuilder builder = new MultipartBodyBuilder();
+		JSONObject						json						= new JSONObject();
+		MultiValueMap<String, String>	bodyMultipvalueMap			= new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String>	queryParamMultipvalueMap	= new LinkedMultiValueMap<String, String>();
+		Mono<ResponseEntity<String>>	responseContent				= null;
+		MultipartBodyBuilder			builder						= new MultipartBodyBuilder();
 
 		if (webClientRequestVO != null) {
 			List<WebClientParamVO> webClientParamList = webClientRequestVO.getHeaderParamVOList();
@@ -654,7 +700,8 @@ public class JwsDynamicRestDetailService {
 							List<String> list = new ArrayList<>();
 							list.add(webClientParamVO.getParameterValue());
 							bodyMultipvalueMap.put(webClientParamVO.getParameterName(), list);
-							builder.part(webClientParamVO.getParameterName(), webClientParamVO.getParameterValue(), MediaType.TEXT_PLAIN);
+							builder.part(webClientParamVO.getParameterName(), webClientParamVO.getParameterValue(),
+									MediaType.TEXT_PLAIN);
 							if ("json".equals(webClientParamVO.getDataType())) {
 								org.json.JSONObject jsonObj = new org.json.JSONObject(
 										webClientParamVO.getParameterValue());
@@ -675,23 +722,23 @@ public class JwsDynamicRestDetailService {
 				}
 			}
 			/* Added for Rest Client Attachment */
-			byte[] fileByte = null;
-			File attachedFile = null;
-			Map<String, Object> fileInfo = new HashMap<>();
-			Map<String, File> fileMap = new HashMap<>();
+			byte[]				fileByte		= null;
+			File				attachedFile	= null;
+			Map<String, Object>	fileInfo		= new HashMap<>();
+			Map<String, File>	fileMap			= new HashMap<>();
 			if (CollectionUtils.isEmpty(webClientRequestVO.getAttachmnetParamVOList()) == false) {
 				for (WebClientAttacmentVO webClientAttachVO : webClientRequestVO.getAttachmnetParamVOList()) {
 					hasAttachment = true;
 					// This is File Bin
 					if (webClientAttachVO.getType().equals(Constants.FILE_ATTACHMENT_FILEBIN)) {
-						String fileUploadId = webClientAttachVO.getFilePath();
-						Integer isAllowed = storageService.hasPermission(null, null, fileUploadId,
+						String	fileUploadId	= webClientAttachVO.getFilePath();
+						Integer	isAllowed		= storageService.hasPermission(null, null, fileUploadId,
 								Constants.VIEW_FILE_VALIDATOR, new HashMap<>());
 						if (isAllowed > 0) {
 							fileInfo = storageService.load(fileUploadId);
 							if (fileInfo != null) {
-								fileByte = (byte[]) fileInfo.get("file");
-								attachedFile = new File(webClientAttachVO.getFileName());
+								fileByte		= (byte[]) fileInfo.get("file");
+								attachedFile	= new File(webClientAttachVO.getFileName());
 								try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 									fos.write(fileByte);
 									fileMap.put(webClientAttachVO.getFileName(), attachedFile);
@@ -719,23 +766,24 @@ public class JwsDynamicRestDetailService {
 					}
 				}
 			}
-			WebClient webClient = webClientBuilder.build();
-			RequestHeadersSpec reqHeaderSpec = null;
-			RequestBodySpec reqBodySpec = webClient.method(HttpMethod.resolve(webClientVO.getRequestType()))
+			WebClient			webClient		= webClientBuilder.build();
+			RequestHeadersSpec	reqHeaderSpec	= null;
+			RequestBodySpec		reqBodySpec		= webClient.method(HttpMethod.resolve(webClientVO.getRequestType()))
 					.uri(webClientVO.getWebClientURL(), uri -> uri.queryParams(queryParamMultipvalueMap).build());
 			if (hasAttachment == true) {
 				for (Entry<String, File> entry : fileMap.entrySet()) {
 					try {
-						File file = entry.getValue();
-						InputStream in = new FileInputStream(file);
+						File		file	= entry.getValue();
+						InputStream	in		= new FileInputStream(file);
 						fileByte = ByteStreams.toByteArray(in);
-						builder.part(entry.getKey(), new FileSystemResource(file.getAbsolutePath())).filename(file.getPath());
-						
+						builder.part(entry.getKey(), new FileSystemResource(file.getAbsolutePath()))
+								.filename(file.getPath());
+
 					} catch (Exception exception) {
 						logger.error("Error occurred while accessing file", exception);
 					}
 				}
-				
+
 				reqHeaderSpec = reqBodySpec.contentType(MediaType.MULTIPART_FORM_DATA)
 						.body(BodyInserters.fromMultipartData(builder.build()));
 			} else if (webClientRequestVO.getBody() != null
@@ -754,15 +802,15 @@ public class JwsDynamicRestDetailService {
 			 * error, from which we are not able to get the client response code. Below code
 			 * should be uncommented, after discussion only.
 			 */
-//					.onStatus(HttpStatus::is4xxClientError, response -> {
-//				return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
-//					return Mono.error(new CustomRuntimeException(error));
-//				});
-//			}).onStatus(HttpStatus::is5xxServerError, response -> {
-//				return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
-//					return Mono.error(new CustomRuntimeException(error));
-//				});
-//			}).toEntity(String.class);
+			// .onStatus(HttpStatus::is4xxClientError, response -> {
+			// return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
+			// return Mono.error(new CustomRuntimeException(error));
+			// });
+			// }).onStatus(HttpStatus::is5xxServerError, response -> {
+			// return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
+			// return Mono.error(new CustomRuntimeException(error));
+			// });
+			// }).toEntity(String.class);
 		}
 
 		return responseContent;
@@ -772,9 +820,9 @@ public class JwsDynamicRestDetailService {
 		CustomResponseEntity customResponseEntity = new CustomResponseEntity();
 		try {
 			if (null != responseString.getBody()) {
-				String responseBody = responseString.getBody();
-				Integer responseStatusCode = responseString.getStatusCode().value();
-				Map<String, String> headerMap = responseString.getHeaders().toSingleValueMap();
+				String				responseBody		= responseString.getBody();
+				Integer				responseStatusCode	= responseString.getStatusCode().value();
+				Map<String, String>	headerMap			= responseString.getHeaders().toSingleValueMap();
 				customResponseEntity.setResponseStatusCode(responseStatusCode);
 				customResponseEntity.setResponseBody(responseBody);
 				customResponseEntity.setHeaders(headerMap);
@@ -805,8 +853,8 @@ public class JwsDynamicRestDetailService {
 
 	private Integer getOneAuthenticationId() {
 
-		Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
-		Boolean isAuthenticationEnabled = (Boolean) authenticationDetails.get("isAuthenticationEnabled");
+		Map<String, Object>	authenticationDetails	= applicationSecurityDetails.getAuthenticationDetails();
+		Boolean				isAuthenticationEnabled	= (Boolean) authenticationDetails.get("isAuthenticationEnabled");
 		if (authenticationDetails.isEmpty() == false && isAuthenticationEnabled) {
 			List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
 					.get("authenticationDetails");
@@ -825,5 +873,23 @@ public class JwsDynamicRestDetailService {
 
 	public JwsDynamicRestDetail getDynamicRestDetailsByName(String jwsMethodName) {
 		return dynarestDAO.getDynamicRestDetailsByName(jwsMethodName);
+	}
+	
+	public String getServerBaseURL() throws Exception {
+		String baseURL = propertyMasterService.findPropertyMasterValue("base-url");
+		if (servletContext.getContextPath().isBlank() == false) {
+			baseURL = baseURL + servletContext.getContextPath();
+		}
+		return baseURL;
+	}
+	
+	public String getAbsoluteContextPath() {
+		String	scheme		= request.getScheme();
+		String	serverName	= request.getServerName();
+		int		serverPort	= request.getServerPort();
+		String	contextPath	= request.getContextPath();
+		String	resultPath	= scheme + "://" + serverName + ":" + serverPort + contextPath;
+		return resultPath;
+
 	}
 }

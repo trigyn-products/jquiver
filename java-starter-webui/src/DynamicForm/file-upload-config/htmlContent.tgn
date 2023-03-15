@@ -1,5 +1,4 @@
 <head>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -12,7 +11,7 @@
 
 <div class="container">
 	<div class="row topband">
-		<div class="col-8">
+		<div class="col-4">
 			<#if (resultSet)?? && (resultSet)?has_content>
 			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editfilebin')}</h2> 
 	        <#else>
@@ -20,7 +19,7 @@
 	        </#if>
 	    </div>
 	    
-        <div class="col-4">  
+        <div class="col-8">  
 	        <#if (resultSet)?? && (resultSet)?has_content>  
 			<#assign ufAttributes = {
 		            "entityType": "File Bin",
@@ -48,6 +47,7 @@
     		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
 		            <label for="fileTypeSupported" style="white-space:nowrap">
+		            <span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filetypesupported')}
 		            </label>
 				<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif" value="" class="form-control">
@@ -385,6 +385,7 @@
 	
 </div>
 <script>
+	document.title = "Manage File Bin Configuration";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	let edit = 0;

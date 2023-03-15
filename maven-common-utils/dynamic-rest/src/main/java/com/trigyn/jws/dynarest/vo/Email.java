@@ -52,7 +52,10 @@ public class Email implements Serializable {
 	private List<String> loggedInUserRole = null;
 
 	private InternetAddress[] failedrecipient;
-
+	
+	/**Added for replyTo */
+	private InternetAddress[] replyToaddress; 
+	
 	public Email() {
 		contentType = "text/plain";
 	}
@@ -201,4 +204,12 @@ public class Email implements Serializable {
 		this.failedrecipient = internetAddresses;
 	}
 
+	public InternetAddress[] getReplyToaddress() {
+		return replyToaddress;
+	}
+
+	public void setReplyToaddress(InternetAddress[] internetAddresses) {
+		this.replyToaddress = internetAddresses;
+	}
+	
 }

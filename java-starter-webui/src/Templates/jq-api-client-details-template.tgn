@@ -32,6 +32,7 @@
 </div>
 
 <script>
+	document.title = "API Clients Module List";
     contextPath = "${(contextPath)!''}";
     let primaryKeyDetails = {"clientid":""};
     $(function () {

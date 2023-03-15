@@ -9,6 +9,12 @@
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js">
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/fileupload.js">
+</script>
 </head>
 <style>
 
@@ -94,9 +100,15 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.customefileupload .filepreviewcontainer {max-height:150px;overflow:auto;}
+
 /* .mailForm {
   width: 55%;
 } */
+
+.dropzone-wrap {
+    border-style: solid;
+}
 </style>
 
 <div class="container">
@@ -113,7 +125,7 @@ input:checked + .slider:before {
   <form method="post"   name="addEditForm" id="addEditForm" >
     
     
-    <input type="hidden" id="mailConfigJson" name="mailConfigJson" value="">
+    <input type="hidden" id="mailConfigJson" name="mailConfigJson" value='${(resultSetObject.property_value)!""}'>
     <input type="hidden" id="totalFailedMails" name="totalFailedMails" value="">
     <div class="row">
       <div class="col-4">
@@ -211,32 +223,33 @@ input:checked + .slider:before {
         </div>
       </div>
       
+        <div style="display:flex; width:100%;">
       <div  class="col-12"> 
-      <fieldset class="hm-fieldset">
+      <fieldset class="hm-fieldset" >
          <legend class="hm-legend" style="display:flex;     margin-bottom: 30px;">
-      ${messageSource.getMessage('jws.mailfooter')} <label class="switch"  style="margin-left:15px;margin-right:15px;"> 
+     ${messageSource.getMessage('jws.mailfooter')} 
 
-
-                             <div class="onoffswitch">
-                                <input class="onoffswitch-checkbox" type="checkbox" name="isMailFooterRequiredId" id="isMailFooterRequiredId" onclick="mailFooterReuired($(this));">
-                                <label class="onoffswitch-label" for="isMailFooterRequiredId">
-                                        <span class="onoffswitch-inner"></span>
-                                        <span class="onoffswitch-switch"></span>
-                                    </label>
-                            </div>
-
-  
-     </label></legend>
-     
-      
-      
-      <div class="col-12">
-        <div class="col-inner-form full-form-fields">
-          
-          <textarea id="mailFooterId" name="mailFooter" rows="4" placeholder="Footer text will be appended to all outgoing mail" cols="50" class="form-control" > </textarea> 
+</legend>
+        
+       <div class="col-5" style="float:left;">
+        <div class="col-inner-form full-form-fields">      
+        <div class="txtWrapper">
+            <textarea id="mailFooterId" name="mailFooter" rows="4" placeholder="Footer text will be appended to all outgoing mail" cols="50" class="form-control" > </textarea>
+            <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true" style="top:-30px;"></i>
+        </div>    
         </div>
-      </div></fieldset>
+        </div>   
+      
+       <div class="col-7" style="float:left;">
+      <div id="fileUploadMaster" class="col-12 customefileupload fileupload dropzone"></div></div> 
+      
+      </fieldset>
+      </div>     
       </div>
+    </div>
+
+<div class="row">
+      
       <div class="col-6">
         <div class="col-inner-form full-form-fields">
           <label for="internetAddressToArray" style="white-space:nowrap">${messageSource.getMessage('jws.sendtestmailto')}</label>
@@ -253,12 +266,10 @@ input:checked + .slider:before {
             <p class="failed-mail-slider-cls"><span id="failedMailsSliderSpan" class="no-of-files-counter"></span></p>
 		    <div class="file-slider-div-cls" id="failedMailsSliderDiv" style="margin: 10px 0px !important;"></div>
 		</div>
-	</div>
-      
+    </div>
       
     </div>
-    <!-- Your form fields end -->
-    
+    <!-- Your form fields end -->  
     
   </form>
   <div class="row margin-t-10">
@@ -283,11 +294,17 @@ input:checked + .slider:before {
 <div id="failedMailsListingGrid"></div>
 </div>
 
-
-
 <script>
 
   contextPath = "${contextPath}";
+  /**Added for File Bin*/
+  let dropZone = $(".fileupload").fileUpload({
+        fileBinId : "mailAttachment",
+        fileAssociationId: "mailAttachment",
+        createFileBin : true,
+        renderer: fileConfigRenderer,
+    });
+/**Ends Here*/
   let formId = "${formId}";
   let edit = 0;
     var saveMailConfigDetailsJson=[]; 
@@ -315,17 +332,17 @@ input:checked + .slider:before {
         $("#errorMessage").show();
         return false;
     }
-
+    if(checkFileUploadTempIdCookie() == true){
+       
+        return false;
+    }
     var jsonobject =getJsonObject();
-
     saveMailConfigDetailsJson=JSON.stringify(jsonobject);
-	console.log("Json Object :"+saveMailConfigDetailsJson);
    
     $.ajax({
             type : "POST",
             async: false,
             url : contextPath+"/cf/stm",
-
             data : {
                 saveMailConfigDetailsJson :saveMailConfigDetailsJson
             },
@@ -343,7 +360,6 @@ input:checked + .slider:before {
             },
         });
         return true;
-
     }
 
   function getJsonObject(){
@@ -355,7 +371,6 @@ input:checked + .slider:before {
         jsonobject["password"]=$("#password").val().trim();
         jsonobject["mailFrom"]=$("#mailFrom").val().trim();
         jsonobject["mailFromName"]=$("#fromNameId").val().trim();
-    
     
         if ($("#replyToEmailDropdown").val()=="Different"){
             jsonobject["isReplyToDifferentMail"]=true;
@@ -371,7 +386,6 @@ input:checked + .slider:before {
         jsonobject["mailFooter"]=$("#mailFooterId").val().trim();
         jsonobject["internetAddressToArray"]=$("#internetAddressToArray").val();
         jsonobject["isAuthenticated"]=$("#isSmtpAutheticatedId").is(":checked");
-        jsonobject["isMailFooterEnabled"]=$("#isMailFooterRequiredId").is(":checked");
         jsonobject["failedMailCounter"]=$("#noOfFailedMails").val();
         return jsonobject;
     }
@@ -384,7 +398,6 @@ input:checked + .slider:before {
 	    }
 	  	let jsonobject =getJsonObject();
 	    saveMailConfigDetailsJson=JSON.stringify(jsonobject);
-	 
 	    $.ajax({
 	    	type : "POST",
 	      	async: false,
@@ -394,14 +407,25 @@ input:checked + .slider:before {
 	      	},
 	        success : function(data) {
 	        	isDataSaved = true;
-	      		showMessage("Information saved successfully", "success");
+                /**Added for File Bins*/
+                dropZone.options['displayOptions'] = 0;
+                var successMsg = dropZone.saveSelectedFiles(fileBins,"addEditForm"); 
+                if (successMsg == 'Success') {
+                    if (fileBins) {
+                        for (let fileBinCounter = 0; fileBinCounter < fileBins.length; fileBinCounter++) {
+                           $("#div_"+fileBins[fileBinCounter].fileUploadTempId).css('visibility', 'visible');
+                        }
+			        }
+                }
+                dropZone.getSelectedFiles();  
+                /**Ends Here*/  
 	      	},
 	        error : function(xhr, error){
 	      		showMessage("Error occurred while saving", "error");
 	        },
-		});
+		});  
 	    refreshMailConfiguration();
-	    return isDataSaved;
+    	    return isDataSaved;
   	}
 
 	function refreshMailConfiguration(){
@@ -416,7 +440,6 @@ input:checked + .slider:before {
             	propertyValue: saveMailConfigDetailsJson,
         	},
         	success : function(data) {
-	
         	},
         	error : function(xhr, error){
             	showMessage("Error occurred while updating property configuration", "error");
@@ -426,8 +449,7 @@ input:checked + .slider:before {
   
     function validateFields(){
         const smtpHostId = $("#smtpHostId").val().trim();
-        const smtpPortId = $("#smtpPortId").val().trim();
-       
+        const smtpPortId = $("#smtpPortId").val().trim();   
         const mailFrom = $("#mailFrom").val().trim();
         const mailFromName = $("#fromNameId").val().trim();
    
@@ -461,9 +483,7 @@ input:checked + .slider:before {
             showMessage("Please enter valid email ids with comma sepearated", "error");
             $("#internetAddressToArray").focus();
         return false;
-        }
-              
-        
+        }           
         return true;
     }
     
@@ -485,13 +505,11 @@ input:checked + .slider:before {
   
   function authenticationChecked(t){
   
-  
   if (t.is(":checked")) {
         $(".RemoveData").removeAttr("disabled", "disabled"); 
         $("#userName").attr("placeholder", "Username"); 
         $("#password").attr("placeholder", "Password"); 
         $("#userName").focus();
-        
     } else {
         $(".RemoveData").attr("placeholder", ""); 
         $(".RemoveData").val("");    
@@ -500,19 +518,12 @@ input:checked + .slider:before {
   }
   
     function mailFooterReuired(t){
-        if (t.is(":checked")) {
-            $("#mailFooterId").removeAttr("disabled", "disabled"); 
-            $("#mailFooterId").attr("placeholder", "Footer text will be appended to all outgoing mail"); 
-            $("#mailFooterId").focus();        
-        } else {
-            $("#mailFooterId").attr("placeholder", ""); 
-            $("#mailFooterId").val("");    
-            $("#mailFooterId").attr("disabled", "disabled");    
-        }
+       
+        $("#mailFooterId").attr("placeholder", "Footer text will be appended to all outgoing mail"); 
+        $("#mailFooterId").focus();        
+       
     }
-  
-  
-  
+    
     function disableEanbleTextBoxes(){	
         if ($("#replyToEmailDropdown").val()=="NoReply"){
             $("#noReplyToMailId").removeAttr("disabled", "disabled"); 
@@ -546,14 +557,22 @@ input:checked + .slider:before {
     $("#replyToEmailDropdown").change(function() {
             disableEanbleTextBoxes();
     });
-    
-    
-  
+   
   $(function() {  
+      $( ".txtWrapper i" ).click(function() {
+            let elem = $(this).prev().get()[0];
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }    
+            $(this).prev().focus();
+        });
          <#if (resultSet)??>
           <#list resultSet as resultSetList>
-            $("#mailConfigJson").val('${resultSetList?api.get("property_value")}');       
-                $("#totalFailedMails").val('${resultSetList?api.get("totalFailedMails")}');   
+            $("#totalFailedMails").val('${resultSetList?api.get("totalFailedMails")}');   
           </#list>
         </#if>
         
@@ -561,13 +580,9 @@ input:checked + .slider:before {
         var jsonObject = JSON.parse($("#mailConfigJson").val());
         $("#smtpHostId").val(jsonObject.smtpHost); 
         $("#smtpPortId").val(jsonObject.smtpPort);
-      
         $("#mailFrom").val(jsonObject.mailFrom);
-        $("#fromNameId").val(jsonObject.mailFromName);
-
-        
-        $("#internetAddressToArray").val(jsonObject.internetAddressToArray);
-       
+        $("#fromNameId").val(jsonObject.mailFromName);    
+        $("#internetAddressToArray").val(jsonObject.internetAddressToArray);  
         $("#replyToDifferentEmailId").val(jsonObject.replyToDifferentMailId);
         
         if(jsonObject.isReplyToDifferentMail == true){
@@ -594,17 +609,7 @@ input:checked + .slider:before {
             $(".RemoveData").attr("disabled", "disabled");
             $("#isSmtpAutheticatedId").prop("checked", false);
         }
-       
-        if(jsonObject.isMailFooterEnabled ==true){
-            $("#isMailFooterRequiredId").prop("checked", true);
-            $("#mailFooterId").val(jsonObject.mailFooter);
-        }else{
-            $("#mailFooterId").val("");
-            $("#mailFooterId").attr("placeholder", "");
-            $("#mailFooterId").attr("disabled", "disabled");
-            $("#isMailFooterRequiredId").prop("checked", false);
-         
-        }
+        $("#mailFooterId").val(jsonObject.mailFooter);
       } else {
             $("#smtpHostId").val("localhost"); 
             $("#smtpPortId").val("25");
@@ -617,12 +622,8 @@ input:checked + .slider:before {
             $(".RemoveData").attr("disabled", "disabled");
             $("#mailFooterId").attr("placeholder", ""); 
             $("#mailFooterId").val("");    
-            $("#mailFooterId").attr("disabled", "disabled"); 
-    }
-        
-       
-        
-        
+     }
+      
         let edit = 0;
         <#if (resultSet)?? && resultSet?has_content>
           edit = 1;
@@ -649,9 +650,12 @@ input:checked + .slider:before {
       colModel: colM,
       dataModel: dataModel
     }); 
-        
-        
+               
   });
+
+  function deleteFileById(fileId) {
+      dropZone.deleteFileById(fileId)
+  }
 
     function downloadEmail(uiObject) {
         return '<span  onclick=\'downloadFile('+JSON.stringify(uiObject.rowData.eml_file_path)+')\' ><i class="fa fa-download"  title="Download Email"></i></span>'.toString();
@@ -685,5 +689,88 @@ input:checked + .slider:before {
 		    }
 		};
     }
-         
+/** Added for File Bin*/
+     $(function () {
+        //please change the name of the component if you are using default UI
+        //as per the declaration
+        dropZone.getSelectedFiles();
+    });
+
+    /*
+     * This is for showing the flie listing. This also can be used for 
+     * adding any custom button in the listing as per the business need
+     */
+    function fileConfigRenderer(fileObj) {
+        let fileUploadId = fileObj["id"];
+        let fileUploadTempId = fileObj["fileUploadTempId"];
+        let fileName = fileObj["name"];
+        let copyImgMsg = "${messageSource.getMessage('jws.copyImagePath')}";
+        let actionElem = "";
+        if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+			let fileBinJsonLocalArr = JSON.parse(getCookie("fileBinDetails"));
+			let tempFileBinJsonArr = [];  
+            actionElem = "<div class='fileicons'><span id='div_"+fileUploadTempId+"' class='iconcovercls' title='"+copyImgMsg+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileName+"')\"></i></span>" +
+                    "<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFileById('"+fileUploadId+"')\"></i></span></div>";    	       
+			// iterate over fileBinJsonArr cookie array values
+			if (fileBinJsonLocalArr.length > 0) {
+				$.each(fileBinJsonLocalArr, function(key, data) {
+				  if (data.id == fileUploadId) {
+					actionElem = "<div class='fileicons'><span id='div_"+data.fileUploadTempId+"' style='visibility:hidden' class='iconcovercls' title='"+copyImgMsg+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileName+"')\"></i></span>" +
+                    "<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFileById('"+fileUploadId+"')\"></i></span></div>";    	
+                   }        
+                });           
+            } 
+             return actionElem; 
+        }   
+    }
+
+    /*
+     * In case of custom UI, this method will be called.
+     */
+    function fileListing(fileObj){
+        let input = $("<input id='"+fileObj["id"]+"' value='"+fileObj["id"]+"' type='text'>");
+    //    input.insertAfter($("#fileIdDiv"));
+    }
+
+    /*
+     * This is just for demo purpose, to show sample function from the button
+     */
+    function fileName(a_fileName){
+        showMessage("File Name: " + a_fileName, "success");
+    }
+
+    /*
+     * This is just for demo purpose, to show sample function from the button
+     */
+    function copyFilePath(fileName){
+        let input = $("<input>");
+        $("body").append(input); 
+        let imgTag = '<img src =\"cid:';
+        let endimgTag = '\" />';
+        input.val(imgTag + fileName + endimgTag).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Image Path copied successfully", "success");
+    }
+    function checkFileUploadTempIdCookie() {
+        var returnStatement = false;
+		if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
+			let fileBinJsonLocalArr = JSON.parse(getCookie("fileBinDetails"));
+			let tempFileBinJsonArr = [];
+			// iterate over fileBinJsonArr cookie array values
+			if (fileBinJsonLocalArr.length > 0) {
+				$.each(fileBinJsonLocalArr, function(key, data) {
+					if (data.fileBinId == "mailAttachment") {
+					    showMessage("Please save the configuration before sending.","warn");
+                        returnStatement = true;
+                        return false;         
+					}             
+				});			
+				let fileBinJsonArr1 = JSON.parse(getCookie("fileBinDetails"));
+			}
+        }
+    return returnStatement  ;    
+}
+
+    /**Ends Here*/
 </script>

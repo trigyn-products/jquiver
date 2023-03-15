@@ -19,6 +19,8 @@
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage("jws.dashletMaster")}</h2> 
 		<div class="float-right">
+
+            <div class="addonbtnblock">
 		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
@@ -28,13 +30,23 @@
 				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
 				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
 			</#if>
-			<a href="${(contextPath)!''}/cf/ad"> 
+
+            <a  href="${(contextPath)!''}/cf/ad"> 
+                <span class="addonicons shedulericon" title="Additional Datasource"> 
+                    <img src="../webjars/1.0/images/adddatasource.svg">
+
+                    </span>					 
+				</a>
+
+			<!-- <a href="${(contextPath)!''}/cf/ad"> 
 				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
-			</a>
+			</a> -->
 			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage('jws.createNewDashlet')}" type="button" onclick="dashletListing.submitForm(this)">
-    		<span onclick="dashletListing.backToDashboarListing();">
+    		<span onclick="dashletListing.backToDashboarListing();" class="backbtncls">
     	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
     	 	</span>	
+
+            </div>
 		</div>
 		
 		<div class="clearfix"></div>		
@@ -56,6 +68,7 @@
 	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/dlm">
 </form>
 <script>
+	document.title = "Dashlet Module List";
 	let dashletListing;
 	$(function () {
 		$("#typeSelect").each(function () {

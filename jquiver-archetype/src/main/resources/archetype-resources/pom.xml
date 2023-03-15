@@ -11,6 +11,8 @@
 	<version>${version}</version>
 	<name>${artifactId}</name>
 	<description>Trigyn JQuiver Application</description>
+	<!-- uncomment below section if you want to run within a container -->
+	<!-- <packaging>war</packaging> -->
 
 	<properties>
 		<java.version>11</java.version>
@@ -24,6 +26,33 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+<!-- uncomment below section if you want to run within a container and comment out above dependency -->
+<!--
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+		<exclusions>
+			<exclusion>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-logging</artifactId>
+			</exclusion>
+			<exclusion>
+				<groupId>com.unboundid</groupId>
+				<artifactId>unboundid-ldapsdk</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>
+
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency><dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-tomcat</artifactId>
+		<scope>provided</scope>
+	</dependency>
+-->		
+
 		<dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
@@ -33,6 +62,12 @@
 			<groupId>com.trigyn</groupId>
 			<artifactId>java-web-starter</artifactId>
 			<version>${jws.version}</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>net.bull.javamelody</groupId>
+		    <artifactId>javamelody-spring-boot-starter</artifactId>
+		    <version>1.77.0</version>
 		</dependency>
 
 		<dependency>

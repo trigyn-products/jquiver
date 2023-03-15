@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.net.URLDecoder;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,10 +11,13 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -380,13 +384,14 @@ public class MasterCreatorService {
 	}
 
 	private Map<String, String> generateHtmlTemplate(String dataSourceId, String dbProductName, String tableName,
-			List<Map<String, Object>> formDetails, String moduleURL) {
+			List<Map<String, Object>> formDetails, String moduleURL) throws Exception {
 		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(dataSourceId,
 				tableName);
 
 		Iterator					itr				= tableDetails.iterator();
-		Set<String>					matchedColumns	= formDetails.stream().map(column -> column.get("column").toString())
-				.collect(Collectors.toSet());
+		Set<String>					matchedColumns	= formDetails.stream()
+				.map(column -> column.get("column").toString()).collect(Collectors.toSet());
+		// TODO :: Its a dead code need to check with adc/mini
 		while (itr.hasNext()) {
 			Map<String, Object>	columnDetails	= (Map<String, Object>) itr.next();
 			String				columnName		= columnDetails.get("tableColumnName").toString();
@@ -421,7 +426,7 @@ public class MasterCreatorService {
 	}
 
 	private String generateSelectQueryForForm(String tableName, List<Map<String, Object>> formDetails,
-			String primaryKey) {
+			String primaryKey) throws Exception {
 		StringBuilder	selectQuery	= new StringBuilder("SELECT ");
 		StringJoiner	columns		= new StringJoiner(",");
 		for (Map<String, Object> details : formDetails) {
@@ -460,7 +465,8 @@ public class MasterCreatorService {
 
 	private TemplateMaster saveTemplateMasterDetails(MultiValueMap<String, String> inputDetails, String gridId,
 			String formId, Map<String, Object> formData, String moduleURL) throws Exception {
-		List<String>				gridDetailsString	= new ObjectMapper().convertValue(inputDetails.get("gridDetails"), List.class);
+		List<String>				gridDetailsString	= new ObjectMapper()
+				.convertValue(inputDetails.get("gridDetails"), List.class);
 		String						moduleName			= formData.get("moduleName") + "-template";
 		String						jsonString			= gridDetailsString.get(0).toString();
 		List<Map<String, Object>>	gridDetails			= new ObjectMapper().readValue(jsonString, List.class);
@@ -503,7 +509,8 @@ public class MasterCreatorService {
 		return dynamicFormDAO.getTableInformationByName(tableName);
 	}
 
-	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId) {
+	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId)
+			throws Exception {
 		return dynamicFormDAO.getTableDetailsByTableName(additionalDataSourceId, tableName);
 	}
 

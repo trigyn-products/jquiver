@@ -1,0 +1,5 @@
+function encryptionAlgorithmsLookup() {
+    return daoResults["encResultSet"];
+}
+
+encryptionAlgorithmsLookup();

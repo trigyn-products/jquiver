@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
@@ -38,19 +39,22 @@ import com.trigyn.jws.webstarter.service.MasterModuleService;
 //@PreAuthorize("hasPermission('module','Import/Export')")
 public class ImportExportController {
 
-	private final static Logger	logger				= LogManager.getLogger(ImportExportController.class);
+	private final static Logger		logger					= LogManager.getLogger(ImportExportController.class);
 
 	@Autowired
-	private MasterModuleService	masterModuleService	= null;
+	private MasterModuleService		masterModuleService		= null;
 
 	@Autowired
-	private MenuService			menuService			= null;
+	private MenuService				menuService				= null;
 
 	@Autowired
-	private ExportService		exportService		= null;
+	private ExportService			exportService			= null;
 
 	@Autowired
-	private ImportService		importService		= null;
+	private ImportService			importService			= null;
+
+	@Autowired
+	private PropertyMasterService	propertyMasterService	= null;
 
 	@GetMapping(value = "/vexp", produces = MediaType.TEXT_HTML_VALUE)
 	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
@@ -64,6 +68,7 @@ public class ImportExportController {
 			vmTemplateData.put("customEntities", customEntities);
 			vmTemplateData.put("customEntityCount", customEntityCount);
 			vmTemplateData.put("allEntityCount", allEntityCount);
+			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
@@ -93,6 +98,7 @@ public class ImportExportController {
 	public String viewImport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Map<String, Object> vmTemplateData = new HashMap<>();
+			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
 			return menuService.getTemplateWithSiteLayout("import-config", vmTemplateData);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);

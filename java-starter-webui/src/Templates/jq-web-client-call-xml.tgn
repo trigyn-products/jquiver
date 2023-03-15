@@ -35,14 +35,18 @@
         <body contentType="rawBody | keyValue"> <!-- optional-->
         <!-- 
         	null / no mention / keyValue	: pass key value pair in request based on request type
-        	rawBody 						: Will just dump the body in the request, all child elements will be ignored in this scenario. This will not support file attachment.
+        	rawBody 						: Will just dump the body in the request, all child elements will be ignored in this scenario. This will not support file attachment. Make sure the parameter name is "data-raw" if the contentType is "rawBody"
         -->
             <parameter dataType="json">
             <!-- 
 	        	json						: will create json object with the key value provided and pass in the body
 	        	null / no mention			: pass key value pair in request based on request type
 	        -->
-                <name></name>
+                <name>data-raw</name>
+                <!-- 
+	        	user defined key			: user defined key, as per the user request
+	        	data-raw					: if the contentType is rawBody
+	        	-->
                 <value></value>
             </parameter>
             <parameter>

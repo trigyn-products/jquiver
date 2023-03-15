@@ -7,7 +7,7 @@
 <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-
+<script>document.title="Error Page - ${(statusCode)!''}";</script>
 </head>
 
 <div class="container"> 

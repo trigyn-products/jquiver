@@ -111,6 +111,9 @@ public class JwsDynamicRestDetail implements Serializable {
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(mappedBy = "jwsDynamicRestDetail", fetch = FetchType.LAZY)
 	private List<JwsDynamicRestRoleAssociation>	JwsDynamicRestRoleAssociation	= null;
+	
+	@Column(name = "is_secured")	
+	private Integer								isSecured						= 0;
 
 	public JwsDynamicRestDetail() {
 
@@ -420,6 +423,14 @@ public class JwsDynamicRestDetail implements Serializable {
 	public void setHidedaoquery(Integer hideDaoQuery) {
 		this.hideDaoQuery = hideDaoQuery;
 	}
+	
+	public Integer getIsSecured() {
+		return isSecured;
+	}
+
+	public void setIsSecured(Integer isSecured) {
+		this.isSecured = isSecured;
+	}
 
 	public JwsDynamicRestDetail getObject() {
 		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
@@ -435,6 +446,8 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setLastUpdatedBy(lastUpdatedBy);
 		dynaRest.setLastUpdatedTs(lastUpdatedTs);
 		dynaRest.setHidedaoquery(hideDaoQuery);//Added new column for hiding DAO Query Container
+		dynaRest.setIsSecured(isSecured);
+		dynaRest.setJwsHeaderJson(jwsHeaderJson);
 		try {
 			if (jwsServiceLogic != null) {
 				dynaRest.setJwsServiceLogic(jwsServiceLogic.trim());

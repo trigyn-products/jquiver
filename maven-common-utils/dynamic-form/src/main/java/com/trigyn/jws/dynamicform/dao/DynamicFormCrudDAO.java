@@ -44,16 +44,17 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	public DynamicForm findDynamicFormById(String formId) {
-		DynamicForm dynamicForm =  hibernateTemplate.get(DynamicForm.class, formId);
+		DynamicForm dynamicForm = hibernateTemplate.get(DynamicForm.class, formId);
 		return dynamicForm;
-	
+
 	}
 
 	public DynamicForm findDynamicFormByIdWithEvict(String formId) {
-		DynamicForm dynamicForm =  hibernateTemplate.get(DynamicForm.class, formId);
-		if(dynamicForm != null) getCurrentSession().evict(dynamicForm);
+		DynamicForm dynamicForm = hibernateTemplate.get(DynamicForm.class, formId);
+		if (dynamicForm != null)
+			getCurrentSession().evict(dynamicForm);
 		return dynamicForm;
-	
+
 	}
 
 	public List<Map<String, Object>> getFormData(String dataSourceId, String selectionQuery) throws Exception {
@@ -63,14 +64,17 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return data;
 	}
 
-	public Integer saveFormData(String dataSourceId, String saveTemplateQuery, Map<String, Object> parameters) {
+	public Integer saveFormData(String dataSourceId, String saveTemplateQuery, Map<String, Object> parameters)
+			throws Exception {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(
 				dataSourceId);
 		return namedParameterJdbcTemplate.update(saveTemplateQuery, parameters);
 	}
 
-	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
-		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(dataSourceId);
+	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap)
+			throws Exception {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = updateNamedParameterJdbcTemplateDataSource(
+				dataSourceId);
 		return namedParameterJdbcTemplate.queryForList(query, parameterMap);
 	}
 
@@ -79,18 +83,18 @@ public class DynamicFormCrudDAO extends DBConnection {
 	}
 
 	@Transactional(readOnly = false)
-	public void saveDynamicForm(DynamicForm dynamicForm) {  
-		List<DynamicFormSaveQuery>	dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
+	public void saveDynamicForm(DynamicForm dynamicForm) {
+		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
 		dynamicForm.setDynamicFormSaveQueries(null);
-		if(dynamicForm.getFormId() == null || findDynamicFormByIdWithEvict(dynamicForm.getFormId()) == null) {
-			getCurrentSession().save(dynamicForm);			
-		}else {
+		if (dynamicForm.getFormId() == null || findDynamicFormByIdWithEvict(dynamicForm.getFormId()) == null) {
+			getCurrentSession().save(dynamicForm);
+		} else {
 			getCurrentSession().saveOrUpdate(dynamicForm);
 		}
 
 		deleteFormQueries(dynamicForm.getFormId());
-		if(dynamicFormSaveQueries != null) {
-			for(DynamicFormSaveQuery dfsq : dynamicFormSaveQueries) {
+		if (dynamicFormSaveQueries != null) {
+			for (DynamicFormSaveQuery dfsq : dynamicFormSaveQueries) {
 				getCurrentSession().save(dfsq);
 			}
 		}
@@ -139,12 +143,18 @@ public class DynamicFormCrudDAO extends DBConnection {
 		return data;
 	}
 
-	public List<Map<String, Object>> getTableDetailsByTableName(String additionalDataSourceId, String tableName) {
-		DataSourceVO	dataSourceVO			= additionalDatasourceRepository.getDataSourceConfiguration(additionalDataSourceId);
+	public List<Map<String, Object>> getTableDetailsByTableName(String additionalDataSourceId, String tableName)
+			throws Exception {
+
+		DataSourceVO	dataSourceVO			= additionalDatasourceRepository
+				.getDataSourceConfiguration(additionalDataSourceId);
+
 		DataSource		additionalDataSource	= dataSource;
+
 		if (dataSourceVO != null) {
 			additionalDataSource = DataSourceFactory.getDataSource(dataSourceVO);
 		}
+
 		List<Map<String, Object>> resultSet = new ArrayList<>();
 		resultSet = DBExtractor.getDBStructure(tableName, additionalDataSource);
 

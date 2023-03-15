@@ -2942,6 +2942,7 @@
                </div>
 </div>
 <script>
+	document.title = "Manage Scheduler Details";
                let formId = "${formId}";
                contextPath = "${contextPath}";
                let isEdit = 0;

@@ -14,7 +14,8 @@
 <script src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
-<!-- 
+ 
+ <!-- 
     below two lines are for custom implementation. The CSS & JS can be modified from 
     template management module.
  -->
@@ -33,6 +34,8 @@
 	 		</#if> 		
  		</a> 
 
+        
+
         <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
 	        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
 				<i class="fa fa-bars" aria-hidden="true"></i>
@@ -44,10 +47,17 @@
 			<li class="nav-item text-nowrap">
 				<div class="row margin-r-5 profile-tray">
 					<ul>
-						<li>						
-					       <select id="languageOptions" onchange="changeLanguage()">
+						<li>
+                            <span class="multilingicon">
+                                <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png">	</span>					
+					       <select class="multilingselectbox" id="languageOptions" onchange="changeLanguage()">
 					        </select>
+                            </span>
 						</li>
+
+                        
+
+
             			<li>                          
 
             				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
@@ -87,7 +97,6 @@
 
 <div class="container-fluid ">
 	<div class="row">
-        <#outputformat "HTML">
 		<nav id="mySidenav"  class=" bg-dark sidenav sidebar">
 			<div class="nav-inside">
 				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter()">
@@ -118,7 +127,7 @@
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
 													<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
 														<li>
-															<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}','${openTarget}')" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
+															<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
 														</li>
 													<#else>
 														<li>
@@ -135,7 +144,7 @@
 								<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
 									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 										<span data-feather="file"></span>
-										<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}','${openTarget}')" class="nav-link">${moduleDetailsVO?api.getModuleName()!''}</a>
+										<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleURL()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}</a>
 									</li>
 								<#else>
 									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
@@ -149,7 +158,7 @@
 					</#if>
 				</div>
 			</nav>
-	</#outputformat>
+	
 	<main id="main" class="main-container">
 		<div id="bodyDiv">
 			<#include "template-body">
@@ -170,13 +179,17 @@
 <div id="divNotificationView"></div>
 
 <script>
+    
+
+    
 	const contextPathHome = "${contextPath}";
 	contextPath = "${contextPath}";
 	let homePageFn;
 	let jqJSDateFormat;
 	
 	$(function() {
-		    
+
+ 		    
       let selectedLanguageId = getCookie("locale");
       if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
         setCookie("locale", "en_US", 1);
@@ -195,15 +208,12 @@
         	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
       	</#if>
       </#list>
-      setTimeout(function() {
-	      retrieveProfilePic();
-	      getLanguageOption();          
-      }, 5000);    
-
-		$("#bodyDiv").click(function(){
+      retrieveProfilePic();
+      getLanguageOption(); 
+      
+      	$("#bodyDiv").click(function(){
 			homePageFn.closeNavigation();
 		});    
-
       
 	});
 
@@ -232,7 +242,7 @@
 		});
     }
 
-	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId, openTarget) {
+	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId) {
 		let requestParams = $("#"+requestParamsModuleId).val();
 		let form = $('<form id="targetUrlForm"' + requestParamsModuleId + '" action="' + moduleURL + '" method="' + actionType + '">');
 		if(requestParams != ''){
@@ -242,7 +252,7 @@
 			});
 		}
 		form.append('</form>');
-		$(form).attr('target', openTarget);
+		$(form).attr('target', '_blank');
 		$('body').append(form);
 		$(form).submit();
 		$("#targetUrlForm"+requestParamsModuleId).remove();

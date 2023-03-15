@@ -33,7 +33,7 @@
 		      <!-- Modal content-->
 		      <div class="modal-content">
 		        <div class="modal-header">
-		           <h5 class="ui-dialog-titlebar">Update</h5>
+		           <h5 class="ui-dialog-titlebar">${messageSource.getMessage('jws.addUser')}</h5>
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		          <span aria-hidden="true">&times;</span>
 		        </button>
@@ -41,16 +41,16 @@
 		        <div class="modal-body">
 		          <form role="form">
 				  <div class="form-group">
-		              <label for="firstName">First Name <span class="asteriskmark">*</span></label>
-		              <input type="text" class="form-control" id="firstName" placeholder="Enter First Name">
+		              <label for="firstName"> ${messageSource.getMessage('jws.firstName')} <span class="asteriskmark">*</span></label>
+		              <input type="text" class="form-control" id="firstName" placeholder="${messageSource.getMessage('jws.firstName')}">
 		            </div>
 					 <div class="form-group">
-		              <label for="lastName">Last Name <span class="asteriskmark">*</span></label>
-		              <input type="text" class="form-control" id="lastName" placeholder="Enter Last Name">
+		              <label for="lastName"> ${messageSource.getMessage('jws.lastName')}<span class="asteriskmark">*</span></label>
+		              <input type="text" class="form-control" id="lastName" placeholder="${messageSource.getMessage('jws.lastName')}">
 		            </div>
 		            <div class="form-group">
-		              <label for="email">Username <span class="asteriskmark">*</span></label>
-		              <input type="text" class="form-control" id="email" placeholder="Enter email">
+		              <label for="email">${messageSource.getMessage('jws.email')} <span class="asteriskmark">*</span></label>
+		              <input type="text" class="form-control" id="email" placeholder="${messageSource.getMessage('jws.email')}">
 		            </div>            
 		            
 		          </form>
@@ -80,7 +80,7 @@
     </div>
 </form>   
 <script>
-
+document.title = "User Management Configuration";
 contextPath 	= "${contextPath}";
 let oAuthClientDetails 	= [];
 let selectedValues = [];

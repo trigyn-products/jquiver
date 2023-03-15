@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -135,7 +136,8 @@ public class ExportService {
 			userName = detailsVO.getUserName();
 			
 			String	systemPath			= System.getProperty("java.io.tmpdir");
-			String	tempDownloadPath	= FileUtil.generateTemporaryFilePath(Constant.EXPORTTEMPPATH);
+			
+			String	tempDownloadPath	= FileUtil.generateTemporaryFilePath(Constant.EXPORTTEMPPATH, UUID.randomUUID().toString());
 			new File(tempDownloadPath).mkdir();
 			moduleListMap = new HashMap<>();
 

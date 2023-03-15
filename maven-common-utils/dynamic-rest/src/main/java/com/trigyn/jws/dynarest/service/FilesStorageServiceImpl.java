@@ -11,8 +11,10 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -34,11 +36,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.ByteStreams;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.spi.PropertyMasterKeyVO;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -59,11 +65,13 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 @Transactional
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-	private static final Logger			logger						= LogManager
-			.getLogger(FilesStorageServiceImpl.class);
+	private static final Logger			logger						= LogManager.getLogger(FilesStorageServiceImpl.class);
 
 	@Autowired
 	private PropertyMasterService		propertyMasterService		= null;
+
+	@Autowired
+	private PropertyMasterDetails		propertyMasterDetails		= null;
 
 	@Autowired
 	private IUserDetailsService			userdetailsService			= null;
@@ -588,11 +596,11 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			queryContent = "select 1";
 		}
 
-		String						query		= templatingUtils.processTemplateContents(queryContent, templateName,
-				parameterMap);
 		List<Map<String, Object>>	resultSet	= new ArrayList<>();
 		if (StringUtils.isBlank(queryContent) == false
 				&& Constants.QueryType.SELECT.getQueryType() == queryTypeValidator) {
+			String						query		= templatingUtils.processTemplateContents(queryContent, templateName,
+			      						     		                       				parameterMap);
 			resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
 		} else {
 			TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
@@ -600,6 +608,40 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			resultStringBuilder.append(templateVO.getTemplate()).append("\n");
 			ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
 			ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
+			
+			parameterMap.forEach((key, value) -> scriptEngine.put(key, value));
+			UserDetailsVO detailsVO = userdetailsService.getUserDetails();
+			if (detailsVO != null) {
+				scriptEngine.put("loggedInUserName", detailsVO.getUserName());
+				scriptEngine.put("loggedInUserRoleList", detailsVO.getRoleIdList());
+				scriptEngine.put("loggedInUserId", detailsVO.getUserId());
+				scriptEngine.put("fullName", detailsVO.getFullName());
+				scriptEngine.put("userObject", detailsVO);
+			}
+			Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
+			
+			Map systemProperties = new HashMap();
+			propertyMasterMap.forEach((key, value) -> systemProperties.put(key.getPropertyName(), value));
+			
+			scriptEngine.put("systemProperties", propertyMasterMap);
+			
+			HttpServletRequest requestObject = getRequest();
+			
+			if(requestObject != null) {
+				Map<String, String> headerMap = new HashMap<>();
+				Enumeration<String> headerNames = requestObject.getHeaderNames();
+				if (headerNames != null) {
+					while (headerNames.hasMoreElements()) {
+						String header = headerNames.nextElement();
+						headerMap.put(header, requestObject.getHeader(header));
+					}
+				}
+				
+				scriptEngine.put("httpRequestObject", requestObject);
+				scriptEngine.put("requestHeaders", headerMap);
+				scriptEngine.put("session", requestObject.getSession());
+			}
+			
 			resultStringBuilder.append(queryContent.toString());
 			Object				result			= scriptEngine.eval(resultStringBuilder.toString());
 			Map<String, Object>	resultSetMap	= new HashMap<>();
@@ -610,6 +652,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			}
 		}
 		return resultSet;
+	}
+	
+	private HttpServletRequest getRequest() {
+		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if(sra != null) {
+			return sra.getRequest();
+		} else 
+			return null;
 	}
 
 	@Override

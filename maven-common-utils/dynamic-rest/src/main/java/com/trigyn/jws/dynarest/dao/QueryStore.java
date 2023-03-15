@@ -10,7 +10,7 @@ public final class QueryStore {
 			+ " WHERE jdrdd.jwsDynamicRestDetailId = :dynarestId ORDER BY jdrdd.jwsQuerySequence ASC ";
 
 	protected static final String	QUERY_TO_API_DETAILS_BY_URL									= "SELECT new com.trigyn.jws.dynarest.vo.RestApiDetails(jdrd.jwsDynamicRestId, jdrd.jwsDynamicRestUrl, jdrd.jwsRbacId, jdrd.jwsMethodName, "
-			+ " jdrd.jwsMethodDescription, jrpd.jwsResponseProducerType, jdrd.jwsServiceLogic, jdrd.jwsPlatformId, jrtd.jwsRequestType, jdrd.jwsHeaderJson) FROM JwsDynamicRestDetail AS jdrd LEFT OUTER JOIN jdrd.jwsRequestTypeDetail AS jrtd LEFT OUTER JOIN jdrd.jwsResponseProducerDetail AS jrpd "
+			+ " jdrd.jwsMethodDescription, jrpd.jwsResponseProducerType, jdrd.jwsServiceLogic, jdrd.jwsPlatformId, jrtd.jwsRequestType, jdrd.jwsHeaderJson, jdrd.isSecured) FROM JwsDynamicRestDetail AS jdrd LEFT OUTER JOIN jdrd.jwsRequestTypeDetail AS jrtd LEFT OUTER JOIN jdrd.jwsResponseProducerDetail AS jrpd "
 			+ " WHERE jdrd.jwsDynamicRestUrl = :jwsDynamicRestUrl GROUP BY jdrd.jwsDynamicRestId ";
 
 	protected static final String	QUERY_TO_GET_DYNAMIC_REST_ID								= "SELECT jdrd.jwsDynamicRestId AS dynamicRestId "
@@ -18,7 +18,7 @@ public final class QueryStore {
 			+ " WHERE jdrd.jwsDynamicRestUrl = :jwsDynamicRestUrl AND jdrd.jwsMethodName = :jwsMethodName ";
 
 	public static final String		QUERY_TO_GET_JAVA_DYNAMIC_REST_DETAILS						= "SELECT new com.trigyn.jws.dynarest.vo.RestApiDetails(jdrd.jwsDynamicRestId, jdrd.jwsDynamicRestUrl, jdrd.jwsRbacId, jdrd.jwsMethodName, "
-			+ " jdrd.jwsMethodDescription, jrpd.jwsResponseProducerType, jdrd.jwsServiceLogic, jdrd.jwsPlatformId, jrtd.jwsRequestType, jdrd.jwsHeaderJson) FROM JwsDynamicRestDetail AS jdrd LEFT OUTER JOIN jdrd.jwsRequestTypeDetail AS jrtd LEFT OUTER JOIN jdrd.jwsResponseProducerDetail AS jrpd "
+			+ " jdrd.jwsMethodDescription, jrpd.jwsResponseProducerType, jdrd.jwsServiceLogic, jdrd.jwsPlatformId, jrtd.jwsRequestType, jdrd.jwsHeaderJson, jdrd.isSecured) FROM JwsDynamicRestDetail AS jdrd LEFT OUTER JOIN jdrd.jwsRequestTypeDetail AS jrtd LEFT OUTER JOIN jdrd.jwsResponseProducerDetail AS jrpd "
 			+ " WHERE jdrd.jwsPlatformId = 1 GROUP BY jdrd.jwsDynamicRestId ";
 
 	public static final String		JPA_QUERY_TO_GET_FILE_DETAILS_ID_BY_FILE_UPLOAD_ID			= "SELECT fu FROM FileUpload AS fu WHERE fu.fileUploadId = :fileUploadId";
