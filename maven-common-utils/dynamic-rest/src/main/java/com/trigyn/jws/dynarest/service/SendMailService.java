@@ -182,7 +182,7 @@ public class SendMailService {
 		String mailFooterString = (mailMap.get("mailFooter") != null && !mailMap.get("mailFooter").equals("")
 				? (String) mailMap.get("mailFooter")
 				: mail.getMailFooter());
-		if (mailFooterString.isEmpty() == false) {
+		if (mailFooterString != null && mailFooterString.isEmpty() == false) {
 			mail.setMailFooter(mailFooterString);
 		}
 		/** Ends Here */
@@ -269,7 +269,7 @@ public class SendMailService {
 						atachmentBodyPart.setDataHandler(new DataHandler(source));
 						atachmentBodyPart.setFileName(fu.getOriginalFileName());
 						mimeMultipart.addBodyPart(atachmentBodyPart);
-						if (mailFooterString.isEmpty() == false && mailFooterString != null) {
+						if (mailFooterString != null && mailFooterString.isEmpty() == false) {
 							if (mail.getMailFooter().contains("cid")) {
 								String footer = mail.getMailFooter();
 								String[] strArray = footer.split("cid:");
@@ -291,7 +291,7 @@ public class SendMailService {
 				}
 			}
 			/** Added for Mail Footer */
-			if (mailFooterString.isEmpty() == false && mailFooterString != null) {
+			if (mailFooterString != null && mailFooterString.isEmpty() == false) {
 				if (mail.getMailFooter().contains("cid")) {
 					mailBody = mailBody + "	<br>" + mail.getMailFooter();
 					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
@@ -534,7 +534,7 @@ public class SendMailService {
 				? mailMap.get("mailFooter")
 				: mail.getMailFooter();
 
-		if (mailFooterString.isEmpty() == false && mailFooterString != null) {
+		if (mailFooterString != null  && mailFooterString.isEmpty() == false) {
 			mail.setMailFooter(mailFooterString);
 		}
 		/** Ends Here */
@@ -604,7 +604,7 @@ public class SendMailService {
 						atachmentBodyPart.setDataHandler(new DataHandler(source));
 						atachmentBodyPart.setFileName(fu.getOriginalFileName());
 						mimeMultipart.addBodyPart(atachmentBodyPart);
-						if (mailFooterString.isEmpty() == false && mailFooterString != null) {
+						if (mailFooterString != null && mailFooterString.isEmpty() == false ) {
 							if (mail.getMailFooter().contains("cid")) {
 								String footer = mail.getMailFooter();
 								String[] strArray = footer.split("cid:");
@@ -626,7 +626,7 @@ public class SendMailService {
 				}
 			}
 			/** Added for Mail Footer */
-			if (mailFooterString.isEmpty() == false && mailFooterString != null) {
+			if (mailFooterString != null && mailFooterString.isEmpty() == false) {
 				if (mail.getMailFooter().contains("cid")) {
 					mailBody = mailBody + "	<br>" + mail.getMailFooter();
 					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
