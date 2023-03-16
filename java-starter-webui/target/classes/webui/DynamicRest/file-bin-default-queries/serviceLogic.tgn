@@ -1,5 +1,0 @@
-function getFileBinQueries(requestDetails, daoResults) {
-    return daoResults["fileBinQueryList"];
-}
-
-getFileBinQueries(requestDetails, daoResults);

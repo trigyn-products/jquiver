@@ -1,1 +1,0 @@
-SELECT * FROM jq_property_master WHERE property_master_id = "${propertyMasterId}" 

@@ -1,1 +1,0 @@
- To confirm your account, please click here : ${baseURL}/cf/confirm-account?token=${tokenId}

@@ -1,3 +1,0 @@
-UPDATE jq_property_master SET
-last_modified_date = NOW(), is_custom_updated = 1
-WHERE property_master_id = "mail-configuration";

@@ -1,5 +1,0 @@
-function getFileConfigDetails(requestDetails, daoResults) {
-    return daoResults["fileConfigs"][0];
-}
-
-getFileConfigDetails(requestDetails, daoResults);

@@ -1,2 +1,0 @@
-REPLACE INTO jq_security_properties (security_properties_id, security_type_id,security_property_name, security_property_value) VALUES 
-('c238f528-32fa-11eb-a009-f48e38ab8cd7', 'a1fa90e3-32dd-11eb-a009-f48e38ab8cd7', 'In Memory', :inMemoryEnabled);

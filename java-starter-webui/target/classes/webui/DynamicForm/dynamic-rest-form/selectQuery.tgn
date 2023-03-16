@@ -1,5 +1,0 @@
-select jdrd.jws_dynamic_rest_id as dynarestId, jdrd.jws_dynamic_rest_url as dynarestUrl, jdrd.jws_method_name as dynarestMethodName, 
-jdrd.jws_method_description as dynarestMethodDescription, jdrd.jws_platform_id as dynarestPlatformId, jdrd.jws_request_type_id as dynarestRequestTypeId
-, jdrd.jws_response_producer_type_id as dynarestProdTypeId, jdrd.jws_allow_files AS allowFiles, jdrd.jws_header_json AS header_json,jdrd.hide_dao_query AS hidedaoquery 
-FROM jq_dynamic_rest_details as jdrd 
-WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"

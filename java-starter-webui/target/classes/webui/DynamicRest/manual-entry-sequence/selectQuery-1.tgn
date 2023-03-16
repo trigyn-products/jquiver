@@ -1,1 +1,0 @@
-SELECT MAX(sort_index) AS sortIndex FROM jq_manual_entry WHERE manual_type = :manualType

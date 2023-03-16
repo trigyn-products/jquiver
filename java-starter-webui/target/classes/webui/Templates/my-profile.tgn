@@ -1,8 +1,0 @@
-<head>
-     <title>${messageSource.getMessage('jws.myprofile')} </title>
-     <script>
-		</script>
-</head>
-<body>
-	${userName}
-</body>

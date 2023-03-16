@@ -1,5 +1,0 @@
-function myFunction(requestDetails, daoResults) {
-    return daoResults["manualEnitityDetails"];
-}
-
-myFunction(requestDetails, daoResults);

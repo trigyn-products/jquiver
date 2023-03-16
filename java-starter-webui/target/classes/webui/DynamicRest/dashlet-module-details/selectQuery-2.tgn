@@ -1,3 +1,0 @@
-SELECT COUNT(gd.grid_id) AS gridCount 
-FROM jq_grid_details AS gd 
-WHERE gd.grid_name LIKE "%":gridName"%"

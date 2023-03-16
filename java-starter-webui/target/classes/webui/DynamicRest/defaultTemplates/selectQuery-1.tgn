@@ -1,1 +1,0 @@
-select template_name as name, template as template from jq_template_master where template_name like ("default-%")

@@ -1,5 +1,0 @@
-function validateEmailId(requestDetails, daoResults) {
-    return daoResults["userId"];
-}
-
-validateEmailId(requestDetails, daoResults);

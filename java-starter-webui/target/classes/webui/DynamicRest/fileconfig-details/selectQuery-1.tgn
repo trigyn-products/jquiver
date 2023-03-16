@@ -1,3 +1,0 @@
-select fuc.* from jq_file_upload_config as fuc where fuc.file_bin_id IN (:fileBinId, "default")
-order by FIELD(file_bin_id, :fileBinId, "default")
-LIMIT 1

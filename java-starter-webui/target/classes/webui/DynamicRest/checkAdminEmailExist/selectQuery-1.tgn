@@ -1,1 +1,0 @@
-SELECT pm.property_value AS adminEmail FROM jq_property_master pm WHERE pm.property_name = 'adminEmailId'

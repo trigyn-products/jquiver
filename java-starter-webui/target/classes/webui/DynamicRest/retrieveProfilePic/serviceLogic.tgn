@@ -1,5 +1,0 @@
-function retrieveProfilePic(requestDetails, daoResults) {
-    return daoResults["fileUploadId"];
-}
-
-retrieveProfilePic(requestDetails, daoResults);

@@ -1,6 +1,0 @@
-SELECT  
-jdrd.jws_service_logic AS dynarestServiceLogic,jdrdd.jws_result_variable_name AS variableName,
-jdrdd.jws_dao_query_template AS dynarestDaoQuery, jdrdd.jws_query_sequence AS dynarestQuerySequence ,jdrdd.jws_dao_query_type AS dynarestQueryType,jdrdd.datasource_id AS datasourceId
-FROM jq_dynamic_rest_details AS jdrd 
-LEFT OUTER JOIN jq_dynamic_rest_dao_details AS jdrdd ON jdrdd.jws_dynamic_rest_details_id = jdrd.jws_dynamic_rest_id 
-WHERE jdrd.jws_dynamic_rest_url = "${(url)!''}" ORDER BY dynarestQuerySequence ASC

@@ -1,1 +1,0 @@
-select * from jq_manual_entry where manual_type = :manualType and entry_name = :entryName

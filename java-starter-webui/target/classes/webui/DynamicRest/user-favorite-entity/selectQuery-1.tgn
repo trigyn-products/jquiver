@@ -1,8 +1,0 @@
-<#if isChecked?? && isChecked?has_content && isChecked == "true">
-    INSERT INTO  jq_user_favorite_entity VALUES(UUID(), :loggedInUserName, :entityType, :entityId
-    , :entityName, NOW())
-    ON DUPLICATE KEY UPDATE last_updated_date = NOW();
- <#else>
-    DELETE FROM jq_user_favorite_entity WHERE user_email_id = :loggedInUserName AND entity_type =
-    :entityType AND entity_id = :entityId AND entity_name = :entityName
- </#if>

@@ -1,2 +1,0 @@
-SELECT COUNT(db.dashboard_id) AS dashboardCount
-FROM  jq_dashboard AS db

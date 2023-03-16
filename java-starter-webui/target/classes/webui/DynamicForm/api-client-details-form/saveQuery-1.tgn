@@ -1,5 +1,0 @@
-<#if isEdit == 1>
-    UPDATE jq_api_client_details SET client_name = :clientname,client_key = :clientkey,client_secret = :clientsecret,encryption_algo_id = :encryptionalgoid,updated_by = 'admin',created_by = 'admin',updated_date = NOW(), inclusion_url_pattern =:inclusionUrlPattern ,client_public_key=:publicKey, is_custom_updated=1 WHERE client_id = :clientid
-    <#else>
-    INSERT INTO jq_api_client_details (client_id,client_name,client_key,client_secret,encryption_algo_id,updated_by,created_by,updated_date,inclusion_url_pattern,client_public_key, is_custom_updated) VALUES (UUID(),:clientname,:clientkey,:clientsecret,:encryptionalgoid,'admin','admin',NOW(),:inclusionUrlPattern,:publicKey, 1)
-    </#if>

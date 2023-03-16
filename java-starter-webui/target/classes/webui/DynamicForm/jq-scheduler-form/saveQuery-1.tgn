@@ -1,5 +1,0 @@
-<#if isEdit == 1>
-    UPDATE jq_job_scheduler SET scheduler_name = :schedulername,jws_dynamic_rest_id = :restapiurl, header_json= :headerJson, request_param_json = :requestParamJson,cron_scheduler = :cronscheduler,is_active = :isactive, modified_by = :loggedInUserId, failed_notification_params=:failedNotificationParam, is_custom_updated = 1 WHERE scheduler_id = :schedulerid
-    <#else>
-    INSERT INTO jq_job_scheduler (scheduler_id,scheduler_name,jws_dynamic_rest_id,cron_scheduler,is_active,modified_by, header_json, request_param_json, failed_notification_params, is_custom_updated) VALUES (:schedulerid,:schedulername,:restapiurl,:cronscheduler,:isactive,:loggedInUserId, :headerJson, :requestParamJson, :failedNotificationParam, 1)
-    </#if>

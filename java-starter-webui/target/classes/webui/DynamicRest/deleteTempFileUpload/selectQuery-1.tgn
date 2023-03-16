@@ -1,1 +1,0 @@
-select file_upload_id, file_bin_id, file_path, physical_file_name FROM jq_file_upload_temp WHERE HOUR(TIMEDIFF(NOW(), last_update_ts)) >= 24;

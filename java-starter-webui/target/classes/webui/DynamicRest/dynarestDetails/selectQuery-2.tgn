@@ -1,1 +1,0 @@
-SELECT jws_response_producer_type_id AS value, jws_response_producer_type AS name FROM jq_response_producer_details

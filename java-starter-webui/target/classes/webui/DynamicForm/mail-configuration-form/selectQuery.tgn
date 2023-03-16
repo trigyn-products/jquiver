@@ -1,1 +1,0 @@
-select *, (SELECT COUNT(*) FROM jq_failed_mail_history) as totalFailedMails from jq_property_master where property_name = "mail-configuration"
