@@ -161,11 +161,13 @@
 						if (getCookie("fileBinDetails") != "" && getCookie("fileBinDetails") != undefined) {
 							let fileBinJsonArrTemp = JSON.parse(getCookie("fileBinDetails"));
 							if (fileBinJsonArrTemp != undefined) {
-								$.each(fileBinJsonArrTemp, function(key, cookieData) {
-									if (cookieData.fileBinId != undefined && cookieData.fileBinId == a_filesBin) {
-										deleteFileUploadTempIdCookie(cookieData.id);
-									}
-								});
+								for (let fileBinCounter = 0; fileBinCounter < a_filesBin.length; fileBinCounter++) {
+									$.each(fileBinJsonArrTemp, function(key, cookieData) {
+										if (cookieData.fileBinId != undefined && cookieData.fileBinId == a_filesBin[fileBinCounter].FileBinID && cookieData.fileAssociationId != undefined && cookieData.fileAssociationId == a_filesBin[fileBinCounter].fileAssociationID && cookieData.fileUploadTempId != undefined && cookieData.fileUploadTempId == a_filesBin[fileBinCounter].fileUploadTempId) {
+											deleteFileUploadTempIdCookie(cookieData.id);
+										}
+									});
+								}
 							}
 						}
 						showMessage("File saved successfully", "success");
@@ -496,11 +498,11 @@
 					fileBinId: options.fileBinId
 				},
 				success: function(data) {
-					if(data["file_bin_id"] != options.fileBinId){
+					if (data["file_bin_id"] != options.fileBinId) {
 						showMessage("Invalid filebin.", "error");
-						if(this.dropzone != undefined){
+						if (this.dropzone != undefined) {
 							this.dropzone.disableDropZone("Invalid filebin.");
-							$(".fileupload").prop('disabled','disabled');
+							$(".fileupload").prop('disabled', 'disabled');
 						}
 						return false;
 					}
@@ -763,7 +765,7 @@ $(document).ready(function() {
 					},
 					buttons: [{
 						text: "Ok",
-						click: function() {							
+						click: function() {
 							$(this).dialog('close');
 						}
 					}

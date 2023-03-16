@@ -3,14 +3,36 @@
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 
+<style>
+.favrightblock {
+    display: flex;
+    float: right;
+    align-items: center;
+}
+
+.favblock {
+    margin-right: 50px;
+}
+
+.searchtemplate{
+    margin-left:15px;
+}
+
+.search-cover{
+    width:260px;
+}
+ 
+    
+</style>
+
 </head>
-        <div class="row"> 
-            <div class="col-2">
+        <div class="favrightblock"> 
+            <div class="favblock">
                 <div class="fav-image" data-hover="&#9733" onclick="addRemoveFav()">&#9734;</div>         
             </div>
 
-            <div class="col-3"> 
-                ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+            <div class="selectblock"> 
+                 ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>
@@ -18,19 +40,20 @@
             </select>
          </div>
 
-             <div class="col-4 float-right" style="width:300px;">
-                <div class="col-inner-form full-form-fields" >
+             <div class="searchtemplate">
+                 
                     <div class="search-cover">
                     	<input class="form-control" id="quickJumpAutocomplete" type="text" >
                     	<i class="fa fa-search" aria-hidden="true"></i>
                     </div>
-                </div>
+                 
             </div> 
        
         </div>
 <script>
-contextPath = "${(contextPath)!''}";	
-
+contextPath = "${(contextPath)!''}";
+//adding quickJumpAutocomplete for fields all, custom, system and favourites	
+let autocompleteQJ;
 
 	$(function () {
         //for implementing QuickJump Autocomplete..
@@ -65,7 +88,21 @@ contextPath = "${(contextPath)!''}";
                 
             });
     });
-    
+    function changeType() {
+	var type_id = $("#typeSelect").val();
+	if (type_id == '3') {
+		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
+		autocompleteQJ.resetAutocomplete();
+	} else {
+		if (autocompleteQJ.options["autocompleteId"] == "user-favorite-entity-autocomplete") {
+			autocompleteQJ.options["autocompleteId"] = "quickJumpAutocomplete";
+		}
+		autocompleteQJ.options["additionalParamaters"]["type_id"] = type_id;
+		autocompleteQJ.resetAutocomplete();
+	}
+}
+
+
     function addRemoveFav(){
 	    $(".fav-image").toggleClass("fav-imageFill");
         let isChecked = $(".fav-image").hasClass("fav-imageFill");
@@ -85,44 +122,18 @@ contextPath = "${(contextPath)!''}";
 				showMessage("Successfully updated favorite", "success");
 			},
 			error : function(xhr, error){
-				showMessage("Error occurred while updating favorite", "error");
+			//getting to error block even on success due to parseerror in response statusText in xhr.
+			//xhr status shows the post operation completed successfully.
+			//keeping the functionality intact with regular error message for now.
+                // if(xhr.status == "200"){
+                //     showMessage("Successfully updated favorite", "success");
+                // }else {
+                //     showMessage("Error occurred while updating favorite", "error");
+                // }
+                showMessage("Error occurred while updating favorite", "error");
+                autocompleteQJ.resetAutocomplete();
 			}, 
 	    }); 
 	}
-
-    function getSavedEntity(){
-        let entityIdVar = "${innerTemplateObj.entityId}";
-        let entityNameVar = "${innerTemplateObj.entityName}";
-        $.ajax({
-			url:contextPath+"/api/user-favorite-entity-by-type",
-			type:"POST",
-	        data:{
-                entityType: "${innerTemplateObj.entityType}",
-                entityId: $("#"+entityIdVar).val().trim(),
-                entityName: $("#"+entityNameVar).val().trim(),
-	        }, 
-			success : function(isFavorite) {
-                if(isFavorite.trim() == 1){
-                    $(".fav-image").addClass("fav-imageFill");
-                   }
-			},
-			error : function(xhr, error){
-			  showMessage("Error occurred while updating favorite", "error");
-			}, 
-	    }); 
-    }
-    function changeType() {
-	var type_id = $("#typeSelect").val();
-	if (type_id == '3') {
-		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
-		autocompleteQJ.resetAutocomplete();
-	} else {
-		if (autocompleteQJ.options["autocompleteId"] == "user-favorite-entity-autocomplete") {
-			autocompleteQJ.options["autocompleteId"] = "quickJumpAutocomplete";
-		}
-		autocompleteQJ.options["additionalParamaters"]["type_id"] = type_id;
-		autocompleteQJ.resetAutocomplete();
-	}
-}
     
 </script>

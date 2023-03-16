@@ -203,17 +203,28 @@ class DynamicRest {
 				$("#compareDiv_" + index).append("<select class='form-control' id='versionSelect_" + index + "' onchange='addEdit.getSelectTemplateData();' name='versionId' title='Template Versions'>");
 				$("#versionSelect_" + index).append("<option value='' selected>Select</option>");
 			}
-			let datasource = retrieveDatasource();
+			
 			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + index + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='dynarest.getRESTXMLStructure(this);'><option value='1'>Select Query</option><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>REST Client</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
-			if (datasource != null || datasource != undefined || datasource != "") {
-				datasource.forEach(function(dataSourceObj) {
-					datasourceEditor += "<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>";
-				});
+			if(index > 0){
+				$("#datasourcecontainer_0 > option").each(function(a_innerIndex, element){
+		            if(a_innerIndex == 0){
+		                return;
+		            }
+		            datasourceEditor += $(element)[0].outerHTML;
+		        });
+			}else{
+				let datasource = retrieveDatasource();
+				if (datasource != null || datasource != undefined || datasource != "") {
+					datasource.forEach(function(dataSourceObj) {
+						datasourceEditor += "<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>";
+					});
+				}
 			}
-			datasourceEditor += '</select></div></div>'
+			
+			datasourceEditor += '</select></div></div>';
 			let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_" + index + "' value='Add' class='margin-r-3 btn btn-primary' onclick='dynarest.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_" + index + "' value='Remove' style='margin-left:4px;' class='btn btn-secondary' onclick='dynarest.removeSaveQueryEditor(this);'></div>";
 
 			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>" + inputElement + "" + selectElement + "" + datasourceEditor + "<div class='col-3 margin-t-25 float-right'>" + buttonElement + "</div></div></div>");

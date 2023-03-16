@@ -282,16 +282,27 @@ class AddEditDynamicForm {
 			if (element != null) {
 				parentElement = $(element).parent().parent().parent().parent();
 			}
-			let datasource = retrieveDatasource();
+			
 			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + (index + 1) + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
 
-			if (datasource != null || datasource != undefined || datasource != "") {
-				datasource.forEach(function(dataSourceObj) {
-					datasourceEditor += "<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>";
-				});
+			if(index > 0){
+				$("#datasourcecontainer_0 > option").each(function(a_innerIndex, element){
+		            if(a_innerIndex == 0){
+		                return;
+		            }
+		            datasourceEditor += $(element)[0].outerHTML;
+		        });
+			}else{
+				let datasource = retrieveDatasource();
+				if (datasource != null || datasource != undefined || datasource != "") {
+					datasource.forEach(function(dataSourceObj) {
+						datasourceEditor += "<option value=" + dataSourceObj.additionalDatasourceId + " data-product-name=" + dataSourceObj.databaseProductName + ">" + dataSourceObj.datasourceName + "</option>";
+					});
+				}
 			}
+			
 			datasourceEditor += '</select></div></div>'
 			let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_" + index + "' value='Add' class='margin-r-3 btn btn-primary' onclick='addEdit.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_" + index + "' value='Remove' style='margin-left:4px;' class='btn btn-secondary' onclick='addEdit.removeSaveQueryEditor(this);'></div>";
 

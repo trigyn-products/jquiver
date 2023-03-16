@@ -463,9 +463,16 @@
 		} 
 			
 		getAllDatasourceForContainer(edit, "datasource_selectValidator");		
-		getAllDatasourceForContainer(edit, "datasource_uploadValidator");
-		getAllDatasourceForContainer(edit, "datasource_viewValidator");
-		getAllDatasourceForContainer(edit, "datasource_deleteValidator");
+		
+        $("#datasource_selectValidator > option").each(function(index, element){
+            if(index == 0){
+                return;
+            }
+            $('#datasource_uploadValidator').append($(element).clone());
+            $('#datasource_viewValidator').append($(element).clone());
+            $('#datasource_deleteValidator').append($(element).clone());
+        });
+
 		savedAction("file-upload-config", edit);
 		hideShowActionButtons();
 		fileBinMaster.setQueryContent();

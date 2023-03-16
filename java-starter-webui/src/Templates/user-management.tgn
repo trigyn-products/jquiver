@@ -9,10 +9,15 @@
             <div class="topband cm-card-header">
                 <h2 class="title-cls-name float-left">User Management</h2>
                 <div class="float-right">
-                    <button type="button" id="btnManagePermission" class="btn btn-primary"> Manage Permissions</button>
-                    <button type="button" id="btnManageRoles" class="btn btn-primary"> Manage Roles</button>
-                    <button type="button" id="btnManageUser" class="btn btn-primary" onclick="openManageUser();"> Manage Users</button>
-                    <button type="button" id="btnRestartServer" class="btn btn-primary">Restart Server</button>
+                    <div class="addonbtnblock">
+                    <button type="button" id="btnManagePermission" class="actionimgbtn lefrightspace">  <img src="${(contextPath)!''}/webjars/1.0/images/managepermision.svg" title="Manage Permissions"></button>
+
+                  <button type="button" id="btnManageRoles" class="actionimgbtn lefrightspace">  <img src="${(contextPath)!''}/webjars/1.0/images/rolemangement.svg" title="Manage Roles"></button>
+
+                   <button type="button" id="btnManageUser" class="actionimgbtn lefrightspace" ">  <img src="${(contextPath)!''}/webjars/1.0/images/usermanagment.svg" title="Manage Users"></button>
+
+                    <button type="button" id="btnRestartServer" class="lefrightspace btn btn-primary">Restart Server</button>
+                </div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -1455,26 +1460,40 @@ function closeModalBtn(thisObj){
 }
 
 function validateUserDetails(){
-	var isValid = true;
+	let specials = /[A-Za-z 0-9]/g;
+	
 	var firstName = $("#firstName").val().trim();
 	if(firstName==''){
-		isValid = false;
-		showMessage("First name is required.", "error");
+		showMessage("First name is required.", "warn");
 		$("#firstName").focus();
+		return false;
 	}
 	var lastName = $("#lastName").val().trim();
 	if(lastName==''){
-		isValid = false;
-		showMessage("Last name is required.", "error");
+		showMessage("Last name is required.", "warn");
 		$("#lastName").focus();
+		return false;
 	}
 	var email  = $("#email").val().trim();
 	if(email==''){
-		isValid = false;
-		showMessage("Email is required.", "error");
+		showMessage("Email is required.", "warn");
 		$("#email").focus();
+		return false;
 	}
-	return isValid;
+	
+	if(specials.test(firstName)){
+		showMessage("Invalid First Name", "warn");
+    	$("#firstName").focus();
+    	return false;
+	}
+	
+	if(specials.test(lastName)){
+		showMessage("Invalid Last Name", "warn");
+    	$("#lastName").focus();
+    	return false;
+	}
+	
+	return true;
 }
 
 function saveUserDetails(){ 

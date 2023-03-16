@@ -99,7 +99,7 @@ public class MasterModuleService {
 				}
 			}
 			String template = renderTemplate(httpServletRequest, moduleDetailsMap, requestMap, httpServletResponse);
-			;
+			
 			if (template != null && CollectionUtils.isEmpty(moduleDetailsMap) == false
 					&& StringUtils.isBlank((String) moduleDetailsMap.get("headerJson")) == false) {
 				Gson				gson			= new Gson();

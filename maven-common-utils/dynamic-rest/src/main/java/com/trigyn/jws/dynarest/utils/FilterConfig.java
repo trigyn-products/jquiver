@@ -25,6 +25,9 @@ public class FilterConfig {
 	@Autowired
 	private JwtRequestFilter		jwtRequestFilter		= null;
 
+	@Autowired
+	private ViewFiler				viewFilter				= null;
+
 	@Bean
 	public FilterRegistrationBean<ApiClientFilter> loginRegistrationBean() {
 		FilterRegistrationBean<ApiClientFilter> filterRegistrationBean = new FilterRegistrationBean<ApiClientFilter>();
@@ -55,6 +58,17 @@ public class FilterConfig {
 		filterRegistrationBean.setOrder(2);
 		List<String> urlPatters = new ArrayList<>();
 		urlPatters.add("/japi/*");
+		filterRegistrationBean.setUrlPatterns(urlPatters);
+		return filterRegistrationBean;
+	}
+	
+	@Bean
+	public FilterRegistrationBean<ViewFiler> viewRequestFilterBean() {
+		FilterRegistrationBean<ViewFiler> filterRegistrationBean = new FilterRegistrationBean<ViewFiler>();
+		filterRegistrationBean.setFilter(viewFilter);
+		filterRegistrationBean.setOrder(3);
+		List<String> urlPatters = new ArrayList<>();
+		urlPatters.add("/view/*");
 		filterRegistrationBean.setUrlPatterns(urlPatters);
 		return filterRegistrationBean;
 	}

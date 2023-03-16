@@ -6996,35 +6996,35 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 
 
 .bgtrasparent.methodtypeblock-get{
-	background:#1976d20a;
+	background:#fff;
 }
 
 .bgtrasparent.methodtypeblock-options{
-	background:#6d03032b;
+	background:#fff;
 }
 
 .bgtrasparent.methodtypeblock-patch{
-	background:#7b1fa212;
+	background:#fff;
 }
 
 
 .bgtrasparent.methodtypeblock-delete{
-	background:#fa36360f;
+	background:#fff;
 }
 
 
 .bgtrasparent.methodtypeblock-post{
-	background:#cddc393b;
+	background:#fff;
 }
 
 
 .bgtrasparent.methodtypeblock-trace{
-	background:#dc843926;
+	background:#fff;
 }
 
 
 .bgtrasparent.methodtypeblock-put{
-	background-color: #dc39a21c;
+	background:#fff;
 }
 
 .copytexturl {
@@ -7229,6 +7229,7 @@ border: 1px solid #005da3;
 	    background: #e9ecef;
 	      word-break: break-all;
     word-wrap: break-word;
+        min-height: 32px;
 
 }
 
@@ -7642,3 +7643,5 @@ background: #9901b042;
     filter: brightness(0) invert(1);
     -webkit-filter: brightness(0) invert(1);
 }
+
+ 

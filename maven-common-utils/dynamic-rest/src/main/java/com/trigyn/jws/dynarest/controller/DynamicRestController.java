@@ -305,7 +305,7 @@ public class DynamicRestController {
 
 	private void buildResponseEntity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
 			RestApiDetails restDetails) throws IOException {
-		httpServletResponse.setHeader("content-type", restDetails.getReponseType());
+		httpServletResponse.setHeader("Content-Type", restDetails.getReponseType());
 		String localeId = sessionLocaleResolver.resolveLocale(httpServletRequest).toString();
 		httpServletResponse.setHeader("Content-Language", localeId);
 
@@ -317,6 +317,10 @@ public class DynamicRestController {
 					httpServletResponse.setHeader(key, value);
 				}
 			});
+		}
+		
+		if(httpServletResponse.containsHeader("Powered-By") == false) {
+			httpServletResponse.setHeader("Powered-By", "JQuiver");
 		}
 
 	}

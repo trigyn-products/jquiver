@@ -30,7 +30,7 @@ public class HttpClient {
 	}
 
 	public static final String executeRequest(String a_requestString, String requestURL) throws Throwable {
-		AESCipherUtil			cu					= new AESCipherUtil();
+		AESCipherUtil		cu					= new AESCipherUtil();
 
 		URL					url					= new URL(requestURL);
 
@@ -39,8 +39,7 @@ public class HttpClient {
 		httpUrlConnection.setDoOutput(true);
 		Map<String, String> headers = new HashMap<>();
 
-		headers.put("content-type", "application/json");
-//		headers.put("ck", "");
+		headers.put("Content-Type", "application/json");
 
 		for (String headerKey : headers.keySet()) {
 			httpUrlConnection.setRequestProperty(headerKey, headers.get(headerKey));

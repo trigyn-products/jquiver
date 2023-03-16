@@ -1,6 +1,9 @@
 package com.trigyn.jws.dynarest.utils;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -8,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +51,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 		boolean isDoFilter = true;
 		try {
 			
-			String requestURL = httpServletRequest.getRequestURL().toString();
+			final String requestURL = httpServletRequest.getRequestURL().toString();
 			
 			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
 			if (requestURL != null && schedulerUrlProperty != null && requestURL.contains("/"+schedulerUrlProperty+"/")) {
@@ -76,13 +80,73 @@ public class ApiClientFilter extends OncePerRequestFilter {
 			RestApiDetails restAPI =  jwsService.getRestApiDetails(subString);
 			//get the restapi object here, and check if not secured
 			if(restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_NOT_SECURED) {
-				chain.doFilter(httpServletRequest, httpServletResponse);
+				chain.doFilter(httpServletRequest, new HttpServletResponseWrapper(httpServletResponse) {
+					private Map<String, String> header = new HashMap<String, String>();
+					
+					{
+						header.put("Powered-By", "JQuiver");
+					}
+					
+					@Override
+					public void setHeader(String a_name, String a_value) {
+						//System.out.println("Setting header : " + a_name + " : " + a_value);
+						super.setHeader(a_name, a_value);
+						if(a_name == null) {
+							return;
+						}
+						if(a_value == null) {
+							header.remove(a_name);
+						}
+						header.put(a_name, a_value);
+					}
+					
+					@Override
+					public boolean containsHeader(String a_name) {
+						if(a_name == null) {
+							return false;
+						}
+						return header.containsKey(a_name);
+					}
+					
+					@Override
+					public Collection<String> getHeaderNames() {
+						//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeaderNames()");
+						return header.keySet();
+					}
+					
+					@Override
+					public String getHeader(String a_name) {
+						if(a_name == null) {
+							return null;
+						}
+						//System.out.println(requestURL);
+						//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " + header.get(a_name));
+						if(header.get(a_name) == null) {
+							return super.getHeader(a_name);
+						}
+						return header.get(a_name);
+					}
+					
+					@Override
+					public void addHeader(String a_name, String a_value) {
+						super.addHeader(a_name, a_value);
+						if(a_name == null) {
+							return;
+						}
+						if(a_value == null) {
+							header.remove(a_name);
+						}
+						header.put(a_name, a_value);
+					}
+				});
 				return;
 			}
 			
 			//secured API without client key
-			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED && httpServletRequest!=null && httpServletRequest.getHeader("ck") == null) {
+			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED && 
+					httpServletRequest!=null && httpServletRequest.getHeader("ck") == null) {
 				httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "API Client key not found.");
+				return;
 			}
 
 			if (httpServletRequest.getHeader("ck") != null) {
@@ -101,7 +165,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 						
 						if (requestBody != null) {
 							if (requestBody.equals("") == false) {
-								System.out.println(requestBody);
+								//System.out.println(requestBody);
 								decryptedRequestBody = CipherUtilFactory
 										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
 										.decrypt(requestBody, apiClientDetailsVO.getClientSecret());
@@ -111,8 +175,65 @@ public class ApiClientFilter extends OncePerRequestFilter {
 							HttpServletRequestWritableWrapper	requestWrapper	= new HttpServletRequestWritableWrapper(
 									httpServletRequest, decryptedRequestBody, null);
 							IOUtils.toString(requestWrapper.getReader());
-							HttpServletResponseReadableWrapper	responseWrapper	= new HttpServletResponseReadableWrapper(
-									httpServletResponse);
+							HttpServletResponseReadableWrapper	responseWrapper	= new HttpServletResponseReadableWrapper(httpServletResponse) {
+								private Map<String, String> header = new HashMap<String, String>();
+								
+								{
+									header.put("Powered-By", "JQuiver");
+								}
+								
+								@Override
+								public void setHeader(String a_name, String a_value) {
+									//System.out.println("Setting header : " + a_name + " : " + a_value);
+									super.setHeader(a_name, a_value);
+									if(a_name == null) {
+										return;
+									}
+									if(a_value == null) {
+										header.remove(a_name);
+									}
+									header.put(a_name, a_value);
+								}
+								
+								@Override
+								public boolean containsHeader(String a_name) {
+									if(a_name == null) {
+										return false;
+									}
+									return header.containsKey(a_name);
+								}
+								
+								@Override
+								public Collection<String> getHeaderNames() {
+									//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeaderNames()");
+									return header.keySet();
+								}
+								
+								@Override
+								public String getHeader(String a_name) {
+									if(a_name == null) {
+										return null;
+									}
+									//System.out.println(requestURL);
+									//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " + header.get(a_name));
+									if(header.get(a_name) == null) {
+										return super.getHeader(a_name);
+									}
+									return header.get(a_name);
+								}
+								
+								@Override
+								public void addHeader(String a_name, String a_value) {
+									super.addHeader(a_name, a_value);
+									if(a_name == null) {
+										return;
+									}
+									if(a_value == null) {
+										header.remove(a_name);
+									}
+									header.put(a_name, a_value);
+								}
+							};
 							if(httpServletRequest.getParameterMap() != null) {
 								for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
 									String[] value = new String[1];
@@ -155,7 +276,9 @@ public class ApiClientFilter extends OncePerRequestFilter {
 				}
 				
 			} 
+			
 			if(isDoFilter) {
+				logger.debug("This should not have happened ==> ApiClientFilter.doFilterInternal() " + requestURL);
 				chain.doFilter(httpServletRequest, httpServletResponse);
 			}
 		} catch (Throwable throwable) {
@@ -164,7 +287,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 					httpServletRequest.getRequestURI(), throwable);
 			if (throwable.getCause() instanceof AccessDeniedException) {
 				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
-						"You do not have enough privilege to access this module");
+						"You do not have enough privilege to access this module : " + httpServletRequest.getRequestURI());
 			} else {
 				httpServletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
 			}
