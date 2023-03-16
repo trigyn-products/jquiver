@@ -6996,9 +6996,6 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
-
-
-
 .bgtrasparent.methodtypeblock-get{
 	background:#1976d20a;
 }
@@ -7619,3 +7616,30 @@ background: #9901b042;
     position: fixed !important;
 }
 /*for fixing dialog on top*/
+
+.actionimgbtn{
+    border: 1px solid #005da3;
+    display: flex;
+    margin: 0px;
+    padding: 3px;
+    background:none;
+    border-radius: 3px;
+}
+
+.actionimgbtn:hover {
+    background: #005da3;
+}
+
+.actionimgbtn img {
+    height: 24px;
+    width: auto;
+}
+
+.lefrightspace{
+	margin:0 5px;
+}
+
+.actionimgbtn:hover img {
+    filter: brightness(0) invert(1);
+    -webkit-filter: brightness(0) invert(1);
+}

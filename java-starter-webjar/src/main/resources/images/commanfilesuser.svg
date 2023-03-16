@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="51" height="50" viewBox="0 0 51 50">
+  <g id="Group_6" data-name="Group 6" transform="translate(-742.5 -442)">
+    <g id="Group_5" data-name="Group 5">
+      <g id="_172467_folder_icon" data-name="172467_folder_icon" transform="translate(743 442)">
+        <rect id="Rectangle_2" data-name="Rectangle 2" width="50" height="50" fill="none"/>
+        <path id="Path_3" data-name="Path 3" d="M47,8H18c-1.469,0-2.484-4-4-4H3A2,2,0,0,0,1,6V44a2,2,0,0,0,2,2H47a2,2,0,0,0,2-2V10A2,2,0,0,0,47,8Z" fill="none" stroke="#005da3" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3"/>
+        <path id="Path_4" data-name="Path 4" d="M1,27V16a2,2,0,0,1,2-2H47a2,2,0,0,1,2,2V27" fill="none" stroke="#005da3" stroke-linecap="round" stroke-miterlimit="10" stroke-width="3"/>
+      </g>
+      <g id="_4265044_community_conversation_friends_group_people_icon_1_" data-name="4265044_community_conversation_friends_group_people_icon (1)" transform="translate(747.5 431.94)">
+        <circle id="Ellipse_1" data-name="Ellipse 1" cx="4.158" cy="4.158" r="4.158" transform="translate(28.514 31.897)" fill="#005da3"/>
+        <circle id="Ellipse_2" data-name="Ellipse 2" cx="4.158" cy="4.158" r="4.158" transform="translate(4.17 31.897)" fill="#005da3"/>
+        <path id="Path_5" data-name="Path 5" d="M30.114,68.944h0q-.138.2-.269.4h0A11.474,11.474,0,0,0,28,75.6H51.062a11.474,11.474,0,0,0-1.829-6.227h0q-.131-.2-.269-.4h0a11.531,11.531,0,0,0-18.834,0Z" transform="translate(-19.031 -24.493)" fill="#005da3"/>
+        <path id="Path_6" data-name="Path 6" d="M0,74.331H6.643a14.094,14.094,0,0,1,4.395-7.873A8.328,8.328,0,0,0,0,74.331Z" transform="translate(0 -25.791)" fill="#005da3"/>
+        <circle id="Ellipse_3" data-name="Ellipse 3" cx="5.756" cy="5.756" r="5.756" transform="translate(14.744 28.06)" fill="#005da3"/>
+        <path id="Path_7" data-name="Path 7" d="M96.25,66a8.328,8.328,0,0,0-2.71.455,14.094,14.094,0,0,1,4.395,7.873h6.643A8.328,8.328,0,0,0,96.25,66Z" transform="translate(-63.578 -25.787)" fill="#005da3"/>
+      </g>
+    </g>
+  </g>
+</svg>

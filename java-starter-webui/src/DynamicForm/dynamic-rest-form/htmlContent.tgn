@@ -490,6 +490,7 @@
 	</#if>
 	
 	createHeaderResponseTable();
+	
 	let allowFiles = $("#allowFiles").val();
 	if(allowFiles === "1"){
 		$("#allowFilesCheckbox").prop("checked", true);
@@ -578,11 +579,24 @@
 
 	function createHeaderResponseTable(){
 		if(savedHeaderJson !== ''){
+			if(!savedHeaderJson['Content-Type']){
+				if($('#dynarestProdTypeId').find(":selected").text() === "email/xml") {
+					savedHeaderJson['Content-Type'] = "application/json"; 
+	           	} else {
+	           		savedHeaderJson['Content-Type'] =  $('#dynarestProdTypeId').find(":selected").text(); 
+	           	}
+			}
+			
+			if(!savedHeaderJson['Powered-By']){
+				savedHeaderJson['Powered-By'] =  "JQuiver"; 
+			}
+			
 			Object.keys(savedHeaderJson).forEach(function(key) {
 				addRow(key, savedHeaderJson[key]);
 			});	
 		}
 	}
+	
     /**On click of DAO Query button, the DAO Query Container will be shown*/
     function showDaoQuery(){
       $("#addDaoQuery").prop("disabled", true);

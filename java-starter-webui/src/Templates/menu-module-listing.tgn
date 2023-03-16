@@ -17,14 +17,24 @@
 		
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.siteLayout')}</h2> 
 		<div class="float-right">
+		
+		 <div class="addonbtnblock">
         	${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
-		<span>
-  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="${messageSource.getMessage('jws.definehomepage')}" type="button" onclick="configHomePage(this)">
-		</span>
+            
+            
+              <a href="#" onclick="configHomePage(this)"> 
+                <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.definehomepage')}"> 
+                    <img src="../webjars/1.0/images/definehomepage.svg">
+
+                    </span>					 
+				</a>
+	<!-- <span>
+  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="" type="button" onclick="configHomePage(this)">
+		</span> -->
 		<span>
   		    <input id="addModule" class="btn btn-primary" name="addGridDetails" value="${messageSource.getMessage('jws.addModule')}" type="button" onclick="submitForm();">
 		</span>
@@ -33,7 +43,7 @@
           	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
          </span>	
 		</div>
-		
+			</div>
 		<div class="clearfix"></div>		
 		</div>
 		

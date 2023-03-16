@@ -17,9 +17,18 @@
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.fileUploadConfig')}</h2> 
         <div class="float-right">
-       		<span onclick="fileUploadMaster();">
-				<input id="fileUploadBtn" class="btn btn-primary pull-left margin-r-5" name="fileUploadBtn" value="${messageSource.getMessage('jws.commonfiles')}" type="button">
-			</span>
+         <div class="addonbtnblock">
+         
+          <a href="#"  onclick="fileUploadMaster();"> 
+                <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.commonfiles')}"> 
+                    <img src="../webjars/1.0/images/commanfilesuser.svg">
+                    </span>					 
+				</a>
+				
+       		<!-- <span onclick="fileUploadMaster();">
+				<input id="fileUploadBtn" class="btn btn-primary pull-left margin-r-5" name="fileUploadBtn" value="" type="button">
+			</span> -->
+			
 		  <form id="formFileUpload" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="formId" value="40289d3d750decc701750e3f1e3c0000"/>
                 <input type="hidden" name="fileBinId" id="fileBinId" value=""/>
@@ -29,7 +38,7 @@
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 			</span>	   
         </div>
-        
+        </div>
         <div class="clearfix"></div>        
         </div>
         
