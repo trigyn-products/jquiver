@@ -73,6 +73,7 @@
 
 
 <script>
+	document.title = "Grid Module List";
 	contextPath = "${(contextPath)!''}";
 	function backToWelcomePage() {
 			location.href = contextPath+"/cf/home";

@@ -53,10 +53,9 @@
 				</a>
 
                  
-  		    <a href="${(contextPath)!''}/view/viewRestAPI"> 
-               <span class="addonicons shedulericon" title="View Rest API"><img src="${(contextPath)!''}/webjars/1.0/images/viewapi.svg"></span> 
-			 <!-- <input id="viewRestAPI" class="btn btn-primary" value="View Rest API" type="button">   -->
-				</a>
+  		    <!--  <a href="${(contextPath)!''}/view/viewRestAPI"> 
+               <span class="addonicons shedulericon" title="View Rest API"><img src="${(contextPath)!''}/webjars/1.0/images/viewapi.svg"></span>
+               </a> -->  <!-- Commented as implementation is going on -->
 
                  <button type="submit" class="btn btn-primary">
                         ${messageSource.getMessage('jws.addrestapi')}

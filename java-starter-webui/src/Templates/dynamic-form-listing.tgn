@@ -71,6 +71,7 @@
 </div>
 
 <script>
+	document.title = "Form Builder Module List";
 	contextPath = "${(contextPath)!''}";
 	$(function () {
 		$("#typeSelect").each(function () {

@@ -50,6 +50,7 @@
 </div>
 
 <script>
+	document.title = "Notification Module List";
     contextPath = "${(contextPath)!''}";
     let primaryKeyDetails = {"notificationid":""};
      let listingData  = [];

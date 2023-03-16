@@ -72,6 +72,7 @@
 	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/adl">
 </form>
 <script>
+	document.title = "TypeAhead/Autocomplete Module List";
 	contextPath = "${(contextPath)!''}";
 	$(function () {
 		$("#typeSelect").each(function () {
