@@ -21,7 +21,7 @@
          
           <a href="#"  onclick="fileUploadMaster();"> 
                 <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.commonfiles')}"> 
-                    <img src="../webjars/1.0/images/commanfilesuser.svg">
+                    <img src="${(contextPath)!''}/webjars/1.0/images/commanfilesuser.svg">
                     </span>					 
 				</a>
 				

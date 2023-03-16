@@ -28,7 +28,7 @@
             
               <a href="#" onclick="configHomePage(this)"> 
                 <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.definehomepage')}"> 
-                    <img src="../webjars/1.0/images/definehomepage.svg">
+                    <img src="${(contextPath)!''}/webjars/1.0/images/definehomepage.svg">
 
                     </span>					 
 				</a>

@@ -47,7 +47,11 @@ public class GridUtility {
 		if (filterParamsPresent) {
 			String			groupOn			= gridParams.getFilterParams().getGroupOp();
 			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
-			query.append(" WHERE ");
+			if(query.toString().contains(" WHERE ")) {
+				query.append("AND ");
+			}else {
+				query.append(" WHERE ");
+			}
 			int counter = 0;
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
@@ -139,7 +143,11 @@ public class GridUtility {
 		if (filterParamsPresent) {
 			String			groupOn			= gridParams.getFilterParams().getGroupOp();
 			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
+			if(query.toString().contains(" WHERE ")) {
+				query.append("AND ");
+			}else {
 			query.append(" WHERE ");
+			}
 			int counter = 0;
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
@@ -165,7 +173,6 @@ public class GridUtility {
 				}
 			}
 		}
-
 		generateCustomCriteria(gridDetails, criteriaParamsPressent, filterParamsPresent, query, requestParam);
 
 		if ((gridParams.getSortIndex() != null && !gridParams.getSortIndex().isEmpty())

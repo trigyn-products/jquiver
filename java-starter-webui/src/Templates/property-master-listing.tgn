@@ -21,7 +21,7 @@
                 <input type="hidden" name="ownerType" id="ownerType" value=""/>
                 <input type="hidden" name="propertyName" id="propertyName" value=""/>              
 
-                <button type="submit" title="Mail configuration" class="actionimgbtn">  <img src="/hrsSIT/webjars/1.0/images/mailconfig.svg"></button>
+                <button type="submit" title="Mail configuration" class="actionimgbtn">  <img src="${(contextPath)!''}/webjars/1.0/images/mailconfig.svg"></button>
             </form>
             
 			<form id="addEditProperty" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
