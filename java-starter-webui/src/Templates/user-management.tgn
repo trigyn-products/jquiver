@@ -1481,13 +1481,13 @@ function validateUserDetails(){
 		return false;
 	}
 	
-	if(specials.test(firstName)){
+	if(specials.test(firstName) == false){
 		showMessage("Invalid First Name", "warn");
     	$("#firstName").focus();
     	return false;
 	}
 	
-	if(specials.test(lastName)){
+	if(specials.test(lastName) == false){
 		showMessage("Invalid Last Name", "warn");
     	$("#lastName").focus();
     	return false;

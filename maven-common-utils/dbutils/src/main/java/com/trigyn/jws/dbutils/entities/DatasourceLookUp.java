@@ -45,19 +45,29 @@ public class DatasourceLookUp implements Serializable {
 
 	@Column(name = "db_product_display_name")
 	private String						databaseDisplayProductName		= null;
+	
+	@Column(name = "connection_url_pattern")
+	private String connectionUrlPattern = null;
 
 	public DatasourceLookUp() {
 
 	}
 
-	public DatasourceLookUp(String datasourceLookupId, String databaseProductName, String driverClassName, Integer isDeleted,
-			List<AdditionalDatasource> jqAdditionalDbTypes) {
-		this.datasourceLookupId		= datasourceLookupId;
-		this.databaseProductName	= databaseProductName;
-		this.driverClassName		= driverClassName;
-		this.isDeleted				= isDeleted;
-		this.additionalDatasource	= jqAdditionalDbTypes;
+	public DatasourceLookUp(String datasourceLookupId, String databaseProductName, String driverClassName,
+			Double datasourceSupportedVersion, Integer isDeleted, List<AdditionalDatasource> additionalDatasource,
+			String databaseDisplayProductName, String connectionUrlPattern) {
+		super();
+		this.datasourceLookupId			= datasourceLookupId;
+		this.databaseProductName		= databaseProductName;
+		this.driverClassName			= driverClassName;
+		this.datasourceSupportedVersion	= datasourceSupportedVersion;
+		this.isDeleted					= isDeleted;
+		this.additionalDatasource		= additionalDatasource;
+		this.databaseDisplayProductName	= databaseDisplayProductName;
+		this.connectionUrlPattern		= connectionUrlPattern;
 	}
+
+
 
 	public String getDatasourceLookupId() {
 		return this.datasourceLookupId;
@@ -114,6 +124,15 @@ public class DatasourceLookUp implements Serializable {
 	public void setDatabaseDisplayProductName(String databaseDisplayProductName) {
 		this.databaseDisplayProductName = databaseDisplayProductName;
 	}
+	
+	public String getConnectionUrlPattern() {
+		return connectionUrlPattern;
+	}
+
+	public void setConnectionUrlPattern(String connectionUrlPattern) {
+		this.connectionUrlPattern = connectionUrlPattern;
+	}
+
 
 	public AdditionalDatasource addAdditionalDatasource(AdditionalDatasource additionalDatasource) {
 		getAdditionalDatasource().add(additionalDatasource);
@@ -131,7 +150,7 @@ public class DatasourceLookUp implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(databaseProductName, datasourceLookupId, driverClassName, isDeleted, additionalDatasource);
+		return Objects.hash(databaseProductName, datasourceLookupId, driverClassName, isDeleted, additionalDatasource, connectionUrlPattern);
 	}
 
 	@Override
@@ -148,7 +167,8 @@ public class DatasourceLookUp implements Serializable {
 		DatasourceLookUp other = (DatasourceLookUp) obj;
 		return Objects.equals(databaseProductName, other.databaseProductName)
 				&& Objects.equals(datasourceLookupId, other.datasourceLookupId) && Objects.equals(driverClassName, other.driverClassName)
-				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(additionalDatasource, other.additionalDatasource);
+				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(additionalDatasource, other.additionalDatasource)
+				&& Objects.equals(connectionUrlPattern, other.connectionUrlPattern);
 	}
 
 	@Override
@@ -156,7 +176,8 @@ public class DatasourceLookUp implements Serializable {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DatasourceLookUp [datasourceLookupId=").append(datasourceLookupId).append(", databaseProductName=")
 				.append(databaseProductName).append(", driverClassName=").append(driverClassName).append(", isDeleted=").append(isDeleted)
-				.append(", additionalDatasource=").append(additionalDatasource).append("]");
+				.append(", additionalDatasource=").append(additionalDatasource)
+				.append(", connectionUrlPattern=").append(connectionUrlPattern).append("]");
 		return builder.toString();
 	}
 
@@ -170,6 +191,7 @@ public class DatasourceLookUp implements Serializable {
 		datasourceLookUp.setIsDeleted(isDeleted);
 		datasourceLookUp.setDatasourceSupportedVersion(datasourceSupportedVersion);
 		datasourceLookUp.setDatabaseDisplayProductName(databaseDisplayProductName);
+		datasourceLookUp.setConnectionUrlPattern(connectionUrlPattern);
 		
 		return datasourceLookUp;
 	}

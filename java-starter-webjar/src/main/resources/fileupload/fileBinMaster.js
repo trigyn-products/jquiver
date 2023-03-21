@@ -501,9 +501,9 @@ class FileBinMaster {
 			url: contextPath + "/api/file-bin-default-queries",
 			async: false,
 			success: function(data) {
-				for(let iCounter = 0; iCounter < data.activeElement.children.length; iCounter++){
-					$("#" + data.activeElement.children[iCounter].id).text(data.activeElement.children[iCounter].childNodes[1].nodeValue);
-					defaultQueries[data.activeElement.children[iCounter].id] = data.activeElement.children[iCounter].childNodes[1].nodeValue;
+				for(let iCounter = 0; iCounter < data.children[0].children.length; iCounter++){
+					$("#" + data.children[0].children[iCounter].id).text(data.children[0].children[iCounter].childNodes[1].nodeValue);
+					defaultQueries[data.children[0].children[iCounter].id] = data.children[0].children[iCounter].childNodes[1].nodeValue;
 				}
 			},
 			error: function(xhr, error) {

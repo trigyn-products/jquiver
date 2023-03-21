@@ -18,7 +18,10 @@ public interface FileUploadTempRepository extends JpaRepositoryImplementation<Fi
 	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_TEMP_DETAILS_BY_FILE_BIN_ID)
 	List<FileUploadTemp> findAllByFileTempBinId(String fileBinId);
 	
-	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_TEMP_DETAILS_BY_FILE_BIN_ID_ILE_TEMP_ASSOC_ID)
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_TEMP_DETAILS_BY_FILE_BIN_ID_FILE_TEMP_ASSOC_ID_FILE_UPLOAD_ID)
 	List<FileUploadTemp> getAllTempDeletedFileUploadId(String fileBinId, String fileAssociationId, String fileUploadId);
+
+	@Query(QueryStore.JPA_QUERY_TO_GET_FILE_TEMP_DETAILS_BY_FILE_BIN_ID_FILE_TEMP_ASSOC_ID_TEMP_ID)
+	List<FileUploadTemp> getAllTempDeletedFileUploadTempId(String fileBinId, String fileAssociationId, String fileUploadTempId);
 
 }

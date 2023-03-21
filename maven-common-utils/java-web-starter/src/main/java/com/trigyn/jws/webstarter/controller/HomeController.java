@@ -29,7 +29,7 @@ import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 
 @RestController
-@RequestMapping("/cf")
+@RequestMapping(value={"/cf", "/", ""})
 public class HomeController {
 
 	private final static Logger			logger						= LogManager.getLogger(HomeController.class);
@@ -46,7 +46,7 @@ public class HomeController {
 	@Autowired
 	private JwsRoleRepository			jwsRoleRepository			= null;
 
-	@RequestMapping(value = "/home", produces = MediaType.TEXT_HTML_VALUE)
+	@RequestMapping(value = {"", "/", "/home"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String homePage(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
 		try {

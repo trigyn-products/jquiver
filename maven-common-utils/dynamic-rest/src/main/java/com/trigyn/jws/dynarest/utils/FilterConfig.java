@@ -26,7 +26,7 @@ public class FilterConfig {
 	private JwtRequestFilter		jwtRequestFilter		= null;
 
 	@Autowired
-	private ViewFiler				viewFilter				= null;
+	private HeaderFilter				viewFilter				= null;
 
 	@Bean
 	public FilterRegistrationBean<ApiClientFilter> loginRegistrationBean() {
@@ -63,12 +63,13 @@ public class FilterConfig {
 	}
 	
 	@Bean
-	public FilterRegistrationBean<ViewFiler> viewRequestFilterBean() {
-		FilterRegistrationBean<ViewFiler> filterRegistrationBean = new FilterRegistrationBean<ViewFiler>();
+	public FilterRegistrationBean<HeaderFilter> viewRequestFilterBean() {
+		FilterRegistrationBean<HeaderFilter> filterRegistrationBean = new FilterRegistrationBean<HeaderFilter>();
 		filterRegistrationBean.setFilter(viewFilter);
 		filterRegistrationBean.setOrder(3);
 		List<String> urlPatters = new ArrayList<>();
 		urlPatters.add("/view/*");
+		urlPatters.add("/cf/*");
 		filterRegistrationBean.setUrlPatterns(urlPatters);
 		return filterRegistrationBean;
 	}

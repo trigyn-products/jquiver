@@ -316,13 +316,13 @@
         /**Ends Here*/
         //start name validation
         let specials = /[A-Za-z 0-9]/g;
-        if(specials.test($("#firstName").val().trim())){
+        if(specials.test($("#firstName").val().trim()) == false){
         	showMessage("Invalid First Name", "warn");
         	$("#firstName").focus();
         	return;
         }
         
-        if(specials.test($("#lastName").val().trim())){
+        if(specials.test($("#lastName").val().trim()) == false){
         	showMessage("Invalid Last Name", "warn");
         	$("#lastName").focus();
         	return;

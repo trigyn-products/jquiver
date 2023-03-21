@@ -32,11 +32,14 @@
 						<input type="text" data-type="varchar" id="datasourcename" name="datasourcename" class="form-control" value="${(resultSetObject.datasource_name)!""}" >
 					</div>
 				</div>
-	    		
+
 	    		<div class="col-4">
 					<div class="col-inner-form full-form-fields">
 						<span class="asteriskmark">*</span>
 						<label for="allDBDrivers"><@resourceBundle "jws.databaseProductName" /></label>
+                        <a class="tipsicon tipslabelright collapsed" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                    </a>
 						<select class="form-control" id="allDBDrivers" onchange="onDBTypeChange()">
 						</select>
 					</div>
@@ -54,6 +57,19 @@
 					</div>
 				</div>
                 </#if>
+
+                <div id="ftlParameterDiv" class="col-12">
+                            <div class="collapse tipsdetailsblock" id="tipscolpase" style="margin-bottom :20px">
+                                <div class="tipscontent"> 
+                                    <h3 class="titlename method-sign-info">
+                                    <label for="cs_jscript">Database Connection URL</label>   </h3>
+                                     <span id="cs_jscript"><pre style="font-family: Verdana, sans-serif; width : 100%">
+                                    <label style="font-style: italic; user-select: none;">	Create Datasource Connection URL for your Database Driver with suggested template :</label>
+                                    <label id="connectionUrlPattern"></label>
+                                     </pre>
+                                </div>
+                            </div>    
+                     </div>
 	    		
 	    		<div class="col-12">
 					<div class="col-inner-form full-form-fields">
@@ -140,7 +156,7 @@
           tooltip: true,
           eyeImg: "${contextPath}/cf/files/f918e998-84b8-4b99-b81c-fedc774f871d"
         });
-    
+    let driverUrl = new Object();
 	function getDBDrivers(){
         let dbTypeId = $("#datasourceLookupId").val().trim();
         $.ajax({
@@ -151,12 +167,15 @@
                 for (let property in data) {
                 	if(data[property].driverClassAvailable === true){
     					$("#allDBDrivers").append("<option value="+property+">"+data[property].databaseDisplayProductName+"</option>")
+                        driverUrl[property] = data[property].connectionUrlPattern;
     				}
 				}
 				if(dbTypeId !== ""){ 
 					$("#allDBDrivers").val(dbTypeId);
+                    $("#connectionUrlPattern").text(driverUrl[dbTypeId]);
 				}else{
 					$("#datasourceLookupId").val($("#allDBDrivers option:first").val());
+                    $("#connectionUrlPattern").text(driverUrl[$("#datasourceLookupId").val()]);
 				}
 		    },
 	        error : function(xhr, error){
@@ -193,6 +212,7 @@
 	function onDBTypeChange(){ 
 		let datasourceLookupId = $("#allDBDrivers").find(":selected").val();
 		$("#datasourceLookupId").val(datasourceLookupId);
+        $("#connectionUrlPattern").text(driverUrl[datasourceLookupId]);
 	}
 	
 	function saveData(){

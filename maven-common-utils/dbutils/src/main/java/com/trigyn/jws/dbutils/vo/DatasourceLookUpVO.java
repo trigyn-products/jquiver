@@ -14,15 +14,18 @@ public class DatasourceLookUpVO implements Serializable {
 	private String				databaseDisplayProductName	= null;
 
 	private Double				datasourceSupportedVersion	= null;
+	
+	private String 				connectionUrlPattern  = null;
 
 	public DatasourceLookUpVO() {
 
 	}
 
-	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable) {
+	public DatasourceLookUpVO(String datasourceName, String driverClassName, Boolean driverClassAvailable, String connectionUrlString) {
 		this.datasourceName			= datasourceName;
 		this.driverClassName		= driverClassName;
 		this.driverClassAvailable	= driverClassAvailable;
+		this.connectionUrlPattern 	= connectionUrlString;
 	}
 
 	public String getDatasourceName() {
@@ -65,9 +68,17 @@ public class DatasourceLookUpVO implements Serializable {
 		this.datasourceSupportedVersion = datasourceSupportedVersion;
 	}
 
+	public String getConnectionUrlPattern() {
+		return connectionUrlPattern;
+	}
+
+	public void setConnectionUrlPattern(String connectionUrlPattern) {
+		this.connectionUrlPattern = connectionUrlPattern;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(datasourceName, driverClassAvailable, driverClassName);
+		return Objects.hash(datasourceName, driverClassAvailable, driverClassName, connectionUrlPattern);
 	}
 
 	@Override
@@ -84,14 +95,17 @@ public class DatasourceLookUpVO implements Serializable {
 		DatasourceLookUpVO other = (DatasourceLookUpVO) obj;
 		return Objects.equals(datasourceName, other.datasourceName)
 				&& Objects.equals(driverClassAvailable, other.driverClassAvailable)
-				&& Objects.equals(driverClassName, other.driverClassName);
+				&& Objects.equals(driverClassName, other.driverClassName)
+				&& Objects.equals(connectionUrlPattern, other.connectionUrlPattern);
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DatasourceLookUpVO [datasourceName=").append(datasourceName).append(", driverClassName=")
-				.append(driverClassName).append(", driverClassAvailable=").append(driverClassAvailable).append("]");
+				.append(driverClassName).append(", driverClassAvailable=").append(driverClassAvailable)
+				.append(", connectionUrlPattern=").append(connectionUrlPattern)
+				.append("]");
 		return builder.toString();
 	}
 

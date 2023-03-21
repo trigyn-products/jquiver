@@ -48,7 +48,7 @@ public class DataSourceService {
 
 	@Autowired
 	private AdditionalDatasourceRepository	additionalDatasourceRepo	= null;
-
+	
 	public Map<String, Object> getAvailableDBDrivers(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files,
 			Map<String, Object> dAOparameters, UserDetailsVO userDetails) {
 		logger.debug("Inside DataSourceService.getAvailableDBDrivers()");
@@ -62,7 +62,7 @@ public class DataSourceService {
 			dsLookUPVO.setDatasourceName(datasourceLookUp.getDatabaseProductName());
 			dsLookUPVO.setDriverClassName(datasourceLookUp.getDriverClassName());
 			dsLookUPVO.setDatabaseDisplayProductName(datasourceLookUp.getDatabaseDisplayProductName());
-
+			dsLookUPVO.setConnectionUrlPattern(datasourceLookUp.getConnectionUrlPattern());
 			try {
 				Class.forName(datasourceLookUp.getDriverClassName());
 				dsLookUPVO.setDriverClassAvailable(true);

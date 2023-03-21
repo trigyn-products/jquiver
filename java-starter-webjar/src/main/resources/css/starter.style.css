@@ -3432,7 +3432,7 @@ to {
 
 .pg-form-dropzone .dropzone .dz-preview .dz-details {
 	top: 0;
-	z-index: 11;
+	z-index: 5 !important; 
 	padding: 1.75em 1em;
 }
 
@@ -6967,6 +6967,11 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 	background:#1976D2;
 }
 
+.methodtypeblock-head{
+	background: #6e870c;
+}
+
+
 .methodtypeblock-patch{
 	background:#7B1FA2;
 }
@@ -6998,6 +7003,12 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 .bgtrasparent.methodtypeblock-get{
 	background:#fff;
 }
+
+
+.bgtrasparent.methodtypeblock-head{
+	background:#fff;
+}
+
 
 .bgtrasparent.methodtypeblock-options{
 	background:#fff;
@@ -7159,6 +7170,11 @@ border: 1px solid #005da3;
 	 color: #005da3;
 }
 
+
+.resapiactionbtn ul.restaction li label{
+	margin-bottom:0px;
+}
+
 .resapiactionbtn ul.restaction li:hover{
 	text-decoration: underline;
 }
@@ -7167,7 +7183,7 @@ border: 1px solid #005da3;
 	border-left: 0px;
 }
 .resapiactionbtn ul.restaction li .fa{
-	margin: 0 8px 0 0;
+	margin: 0 3px 0 0;
 }
 
 .resapiactionbtn ul.restaction li input[type="checkbox"]{
@@ -7268,7 +7284,8 @@ border: 1px solid #005da3;
 }
 
 .sortclickcls img{
-	margin-right:7px;
+    margin-right: 0;
+    margin-top: -3px;
 }
 
 .toglecls{
@@ -7334,8 +7351,7 @@ border: 1px solid #005da3;
     border: 1px solid #ccc;
     margin: 0 auto 20px;
     border-radius:0px;
-    width: 106px;
-}
+ }
 
 .sorticoncls{
 	    display: flex;
@@ -7643,5 +7659,15 @@ background: #9901b042;
     filter: brightness(0) invert(1);
     -webkit-filter: brightness(0) invert(1);
 }
+
+
+#cs_jscript pre{
+    display: flex !important;
+    flex-direction: column;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+
 
  

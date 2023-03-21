@@ -1,110 +1,302 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
-
 </head>
 
 <form id="dynaForm"></form>
-<div class="container">
-
-     <div class="restapibtns">
-        <div class="restapiselect"><input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="CheckedAll();">Select All</input></div>
-        <button type="button" id="expand" class="listlinkcls">Expand All</button>        
-            
-            <div class="sortdrop">
-                <a class="listlinkcls" data-toggle="collapse" href="#sortdropdown" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    Sort
-                </a>
-                <div class="collapse sortvisbleblock" id="sortdropdown">
-                    <div class="sorticondiv">
-                        <span class="sorticoncls active" onclick="loadRestAPI(0,'jws_method_name','ASC')" >
-                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
-                        </span>
-                         <span class="sorticoncls sortup"  onclick="loadRestAPI(0,'jws_method_name','DESC')"  >
-                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
-                        </span>
-                     
-                    </div>
-                <ul> 
-                    <li class="activecls" onclick="loadRestAPI(0,'jws_method_name','ASC')">By Name</li>
-                    <li class="activecls" onclick="loadRestAPI(0,'jws_dynamic_rest_url','ASC')">By Type</li>
-                </ul>
+<div class="container"> 
+ <div class="row topband" style="display:flex;justify-content: space-between;"> 
+  <div class="col-8">
+    <h2 class="title-cls-name float-left">View REST API</h2> </div>
+ </div>
+<div class="resapiactionbtn">
+    <ul class="restaction">
+        <li title='Select All'  >
+            <input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="" >
+            <label for="selectAll"> Select All </label>
+        </li>
+        <li id="expand" class="expandcls" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg">Expand All </li>
+        <li class="sortclickcls" title='Sort'>
+            <span class="sorting" id="sorting" onclick="">
+            <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg"> Sort</span>
+            <div class="sortblock" id="sortclickev" >
+                <div class="updownblock"> <span class="uparow sorticoncls activecls" id="sortdown"  data-order="ASC" onclick="markSort(this);">
+                    <i class="fa fa-sort-amount-asc " aria-hidden="true"></i> </span> 
+                    <span id="sortup" class="downarrow sorticoncls" data-order="DESC" onclick="markSort(this);" >
+                    <i class="fa fa-sort-amount-asc"  aria-hidden="true"></i>
+                    </span> 
                 </div>
+                <ul class="sortby ">
+                    <li id="sort_mtd" class="sortType" data-sort="methodName" onclick="markSort(this);">By Name</li>
+                    <li id="sort_type" class="sortType" data-sort="methodType" onclick="markSort(this);">By Type</li>
+                    <li id="sort_url" class="sortType activecls" data-sort="restURL" onclick="markSort(this);">By URL<li>
+                </ul>
             </div>
-
-        <!-- <button type="button" id="sortbtn" class="listlinkcls" onclick="loadRestAPI(0,'jws_method_name','ASC')">
-        Sort</button> -->
-        <!-- <button type="button" class="fa fa-caret-up" onclick="loadRestAPI(0,'jws_method_name','ASC')" aria-hidden="true"></button>  
-        <button type="button" class="fa fa-caret-down" onclick="loadRestAPI(0,'jws_method_name','DESC')" aria-hidden="true"></button>             -->
-            <button type="button" id="export" onclick="getDynaExport();" class="listlinkcls">Export</button>
-        </div> 
-
-     <div id="getRestAPIDetails" class="getapidetailsblock">
-        <div id="viewRestAPI"></div>
-    </div> 
+            </li>
+            <li title='Export' id="exportvtb" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o"></i> Export </label></li>
+        </ul>
+        </div>
+     <div id="viewRestAPI" class="getapidetailsblock">
+    </div>   
+</div>
 </div>
 <script>
-
+document.title="View REST API";
 contextPath = "${(contextPath)!''}";
 $(function() {
-    loadRestAPI(0,"jws_dynamic_rest_url","ASC");
+    loadRestAPI(0);   
+    sortOrderonLoad();
 });
-
-function loadRestAPI(a_offset,columnName,sort_order) {
+/**For loading the Rest API Contents on load on calling the getRestAPI*/
+function loadRestAPI(a_offset) {
     if(a_offset == 0) {
         $("#viewRestAPI").html("");
     }
-     $("#viewRestAPI").find("button").remove()
-        $.ajax({
-            type : "POST",
-            async: true,
-            url : "${contextPath!''}/api/getRestAPI",
-            data:{"offset": a_offset,
-                  "columnName": columnName,
-                  "sort_order": sort_order},
-            success : function(data) {
-               $("#viewRestAPI").append(data);
-            },
-            error: function(jqXHR, exception){
-               showMessage("Error occurred while fetching text responses", "error");
-            }  
-        });
-}
-function getDynaExport() {
-
-$.ajax({
+    $("#viewRestAPI").find("button").remove();
+    
+    $.ajax({
         type : "POST",
         async: true,
-        url : "${contextPath!''}/api/exportAPI",
-            success : function(data) {
+        url : "${contextPath!''}/api/getRestAPI",
+        data:{
+            "offset": a_offset,
+            "startCount": a_offset *10
+            },
+        success : function(data) {
+            $("#viewRestAPI").append(data);
+            $('.sortblock').hide();
+            showMessage("Data loaded...", "success")
+        },
+        error: function(jqXHR, exception){
+            showMessage("Error occurred while fetching REST APIs", "error");
+        }  
+    }); 
+}
+/**Ends Here*/
+
+/**For exporting the contents on click of Export Button*/
+function getExport() {
+var select_All = "" ;
+if (document.getElementById('selectAll').checked) {
+    select_All = "true";
+    getDynaExport(select_All, '');
+} else {
+    var exportIdList = [];
+    $.each($(".apiChk:checked"), function () {
+        exportIdList.push($(this).val());
+    });
+select_All = "false";
+getDynaExport(select_All, exportIdList);
+}
+}
+
+/** Called from getExport()*/
+function getDynaExport(select_All,dynaId) {
+    $.ajax({
+        type : "POST",
+        async: true,
+        url : "${contextPath!''}/api/getexportableAPI",
+        data:{"dynaId":JSON.stringify(dynaId),
+            "select_All": select_All+""},
+        success : function(data) {
               var a_strSourceBody = data;
-              var mapForm = document.getElementById("dynaForm");
-              mapForm.target ="_self"||"_blank";
-              mapForm.id="stmtForm";
-              mapForm.method = "POST";
-              mapForm.action = "${contextPath!''}/api/getDynaExport";
+              var form  = document.createElement("form");
+              form .target ="_blank";
+              form .id="stmtForm";
+              form .method = "POST";
+              form .action = "${contextPath!''}/api/getdownloadedAPI";
               var mapInput = document.createElement("input");
               mapInput.type = "hidden";
               mapInput.name = "a_strSourceBody";
               mapInput.value = data;
-              mapForm.appendChild(mapInput);
-              document.body.appendChild(mapForm);
-              mapForm.submit();
+              form .appendChild(mapInput);
+              document.body.appendChild(form );
+              form .submit();  
         },
-            error: function(jqXHR, exception){
-            showMessage("Error occurred while fetching text responses", "error");
+        error: function(jqXHR, exception){
+             showMessage("Error occurred while fetching text responses", "error");
         }  
     });
+}
+/**Ends Here*/
 
-}
-function getExport() {
-    if (document.getElementById('selectAll').checked) {
-       getDynaExport(document.getElementById('restApiDetailsDiv'));
+/** For Showing the Sort Block on click of the sort link  
+ * and Hiding the Sort Block on clicking anywhere outside the sortblock div*/
+$(document).on('click', function (a_element) {
+    if ($(a_element.target).closest("#sorting").length === 0) {
+        $("#sortclickev").hide();
+    } else {
+        $("#sortclickev").show();
     }
+});
+/**Ends Here*/
+/** For doing the sorting on Load*/
+
+function sortOrderonLoad(){
+    if($("#btnLoadMore").length > 0){
+        btnHTML = $("#btnLoadMore").html();
+    }
+     var result = $('#viewRestAPI .methodnameblock').sort(function (a, b) {
+        let contentA, contentB;
+        contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
+        contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
+        return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;   
+      });   
+        $('#viewRestAPI').html(result);
+        $('#viewRestAPI').append(btnHTML);
 }
+/**Ends Here*/
+/**For sorting the Rest API Contents based on Asc and Desc Order
+ * and also based on Method Type , Method Name and Rest URL*/
+let l_columnName;
+let a_sortOrder;
+function markSort(a_element){
+    if($(a_element).data('sort')){
+        $(".sortType").removeClass("activecls");
+        $(a_element).removeClass("activecls");
+   
+    } else if($(a_element).attr('data-order')){
+         $(".sorticoncls").removeClass("activecls");
+         $(a_element).addClass("activecls");
+    }
+      
+    if( $(a_element).data('sort') != undefined){
+        l_columnName = $(a_element).data('sort');
+    }
+    if($(a_element).attr('data-order') != undefined){
+        a_sortOrder =  $(a_element).attr('data-order');
+    }
+    sortOrder(l_columnName,a_sortOrder);     
+}
+
+let btnHTML = "";
+function sortOrder(l_columnName,a_sortOrder) { 
+   
+    if($("#btnLoadMore").length > 0){
+        btnHTML = $("#btnLoadMore").html();
+    }
+    var result = $('#viewRestAPI .methodnameblock').sort(function (a, b) {
+    
+        let contentA, contentB;
+   
+        if(l_columnName == "methodType" && a_sortOrder == undefined){
+            contentA = $(a).find(".methodtypeblock").text().trim().toUpperCase();
+            contentB = $(b).find(".methodtypeblock").text().trim().toUpperCase(); 
+
+        }else if(l_columnName == "methodName" && a_sortOrder == undefined){
+            contentA = $(a).find(".methodName").text().trim().toUpperCase();
+            contentB = $(b).find(".methodName").text().trim().toUpperCase();
+
+        }else if(l_columnName == "restURL" && a_sortOrder == undefined){
+            contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
+            contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
+
+        }else if(l_columnName == "methodType" && a_sortOrder == "ASC"){
+            contentA = $(a).find(".methodtypeblock").text().trim().toUpperCase();
+            contentB = $(b).find(".methodtypeblock").text().trim().toUpperCase();
+            $(sortdown).addClass("activecls");
+            $(sortup).removeClass("activecls");
+            $(sort_type).addClass("activecls");
+            $(sort_mtd).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
+
+        }else if(l_columnName == "methodType" && a_sortOrder == "DESC"){
+            contentA = $(a).find(".methodtypeblock").text().trim().toUpperCase();
+            contentB = $(b).find(".methodtypeblock").text().trim().toUpperCase();
+            $(sortup).addClass("activecls");
+            $(sortdown).removeClass("activecls");
+            $(sort_type).addClass("activecls");
+            $(sort_mtd).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
+            return (contentA > contentB) ? -1 : (contentA < contentB) ? 1 : 0;
+
+        }else if(l_columnName == "methodName" && a_sortOrder == "ASC"){
+            contentA = $(a).find(".methodName").text().trim().toUpperCase();
+            contentB = $(b).find(".methodName").text().trim().toUpperCase();
+            $(sortdown).addClass("activecls");
+            $(sortup).removeClass("activecls");
+            $(sort_mtd).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
+
+        }else if(l_columnName == "methodName" && a_sortOrder == "DESC"){
+            contentA = $(a).find(".methodName").text().trim().toUpperCase();
+            contentB = $(b).find(".methodName").text().trim().toUpperCase();
+            $(sortup).addClass("activecls");
+            $(sortdown).removeClass("activecls");
+            $(sort_mtd).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
+            return (contentA > contentB) ? -1 : (contentA < contentB) ? 1 : 0;
+
+        }else if(l_columnName == "restURL" && a_sortOrder == "ASC" || l_columnName == undefined && a_sortOrder == "ASC"){
+            contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
+            contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
+            $(sortdown).addClass("activecls");
+            $(sortup).removeClass("activecls");
+            $(sort_url).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_mtd).removeClass("activecls");
+
+        }else if(l_columnName == "restURL" && a_sortOrder == "DESC" || l_columnName == undefined && a_sortOrder == "DESC"){
+            contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
+            contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
+            $(sortup).addClass("activecls");
+            $(sortdown).removeClass("activecls");
+            $(sort_url).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_mtd).removeClass("activecls");
+            return (contentA > contentB) ? -1 : (contentA < contentB) ? 1 : 0;
+        }
+        return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;    
+    });
+   $('#viewRestAPI').html(result);
+   $('#viewRestAPI').append(btnHTML);
+}
+/**Ends Here*/
+
+/** To check and uncheck the select All check box based on the  below check boxes*/
+function CheckedAll() {   
+    $('#selectAll').prop('checked', ($(".apiChk").length == $(".apiChk:checked").length));
+}
+/**Ends Here*/
+
+
+/** To check and uncheck all the check boxes by selecting Select All check box*/
+$('#selectAll').change(function () {
+//$("#selectAll").click(function(){
+    $('.apiChk').prop('checked', this.checked);  
+});
+/**Ends Here*/
+
+/** For Toggling or Expandin/Collapsing all the divs 
+ * on click of Expand All button*/
+
+let isExpanded = false;
+$(document).ready(function () {
+    $('#expand').on('click', function () {
+        if(isExpanded){
+            $('.methodblocktwo ').removeClass('colpasecls');
+            $('.restapiotherblock').slideUp(1000);
+        }else{
+            $('.methodblocktwo ').addClass('colpasecls');
+            $('.restapiotherblock').slideDown(1000);
+        }
+        isExpanded = !isExpanded;
+    });
+});
+/**Ends Here*/
+   
+/** For Toggling or Expandin/Collapsing individual dic on click of the respective div*/    
+function bindAccordian(a_element) {
+    $(a_element).toggleClass('colpasecls');
+    $(a_element).closest(".methodnameblock").find('.restapiotherblock').slideToggle(1000);
+}
+/**Ends Here*/
 </script>

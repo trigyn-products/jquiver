@@ -1,0 +1,333 @@
+<style>
+  
+ @media screen, print {
+         table {font-size:10px;}
+      }
+  
+  
+  body{
+    font-size:15px;
+      font-family: Verdana, Arial, sans-serif;
+
+  }
+  
+  .tdpadding{
+        padding: 20px 10px;
+        border-top:1px dashed #ccc;
+  }
+  
+  html{
+      font-family: Verdana, Arial, sans-serif;
+    font-family: sans-serif;
+  }
+  table{
+    margin:0;
+      font-family: Verdana, Arial, sans-serif;
+
+  }
+  
+  table td{
+      font-family: Verdana, Arial, sans-serif;
+
+  }
+  
+  .exportapitble {
+    margin-bottom: 30px;
+    border: 1px solid #ccc;
+    padding: 0px;
+    background: #fdfdfd;
+}
+ 
+  
+  table h3 {
+margin: 0px;
+    border-left: 7px solid #005da3;
+    color: #005da3;
+    display: inline-block;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+  
+  
+  .responsevaluecls{
+  } 
+  
+  
+.full-form-fields{
+    display: block;
+  }
+  
+  .full-form-fields span{
+    border: 1px solid #ccc;
+     background: #fff;
+    padding: 10px;
+    display: block;
+  margin:0 20px 0 0; 
+}
+
+  .responsevalueclsad {
+    border: 1px solid #ccc;
+    background: #f2f2f2;
+    padding: 10px;
+    border-radius: 5px;
+}
+  
+  .responsevalueclsad-sls {
+    border: 0px;
+   
+}
+  
+  
+.full-form-fields label{
+    display: block;
+  } 
+.card-header-block {
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f2f2f2;
+    padding-right: 20px;
+}
+.type-block {
+    display: flex;
+}
+ 
+
+ .tdpadding.restbodycolor.methodtypeblock-get{
+       background:#E0EDF9 !important;
+  }
+
+  .tdpadding.restbodycolor.methodtypeblock-patch{
+  background:#F4E9F8 !important;
+}
+
+ .restbodycolor.methodtypeblock-delete{
+  background:#FDEFEF !important;
+}
+
+ .restbodycolor.methodtypeblock-post{
+  background-color:#F8FDC9 !important;
+}
+
+.restbodycolor.methodtypeblock-trace{
+  background:#FCE9D9 !important;
+}
+
+.restbodycolor.methodtypeblock-put{
+  background: #FDE8F5 !important;
+}
+
+.methodtypeblock-get{
+  background:#1976D2 !important;
+}
+
+.methodtypeblock-patch{
+  background:#7B1FA2 !important;
+}
+
+.methodtypeblock-delete{
+  background:#FA3636 !important;
+}
+
+.methodtypeblock-options {
+    background: #6d0303 !important;
+}
+
+.methodtypeblock-post{
+  background:#CDDC39 !important;
+}
+
+.methodtypeblock-head{
+	background: #6e870c !important;
+}
+
+.methodtypeblock-trace{
+  background:#dc8439 !important;
+}
+
+ 
+.methodtypeblock-put{
+  background:#dc39a2 !important;
+}
+  
+ 
+
+   
+  
+ 
+
+  .tdcls {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 48%;
+        border-top: 0px;
+    border-left: 0px;
+ }
+  
+  .tdclsextr{
+    width: 8%;
+  }
+  
+.methodtypeblock {
+    padding: 10px;
+    background: #080808;
+    min-width: 120px;
+     color: #fff;
+    display: flex;
+    align-items: center;
+  width: 150px;
+}
+.methodurlblock {
+    padding: 10px;
+    color: #000;
+}
+.card-body-block {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.dataparameterblock h3 {
+    font-size: 16px;
+}
+.col-inner-form {
+    position: relative;
+}
+.col-inner-form>label {
+    font-weight: bold;
+}
+.row {
+    display: table;
+}
+.col-4 {
+    float: left;
+}
+.reponseheader h3 {
+    font-size: 16px;
+}
+.rolsemainblock {
+    width: 200px;
+}
+.rolseblock {
+    border: 1px solid #ccc;
+    padding: 9px 10px;
+    background: #fff;
+  border-top:0px;
+}
+  
+    
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+  
+  .evendtd{
+        width: 20%;
+        border-left: 1px solid #ccc;
+     background: #fdfdfd;
+     font-weight:bold;
+  }
+</style
+
+ 
+><div id="restApiDetailsDiv">
+<#if dynaResult?? && dynaResult?size != 0>
+  <#list dynaResult as dynaList>
+  <table class="exportapitble" width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tbody>
+      <tr>
+      <td><table width="100%" border="0" cellspacing="0" cellpadding="0" style="border:1px solid #ccc;border-top:0px;border-right:0px; border-left:0px;">
+          <tbody>
+            <tr>
+              <td style="width:30%;font-family:Times New Roman;"><div class="methodtypeblock methodtypeblock-${dynaList.jws_request_type_lower}" id="methodTypeDiv_${dynaList.dynarestId}"> ${dynaList.jws_request_type} </div></td>
+              <td style="width:70%;text-align: left; font-family:Times New Roman;"> ${dynaList.rest_api_url}</td>
+            </tr>
+          </tbody>
+        </table></td>
+    </tr>
+      <tr>
+      <td style="border-top:none !important;" class="tdpadding restbodycolor"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tbody>
+            <tr>
+              <td colspan="2"><h3>Data Parameters</h3></td>
+            </tr>
+            <tr>
+              <td><div class="col-inner-form full-form-fields">
+                  <label>HTTP Produces Type</label>
+                  <span>${dynaList.http_produces_type} </span></div></td>              
+              <td><div class="col-inner-form full-form-fields"><label>Rest Method Name</label>
+                <span>${dynaList.dynarestMethodName}</span></div> </td>
+             
+            </tr>
+  
+      <tr>
+              
+              <td colspan="2"><div class="col-inner-form full-form-fields" style="padding-top:20px;"><label>Description </label>
+                <span>${dynaList.dynarestMethodDescription}</span></div> </td>
+            </tr>
+  
+          </tbody>
+        </table></td>
+    </tr>
+  
+  <tr>
+      <td class="tdpadding restbodycolor ">
+     <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+        <tr>
+          <td colspan="2"><h3>Response Header</h3></td>
+        </tr>
+          <#assign responseHeaderList = "${dynaList.header_json}">
+          <#if responseHeaderList?? && responseHeaderList?has_content>
+            <#assign responseHeaderMap =  responseHeaderList?eval>
+            <#list responseHeaderMap as key, value>
+        <tr id="headerJsonDiv_${dynaList.dynarestId}" >
+           <td class="tdcls evendtd" > ${key} </td>
+           <td  class="tdcls">${value}</td>
+        </tr>
+            </#list>
+          </#if>
+        </tbody>
+     </table>
+
+  </td>
+    </tr>
+  
+  <tr>
+    <td class="tdpadding restbodycolor">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+        <tr>
+          <td><h3>Roles</h3></td>
+        </tr>
+        <tr id="RolesDiv_${dynaList.dynarestId}">
+          <td style="border-top:1px solid #ccc;">
+           <#assign roleList = "${dynaList.Role_Name}">
+                            <#if roleList?? && roleList?has_content>
+                            <#list roleList?split(",") as Value>
+                              <div class="rolseblock">${Value}  </div>
+                       </#list>
+         </td>
+        </tr>
+      </#if> 
+        </tbody>
+      </table>
+
+    </td>
+  </tr>
+    </tbody>
+  
+</table>
+ </#list>
+</#if>

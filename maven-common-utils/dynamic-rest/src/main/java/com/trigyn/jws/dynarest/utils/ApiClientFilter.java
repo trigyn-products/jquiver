@@ -40,100 +40,108 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private PropertyMasterService		propertyMasterService		= null;
-	
+
 	@Autowired
-	private JwsDynamicRestDetailService jwsService 					= null;
+	private JwsDynamicRestDetailService	jwsService					= null;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain chain)
-			throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+			FilterChain chain) throws ServletException, IOException {
 
 		boolean isDoFilter = true;
 		try {
-			
-			final String requestURL = httpServletRequest.getRequestURL().toString();
-			
-			String	schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
-			if (requestURL != null && schedulerUrlProperty != null && requestURL.contains("/"+schedulerUrlProperty+"/")) {
+
+			final String	requestURL				= httpServletRequest.getRequestURL().toString();
+
+			String			schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url")
+					+ "-api";
+			if (requestURL != null && schedulerUrlProperty != null
+					&& requestURL.contains("/" + schedulerUrlProperty + "/")) {
 				chain.doFilter(new HttpServletRequestWrapper(httpServletRequest) {
 					@Override
 					public String getRequestURI() {
-						return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/");
+						return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/",
+								"/" + "api" + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
-						return new StringBuffer(requestURL.replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
+						return new StringBuffer(
+								requestURL.replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
 					}
 
 				}, httpServletResponse);
 				return;
 			}
-			
-			//run normally if it's not an API call
-			if(requestURL.indexOf("/api/") < 0 && requestURL.indexOf("/japi/") < 0) {
+
+			// run normally if it's not an API call
+			if (requestURL.indexOf("/api/") < 0 && requestURL.indexOf("/japi/") < 0) {
 				chain.doFilter(httpServletRequest, httpServletResponse);
 				return;
 			}
-			String subString = requestURL.substring(requestURL.lastIndexOf("/") + 1);
-			
-			RestApiDetails restAPI =  jwsService.getRestApiDetails(subString);
-			//get the restapi object here, and check if not secured
-			if(restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_NOT_SECURED) {
+			String			subString	= requestURL.substring(requestURL.lastIndexOf("/") + 1);
+
+			RestApiDetails	restAPI		= jwsService.getRestApiDetails(subString);
+			// get the restapi object here, and check if not secured
+			if (restAPI != null && restAPI.getIsSecured() != null
+					&& restAPI.getIsSecured() == Constants.IS_NOT_SECURED) {
 				chain.doFilter(httpServletRequest, new HttpServletResponseWrapper(httpServletResponse) {
 					private Map<String, String> header = new HashMap<String, String>();
-					
+
 					{
 						header.put("Powered-By", "JQuiver");
 					}
-					
+
 					@Override
 					public void setHeader(String a_name, String a_value) {
-						//System.out.println("Setting header : " + a_name + " : " + a_value);
+						// System.out.println("Setting header : " + a_name + " : " + a_value);
 						super.setHeader(a_name, a_value);
-						if(a_name == null) {
+						if (a_name == null) {
 							return;
 						}
-						if(a_value == null) {
+						if (a_value == null) {
 							header.remove(a_name);
 						}
 						header.put(a_name, a_value);
 					}
-					
+
 					@Override
 					public boolean containsHeader(String a_name) {
-						if(a_name == null) {
+						if (a_name == null) {
 							return false;
 						}
 						return header.containsKey(a_name);
 					}
-					
+
 					@Override
 					public Collection<String> getHeaderNames() {
-						//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeaderNames()");
+						// System.out.println("ApiClientFilter.doFilterInternal(...).new
+						// HttpServletResponseWrapper() {...}.getHeaderNames()");
 						return header.keySet();
 					}
-					
+
 					@Override
 					public String getHeader(String a_name) {
-						if(a_name == null) {
+						if (a_name == null) {
 							return null;
 						}
-						//System.out.println(requestURL);
-						//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " + header.get(a_name));
-						if(header.get(a_name) == null) {
+						// System.out.println(requestURL);
+						// System.out.println("ApiClientFilter.doFilterInternal(...).new
+						// HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " +
+						// header.get(a_name));
+						if (header.get(a_name) == null) {
 							return super.getHeader(a_name);
 						}
 						return header.get(a_name);
 					}
-					
+
 					@Override
 					public void addHeader(String a_name, String a_value) {
 						super.addHeader(a_name, a_value);
-						if(a_name == null) {
+						if (a_name == null) {
 							return;
 						}
-						if(a_value == null) {
+						if (a_value == null) {
 							header.remove(a_name);
 						}
 						header.put(a_name, a_value);
@@ -141,143 +149,145 @@ public class ApiClientFilter extends OncePerRequestFilter {
 				});
 				return;
 			}
-			
-			//secured API without client key
-			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED && 
-					httpServletRequest!=null && httpServletRequest.getHeader("ck") == null) {
+
+			// secured API without client key
+			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED
+					&& httpServletRequest != null && httpServletRequest.getHeader("ck") == null) {
 				httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "API Client key not found.");
 				return;
 			}
 
 			if (httpServletRequest.getHeader("ck") != null) {
-				String				clientKey			= httpServletRequest.getHeader("ck");
+				String				clientKey				= httpServletRequest.getHeader("ck");
 
-				ApiClientDetailsVO	apiClientDetailsVO	= apiClientDetailsRepository
+				ApiClientDetailsVO	apiClientDetailsVO		= apiClientDetailsRepository
 						.findClientDetailsByClientKey(clientKey);
 
-				if ("NA".equals(apiClientDetailsVO.getEncryptionAlgorithmName()) == false) {
-					String	decryptedRequestBody	= null;
+				String				decryptedRequestBody	= null;
 
-					String	requestBody;
-					if ("POST".equalsIgnoreCase(httpServletRequest.getMethod())) {
-						requestBody = httpServletRequest.getReader().lines()
-								.collect(Collectors.joining(System.lineSeparator()));
-						
-						if (requestBody != null) {
-							if (requestBody.equals("") == false) {
-								//System.out.println(requestBody);
-								decryptedRequestBody = CipherUtilFactory
+				String				requestBody;
+				if ("POST".equalsIgnoreCase(httpServletRequest.getMethod())) {
+					requestBody = httpServletRequest.getReader().lines()
+							.collect(Collectors.joining(System.lineSeparator()));
+
+					if (requestBody != null) {
+						if (requestBody.equals("") == false) {
+							// System.out.println(requestBody);
+							decryptedRequestBody = CipherUtilFactory
+									.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+									.decrypt(requestBody, apiClientDetailsVO.getClientSecret());
+						} else {
+							decryptedRequestBody = requestBody;
+						}
+						HttpServletRequestWritableWrapper requestWrapper = new HttpServletRequestWritableWrapper(
+								httpServletRequest, decryptedRequestBody, null);
+						IOUtils.toString(requestWrapper.getReader());
+						HttpServletResponseReadableWrapper responseWrapper = new HttpServletResponseReadableWrapper(
+								httpServletResponse) {
+							private Map<String, String> header = new HashMap<String, String>();
+
+							{
+								header.put("Powered-By", "JQuiver");
+							}
+
+							@Override
+							public void setHeader(String a_name, String a_value) {
+								// System.out.println("Setting header : " + a_name + " : " + a_value);
+								super.setHeader(a_name, a_value);
+								if (a_name == null) {
+									return;
+								}
+								if (a_value == null) {
+									header.remove(a_name);
+								}
+								header.put(a_name, a_value);
+							}
+
+							@Override
+							public boolean containsHeader(String a_name) {
+								if (a_name == null) {
+									return false;
+								}
+								return header.containsKey(a_name);
+							}
+
+							@Override
+							public Collection<String> getHeaderNames() {
+								// System.out.println("ApiClientFilter.doFilterInternal(...).new
+								// HttpServletResponseWrapper() {...}.getHeaderNames()");
+								return header.keySet();
+							}
+
+							@Override
+							public String getHeader(String a_name) {
+								if (a_name == null) {
+									return null;
+								}
+								// System.out.println(requestURL);
+								// System.out.println("ApiClientFilter.doFilterInternal(...).new
+								// HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " +
+								// header.get(a_name));
+								if (header.get(a_name) == null) {
+									return super.getHeader(a_name);
+								}
+								return header.get(a_name);
+							}
+
+							@Override
+							public void addHeader(String a_name, String a_value) {
+								super.addHeader(a_name, a_value);
+								if (a_name == null) {
+									return;
+								}
+								if (a_value == null) {
+									header.remove(a_name);
+								}
+								header.put(a_name, a_value);
+							}
+						};
+						if (httpServletRequest.getParameterMap() != null) {
+							for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
+								String[] value = new String[1];
+								value[0] = CipherUtilFactory
 										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.decrypt(requestBody, apiClientDetailsVO.getClientSecret());
-							} else {
-								decryptedRequestBody = requestBody;
+										.decrypt(httpServletRequest.getParameter(requestParamKey),
+												apiClientDetailsVO.getClientSecret());
+								requestWrapper.getParameterMap().put(requestParamKey, value);
 							}
-							HttpServletRequestWritableWrapper	requestWrapper	= new HttpServletRequestWritableWrapper(
-									httpServletRequest, decryptedRequestBody, null);
-							IOUtils.toString(requestWrapper.getReader());
-							HttpServletResponseReadableWrapper	responseWrapper	= new HttpServletResponseReadableWrapper(httpServletResponse) {
-								private Map<String, String> header = new HashMap<String, String>();
-								
-								{
-									header.put("Powered-By", "JQuiver");
-								}
-								
-								@Override
-								public void setHeader(String a_name, String a_value) {
-									//System.out.println("Setting header : " + a_name + " : " + a_value);
-									super.setHeader(a_name, a_value);
-									if(a_name == null) {
-										return;
-									}
-									if(a_value == null) {
-										header.remove(a_name);
-									}
-									header.put(a_name, a_value);
-								}
-								
-								@Override
-								public boolean containsHeader(String a_name) {
-									if(a_name == null) {
-										return false;
-									}
-									return header.containsKey(a_name);
-								}
-								
-								@Override
-								public Collection<String> getHeaderNames() {
-									//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeaderNames()");
-									return header.keySet();
-								}
-								
-								@Override
-								public String getHeader(String a_name) {
-									if(a_name == null) {
-										return null;
-									}
-									//System.out.println(requestURL);
-									//System.out.println("ApiClientFilter.doFilterInternal(...).new HttpServletResponseWrapper() {...}.getHeader() " + a_name + " = " + header.get(a_name));
-									if(header.get(a_name) == null) {
-										return super.getHeader(a_name);
-									}
-									return header.get(a_name);
-								}
-								
-								@Override
-								public void addHeader(String a_name, String a_value) {
-									super.addHeader(a_name, a_value);
-									if(a_name == null) {
-										return;
-									}
-									if(a_value == null) {
-										header.remove(a_name);
-									}
-									header.put(a_name, a_value);
-								}
-							};
-							if(httpServletRequest.getParameterMap() != null) {
-								for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
-									String[] value = new String[1];
-									value[0] = CipherUtilFactory.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.decrypt(httpServletRequest.getParameter(requestParamKey), apiClientDetailsVO.getClientSecret());
-									requestWrapper.getParameterMap().put(requestParamKey, value);
-								}
-							}
-							isDoFilter = false;
-							chain.doFilter(requestWrapper, responseWrapper);
-							
-							String encryptedResponseBody = "";
-							if(responseWrapper.getStatus() != 200) {
-								if(responseWrapper.getStatus() == 500) {
-									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-500", apiClientDetailsVO.getClientSecret());
-								} else if(responseWrapper.getStatus() == 403) {
-									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-403", apiClientDetailsVO.getClientSecret());
-								} else if(responseWrapper.getStatus() == 500) {
-									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-404", apiClientDetailsVO.getClientSecret());
-								}
-							} else {
+						}
+						isDoFilter = false;
+						chain.doFilter(requestWrapper, responseWrapper);
+
+						String encryptedResponseBody = "";
+						if (responseWrapper.getStatus() != 200) {
+							if (responseWrapper.getStatus() == 500) {
 								encryptedResponseBody = CipherUtilFactory
 										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret());
-								
+										.encrypt("JQ-500", apiClientDetailsVO.getClientSecret());
+							} else if (responseWrapper.getStatus() == 403) {
+								encryptedResponseBody = CipherUtilFactory
+										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+										.encrypt("JQ-403", apiClientDetailsVO.getClientSecret());
+							} else if (responseWrapper.getStatus() == 500) {
+								encryptedResponseBody = CipherUtilFactory
+										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+										.encrypt("JQ-404", apiClientDetailsVO.getClientSecret());
 							}
-							httpServletResponse.setContentType(httpServletRequest.getContentType());
-							byte[] responseData = encryptedResponseBody
-									.getBytes(responseWrapper.getCharacterEncoding());
-							httpServletResponse.setContentLength(responseData.length);
-							httpServletResponse.getWriter().write(encryptedResponseBody);
+						} else {
+							encryptedResponseBody = CipherUtilFactory
+									.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+									.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret());
+
 						}
+						httpServletResponse.setContentType(httpServletRequest.getContentType());
+						byte[] responseData = encryptedResponseBody.getBytes(responseWrapper.getCharacterEncoding());
+						httpServletResponse.setContentLength(responseData.length);
+						httpServletResponse.getWriter().write(encryptedResponseBody);
 					}
 				}
-				
-			} 
-			
-			if(isDoFilter) {
+			}
+
+			if (isDoFilter) {
 				logger.debug("This should not have happened ==> ApiClientFilter.doFilterInternal() " + requestURL);
 				chain.doFilter(httpServletRequest, httpServletResponse);
 			}
@@ -287,13 +297,13 @@ public class ApiClientFilter extends OncePerRequestFilter {
 					httpServletRequest.getRequestURI(), throwable);
 			if (throwable.getCause() instanceof AccessDeniedException) {
 				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
-						"You do not have enough privilege to access this module : " + httpServletRequest.getRequestURI());
+						"You do not have enough privilege to access this module : "
+								+ httpServletRequest.getRequestURI());
 			} else {
 				httpServletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
 			}
 			return;
 		}
-	
-		
+
 	}
 }

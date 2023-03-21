@@ -8,4 +8,6 @@ replace into jq_module_listing_i18n (module_id, language_id, module_name) VALUES
 
 
 Delete from  jq_encryption_algorithms_lookup  where encryption_algo_id = 4;
+Delete from  jq_encryption_algorithms_lookup  where encryption_algo_id = 0;
+Delete from  jq_encryption_algorithms_lookup  where encryption_algo_id = 1;
 SET FOREIGN_KEY_CHECKS=1;

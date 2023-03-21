@@ -1,0 +1,23 @@
+var System = Java.type("java.lang.System");
+var HashMap =  Java.type("java.util.HashMap");
+var FileInfo = Java.type("com.trigyn.jws.dbutils.vo.FileInfo"); 
+var FileType = Java.type("com.trigyn.jws.dbutils.vo.FileInfo.FileType"); 
+function getDynaExport(requestDetails) {
+    var resultList = new HashMap();
+    var src_body = requestDetails["a_strSourceBody"];
+    var fileLocation;
+    var fileName;
+    resultList = jq_convertToPDFFromString(src_body,null);
+    if(resultList["actionStatus"] == false) {
+        return "404";
+    } else {
+        var fileInfo = new FileInfo();
+        fileInfo.setAbsolutePath(resultList["absoluteFilePath"]);
+        fileInfo.setFileName("Export_API.pdf");
+        fileInfo.setFileType(FileType.Physical);
+        fileInfo.setReturnAction("2");// 1 for download, 2 for view
+        fileInfo.setMimeType("application/pdf"); 
+        return fileInfo;
+    }
+}
+getDynaExport(requestDetails);

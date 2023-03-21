@@ -99,7 +99,7 @@
 				<div class="col-inner-form full-form-fields">
 					<label for="dynarestSecuredChkBox">${messageSource.getMessage('jws.secured')}</label>
 					<div class="onoffswitch">
-						<input type="hidden" id="dynarestSecured" name="dynarestSecured"  value="1"/>
+						<input type="hidden" id="dynarestSecured" name="dynarestSecured"  value="0"/>
 						<input type="checkbox" name="dynarestSecuredChkBox" class="onoffswitch-checkbox" id="dynarestSecuredChkBox" onchange="updateSecuredVal()"/>
 						<label class="onoffswitch-label" for="dynarestSecuredChkBox">
 							<span class="onoffswitch-inner"></span>
@@ -408,7 +408,10 @@
                 $("#createdDate").val('${(resultSetList?api.get("createdDate"))!''}');
                 let produceTypeText = dynarest.populateDetails('${(resultSetList?api.get("dynarestRequestTypeId"))!''}',
                 '${(resultSetList?api.get("dynarestProdTypeId"))!''}','${(resultSetList?api.get("dynarestUrl"))!''}');
-                let isSecured = '${resultSetList?api.get("dynarestSecured")!0}';
+                
+                showMethodSignature($("#dynarestPlatformId").val())
+                
+                let isSecured = '${resultSetList?api.get("dynarestSecured")?string('1', '0')}';
                 if(isSecured == 1){
                     $("#dynarestSecuredChkBox").attr("checked", "checked");
                 }
@@ -476,7 +479,7 @@
         multiselect.setSelectedObject(defaultAdminRole);
 	    dynarest.populateDetails();
 	    getAllDatasource(0);
-        $("#dynarestSecuredChkBox").attr("checked", "");	
+        $("#dynarestSecuredChkBox").removeAttr("checked");		
         $("#dynarestSecured").val(0); 
         /**Setting the hidedaoquery value in the DB table based on the DAO Query button*/      
          if(document.getElementById("addDaoQuery").disabled == false)
