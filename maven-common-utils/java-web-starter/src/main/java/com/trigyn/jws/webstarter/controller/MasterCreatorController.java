@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trigyn.jws.dbutils.service.ModuleService;
+import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.webstarter.service.MasterCreatorService;
 
 @RestController

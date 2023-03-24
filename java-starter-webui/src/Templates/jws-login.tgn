@@ -33,7 +33,7 @@ $(document).ready(function(){
                         <#if messageSource.getMessage("jws.projectName") != "JQuiver">
                                 <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
                         <#else>
-                            <img src="/hrsSIT/webjars/1.0/images/jquiver_blue_trans.png" class="homepagelogoimg">
+                            <img src="${(contextPath)!''}/webjars/1.0/images/jquiver_blue_trans.png" class="homepagelogoimg">
                         </#if> 	
                     </span>
 				</h2>

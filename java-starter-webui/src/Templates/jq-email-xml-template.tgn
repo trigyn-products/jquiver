@@ -9,7 +9,7 @@
 	      <mailid ></mailid>
           <replyTo></replyTo><!-- this is optional -->
 	   </sender>
-	   <recepients>
+	   <recepients separatemails="true|false"><!-- separatemails is optional. If true, all recepients will receive separate emails. --> 
 	      <recepient type="to|cc|bcc">
 	         <name ></name>
 	         <mailid ></mailid>

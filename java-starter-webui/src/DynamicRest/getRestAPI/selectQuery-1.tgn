@@ -10,4 +10,5 @@ LEFT OUTER JOIN jq_entity_role_association AS jqra ON jdrd.jws_dynamic_rest_id =
 INNER JOIN jq_role AS jqr ON jqra.role_id = jqr.role_id
 WHERE jws_dynamic_rest_type_id ='1'
 GROUP BY jqra.entity_id
+ORDER BY jws_dynamic_rest_url ASC
 limit ${l_offset * 10}, 10

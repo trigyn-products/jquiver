@@ -62,7 +62,7 @@
 
             				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
                                  <i class="fa fa-bell" aria-hidden="true"></i> </a>
-                              <input id="viewNotificationBtn" onclick="loadNotificationView()" class="btn btn-secondary" name="viewNotificationBtn" value="" type="button">                      
+                              <input id="viewNotificationBtn" onclick="loadNotificationView()" class="btn btn-secondary" name="viewNotificationBtn" value="0" type="button">                      
                         	
 						</li>
                         <li>
@@ -70,13 +70,8 @@
 							<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</a>
 						</li>
-						<li>
-            				<a class="nav-link " href="${(contextPath)!''}/view/health" title="<@resourceBundleWithDefault 'jws.appMetrics' 'Application Metrics'/>" target="_blank">
-							<i class="fa fa-heartbeat" aria-hidden="true"></i>
-							</a>
-						</li>
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
-                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:none;" aria-hidden="true"></i><img style="width:20px; height:20px;" style="display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
+                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
                             	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>

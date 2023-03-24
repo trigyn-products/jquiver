@@ -10,7 +10,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.trigyn.jws.dbutils.entities.UserRole;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
+
+
 
 @Entity
 @Table(name = "jq_dynamic_rest_role_association")
@@ -28,12 +30,12 @@ public class JwsDynamicRestRoleAssociation implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
-	private UserRole						userRole				= null;
+	private JwsRole						userRole				= null;
 
 	public JwsDynamicRestRoleAssociation() {
 	}
 
-	public JwsDynamicRestRoleAssociation(JwsDynamicRestRoleAssociationPK id, UserRole userRole) {
+	public JwsDynamicRestRoleAssociation(JwsDynamicRestRoleAssociationPK id, JwsRole userRole) {
 		this.id			= id;
 		this.userRole	= userRole;
 	}
@@ -54,11 +56,11 @@ public class JwsDynamicRestRoleAssociation implements Serializable {
 		this.jwsDynamicRestDetail = jwsDynamicRestDetail;
 	}
 
-	public UserRole getUserRole() {
+	public JwsRole getJwsRole() {
 		return userRole;
 	}
 
-	public void setUserRole(UserRole userRole) {
+	public void setJwsRole(JwsRole userRole) {
 		this.userRole = userRole;
 	}
 

@@ -24,7 +24,7 @@
 		<div class="clearfix"></div>		
 	</div>
 		
-	<div id="yourGridId"></div>
+	<div id="yourGridId" class="tablescrollcls"></div>
 
 </div>
 </#noparse>

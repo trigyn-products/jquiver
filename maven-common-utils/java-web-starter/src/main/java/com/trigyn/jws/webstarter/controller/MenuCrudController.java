@@ -30,7 +30,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
-import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
@@ -39,7 +38,9 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 @RestController
@@ -91,7 +92,7 @@ public class MenuCrudController {
 			ModuleDetailsVO moduleDetailsVO = moduleService.getModuleDetails(moduleId);
 			List<ModuleDetailsVO> moduleListingVOList = moduleService.getAllParentModules(moduleId);
 			List<ModuleTargetLookupVO> moduleTargetLookupVOList = moduleService.getAllModuleLookUp();
-			List<UserRoleVO> userRoleVOs = moduleService.getAllUserRoles();
+			List<JwsRole> userRoleVOs = moduleService.getAllUserRoles();
 			Integer defaultSequence = moduleService.getModuleMaxSequence();
 			String uri = a_httHttpServletRequest.getRequestURI()
 					.substring(a_httHttpServletRequest.getContextPath().length());

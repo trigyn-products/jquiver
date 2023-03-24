@@ -23,11 +23,11 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.service.DashletService;
-import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.webstarter.utils.Constant;

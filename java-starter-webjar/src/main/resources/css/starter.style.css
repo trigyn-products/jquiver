@@ -7163,7 +7163,6 @@ border: 1px solid #005da3;
  .resapiactionbtn ul.restaction li{
     padding: 5px 10px;
     display: flex;
-	 border-left:1px solid #ccc;
     cursor: pointer;
 	 align-items: center;
 	 position: relative;
@@ -7394,178 +7393,6 @@ border: 1px solid #005da3;
 	margin-left:5px;
 }
  
-.historycontent {
-    display: flex;
-    width: 100%;
-} 
- 
-.timeicon{
-     display: block;
-    z-index: 9;
-    height: 44px;
-    width: 44px;
-    border-radius: 50px;
-    margin: -7px 0px 0 -5px;
-}
-
-.timeclss  {
-    display: flex;
-    color: #000;
-    padding: 1px 0 2px 10px;
-    min-width: 110px;
-    border-radius: 50px 0 0 50px;
-    margin-top: 3px;
-    font-weight: bold;
-}
-
-.rightconent {
-    border-left: 1px solid #ccc;
-    margin-left: -25px;
-    padding-left: 40px;
-	padding-bottom: 50px;
-}
-
-.timeblock {
-    display: flex;
-    align-items: flex-start;
-}
-
-.nametag {
-    display: flex;
-    align-items: center;
-}
-
-.nametag h3{
-   font-size:16px;
-	margin: 0px;
-}
-
-.statustag {
-     display: flex;
-    padding: 0px 10px;
-    background: #ccc;
-    border-radius: 50px;
-    margin: 0 0 0 15px;
-    font-size: 13px;
-
-}
-
-.commenttag {
-    margin: 10px 0;
-}
-
-.shownotificationbtn{
-    margin: 20px 0 0 0;
-    display: block;
-    color:var(--bluebgcolor);
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.codeblock{
-	    background: #f2f2f2;
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.historyblock .historycontent:last-child .rightconent{
-	border-left:none;
-}
-
-.updatehistory .timeicon{
-	    background: #fff url(updatehistory.svg);
-}
-
-.deletehistory .timeicon{
-	    background: #fff url(deletehistory.svg);
-}
-
-.createhistory .timeicon{
-	    background: #fff url(createhistory.svg);
-}
-
-.otherhistory .timeicon{
-	    background: #fff url(otherhistory.svg);
-}
-
-.viewhistory .timeicon{
-	    background: #fff url(viewhistory.svg);
-}
-
-.updatehistory .timeclss{
-    background: #ef931a61;
-    color: #000;
-    font-weight: bold;
-	border:1px solid #ef931a;
-}
-
-.updatehistory .statustag{
-	background: #ef931a61;
-	border:1px solid #ef931a;
-}
-
-.deletehistory .timeclss{
- background: #d2210640;
-    color: #000;
-    font-weight: bold;
-    border: 1px solid #d22106;
-}
-
-.deletehistory .statustag{
-	background: #d2210640;
-	border:1px solid #d22106;
-}
-
-.createhistory .timeclss{
-      background: #81b00152;
-    color: #000;
-    font-weight: bold;
-    border: 1px solid #81b001;
-}
-
-.createhistory .statustag{
-	background: #81b00152;
-	border:1px solid #81b001;
-}
-
-.otherhistory .timeclss{
-background: #9901b042;
-    color: #000;
-    font-weight: bold;
-    border: 1px solid #9901b0;
-}
-
-.otherhistory .statustag{
-	background: #9901b042;
-	border:1px solid #9901b0;
-}
-
-
-.viewhistory .timeclss{
-       background: #005da347;
-    color: #000;
-    font-weight: bold;
-    border: 1px solid #005da3;
-}
-
-
-.deletepopupblock{
-	position:fixed;
-	top:30% !important;
-}
-
-
-.viewhistory .statustag{
-	background: #005da347;
-	border:1px solid #005da3;
-}
-
-.otherhistory .statustag{
-	background: #ef931a61;
-	border:1px solid #ef931a;
-}
-
 /*this is for full screen of textarea*/
 .txtWrapper i {
     position: absolute;
@@ -7660,12 +7487,57 @@ background: #9901b042;
     -webkit-filter: brightness(0) invert(1);
 }
 
+.tablescrollcls .pq-grid-cont-inner .pq-grid-table{
+	display:block  !important;
+	width:100%  !important;
+	overflow:auto  !important;
+	max-height:320px !important;
+	min-height:320px !important;
+}
+
+.tablescrollcls .pq-grid-norows{
+	    min-height: 325px;
+    max-height: 325px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+}
 
 #cs_jscript pre{
     display: flex !important;
     flex-direction: column;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+.restapiiconhover{
+    border: 1px solid #005da3;
+    height: 30px;
+    width: 30px;
+    display: flex !important;
+    justify-content: center;
+    margin: 0 0 0 10px;
+    border-radius: 3px;
+}
+
+.restapiiconhover:hover{
+  background: #005da3;
+  border:1px solid #005da3;
+}
+
+.restapiiconhover:hover .fa{
+	color:#fff;
+}
+
+.restapiiconhover img{
+	margin:0px;
+}
+
+.restapiiconhover:hover img{
+    filter: brightness(0) invert(1);
+    -webkit-filter: brightness(0) invert(1);
 }
 
 

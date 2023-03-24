@@ -73,7 +73,7 @@
 					<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                     </div>
 
-                <div style = "position:relative; left:320px;">
+                <div style = "text-align:right">
                     <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="100" >
                 </div>
                 </div>

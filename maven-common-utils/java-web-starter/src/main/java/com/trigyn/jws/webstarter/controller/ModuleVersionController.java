@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
-import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.webstarter.service.ModuleRevisionService;
 import com.trigyn.jws.webstarter.utils.Constant;
 

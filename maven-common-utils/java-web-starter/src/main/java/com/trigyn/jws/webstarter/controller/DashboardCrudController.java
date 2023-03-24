@@ -36,6 +36,7 @@ import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 import com.trigyn.jws.webstarter.utils.Constant;
@@ -85,7 +86,7 @@ public class DashboardCrudController {
 		try {
 			Map<String, Object>	templateMap	= new HashMap<>();
 			Dashboard			dashboard	= new Dashboard();
-			List<UserRoleVO>	userRoleVOs	= dashboardCrudService.getAllUserRoles();
+			List<JwsRole>	userRoleVOs	= dashboardCrudService.getAllUserRoles();
 			if (!StringUtils.isBlank(dashboardId)) {
 				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
 				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService

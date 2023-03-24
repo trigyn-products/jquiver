@@ -154,7 +154,7 @@
           minChars: 6,
           passwordToggle: true,
           tooltip: true,
-          eyeImg: "${contextPath}/cf/files/f918e998-84b8-4b99-b81c-fedc774f871d"
+          eyeImg: "${contextPath}/webjars/1.0/images/eyeImage.svg"
         });
     let driverUrl = new Object();
 	function getDBDrivers(){

@@ -32,32 +32,25 @@
                 <value></value>
             </parameter>
         </query-param>
-        <body contentType="rawBody | keyValue"> <!-- optional-->
+        <body contentType="rawBody | keyValue"> <!-- body and contenttype in body are optional-->
         <!-- 
-        	null / no mention / keyValue	: pass key value pair in request based on request type
-        	rawBody 						: Will just dump the body in the request, all child elements will be ignored in this scenario. This will not support file attachment. Make sure the parameter name is "data-raw" if the contentType is "rawBody"
+        	null / no mention / keyValue							: pass key value pair in request based on request type 
+        	rawBody 												: Will just dump the body in the request, all child elements will be ignored in this scenario. 
+        															  This will not support file attachment. Make sure the parameter name is "data-raw" if the contentType is "rawBody"
         -->
-            <parameter dataType="json">
-            <!-- 
-	        	json						: will create json object with the key value provided and pass in the body
-	        	null / no mention			: pass key value pair in request based on request type
-	        -->
-                <name>data-raw</name>
-                <!-- 
-	        	user defined key			: user defined key, as per the user request
-	        	data-raw					: if the contentType is rawBody
-	        	-->
-                <value></value>
-            </parameter>
             <parameter>
-                <name></name>
+           		<name>data-raw</name>		<!-- data-raw			: if the contentType is rawBody, is mandatory.  -->
                 <value></value>
             </parameter>
-            <parameter>
-                <name></name>
+            <parameter dataType="json">		<!--  json				: will create json object with the key value provided and pass in the body -->
+                <name></name>				<!-- user defined key	: user defined key, as per the user request -->
                 <value></value>
             </parameter>
-        </body>
+            <parameter>			<!-- datatype null / no mention		: pass key value pair in request based on request type -->
+           		<name></name>				<!-- user defined key	: user defined key, as per the user request -->
+                <value></value>
+            </parameter>
+        </body> 
          <attachments>
 	      <attachment type="1|2|3" hasEmbeddedImage="imageName"> <!-- hasEmbeddedImageis optional -->
 	         <!-- 1=internal uploaded file;2=filesystem;3=uploaded file in this call -->

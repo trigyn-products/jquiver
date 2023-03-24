@@ -10,7 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.trigyn.jws.dbutils.entities.UserRole;
+
+import com.trigyn.jws.usermanagement.entities.JwsRole;
 
 @Entity
 @Table(name = "jq_dashlet_role_association")
@@ -27,13 +28,13 @@ public class DashletRoleAssociation implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
-	private UserRole					userRole			= null;
+	private JwsRole					userRole			= null;
 
 	public DashletRoleAssociation() {
 
 	}
 
-	public DashletRoleAssociation(DashletRoleAssociationPK id, UserRole userRole) {
+	public DashletRoleAssociation(DashletRoleAssociationPK id, JwsRole userRole) {
 		this.id			= id;
 		this.userRole	= userRole;
 	}
@@ -54,11 +55,11 @@ public class DashletRoleAssociation implements Serializable {
 		this.dashlet = dashlet;
 	}
 
-	public UserRole getUserRole() {
+	public JwsRole getJwsRole() {
 		return userRole;
 	}
 
-	public void setUserRole(UserRole userRole) {
+	public void setJwsRole(JwsRole userRole) {
 		this.userRole = userRole;
 	}
 
@@ -91,7 +92,7 @@ public class DashletRoleAssociation implements Serializable {
 		DashletRoleAssociation obj = new DashletRoleAssociation();
 
 		obj.setId(id.getObject());
-		obj.setUserRole(userRole.getObject());
+		obj.setJwsRole(userRole.getObject());
 
 		return obj;
 	}

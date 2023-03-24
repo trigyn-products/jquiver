@@ -14,6 +14,9 @@
  <div class="row topband" style="display:flex;justify-content: space-between;"> 
   <div class="col-8">
     <h2 class="title-cls-name float-left">View REST API</h2> </div>
+    <span onclick="backToDynarestListingPage();">
+        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+    </span> 
  </div>
 <div class="resapiactionbtn">
     <ul class="restaction">
@@ -21,10 +24,10 @@
             <input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="" >
             <label for="selectAll"> Select All </label>
         </li>
-        <li id="expand" class="expandcls" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg">Expand All </li>
-        <li class="sortclickcls" title='Sort'>
+        <li id="expand" class="expandcls restapiiconhover" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg"> </li>
+        <li class="sortclickcls restapiiconhover" title='Sort'>
             <span class="sorting" id="sorting" onclick="">
-            <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg"> Sort</span>
+            <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg"></span>
             <div class="sortblock" id="sortclickev" >
                 <div class="updownblock"> <span class="uparow sorticoncls activecls" id="sortdown"  data-order="ASC" onclick="markSort(this);">
                     <i class="fa fa-sort-amount-asc " aria-hidden="true"></i> </span> 
@@ -39,7 +42,7 @@
                 </ul>
             </div>
             </li>
-            <li title='Export' id="exportvtb" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o"></i> Export </label></li>
+            <li title='Export' id="exportvtb" class="restapiiconhover" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o"></i></label></li>
         </ul>
         </div>
      <div id="viewRestAPI" class="getapidetailsblock">
@@ -51,15 +54,18 @@ document.title="View REST API";
 contextPath = "${(contextPath)!''}";
 $(function() {
     loadRestAPI(0);   
-    sortOrderonLoad();
+   
 });
 /**For loading the Rest API Contents on load on calling the getRestAPI*/
 function loadRestAPI(a_offset) {
+    
     if(a_offset == 0) {
         $("#viewRestAPI").html("");
     }
-    $("#viewRestAPI").find("button").remove();
-    
+    if(a_offset == 2){
+        $("#viewRestAPI").find("button").remove();
+    }
+   
     $.ajax({
         type : "POST",
         async: true,
@@ -70,7 +76,13 @@ function loadRestAPI(a_offset) {
             },
         success : function(data) {
             $("#viewRestAPI").append(data);
+            if($('#selectAll').prop('checked') == true) {
+                $('.apiChk').prop('checked', 'checked');  
+            }
             $('.sortblock').hide();
+           
+                sortOrder(l_columnName,a_sortOrder,a_offset);
+          
             showMessage("Data loaded...", "success")
         },
         error: function(jqXHR, exception){
@@ -80,30 +92,44 @@ function loadRestAPI(a_offset) {
 }
 /**Ends Here*/
 
+function exportDetails(l_columnName,a_sortOrder){
+  /*written for passing the values*/
+}
 /**For exporting the contents on click of Export Button*/
 function getExport() {
-var select_All = "" ;
-if (document.getElementById('selectAll').checked) {
-    select_All = "true";
-    getDynaExport(select_All, '');
-} else {
-    var exportIdList = [];
+    let ischeckBoxSelected = validateExport();
+    if(ischeckBoxSelected == true){
+        showMessage("No API selected...", "warn");
+        return;
+    }
+exportDetails(l_columnName,a_sortOrder);
+
+     var select_All = "" ;
+     var exportIdList = [];
     $.each($(".apiChk:checked"), function () {
         exportIdList.push($(this).val());
     });
 select_All = "false";
-getDynaExport(select_All, exportIdList);
-}
+getDynaExport(select_All, exportIdList,l_columnName,a_sortOrder);
+
 }
 
 /** Called from getExport()*/
-function getDynaExport(select_All,dynaId) {
+function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
+    
+    if(l_columnName == undefined && a_sortOrder == undefined){
+        l_columnName = "restURL";
+        a_sortOrder = "ASC";
+    }
     $.ajax({
         type : "POST",
         async: true,
         url : "${contextPath!''}/api/getexportableAPI",
         data:{"dynaId":JSON.stringify(dynaId),
-            "select_All": select_All+""},
+            "select_All": select_All+"",
+            "l_columnName": l_columnName+"",
+            "a_sortOrder": a_sortOrder+""            
+            },
         success : function(data) {
               var a_strSourceBody = data;
               var form  = document.createElement("form");
@@ -136,26 +162,12 @@ $(document).on('click', function (a_element) {
     }
 });
 /**Ends Here*/
-/** For doing the sorting on Load*/
 
-function sortOrderonLoad(){
-    if($("#btnLoadMore").length > 0){
-        btnHTML = $("#btnLoadMore").html();
-    }
-     var result = $('#viewRestAPI .methodnameblock').sort(function (a, b) {
-        let contentA, contentB;
-        contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
-        contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
-        return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;   
-      });   
-        $('#viewRestAPI').html(result);
-        $('#viewRestAPI').append(btnHTML);
-}
-/**Ends Here*/
 /**For sorting the Rest API Contents based on Asc and Desc Order
  * and also based on Method Type , Method Name and Rest URL*/
 let l_columnName;
 let a_sortOrder;
+let btn_offset;
 function markSort(a_element){
     if($(a_element).data('sort')){
         $(".sortType").removeClass("activecls");
@@ -172,15 +184,23 @@ function markSort(a_element){
     if($(a_element).attr('data-order') != undefined){
         a_sortOrder =  $(a_element).attr('data-order');
     }
-    sortOrder(l_columnName,a_sortOrder);     
+    sortOrder(l_columnName,a_sortOrder,btn_offset);    
+    exportDetails(l_columnName,a_sortOrder);
+  
 }
 
 let btnHTML = "";
-function sortOrder(l_columnName,a_sortOrder) { 
+let offset ="";
+function sortOrder(l_columnName,a_sortOrder,btn_offset) { 
+         
+  if(btn_offset == 1 || btn_offset == 0 || btn_offset == 2){
+      offset = btn_offset;
+  }
    
     if($("#btnLoadMore").length > 0){
         btnHTML = $("#btnLoadMore").html();
     }
+    
     var result = $('#viewRestAPI .methodnameblock').sort(function (a, b) {
     
         let contentA, contentB;
@@ -188,14 +208,23 @@ function sortOrder(l_columnName,a_sortOrder) {
         if(l_columnName == "methodType" && a_sortOrder == undefined){
             contentA = $(a).find(".methodtypeblock").text().trim().toUpperCase();
             contentB = $(b).find(".methodtypeblock").text().trim().toUpperCase(); 
+            $(sort_type).addClass("activecls");
+            $(sort_mtd).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
 
         }else if(l_columnName == "methodName" && a_sortOrder == undefined){
             contentA = $(a).find(".methodName").text().trim().toUpperCase();
             contentB = $(b).find(".methodName").text().trim().toUpperCase();
+            $(sort_mtd).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_url).removeClass("activecls");
 
         }else if(l_columnName == "restURL" && a_sortOrder == undefined){
             contentA = $(a).find(".methodblocktwo").text().trim().toUpperCase();
             contentB = $(b).find(".methodblocktwo").text().trim().toUpperCase();
+            $(sort_url).addClass("activecls");
+            $(sort_type).removeClass("activecls");
+            $(sort_mtd).removeClass("activecls");
 
         }else if(l_columnName == "methodType" && a_sortOrder == "ASC"){
             contentA = $(a).find(".methodtypeblock").text().trim().toUpperCase();
@@ -257,20 +286,32 @@ function sortOrder(l_columnName,a_sortOrder) {
         return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;    
     });
    $('#viewRestAPI').html(result);
-   $('#viewRestAPI').append(btnHTML);
+   if(offset == 1 || offset == 0){
+        $('#viewRestAPI').append(btnHTML);
+   }
+   if(offset == 2 ){
+      $("#viewRestAPI").find("button").remove();
+   }
 }
 /**Ends Here*/
 
 /** To check and uncheck the select All check box based on the  below check boxes*/
-function CheckedAll() {   
+function CheckedAll() { 
+    
     $('#selectAll').prop('checked', ($(".apiChk").length == $(".apiChk:checked").length));
 }
 /**Ends Here*/
-
+function validateExport(){
+    var selectCheckBox = false;
+    if($(".apiChk:checked").length == 0){
+        selectCheckBox = true;
+    }
+    return selectCheckBox;
+}
 
 /** To check and uncheck all the check boxes by selecting Select All check box*/
 $('#selectAll').change(function () {
-//$("#selectAll").click(function(){
+    
     $('.apiChk').prop('checked', this.checked);  
 });
 /**Ends Here*/
@@ -299,4 +340,11 @@ function bindAccordian(a_element) {
     $(a_element).closest(".methodnameblock").find('.restapiotherblock').slideToggle(1000);
 }
 /**Ends Here*/
+
+function backToDynarestListingPage() {
+    location.href = contextPath+"/cf/dynl";
+}
 </script>
+
+ 
+

@@ -751,7 +751,7 @@ $(document).ready(function() {
 	$(".fileupload").on("paste", function(pasteEevent) {
 		var isFirefox = (navigator.userAgent.indexOf('Firefox') !== -1);
 		if (isFirefox) {
-			$("<div id='confirm' class='hide'>Copy paste file from Clipboard is not supprted. If you are trying to upload image, then take a snapshot or browse.</div>").
+			$("<div id='confirm' class='hide'>Copy paste file from Clipboard is not supported. If you are trying to upload image, then take a snapshot or browse.</div>").
 				dialog({
 					bgiframe: true,
 					autoOpen: true,

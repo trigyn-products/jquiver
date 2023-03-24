@@ -24,7 +24,7 @@
         <div class="clearfix"></div>        
     </div>
         
-    <div id="${gridId}"></div>
+    <div id="${gridId}" class="tablescrollcls"></div>
 
     <div id="snackbar"></div>
 </div>

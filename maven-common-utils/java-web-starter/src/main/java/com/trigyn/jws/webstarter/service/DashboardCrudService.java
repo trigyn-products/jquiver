@@ -33,13 +33,16 @@ import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.repository.UserRoleRepository;
+
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dbutils.vo.UserRoleVO;
+
+import com.trigyn.jws.usermanagement.entities.JwsRole;
+import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
+
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 
 @Service
@@ -71,7 +74,7 @@ public class DashboardCrudService {
 	private IDashletRepository						iDashletRepository				= null;
 
 	@Autowired
-	private UserRoleRepository						userRoleRepository				= null;
+	private JwsRoleRepository						userRoleRepository				= null;
 
 	@Autowired
 	private IUserDetailsService						userDetailsService				= null;
@@ -96,8 +99,8 @@ public class DashboardCrudService {
 		return dashboardCrudDAO.findDashboardRoleByDashboardId(dashboardId);
 	}
 
-	public List<UserRoleVO> getAllUserRoles() throws Exception {
-		return userRoleRepository.getAllActiveRoles(Constants.RecordStatus.INSERTED.getStatus());
+	public List<JwsRole> getAllUserRoles() throws Exception {
+		return userRoleRepository.findAllRoles();
 	}
 
 	public void deleteAllDashletFromDashboard(DashboardVO dashboardVO) throws Exception {

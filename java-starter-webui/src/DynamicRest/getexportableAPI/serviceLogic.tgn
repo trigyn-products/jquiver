@@ -151,19 +151,13 @@ margin: 0px;
   background:#dc39a2 !important;
 }
   
- 
-
-   
-  
- 
-
-  .tdcls {
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 48%;
-        border-top: 0px;
-    border-left: 0px;
+.tdcls {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 48%;
+      border-top: 0px;
+  border-left: 0px;
  }
   
   .tdclsextr{
@@ -238,10 +232,7 @@ margin: 0px;
      background: #fdfdfd;
      font-weight:bold;
   }
-</style
-
- 
-><div id="restApiDetailsDiv">
+</style><div id="restApiDetailsDiv">
 <#if dynaResult?? && dynaResult?size != 0>
   <#list dynaResult as dynaList>
   <table class="exportapitble" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -267,12 +258,9 @@ margin: 0px;
                   <label>HTTP Produces Type</label>
                   <span>${dynaList.http_produces_type} </span></div></td>              
               <td><div class="col-inner-form full-form-fields"><label>Rest Method Name</label>
-                <span>${dynaList.dynarestMethodName}</span></div> </td>
-             
+                <span>${dynaList.dynarestMethodName}</span></div> </td>     
             </tr>
-  
-      <tr>
-              
+      <tr>       
               <td colspan="2"><div class="col-inner-form full-form-fields" style="padding-top:20px;"><label>Description </label>
                 <span>${dynaList.dynarestMethodDescription}</span></div> </td>
             </tr>

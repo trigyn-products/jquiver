@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
-import com.trigyn.jws.dbutils.service.ModuleService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;

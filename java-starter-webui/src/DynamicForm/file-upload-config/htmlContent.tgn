@@ -48,7 +48,7 @@
 			<div class="col-inner-form full-form-fields">
 		            <label for="fileTypeSupported" style="white-space:nowrap">
 		            <span class="asteriskmark">*</span>
-		              ${messageSource.getMessage('jws.filetypesupported')}
+		              ${messageSource.getMessage('jws.filetypesupported')}<i class="fa fa-info-circle" aria-hidden="true" title="Valid format is '.' followed by supported file extension or '.*'" style="margin-left: 2px;"> </i>
 		            </label>
 				<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif" value="" class="form-control">
 			</div>

@@ -132,6 +132,7 @@
 				type : "GET",
 				url : contextPath+"/api/defaultTemplates",
 				success : function(data){ 
+                
                     defaultTemplates = data["defaultTemplates"];
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
                        let defaultArray = defaultTemplates[counter]["NAME"];
@@ -140,7 +141,14 @@
                        for(let iCounter = 1; iCounter<splitValue.length; ++iCounter)
                        {   
                             result += " " +splitValue[iCounter].charAt(0).toUpperCase() + splitValue[iCounter].slice(1);
-                       }                 
+                       }  
+                       if(result.includes("Web Client Call Xml")) {
+                           result = result.split("Call");
+                           result = result[0] + result[1].toUpperCase();     
+                       } else if(result.includes("Email Xml Template")) {
+                           result = result.split("Template");
+                           result = result[0];
+                       }            
                        $("#defaultTemplateId").append("<option id='"+defaultArray+"'>"+result+"</option>");
 					}
 					$("#defaultTemplateId").change(function(event){

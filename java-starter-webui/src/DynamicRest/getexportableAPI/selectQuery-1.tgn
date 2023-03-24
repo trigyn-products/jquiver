@@ -21,4 +21,7 @@ jdrd.jws_dynamic_rest_id IN (
 ' ')
 </#if>
 GROUP BY jqra.entity_id
-ORDER BY jws_dynamic_rest_url ASC
+ORDER BY 
+<#if l_columnName=="methodName"> jws_method_name 
+<#elseif l_columnName=="methodType"> jws_request_type <#else> jws_dynamic_rest_url </#if> 
+<#if a_sortOrder=="ASC">ASC <#else> DESC </#if>

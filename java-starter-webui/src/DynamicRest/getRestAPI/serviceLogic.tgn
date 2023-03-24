@@ -1,4 +1,4 @@
-<div class = "restAPI">
+
 <#assign l_offset=offset?number>
 <#assign startCount=startCount?number>
     <#if dynaResult?? && dynaResult?size gt 0>
@@ -82,13 +82,12 @@
               </div>
               </#list>
               </#if>    
-              </div>    
+              
     <#if ((l_offset + 1) * 10 < responseCount[0].responses?number)>
     <div id="btnLoadMore">
-      <center><button class="btn btn-primary" onclick="loadRestAPI(${l_offset + 1})">
+      <center><button class="btn btn-primary" onclick="loadRestAPI(${l_offset + 1});">
       <i class="fa fa-refresh" aria-hidden="true"></i>
 		Load More</button></center>
     </div>
-    </#if> 
 
-
+    </#if>
