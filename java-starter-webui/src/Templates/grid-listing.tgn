@@ -58,7 +58,7 @@
 		</div>
 		
 		<div id="deleteHeader"></div>
-		<div id="divGridDetailsListing"></div>
+		<div id="divGridDetailsListing" class="tablescrollcls"></div>
 
 <form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
     <input type="hidden" id="entityName" name="entityName" value="jq_grid_details">

@@ -36,7 +36,7 @@
   		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="" type="button" onclick="configHomePage(this)">
 		</span> -->
 		<span>
-  		    <input id="addModule" class="btn btn-primary" name="addGridDetails" style="padding-right: 5px;" value="${messageSource.getMessage('jws.addModule')}" type="button" onclick="submitForm();">
+  		    <input id="addModule" class="btn btn-primary" name="addGridDetails" style="margin-right: 5px;" value="${messageSource.getMessage('jws.addModule')}" type="button" onclick="submitForm();">
 		</span>
 
          <span onclick="backToWelcomePage();">
@@ -48,7 +48,7 @@
 		</div>
 		
 		<div id="deleteHeader"></div>
-		<div id="divModuleListing"></div>
+		<div id="divModuleListing" class="tablescrollcls"></div>
 
 </div>
 

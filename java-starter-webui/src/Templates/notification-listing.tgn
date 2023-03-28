@@ -45,7 +45,7 @@
         
    
     <div id="deleteHeader"></div>
-     <div id="not1Grid"></div>
+     <div id="not1Grid" class="tablescrollcls"></div>
     <div id="snackbar"></div>
 </div>
 

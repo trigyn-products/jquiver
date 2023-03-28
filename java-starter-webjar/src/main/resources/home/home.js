@@ -9,28 +9,27 @@ class HomePage {
  
 HomePage.prototype.fn = {
 
-	openNavigation: function() {
-		$("#mySidenav").css("width", "250px");
-		$("#closebtni").addClass("showcls");
-		$("#openbtni").addClass("hidecls");
-		$('body').css('background-color', 'rgba(0,0,0,0.4)');
-		$(".container").addClass("overlaycls");
-		$(".jws-body-overlay").addClass("overlaycls");
-		$('#searchInput').focus();
+	toggelNavigation: function(){
+		if($(".hamburgermenu").hasClass("open")){
+			$("#mySidenav").css("width", "0");
+			$("#closebtni").removeClass("showcls");
+			$("#openbtni").removeClass("hidecls");
+			$("#openbtni").addClass("showcls");
+			$("#closebtni").addClass("hidecls");
+			$('body').css('background-color', 'white');
+			$(".container").removeClass("overlaycls");
+			$(".jws-body-overlay").removeClass("overlaycls");
+		}else{
+			$("#mySidenav").css("width", "250px");
+			$("#closebtni").addClass("showcls");
+			$("#openbtni").addClass("hidecls");
+			$('body').css('background-color', 'rgba(0,0,0,0.4)');
+			$(".container").addClass("overlaycls");
+			$(".jws-body-overlay").addClass("overlaycls");
+			$('#searchInput').focus();
+		}
+		$(".hamburgermenu").toggleClass("open");
 	},
-
-	closeNavigation: function() {
-		$("#mySidenav").css("width", "0");
-		$("#closebtni").removeClass("showcls");
-		$("#openbtni").removeClass("hidecls");
-		$("#openbtni").addClass("showcls");
-		$("#closebtni").addClass("hidecls");
-		$('body').css('background-color', 'white');
-		$(".container").removeClass("overlaycls");
-		$(".jws-body-overlay").removeClass("overlaycls");
-
-	},
-
 
 	populateBodyContent: function(url) {
 		$('#bodyDiv').remove();
@@ -76,12 +75,12 @@ HomePage.prototype.fn = {
 		this.menuSearchFilter();
 	},
 
-	menuSearchFilter: function() {
-		let inputText = $("#searchInput").val().toUpperCase().trim();
-		if (inputText == "") {
-			$("#menuUL").find("li ").show();
+	menuSearchFilter: function(a_event) {
+		if(a_event && ((a_event.originalEvent && a_event.originalEvent.keyCode == 27) || a_event.keyCode == 27)){
+			this.toggelNavigation();
 			return;
 		}
+		
 		$("#menuUL").find("li").hide();
 		$("#menuUL").find("a").each(function(a_index, a_element) {
 			if ($(a_element).text().trim().toUpperCase().indexOf(inputText) > -1) {

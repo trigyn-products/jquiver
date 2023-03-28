@@ -578,10 +578,10 @@ class FileBinMaster {
 			fileSize = fileSize * Math.pow(1024, scale - 1);
 		}
 		$("#maxFileSize").val(fileSize);
-		$("#selectValidator_query").val(JSON.stringify($("#selectValidator_query").val()).replace(/(^")|("$)/g, ""));
-		$("#uploadValidator_query").val(JSON.stringify($("#uploadValidator_query").val()).replace(/(^")|("$)/g, ""));
-		$("#viewValidator_query").val(JSON.stringify($("#viewValidator_query").val()).replace(/(^")|("$)/g, ""));
-		$("#deleteValidator_query").val(JSON.stringify($("#deleteValidator_query").val()).replace(/(^")|("$)/g, ""));
+		$("#selectValidator_query").val($("#selectValidator_query").val());
+		$("#uploadValidator_query").val($("#uploadValidator_query").val());
+		$("#viewValidator_query").val($("#viewValidator_query").val());
+		$("#deleteValidator_query").val($("#deleteValidator_query").val());
 
 		if (isValidForm === true) {
 			let formData = $("#addEditForm").serialize() + "&formId=" + formId;

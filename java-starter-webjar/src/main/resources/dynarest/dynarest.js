@@ -392,8 +392,7 @@ class DynamicRest {
 			return false;
 		}
 		let serviceLogicContent = this.serviceLogicContent.getValue().toString();
-		serviceLogicContent = serviceLogicContent.replace(/\\/g, "\\\\");
-		$("#serviceLogic").val(serviceLogicContent.replace(/'/g, "''"));
+		$("#serviceLogic").val(serviceLogicContent);
 
 		let contextHeaderJson = context.headerJson();
 		if (contextHeaderJson == -1) {

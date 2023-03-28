@@ -925,6 +925,9 @@ public class ScriptUtil {
 	public final String evalTemplateByName(String a_strTemplateName, Map<String, Object> a_requestParams) {
 		try {
 			TemplateVO templateVO = templatingService.getTemplateByName(a_strTemplateName);
+			if (null == a_requestParams || a_requestParams.isEmpty() == true) {
+				throw new RuntimeException("Parameters have not been provided");
+			}
 			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 					a_requestParams);
 		} catch (Exception e) {
@@ -935,6 +938,9 @@ public class ScriptUtil {
 
 	public final String evalTemplateByContent(String a_strTemplateContent, Map<String, Object> a_requestParams) {
 		try {
+			if (null == a_requestParams || a_requestParams.isEmpty() == true) {
+				throw new RuntimeException("Parameters have not been provided");
+			}
 			return templatingUtils.processTemplateContents(a_strTemplateContent, "", a_requestParams);
 		} catch (Exception e) {
 			e.printStackTrace();

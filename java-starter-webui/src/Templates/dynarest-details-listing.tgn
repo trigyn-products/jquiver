@@ -75,7 +75,7 @@
 		</div>
 		
 		<div id="deleteHeader"></div>
-		<div id="divDynarestGrid"></table>
+		<div id="divDynarestGrid" class="tablescrollcls"></table>
 
 
 </div>

@@ -147,7 +147,9 @@
                            result = result[0] + result[1].toUpperCase();     
                        } else if(result.includes("Email Xml Template")) {
                            result = result.split("Template");
-                           result = result[0];
+                           var newStr = result[0].split("Email");
+                           var strSplit = result[0].split("Xml");
+                           result = strSplit[0] + newStr[1].toUpperCase();
                        }            
                        $("#defaultTemplateId").append("<option id='"+defaultArray+"'>"+result+"</option>");
 					}

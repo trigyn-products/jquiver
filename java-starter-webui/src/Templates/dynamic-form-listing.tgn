@@ -55,7 +55,7 @@
 		</div>
 		
 		<div id="deleteHeader"></div>
-		<div id="divDynamicFormMasterGrid"></div>
+		<div id="divDynamicFormMasterGrid" class="tablescrollcls"></div>
 
 		<form action="${(contextPath)!''}/cf/aedf" method="POST" id="addEditDynamicForm">	
 			<input type="hidden" id="formId" name="form-id">

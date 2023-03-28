@@ -26,6 +26,9 @@
 </head>
  		<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
 		<!-- <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a> -->
+ 		
+ 		
+ 		
  		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/">
 	 		<#if messageSource.getMessage("jws.projectName") != "JQuiver">
 	 			<@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
@@ -34,14 +37,11 @@
 	 		</#if> 		
  		</a> 
 
-        
-
-        <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
-	        <span class="hamburger float-left" id="openbtni" class="closebtn" onclick="homePageFn.openNavigation()">
-				<i class="fa fa-bars" aria-hidden="true"></i>
-			</span>
+         <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
+         <div class="hamburgermenu" onclick="homePageFn.toggelNavigation()">
+           <div class="icon"></div>
+        </div>
 		</#if>
-        <span id="closebtni" class="closebtn float-left" onclick="homePageFn.closeNavigation()">×</span>
         
         <ul class="navbar-nav px-3 float-right">
 			<li class="nav-item text-nowrap">
@@ -94,7 +94,7 @@
 	<div class="row">
 		<nav id="mySidenav"  class=" bg-dark sidenav sidebar">
 			<div class="nav-inside">
-				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter()">
+				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter(event)">
 				<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </span>
@@ -155,6 +155,26 @@
 			</nav>
 	
 	<main id="main" class="main-container">
+		
+		<!--  Theme Color and dark mode code -->
+        <div class="themecolorpalette">
+                <div class="colorpalette-hover">
+                    <img src="${(contextPath)!''}/webjars/1.0/images/color_colors_themes.png">
+                </div>
+                <div class="colorpalette">
+                    <button type="button" class="bluecolortheme colorbtn" onclick="themColor('005da3')">Blue</button>
+                    <button type="button" class="orangecolortheme colorbtn" onclick="themColor('FF9800')">Orange</button>
+                    <button type="button" class="purplecolortheme colorbtn" onclick="themColor('7B1FA2')">purple</button>
+                    <button type="button" class="greencolortheme colorbtn" onclick="themColor('008a00')">Green</button>
+                    <button type="button" class="browncolortheme colorbtn" onclick="themColor('ba4b4b')">Brown</button>
+                    
+					<div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">
+		                <span class="darkmodeon"><i class="fa fa-sun-o"></i></span>
+		                <span class="darkmodeoff"><i class="fa fa-moon-o"></i></span>
+		            </div>
+                </div>
+        </div>
+	
 		<div id="bodyDiv">
 			<#include "template-body">
 		</div>
@@ -176,6 +196,27 @@
 <script>
     
 
+// Get the root element
+var r = document.querySelector(':root');
+
+// Create a function for setting a variable value
+
+function themColor(color){
+     r.style.setProperty('--bluebgcolor', '#'+color);
+     setCookie("theme", color, 100);
+}
+
+function onDarkMode(){
+	if($("#darkmodebtn").hasClass("darkonoff") == false){
+		setCookie("darkMode", "true", 100);
+	}else{
+		setCookie("darkMode", "false", 100);
+	}
+	$("body").toggleClass("darktheme");
+	$("#darkmodebtn").toggleClass("darkonoff");
+}
+    
+
     
 	const contextPathHome = "${contextPath}";
 	contextPath = "${contextPath}";
@@ -183,8 +224,16 @@
 	let jqJSDateFormat;
 	
 	$(function() {
-
- 		    
+		
+ 	  if(getCookie("theme").trim().length > 0){
+			r.style.setProperty('--bluebgcolor', '#'+getCookie("theme"));
+	  }
+ 	  
+ 	  if(getCookie("darkMode").trim() === "true"){
+		$("body").addClass("darktheme");
+		$("#darkmodebtn").addClass("darkonoff");
+	  }
+	  	    
       let selectedLanguageId = getCookie("locale");
       if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
         setCookie("locale", "en_US", 1);
@@ -203,7 +252,11 @@
         	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
       	</#if>
       </#list>
+      
+      <#if loggedInUserName?? && loggedInUserName != "anonymous">
       retrieveProfilePic();
+      </#if>
+      
       getLanguageOption(); 
       
       	$("#bodyDiv").click(function(){

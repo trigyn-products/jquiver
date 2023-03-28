@@ -55,7 +55,7 @@
 		</div>
 		
 		<div id="deleteHeader"></div>
-		<div id="divAutocompleteGrid"></table>
+		<div id="divAutocompleteGrid" class="tablescrollcls"></table>
 
 		<div id="snackbar"></div>
 </div>

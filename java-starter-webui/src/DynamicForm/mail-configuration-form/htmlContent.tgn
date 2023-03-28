@@ -577,45 +577,45 @@ input:checked + .slider:before {
         </#if>
         
         if($("#mailConfigJson").val() !="" ){
-        var jsonObject = JSON.parse($("#mailConfigJson").val());
-        $("#smtpHostId").val(jsonObject.smtpHost); 
-        $("#smtpPortId").val(jsonObject.smtpPort);
-        $("#mailFrom").val(jsonObject.mailFrom);
-        $("#fromNameId").val(jsonObject.mailFromName);    
-        $("#internetAddressToArray").val(jsonObject.internetAddressToArray);  
-        $("#replyToDifferentEmailId").val(jsonObject.replyToDifferentMailId);
+	        var jsonObject = JSON.parse($("#mailConfigJson").val());
+	        $("#smtpHostId").val(jsonObject.smtpHost); 
+	        $("#smtpPortId").val(jsonObject.smtpPort);
+	        $("#mailFrom").val(jsonObject.mailFrom);
+	        $("#fromNameId").val(jsonObject.mailFromName);    
+	        $("#internetAddressToArray").val(jsonObject.internetAddressToArray);  
+	        $("#replyToDifferentEmailId").val(jsonObject.replyToDifferentMailId);
+	        
+	        if(jsonObject.isReplyToDifferentMail == true){
+	            $("#replyToEmailDropdown").val("Different");  
+	        }else{
+	            if(jsonObject.replyToDifferentMailId == jsonObject.mailFrom){
+	                $("#replyToEmailDropdown").val("Same");  
+	            }else{
+	                $("#replyToEmailDropdown").val("NoReply"); 
+	            }
+	        }
         
-        if(jsonObject.isReplyToDifferentMail == true){
-            $("#replyToEmailDropdown").val("Different");  
-        }else{
-            if(jsonObject.replyToDifferentMailId == jsonObject.mailFrom){
-                $("#replyToEmailDropdown").val("Same");  
-            }else{
-                $("#replyToEmailDropdown").val("NoReply"); 
-            }
-        }
-        
-    $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
-        $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
-        $("#noOfFailedMails").val(jsonObject.failedMailCounter);
-        $("#failedMailsSliderSpan").html(jsonObject.failedMailCounter);
-        if(jsonObject.isAuthenticated ==true){
-            $("#isSmtpAutheticatedId").prop("checked", true);
-            $("#userName").val(jsonObject.userName);
-      $("#password").val(jsonObject.password);
-        }else{
-            $(".RemoveData").attr("placeholder", ""); 
-            $(".RemoveData").val("");
-            $(".RemoveData").attr("disabled", "disabled");
-            $("#isSmtpAutheticatedId").prop("checked", false);
-        }
-        $("#mailFooterId").val(jsonObject.mailFooter);
+	    	$("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
+	        $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
+	        $("#noOfFailedMails").val(jsonObject.failedMailCounter);
+	        $("#failedMailsSliderSpan").html(jsonObject.failedMailCounter);
+	        if(jsonObject.isAuthenticated ==true){
+	            $("#isSmtpAutheticatedId").prop("checked", true);
+	            $("#userName").val(jsonObject.userName);
+	      		$("#password").val(jsonObject.password);
+	        }else{
+	            $(".RemoveData").attr("placeholder", ""); 
+	            $(".RemoveData").val("");
+	            $(".RemoveData").attr("disabled", "disabled");
+	            $("#isSmtpAutheticatedId").prop("checked", false);
+	        }
+	        $("#mailFooterId").val(jsonObject.mailFooter);
       } else {
             $("#smtpHostId").val("localhost"); 
             $("#smtpPortId").val("25");
-            $("#mailFrom").val("admin@jquiver.io");
+            $("#mailFrom").val("admin@localhost.io");
             $("#fromNameId").val("Admin");
-            $("#internetAddressToArray").val("admin@jquiver.io");
+            $("#internetAddressToArray").val("admin@localhost.io");
             $("#noOfFailedMailsValue").html("50");
             $(".RemoveData").attr("placeholder", ""); 
             $(".RemoveData").val("");    

@@ -41,7 +41,7 @@
         <div class="clearfix"></div>        
         </div>
         
-        <div id="divdbResourceBundleGrid"></div>
+        <div id="divdbResourceBundleGrid" class="tablescrollcls"></div>
 
 </div>
 

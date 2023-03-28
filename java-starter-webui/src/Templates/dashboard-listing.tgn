@@ -32,7 +32,7 @@
 		<div class="clearfix"></div>		
 	</div>
 		
-	<div id="dashboardMasterGrid"></div>
+	<div id="dashboardMasterGrid" class="tablescrollcls"></div>
 
 
 </div>

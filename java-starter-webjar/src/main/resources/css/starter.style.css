@@ -11,6 +11,7 @@
   --amber:#FFA000;
   --purple:#7B1FA2;
   --green:#008a00;
+  --brown: #ba4b4b;
   --darkblack:rgb(27, 37 , 69);
   --darkblack-300:rgb(79, 87, 106);
   --darkblack-400:rgb(52, 62, 87);
@@ -43,18 +44,10 @@ body.darktheme {
 	display:none;
 }
 
-.darkmodeblock{
-	    position: fixed;
-    right: 0px;
-    top: 270px;
-border-radius: 10px 0 0 10px;
-    padding: 20px 10px;
-    background: #fff;
-        -webkit-box-shadow: 0px 0px 3px 0px rgb(0 0 0 / 35%);
-    -moz-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.35);
-    box-shadow: 0px 0px 3px 0px rgb(0 0 0 / 35%);
-        cursor: pointer;
-    transition: ease 0.5s;
+.darkmodeblock {
+    margin-top: 22px;
+    border-top: 2px solid #005da3;
+    padding-top: 15px;
 }
 
 .darkmodeblock .fa{
@@ -167,8 +160,35 @@ border-radius: 10px 0 0 10px;
  	 border-color: var(--darkblack-700);
 }
 
+.darktheme .pq-grid-header-table .pq-grid-title-row td{
+ 	 background-color: var(--darkblack);
+ 	 border-color: var(--darkblack-700);
+}
+
+.darktheme .pq-grid-header-table  .pq-grid-title-row th{
+ 	 background-color: var(--darkblack);
+ 	 border-color: var(--darkblack-700);
+}
+
+.darktheme .pq-grid-bottom.ui-widget-header{
+ 	 background-color: var(--darkblack) !important;
+ 	 border-color: var(--darkblack-700) !important;
+}
 
 
+.darktheme input.pq-grid-hd-search-field[type=text]{
+
+    background: var(--darkblack-500);
+    border-color: var(--darkblack-700);
+    color: var(--white);
+}
+
+.darktheme .pq-grid-cont-outer{
+	    background-color: var(--darkblack-300) !important;
+    color: var(--white);
+}
+
+ 
 
 /************* dark theme CSS END***************************/ 
 
@@ -191,15 +211,46 @@ body, html {
 }
 
 
-.themecolorpalette{
-	
+.themecolorpalette {
+    position: fixed;
+    right: 0px;
+    top: 150px;
+    transition: ease 0.5s;
+    cursor: pointer;
+      border-radius: 10px 0 0 10px;
+           -webkit-box-shadow: 0px 0px 3px 0px rgb(0 0 0 / 35%);
+    -moz-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.35);
+    box-shadow: 0px 0px 3px 0px rgb(0 0 0 / 35%);
 }
 
+.colorpalette-hover{
+    background: #ffffff;
+    border-radius: 10px 0 0 10px;
+    padding: 15px 8px;
+    border: 1px solid #ccc;
+    border-right: 0px;
+    position: relative;
+    z-index: 99;
+    margin-right: -2px;
+}
+
+.colorpalette-hover img{
+	width:30px;
+	height:auto;
+}
+
+.themecolorpalette:hover {
+    position: fixed;
+    right: 46px;
+    top: 150px;
+}
+
+ 
 .colorpalette{
 	display: flex;
-    position: fixed;
-    right:0px;
-    top: 90px;
+      position: absolute;
+    right: -47px;
+    top: -55px;
     border-radius: 10px 0 0 10px;
     padding: 20px 10px;
     background:#fff;
@@ -227,6 +278,11 @@ flex-direction: column;
 
 .greencolortheme{
 	background:#008a00;
+}
+
+
+.browncolortheme{
+	background:#ba4b4b;
 }
 
 
@@ -1343,6 +1399,55 @@ body {
 	height: calc(95% - 100px);
 }
 
+
+.hamburgermenu {
+    position: relative;
+    transition-duration: 0.5s;
+    float: left;
+    margin: 8px 0 0 25px;
+    height: 32px;
+    width: 32px;
+    cursor: pointer;
+    }
+
+.hamburgermenu .icon {
+     transition-duration: 0.5s;
+    position: absolute;
+    width: 30px;
+    height: 5px;
+    top: 13px;
+    background-color: #fff;
+}
+
+.hamburgermenu .icon:before {
+    transition-duration: 0.5s;
+    position: absolute;
+    width:30px;
+    height: 5px;
+    background-color: #fff;
+    content: "";
+    top: -12px;
+}
+
+.hamburgermenu .icon:after {
+    transition-duration: 0.5s;
+    position: absolute;
+    width: 30px;
+    height: 5px;
+    background-color: #fff;
+    content: "";
+    top: 12px;
+}
+
+.hamburgermenu.open .icon:after {
+    transform: rotateZ(45deg) scaleX(0.75) translate(-14px, 3px);
+}
+
+.hamburgermenu.open .icon:before {
+    transform: rotateZ(-45deg) scaleX(0.75) translate(-14px, -3px);
+}
+
+
 .hamburger {
 	color: #fff;
 	font-size: 30px;
@@ -1362,6 +1467,7 @@ body {
 	padding-top: 0;
 	padding-bottom: 0;
 	font-size: 26px;
+	    margin-left: 18px;
 	/* background-color: rgba(0, 0, 0, .25); */
 	font-family: 'holidaytimesjfregular' !important;
 	line-height: 40px;
@@ -1965,7 +2071,7 @@ td, th {
 }
 
 .cmn-custom-modal .modal-content .modal-header .close {
-	color: 005da3;
+	color: var(--bluebgcolor);
 }
 
 .cmn-custom-modal .modal-content .modal-body {
@@ -2524,7 +2630,7 @@ to {
 	height: 0;
 	border-style: solid;
 	border-width: 200px 200px 0 0;
-	border-color: #005da3 transparent transparent transparent;
+	border-color: var(--bluebgcolor);
 }
 
 .cm-import-btn:hover {
@@ -2542,7 +2648,7 @@ to {
 	height: 0;
 	border-style: solid;
 	border-width: 200px 200px 0 0;
-	border-color: #005da3 transparent transparent transparent;
+	border-color: var(--bluebgcolor);;
 	margin-top: -201px;
 	margin-left: -1px;
 	z-index: -11;
@@ -2606,8 +2712,7 @@ to {
 	flex-direction: column;
 	min-width: 0;
 	word-wrap: break-word;
-	background-color: #fff;
-	background-clip: border-box;
+ 	background-clip: border-box;
 	border: 0 solid rgba(0, 0, 0, .125);
 	border-radius: .25rem;
 	box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
@@ -4483,7 +4588,7 @@ color: #000;
 }
 
 .ui-dialog-titlebar {
-	background: #005da3 !important;
+	background: var(--bluebgcolor) !important;
 }
 
 .grid-stack .grid-stack-item .grid-stack-item-content {
@@ -4678,7 +4783,7 @@ input:checked+.slider:before {
 	border: 0px solid black;
 	outline: 0;
 	cursor: pointer;
-	background-color: #005da32e;
+	background-color: var(--bluebgcolor);
 	border-radius: 25px;
 	background-position-x: center;
 	font-size: 29px;
@@ -5091,11 +5196,14 @@ table.customtblecls tr:nth-child(odd) {
 }
 
 .profilepic img {
-	height: 100px;
-	width: 100px;
+	height: 150px;
+	width: 160px;
 	border-radius: 100px;
 	border: 5px solid #fff;
 	margin-top: -50px;
+	position: absolute;
+	top: 105;
+	left: 65px;
 }
 
 .teamtitle h3 {
@@ -5107,7 +5215,7 @@ table.customtblecls tr:nth-child(odd) {
 .udetails {
 	color: #fff;
 	margin: 10px 0 25px;
-	background: #005da370;
+	background: #a1cff7;
 	margin-top: -46px;
 	border: 1px solid #ccc;
 	padding: 65px 0 30px;
@@ -5132,6 +5240,7 @@ table.customtblecls tr:nth-child(odd) {
 	background: #f8f8f8;
 	padding: 25px 0 60px;
 	border-radius: 30px 30px 0 0;
+	height: 200px;
 }
 
 .centercls {
@@ -5234,8 +5343,8 @@ table.customtblecls tr:nth-child(odd) {
 .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active,
 	a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover
 	{
-	border: 1px solid #005da3 !important;
-	background: #005da3 !important;
+	border: 1px solid var(--bluebgcolor) !important;
+	background: var(--bluebgcolor) !important;
 	font-weight: normal;
 	color: #ffffff;
 }
@@ -6012,7 +6121,7 @@ div.pq-loading-mask>div {
     bottom: 0px;
         cursor: pointer;
     border-radius: 0 0.25em 0.25em 0;
-    color: #005da3;
+    color: var(--bluebgcolor);
 }
 
 .copyblockclsinput .fa:hover{
@@ -6288,7 +6397,7 @@ div.pq-loading-mask>div {
 }
 
 .pg-manual-display.pg-feedback-form .cm-submit-feedback-name {
-	color: #005da3 !important;
+	color: var(--bluebgcolor) !important;
 }
 
 .passowrdblock .showPassword {
@@ -6357,8 +6466,7 @@ width: 100%;
     border: 1px solid #6666;
     padding: 10px;
     margin-top: 20px;
-    background: #fdfdfd;
-}
+ }
 
 .oauthClientGroup .removeiconclsc{
 	    height: 35px;
@@ -6671,7 +6779,7 @@ input#viewNotificationBtn {
 
 
 .modal-header{
-	    background: #005da3 !important;
+	    background: var(--bluebgcolor) !important;
     color: #fff !important;
     padding: 10px 20px !important;
     margin: 1px !important;
@@ -7055,7 +7163,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 .addonicons {
-border: 1px solid #005da3;
+border: 1px solid var(--bluebgcolor);
     display: flex;
     margin: 0px;
     padding: 3px;
@@ -7066,7 +7174,7 @@ border: 1px solid #005da3;
  }
 
 .addonicons:hover{
-	background:#005da3;
+	background:var(--bluebgcolor);
 }
 
 .addonicons:hover img{
@@ -7128,7 +7236,7 @@ border: 1px solid #005da3;
 .modal.adminModalDialog .topband{
     position: absolute;
     height: 30px;
-    background: #005da3;
+    background: var(--bluebgcolor);
     top: 0px;
     left: 0px;
     right: 0px;
@@ -7166,7 +7274,7 @@ border: 1px solid #005da3;
     cursor: pointer;
 	 align-items: center;
 	 position: relative;
-	 color: #005da3;
+	 color: var(--bluebgcolor);
 }
 
 
@@ -7235,7 +7343,7 @@ border: 1px solid #005da3;
 .reastapititle {
   font-size: 16px;
     margin: 0px;
-    color: #005da3;
+    color: var(--bluebgcolor);
     padding: 0px 0 10px;
 }
 
@@ -7297,7 +7405,7 @@ border: 1px solid #005da3;
 
 .methodblocktwo.colpasecls:after{
 	content:"\f068";align-items: center;
-	color: #005da3;
+	color: var(--bluebgcolor);
 	display: flex;
 	font: normal normal normal 15px/1 FontAwesome;
 	position: absolute;
@@ -7307,7 +7415,7 @@ border: 1px solid #005da3;
 
 .methodblocktwo:after{
 	content:"\f067";align-items: center;
-	color: #005da3;
+	color:var(--bluebgcolor);
 	display: flex;
 	font: normal normal normal 15px/1 FontAwesome;
 	position: absolute;
@@ -7361,9 +7469,9 @@ border: 1px solid #005da3;
 }
 
 .activecls{
-	background:#005da3;
+	background:var(--bluebgcolor);
 	color:#fff !important;
-	border: 1px solid #005da3;
+	border: 1px solid var(--bluebgcolor);
 }
  
 
@@ -7380,7 +7488,7 @@ border: 1px solid #005da3;
 
 .sortby li:hover{
 	color:#fff !important;
-    background: #005da3;
+    background: var(--bluebgcolor);
        text-decoration: none !important;
 }
 
@@ -7419,7 +7527,7 @@ border: 1px solid #005da3;
     line-height: inherit !important;
     border-radius: 5px;
     background: #dee3e6;
-    color: #005da3;
+    color: var(--bluebgcolor);
 }
 
 /* Safari syntax */
@@ -7461,7 +7569,7 @@ border: 1px solid #005da3;
 /*for fixing dialog on top*/
 
 .actionimgbtn{
-    border: 1px solid #005da3;
+    border: 1px solid var(--bluebgcolor);
     display: flex;
     margin: 0px;
     padding: 3px;
@@ -7470,7 +7578,7 @@ border: 1px solid #005da3;
 }
 
 .actionimgbtn:hover {
-    background: #005da3;
+    background: var(--bluebgcolor);
 }
 
 .actionimgbtn img {
@@ -7513,7 +7621,7 @@ border: 1px solid #005da3;
 }
 
 .restapiiconhover{
-    border: 1px solid #005da3;
+    border: 1px solid var(--bluebgcolor);
     height: 30px;
     width: 30px;
     display: flex !important;
@@ -7523,8 +7631,8 @@ border: 1px solid #005da3;
 }
 
 .restapiiconhover:hover{
-  background: #005da3;
-  border:1px solid #005da3;
+  background:var(--bluebgcolor);
+  border:1px solid var(--bluebgcolor);
 }
 
 .restapiiconhover:hover .fa{
