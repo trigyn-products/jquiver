@@ -99,7 +99,7 @@ public class JwsUserManagementController {
 		try {
 			return userManagementService.loadUserManagement();
 		} catch (Exception exception) {
-			logger.error("Error ", exception);
+			logger.error("Error occured while loading User Management page.", exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -120,7 +120,7 @@ public class JwsUserManagementController {
 				return null;
 			}
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Role Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -144,7 +144,7 @@ public class JwsUserManagementController {
 		try {
 			return userManagementService.addEditRole(roleId);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading role : RoleId : "+ roleId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -165,7 +165,7 @@ public class JwsUserManagementController {
 		try {
 			return userManagementService.saveRoleModules(roleModule);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while saving Role Module.", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -191,7 +191,7 @@ public class JwsUserManagementController {
 				return null;
 			}
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading User Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -252,7 +252,7 @@ public class JwsUserManagementController {
 			boolean isProfilePage = false;
 			return userManagementService.addEditUser(userId, isProfilePage);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading user with userId::"+userId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -288,7 +288,7 @@ public class JwsUserManagementController {
 				return null;
 			}
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading manage permission page with userId::"+userId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -341,7 +341,7 @@ public class JwsUserManagementController {
 		try {
 			return userManagementService.manageEntityRoles();
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading manageEntityRoles page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -369,7 +369,7 @@ public class JwsUserManagementController {
 			try {
 				TimeUnit.SECONDS.sleep(1);
 			} catch (InterruptedException a_exception) {
-				logger.error("Error ", a_exception);
+				logger.error("Error occure while restarting server.", a_exception);
 			}
 			Restarter.getInstance().restart(FailureHandler.NONE);
 		}).start();
@@ -391,7 +391,7 @@ public class JwsUserManagementController {
 				return null;
 			}
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading manage-permission page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

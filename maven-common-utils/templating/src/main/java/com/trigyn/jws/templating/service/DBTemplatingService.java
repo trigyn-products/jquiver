@@ -70,7 +70,7 @@ public class DBTemplatingService {
 
 		TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
 		if (templateVO == null) {
-			throw new Exception("No template was found with the  name " + templateName);
+			throw new Exception("No template was found with the name " + templateName);
 		}
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		if (environment.equalsIgnoreCase("dev")) {

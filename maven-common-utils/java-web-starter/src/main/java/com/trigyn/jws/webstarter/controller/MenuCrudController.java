@@ -63,7 +63,7 @@ public class MenuCrudController {
 	private IUserDetailsService userDetailsService = null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog activitylog = null; 
 
 	@Autowired
 	private IModuleListingRepository iModuleListingRepository = null;
@@ -73,7 +73,7 @@ public class MenuCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Site Layout Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -115,7 +115,7 @@ public class MenuCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("module-manage-details", templateMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in Site Layout : "+"Module Id : " + moduleId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -165,7 +165,7 @@ public class MenuCrudController {
 		try {
 			return moduleService.getModuleIdBySequence(parentModuleId, sequence);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in Site Layout :"+ "Parent Module Id :"+ parentModuleId, a_exception);
 			return "Error occurred";
 		}
 	}
@@ -209,7 +209,7 @@ public class MenuCrudController {
 			Map<String, Object> templateMap = new HashMap<>();
 			return menuService.getTemplateWithSiteLayout("config-home-page-listing", templateMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Config Home Page Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

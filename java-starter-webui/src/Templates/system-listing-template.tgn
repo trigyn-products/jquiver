@@ -50,7 +50,8 @@
     
     	//uncomment below section if you want sorting on any specific column by default
     	let dataModel = {
-    		/*sortIndx: "lastUpdatedTs",
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
    			sortDir: "down"*/
     	};
     	

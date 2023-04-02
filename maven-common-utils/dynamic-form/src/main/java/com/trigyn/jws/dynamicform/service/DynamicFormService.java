@@ -212,7 +212,7 @@ public class DynamicFormService {
 			}
 
 		} catch (Exception a_exc) {
-			logger.error("Error while loading dynamic form ", a_exc);
+			logger.error("Error occured in loadDynamicForm() : form(formId : {})", formId, a_exc);
 			throw new RuntimeException(a_exc.getMessage());
 		}
 	}
@@ -505,9 +505,9 @@ public class DynamicFormService {
 					fileMap.put(uf.getKey(), fileInfo);
 
 					if (new File(fileCopyPath).exists() == false) {
-						logger.error("Copy path doesnot exists.");
+						logger.error("Copy path does not exist.");
 						httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-								"Copy path doesnot exists.");
+								"Copy path does not exist.");
 						return false;
 					}
 
@@ -711,9 +711,9 @@ public class DynamicFormService {
 					fileMap.put(uf.getKey(), fileInfo);
 
 					if (new File(fileCopyPath).exists() == false) {
-						logger.error("Copy path doesnot exists.");
+						logger.error("Copy path doesnot exist.");
 						httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-								"Copy path doesnot exists.");
+								"Copy path doesnot exist.");
 						return saveTemplateMap;
 					}
 
@@ -857,6 +857,8 @@ public class DynamicFormService {
 
 		StringJoiner insertJoiner = new StringJoiner(",", "INSERT INTO " + tableName + " (", ")");
 		StringJoiner insertValuesJoiner = null;
+		 boolean isIntPK = false;
+         int coloumnCounter = tableInformation.size();        
 		for (Map<String, Object> info : tableInformation) {
 			String columnName = info.get("tableColumnName").toString();
 			String dataType = info.get("dataType").toString();
@@ -865,7 +867,10 @@ public class DynamicFormService {
 					dbProductName);
 			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
 				insertJoiner.add(columnName);
-			}
+			if(dataType.equalsIgnoreCase(INT) || dataType.equalsIgnoreCase(DECIMAL)) {
+                    isIntPK = true;
+            }	
+		  }
 		}
 		for (Map<String, Object> info : tableInformation) {
 			String columnName = info.get("tableColumnName").toString();
@@ -874,12 +879,16 @@ public class DynamicFormService {
 			String columnType = info.get("columnType").toString();
 			if (StringUtils.isBlank(columnKey) || columnKey.equals(PRIMARY_KEY) == false) {
 				insertJoiner.add(columnName);
-				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName);
+				joinQueryBuilder(insertValuesJoiner, columnName, dataType, false, columnType, dbProductName, coloumnCounter);
 			}
-
+			coloumnCounter--;
 		}
 		StringBuilder queryBuilder = new StringBuilder(insertJoiner.toString());
 		queryBuilder.append(insertValuesJoiner);
+		
+		if(isIntPK) {
+            queryBuilder.append(" FROM " + tableName);
+		}
 
 		Map<String, Object> saveQueryparameters = new HashMap<>();
 		saveQueryparameters.put("insertQuery", queryBuilder.toString());
@@ -892,9 +901,9 @@ public class DynamicFormService {
 			String columnKey = info.get("columnKey").toString();
 			String columnType = info.get("columnType").toString();
 			if ("PK".equals(columnKey)) {
-				joinQueryBuilder(updateWhereQuery, columnName, dataType, true, columnType, additionalDataSourceId);
+				joinQueryBuilder(updateWhereQuery, columnName, dataType, true, columnType, additionalDataSourceId,coloumnCounter);
 			} else {
-				joinQueryBuilder(updateQuery, columnName, dataType, true, columnType, additionalDataSourceId);
+				joinQueryBuilder(updateQuery, columnName, dataType, true, columnType, additionalDataSourceId,coloumnCounter);
 			}
 		}
 		StringBuilder updateQueryBuilder = new StringBuilder(updateQuery.toString());
@@ -910,10 +919,6 @@ public class DynamicFormService {
 			a_excep.printStackTrace();
 			logger.error(a_excep);
 		}
-	}
-
-	public static void main(String[] args) {
-
 	}
 
 	private StringJoiner createInsertQuery(StringJoiner insertValuesJoiner, String tableName, String columnName,
@@ -938,12 +943,11 @@ public class DynamicFormService {
 				}
 
 				insertValuesJoiner.add(value.replace("\\", ""));
-			} else if (dataType.equalsIgnoreCase(INT)) {
+			} else if (dataType.equalsIgnoreCase(INT)|| dataType.equalsIgnoreCase(DECIMAL)) {
 				if (insertValuesJoiner == null) {
-					insertValuesJoiner = new StringJoiner(",", " VALUES (", ")");
+					insertValuesJoiner = new StringJoiner("");
 				}
-				String value = "SELECT CASE WHEN MAX(" + columnName + ") IS NULL THEN 1 ELSE MAX(" + columnName
-						+ ") + 1 END FROM " + tableName;
+				String value = " SELECT  COALESCE(MAX(" + columnName + "),0) + 1 ,";
 				insertValuesJoiner.add(value.replace("\\", ""));
 			}
 		}
@@ -951,22 +955,23 @@ public class DynamicFormService {
 	}
 
 	private void joinQueryBuilder(StringJoiner insertValuesJoiner, String columnName, String dataType,
-			boolean showColumnName, String columnType, String dbProductName) {
+			boolean showColumnName, String columnType, String dbProductName, int coloumnCounter) {
 		logger.debug(
 				"Inside DynamicFormService.joinQueryBuilder(insertValuesJoiner: {}, columnName: {}, dataType: {}, showColumnName: {}, columnType: {}, dbProductName: {})",
 				insertValuesJoiner, columnName, dataType, showColumnName, columnType, dbProductName);
 
 		String formFieldName = columnName.replace("_", "");
 		StringBuilder formFieldVal = new StringBuilder();
+		String value = null;
 		if (dataType.equalsIgnoreCase(TEXT)) {
-			String value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+			 value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
-		} else if (dataType.equalsIgnoreCase(INT)) {
-			String value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
+		} else if (dataType.equalsIgnoreCase(INT)|| dataType.equalsIgnoreCase(DECIMAL)) {
+			 value = showColumnName ? columnName + " = :" + formFieldName : ":" + formFieldName;
 			insertValuesJoiner.add(value.replace("\\", ""));
 		} else if (dataType.equalsIgnoreCase(DATE)) {
 			if (columnType.equals("hidden") == false) {
-				String value = "";
+				 value = "";
 				if (dbProductName != null && dbProductName.contains("postgresql")) {
 					value = "TO_DATE(:".concat(formFieldName).concat(", \"DD-MM-YYYY\") ");
 				} else if (dbProductName != null && dbProductName.contains("sqlserver")) {
@@ -989,6 +994,10 @@ public class DynamicFormService {
 			}
 			insertValuesJoiner.add(showColumnName ? columnName + " = " + formFieldVal : "" + formFieldVal);
 		}
+			 if(coloumnCounter > 1) {
+	             value = ",";
+	             insertValuesJoiner.add(value);
+	     }
 	}
 
 	private Map<String, Object> createParamterMap(List<Map<String, String>> formData) {
@@ -1019,11 +1028,11 @@ public class DynamicFormService {
 			try {
 
 				if (null != value && false == value.isEmpty()) {
-					dateData = new SimpleDateFormat("MMM d,yyyy, hh:mm:ss a").parse(value);
+					dateData = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss a").parse(value);
 					// dateData = DateFormat.getInstance().parse(value);
 				}
 			} catch (ParseException a_exc) {
-				logger.warn("Error paring the date : ", a_exc);
+				logger.warn("Error parsing the date : " + value + " Expected format is dd-MMM-yyyy hh:mm:ss a");
 			}
 			return dateData;
 		}

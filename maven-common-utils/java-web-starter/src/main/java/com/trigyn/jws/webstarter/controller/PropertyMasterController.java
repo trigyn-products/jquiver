@@ -43,7 +43,7 @@ public class PropertyMasterController {
 		try {
 			return menuService.getTemplateWithSiteLayout("property-master-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Property Master Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

@@ -10,11 +10,16 @@
                 <h2 class="title-cls-name float-left">User Management</h2>
                 <div class="float-right">
                     <div class="addonbtnblock">
-                    <button type="button" id="btnManagePermission" class="actionimgbtn lefrightspace">  <img src="${(contextPath)!''}/webjars/1.0/images/managepermision.svg" title="Manage Permissions"></button>
+                    <span class="btniconplace">     
+                       <button type="button" title="Manage Permissions" id="btnManagePermission" class="managepermisionicon  actionimgbtn lefrightspace"> </button></span>
 
-                  <button type="button" id="btnManageRoles" class="actionimgbtn lefrightspace">  <img src="${(contextPath)!''}/webjars/1.0/images/rolemangement.svg" title="Manage Roles"></button>
+                       <span class="btniconplace">  
+                  <button type="button" id="btnManageRoles" title="Manage Roles" class="rolemangementicon actionimgbtn lefrightspace"> </button>
+                       </span>
 
-                   <button type="button" id="btnManageUser" class="actionimgbtn lefrightspace" ">  <img src="${(contextPath)!''}/webjars/1.0/images/usermanagment.svg" title="Manage Users"></button>
+                      <span class="btniconplace"> 
+                   <button type="button" id="btnManageUser" title="Manage Users" class="manageusericon actionimgbtn lefrightspace" "></button>
+                      </span>
 
                     <button type="button" id="btnRestartServer" class="lefrightspace btn btn-primary">Restart Server</button>
                 </div>

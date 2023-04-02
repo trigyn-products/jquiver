@@ -20,8 +20,7 @@
          <div class="addonbtnblock">
          
           <a href="#"  onclick="fileUploadMaster();"> 
-                <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.commonfiles')}"> 
-                    <img src="${(contextPath)!''}/webjars/1.0/images/commanfilesuser.svg">
+               <span class="addonicons shedulericon commanfileuser" title="${messageSource.getMessage('jws.commonfiles')}"> 
                     </span>					 
 				</a>
 				

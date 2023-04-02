@@ -70,7 +70,7 @@ public class DashboardCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Dashboard Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -105,7 +105,7 @@ public class DashboardCrudController {
 			templateMap.put("dashboard", dashboard);
 			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Dashboard : DashboardId : "+ dashboardId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

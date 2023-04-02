@@ -54,8 +54,9 @@ public class DynamicFormController {
 				httpServletRequest.getParameter("gridId"));
 		try {
 			return dynamicFormService.loadDynamicForm(formId, processRequestParams(httpServletRequest), null);
+			
 		} catch (Exception exception) {
-			logger.error("Error occured while loading dynamic form(formId: {})", formId, exception);
+			logger.error("Error occured while loading dynamic form (formId: {})", formId, exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -71,11 +72,11 @@ public class DynamicFormController {
 	public Boolean saveDynamicForm(@RequestBody MultiValueMap<String, String> formData,
 			HttpServletResponse httpServletResponse) throws Exception {
 		
-		logger.debug("Inside DynamicFormController.saveDynamicForm(formData: {})", formData);
+		logger.debug("Inside DynamicFormController.saveDynamicForm(formData: {})", formData.getFirst("formId"));
 		try {
 			return dynamicFormService.saveDynamicForm(formData);
 		} catch (Exception exception) {
-			logger.error("Error occured while saving dynamic form(formId: {})", formData, exception);
+			logger.error("Error occured while saving dynamic form (formId: {})", formData.getFirst("formId"), exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -91,9 +92,9 @@ public class DynamicFormController {
 	public ResponseEntity<?> saveDynamicForm(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletRepsonse) {
 		logger.debug("Inside DynamicFormController.saveDynamicForm()");
-		
+		List<Map<String, String>>	formData	= null;
 		try {
-			List<Map<String, String>>	formData	= new Gson().fromJson(httpServletRequest.getParameter("formData"),
+			formData	= new Gson().fromJson(httpServletRequest.getParameter("formData"),
 					List.class);
 			dynamicFormService.saveDynamicForm(formData, httpServletRequest, httpServletRepsonse);
 			// validate resultMap
@@ -107,7 +108,7 @@ public class DynamicFormController {
 			return new ResponseEntity<>(a_exception.getMessageWithoutStackTop(), HttpStatus.EXPECTATION_FAILED);
 		} catch (Throwable a_throwable) {
 
-			logger.error("Error occurred while processing request: ", a_throwable);
+			logger.error("Error occurred while saving dynamic form(formData: {})",formData, a_throwable);
 			Throwable rootCause = a_throwable;
 			while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
 				if (rootCause instanceof StopException) {
@@ -127,8 +128,9 @@ public class DynamicFormController {
 			HttpServletResponse httpServletRepsonse, Map<String, Object> parameterMap) throws IOException {
 		
 		logger.debug("Inside DynamicFormController.saveDynamicFormV2()");
+		List<Map<String, String>> formData = null;
 		try {
-			List<Map<String, String>> formData = new Gson().fromJson(httpServletRequest.getParameter("formData"),
+			 formData = new Gson().fromJson(httpServletRequest.getParameter("formData"),
 					List.class);
 			Map<String, Object> result = dynamicFormService.saveDynamicFormV2(formData, httpServletRequest, httpServletRepsonse);
 
@@ -145,7 +147,7 @@ public class DynamicFormController {
 					a_exception.getMessageWithoutStackTop());
 		} catch (Throwable a_throwable) {
 
-			logger.error("Error occurred while processing request: ", a_throwable);
+			logger.error("Error occurred while saving dynamic form: "+formData.get(0), a_throwable);
 			Throwable rootCause = a_throwable;
 			while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
 				if (rootCause instanceof StopException) {

@@ -53,6 +53,15 @@
 	</dependency>
 -->		
 
+<!-- uncomment below section if you want to use jdk 15 or later -->
+<!--
+		<dependency>
+		  <groupId>org.openjdk.nashorn</groupId>
+		  <artifactId>nashorn-core</artifactId>
+		  <version>15.0</version>
+		</dependency>
+-->		
+
 		<dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>

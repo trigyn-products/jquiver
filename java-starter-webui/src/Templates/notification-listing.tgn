@@ -26,9 +26,7 @@
 
 
                 <a href="${(contextPath)!''}/cf/ad"> 
-                <span class="addonicons shedulericon" title="Additional Datasource"> 
-                    <img src="../webjars/1.0/images/adddatasource.svg">
-
+                	<span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
                     </span>					 
 				</a>
 

@@ -38,7 +38,12 @@
 						            </#if>
 						              <#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse>
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control">
+								<#if (columnDetailsList.dataType) == "int" || (columnDetailsList.dataType) == "decimal">
+						            <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!"0"}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
+						            </#if>
+						             <#if (columnDetailsList.dataType) == "text">
+									<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
+									</#if>
 				            <#elseif (columnDetailsList.columnType) == "date">
 				                   <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -64,7 +69,12 @@
 						            </#if>
 						            	${columnDetailsList?api.get('fieldName')!''}
 						            </label>
-								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
+						            <#if (columnDetailsList.dataType) == "int" || (columnDetailsList.dataType) == "decimal">
+						            <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!"0"}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
+						            </#if>
+						             <#if (columnDetailsList.dataType) == "text">
+									<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control">
+									</#if>
 				            <#elseif (columnDetailsList.columnType) == "date">
 				                    <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
@@ -85,8 +95,16 @@
 					</div>
 				</div>
 			<#else>
+                <#if (columnDetailsList.dataType) == "int" || (columnDetailsList.dataType) == "decimal">
+                <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!"0"}</#noparse>" >
+                </#if>
+                <#if (columnDetailsList.dataType) == "date">
+                <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!</#noparse> .now?string["dd-MMM-yyyy hh:mm:ss a"]}" >
+                </#if>
+                <#if (columnDetailsList.dataType) == "text" || (columnDetailsList.dataType) == "textarea">
 				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" >
-			</#if>
+			    </#if>
+            </#if>    
     	</#list>
     	</div>
     </#if>

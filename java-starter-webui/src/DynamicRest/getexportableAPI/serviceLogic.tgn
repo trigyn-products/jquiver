@@ -276,6 +276,7 @@ margin: 0px;
         <tr>
           <td colspan="2"><h3>Response Header</h3></td>
         </tr>
+        <#if dynaList.header_json?? && dynaList.header_json?has_content>
           <#assign responseHeaderList = "${dynaList.header_json}">
           <#if responseHeaderList?? && responseHeaderList?has_content>
             <#assign responseHeaderMap =  responseHeaderList?eval>
@@ -286,6 +287,7 @@ margin: 0px;
         </tr>
             </#list>
           </#if>
+        </#if>
         </tbody>
      </table>
 

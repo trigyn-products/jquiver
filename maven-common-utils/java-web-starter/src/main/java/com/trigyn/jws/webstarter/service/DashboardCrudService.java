@@ -312,7 +312,7 @@ public class DashboardCrudService {
 			}
 
 		} catch (Exception a_excep) {
-			logger.error("Error ocurred.", a_excep);
+			logger.error("Error ocurred while saving Dashlets : DashletId : " + dashlet.getDashletId(), a_excep);
 
 		}
 		return dashlet.getDashletId();

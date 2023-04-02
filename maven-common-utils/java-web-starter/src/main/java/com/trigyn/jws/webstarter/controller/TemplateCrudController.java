@@ -1,6 +1,8 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -59,7 +63,10 @@ public class TemplateCrudController {
 
 	@Autowired
 	private ActivityLog activitylog = null;
-	
+
+	@Autowired
+	private PropertyMasterService propertyMasterService = null;
+
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
 	public String templatePage(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
@@ -69,7 +76,7 @@ public class TemplateCrudController {
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Template Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -105,7 +112,8 @@ public class TemplateCrudController {
 			vmTemplateData.put("suggestions", contextSuggestions);
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in Templates : " + "Template Id : " + request.getParameter("vmMasterId"),
+					a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -151,7 +159,7 @@ public class TemplateCrudController {
 			templateId = templateCrudService.checkVelocityData(templateName);
 			return templateId;
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in Templates :" + "Template Name :" + templateName, a_exception);
 			return null;
 		}
 	}
@@ -170,10 +178,18 @@ public class TemplateCrudController {
 	}
 
 	@PostMapping(value = "/stdv")
+
 	public void saveTemplateDataByVersion(HttpServletRequest a_httpServletRequest,
 			HttpServletResponse a_httpServletResponse) throws Exception {
-		String modifiedContent = a_httpServletRequest.getParameter("modifiedContent");
 		ObjectMapper objectMapper = new ObjectMapper();
+		/** Added for parsing the date */
+		String dbDateFormat = propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+				Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat dateFormat = new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
+		/** Ends Here */
+		String modifiedContent = a_httpServletRequest.getParameter("modifiedContent");
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		TemplateVO templateVO = objectMapper.readValue(modifiedContent, TemplateVO.class);
 		dbTemplatingService.saveTemplate(templateVO);

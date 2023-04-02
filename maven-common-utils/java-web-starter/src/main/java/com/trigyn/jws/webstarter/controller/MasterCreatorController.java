@@ -50,7 +50,7 @@ public class MasterCreatorController {
 		try {
 			return masterCreatorService.getModuleDetails(httpServletRequest);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Master Genertor page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -70,7 +70,7 @@ public class MasterCreatorController {
 			List<String>		roleIds			= objectMapper.readValue(roleIdString, List.class);
 			masterCreatorService.saveEntityRolesForMasterGenerator(details, roleIds);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while saving Master Module (formData: {})"+formData, a_exception);
 			if (httpServletResponse.getStatus() != HttpStatus.FORBIDDEN.value()) {
 				httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			}
@@ -87,7 +87,7 @@ public class MasterCreatorController {
 					additionalDataSourceId);
 			return masterList;
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading table details : TableName : " + tableName, a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

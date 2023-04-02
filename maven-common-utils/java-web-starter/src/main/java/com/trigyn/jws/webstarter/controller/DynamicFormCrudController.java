@@ -73,7 +73,7 @@ public class DynamicFormCrudController {
 			logActivity(formId);
 			return dynamicFormCrudService.addEditForm(formId);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in Form Builder (formId: {})",formId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -141,7 +141,7 @@ public class DynamicFormCrudController {
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Dynamic Form Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

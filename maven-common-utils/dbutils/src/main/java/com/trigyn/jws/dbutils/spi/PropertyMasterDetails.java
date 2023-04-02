@@ -63,7 +63,7 @@ public class PropertyMasterDetails {
 		try {
 			return propertyMasterDetailsDAO.findPropertyMasterValue(ownerType, ownerId, propertyName);
 		} catch (Exception a_exc) {
-			logger.error("Error while getting the data from DB ", a_exc);
+			logger.error("Error while getting the data from DB : PropertyName : " +propertyName, a_exc);
 			return null;
 		}
 	}

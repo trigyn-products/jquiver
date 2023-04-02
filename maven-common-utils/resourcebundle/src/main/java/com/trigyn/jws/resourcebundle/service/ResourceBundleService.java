@@ -65,7 +65,7 @@ public class ResourceBundleService {
 			}
 			return resourceBundleVOMap;
 		} catch (Exception a_excep) {
-			logger.error("Error ocurred while fetching resource bundle data", a_excep);
+			logger.error("Error ocurred while fetching resource bundle data : ResourceKey : "+ resourceBundleKey, a_excep);
 			throw new RuntimeException("Error ocurred while fetching resource bundle data");
 		}
 	}
@@ -89,8 +89,8 @@ public class ResourceBundleService {
 			}
 			return keyAlreadyExist;
 		} catch (Exception a_excep) {
-			logger.error("Error ocurred while fetching list of languages.", a_excep);
-			throw new RuntimeException("Error ocurred while fetching list of languages.");
+			logger.error("Error ocurred while fetching resource bundle data : ResourceKey : " + resourceBundleKey, a_excep);
+			throw new RuntimeException("Error ocurred while fetching resource bundle data");
 		}
 	}
 
@@ -122,7 +122,7 @@ public class ResourceBundleService {
 			}
 
 		} catch (Exception a_exception) {
-			logger.error("Error occurred while saving resource bundle data ", a_exception);
+			logger.error("Error occurred while saving resource bundle data : ResourceBundleKey : "+ resourceBundleVOList.get(0).getResourceKey(), a_exception);
 			throw new RuntimeException("Error ocurred while saving resource bundle data");
 		}
 	}

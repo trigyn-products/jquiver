@@ -77,7 +77,7 @@ public class SchedulerController {
 		try {
 			return menuService.getTemplateWithSiteLayout("jq-scheduler-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Scheduler Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -103,7 +103,7 @@ public class SchedulerController {
 			schedulerService.deleteScheduler(schedulerId);
 			return "1";
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while deleting : Scheduler : "+"Scheduler Name : "+ httpServletRequest.getParameter("schedulerName"), a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -199,10 +199,10 @@ public class SchedulerController {
 
 			scheduler.execute(jwsDynarestDAO, jwsScheduler, schedulerId, baseURL, schedulerUrlProperty,
 					servletContext.getContextPath(), sendMailService, detailsVO.getUserName(), activitylog);
-
+			
 			return "1";
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while executing now : Scheduler :" + "Scheduler Id :"  + httpServletRequest.getParameter("schedulerID"), a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

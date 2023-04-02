@@ -65,7 +65,7 @@ public class ResourceBundleCrudController {
 			templateMap.put("languageVOList", languageVOList);
 			return menuService.getTemplateWithSiteLayout("resource-bundle-listing", templateMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Resource Bundle Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -142,7 +142,7 @@ public class ResourceBundleCrudController {
 			Boolean keyAlreadyExist = resourceBundleService.checkResourceKeyExist(resourceBundleKey);
 			return new ResponseEntity<>(keyAlreadyExist, httpHeaders, HttpStatus.OK);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error ocurred while fetching resource bundle data: ResourceKey :"+ resourceBundleKey, a_exception);
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -159,7 +159,7 @@ public class ResourceBundleCrudController {
 
 			return new ResponseEntity<>(true, httpHeaders, HttpStatus.OK);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while saving resource bundle data : ResourceKey :"+ dbResourceList.get(0).getResourceKey(), a_exception);
 			return new ResponseEntity<>(false, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 

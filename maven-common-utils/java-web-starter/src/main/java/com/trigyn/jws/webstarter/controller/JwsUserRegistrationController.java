@@ -380,7 +380,7 @@ public class JwsUserRegistrationController {
 		try {
 			return userManagementService.getProfilePage();
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading profile Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

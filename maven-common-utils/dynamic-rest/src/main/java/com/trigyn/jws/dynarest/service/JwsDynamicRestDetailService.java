@@ -273,7 +273,7 @@ public class JwsDynamicRestDetailService {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Error occured while invoking the method ", e);
+			logger.error("Error occured while invoking the method in" +restApiDetails.getDynamicRestUrl(), e);
 		}
 
 		Map<String, String> headerMap = new HashMap<>();
@@ -307,7 +307,7 @@ public class JwsDynamicRestDetailService {
 		Map<String, Object> resultSetMap = new HashMap<>();
 		for (RestApiDaoQueries restApiDaoQueries : apiDaoQueries) {
 			String dataSourceId = restApiDaoQueries.getDataSourceId();
-			Integer queryType = restApiDaoQueries.getQueryType();
+			Integer queryType = restApiDaoQueries.getQueryType(); 
 			String queryContent = templatingUtils.processTemplateContents(restApiDaoQueries.getJwsDaoQueryTemplate(),
 					"apiQuery", parameterMap);
 			/* Added for Rest Client Attachment */
@@ -352,8 +352,9 @@ public class JwsDynamicRestDetailService {
 					}
 					parameterMap.put(restApiDaoQueries.getJwsResultVariableName(), customResponseEntity);
 					resultSetMap.put(restApiDaoQueries.getJwsResultVariableName(), customResponseEntity);
+					
 				} catch (Throwable a_thr) {
-					logger.error("Error occurred while establishing connection ", a_thr);
+					logger.error("Error occurred while establishing connection ::"+ "in Rest API" + " : " +dynarestId , a_thr);
 					String stacktrace = ExceptionUtils.getStackTrace(a_thr);
 					customResponseEntity.setResponseBody(stacktrace);
 					customResponseEntity.setResponseStatusCode(500);
@@ -438,12 +439,12 @@ public class JwsDynamicRestDetailService {
 										try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 											fos.write(fileByte);
 										} catch (Exception exception) {
-											logger.error("Error occurred while accessing file", exception);
+											logger.error("Error occurred while accessing file in "+ "Rest API" + " : " +requestParams.get("dynamicRestUrl")  , exception);
 											return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 													.body("Error occurred while accessing file");
 										}
 									} else {
-										logger.error("Error occurred while accessing file");
+										logger.error("Error occurred while accessing file in "+ "Rest API" + " : " +requestParams.get("dynamicRestUrl"));
 										return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 												.body("Error occurred while accessing file");
 									}
@@ -460,7 +461,7 @@ public class JwsDynamicRestDetailService {
 									try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 										fos.write(byteArray);
 									} catch (Exception exception) {
-										logger.error("Error occurred while accessing file", exception);
+										logger.error("Error occurred while accessing file in "+ "Rest API" + " : " +requestParams.get("dynamicRestUrl"), exception);
 										return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 												.body("Error occurred while accessing file");
 									}
@@ -562,10 +563,10 @@ public class JwsDynamicRestDetailService {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Please provide valid XML content, received \r\n" + emailXMLContent);
 		} catch (AddressException exception) {
-			logger.error("Error occurred while converting email to InternetAddress ", exception);
+			logger.error("Error occurred while converting email to InternetAddress in "+ "Rest API" + " : " +requestParams.get("dynamicRestUrl"), exception);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide valid email address");
 		} catch (Throwable a_thr) {
-			logger.error("Error occurred while sending email ", a_thr);
+			logger.error("Error occurred while sending email in "+ "Rest API" + " : " +requestParams.get("dynamicRestUrl"), a_thr);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while sending email");
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(jsonArray.toString());
@@ -884,7 +885,7 @@ public class JwsDynamicRestDetailService {
 									fos.write(fileByte);
 									fileMap.put(webClientAttachVO.getFileName(), attachedFile);
 								} catch (Exception exception) {
-									logger.error("Error occurred while accessing file", exception);
+									logger.error("Error occurred while accessing file in : " +webClientVO.getWebClientURL() + " File UploadId : " +fileUploadId, exception);
 								}
 							}
 						}
@@ -901,7 +902,7 @@ public class JwsDynamicRestDetailService {
 								fos.write(fileByte);
 								fileMap.put(webClientAttachVO.getFileName(), attachedFile);
 							} catch (Exception exception) {
-								logger.error("Error occurred while accessing file", exception);
+								logger.error("Error occurred while accessing file in : "+webClientVO.getWebClientURL(), exception);
 							}
 						}
 					}
@@ -921,7 +922,7 @@ public class JwsDynamicRestDetailService {
 								.filename(file.getPath());
 
 					} catch (Exception exception) {
-						logger.error("Error occurred while accessing file", exception);
+						logger.error("Error occurred while accessing file in : " + webClientVO.getWebClientURL(), exception);
 					}
 				}
 
@@ -970,7 +971,7 @@ public class JwsDynamicRestDetailService {
 				customResponseEntity.setResponseTimestamp(new Date());
 			}
 		} catch (Throwable a_thr) {
-			logger.error("NullPointerException here ", a_thr);
+			logger.error("Error occured in convertResponseToVO. ", a_thr);
 		}
 		return customResponseEntity;
 	}

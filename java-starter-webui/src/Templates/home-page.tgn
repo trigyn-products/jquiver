@@ -38,7 +38,7 @@
  		</a> 
 
          <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
-         <div class="hamburgermenu" onclick="homePageFn.toggelNavigation()">
+         <div class="hamburgermenu" onclick="homePageFn.toggleNavigation()">
            <div class="icon"></div>
         </div>
 		</#if>
@@ -260,7 +260,9 @@ function onDarkMode(){
       getLanguageOption(); 
       
       	$("#bodyDiv").click(function(){
-			homePageFn.closeNavigation();
+      		if($(".hamburgermenu").hasClass("open")){
+      			homePageFn.toggleNavigation();
+      		}
 		});    
       
 	});

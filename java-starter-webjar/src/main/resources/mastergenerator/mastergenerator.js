@@ -74,7 +74,7 @@ function createTable(columns) {
         }else if(columns[iCounter]['isMandatory']==true){
         	nameCol += '<span class="fromMandatory" title="Mandatory" style="font-size: 16px;color: red;filter: drop-shadow(0px 0px 1px black);"> &#9733; </span>';
         }
-        nameCol += "<label id='tfcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
+        nameCol += "<label id='tcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
         $(trElement).append(nameCol);
         
         $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
@@ -126,8 +126,8 @@ function addRemoveToGridDetails(element){
         details["index"] = counter;
         details["displayName"] = $("#tdisplay_"+counter).val();
         details["hidden"] = $("#thidden_"+counter).prop("checked");
-        details["column"] = $("#tcolumn_"+counter).html().trim();
-        details["i18nResourceKey"] = $("#tdisplay_"+counter+"_i18n").val().trim();
+        details["column"] = $("#tcolumn_"+counter).val()== undefined ? '' : $("#tcolumn_"+counter).html().trim();
+        details["i18nResourceKey"] = $("#tdisplay_"+counter+"_i18n").val()== undefined ? '' : $("#tdisplay_"+counter+"_i18n").val().trim();
 
         gridDetails.push(details);
     } else {
@@ -165,8 +165,8 @@ function addRemoveToFormDetails(element){
         details["index"] = counter;
         details["displayName"] = $("#tfdisplay_"+counter).val();
         details["hidden"] = $("#tfhidden_"+counter).prop("checked");
-        details["column"] = $("#tfcolumn_"+counter).html().trim();
-        details["i18nResourceKey"] = $("#tfdisplay_"+counter+"_i18n").val().trim();
+        details["column"] = $("#tfcolumn_"+counter).val() == undefined ? '' : $("#tfcolumn_"+counter).html().trim();
+        details["i18nResourceKey"] = $("#tfdisplay_"+counter+"_i18n").val() == undefined ? '' :$("#tfdisplay_"+counter+"_i18n").val().trim();
         formDetails.push(details);
     } else {
         removeByAttribute(formDetails, "index", counter);

@@ -27,23 +27,20 @@
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
 
-            <a href="${(contextPath)!''}/cf/ad"> 
-                <span class="addonicons shedulericon" title="Additional Datasource"> 
-                    <img src="../webjars/1.0/images/adddatasource.svg">
+           <a href="${(contextPath)!''}/cf/ad"> 
+                  <span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
 
                     </span>					 
 				</a>
 
 
-            <a href="${(contextPath)!''}/cf/da"> 
+            <a href="${(contextPath)!''}/cf/da" class="noborder"> 
 				<input id="demoAutocomplete" class="btn btn-primary" value="${messageSource.getMessage('jws.demo')}" type="button">
-			</a>
+			</a
 
-            
-
-			<!-- <a href=""> 
-				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
-			</a> -->
+			 <a href=""> 
+			<!--	<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button"> -->
+			</a> 
 			<input id="addAutocompleteDetails" onclick="submitForm()" class="extramargin btn btn-primary" value="${messageSource.getMessage('jws.addautocomplete')}" type="button">
 			<span onclick="backToWelcomePage();" class="backbtncls">
   		  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">

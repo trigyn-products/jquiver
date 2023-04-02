@@ -71,7 +71,7 @@ public class JwsWelcomeController {
 		try {
 			return  resourceBundleService.getLanguagesList();
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading languages.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

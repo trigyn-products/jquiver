@@ -9,7 +9,7 @@ class HomePage {
  
 HomePage.prototype.fn = {
 
-	toggelNavigation: function(){
+	toggleNavigation: function(){
 		if($(".hamburgermenu").hasClass("open")){
 			$("#mySidenav").css("width", "0");
 			$("#closebtni").removeClass("showcls");
@@ -17,15 +17,15 @@ HomePage.prototype.fn = {
 			$("#openbtni").addClass("showcls");
 			$("#closebtni").addClass("hidecls");
 			$('body').css('background-color', 'white');
-			$(".container").removeClass("overlaycls");
-			$(".jws-body-overlay").removeClass("overlaycls");
+			$("#bodyDiv").removeClass("overlaycls");
+			//$(".jws-body-overlay").removeClass("overlaycls");
 		}else{
 			$("#mySidenav").css("width", "250px");
 			$("#closebtni").addClass("showcls");
 			$("#openbtni").addClass("hidecls");
 			$('body').css('background-color', 'rgba(0,0,0,0.4)');
-			$(".container").addClass("overlaycls");
-			$(".jws-body-overlay").addClass("overlaycls");
+			$("#bodyDiv").addClass("overlaycls");
+			//$(".jws-body-overlay").addClass("overlaycls");
 			$('#searchInput').focus();
 		}
 		$(".hamburgermenu").toggleClass("open");
@@ -77,7 +77,7 @@ HomePage.prototype.fn = {
 
 	menuSearchFilter: function(a_event) {
 		if(a_event && ((a_event.originalEvent && a_event.originalEvent.keyCode == 27) || a_event.keyCode == 27)){
-			this.toggelNavigation();
+			this.toggleNavigation();
 			return;
 		}
 		

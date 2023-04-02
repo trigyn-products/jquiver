@@ -36,7 +36,7 @@ public class NotificationCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout(Constant.GENERIC_USER_NOTIFICATION, new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Notification Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

@@ -144,8 +144,10 @@ public class SendMailService {
 				? mail.getMailFrom()[0].getAddress()
 				: (String) mailMap.get("mailFrom");
 
-		String fromMailName = StringUtils.isBlank(mail.getMailFromName()) == true ? mail.getMailFromName()
+		/**Fixed Bug #212, changed the boolean value from true to false.*/
+		String fromMailName = StringUtils.isBlank(mail.getMailFromName()) == false ? mail.getMailFromName()
 				: (String) mailMap.get("mailFromName");
+		/**Ends Here*/
 
 		Boolean isReplyToDifferentMail = mail.getIsReplyToDifferentMail() == null
 				? (Boolean) mailMap.get("isReplyToDifferentMail")
@@ -262,7 +264,7 @@ public class SendMailService {
 						try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 							fos.write(fileByte);
 						} catch (Exception exception) {
-							logger.error("Error occurred while accessing file", exception);
+							logger.error("Error occurred while accessing file : fileUploadId : " +fileUploadId, exception);
 						}
 						BodyPart atachmentBodyPart = new MimeBodyPart();
 						DataSource source = new FileDataSource(attachedFile);
@@ -388,7 +390,7 @@ public class SendMailService {
 			InternetAddress emailAddr = new InternetAddress(email);
 			emailAddr.validate();
 		} catch (AddressException a_exc) {
-			logger.error("Error ocurred.", a_exc);
+			logger.error("Error ocurred in isValidEmailAddressFromStringValidation.", a_exc);
 			result = false;
 		}
 		return result;
@@ -399,7 +401,7 @@ public class SendMailService {
 		try {
 			emailAddr.validate();
 		} catch (AddressException a_exc) {
-			logger.error("Error ocurred.", a_exc);
+			logger.error("Error ocurred while validating Email Address : " +emailAddr, a_exc);
 			result = false;
 		}
 		return result;
@@ -597,7 +599,7 @@ public class SendMailService {
 						try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
 							fos.write(fileByte);
 						} catch (Exception exception) {
-							logger.error("Error occurred while accessing file", exception);
+							logger.error("Error occurred while accessing file : fileUploadId : " +fileUploadId, exception);
 						}
 						BodyPart atachmentBodyPart = new MimeBodyPart();
 						DataSource source = new FileDataSource(attachedFile);
@@ -653,7 +655,7 @@ public class SendMailService {
 
 		} catch (Exception a_exc) {
 			isSent = false;
-			logger.error("Error ocurred.", a_exc);
+			logger.error("Error ocurred in sendTestMail().", a_exc);
 			if (mailBody != "") {
 				messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 			} else if (mail.getBody() != null && mail.getBody() != "") {
@@ -817,7 +819,7 @@ public class SendMailService {
 			Transport.send(message);
 
 		} catch (Exception exc) {
-			logger.error("Error ocurred.", exc);
+			logger.error("Error ocurred in failedRecipient().", exc);
 
 			try {
 
@@ -871,7 +873,7 @@ public class SendMailService {
 
 			} catch (IOException | MessagingException a_exc) {
 
-				logger.error("Error ocurred.", a_exc);
+				logger.error("Error ocurred in failedRecipient().", a_exc);
 
 			}
 		}

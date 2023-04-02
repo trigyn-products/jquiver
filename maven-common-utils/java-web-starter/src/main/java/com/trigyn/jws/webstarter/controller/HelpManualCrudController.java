@@ -34,7 +34,7 @@ public class HelpManualCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("manual-type-template", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error while loding manual page ", a_exception);
+			logger.error("Error while loading Manual Listing page. ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -51,7 +51,7 @@ public class HelpManualCrudController {
 			parameterMap.put("mt", manualType);
 			return menuService.getTemplateWithSiteLayout("manual-display", parameterMap);
 		} catch (Exception a_exception) {
-			logger.error("Error while loding manual page ", a_exception);
+			logger.error("Error while loading Manual page. ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

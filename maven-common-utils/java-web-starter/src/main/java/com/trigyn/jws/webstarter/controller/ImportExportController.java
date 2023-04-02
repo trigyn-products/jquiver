@@ -71,7 +71,7 @@ public class ImportExportController {
 			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading View Export page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -101,7 +101,7 @@ public class ImportExportController {
 			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
 			return menuService.getTemplateWithSiteLayout("import-config", vmTemplateData);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading View Import page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -135,7 +135,7 @@ public class ImportExportController {
 	
 			return jsonString;
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while importing file.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -155,7 +155,7 @@ public class ImportExportController {
 			Map<String, String> versionMap = importService.getLatestVersion(zipFileDataMap);
 			return gson.toJson(versionMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading latest version.", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
@@ -173,7 +173,7 @@ public class ImportExportController {
 			Map<String, Boolean> crcMap = importService.getLatestCRC(zipFileDataMap);
 			return gson.toJson(crcMap);
 		} catch (Exception exception) {
-			logger.error("Error ", exception);
+			logger.error("Error occured while loading latest CRC.", exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -192,7 +192,7 @@ public class ImportExportController {
 
 			return importService.importConfig(exportedFormatObject, importId, moduleType, false, null);
 		} catch (Exception exception) {
-			logger.error("Error ", exception);
+			logger.error("Error occured while importing data : Module Type : "+ request.getParameter("moduleType")+" ImportId : " + request.getParameter("importId"), exception);
 			return "fail:" + exception.getMessage();
 		}
 	}
@@ -206,7 +206,7 @@ public class ImportExportController {
 
 			return importService.importAll(imporatableData, importedIdList, false);
 		} catch (Exception exception) {
-			logger.error("Error ", exception);
+			logger.error("Error occured while importing all data.", exception);
 			return "fail:" + exception.getMessage();
 		}
 	}
@@ -242,7 +242,7 @@ public class ImportExportController {
 	
 			return jsonString;
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while importing data from Local.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

@@ -117,16 +117,22 @@ public final class DBExtractor {
 				return "text";
 			case "INTEGER":
 			case "INT4":
-			case "INT":
+			case "INT":	
+			case "SMALLINT":
+			case "LONG":
+			case "BOOLEAN":
+			case "TINYINT":	
+				return "int";
 			case "DECIMAL":
 			case "NUMERIC":
 			case "NUMBER":
-			case "SMALLINT":
-			case "LONG":
+			case "FLOAT":
+			case "DOUBLE":
 			case "BINARY_FLOAT":
 			case "BINARY_DOUBLE":
-			case "BOOLEAN":
-				return "int";
+			case "REAL":
+			case "FLOAT8":	
+				return "decimal";
 			case "DATE":
 			case "DATETIME":
 			case "TIMESTAMP":
@@ -146,22 +152,26 @@ public final class DBExtractor {
 			case Types.NVARCHAR:
 				if (a_colLength > 499) {
 					return "textarea";
+				}else {
+					return "text";
 				}
-				return "text";
 			case Types.LONGVARCHAR:
 			case Types.LONGNVARCHAR:
 				return "textarea";
 			case Types.INTEGER:
-			case Types.DECIMAL:
-			case Types.NUMERIC:
 			case Types.SMALLINT:
 				return "int";
+			case Types.DECIMAL:
+			case Types.NUMERIC:
+			case Types.DOUBLE:
+			case Types.FLOAT:	
+				return "decimal";
 			case Types.DATE:
 			case Types.TIMESTAMP:
 			case Types.TIMESTAMP_WITH_TIMEZONE:
 				return "date";
 		}
-		// Decimal, Float, boolean, bit, tinyint and all are pending
+		// boolean, bit, tinyint and all are pending
 		return null;
 	}
 

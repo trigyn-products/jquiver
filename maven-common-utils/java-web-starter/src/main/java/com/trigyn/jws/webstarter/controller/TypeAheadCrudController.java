@@ -65,7 +65,7 @@ public class TypeAheadCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("autocomplete-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Autocomplete Listing Page", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -79,7 +79,7 @@ public class TypeAheadCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("autocomplete-demo", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Autocomplete Demo.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -116,7 +116,7 @@ public class TypeAheadCrudController {
 			// }
 			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details", templateData);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in TypeAhead/Autocomplete :  AutocompleteId : "+request.getParameter("acId"), a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

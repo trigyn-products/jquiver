@@ -30,7 +30,7 @@ public class AdditionalDataSourceController {
 		try {
 			return menuService.getTemplateWithSiteLayout("jq-additional-datasource-template", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Additional DataSource Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

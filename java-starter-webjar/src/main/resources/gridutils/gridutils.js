@@ -20,7 +20,6 @@
         sorting: "remote",
         dataType: "JSON",
         method: "POST",
-        url: "/cf/pq-grid-data",
         getData: function (dataJSON) {
             return { 
                 curPage: dataJSON.curPage, totalRecords: dataJSON.total, data: dataJSON.rows 

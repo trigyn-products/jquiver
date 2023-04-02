@@ -27,10 +27,8 @@
             
             
               <a href="#" onclick="configHomePage(this)"> 
-                <span class="addonicons shedulericon" title="${messageSource.getMessage('jws.definehomepage')}"> 
-                    <img src="${(contextPath)!''}/webjars/1.0/images/definehomepage.svg">
-
-                    </span>					 
+               <span class="addonicons shedulericon definhomepageicon" title="${messageSource.getMessage('jws.definehomepage')}"> 
+                    </span>							 
 				</a>
 	<!-- <span>
   		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="" type="button" onclick="configHomePage(this)">

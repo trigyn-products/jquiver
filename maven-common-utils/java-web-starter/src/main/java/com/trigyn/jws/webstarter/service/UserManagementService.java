@@ -1059,7 +1059,7 @@ public class UserManagementService {
 			//System.out.println("JSON : " + propertyJson.toString());
 			updateDatabaseAuthPropertyMasterValues(userManagementData);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured in updateAuthProperties.", a_exception);
 			return false;
 		}
 		return true;
@@ -1149,7 +1149,7 @@ public class UserManagementService {
 //					sendMailForForcePassword(jwsUser.getUserId(), jwsUser.getForcePasswordChange(), jwsUser.getEmail(),
 //							email, password);
 				} catch (Exception exception) {
-					logger.error("Error ", exception);
+					logger.error("Error occured in resetPwdSendMailForVerificationChange().", exception);
 				}
 			}
 		}

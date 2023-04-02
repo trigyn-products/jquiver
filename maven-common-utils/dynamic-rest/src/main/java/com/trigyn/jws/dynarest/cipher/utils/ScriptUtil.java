@@ -885,9 +885,9 @@ public class ScriptUtil {
 			returnObject.put("actionStatus", "true");
 			return returnObject;
 		} catch (Exception e) {
-			logger.error("Error while executing save/update query : " + ExceptionUtils.getStackTrace(e));
+			logger.error("Error while executing save/update query in updateDBQuery: "+ a_strQuery  + ExceptionUtils.getStackTrace(e));
 			returnObject.put("actionStatus", "false");
-			returnObject.put("_error", "Error while executing save/update query : " + ExceptionUtils.getStackTrace(e));
+			returnObject.put("_error", "Error while executing save/update query : "+ ExceptionUtils.getStackTrace(e));
 			return returnObject;
 		}
 	}
@@ -973,13 +973,13 @@ public class ScriptUtil {
 			returnObject.put("absoluteFilePath", absoluteFilePath);
 			return returnObject;
 		} catch (FileNotFoundException e) {
-			logger.error("Error while creating pdf : " + ExceptionUtils.getStackTrace(e));
+			logger.error("Error while creating pdf in convertToPDFFromString: " + " at location: " + absoluteFilePath + " : " + ExceptionUtils.getStackTrace(e));
 			returnObject.put("actionStatus", "false");
 			returnObject.put("_error", "Error while creating pdf: " + " at location: " + absoluteFilePath + " : "
 					+ ExceptionUtils.getStackTrace(e));
 			return returnObject;
 		} catch (Exception e) {
-			logger.error("Error while creating pdf : " + ExceptionUtils.getStackTrace(e));
+			logger.error("Error while creating pdf in convertToPDFFromString: " + " at location: " + absoluteFilePath + " : " + ExceptionUtils.getStackTrace(e));
 			returnObject.put("actionStatus", "false");
 			returnObject.put("_error", "Error while creating pdf: " + " at location: " + absoluteFilePath + " : "
 					+ ExceptionUtils.getStackTrace(e));
@@ -1039,7 +1039,7 @@ public class ScriptUtil {
 	
 			return returnObject;
 		} catch (Exception e) {
-			logger.error("Error while executing insert query : " + ExceptionUtils.getStackTrace(e));
+			logger.error("Error while executing insert query in addNotification : " + ExceptionUtils.getStackTrace(e));
 			returnObject.put("actionStatus", "false");
 			returnObject.put("_error", "Error while executing insert query : " + ExceptionUtils.getStackTrace(e));
 			return returnObject;

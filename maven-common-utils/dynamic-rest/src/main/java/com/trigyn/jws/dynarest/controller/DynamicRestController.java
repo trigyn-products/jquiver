@@ -161,15 +161,15 @@ public class DynamicRestController {
 				}
 
 			} catch (IllegalArgumentException a_exception) {
-				LOGGER.error("Error occured while invoking the method ", a_exception);
+				LOGGER.error("Error occured while invoking the method "+ "Rest API" + " : " +restApiDetails.getMethodName(), a_exception);
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
 			} catch (InvocationTargetException a_exception) {
-				LOGGER.error("Error occured while invoking the method ", a_exception);
+				LOGGER.error("Error occured while invoking the method "+ "Rest API" + " : " +restApiDetails.getMethodName(), a_exception);
 			} catch (NoSuchMethodException a_exception) {
-				LOGGER.error("Error occured while invoking the method ", a_exception);
+				LOGGER.error("Error occured while invoking the method "+ "Rest API" + " : " +restApiDetails.getMethodName(), a_exception);
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
 			} catch (ClassNotFoundException a_exception) {
-				LOGGER.error("Error occured while invoking the method ", a_exception);
+				LOGGER.error("Error occured while invoking the method "+ "Rest API" + " : " +restApiDetails.getMethodName(), a_exception);
 				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(),
 						"The class was not found in the mentioned package.");
 			}
@@ -238,7 +238,7 @@ public class DynamicRestController {
 			return new ResponseEntity<>(a_exception.getMessageWithoutStackTop(), HttpStatus.EXPECTATION_FAILED);
 		} catch (Throwable a_throwable) {
 			logActivity(restApiDetails, false, (String) requestParams.get("isFromRestAPI"));
-			LOGGER.error("Error occurred while processing request: ", a_throwable);
+			LOGGER.error("Error occurred while processing request: "+ "Rest API" + " : " +restApiDetails.getDynamicRestUrl(), a_throwable);
 			Objects.requireNonNull(a_throwable);
 			Throwable rootCause = a_throwable;
 			while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {

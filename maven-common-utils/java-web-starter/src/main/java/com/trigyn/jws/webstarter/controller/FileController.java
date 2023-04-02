@@ -50,7 +50,7 @@ public class FileController {
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("file-upload-config-listing", modelMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading File Upload Config Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

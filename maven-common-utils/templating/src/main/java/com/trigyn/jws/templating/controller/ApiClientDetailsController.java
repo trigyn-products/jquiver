@@ -33,7 +33,7 @@ public class ApiClientDetailsController {
 		try {
 			return menuService.getTemplateWithSiteLayout("jq-api-client-details-template", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading API Client Details Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

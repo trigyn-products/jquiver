@@ -58,13 +58,11 @@ $(function() {
 });
 /**For loading the Rest API Contents on load on calling the getRestAPI*/
 function loadRestAPI(a_offset) {
-    
+   
     if(a_offset == 0) {
         $("#viewRestAPI").html("");
     }
-    if(a_offset == 2){
-        $("#viewRestAPI").find("button").remove();
-    }
+    $("#viewRestAPI").find("button").remove();
    
     $.ajax({
         type : "POST",
@@ -80,9 +78,6 @@ function loadRestAPI(a_offset) {
                 $('.apiChk').prop('checked', 'checked');  
             }
             $('.sortblock').hide();
-           
-                sortOrder(l_columnName,a_sortOrder,a_offset);
-          
             showMessage("Data loaded...", "success")
         },
         error: function(jqXHR, exception){
@@ -345,6 +340,3 @@ function backToDynarestListingPage() {
     location.href = contextPath+"/cf/dynl";
 }
 </script>
-
- 
-

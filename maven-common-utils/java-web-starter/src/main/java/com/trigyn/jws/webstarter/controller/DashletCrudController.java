@@ -71,7 +71,7 @@ public class DashletCrudController {
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Dashlet Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -99,7 +99,7 @@ public class DashletCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading Dashlet : DashletId : "+ dashletId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

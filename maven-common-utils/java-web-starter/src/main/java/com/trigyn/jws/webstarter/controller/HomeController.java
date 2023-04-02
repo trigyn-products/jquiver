@@ -86,7 +86,7 @@ public class HomeController {
 			
 			return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
 		} catch (Exception a_exception) {
-			logger.error("Error ", a_exception);
+			logger.error("Error occured while loading home page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

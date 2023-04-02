@@ -71,7 +71,7 @@ public class ModuleVersionService {
 			}
 		} catch (IllegalArgumentException a_iae) {
 			moduleJson = gson.toJson(entityData);
-			logger.error(a_iae);
+			logger.error("Error occured while saving module : Entity Name : " +entityName,a_iae);
 		}
 		String				parentEntityId		= parentEntityIdObj == null ? null : parentEntityIdObj.toString();
 		String				entityId			= entityIdObj.toString();

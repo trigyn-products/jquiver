@@ -413,7 +413,6 @@ class DynamicRest {
 
 		let headerJson = JSON.stringify(contextHeaderJson);
 		let formData = $("#dynamicRestForm").serialize() + "&headerJson=" + headerJson + "&formId=" + context.formId;
-
 		$.ajax({
 			type: "POST",
 			url: contextPath + "/cf/sdf",
@@ -535,7 +534,10 @@ class DynamicRest {
 			}
 			datasourceArray.push(datasourceId);
 		}
-
+		/**Fixed Bug for copy from file comparison. */
+		let contextHeaderJson = context.headerJson();
+		let headerJson = JSON.stringify(contextHeaderJson);
+		/**Ends Here */
 		$("#dynarestUrlDAO").val($("#dynarestUrl").val());
 		$("#dynarestMethodNameDAO").val($("#dynarestMethodName").val());
 		$("#serviceLogicForm").val(this.serviceLogicContent.getValue().toString());

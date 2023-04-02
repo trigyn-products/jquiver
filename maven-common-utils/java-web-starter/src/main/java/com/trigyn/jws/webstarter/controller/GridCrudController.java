@@ -32,7 +32,7 @@ public class GridCrudController {
 		try {
 			return menuService.getTemplateWithSiteLayout("grid-listing", new HashMap<>());
 		} catch (Exception a_exception) {
-			logger.error("Error while loding gridUtils page ", a_exception);
+			logger.error("Error while loading Grid Listing page ", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}

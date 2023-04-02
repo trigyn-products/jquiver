@@ -46,7 +46,7 @@ public class FileUtilities {
 		try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
 			stream.forEach(s -> contentBuilder.append(s).append(System.lineSeparator()));
 		} catch (IOException a_excep) {
-			logger.error("Error while reading contents of file ", a_excep);
+			logger.error("Error while reading contents of file : File Path : " +filePath, a_excep);
 			throw new Exception("Error while reading contents of file ", a_excep);
 		}
 		return contentBuilder.toString();
@@ -78,7 +78,7 @@ public class FileUtilities {
 			fileWriter.flush();
 			generateFileCheckSum = generateFileChecksum(file);
 		} catch (IOException a_excep) {
-			logger.error("Error while writing contents to file ", a_excep);
+			logger.error("Error while writing contents to file : File Name : " +file.getName()+" File Path : " +file.getPath(), a_excep);
 			throw new Exception("Error while writing contents to file ", a_excep);
 		}
 		return generateFileCheckSum;
