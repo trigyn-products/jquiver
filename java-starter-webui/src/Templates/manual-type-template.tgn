@@ -167,7 +167,7 @@
 			    	}else{
 				        isEdit = 1;
 				        const id = Number.parseInt(element.id);
-				        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndxPage: id});
+				        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
 				        $("#manualId").val(rowData["manual_id"]);
 				        $("#manualName").val(rowData["name"]);
 				        $("#issystemmanual").val(rowData["is_system_manual"]);
@@ -178,7 +178,7 @@
 			
 			    function editEntityManual(element) {
 			    	const id = Number.parseInt(element.id);
-			    	let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndxPage: id});
+			    	let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
 			    	$("#manualTypeListing").val(rowData["manual_id"]);
 			    	$("#manualNameListing").val(rowData["name"]);
 			        $("#viewManualEntry").submit();
@@ -190,7 +190,7 @@
     
     function viewManual(element) {
         const id = Number.parseInt(element.id);
-        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndxPage: id});
+        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
         $("#manualType").val(rowData["manual_id"]);
         $("#viewManualForm").submit();
     }

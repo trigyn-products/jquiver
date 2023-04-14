@@ -238,11 +238,13 @@ public class DynamicFormService {
 		Integer typeSelect = null;
 
 		if (null != entityName && "jq_grid_details".equalsIgnoreCase(entityName)) {
+			if(null != formData.getFirst("isEdit") && formData.getFirst("isEdit").isEmpty() == false) {
 			action = formData.getFirst("isEdit");
 			if (action.equalsIgnoreCase(Constants.ISEDIT)) {
 				action = Constants.Action.ADD.getAction();
 			} else {
 				action = Constants.Action.EDIT.getAction();
+			}
 			}
 			requestParams.put("entityName", formData.getFirst("gridId"));
 			requestParams.put("masterModuleType", Constants.Modules.GRIDUTILS.getModuleName());
@@ -448,7 +450,6 @@ public class DynamicFormService {
 		String formName = form.getFormName();
 		Map<String, Object> saveTemplateMap = new HashMap<>();
 		saveTemplateMap.put("formData", formData);
-
 		formData.forEach((key, value) -> saveTemplateMap.put(key, value));
 		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		String saveQuery = "saveQuery-";
@@ -1002,13 +1003,24 @@ public class DynamicFormService {
 
 	private Map<String, Object> createParamterMap(List<Map<String, String>> formData) {
 		logger.debug("Inside DynamicFormService.createParamterMap(formData: {})", formData);
-
+		Object tmpValue = null;
 		Map<String, Object> formParameters = new HashMap<String, Object>();
 		if (formData != null) {
 			for (Map<String, String> data : formData) {
 				String valueType = data.getOrDefault("valueType", VARCHAR);
 				Object value = getDataInTypeFormat(data.get("value"), valueType);
-				formParameters.put(data.get("name"), value);
+				if(formParameters.containsKey(data.get("name"))) {
+					tmpValue = formParameters.get(data.get("name"));
+					if((tmpValue instanceof List) == false) {
+						formParameters.put(data.get("name"), new ArrayList());
+						((List)formParameters.get(data.get("name"))).add(tmpValue);
+						((List)formParameters.get(data.get("name"))).add(value);
+					}else {
+						((List)formParameters.get(data.get("name"))).add(value);
+					}
+				}else {
+					formParameters.put(data.get("name"), value);
+				}
 			}
 		}
 		return formParameters;

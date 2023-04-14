@@ -87,11 +87,11 @@ public class AuthorizedValidator {
 		if (hasAccess == Boolean.FALSE) {
 			String entityName = entityValidator.getEntityName(requestObject, roleNames, a_joinPoint);
 			if (entityName == null) {
-				logger.error("No record found for "+ moduleName, moduleName);
+				logger.warn("No record found for "+ moduleName, moduleName);
 				responseObject.sendError(HttpStatus.NOT_FOUND.value());
 				return null;
 			} else {
-				logger.error("You do not have enough privilege to access: "+ moduleName + " : " +entityName, entityName);
+				logger.warn("You do not have enough privilege to access: "+ moduleName + " : " +entityName, entityName);
 				String	requestUri	= requestObject.getRequestURI().substring(requestObject.getContextPath().length());
 				if (requestUri.startsWith("/error")) {
 					if(moduleListingRepository.getIsHomePageByUrl(entityName) == 1) {

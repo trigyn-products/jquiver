@@ -48,7 +48,8 @@ public class HelpManualImportExportModule {
 	public void exportData(Object object, String folderLocation) throws Exception {
 		ManualType					a_manualType		= (ManualType) object;
 
-		List<ManualEntryDetails>	manualEntries		= iManualEntryDetailsRepository.findAllByManualType(a_manualType.getManualId());
+		List<ManualEntryDetails>	manualEntries		= iManualEntryDetailsRepository
+				.findAllByManualType(a_manualType.getManualId());
 
 		String						fileUploadConfigId	= null;
 
@@ -66,19 +67,18 @@ public class HelpManualImportExportModule {
 				List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
 				for (FileUpload fu : fileUploads) {
 					fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
-							fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(), fu.getFileBinId(),
-							fu.getFileAssociationId()));
+							fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
+							fu.getFileBinId(), fu.getFileAssociationId()));
 
-					if (!new File(
-							folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName())
-									.exists()) {
-						File fileDirectory = new File(folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator
-								+ a_manualType.getName());
+					if (!new File(folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator
+							+ a_manualType.getName()).exists()) {
+						File fileDirectory = new File(folderLocation + File.separator
+								+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
 						fileDirectory.mkdirs();
 					}
 
-					Path		downloadPath	= Paths.get(folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME
-							+ File.separator + a_manualType.getName());
+					Path		downloadPath	= Paths.get(folderLocation + File.separator
+							+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
 
 					Path		fileRoot		= Paths.get(fu.getFilePath());
 					Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
@@ -98,11 +98,12 @@ public class HelpManualImportExportModule {
 					Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
 				}
 
-				manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualType(), med.getEntryName(),
-						StringEscapeUtils.unescapeXml("<![CDATA[" + med.getEntryContent().trim() + "]]>"), med.getSortIndex(),
-						med.getLastUpdatedBy(), med.getLastModifiedOn(), fileUploadExportVOList));
+				manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualType(),
+						med.getEntryName(),
+						StringEscapeUtils.unescapeXml("<![CDATA[" + med.getEntryContent().trim() + "]]>"),
+						med.getSortIndex(), med.getLastUpdatedBy(), med.getLastModifiedOn(), fileUploadExportVOList));
 
-				if(fileUploads != null && fileUploads.isEmpty() == false)
+				if (fileUploads != null && fileUploads.isEmpty() == false)
 					fileUploadConfigId = fileUploads.get(0).getFileBinId();
 			}
 		}
@@ -110,17 +111,21 @@ public class HelpManualImportExportModule {
 		if (fileUploadConfigId != null) {
 			FileUploadConfig fileUploadConfig = iFileUploadConfigRepository.findById(fileUploadConfigId)
 					.orElseThrow(() -> new Exception("file not found with id : "));
-			fileUploadConfigExportVO = new FileUploadConfigExportVO(fileUploadConfig.getFileBinId(), fileUploadConfig.getFileTypSupported(),
-					fileUploadConfig.getMaxFileSize(), fileUploadConfig.getNoOfFiles(),
-					StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getSelectQueryContent().trim() + "]]>"),
-					StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getUploadQueryContent().trim() + "]]>"),
+			fileUploadConfigExportVO = new FileUploadConfigExportVO(fileUploadConfig.getFileBinId(),
+					fileUploadConfig.getFileTypSupported(), fileUploadConfig.getMaxFileSize(),
+					fileUploadConfig.getNoOfFiles(),
+					StringEscapeUtils
+							.unescapeXml("<![CDATA[" + fileUploadConfig.getUploadQueryContent().trim() + "]]>"),
 					StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getViewQueryContent().trim() + "]]>"),
-					StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getDeleteQueryContent().trim() + "]]>"),
-					fileUploadConfig.getIsDeleted(), fileUploadConfig.getLastUpdatedBy(), fileUploadConfig.getLastUpdatedTs());
+					StringEscapeUtils
+							.unescapeXml("<![CDATA[" + fileUploadConfig.getDeleteQueryContent().trim() + "]]>"),
+					fileUploadConfig.getIsDeleted(), fileUploadConfig.getLastUpdatedBy(),
+					fileUploadConfig.getLastUpdatedTs());
 		}
 
-		HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(), a_manualType.getName(),
-				a_manualType.getIsSystemManual(), manualEntryDetailsVOList, fileUploadConfigExportVO);
+		HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(),
+				a_manualType.getName(), a_manualType.getIsSystemManual(), manualEntryDetailsVOList,
+				fileUploadConfigExportVO);
 
 		Map<String, Object>		map					= new HashMap<>();
 		map.put("moduleName", a_manualType.getName());
@@ -143,12 +148,13 @@ public class HelpManualImportExportModule {
 
 		FileUploadConfig					fileUploadConfig		= null;
 		if (fileUploadConfigVO != null) {
-			fileUploadConfig = new FileUploadConfig(fileUploadConfigVO.getFileBinId(), fileUploadConfigVO.getFileTypSupported(),
-					fileUploadConfigVO.getMaxFileSize(), fileUploadConfigVO.getNoOfFiles(), fileUploadConfigVO.getSelectQueryContent(),
-					fileUploadConfigVO.getUploadQueryContent(), fileUploadConfigVO.getViewQueryContent(),
-					fileUploadConfigVO.getDeleteQueryContent(), fileUploadConfigVO.getDataSourceId(), fileUploadConfigVO.getIsDeleted(),
-					fileUploadConfigVO.getCreatedBy(), fileUploadConfigVO.getCreatedDate(), fileUploadConfigVO.getUpdatedBy(),
-					fileUploadConfigVO.getUpdatedDate());
+			fileUploadConfig = new FileUploadConfig(fileUploadConfigVO.getFileBinId(),
+					fileUploadConfigVO.getFileTypSupported(), fileUploadConfigVO.getMaxFileSize(),
+					fileUploadConfigVO.getNoOfFiles(), fileUploadConfigVO.getUploadQueryContent(),
+					fileUploadConfigVO.getViewQueryContent(), fileUploadConfigVO.getDeleteQueryContent(),
+					fileUploadConfigVO.getDataSourceId(), fileUploadConfigVO.getIsDeleted(),
+					fileUploadConfigVO.getCreatedBy(), fileUploadConfigVO.getCreatedDate(),
+					fileUploadConfigVO.getUpdatedBy(), fileUploadConfigVO.getUpdatedDate());
 		}
 
 		List<ManualEntryDetails>	manualEntryDetails	= new ArrayList<>();
@@ -156,13 +162,15 @@ public class HelpManualImportExportModule {
 
 		if (manualEntriesVO != null) {
 			for (ManualEntryDetailsExportVO medVO : manualEntriesVO) {
-				ManualEntryDetails med = new ManualEntryDetails(medVO.getManualEntryId(), medVO.getManualType(), medVO.getEntryName(),
-						medVO.getEntryContent(), medVO.getSortIndex(), medVO.getLastUpdatedBy(), medVO.getLastModifiedOn());
+				ManualEntryDetails med = new ManualEntryDetails(medVO.getManualEntryId(), medVO.getManualType(),
+						medVO.getEntryName(), medVO.getEntryContent(), medVO.getSortIndex(), medVO.getLastUpdatedBy(),
+						medVO.getLastModifiedOn());
 				manualEntryDetails.add(med);
 
 				for (FileUploadExportVO fueVO : medVO.getFileUploadList()) {
-					FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(), fueVO.getOriginalFileName(),
-							fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getFileBinId(), fueVO.getFileAssociationId());
+					FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
+							fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(),
+							fueVO.getFileBinId(), fueVO.getFileAssociationId());
 					fileUploads.add(fu);
 				}
 			}

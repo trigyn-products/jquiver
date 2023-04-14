@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
+
 public class FileUploadConfigExportVO {
 	private String						fileBinId			= null;
 
@@ -13,8 +15,6 @@ public class FileUploadConfigExportVO {
 	private BigDecimal					maxFileSize			= null;
 
 	private Integer						noOfFiles			= null;
-
-	private String						selectQueryContent	= null;
 
 	private String						uploadQueryContent	= null;
 
@@ -33,20 +33,32 @@ public class FileUploadConfigExportVO {
 	private String						updatedBy			= null;
 
 	private Date						updatedDate			= null;
+	
+	private Integer						uploadQueryType		= null;
+	
+	private Integer						viewQueryType		= null;
 
-	private List<FileUploadExportVO>	fileUploadList		= new ArrayList<>();
+	private Integer						deleteQueryType		= null;
+
+	private String						datasourceViewValidator = null;
+
+	private String						datasourceUploadValidator = null;
+
+	private String						datasourceDeleteValidator = null;
+
+	private Integer						isCustomUpdated		= null;
+
 
 	public FileUploadConfigExportVO() {
 	}
 
 	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
-			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent, Integer isDeleted,
+			String uploadQueryContent, String viewQueryContent, String deleteQueryContent, Integer isDeleted,
 			String updatedBy, Date updatedDate) {
 		this.fileBinId			= fileBinId;
 		this.fileTypSupported	= fileTypSupported;
 		this.maxFileSize		= maxFileSize;
 		this.noOfFiles			= noOfFiles;
-		this.selectQueryContent	= selectQueryContent;
 		this.uploadQueryContent	= uploadQueryContent;
 		this.viewQueryContent	= viewQueryContent;
 		this.deleteQueryContent	= deleteQueryContent;
@@ -55,21 +67,32 @@ public class FileUploadConfigExportVO {
 		this.updatedDate		= updatedDate;
 	}
 
-	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
-			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent, Integer isDeleted,
-			String updatedBy, Date updatedDate, List<FileUploadExportVO> fileUploadList) {
-		this.fileBinId			= fileBinId;
-		this.fileTypSupported	= fileTypSupported;
-		this.maxFileSize		= maxFileSize;
-		this.noOfFiles			= noOfFiles;
-		this.selectQueryContent	= selectQueryContent;
-		this.uploadQueryContent	= uploadQueryContent;
-		this.viewQueryContent	= viewQueryContent;
-		this.deleteQueryContent	= deleteQueryContent;
-		this.isDeleted			= isDeleted;
-		this.updatedBy			= updatedBy;
-		this.updatedDate		= updatedDate;
-		this.fileUploadList		= fileUploadList;
+	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize,
+			Integer noOfFiles, String uploadQueryContent, String viewQueryContent, String deleteQueryContent,
+			String dataSourceId, Integer isDeleted, String createdBy, Date createdDate, String updatedBy,
+			Date updatedDate, Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType,
+			String datasourceViewValidator, String datasourceUploadValidator, String datasourceDeleteValidator,
+			Integer isCustomUpdated) {
+		this.fileBinId = fileBinId;
+		this.fileTypSupported = fileTypSupported;
+		this.maxFileSize = maxFileSize;
+		this.noOfFiles = noOfFiles;
+		this.uploadQueryContent = uploadQueryContent;
+		this.viewQueryContent = viewQueryContent;
+		this.deleteQueryContent = deleteQueryContent;
+		this.dataSourceId = dataSourceId;
+		this.isDeleted = isDeleted;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.updatedBy = updatedBy;
+		this.updatedDate = updatedDate;
+		this.uploadQueryType = uploadQueryType;
+		this.viewQueryType = viewQueryType;
+		this.deleteQueryType = deleteQueryType;
+		this.datasourceViewValidator = datasourceViewValidator;
+		this.datasourceUploadValidator = datasourceUploadValidator;
+		this.datasourceDeleteValidator = datasourceDeleteValidator;
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 	public String getFileBinId() {
@@ -102,14 +125,6 @@ public class FileUploadConfigExportVO {
 
 	public void setNoOfFiles(Integer noOfFiles) {
 		this.noOfFiles = noOfFiles;
-	}
-
-	public String getSelectQueryContent() {
-		return selectQueryContent;
-	}
-
-	public void setSelectQueryContent(String selectQueryContent) {
-		this.selectQueryContent = selectQueryContent;
 	}
 
 	public String getUploadQueryContent() {
@@ -184,12 +199,60 @@ public class FileUploadConfigExportVO {
 		this.createdDate = createdDate;
 	}
 
-	public List<FileUploadExportVO> getFileUploadList() {
-		return fileUploadList;
+	public Integer getUploadQueryType() {
+		return uploadQueryType;
 	}
 
-	public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
-		this.fileUploadList = fileUploadList;
+	public void setUploadQueryType(Integer uploadQueryType) {
+		this.uploadQueryType = uploadQueryType;
+	}
+
+	public Integer getViewQueryType() {
+		return viewQueryType;
+	}
+
+	public void setViewQueryType(Integer viewQueryType) {
+		this.viewQueryType = viewQueryType;
+	}
+
+	public Integer getDeleteQueryType() {
+		return deleteQueryType;
+	}
+
+	public void setDeleteQueryType(Integer deleteQueryType) {
+		this.deleteQueryType = deleteQueryType;
+	}
+
+	public String getDatasourceViewValidator() {
+		return datasourceViewValidator;
+	}
+
+	public void setDatasourceViewValidator(String datasourceViewValidator) {
+		this.datasourceViewValidator = datasourceViewValidator;
+	}
+
+	public String getDatasourceUploadValidator() {
+		return datasourceUploadValidator;
+	}
+
+	public void setDatasourceUploadValidator(String datasourceUploadValidator) {
+		this.datasourceUploadValidator = datasourceUploadValidator;
+	}
+
+	public String getDatasourceDeleteValidator() {
+		return datasourceDeleteValidator;
+	}
+
+	public void setDatasourceDeleteValidator(String datasourceDeleteValidator) {
+		this.datasourceDeleteValidator = datasourceDeleteValidator;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 }

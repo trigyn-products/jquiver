@@ -409,7 +409,7 @@ input:checked + .slider:before {
 	        	isDataSaved = true;
                 /**Added for File Bins*/
                 dropZone.options['displayOptions'] = 0;
-                var successMsg = dropZone.saveSelectedFiles(fileBins,"addEditForm"); 
+                var successMsg = dropZone.saveSelectedFiles(); 
                 if (successMsg == 'Success') {
                     if (fileBins) {
                         for (let fileBinCounter = 0; fileBinCounter < fileBins.length; fileBinCounter++) {

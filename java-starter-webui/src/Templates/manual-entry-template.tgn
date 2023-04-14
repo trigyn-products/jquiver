@@ -135,7 +135,7 @@
     }
 
     function deleteEntry(element) {
-        let rowData = $( "#manual-entryGrid" ).pqGrid("getRowData", {rowIndxPage: element.id});
+        let rowData = $( "#manual-entryGrid" ).pqGrid("getRowData", {rowIndx: element.id});
         let manualEntryId = rowData.manual_entry_id;
         let manualTypeId  = rowData.manual_type;
         let sortIndex = rowData.sort_index;

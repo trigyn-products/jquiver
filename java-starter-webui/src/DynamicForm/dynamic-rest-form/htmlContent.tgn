@@ -78,6 +78,7 @@
 
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
+
 					<span class="asteriskmark">*</span><label for="dynarestProdTypeId">${messageSource.getMessage('jws.httpProducestype')}  </label>
 					<select class="form-control" id="dynarestProdTypeId" onchange="togglePlatform(this)" name="dynarestProdTypeId" title="HTTP Produces Type">
                          </select>
@@ -88,7 +89,10 @@
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span><label for="dynarestPlatformId">${messageSource.getMessage('jws.platformtype')}</label>
 					<select class="form-control" id="dynarestPlatformId" onchange="showMethodSignature(this.value)" name="dynarestPlatformId" title="Platform Id">
-	                        <option value="2" selected="selected"> ${messageSource.getMessage('jws.FTL')} </option>
+        
+							
+							<option value="2" selected="selected"> ${messageSource.getMessage('jws.FTL')} </option>
+                           
 	                        <option value="1"> ${messageSource.getMessage('jws.java')} </option>
 	                        <option value="3"> ${messageSource.getMessage('jws.javaScriptContent')} </option>
 	                </select>
@@ -159,25 +163,15 @@
 			<div id="deleteHeader"></div>		
 			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
 				<h3 class="titlename method-sign-info">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="methodSignature">${messageSource.getMessage('jws.mtdsignature')}</label>
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label id = "methodSignatureHeading" for="methodSignature">${messageSource.getMessage('jws.mtdsignature')} with Example</label>
 				</h3>
+                <pre style="font-weight:normal">
 				<span id="methodSignature"><span>
+                   
+                </pre>    
 			</div>
-			<br>
-			<div id="ftlParameterDiv" class="col-12 method-sign-info-div">				   
-				    <a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
-                </a>
-                <div class="collapse" id="tipscolpase">
-                    <div class="tipscontent">
-                    <span id="contextParameter">${messageSource.getMessage('jws.dynaSuggestions')}</span>
-                        <h3 class="titlename method-sign-info">
-                        <label for="ftlParameter">${messageSource.getMessage('jws.sql/ftlparamandmacros')} :</label>   </h3>
-                        <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
-                    </div>
-                </div>                        
-		    </div>			 			 
-			 <div class="bs-example" id="xmlFormatDiv"  style="display:none;">
+			<br>			 			 
+			 <div class="bs-example" id="xmlFormatDiv"  style="display:none; padding-bottom: 2%;">
                <div class="accordion" id="accordionExample">
                   <div class="card customcardblock">
                      <div class="card-header" id="headingOne">
@@ -192,7 +186,21 @@
                      </div>
                   </div>
                </div>
-            </div>          			 
+            </div> 
+
+			<div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+				</a>
+				<div class="collapse" id="tipscolpase">
+					<div class="tipscontent">
+						<span id="contextParameter">${messageSource.getMessage('jws.dynaSuggestions')}</span>
+						<h3 class="titlename method-sign-info">
+							<label for="ftlParameter">${messageSource.getMessage('jws.sql/ftlparamandmacros')} :</label> </h3>
+						<span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+					</div>
+				</div>
+			</div>
 		
 		<div class="row margin-t-b">
 			<div class="col-12">
@@ -297,14 +305,15 @@
     
 	function togglePlatform(element) {
     	$("#xmlFormatDiv").hide();
-    	if(element.value == "8" || element.value == "10") {
-		if(element.value == "10") {
-        	$("#dynarestPlatformId option[value=1]").prop("selected", true);
+		if(element.value == "8") {
+		$("#dynarestPlatformId option[value=2]").prop("hidden", true);
+		$("#dynarestPlatformId option[value=1]").prop("selected", true);
 		}
-            $("#dynarestPlatformId option[value=2]").prop("disabled", true);
-        } else {
-            $("#dynarestPlatformId option[value=2]").prop("disabled", false);
-        }
+		else{
+		$("#dynarestPlatformId option[value=2]").prop("hidden", false);
+		$("#dynarestPlatformId").find(":selected").prop("selected", true);
+		}
+        
         if(element.value == "14"){ 
         	$("#lblXmlFormat").html("Email XML Structure");
             dynarest.getEmailXMLStructure('jq-email-xml-template');
@@ -332,13 +341,354 @@
   	}
 
   function showMethodSignature(value){
-         if(value == "1"){
+         if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "application/json"){
             $("#methodSignatureDiv").show();
-            $("#methodSignature").text("public T " + $("#dynarestMethodName").val() + 
-                	"(HttpServletRequest a_httpServletRequest, Map&lt;String, Fileinfo&gt; files, Map&lt;String, Object&gt; daoResultSets, UserDetailsVO userDetails) { }");
-         } else {
-            $("#methodSignatureDiv").hide();
-         }
+			$("#methodSignatureHeading").text(`Method Signature with Example`);
+            $("#methodSignature").text(`
+                    import com.google.gson.Gson;
+					private Gson gson = new Gson();
+                    public T `  + $("#dynarestMethodName").val() +
+                   ` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets, UserDetailsVO userDetails) {
+							\xa0\xa0Object customObject = new Object();
+							\xa0\xa0return this.gson.toJson(customObject);
+                    }
+                    `);
+         } else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "application/json") {
+			$("#methodSignatureDiv").show();
+			$("#methodSignatureHeading").text(`Method Signature with Example`);
+			$("#methodSignature").text(`
+					var System = Java.type("java.lang.System");
+					var HashMap = Java.type("java.util.HashMap");
+					function log2Console(a_strMessage){
+					    var isToPrint = true;
+					    if(isToPrint == false){
+					        return;
+					    }
+					    System.out.println(a_strMessage);
+					}
+					function doSomething(){
+					\xa0\xa0var returnObject = new HashMap()
+					\xa0\xa0returnObject.put("property_01", "property_01_value");
+					\xa0\xa0returnObject.put("property_02", "property_02_value");
+					\xa0\xa0returnObject.put("property_03", "property_03_value");
+					
+					    return JSON.stringify(returnObject);
+                    }
+					doSomething();
+                    `)
+					 
+         } else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "application/json") {
+		$("#methodSignatureDiv").show();
+		$("#methodSignatureHeading").text(`JSON Object Example`);
+		$("#methodSignature").html(`
+		{"property_01" : "property_01_value", "property_02" : "property_02_value", "property_03" : "property_03_value"}
+		`)
+		}
+		else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "application/octet-stream"){
+		$("#methodSignatureDiv").show();
+		$("#methodSignatureHeading").text(`Method Signature with Example`);
+		$("#methodSignature").text(`
+		import java.util.Map;
+		import javax.servlet.http.HttpServletRequest;
+		import com.trigyn.jws.dbutils.vo.FileInfo;
+		import com.trigyn.jws.dbutils.vo.FileInfo.FileType;
+		import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+		public T ` + $("#dynarestMethodName").val() +
+		` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
+		
+				\xa0\xa0\xa0\xa0FileInfo fileInfo = new FileInfo();
+
+				\xa0\xa0\xa0\xa0fileInfo.setFileId(file upload id); //file physical id or file upload id
+				\xa0\xa0\xa0\xa0fileInfo.setFileName(file name); if FileType is Physical
+				\xa0\xa0\xa0\xa0fileInfo.setFileType(FileType.Physical); // or FileType.FileBin to download from file bin
+				\xa0\xa0\xa0\xa0fileInfo.setAbsolutePath(absolute file path); if FileType is Physical
+				\xa0\xa0\xa0\xa0fileInfo.setReturnAction(1);// 1 for download, 2 for view
+
+				\xa0\xa0return fileInfo;
+				}
+				`);
+				} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "application/octet-stream") {
+				$("#methodSignatureDiv").show();
+				$("#methodSignature").text(`
+				var System = Java.type("java.lang.System");
+				function log2Console(a_strMessage){
+				    var isToPrint = true;
+				    if(isToPrint == false){
+				        return;
+				    }
+				    System.out.println(a_strMessage);	
+				}
+				
+				function download(requestDetails) {
+					\xa0\xa0var FileInfo = Java.type("com.trigyn.jws.dbutils.vo.FileInfo");
+					\xa0\xa0var FileType = Java.type("com.trigyn.jws.dbutils.vo.FileInfo.FileType");
+					\xa0\xa0var fileInfo = new FileInfo();
+					\xa0\xa0fileInfo.setFileType(FileType.Physical); // FileType.FileBin to download from file bin
+					\xa0\xa0fileInfo.setAbsolutePath(absolute file path); // if FileType is Physical
+					\xa0\xa0fileInfo.setFileName(file name); // if FileType is Physical
+					\xa0\xa0fileInfo.setFileId(file upload id); // if FileType is FileBin
+					\xa0\xa0fileInfo.setReturnAction("1");// 1 for download, 2 for view
+					\xa0\xa0fileInfo.setMimeType(download type); // optional
+					\xa0\xa0return fileInfo;
+				}
+
+				function doSomething(){
+				    return download(requestDetails);	
+				}
+				doSomething();
+				`)
+		
+				}
+    else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml"){
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	
+	public T ` + $("#dynarestMethodName").val() +
+	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
+        String xmlInString = 
+        "&lt;note&gt;"+
+		         \xa0\xa0"&lt;to&gt;Tove&lt;/to&gt;"+
+		         \xa0\xa0"&lt;from&gt;Jani&lt;/from&gt;"+
+		         \xa0\xa0"&lt;heading&gt;Reminder&lt;/heading&gt;"+
+		         \xa0\xa0"&lt;body&gt;Don't forget me this weekend!&lt;/body&gt;"+
+		"&lt;/note&gt;";
+         return xmlInString; 
+     }                      
+	`);
+	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	var System = Java.type("java.lang.System");
+	function log2Console(a_strMessage){
+	
+	    var isToPrint = true;
+	
+	    if(isToPrint == false){
+	
+	        return;
+	
+	    }
+	    System.out.println(a_strMessage);
+	
+	}
+	
+	function doSomething(){
+	var returnXML = 
+    "&lt;note&gt;"+
+			\xa0\xa0"&lt;to&gt;Tove&lt;/to&gt;"+
+			\xa0\xa0"&lt;from&gt;Jani&lt;/from&gt;"+
+			\xa0\xa0"&lt;heading&gt;Reminder&lt;/heading&gt;"+
+			\xa0\xa0"&lt;body&gt;Don't forget me this weekend!&lt;/body&gt;"+
+	"&lt;/note&gt;";
+	    return returnXML;
+	
+	}
+	
+	doSomething();
+	`)
+	
+	} else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	&lt;#-- any valid XML structure --&gt;
+	&lt;note&gt;
+		\xa0\xa0&lt;to&gt;Tove&lt;/to&gt;
+		\xa0\xa0&lt;from&gt;Jani&lt;/from&gt;
+		\xa0\xa0&lt;heading&gt;Reminder&lt;/heading&gt;
+		\xa0\xa0&lt;body&gt;Don't forget me this weekend!&lt;/body&gt;
+	&lt;/note&gt;
+	`)
+	}
+    else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "text/html"){
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	public T ` + $("#dynarestMethodName").val() +
+	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
+	
+	\xa0\xa0return "&lt;b&gt;Hello World&lt;b&gt;";
+	}
+	`);
+	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "text/html") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	var System = Java.type("java.lang.System");
+	
+	function log2Console(a_strMessage){
+	
+	    var isToPrint = true;
+	
+	    if(isToPrint == false){
+	        return;
+	    }
+	    System.out.println(a_strMessage);
+	}
+	function doSomething(){
+	    return "&lt;b&gt;Hello World&lt;b&gt;";	
+	}
+	
+	doSomething();
+	`)
+	
+	} else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "text/html") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`FTL text select with HTML attributes`);
+	$("#methodSignature").html(`
+	&lt;&num;assign helloWorldinBold =  `)
+    var text1 = "\"&lt;b&gt;Hello World&lt;/b&gt;\" /&gt;"
+	document.getElementById("methodSignature").textContent+=text1;
+	$("#methodSignature").append("\n&dollar;{helloWorldinBold}");
+	}
+	else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "text/plain"){
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	public T ` + $("#dynarestMethodName").val() +
+	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
+	
+	\xa0\xa0return "Hello World";
+	}
+	`);
+	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "text/plain") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	var System = Java.type("java.lang.System");
+	
+	function log2Console(a_strMessage){
+	
+	    var isToPrint = true;
+	
+	    if(isToPrint == false){
+	        return;
+	    }
+	    System.out.println(a_strMessage);
+	}
+	function doSomething(){
+	    return "Hello World";
+	}
+	
+	doSomething();
+	`)
+	
+	} else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "text/plain") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`FTL simple text select`);
+	$("#methodSignature").html(`
+	&lt;&num;assign helloWorld = `)
+	var text1 = "\"Hello World\" /&gt;"
+	document.getElementById("methodSignature").textContent+=text1;
+	$("#methodSignature").append("\n&dollar;{helloWorld}");
+	}else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "email/xml"){
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	public T ` + $("#dynarestMethodName").val() +
+	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
+    String xmlInString = 
+    "&lt;emails&gt;"+
+		\xa0\xa0"&lt;email&gt;"+
+		\xa0\xa0"&lt;header&gt;"+
+		\xa0\xa0"&lt;property name=""&gt;value here&lt;/property&gt;"+
+		\xa0\xa0"&lt;property name=""&gt;value here&lt;/property&gt;"+
+		\xa0\xa0"&lt;/header&gt;"+
+		\xa0\xa0"&lt;sender&gt;&lt;!-- This is optional. Default mail configuration will be used, if not provided. --&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;mailid &gt;&lt;/mailid&gt;"+
+		\xa0\xa0"&lt;replyTo&gt;&lt;/replyTo&gt;&lt;!-- this is optional --&gt;"+
+		\xa0\xa0"&lt;/sender&gt;"+
+		\xa0\xa0"&lt;recepients separatemails="true|false"&gt;&lt;!-- separatemails is optional. If true, all recepients will receive"+
+		\xa0\xa0"separate emails. --&gt;"+
+		\xa0\xa0"&lt;recepient type="to|cc|bcc"&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;mailid &gt;&lt;/mailid&gt;"+
+		\xa0\xa0"&lt;/recepient&gt;"+
+		\xa0\xa0"&lt;recepient type="to|cc|bcc"&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;mailid &gt;&lt;/mailid&gt;"+
+		\xa0\xa0"&lt;/recepient&gt;"+
+		\xa0\xa0"&lt;recepient type="to|cc|bcc"&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;mailid &gt;&lt;/mailid&gt;"+
+		\xa0\xa0"&lt;/recepient&gt;"+
+		\xa0\xa0"&lt;/recepients&gt;"+
+		\xa0\xa0"&lt;failedrecepients&gt;"+
+		\xa0\xa0"&lt;failedrecepient type="to"&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;mailid &gt;&lt;/mailid&gt;"+
+		\xa0\xa0"&lt;/failedrecepient&gt;"+
+		\xa0\xa0"&lt;/failedrecepients&gt;"+
+		\xa0\xa0"&lt;subject&gt;&lt;!-- Mail subject to be included here --&gt;&lt;/subject&gt;"+
+		\xa0\xa0"&lt;body contenttype="text/html | text/plain" content="1|2|3"&gt;"+
+		\xa0\xa0"&lt;!-- if content = 1 then email body which doesnot require processing| 2 then template name to be included| 3 template"+
+		\xa0\xa0"content to be processed and included as body --&gt;"+
+		\xa0\xa0"&lt;![CDATA["+
+		\xa0\xa0"&lt;!-- Mail Body to be included here --&gt;"+
+		\xa0\xa0"]]&gt;"+
+		\xa0\xa0"&lt;/body&gt;"+
+		\xa0\xa0"&lt;attachments&gt;"+
+		\xa0\xa0"&lt;attachment type="1|2|3" hasEmbeddedImage="imageName"&gt; &lt;!-- hasEmbeddedImageis optional --&gt;"+
+		\xa0\xa0"&lt;!-- 1=internal uploaded file;2=filesystem;3=uploaded file in this call --&gt;"+
+		\xa0\xa0"&lt;name &gt;&lt;/name&gt;"+
+		\xa0\xa0"&lt;path&gt;&lt;/path&gt;"+
+		\xa0\xa0"&lt;!-- if type=1 then fileuploadid;else absolute file path,else the uploaded file --&gt;"+
+		\xa0\xa0"&lt;/attachment&gt;"+
+		\xa0\xa0"&lt;/attachments&gt;"+
+		\xa0\xa0"&lt;/email&gt;"+
+	"&lt;/emails&gt;"
+
+        return xmlInString;
+    }    
+	`);
+	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "email/xml") {
+	$("#methodSignatureDiv").show();
+	$("#methodSignatureHeading").text(`Method Signature with Example`);
+	$("#methodSignature").text(`
+	var System = Java.type("java.lang.System");
+	var HashMap = Java.type("java.util.HashMap");
+	
+	function log2Console(a_strMessage){
+	\xa0\xa0var isToPrint = true;
+		\xa0\xa0\xa0\xa0if(isToPrint == false){
+			\xa0\xa0\xa0\xa0\xa0\xa0return;
+	\xa0\xa0\xa0\xa0}
+		\xa0\xa0System.out.println(a_strMessage);
+	}
+	function doSomething(){
+	//get the string of the Email XML structure given in below code snippet
+	//save the below XML structure in any template and read from there
+	\xa0\xa0var returnXML = jq_evalTemplateByName("yourtemplatename", function(){
+	\xa0\xa0var params = new HashMap();
+	
+		\xa0\xa0\xa0\xa0params.put("yourKey", "value");
+		\xa0\xa0\xa0\xa0params.put("yourKey1", "value1");
+		\xa0\xa0\xa0\xa0params.put("yourKey2", "value1");
+	
+		\xa0\xa0\xa0\xa0return params;
+	}());
+	    \xa0\xa0log2Console(returnXML);
+		\xa0\xa0return returnXML;
+	}
+	
+	doSomething();
+	`)
+	
+	} else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "email/xml") {
+	$("#methodSignatureDiv").show();
+    $("#methodSignatureHeading").text(`Example Email XML Structure`);
+	$("#methodSignature").html(`
+	&lt;&num;-- Email XML structure given below --&gt;
+	
+	`)
+	}
+       else {
+		$("#methodSignatureHeading").text(`Method Signature with Example`);
+		$("#methodSignatureDiv").hide();
+		}
          
          if(value == "2" || value == "3"){
             $("#lblServiceLogic").html("Service Logic");

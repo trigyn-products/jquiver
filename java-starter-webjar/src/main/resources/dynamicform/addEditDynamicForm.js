@@ -149,7 +149,10 @@ class AddEditDynamicForm {
 				wordWrap: 'wordWrapColumn',
 				wordWrapColumn: 250,
 				wordWrapMinified: true,
-				wrappingIndent: "indent"
+				wrappingIndent: "indent",
+				"autoIndent": true,
+    			"formatOnPaste": true,
+    			"formatOnType": true
 			});
 			var newSuggestionsArray = [];
 			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {

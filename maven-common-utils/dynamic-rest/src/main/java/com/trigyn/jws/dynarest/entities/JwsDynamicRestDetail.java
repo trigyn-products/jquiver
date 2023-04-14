@@ -448,6 +448,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setHidedaoquery(hideDaoQuery);//Added new column for hiding DAO Query Container
 		dynaRest.setIsSecured(isSecured);
 		dynaRest.setJwsHeaderJson(jwsHeaderJson);
+		dynaRest.setIsCustomUpdated(isCustomUpdated);
 		try {
 			if (jwsServiceLogic != null) {
 				dynaRest.setJwsServiceLogic(jwsServiceLogic.trim());

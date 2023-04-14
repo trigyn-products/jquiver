@@ -34,7 +34,6 @@ public interface IMonacoSuggestion {
 			{ "loggedInUserFullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
 			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"]" },
 			{ "contextPath  ", "requestDetails[\\\\\"contextPath\\\\\"]" },
-			{ "systemProperties  ", "requestDetails[\\\\\"systemProperties\\\\\"]"+ "/*-Application Configuration Map*/" },
 			{ "requestDetails  ", "requestDetails[\\\\\"\\\\\"]" },
 			{ "daoResults  ", "daoResults[\\\\\"Query Variable Name\\\\\"]" },
 			{ "files", "files[\\\\\"<File Input Name>\\\\\"]"  },

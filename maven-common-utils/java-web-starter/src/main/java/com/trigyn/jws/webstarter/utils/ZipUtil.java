@@ -69,8 +69,8 @@ public class ZipUtil {
 			} else {
 				
 				File	newFile;
-				if(fileName.contains("/")) {
-					newFile = new File(targetFolder + fileName.substring(0, fileName.lastIndexOf("/")), fileName.substring(fileName.lastIndexOf("/")));
+				if(fileName.contains(File.separator)) {
+					newFile = new File(targetFolder + fileName.substring(0, fileName.lastIndexOf(File.separator)), fileName.substring(fileName.lastIndexOf(File.separator)));
 					newFile.getParentFile().mkdirs();
 				} else {
 					newFile		= new File(targetFolder + fileName);
@@ -128,69 +128,4 @@ public class ZipUtil {
 		return destPath.toString() + File.separator + zipFileName;
 	}
 
-//	public static void unzip(InputStream fis, String destDir) {
-//		File dir = new File(destDir);
-//		if (dir.exists() == false) {
-//			dir.mkdirs();
-//		}
-//		
-//		byte[] buffer = new byte[1024];
-//		try {
-//			ZipInputStream	zis	= new ZipInputStream(fis);
-//			ZipEntry		ze	= zis.getNextEntry();
-//			while (ze != null) {
-//				String parentFolder = destDir;
-//				String	fileName	= ze.getName();
-//				
-//				//check if it's part of another folder then chage the parent folder and
-//				//update the file name
-//				if(File.separator == "/") {
-//					if(fileName.indexOf("\\") >= 0) {
-//						parentFolder += File.separator + fileName.split("\\\\")[0];
-//						fileName = fileName.split("\\\\")[1];
-//					}
-//				} else {
-//					if(fileName.indexOf("/") >= 0) {
-//						String[] folders = fileName.split("/");
-//						for(int i = 0; i < folders.length - 1; i++) {
-//							parentFolder += File.separator + folders[i];
-//						}
-//						fileName = folders[folders.length-1];
-//					}
-//				}
-//				
-//				
-////				//create folders in case it's not created
-//				new File(parentFolder).mkdirs();
-//				System.out.println("fileName :: " + fileName);
-//				File	newFile		= new File(parentFolder + File.separator + fileName);
-//				// create directories for sub directories in zip
-//				FileOutputStream	fos	= null;
-//				if(ze.isDirectory()) {
-////					new File(newFile.getParent()).mkdirs();
-////					fos	= new FileOutputStream(newFile.getParent());
-//					newFile.mkdirs();
-//				} else {
-//					fos	= new FileOutputStream(newFile);
-//
-//					int					len;
-//					while ((len = zis.read(buffer)) > 0) {
-//						fos.write(buffer, 0, len);
-//					}
-//					fos.close();
-//				}
-//				
-//				// close this ZipEntry
-//				zis.closeEntry();
-//				ze = zis.getNextEntry();
-//			}
-//			// close last ZipEntry
-//			zis.closeEntry();
-//			zis.close();
-//			fis.close();
-//		} catch (IOException a_ioe) {
-//			logger.error("Error ocurred while zipping the folder.", a_ioe);
-//		}
-//
-//	}
 }

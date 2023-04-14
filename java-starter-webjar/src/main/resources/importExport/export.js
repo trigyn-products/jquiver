@@ -510,6 +510,17 @@
 				            additionalParameters: {"cr_schedulerTypeId":"str_"+selectedType}
 				 		 });
 					}
+				}else if(moduleType == "Files") {
+					colM = [
+							{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateFileExportRenderer, dataIndx: "" },
+							{ title: "File Upload Id", width: 160, dataIndx: "file_upload_id", align: "left", halign: "center",filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
+							{ title: "File Name", width: 160, dataIndx: "original_file_name", align: "left", halign: "center",
+								filter: { type: "textbox", condition: "contain", listeners: ["change"]}},
+							{ title: "File Bin Id", width: 130, dataIndx: "file_bin_id", align: "left", halign: "center", 
+					        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} }								
+					];
+					isSelectTypeApplicable = false;
+					additionalParameterKey = "";
 				}
 				exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID, 
 						colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
@@ -976,6 +987,7 @@
 	}
 	
     function changeType() {
+	
         selectedType = $("#typeSelect").val();   
         let postData;
         map.forEach(function callback(value, key, map) {
@@ -1144,6 +1156,24 @@
 					} else {
 						postData = {gridId:gridID}
 					}
+				}else if(moduleType == "Notification" || moduleType == "Notification") {
+					if(isSelectAsPerDate == true) {
+						postData = {gridId:gridID}
+					} else {
+						postData = {gridId:gridID}
+					}
+				}else if(moduleType == "Files" || moduleType == "Files") {
+					if(isSelectAsPerDate == true) {
+						postData = {gridId:gridID}
+					} else {
+						postData = {gridId:gridID}
+					}
+				}else if(moduleType == "ApiClientDetails" || moduleType == "ApiClientDetails") {
+					if(isSelectAsPerDate == true) {
+						postData = {gridId:gridID}
+					} else {
+						postData = {gridId:gridID}
+					}
 				}
 				
 				if(gridID != null && moduleType != null && postData != null && postData.gridId != null) {
@@ -1168,7 +1198,11 @@
 				let customConfigExcludeList = [];
 				let exportableDataListMap = new Map();
 				
-				let exportableDataListMap1 = defaultMap.get(key).getExportableDataListMap();
+				if(defaultMap != undefined && defaultMap.get(key) != undefined){
+					exportableDataListMap1 = defaultMap.get(key).getExportableDataListMap();
+				} else if(map != undefined && map.get(key) != undefined){
+					exportableDataListMap1 = map.get(key).getExportableDataListMap();
+				}
 				for (let exportData of exportableDataListMap1.values()){
 					let id = exportData.getModuleId();
 					let modType = exportData.getModuleType();
@@ -1344,5 +1378,19 @@
 
 	function backToPreviousPage(){
 		location.href = contextPath+"/cf/home";
+	}
+	
+	function updateFileExportRenderer(uiObject) {
+		const id = uiObject.rowData.file_upload_id;
+		const name = uiObject.rowData.original_file_name;
+		const version = getVersion(uiObject);
+		const isSystemVariable =  1;
+		const moduleType = "Files";
+		
+		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+		
+		return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+		
 	}
 	

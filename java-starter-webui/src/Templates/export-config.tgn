@@ -54,7 +54,7 @@
     <div class="cm-boxwrapper"  id="mainTab">
     <div class="cm-boxleft cm-scrollbar export-cm-boxleft">
           
-                <div class="tab">
+                <div class="tab" style="height: 100%;">
                  <#if (moduleVOList)??> 
                  <#list moduleVOList as moduleVO> 
                         <#if moduleVO.moduleType?? && moduleVO.moduleType == "Grid"> 

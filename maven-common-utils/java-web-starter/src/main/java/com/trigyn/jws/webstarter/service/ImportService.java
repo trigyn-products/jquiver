@@ -2,6 +2,7 @@ package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,10 +25,12 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,38 +43,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dashboard.entities.Dashboard;
+import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
+import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.AdditionalDatasourceDAO;
-import com.trigyn.jws.dbutils.repository.IModuleListingI18nRepository;
-import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.repository.ModuleDAO;
 import com.trigyn.jws.dbutils.repository.ModuleVersionDAO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.AdditionalDatasourceVO;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynaRestExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ExportModule;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
+import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
+import com.trigyn.jws.dbutils.vo.xml.FilesImportExportVO;
 import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.dao.HelpManualDAO;
-import com.trigyn.jws.dynamicform.dao.IDynamicFormRepository;
-import com.trigyn.jws.dynamicform.dao.IManualEntryDetailsRepository;
 import com.trigyn.jws.dynamicform.dao.IManualTypeRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
@@ -80,7 +83,6 @@ import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
-import com.trigyn.jws.dynarest.dao.FileUploadConfigRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.ApiClientDetails;
 import com.trigyn.jws.dynarest.entities.FileUpload;
@@ -91,30 +93,27 @@ import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.repository.ApiClientDetailsDAO;
 import com.trigyn.jws.dynarest.repository.FileUploadRepository;
 import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
-import com.trigyn.jws.dynarest.repository.IFileUploadConfigRepository;
 import com.trigyn.jws.dynarest.repository.JqschedulerRepository;
 import com.trigyn.jws.dynarest.repository.SchedulerDAO;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
+import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
 import com.trigyn.jws.dynarest.vo.SchedulerVO;
 import com.trigyn.jws.gridutils.dao.GridDetailsDAO;
-import com.trigyn.jws.gridutils.dao.GridDetailsRepository;
+import com.trigyn.jws.gridutils.dao.GridUtilsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
-import com.trigyn.jws.resourcebundle.repository.interfaces.IResourceBundleRepository;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.utils.ResourceBundleUtils;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
-import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.templating.service.TemplateModule;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.typeahead.dao.TypeAheadDAO;
-import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
 import com.trigyn.jws.typeahead.model.AutocompleteVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
@@ -122,23 +121,21 @@ import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
-import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
-import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
-import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
-import com.trigyn.jws.webstarter.dao.INotificationRepository;
 import com.trigyn.jws.webstarter.dao.NotificationDAO;
 import com.trigyn.jws.webstarter.utils.Constant;
 import com.trigyn.jws.webstarter.utils.Constant.EntityNameModuleTypeEnum;
+import com.trigyn.jws.webstarter.utils.FileImportExportModule;
 import com.trigyn.jws.webstarter.utils.FileUploadExportModule;
 import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
 import com.trigyn.jws.webstarter.utils.XMLUtil;
 import com.trigyn.jws.webstarter.utils.ZipUtil;
 import com.trigyn.jws.webstarter.vo.FileUploadConfigImportEntity;
+import com.trigyn.jws.webstarter.vo.FileUploadImportEntity;
 import com.trigyn.jws.webstarter.vo.GenericUserNotification;
 import com.trigyn.jws.webstarter.vo.GenericUserNotificationJsonVO;
 import com.trigyn.jws.webstarter.vo.GridDetailsJsonVO;
@@ -196,13 +193,7 @@ public class ImportService {
 	private DashletModule							dashletDownloadUploadModule			= null;
 
 	@Autowired
-	private GridDetailsRepository					gridDetailsRepository				= null;
-
-	@Autowired
 	private GridDetailsDAO							gridDetailsDAO						= null;
-
-	@Autowired
-	private TypeAheadRepository						typeAheadRepository					= null;
 
 	@Autowired
 	private TypeAheadService						typeAheadService					= null;
@@ -210,38 +201,11 @@ public class ImportService {
 	@Autowired
 	private TypeAheadDAO							typeAheadDAO						= null;
 
-//	@Autowired
-//	private DashboardDaoImpl						dashboardDao						= null;
-//
-//	@Autowired
-//	private DashboardCrudDAO						dashboardCrudDAO					= null;
-//
-//	@Autowired
-//	private IDashboardRepository					dashboardRepository					= null;
-//
-//	@Autowired
-//	private IDashletRepository						dashletRepository					= null;
-//
-//	@Autowired
-//	private IDashboardRoleAssociationRepository		iDashboardRoleRepository			= null;
-//
-//	@Autowired
-//	private IDashboardDashletAssociationRepository	iDashboardDashletRepository			= null;
-
 	@Autowired
 	private NotificationDAO							notificationDao						= null;
 
 	@Autowired
-	private INotificationRepository					notificationRepository				= null;
-
-	@Autowired
 	private JwsDynarestDAO							jwsDynarestDAO						= null;
-
-	@Autowired
-	private FileUploadConfigRepository				fileUploadConfigRepository			= null;
-
-	@Autowired
-	private JwsEntityRoleAssociationRepository		jwsEntityRoleAssociationRepository	= null;
 
 	@Autowired
 	private FileUploadConfigDAO						fileUploadConfigDAO					= null;
@@ -250,22 +214,10 @@ public class ImportService {
 	private JwsEntityRoleAssociationDAO				jwsEntityRoleAssociationDAO			= null;
 
 	@Autowired
-	private IModuleListingRepository				moduleListingRepository				= null;
-
-	@Autowired
-	private IModuleListingI18nRepository			iModuleListingI18nRepository		= null;
-
-	@Autowired
 	private ModuleDAO								moduleDAO							= null;
 
 	@Autowired
 	private DynamicFormCrudDAO						dynamicFormCrudDAO					= null;
-
-	@Autowired
-	private IDynamicFormRepository					dynamicFormRepository				= null;
-
-	@Autowired
-	private IResourceBundleRepository				resourceBundleRepository			= null;
 
 	@Autowired
 	private ResourceBundleDAO						resourceBundleDAO					= null;
@@ -283,19 +235,7 @@ public class ImportService {
 	private TemplateDAO								templateDAO							= null;
 
 	@Autowired
-	private DBTemplatingRepository					dbTemplatingRepository				= null;
-
-	@Autowired
-	private PropertyMasterRepository				propertyMasterRepository			= null;
-
-	@Autowired
-	private JwsUserRepository						jwsUserRepository					= null;
-
-	@Autowired
 	private UserManagementDAO						userManagementDAO					= null;
-	@Autowired
-	private JwsRoleRepository						jwsRoleRepository					= null;
-
 	@Autowired
 	private HelpManualImportExportModule			helpManualImportExportModule		= null;
 
@@ -306,16 +246,10 @@ public class ImportService {
 	private HelpManualDAO							helpManualDAO						= null;
 
 	@Autowired
-	private IManualEntryDetailsRepository			iManualEntryDetailsRepository		= null;
-
-	@Autowired
 	private FileUploadRepository					ifileUploadRepository				= null;
 
 	@Autowired
-	private IFileUploadConfigRepository				iFileUploadConfigRepository			= null;
-
-	@Autowired
-	private FileUploadExportModule					fileUploadExportModule				= null;
+	private FileUploadExportModule					fileBinUploadExportModule				= null;
 
 	@Autowired
 	private AdditionalDatasourceRepository			additionalDatasourceRepository		= null;
@@ -342,6 +276,13 @@ public class ImportService {
 
 	@Autowired
 	private SchedulerDAO							schedulerDAO						= null;
+	
+	@Autowired
+	private FileImportExportModule 					fileUploadExportModule 				= null;
+	
+	@Autowired
+	private FileUploadRepository					fileUploadRepository				= null;
+
 
 	public Map<String, Object> importConfig(Part file, boolean isImportfromLocal) throws Exception {
 
@@ -484,6 +425,8 @@ public class ImportService {
 					outputMap = getImportFileManagerDetails(outputMap, filePath);
 				} else if (Constant.MasterModuleType.DYNAREST.getModuleType().equalsIgnoreCase(moduleName)) {
 					outputMap = getImportDynaRestDetails(outputMap, filePath);
+				}else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleName)) {
+					outputMap = getImportFileDetails(outputMap, filePath);
 				}
 			}
 		}
@@ -604,19 +547,20 @@ public class ImportService {
 
 	private Map<String, Object> getImportFileManagerDetails(Map<String, Object> outputMap, String filePath)
 			throws Exception {
-		String			dynamicFormFolderPath	= filePath + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME;
+		String			dynamicFormFolderPath	= filePath + File.separator + Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO			= readMetaDataXML(dynamicFormFolderPath);
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
 			String							moduleName						= module.getModuleName();
 			String							moduleID						= module.getModuleID();
 			FileUploadConfigExportVO		fileBin							= module.getFileBin();
-			FileUploadConfigImportEntity	fileUploadConfigImportEntity	= (FileUploadConfigImportEntity) fileUploadExportModule
+			
+			FileUploadConfigImportEntity	fileUploadConfigImportEntity	= (FileUploadConfigImportEntity) fileBinUploadExportModule
 					.importData(dynamicFormFolderPath, moduleName, moduleID, fileBin);
 
 			updateOutputMap(outputMap, moduleID, fileBin, fileUploadConfigImportEntity,
 					Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase());
 		}
-		return outputMap;
+		return outputMap; 
 	}
 
 	private Map<String, Object> getImportPermissionDetails(Map<String, Object> outputMap, File file) throws Exception {
@@ -736,21 +680,21 @@ public class ImportService {
 			throws Exception {
 		String			dashletFolderPath	= filePath + File.separator + Constants.DASHLET_DIRECTORY_NAME;
 		MetadataXMLVO	metadataXMLVO		= readMetaDataXML(dashletFolderPath);
-		// for (Modules module : metadataXMLVO.getExportModules().getModule()) {
-		// String moduleName = module.getModuleName();
-		// String moduleID = module.getModuleID();
-		// DashletExportVO dashletExportVO = module.getDashlet();
-		//
-		// Dashlet dashlet = (Dashlet)
-		// dashletDownloadUploadModule.importData(dashletFolderPath,
-		// moduleName, moduleID, dashletExportVO);
-		// dashlet = dashlet.getObject();
-		// DashletVO dashletVO =
-		// dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
-		//
-		// updateOutputMap(outputMap, moduleID, dashletVO, dashlet,
-		// Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase());
-		// }
+		 for (Modules module : metadataXMLVO.getExportModules().getModule()) {
+		 String moduleName = module.getModuleName();
+		 String moduleID = module.getModuleID();
+		 DashletExportVO dashletExportVO = module.getDashlet();
+		
+		 Dashlet dashlet = (Dashlet)
+		 dashletDownloadUploadModule.importData(dashletFolderPath,
+		 moduleName, moduleID, dashletExportVO);
+		 dashlet = dashlet.getObject();
+		 DashletVO dashletVO =
+		 dashletDownloadUploadModule.convertDashletEntityToVO(dashlet);
+		
+		 updateOutputMap(outputMap, moduleID, dashletVO, dashlet,
+		 Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase());
+		 }
 		return outputMap;
 	}
 
@@ -871,7 +815,8 @@ public class ImportService {
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())
 				|| moduleType
 						.equalsIgnoreCase(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())) {
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())){
 			String existingJson = "";
 			/*
 			 * if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.
@@ -896,6 +841,8 @@ public class ImportService {
 				existingJson = getApiClientDetailseJson(id);
 			} else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())) {
 				existingJson = getSchedulerJson(id);
+			}else if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())) {
+				existingJson = getFilesJson(id);
 			}
 
 			isCheckSumUpdated = checkSumComparisonForNonVersioningModules(existingJson, importedJson);
@@ -970,7 +917,8 @@ public class ImportService {
 					|| moduleType
 							.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
-					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())) {
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase()))  {
 
 				if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())) {
 					FileUploadConfig fileUploadConfig = fileUploadConfigService.getFileUploadConfigByBinId(entityID);
@@ -1026,6 +974,12 @@ public class ImportService {
 						version = "NE";
 					}
 				}
+			} else if (moduleType
+					.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())) {
+				FileUpload fileUploadEntity = fileUploadRepository.findById(entityID).orElse(null);
+				if (fileUploadEntity == null) {
+					version = "NE";
+				}
 			} else {
 				String entityName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();
 				version = String.valueOf(moduleVersionDAO.getVersionIdByEntityIdAndName(entityID, entityName));
@@ -1042,7 +996,7 @@ public class ImportService {
 		return versionMap;
 	}
 
-	public String importConfig(String exportedFormatObject, String importId, String moduleType, boolean isOnLoad, Date lastImportDate) throws Exception {
+	public String importConfig(String exportedFormatObject, String importId, String moduleType, boolean isOnLoad, Date lastImportDate) throws FileUploadException, Exception {
 		try {
 			Gson				g				= new Gson();
 			// JSONObject imporatableDataJson = new JSONObject(imporatableData);
@@ -1060,6 +1014,8 @@ public class ImportService {
 				version = "NA";
 			}
 			return version;
+		}catch (FileUploadException fue) {
+			throw new FileUploadException("fail: Error while importing File Bin");
 		} catch (Exception a_excep) {
 			logger.error("Error while importing the configuration ", a_excep);
 			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Error while importing entity of ")) {
@@ -1167,6 +1123,12 @@ public class ImportService {
 			}
 		} catch (Exception a_excep) {
 			logger.error("Error while importing the configuration ", a_excep);
+			if (a_excep instanceof FileNotFoundException) {
+				return "fail:" + HttpStatus.NOT_FOUND.getReasonPhrase();
+			}
+			if (a_excep instanceof FileUploadException) {
+				return "fail: No file bin exists with id" ;
+			}
 			String errorMessage = a_excep.getMessage();
 			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Error while importing entity of ")) {
 				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -1178,7 +1140,7 @@ public class ImportService {
 		return "success";
 	}
 
-	public void saveEntityOnLoad(String moduleType, String entityString, String importId, boolean isOnLoad) throws Exception {
+	public void saveEntityOnLoad(String moduleType, String entityString, String importId, boolean isOnLoad) throws FileUploadException, Exception{
 		try {
 			
 			UserDetailsVO detailsVO = null;
@@ -1194,8 +1156,8 @@ public class ImportService {
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
-					|| moduleType
-							.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())))
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())))
 				tableName = EntityNameModuleTypeEnum.valueOf(moduleType.toUpperCase()).geTableName();
 
 			Gson			g				= new Gson();
@@ -1335,7 +1297,7 @@ public class ImportService {
 						fileUploadConfigDAO.saveFileUploadConfig(fileConfig);
 					}
 	
-					saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_UPLOAD_DIRECTORY_NAME,
+					saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME,
 						fileConfig.getFileBinId());
 				}
 			} else if (Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
@@ -1494,13 +1456,24 @@ public class ImportService {
 					
 					schedulerDAO.saveScheduler(scheduler);
 				}
+			}else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
+				FileUploadImportEntity	fileImportEntity	= g.fromJson(entityString,
+						FileUploadImportEntity.class);
+				List<FileUpload> files = getFileImportEntity(importId, fileImportEntity);
+				if(isOnLoad == false || (isOnLoad && files != null && files.isEmpty() == false)) {
+					saveAndUploadFiles(files, Constant.FILES_UPLOAD_DIRECTORY_NAME);
+				}
+				// TODO : Import version update
 			}
+		}catch (FileUploadException fue) {
+			 throw new FileUploadException("fail:" + "Error while importing File Bin");
 		} catch (Exception exp) {
 			exp.printStackTrace();
 			logger.error("Error while importing entity of id: " + importId + ", module type: " + moduleType);
 //			throw new Exception("Error while importing entity of id: " + importId + ", module type: " + moduleType);
 		}
 	}
+
 
 	private JwsEntityRoleAssociationVO convertJwsEntityRoleAssociationEntityToVO(
 			JwsEntityRoleAssociation entityRoleAssociation) {
@@ -1510,6 +1483,7 @@ public class ImportService {
 
 	private GridDetailsJsonVO convertGridEntityToVO(GridDetails grid) {
 		GridDetailsJsonVO vo = new GridDetailsJsonVO();
+		
 		vo.setEntityName("jq_grid_details");
 		vo.setFormId("8a80cb8174bebc3c0174bec1892c0000");
 		vo.setGridColumnName(grid.getGridColumnName());
@@ -1519,7 +1493,13 @@ public class ImportService {
 		vo.setGridTableName(grid.getGridTableName());
 		vo.setPrimaryKey(grid.getGridId());
 		vo.setQueryType(grid.getQueryType() != null ? grid.getQueryType().toString() : "");
-
+		vo.setCustomFilterCriteria(grid.getCustomFilterCriteria());
+		vo.setDatasourceId(grid.getDatasourceId());
+		vo.setIsEdit(grid.getGridId() != null ? 1 : 0 );
+		vo.setCreatedBy(grid.getCreatedBy());
+		vo.setCreatedDate(grid.getCreatedDate());
+		vo.setGridTypeId(grid.getGridTypeId());
+		vo.setLastUpdatedTs(grid.getLastUpdatedTs());
 		return vo;
 	}
 
@@ -1543,7 +1523,6 @@ public class ImportService {
 		RestApiDetailsJsonVO vo = new RestApiDetailsJsonVO();
 
 		vo.setAllowFiles(dynaRest.getJwsAllowFiles() != null ? dynaRest.getJwsAllowFiles().toString() : "");
-
 		JSONArray	daoDetailsId		= new JSONArray();
 		JSONArray	queryDetails		= new JSONArray();
 		JSONArray	variableNameDetails	= new JSONArray();
@@ -1555,13 +1534,11 @@ public class ImportService {
 				variableNameDetails.put(dao.getJwsResultVariableName());
 				queryTypes.put(dao.getQueryType());
 			}
-		vo.setDaoDetailsIds(daoDetailsId.toString());
+		vo.setDatasourceDetails(daoDetailsId.toString());
 		vo.setDaoQueryDetails(queryDetails.toString());
 		vo.setVariableName(variableNameDetails.toString());
 		vo.setQueryType(queryTypes.toString());
-
 		vo.setSaveUpdateQuery("");
-
 		vo.setDynarestId(dynaRest.getJwsDynamicRestId());
 		vo.setDynarestMethodDescription(dynaRest.getJwsMethodDescription());
 		vo.setDynarestMethodName(dynaRest.getJwsMethodName());
@@ -1574,9 +1551,12 @@ public class ImportService {
 		vo.setDynarestUrl(dynaRest.getJwsDynamicRestUrl());
 		vo.setEntityName("jq_dynamic_rest_details");
 		vo.setFormId("8a80cb81749ab40401749ac2e7360000");
-		vo.setIsEdit(dynaRest.getJwsRbacId() != null ? dynaRest.getJwsRbacId().toString() : "");
+		vo.setIsEdit(dynaRest.getJwsDynamicRestId() != null ? "1" : "0");
 		vo.setPrimaryKey(dynaRest.getJwsDynamicRestId());
 		vo.setServiceLogic(dynaRest.getJwsServiceLogic());
+		vo.setHeaderJson(dynaRest.getJwsHeaderJson());
+		vo.setHidedaoquery(dynaRest.getHidedaoquery());
+		vo.setDynarestSecured(dynaRest.getIsSecured());
 
 		return vo;
 	}
@@ -1635,7 +1615,7 @@ public class ImportService {
 			String manualPath = unZipFilePath + File.separator + parentFolderName + File.separator + moduleName
 					+ File.separator + fileUpload.getPhysicalFileName();
 			if (!new File(manualPath).exists()) {
-				throw new RuntimeException("File Not found!!: " + manualPath);
+				throw new FileNotFoundException("File Not found!!: " + manualPath);
 			}
 
 			FileInputStream fis = new FileInputStream(new File(manualPath));
@@ -1736,6 +1716,102 @@ public class ImportService {
 		} catch (Exception a_exception) {a_exception.printStackTrace();
 			logger.error("Error ", a_exception);
 		}
+	}
+	
+	private Map<String, Object> getImportFileDetails(Map<String, Object> outputMap, String filePath) throws Exception {
+		String			filesFolderPath	= filePath + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME
+				+ File.separator;
+		MetadataXMLVO	metadataXMLVO	= readMetaDataXML(filesFolderPath);
+		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
+			if (module.getFiles() != null && module.getFiles().getFileUploadList().isEmpty() == false) {
+				String					moduleName				= module.getModuleName();
+				String					moduleID				= module.getModuleID();
+				FilesImportExportVO		fileImportVo			= module.getFiles();
+				FileUploadImportEntity	fileUploadImportEntity	= (FileUploadImportEntity) fileUploadExportModule
+						.importData(filesFolderPath, moduleName, moduleID, fileImportVo);
+				updateOutputMap(outputMap, moduleID, fileImportVo, fileUploadImportEntity,
+						Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase());
+			}
+		}
+		return outputMap;
+	}
+	
+	public String getFilesJson(String entityId) throws Exception {
+		FileUpload	fu			= fileUploadRepository.findById(entityId).orElse(null);
+		String		jsonString	= "";
+		if (fu != null) {
+			FileUploadExportVO	vo				= new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
+					fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
+					fu.getFileBinId(), fu.getFileAssociationId());
+			Gson				gson			= new Gson();
+			ObjectMapper		objectMapper	= new ObjectMapper();
+			String				dbDateFormat	= propertyMasterService.getDateFormatByName(
+					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+			DateFormat			dateFormat		= new SimpleDateFormat(dbDateFormat);
+			objectMapper.setDateFormat(dateFormat);
+			Map<String, Object> objectMap = objectMapper.convertValue(vo, TreeMap.class);
+			jsonString = gson.toJson(objectMap);
+
+		}
+		return jsonString;
+	}
+	
+	private void saveAndUploadFiles(List<FileUpload> fileUploadList, String parentFolderName)
+			throws Exception {
+		LocalDate		localDate		= LocalDate.now();
+		Integer			year			= localDate.getYear();
+		Integer			month			= localDate.getMonthValue();
+		Integer			todayDate		= localDate.getDayOfMonth();
+		String			fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
+		StringJoiner	location		= new StringJoiner("" + File.separatorChar);
+		location.add(fileUploadDir);
+		location.add(year.toString()).add(month.toString()).add(todayDate.toString());
+		if (Boolean.FALSE.equals(new File(location.toString()).exists()) && fileUploadList.isEmpty() == false) {
+			Files.createDirectories(Paths.get(location.toString()));
+		}
+		Path root = Paths.get(location.toString());
+		for (FileUpload fileUpload : fileUploadList) {
+			int		filePathIdx		= -1;
+			String	exportPath		= null;
+			int		folderPathIdx	= fileUpload.getFilePath().indexOf(fileUploadDir);
+			if (folderPathIdx > -1) {
+				filePathIdx	= folderPathIdx + fileUploadDir.length();
+				exportPath	= fileUpload.getFilePath().substring(filePathIdx);
+			} else {
+				exportPath = fileUpload.getFilePath();
+			}
+			String extZipFilePath = unZipFilePath + File.separator + parentFolderName + File.separator + exportPath
+					+ File.separator + fileUpload.getPhysicalFileName();
+			if (new File(extZipFilePath).exists() == false) {
+				throw new FileNotFoundException("File Not found!!: " + extZipFilePath);
+			}
+			FileUploadConfig fileUploadConfig = fileUploadConfigService
+					.getFileUploadConfigByBinId(fileUpload.getFileBinId());
+			if (fileUploadConfig == null) {
+				// No file bin exists with id:
+				throw new FileUploadException("File Bin Not found!!: " + fileUpload.getFileBinId());
+			}
+			FileInputStream fis = new FileInputStream(new File(extZipFilePath));
+
+			Files.deleteIfExists(root.resolve(fileUpload.getPhysicalFileName()));
+			Files.copy(fis, root.resolve(fileUpload.getPhysicalFileName()));
+			fileUpload.setFilePath(location.toString());
+			ifileUploadRepository.save(fileUpload);
+		}
+	}
+	
+	private List<FileUpload> getFileImportEntity(String importId, FileUploadImportEntity	fileImportEntity) {
+		List<FileUpload> files = new ArrayList<>();
+		if(fileImportEntity.getFiles().size() > 0 && fileImportEntity.getFiles().isEmpty() == false) {
+			for (FileUpload fileUpload : fileImportEntity.getFiles()) {
+				if(fileUpload.getFileUploadId().equalsIgnoreCase(importId)) {
+					files.add(fileUpload);
+				}
+			}
+		}
+		return files;
 	}
 
 }

@@ -3,7 +3,6 @@ let defaultQueries = new Object();
 class FileBinMaster {
 
 	constructor() {
-		this.selectValidator;
 		this.uploadValidator;
 		this.viewValidator;
 		this.deleteValidator;
@@ -20,162 +19,6 @@ class FileBinMaster {
 			let defaultAdminRole = { "roleId": "ae6465b3-097f-11eb-9a16-f48e38ab9348", "roleName": "ADMIN" };
 			multiselect.setSelectedObject(defaultAdminRole);
 		}
-
-		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120 });
-		require(["vs/editor/editor.main"], function() {
-			context.selectValidator = monaco.editor.create(document.getElementById("selectValidator"), {
-				value: context.fileConfigObj.selectQueryContent,
-				language: "sql",
-				roundedSelection: false,
-				scrollBeyondLastLine: false,
-				readOnly: false,
-				theme: "hc-dark",
-				wordWrap: "wordWrapColumn",
-				wordWrapColumn: 100,
-				wordWrapMinified: true,
-				wrappingIndent: "indent"
-			});
-			var newSuggestionsArray = [];
-			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
-				var suggestion = suggestionArray[iCounter];
-				newSuggestionsArray.push({
-					label: suggestion.label,
-					kind: suggestion.kinda,
-					insertText: suggestion.insertText,
-					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-				});
-			}
-			var newJSSuggestionsArray = [];
-			for (var iCounter = 0; iCounter < jsSuggestionArray.length; iCounter++) {
-				var suggestion = jsSuggestionArray[iCounter];
-				newJSSuggestionsArray.push({
-					label: suggestion.label,
-					kind: suggestion.kinda,
-					insertText: suggestion.insertText,
-					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-				});
-			}
-			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ["@"],
-				provideCompletionItems: (model, position) => {
-					var textUntilPosition = model.getValueInRange({
-						startLineNumber: position.lineNumber,
-						startColumn: position.column - 1,
-						endLineNumber: position.lineNumber,
-						endColumn: position.column
-					});
-					if (textUntilPosition == "@") {
-						if (model.id == "$model1") {
-							if ($("#queryType_selectValidator").val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							} else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
-						} else if (model.id == "$model2") {
-							if ($("#queryType_uploadValidator").val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							}
-							else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
-						} else if (model.id == "$model2") {
-							if ($("#queryType_uploadValidator").val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							}
-							else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
-						} else if (model.id == "$model3") {
-							if ($("#queryType_viewValidator").val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							}
-							else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
-						}
-						else if (model.id == "$model4") {
-							if ($("#queryType_deleteValidator").val() == "4") {
-								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
-							}
-							else {
-								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
-							}
-						}
-					}
-				}
-			});
-			context.selectValidator.onDidChangeCursorSelection((e) => {
-				if ($("#queryType_selectValidator").val() == "4") {
-					if (e.source == "snippet") {
-						var position = e.oldSelections[0]; // Get current mouse position
-						var text = context.selectValidator.getValue(position);
-						var splitedText = text.split("\n");
-						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-						var textArray = lineContent.split('');
-						var line = context.selectValidator.getPosition().lineNumber;
-						var col = context.selectValidator.getPosition().column;
-						if (textArray.includes("@")) {
-							var textToInsert = ""; // text to be inserted
-							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, position.endColumn - 2), textToInsert, lineContent.slice(position.endColumn - 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-						}
-						else {
-							splitedText[position.endLineNumber - 1];
-
-						}
-						context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						context.selectValidator.setPosition({ lineNumber: line, column: col });
-						context.selectValidator.focus();
-					}
-				}
-				else if ($("#queryType_selectValidator").val() == "1") {
-					if (e.source == "snippet") {
-						var position = e.oldSelections[0]; // Get current mouse position
-						var text = context.selectValidator.getValue(position);
-						var splitedText = text.split("\n");
-						var lineContent = splitedText[position.endLineNumber - 1]; // Get selected line content
-						var line = context.selectValidator.getPosition().lineNumber;
-						var col = context.selectValidator.getPosition().column;
-						var newTextArray = lineContent.split('');
-						var sugPostion;
-						if (lineContent.includes("@{")) {
-							var textToInsert = "$"; // text to be inserted
-							while (newTextArray.lastIndexOf("@") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
-							}
-							sugPostion = newTextArray.lastIndexOf("@");
-							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-
-						} else if (lineContent.includes("@<")) {
-							var textToInsert = ""; // text to be inserted
-							while (newTextArray.lastIndexOf("@") > position.endColumn) {
-								newTextArray = newTextArray.slice(0, newTextArray.lastIndexOf("@"));
-							}
-							sugPostion = (newTextArray.lastIndexOf("@")) - 2;
-							splitedText[position.endLineNumber - 1] = [lineContent.slice(0, sugPostion), textToInsert, lineContent.slice(sugPostion + 1)].join(''); // Append the text exactly at the selected position (position.column -1)
-
-						} else {
-							splitedText[position.endLineNumber - 1];
-						}
-						context.selectValidator.setValue(splitedText.join("\n")); // Save the value back to the Editor
-						context.selectValidator.setPosition({ lineNumber: line, column: col });
-						context.selectValidator.focus();
-					}
-				}
-			});
-			context.selectValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
-			});
-			context.selectValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
-				resizeMonacoEditor(context.selectValidator, "selectValidator_container", "selectValidator");
-			});
-			context.selectValidator.onDidChangeModelContent(function() {
-				$("#errorMessage").hide();
-			});
-			if ($("#selectValidator_query").text().trim() !== "") {
-				$("#selectValidator_chkbox").attr("checked", "checked");
-				$("#selectValidator_div").css("opacity", "1.0");
-			}
-		});
 
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120 });
 		require(["vs/editor/editor.main"], function() {
@@ -462,7 +305,6 @@ class FileBinMaster {
 			});
 		} else {
 			context.fileConfigObj = new Object();
-			context.fileConfigObj.selectQueryContent = "";
 			context.fileConfigObj.viewQueryContent = "";
 			context.fileConfigObj.uploadQueryContent = "";
 			context.fileConfigObj.deleteQueryContent = "";
@@ -578,7 +420,6 @@ class FileBinMaster {
 			fileSize = fileSize * Math.pow(1024, scale - 1);
 		}
 		$("#maxFileSize").val(fileSize);
-		$("#selectValidator_query").val($("#selectValidator_query").val());
 		$("#uploadValidator_query").val($("#uploadValidator_query").val());
 		$("#viewValidator_query").val($("#viewValidator_query").val());
 		$("#deleteValidator_query").val($("#deleteValidator_query").val());

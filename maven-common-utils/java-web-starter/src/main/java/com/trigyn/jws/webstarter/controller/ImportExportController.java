@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.servlet.http.Part;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -205,6 +207,12 @@ public class ImportExportController {
 			String	importedIdList	= request.getParameter("importedIdList");
 
 			return importService.importAll(imporatableData, importedIdList, false);
+		} catch (FileNotFoundException f_nexcec) {
+			logger.error("File Not Found.", f_nexcec);
+			return "fail:" + f_nexcec.getMessage();
+		} catch (FileUploadException fuec) {
+			logger.error("File Bin Not Found.", fuec);
+			return "fail:" + fuec.getMessage();
 		} catch (Exception exception) {
 			logger.error("Error occured while importing all data.", exception);
 			return "fail:" + exception.getMessage();

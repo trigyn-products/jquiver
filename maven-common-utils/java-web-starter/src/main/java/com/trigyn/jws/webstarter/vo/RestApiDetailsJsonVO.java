@@ -44,6 +44,14 @@ public class RestApiDetailsJsonVO implements Serializable {
 	private String				serviceLogic				= null;
 
 	private String				variableName				= null;
+	
+	private String				headerJson					= null;
+	
+	private Integer 			hidedaoquery 				= null;
+	
+	private Integer 			dynarestSecured 			= null;
+	
+	private String				datasourceDetails				= null;
 
 	public String getAllowFiles() {
 		return allowFiles;
@@ -161,6 +169,8 @@ public class RestApiDetailsJsonVO implements Serializable {
 		return queryType;
 	}
 
+	
+
 	public void setQueryType(String queryType) {
 		this.queryType = queryType;
 	}
@@ -188,4 +198,38 @@ public class RestApiDetailsJsonVO implements Serializable {
 	public void setVariableName(String variableName) {
 		this.variableName = variableName;
 	}
+
+	public String getHeaderJson() {
+		return headerJson;
+	}
+
+	public void setHeaderJson(String headerJson) {
+		this.headerJson = headerJson;
+	}
+
+	public Integer getHidedaoquery() {
+		return hidedaoquery;
+	}
+
+	public void setHidedaoquery(Integer hidedaoquery) {
+		this.hidedaoquery = hidedaoquery;
+	}
+
+	public Integer getDynarestSecured() {
+		return dynarestSecured;
+	}
+
+	public void setDynarestSecured(Integer dynarestSecured) {
+		this.dynarestSecured = dynarestSecured;
+	}
+
+	public String getDatasourceDetails() {
+		return datasourceDetails;
+	}
+
+	public void setDatasourceDetails(String datasourceDetails) {
+		this.datasourceDetails = datasourceDetails;
+	}
+
+	
 }

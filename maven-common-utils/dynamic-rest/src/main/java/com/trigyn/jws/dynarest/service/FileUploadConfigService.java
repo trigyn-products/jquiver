@@ -43,10 +43,12 @@ public class FileUploadConfigService {
 
 	public FileUploadConfigVO convertFileUploadEntityToVO(FileUploadConfig entity) {
 		logger.debug("Inside FileUploadConfigService.convertFileUploadEntityToVO(entity: {})", entity);
-
+		
 		FileUploadConfigVO config = new FileUploadConfigVO(entity.getFileBinId(), entity.getFileTypSupported(), entity.getMaxFileSize(),
-				entity.getNoOfFiles(), entity.getSelectQueryContent(), entity.getUploadQueryContent(), entity.getViewQueryContent(),
-				entity.getDeleteQueryContent(), entity.getIsDeleted());
+				entity.getNoOfFiles(), entity.getUploadQueryContent(), entity.getViewQueryContent(),
+				entity.getDeleteQueryContent(), entity.getIsDeleted(), entity.getLastUpdatedBy(), entity.getLastUpdatedTs(), entity.getCreatedBy(),
+				entity.getCreatedDate(), entity.getUploadQueryType(), entity.getViewQueryType(), entity.getDeleteQueryType(), entity.getDatasourceViewValidator(),
+				entity.getDatasourceUploadValidator(), entity.getDatasourceDeleteValidator(), entity.getIsCustomUpdated());
 		return config;
 
 	}
@@ -61,6 +63,18 @@ public class FileUploadConfigService {
 		config.setMaxFileSize(vo.getMaxFileSize());
 		config.setNoOfFiles(vo.getNoOfFiles());
 		config.setLastUpdatedBy(vo.getUpdatedBy());
+		config.setLastUpdatedTs(vo.getUpdatedDate());
+		config.setDatasourceId(vo.getDatasourceId());
+		config.setDeleteQueryType(vo.getDeleteQueryType());
+		config.setDeleteQueryContent(vo.getDeleteQueryContent());
+		config.setDatasourceDeleteValidator(vo.getDatasourceDeleteValidator());
+		config.setUploadQueryType(vo.getUploadQueryType());
+		config.setUploadQueryContent(vo.getUploadQueryContent());
+		config.setDatasourceUploadValidator(vo.getDatasourceUploadValidator());
+		config.setViewQueryType(vo.getViewQueryType());
+		config.setViewQueryContent(vo.getViewQueryContent());
+		config.setDatasourceViewValidator(vo.getDatasourceViewValidator());
+		config.setIsCustomUpdated(vo.getIsCustomUpdated());
 
 		return config;
 	}

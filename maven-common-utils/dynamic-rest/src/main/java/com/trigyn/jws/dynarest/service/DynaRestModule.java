@@ -103,12 +103,13 @@ public class DynaRestModule implements DownloadUploadModule<DynaRest> {
 			if (isCheckSumChanged) {
 				jwsDynarestDAO.saveJwsDynamicRestDetail(dynaRest);
 			}
-
+			
 			DynaRestExportVO	dynamicRestExportVO	= new DynaRestExportVO(dynaRest.getJwsDynamicRestId(), dynaRest.getJwsDynamicRestUrl(), 
 					dynaRest.getJwsMethodDescription(), dynaRest.getJwsMethodName(), dynaRest.getJwsPlatformId(), dynaRest.getJwsRbacId(), 
 					serviceLogic + ftlCustomExtension, dynaRest.getJwsRequestTypeId(), dynaRest.getJwsResponseProducerTypeId(), 
 					dynaRest.getJwsAllowFiles(), dynaRest.getJwsDynamicRestTypeId(), dynaRest.getJwsHeaderJson(), daoDetailsFileNameMap, 
-					daoDetailsVariableNameMap, daoDetailsQueryTypeMap, daoDetailsDatasourceIdMap, dynaRest.getLastUpdatedTs(),dynaRest.getHidedaoquery());
+					daoDetailsVariableNameMap, daoDetailsQueryTypeMap, daoDetailsDatasourceIdMap, dynaRest.getLastUpdatedTs(),dynaRest.getHidedaoquery()
+					,dynaRest.getIsSecured(), dynaRest.getIsCustomUpdated());
 
 			Map<String, Object>	map					= new HashMap<>();
 			map.put("moduleName", formName);
@@ -182,6 +183,8 @@ public class DynaRestModule implements DownloadUploadModule<DynaRest> {
 				dynaRest.setJwsResponseProducerTypeId(dynaRestExportVO.getJwsResponseProducerTypeId());
 				dynaRest.setLastUpdatedTs(new Date());
 				dynaRest.setHidedaoquery(dynaRestExportVO.getHideDaoQuery());//Added for New Column for hiding DAO Query Editor
+				dynaRest.setIsCustomUpdated(dynaRestExportVO.getIsCustomUpdated());
+				dynaRest.setIsSecured(dynaRestExportVO.getIsSecured());
 				
 				File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 				Integer	filesPresent	= directoryFiles.length;

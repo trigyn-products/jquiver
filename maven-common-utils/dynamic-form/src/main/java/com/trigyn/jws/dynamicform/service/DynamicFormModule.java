@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 
 @Component("dynamic-form")
 public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
@@ -478,6 +480,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 				dynamicForm.setFormId(dynamicFormExportVO.getFormId());
 				dynamicForm.setFormTypeId(dynamicFormExportVO.getFormTypeId());
 				dynamicForm.setSelectQueryType(dynamicFormExportVO.getSelectQueryType());
+				
 
 				File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 				Integer	filesPresent	= directoryFiles.length;
@@ -556,6 +559,8 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 
 	public DynamicFormVO convertEntityToVO(DynamicForm dynamicForm) throws Exception {
 		DynamicFormVO dynamicFormVO = new DynamicFormVO();
+		JSONArray	datasourceDetails		= new JSONArray();
+		datasourceDetails.put(dynamicForm.getDatasourceId());
 		dynamicFormVO.setFormId(dynamicForm.getFormId());
 		dynamicFormVO.setFormName(dynamicForm.getFormName());
 		dynamicFormVO.setFormDescription(dynamicForm.getFormDescription());
@@ -564,6 +569,22 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		dynamicFormVO.setFormTypeId(dynamicForm.getFormTypeId());
 		dynamicFormVO.setCreatedBy(dynamicForm.getCreatedBy());
 		dynamicFormVO.setCreatedDate(dynamicForm.getCreatedDate());
+		dynamicFormVO.setDatasourceDetails(datasourceDetails.toString());
+		dynamicFormVO.setSelectQueryType(dynamicForm.getSelectQueryType());
+		
+		JSONArray	daoDetailsId		= new JSONArray();
+		JSONArray	queryDetails		= new JSONArray();
+		JSONArray	variableNameDetails	= new JSONArray();
+		JSONArray	queryTypes			= new JSONArray();
+		if (dynamicForm.getDynamicFormSaveQueries() != null)
+			for (DynamicFormSaveQuery dao : dynamicForm.getDynamicFormSaveQueries()) {
+				daoDetailsId.put(dao.getDatasourceId());
+				queryDetails.put(dao.getDynamicFormSaveQuery());
+				variableNameDetails.put(dao.getResultVariableName());
+				queryTypes.put(dao.getDaoQueryType());
+			}
+		dynamicFormVO.setVariableName(variableNameDetails.toString());
+		dynamicFormVO.setQueryType(queryTypes.toString());
 
 		List<DynamicFormSaveQuery>		formSaveQueries		= dynamicForm.getDynamicFormSaveQueries();
 		List<DynamicFormSaveQueryVO>	formSaveQueryVOs	= new ArrayList<>();

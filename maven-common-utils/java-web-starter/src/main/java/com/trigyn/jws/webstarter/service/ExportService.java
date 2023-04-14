@@ -1,6 +1,13 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +25,8 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -38,10 +47,12 @@ import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
 import com.trigyn.jws.dynarest.entities.ApiClientDetails;
+import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
+import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.templating.entities.TemplateMaster;
@@ -53,6 +64,7 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.webstarter.dao.CrudQueryStore;
 import com.trigyn.jws.webstarter.dao.ImportExportCrudDAO;
 import com.trigyn.jws.webstarter.utils.Constant;
+import com.trigyn.jws.webstarter.utils.FileImportExportModule;
 import com.trigyn.jws.webstarter.utils.FileUploadExportModule;
 import com.trigyn.jws.webstarter.utils.FileUtil;
 import com.trigyn.jws.webstarter.utils.HelpManualImportExportModule;
@@ -63,6 +75,7 @@ import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
+import com.trigyn.jws.webstarter.xml.FileUploadXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
@@ -72,6 +85,7 @@ import com.trigyn.jws.webstarter.xml.RoleXMLVO;
 import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+
 
 @Service
 @Transactional(readOnly = false)
@@ -112,6 +126,9 @@ public class ExportService {
 
 	@Autowired
 	private FileUploadExportModule			fileUploadExportModule			= null;
+	
+	@Autowired					
+	private FileImportExportModule			fileImportExportModule			= null;
 
 	private String							version							= null;
 
@@ -282,7 +299,10 @@ public class ExportService {
 		} else if (moduleType.equals(Constant.MasterModuleType.SCHEDULER.getModuleType())) {
 			return retrieveSchedulerExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.SCHEDULER.getModuleType().toUpperCase()));
-		} else {
+		} else if (moduleType.equals(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType())) {
+			return retrieveExportFilesData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toUpperCase()), downloadFolderLocation);
+		}else {
 			return null;
 		}
 	}
@@ -436,7 +456,7 @@ public class ExportService {
 			}
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, fileUploadExportModule.getModuleDetailsMap(),
-					downloadFolderLocation + File.separator + Constant.FILE_UPLOAD_DIRECTORY_NAME, version, userName, "");
+					downloadFolderLocation + File.separator + Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME, version, userName, "");
 		}
 
 		return null;
@@ -731,6 +751,54 @@ public class ExportService {
 			throw new Exception("Data mismatch while exporting " + moduleType + ".");
 		}
 
+	}
+	
+	private XMLVO retrieveExportFilesData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
+			String moduleType, List<String> exportedList, String downloadFolderLocation) throws Exception {
+		if (exportedList != null && exportedList.isEmpty() == false) {
+			List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+					CrudQueryStore.HQL_QUERY_TO_FETCH_FILES_DATA_FOR_EXPORT, exportedList, null, null, null);
+			validate(exportableList, exportedList, Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType());
+			FileUploadXMLVO fileUploadExportXMLVO = null;
+			if (exportableList != null && !exportableList.isEmpty()) {
+				fileUploadExportXMLVO = new FileUploadXMLVO();
+				for (Object obj : exportableList) {
+					if (!exportedList.contains(((FileUpload) obj).getFileUploadId())) {
+						throw new Exception("Data mismatch while exporting Files.");
+					}
+					if(checkFileExist(obj)) {
+						fileUploadExportXMLVO.getFileUploadDetails().add(((FileUpload) obj));
+					}
+				}
+				fileImportExportModule.exportData(((FileUploadXMLVO) fileUploadExportXMLVO), downloadFolderLocation);
+				moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+				XMLUtil.generateMetadataXML(null, fileImportExportModule.getModuleDetailsMap(),
+						downloadFolderLocation + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME, version, userName,
+						"");
+			}
+		}
+		return null;
+
+	}
+	
+	private Boolean checkFileExist(Object obj) throws MalformedURLException, IOException, FileNotFoundException {
+		FileUpload				fu			= (FileUpload) obj;
+		Path		fileRoot		= Paths.get(fu.getFilePath());
+		Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
+		Resource	resource		= new UrlResource(filePath.toUri());
+		InputStream	in;
+		if (resource.exists() || resource.isReadable()) {
+			File newFile = resource.getFile();
+			in = new FileInputStream(newFile);
+		} else {
+			String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
+			in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
+		}
+		if (in != null) {
+			return Boolean.TRUE;
+		}else {
+			return Boolean.FALSE;
+		}
 	}
 
 }

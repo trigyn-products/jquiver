@@ -37,6 +37,7 @@ public class ModuleDetailsVO implements Serializable {
 	private String				externalURL			= null;
 	private Integer				openInNewTab		= null;
 	private String				menuStyle			= null;
+	private Integer				isHomePage			= null;//Added for isHomePage
 
 	public ModuleDetailsVO() {
 
@@ -44,7 +45,7 @@ public class ModuleDetailsVO implements Serializable {
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
 			Integer sequence, Integer isInsideMenu, Integer includeLayout, Integer targetLookupId, String targetLookupDesc,
-			String targetTypeId, String headerJson, String requestParamJson, Integer openInNewTab, String menuStyle) {
+			String targetTypeId, String headerJson, String requestParamJson, Integer openInNewTab, String menuStyle, Integer isHomePage) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
 		this.moduleURL			= moduleURL;
@@ -60,6 +61,8 @@ public class ModuleDetailsVO implements Serializable {
 		this.requestParamJson 	= requestParamJson;
 		this.openInNewTab 		= openInNewTab;
 		this.menuStyle 			= menuStyle;
+		this.isHomePage = isHomePage;
+		
 	}
 
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL) {
@@ -89,7 +92,7 @@ public class ModuleDetailsVO implements Serializable {
 	}
 	
 	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
-			Integer sequence, Long subModuleCount, String targetTypeId, Integer targetLookupId, String requestParamJson, Integer openInNewTab, String menuStyle) {
+			Integer sequence, Long subModuleCount, String targetTypeId, Integer targetLookupId, String requestParamJson, Integer openInNewTab, String menuStyle,Integer isHomePage) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
 		this.moduleURL			= moduleURL;
@@ -102,6 +105,7 @@ public class ModuleDetailsVO implements Serializable {
 		this.requestParamJson 	= requestParamJson;
 		this.openInNewTab		= openInNewTab;
 		this.menuStyle 			= menuStyle;
+		this.isHomePage = isHomePage;
 	}
 
 	public String getModuleId() {
@@ -343,4 +347,13 @@ public class ModuleDetailsVO implements Serializable {
 	public void setMenuStyle(String menuStyle) {
 		this.menuStyle = menuStyle;
 	}
+	/** Added for isHomePage*/
+	public Integer getIsHomePage() {
+		return isHomePage;
+	}
+
+	public void setIsHomePage(Integer isHomePage) {
+		this.isHomePage = isHomePage;
+	}
+	/**Ends Here*/
 }

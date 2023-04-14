@@ -115,7 +115,9 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION "
 				+ " SELECT js.scheduler_id as id, js.scheduler_name as name, 'NA' as versionID, 'Scheduler' as enityType"
 				+ " FROM jq_scheduler_view js WHERE js.schedulerTypeId = 1 GROUP BY js.scheduler_id"
-				
+				+ " UNION "
+				+ " SELECT fu.file_upload_id as id, fu.original_file_name as name, '1.0' as versionID, 'Files' as enityType"
+				+ " FROM jq_file_upload fu "				
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
@@ -144,6 +146,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view js WHERE js.schedulerTypeId = 1"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
@@ -173,6 +176,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view "
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);

@@ -107,7 +107,7 @@ function saveEntityRole(thisObj){
   let entityDataList = [];
   let attrChecked = thisObj.checked == true?1:0 ;
   let columnName = thisObj.getAttribute("col");
-  let rowData = grid.pqGrid( "getRowData", {rowIndxPage: thisObj.getAttribute("rowIndxPage")} );
+  let rowData = grid.pqGrid( "getRowData", {rowIndx: thisObj.getAttribute("rowIndxPage")} );
   let colData = grid.pqGrid( "getColumn",{ dataIndx: columnName } );
   let entityRoleId  =  rowData[columnName] == null?null:rowData["entityRoleId"];
   let entityData = new Object();

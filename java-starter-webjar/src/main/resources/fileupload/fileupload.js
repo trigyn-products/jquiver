@@ -129,16 +129,20 @@
 		/**
 		   * This method is to save file w.r.t selected association.
 		   */
-		saveSelectedFiles(a_filesBin, formName) {
+		//saveSelectedFiles(a_filesBin, formName) {
+		saveSelectedFiles() {
+			let l_formName = "addEditForm";
+			let a_filesBin = fileBins;
 			var returnMessage = "Success";
 			if (a_filesBin == null || a_filesBin == undefined) {
 				showMessage("File Bin is mandatory", "error");
-				return;
+				//return;
 			}
+			
 			if (typeof getFormName == "function") {
-				formName = getFormName();
+				l_formName = getFormName();
 			}
-			let serializedForm = $("#" + formName).serializeArray();
+			let serializedForm = $("#" + l_formName).serializeArray();
 			if (a_filesBin) {
 				for (let fileBinCounter = 0; fileBinCounter < a_filesBin.length; fileBinCounter++) {
 					serializedForm.push(a_filesBin[fileBinCounter]);

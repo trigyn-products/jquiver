@@ -113,10 +113,31 @@
 									<input type="hidden" id="${moduleDetailsVO?api.getModuleId()!''}" name="${moduleDetailsVO?api.getModuleId()!''}" value='${json_obj!""}' />
 							</#if>
 							<#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1) || moduleDetailsVO?api.getModuleURL() == "#">
-                          <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
-                                    <a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}<i class="fa fa-caret-down" aria-hidden="true"></i>
+                          <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}" >
+
+                                    <!-- <a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}<i class="fa fa-caret-down" aria-hidden="true"></i>
+                                    </a> -->
+                                    <#if moduleDetailsVO?api.getModuleURL() == "#">
+                                   
+                                    <a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}
+                                        <i class="fa fa-caret-down " aria-hidden="true"></i> 
+                                    </a>  
+                                    <#else>
+                                   <div style="display:flex;">
+                                    <a href = "${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleURL()!''}" class="nav-link "  target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
                                     </a>
-									<div class="collapse collapsein">
+
+                                    <a class= " nav-link clickable panel-collapsed" style="float:right;width: 45px;" onMouseOver="this.style.color='#0F0'"
+                                        onMouseOut="this.style.color='#FFFFFF'">
+                                        <i class="pipe-separated-list-container fa fa-caret-down " aria-hidden="true"></i>
+                                     </a>
+                                    </div>
+                                   
+                                   
+                                    </#if>
+                                   
+                                 
+									<div class="collapse collapsein" >
 										<ul class="subcategory">
 											<#list moduleDetailsVOList as moduleDetailsVOChild>
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
@@ -134,7 +155,7 @@
 											</#list>
 										</ul>
 									</div>
-							
+							 </li>
 							<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
 								<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
 									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
@@ -307,7 +328,9 @@ function onDarkMode(){
 		$(form).submit();
 		$("#targetUrlForm"+requestParamsModuleId).remove();
         /*Written for hiding menu when navigating to external URL in new tab*/
-        homePageFn.closeNavigation();
+        if($(".hamburgermenu").hasClass("open") && homePageFn){
+        	homePageFn.toggleNavigation();
+        }
     }
      //Added for setting Default Cookie 
      window.onload = function() { cookieConsent(); };

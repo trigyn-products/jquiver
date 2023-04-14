@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class GridDetailsJsonVO implements Serializable {
 
@@ -25,7 +26,21 @@ public class GridDetailsJsonVO implements Serializable {
 
 	private String				primaryKey			= null;
 
-	private String				queryType			= null;
+	private String				queryType			= null;   
+	
+	private String				customFilterCriteria	= null;
+	
+	private String				datasourceId			= null;
+	
+	private Integer 			isEdit 				= null;
+	
+	private Integer				gridTypeId			= 1;
+	
+	private String				createdBy			= null;
+	
+	private Date				createdDate			= null;
+	
+	private Date				lastUpdatedTs		= null;	
 
 	public String getEntityName() {
 		return entityName;
@@ -98,5 +113,63 @@ public class GridDetailsJsonVO implements Serializable {
 	public void setQueryType(String queryType) {
 		this.queryType = queryType;
 	}
+
+	public String getCustomFilterCriteria() {
+		return customFilterCriteria;
+	}
+
+	public void setCustomFilterCriteria(String customFilterCriteria) {
+		this.customFilterCriteria = customFilterCriteria;
+	}
+
+	public String getDatasourceId() {
+		return datasourceId;
+	}
+
+	public void setDatasourceId(String datasourceId) {
+		this.datasourceId = datasourceId;
+	}
+
+	public Integer getIsEdit() {
+		return isEdit;
+	}
+
+	public void setIsEdit(Integer isEdit) {
+		this.isEdit = isEdit;
+	}
+
+	public Integer getGridTypeId() {
+		return gridTypeId;
+	}
+
+	public void setGridTypeId(Integer gridTypeId) {
+		this.gridTypeId = gridTypeId;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public Date getLastUpdatedTs() {
+		return lastUpdatedTs;
+	}
+
+	public void setLastUpdatedTs(Date lastUpdatedTs) {
+		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
+	
 
 }

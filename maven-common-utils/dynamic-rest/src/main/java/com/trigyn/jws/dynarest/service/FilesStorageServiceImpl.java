@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -284,16 +283,10 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				fileBinId, fileAssociationId, requestParamMap);
 
 		List<FileUpload>	fileUploadList		= new ArrayList<>();
-		FileUploadConfig	fileUploadConfig	= fileUploadConfigRepository.getFileUploadConfig(fileBinId);
-		if (fileUploadConfig != null) {
-			String queryContent = fileUploadConfig.getSelectQueryContent();
-			if (StringUtils.isBlank(queryContent) == false) {
-				requestParamMap.put("fileAssociationId", fileAssociationId);
-				String query = templatingUtils.processTemplateContents(queryContent, "fileViewQuery", requestParamMap);
-				fileUploadList = fileUploadConfigDAO.executeSelectQuery(null, query, requestParamMap);
-			} else {
-				fileUploadList = fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
-			}
+		Integer				isAllowed			= hasPermission(fileBinId, fileAssociationId, null,
+				Constants.VIEW_FILE_VALIDATOR, requestParamMap);
+		if (isAllowed > 0) {
+			fileUploadList	= fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
 		}
 		List<FileInfo> fileInfoList = convertFileUploadToFileInfo(fileUploadList);
 		return fileInfoList;

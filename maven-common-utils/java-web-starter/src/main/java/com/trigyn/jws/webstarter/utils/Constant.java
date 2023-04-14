@@ -30,8 +30,9 @@ public final class Constant {
 	public static final String	EXPORTTEMPPATH					= "exportTempPath";
 	public static final String	IMPORTTEMPPATH					= "importTempPath";
 	public static final String	HELP_MANUAL_DIRECTORY_NAME		= "HelpManual";
-	public static final String	FILE_UPLOAD_DIRECTORY_NAME		= "FileBin";
+	public static final String	FILE_BIN_UPLOAD_DIRECTORY_NAME	= "FileBin";
 	public static final String	GENERIC_USER_NOTIFICATION		= "notification-listing";
+	public static final String	FILES_UPLOAD_DIRECTORY_NAME		= "Files";
 
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
@@ -54,7 +55,7 @@ public final class Constant {
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
-		SCHEDULER("Scheduler");
+		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files");
 
 		final String moduleType;
 
@@ -73,7 +74,7 @@ public final class Constant {
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
 		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
 		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),
-		SCHEDULER("jq_job_scheduler");
+		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files");
 
 		final String tableName;
 

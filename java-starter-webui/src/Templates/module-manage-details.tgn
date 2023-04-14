@@ -36,6 +36,7 @@
         <div class="row">
             <#outputformat "HTML">
             <input type="hidden" id = "moduleId" name="moduleId" value="${(moduleDetailsVO?api.getModuleId())!''}">
+           <input type="hidden" id = "isHomePage" name="isHomePage" value="${(moduleDetailsVO?api.getIsHomePage())!''}">
             <div class="col-4">
                 <div class="col-inner-form full-form-fields">
                     <label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
@@ -55,6 +56,7 @@
                                     <#else>
                                         <option value="${moduleListingVO?api.getModuleId()}">${moduleListingVO?api.getModuleName()!''}</option>
                                     </#if>
+                                     
                             </#list>
                         </#if>
                     </select>
@@ -305,6 +307,7 @@ let selectedLanguageId = getCookie("locale");
 	</#if>
 </#noparse>
 $(function() {
+   
     $("#targetLookupType option[value='4']").remove();
      <#outputformat "HTML">
     let moduleTypeId = "${(moduleDetailsVO?api.getTargetTypeId())!''}";

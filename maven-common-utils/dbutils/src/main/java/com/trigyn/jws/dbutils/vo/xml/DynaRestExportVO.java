@@ -40,6 +40,10 @@ public class DynaRestExportVO {
 	private Date					lastUpdatedTs				= null;
 	
 	private Integer					hideDaoQuery				= null;//Added for new Column in Rest API
+	
+	private Integer					isSecured					= 0;
+	
+	private Integer					isCustomUpdated				= 0;
 
 	public DynaRestExportVO() {
 
@@ -50,26 +54,28 @@ public class DynaRestExportVO {
 			Integer jwsRequestTypeId, Integer jwsResponseProducerTypeId, Integer jwsAllowFiles,
 			Integer jwsDynamicRestTypeId, String jwsHeaderJson, Map<Integer, String> daoDetailsFileNameMap,
 			Map<Integer, String> daoDetailsVariableNameMap, Map<Integer, Integer> daoDetailsQueryTypeMap,
-			Map<Integer, String> daoDetailsDatasourceIdMap, Date lastUpdatedTs,Integer hideDaoQuery) {
-		super();
-		this.jwsDynamicRestId			= jwsDynamicRestId;
-		this.jwsDynamicRestUrl			= jwsDynamicRestUrl;
-		this.jwsMethodDescription		= jwsMethodDescription;
-		this.jwsMethodName				= jwsMethodName;
-		this.jwsPlatformId				= jwsPlatformId;
-		this.jwsRbacId					= jwsRbacId;
-		this.serviceLogicFileName		= serviceLogicFileName;
-		this.jwsRequestTypeId			= jwsRequestTypeId;
-		this.jwsResponseProducerTypeId	= jwsResponseProducerTypeId;
-		this.jwsAllowFiles				= jwsAllowFiles;
-		this.jwsDynamicRestTypeId		= jwsDynamicRestTypeId;
-		this.jwsHeaderJson				= jwsHeaderJson;
-		this.daoDetailsFileNameMap		= daoDetailsFileNameMap;
-		this.daoDetailsVariableNameMap	= daoDetailsVariableNameMap;
-		this.daoDetailsQueryTypeMap		= daoDetailsQueryTypeMap;
-		this.daoDetailsDatasourceIdMap	= daoDetailsDatasourceIdMap;
-		this.lastUpdatedTs				= lastUpdatedTs;
-		this.hideDaoQuery				= hideDaoQuery;//Added for new Column in Rest API
+			Map<Integer, String> daoDetailsDatasourceIdMap, Date lastUpdatedTs, Integer hideDaoQuery, Integer isSecured,
+			Integer isCustomUpdated) {
+		this.jwsDynamicRestId = jwsDynamicRestId;
+		this.jwsDynamicRestUrl = jwsDynamicRestUrl;
+		this.jwsMethodDescription = jwsMethodDescription;
+		this.jwsMethodName = jwsMethodName;
+		this.jwsPlatformId = jwsPlatformId;
+		this.jwsRbacId = jwsRbacId;
+		this.serviceLogicFileName = serviceLogicFileName;
+		this.jwsRequestTypeId = jwsRequestTypeId;
+		this.jwsResponseProducerTypeId = jwsResponseProducerTypeId;
+		this.jwsAllowFiles = jwsAllowFiles;
+		this.jwsDynamicRestTypeId = jwsDynamicRestTypeId;
+		this.jwsHeaderJson = jwsHeaderJson;
+		this.daoDetailsFileNameMap = daoDetailsFileNameMap;
+		this.daoDetailsVariableNameMap = daoDetailsVariableNameMap;
+		this.daoDetailsQueryTypeMap = daoDetailsQueryTypeMap;
+		this.daoDetailsDatasourceIdMap = daoDetailsDatasourceIdMap;
+		this.lastUpdatedTs = lastUpdatedTs;
+		this.hideDaoQuery = hideDaoQuery;
+		this.isSecured = isSecured;
+		this.isCustomUpdated = isCustomUpdated;
 	}
 
 	public String getJwsDynamicRestId() {
@@ -217,4 +223,20 @@ public class DynaRestExportVO {
 		this.hideDaoQuery = hideDaoQuery;
 	}
 	/** Ends Here*/
+
+	public Integer getIsSecured() {
+		return isSecured;
+	}
+
+	public void setIsSecured(Integer isSecured) {
+		this.isSecured = isSecured;
+	}
+
+	public Integer getIsCustomUpdated() {
+		return isCustomUpdated;
+	}
+
+	public void setIsCustomUpdated(Integer isCustomUpdated) {
+		this.isCustomUpdated = isCustomUpdated;
+	}
 }

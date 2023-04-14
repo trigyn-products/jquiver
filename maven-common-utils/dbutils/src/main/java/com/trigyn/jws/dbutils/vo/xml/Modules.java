@@ -19,6 +19,8 @@ public class Modules {
 	private FileUploadConfigExportVO fileBin;
 	
 	private DynaRestExportVO dynaRestExportVO;
+	
+	private FilesImportExportVO			files;
 
 	public String getModuleID() {
 		return moduleID;
@@ -90,6 +92,14 @@ public class Modules {
 
 	public void setDynaRestExportVO(DynaRestExportVO dynaRestExportVO) {
 		this.dynaRestExportVO = dynaRestExportVO;
+	}
+	
+	public FilesImportExportVO getFiles() {
+		return files;
+	}
+
+	public void setFiles(FilesImportExportVO files) {
+		this.files = files;
 	}
 
 }

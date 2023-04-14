@@ -31,9 +31,6 @@ public class FileUploadConfig {
 	@Column(name = "no_of_files")
 	private Integer		noOfFiles			= null;
 
-	@Column(name = "select_query_content")
-	private String		selectQueryContent	= null;
-
 	@Column(name = "upload_query_content")
 	private String		uploadQueryContent	= null;
 
@@ -61,9 +58,6 @@ public class FileUploadConfig {
 	@Column(name = "last_updated_ts")
 	private Date		lastUpdatedTs		= null;
 
-	@Column(name = "select_query_type")
-	private Integer		selectQueryType		= 1;
-
 	@Column(name = "upload_query_type")
 	private Integer		uploadQueryType		= 1;
 
@@ -75,9 +69,6 @@ public class FileUploadConfig {
 
 	@Column(name = "datasource_view_validator")
 	private String		datasourceViewValidator;
-
-	@Column(name = "datasource_select_validator")
-	private String		datasourceSelectValidator;
 
 	@Column(name = "datasource_upload_validator")
 	private String		datasourceUploadValidator;
@@ -93,14 +84,12 @@ public class FileUploadConfig {
 	}
 
 	public FileUploadConfig(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
-			String selectQueryContent, String uploadQueryContent, String viewQueryContent, String deleteQueryContent,
-			String datasourceId, Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy,
-			Date lastUpdatedTs) {
+			String uploadQueryContent, String viewQueryContent, String deleteQueryContent, String datasourceId,
+			Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs) {
 		this.fileBinId			= fileBinId;
 		this.fileTypSupported	= fileTypSupported;
 		this.maxFileSize		= maxFileSize;
 		this.noOfFiles			= noOfFiles;
-		this.selectQueryContent	= selectQueryContent;
 		this.uploadQueryContent	= uploadQueryContent;
 		this.viewQueryContent	= viewQueryContent;
 		this.deleteQueryContent	= deleteQueryContent;
@@ -112,6 +101,34 @@ public class FileUploadConfig {
 		this.lastUpdatedTs		= lastUpdatedTs;
 	}
 
+
+	public FileUploadConfig(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
+			String uploadQueryContent, String viewQueryContent, String deleteQueryContent, String datasourceId,
+			Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs,
+			Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType, String datasourceViewValidator,
+			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated) {
+		this.fileBinId = fileBinId;
+		this.fileTypSupported = fileTypSupported;
+		this.maxFileSize = maxFileSize;
+		this.noOfFiles = noOfFiles;
+		this.uploadQueryContent = uploadQueryContent;
+		this.viewQueryContent = viewQueryContent;
+		this.deleteQueryContent = deleteQueryContent;
+		this.datasourceId = datasourceId;
+		this.isDeleted = isDeleted;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.lastUpdatedTs = lastUpdatedTs;
+		this.uploadQueryType = uploadQueryType;
+		this.viewQueryType = viewQueryType;
+		this.deleteQueryType = deleteQueryType;
+		this.datasourceViewValidator = datasourceViewValidator;
+		this.datasourceUploadValidator = datasourceUploadValidator;
+		this.datasourceDeleteValidator = datasourceDeleteValidator;
+		this.isCustomUpdated = isCustomUpdated;
+	}
+
 	public FileUploadConfig getObject() {
 		FileUploadConfig file = new FileUploadConfig();
 		file.setFileTypSupported(fileTypSupported != null ? fileTypSupported.trim() : fileTypSupported);
@@ -120,7 +137,6 @@ public class FileUploadConfig {
 		file.setLastUpdatedTs(lastUpdatedTs);
 		file.setMaxFileSize(maxFileSize);
 		file.setNoOfFiles(noOfFiles);
-		file.setSelectQueryContent(selectQueryContent);
 		file.setUploadQueryContent(uploadQueryContent);
 		file.setViewQueryContent(viewQueryContent);
 		file.setDeleteQueryContent(deleteQueryContent);
@@ -160,14 +176,6 @@ public class FileUploadConfig {
 
 	public void setNoOfFiles(Integer noOfFiles) {
 		this.noOfFiles = noOfFiles;
-	}
-
-	public String getSelectQueryContent() {
-		return selectQueryContent;
-	}
-
-	public void setSelectQueryContent(String selectQueryContent) {
-		this.selectQueryContent = selectQueryContent;
 	}
 
 	public String getUploadQueryContent() {
@@ -242,14 +250,6 @@ public class FileUploadConfig {
 		this.lastUpdatedTs = lastUpdatedTs;
 	}
 
-	public Integer getSelectQueryType() {
-		return selectQueryType;
-	}
-
-	public void setSelectQueryType(Integer selectQueryType) {
-		this.selectQueryType = selectQueryType;
-	}
-
 	public Integer getUploadQueryType() {
 		return uploadQueryType;
 	}
@@ -282,14 +282,6 @@ public class FileUploadConfig {
 		this.datasourceViewValidator = datasourceViewValidator;
 	}
 
-	public String getDatasourceSelectValidator() {
-		return datasourceSelectValidator;
-	}
-
-	public void setDatasourceSelectValidator(String datasourceSelectValidator) {
-		this.datasourceSelectValidator = datasourceSelectValidator;
-	}
-
 	public String getDatasourceUploadValidator() {
 		return datasourceUploadValidator;
 	}
@@ -317,7 +309,7 @@ public class FileUploadConfig {
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdBy, datasourceId, deleteQueryContent, fileBinId, fileTypSupported, isDeleted,
-				maxFileSize, noOfFiles, selectQueryContent, lastUpdatedBy, uploadQueryContent, viewQueryContent);
+				maxFileSize, noOfFiles, lastUpdatedBy, uploadQueryContent, viewQueryContent);
 	}
 
 	@Override
@@ -337,9 +329,7 @@ public class FileUploadConfig {
 				&& Objects.equals(fileBinId, other.fileBinId)
 				&& Objects.equals(fileTypSupported, other.fileTypSupported)
 				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(maxFileSize, other.maxFileSize)
-				&& Objects.equals(noOfFiles, other.noOfFiles)
-				&& Objects.equals(selectQueryContent, other.selectQueryContent)
-				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
+				&& Objects.equals(noOfFiles, other.noOfFiles) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
 				&& Objects.equals(uploadQueryContent, other.uploadQueryContent)
 				&& Objects.equals(viewQueryContent, other.viewQueryContent);
 	}
@@ -349,13 +339,12 @@ public class FileUploadConfig {
 		StringBuilder builder = new StringBuilder();
 		builder.append("FileUploadConfig [fileBinId=").append(fileBinId).append(", fileTypSupported=")
 				.append(fileTypSupported).append(", maxFileSize=").append(maxFileSize).append(", noOfFiles=")
-				.append(noOfFiles).append(", selectQueryContent=").append(selectQueryContent)
-				.append(", uploadQueryContent=").append(uploadQueryContent).append(", viewQueryContent=")
-				.append(viewQueryContent).append(", deleteQueryContent=").append(deleteQueryContent)
-				.append(", datasourceId=").append(datasourceId).append(", isDeleted=").append(isDeleted)
-				.append(", createdBy=").append(createdBy).append(", createdDate=").append(createdDate)
-				.append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
-				.append("]");
+				.append(noOfFiles).append(", selectQueryContent=").append(", uploadQueryContent=")
+				.append(uploadQueryContent).append(", viewQueryContent=").append(viewQueryContent)
+				.append(", deleteQueryContent=").append(deleteQueryContent).append(", datasourceId=")
+				.append(datasourceId).append(", isDeleted=").append(isDeleted).append(", createdBy=").append(createdBy)
+				.append(", createdDate=").append(createdDate).append(", lastUpdatedBy=").append(lastUpdatedBy)
+				.append(", lastUpdatedTs=").append(lastUpdatedTs).append("]");
 		return builder.toString();
 	}
 

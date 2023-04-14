@@ -103,54 +103,7 @@
                         <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
                     </div>
                 </div>          
-          </div>		
-	<div class="row margin-t-b">
-		<div class="col-12">
-			<h3 class="titlename"><span style="margin-top: -6px; margin-right:10px;" class="file-validator-title" data-query-name="selectValidator_span">		${messageSource.getMessage("jws.selectFileSQL")}</span>
-				
-				   			<div class="onoffswitch">
-                                <input  class="onoffswitch-checkbox" type="checkbox" name="selectValidator_chkbox" id="selectValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('selectValidator');">
-                                <label class="onoffswitch-label" for="selectValidator_chkbox">
-                                        <span class="onoffswitch-inner"></span>
-                                        <span class="onoffswitch-switch"></span>
-                                    </label>
-                            </div>
-                            
-				 <!--<label class="select-validator-label switch"> 
-					<input type="checkbox" id="selectValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('selectValidator');">
-					<span class="slider round"></span>
-				</label>-->
-			</h3>			
-			<div class="row">			   
-			   <div class="col-3">
-				  <label for="queryType_selectValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
-				  <select id="queryType_selectValidator" name="queryType_selectValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
-					 <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
-					 <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
-				  </select>
-			   </div>
-			   <div class="col-3" id="dt-selectValidator">
-				  <div>
-					 <label for="datasource_selectValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
-					 <select id="datasource_selectValidator" name="datasource_selectValidator" class="form-control">
-						<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
-					 </select>
-				  </div>
-			   </div>			   
-			</div>			
-		</div>
-	</div>        
-	<div class="row margin-t-b">
-		<div class="col-12">			
-			<div id="selectValidator_div" class="sql_script" style="opacity: 0.4;">
-				<div class="grp_lblinp">
-					<div id="selectValidator_container" class="ace-editor-container">
-						<div id="selectValidator" class="ace-editor"></div>
-					</div>
-				</div>
-			</div>	
-		</div>
-	</div>
+          </div>	
 	
 	<div class="row margin-t-b">
 		<div class="col-12">
@@ -290,9 +243,6 @@
 	<#noparse>
 	  <#if (resultSet)?? && resultSet?size !=0>
       	<#list resultSet as resultSetList>
-			<textarea id="selectValidator_query" name="selectValidator_query" style="display: none">
-				${resultSetList?api.get("selectQueryContent")!''}
-			</textarea>
 			<textarea name="uploadValidator_query" id="uploadValidator_query" style="display: none">
 				${resultSetList?api.get("uploadQueryContent")!''}
 			</textarea>
@@ -305,7 +255,6 @@
       		<#break>
       	</#list>
       <#else>
-      	 	<textarea id="selectValidator_query" name="selectValidator_query" style="display: none"></textarea>
 			<textarea id="uploadValidator_query" name="uploadValidator_query" style="display: none"></textarea>
             <textarea id="viewValidator_query" name="viewValidator_query" style="display: none"></textarea>
             <textarea id="deleteValidator_query" name="deleteValidator_query" style="display: none"></textarea>
@@ -413,12 +362,6 @@
 			$("#fileSliderSpan").html('${resultSetList?api.get("noOfFiles")}');
 			$("#noOfFiles").val('${resultSetList?api.get("noOfFiles")}');
 			
-			<#if (resultSetList?api.get("selectQueryType"))?has_content>
-				$("#queryType_selectValidator").val('${resultSetList?api.get("selectQueryType")}');
-				<#if (resultSetList?api.get("selectQueryType"))?has_content && resultSetList?api.get("selectQueryType") == 4>
-					$("#dt-selectValidator").closest('div').hide();				
-				</#if>
-			</#if>
 			<#if (resultSetList?api.get("uploadQueryType"))?has_content>
 				$("#queryType_uploadValidator").val('${resultSetList?api.get("uploadQueryType")}');	
 				<#if (resultSetList?api.get("uploadQueryType"))?has_content && resultSetList?api.get("uploadQueryType") == 4>
@@ -439,9 +382,6 @@
 			</#if>
 			
 			
-			<#if (resultSetList?api.get("datasourceSelectValidator"))?has_content>
-				$("#datasource_selectValidator").val('${resultSetList?api.get("datasourceSelectValidator")}');
-			</#if>
 			<#if (resultSetList?api.get("datasourceUploadValidator"))?has_content>
 				$("#datasource_uploadValidator").val('${resultSetList?api.get("datasourceUploadValidator")}');
 			</#if>
@@ -462,13 +402,12 @@
 			getSavedEntity();
 		} 
 			
-		getAllDatasourceForContainer(edit, "datasource_selectValidator");		
+		getAllDatasourceForContainer(edit, "datasource_uploadValidator");		
 		
-        $("#datasource_selectValidator > option").each(function(index, element){
+        $("#datasource_uploadValidator > option").each(function(index, element){
             if(index == 0){
                 return;
             }
-            $('#datasource_uploadValidator').append($(element).clone());
             $('#datasource_viewValidator').append($(element).clone());
             $('#datasource_deleteValidator').append($(element).clone());
         });
