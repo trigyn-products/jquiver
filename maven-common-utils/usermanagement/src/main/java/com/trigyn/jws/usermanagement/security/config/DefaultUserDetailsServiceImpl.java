@@ -86,7 +86,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 								if (loginAttributes.containsKey("enableCaptcha")) {
 									String captcaValue = (String) loginAttributes.get("enableCaptcha");
 									if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
-										if (!(request.getParameter("captcha")!=null && request.getParameter("captcha")
+										if (session.getAttribute("loginCaptcha")!=null && !(request.getParameter("captcha")!=null && request.getParameter("captcha")
 												.equals(session.getAttribute("loginCaptcha").toString()))) {
 											session.removeAttribute("loginCaptcha");
 											throw new InvalidLoginException("Please verify captcha!");

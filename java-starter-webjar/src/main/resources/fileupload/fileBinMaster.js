@@ -34,6 +34,62 @@ class FileBinMaster {
 				wordWrapMinified: true,
 				wrappingIndent: "indent"
 			});
+			var newSuggestionsArray = [];
+			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
+				var suggestion = suggestionArray[iCounter];
+				newSuggestionsArray.push({
+					label: suggestion.label,
+					kind: suggestion.kinda,
+					insertText: suggestion.insertText,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+				});
+			}
+			var newJSSuggestionsArray = [];
+			for (var iCounter = 0; iCounter < jsSuggestionArray.length; iCounter++) {
+				var suggestion = jsSuggestionArray[iCounter];
+				newJSSuggestionsArray.push({
+					label: suggestion.label,
+					kind: suggestion.kinda,
+					insertText: suggestion.insertText,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+				});
+			}
+			monaco.languages.registerCompletionItemProvider('sql', {
+				triggerCharacters: ["@"],
+				provideCompletionItems: (model, position) => {
+					var textUntilPosition = model.getValueInRange({
+						startLineNumber: position.lineNumber,
+						startColumn: position.column - 1,
+						endLineNumber: position.lineNumber,
+						endColumn: position.column
+					});
+					if (textUntilPosition == "@") {
+						if (model.id == "$model1") {
+							if ($("#queryType_uploadValidator").val() == "4") {
+								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
+							}
+							else {
+								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
+							}
+						} else if (model.id == "$model2") {
+							if ($("#queryType_viewValidator").val() == "4") {
+								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
+							}
+							else {
+								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
+							}
+						}
+						else if (model.id == "$model3") {
+							if ($("#queryType_deleteValidator").val() == "4") {
+								return { suggestions: JSON.parse(JSON.stringify(newJSSuggestionsArray)) };
+							}
+							else {
+								return { suggestions: JSON.parse(JSON.stringify(newSuggestionsArray)) };
+							}
+						}
+					}
+				}
+			});
 			context.uploadValidator.onDidChangeCursorSelection((e) => {
 				if ($("#queryType_uploadValidator").val() == "4") {
 					if (e.source == "snippet") {

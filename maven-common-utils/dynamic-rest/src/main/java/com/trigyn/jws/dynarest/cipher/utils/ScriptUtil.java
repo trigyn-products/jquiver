@@ -916,7 +916,7 @@ public class ScriptUtil {
 	}
 
 	public final void logActivity(Map<String, String> requestParams) throws Exception {
-		if (requestParams.isEmpty() == true) {
+		if (null == requestParams) {
 			throw new RuntimeException("Parameters have not been provided");
 		}
 		activitylog.activitylog(requestParams);
@@ -925,7 +925,7 @@ public class ScriptUtil {
 	public final String evalTemplateByName(String a_strTemplateName, Map<String, Object> a_requestParams) {
 		try {
 			TemplateVO templateVO = templatingService.getTemplateByName(a_strTemplateName);
-			if (null == a_requestParams || a_requestParams.isEmpty() == true) {
+			if (null == a_requestParams) {
 				throw new RuntimeException("Parameters have not been provided");
 			}
 			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
@@ -938,7 +938,7 @@ public class ScriptUtil {
 
 	public final String evalTemplateByContent(String a_strTemplateContent, Map<String, Object> a_requestParams) {
 		try {
-			if (null == a_requestParams || a_requestParams.isEmpty() == true) {
+			if (null == a_requestParams) {
 				throw new RuntimeException("Parameters have not been provided");
 			}
 			return templatingUtils.processTemplateContents(a_strTemplateContent, "", a_requestParams);
@@ -998,7 +998,7 @@ public class ScriptUtil {
 		Map<String, String> returnObject = new HashMap<String, String>();
 		
 		JdbcTemplate jdbcTemplate = jwsDynarestDAO.updateJdbcTemplateDataSource(null);
-		if (a_requestParams.isEmpty() == true || a_requestParams.get("messageValidFrom") == null
+		if (null == a_requestParams || a_requestParams.get("messageValidFrom") == null
 				|| a_requestParams.get("messageValidTill") == null || a_requestParams.get("messageText") == null
 				|| a_requestParams.get("messageType") == null || a_requestParams.get("displayOnceTxt") == null
 				|| a_requestParams.get("selectionCriteria") == null || a_requestParams.get("createdBy") == null

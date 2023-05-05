@@ -50,6 +50,7 @@ $(document).ready(function(){
 				</#if>
 				<div id="emailRequiredError" class="alert alert-danger" role="alert" style="display: none">Email is required</div>
 				<div class="alert alert-danger" id="userNotFoundError" role="alert" style="display:none"><@resourceBundleWithDefault "jws.usernotfound" "JQuiver"/></div>
+				<div class="alert alert-success" id="otpSuccessMsg" role="alert" style="display:none"><@resourceBundleWithDefault "jws.otpsuccessmsg" "JQuiver"/></div>
 				<#if (activeAutenticationDetails)?? && activeAutenticationDetails?has_content>			
 					<#assign numConvert ="databaseauth"> 
 					<#assign labelConvert ="Database"> 

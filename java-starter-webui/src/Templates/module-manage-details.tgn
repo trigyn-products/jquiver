@@ -193,7 +193,7 @@
 					<i class="fa fa-clipboard" aria-hidden="true"  onclick="addEditModule.copyUrl()" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
 					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyUrlActualPath('${urlPrefix}','moduleURL')" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
 					</span>
-                    <input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleURL())!''}" maxlength="200" class="form-control">
+                    <input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleUrl())!''}" maxlength="200" class="form-control">
                 </div>
             </div>		
 			<div class="col-6" id="divExternalURL" style="display:none">
@@ -316,7 +316,7 @@ $(function() {
     let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''}";
     let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''}";
     let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
-    let moduleURL = "${(moduleDetailsVO?api.getModuleURL())!''}";
+    let moduleURL = "${(moduleDetailsVO?api.getModuleUrl())!''}";
     
 	$("#txtContentLang").val(selectedLanguageId);
 	$("#txtContentLangLabel").text(selectedLanguageId);

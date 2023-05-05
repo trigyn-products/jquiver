@@ -103,7 +103,11 @@
 					    if(column.sortable == false){
 					        $("tr.pq-grid-title-row th[pq-col-indx="+column.leftPos+"]").addClass("pq-grid-col-cusror")  
 					    }
-					})
+					});
+					
+					$(".pq-grid-cell").each(function(index, element){
+						$(element).attr("title", $(element).text());
+					});
                 },
                 complete: function( event, ui ) {
                 	disableInputSuggestion();

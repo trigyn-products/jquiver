@@ -249,6 +249,19 @@ public class SendMailService {
 			messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 			mimeMultipart.addBodyPart(messageBodyPart);
 
+			if (mail.getAttachementsArray() != null && mail.getAttachementsArray().isEmpty() == false) {
+				for (EmailAttachedFile attachedFile : mail.getAttachementsArray()) {
+					BodyPart	atachmentBodyPart	= new MimeBodyPart();
+					DataSource	source				= new FileDataSource(attachedFile.getFile());
+					atachmentBodyPart.setDataHandler(new DataHandler(source));
+					atachmentBodyPart.setFileName(attachedFile.getFile().getName());
+					if (attachedFile.isEmbeddedImage() == true) {
+						atachmentBodyPart.setHeader("Content-ID", "<" + attachedFile.getEmbeddedImageValue() + ">");
+						atachmentBodyPart.setDisposition(MimeBodyPart.INLINE);
+					}
+					mimeMultipart.addBodyPart(atachmentBodyPart);
+				}
+			}
 			/** Added for File Bin Attachment in Mail */
 			List<FileUpload> fileUploads = fileUploadRepository.findAllByFileBinId("mailAttachment");
 			File attachedFile = null;
@@ -584,6 +597,19 @@ public class SendMailService {
 			messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
 			mimeMultipart.addBodyPart(messageBodyPart);
 
+			if (mail.getAttachementsArray() != null && mail.getAttachementsArray().isEmpty() == false) {
+				for (EmailAttachedFile attachedFile : mail.getAttachementsArray()) {
+					BodyPart	atachmentBodyPart	= new MimeBodyPart();
+					DataSource	source				= new FileDataSource(attachedFile.getFile());
+					atachmentBodyPart.setDataHandler(new DataHandler(source));
+					atachmentBodyPart.setFileName(attachedFile.getFile().getName());
+					if (attachedFile.isEmbeddedImage() == true) {
+						atachmentBodyPart.setHeader("Content-ID", "<" + attachedFile.getEmbeddedImageValue() + ">");
+						atachmentBodyPart.setDisposition(MimeBodyPart.INLINE);
+					}
+					mimeMultipart.addBodyPart(atachmentBodyPart);
+				}
+			}
 			/** Added for File Bin Attachment in Mail */
 			List<FileUpload> fileUploads = fileUploadRepository.findAllByFileBinId("mailAttachment");
 			File attachedFile = null;

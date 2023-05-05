@@ -62,7 +62,11 @@ public class ZipUtil {
 		ZipEntry		ze	= zis.getNextEntry();
 		byte[] buffer = new byte[1024];
 		while (ze != null) {
-			String fileName = ze.getName();
+			String fileName = ze.getName();		
+            //this is to handle linux->windows and windows->linux both the scenario
+            fileName = fileName.replace("\\", File.separator);
+            fileName = fileName.replace("/", File.separator);
+            
 
 			if (ze.isDirectory()) {
 				new File(targetFolder, fileName).mkdirs();

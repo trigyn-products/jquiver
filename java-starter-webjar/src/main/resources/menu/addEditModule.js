@@ -35,10 +35,10 @@ class AddEditModule {
 			return false;
 		}
 		if (targetLookupId === "7") {
-			moduleDetails.moduleURL = $("#externalURL").val();
+			moduleDetails.moduleUrl = $("#externalURL").val();
 			moduleDetails.targetTypeId = $("#targetType").val();
 		} else {
-			moduleDetails.moduleURL = $("#moduleURL").val();
+			moduleDetails.moduleUrl = $("#moduleURL").val();
 			moduleDetails.targetTypeId = $("#targetTypeNameId").val();
 		}
 

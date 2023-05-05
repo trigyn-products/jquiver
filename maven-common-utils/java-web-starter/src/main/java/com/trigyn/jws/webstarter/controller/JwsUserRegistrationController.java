@@ -1,47 +1,14 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
-import javax.mail.internet.InternetAddress;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import com.trigyn.jws.dbutils.service.PropertyMasterService;
-import com.trigyn.jws.dbutils.spi.IUserDetailsService;
-import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dynarest.service.SendMailService;
-import com.trigyn.jws.dynarest.vo.Email;
-import com.trigyn.jws.dynarest.vo.EmailAttachedFile;
-import com.trigyn.jws.templating.service.DBTemplatingService;
-import com.trigyn.jws.templating.utils.TemplatingUtils;
-import com.trigyn.jws.templating.vo.TemplateVO;
-import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
-import com.trigyn.jws.usermanagement.entities.JwsConfirmationToken;
-import com.trigyn.jws.usermanagement.entities.JwsUser;
-import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
-import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
-import com.trigyn.jws.usermanagement.repository.JwsAuthenticationTypeRepository;
-import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
-import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
-import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
-import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
-import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
-import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
-import com.trigyn.jws.usermanagement.service.UserConfigService;
-import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.JwsUserVO;
-import com.trigyn.jws.webstarter.service.UserManagementService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -51,7 +18,6 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,6 +26,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.templating.service.DBTemplatingService;
+import com.trigyn.jws.templating.utils.TemplatingUtils;
+import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.entities.JwsConfirmationToken;
+import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
+import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
+import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
+import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
+import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+import com.trigyn.jws.usermanagement.security.config.CaptchaUtil;
+import com.trigyn.jws.usermanagement.service.UserConfigService;
+import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.usermanagement.vo.JwsUserVO;
+import com.trigyn.jws.webstarter.service.UserManagementService;
 
 @RestController
 @RequestMapping("/cf")
@@ -74,16 +59,10 @@ public class JwsUserRegistrationController {
 	private JwsConfirmationTokenRepository		confirmationTokenRepository		= null;
 
 	@Autowired
-	private PasswordEncoder						passwordEncoder					= null;
-
-	@Autowired
 	private JwsUserRoleAssociationRepository	userRoleAssociationRepository	= null;
 
 	@Autowired
 	private ApplicationSecurityDetails			applicationSecurityDetails		= null;
-
-	@Autowired
-	private JwsAuthenticationTypeRepository		authenticationTypeRepository	= null;
 
 	@Autowired
 	private UserManagementService				userManagementService			= null;
@@ -95,23 +74,14 @@ public class JwsUserRegistrationController {
 	private TemplatingUtils						templatingUtils					= null;
 
 	@Autowired
-	private SendMailService						sendMailService					= null;
-
-	@Autowired
 	private UserConfigService					userConfigService				= null;
-
-	@Autowired
-	private JwsUserRoleAssociationRepository	userRoleRepository				= null;
-
-	@Autowired
-	private PropertyMasterService				propertyMasterService			= null;
 
 	@Autowired
 	private ServletContext						servletContext					= null;
 
 	@Autowired
 	private IUserDetailsService					userDetails						= null;
-
+	
 	@GetMapping("/login")
 	@ResponseBody
 	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
@@ -170,152 +140,38 @@ public class JwsUserRegistrationController {
 	public String registerUser(HttpServletRequest request, JwsUserVO user, HttpServletResponse response) throws Exception {
 
 		Map<String, Object>	mapDetails		= new HashMap<>();
-		String				viewName		= null;
-		JwsUser				existingUser	= userRepository.findByEmailIgnoreCase(user.getEmail());
+		String				viewName		= "jws-successfulRegisteration";
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			userConfigService.getConfigurableDetails(mapDetails);
 		} else {
 			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;
 		}
-
-		if (existingUser != null) {
-			mapDetails.put("error", "This email already exists!");
-			mapDetails.put("firstName", user.getFirstName().trim());
-			mapDetails.put("lastName", user.getLastName().trim());
+		boolean isInValid = userManagementService.validateUserRegistration(request, user, mapDetails);
+		if(isInValid) {
 			viewName = "jws-register";
-		} else {
-			HttpSession session = request.getSession();
-			if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && session.getAttribute("registerCaptcha") != null
-					&& !(user.getCaptcha().equals(session.getAttribute("registerCaptcha").toString()))) {
-				mapDetails.put("error", "Please verify captcha!");
-				mapDetails.put("firstName", user.getFirstName().trim());
-				mapDetails.put("lastName", user.getLastName().trim());
-				viewName = "jws-register";
-				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-			}
-
-			if (mapDetails.get("enableGoogleAuthenticator").toString().equalsIgnoreCase("false")) {
-				if (userManagementService.validatePassword(user.getPassword())) {
-
-					user.setPassword(passwordEncoder.encode(user.getPassword()));
-					user.setIsActive(Constants.INACTIVE);
-					user.setForcePasswordChange(Constants.INACTIVE);
-					JwsUser userEntityFromVo = user.convertVOToEntity(user);
-					userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
-					userEntityFromVo.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
-					userRepository.save(userEntityFromVo);
-
-					JwsConfirmationToken confirmationToken = new JwsConfirmationToken(userEntityFromVo);
-					confirmationTokenRepository.save(confirmationToken);
-
-					Email email = new Email();
-					email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-					// email.setMailFrom("admin@jquiver.com");
-
-					Map<String, Object>	mailDetails			= new HashMap<>();
-					TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("confirm-account-mail-subject");
-					String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-							subjectTemplateVO.getTemplateName(), mailDetails);
-					email.setSubject(subject);
-					/*For inserting notification in case of mail failure only on access of Admin*/
-					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-					email.setLoggedInUserRole(userDetails.getUserDetails().getRoleIdList());
-					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
-					mailDetails.put("baseURL", baseURL);
-
-					mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
-					TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
-					String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-							templateVO.getTemplateName(), mailDetails);
-					email.setBody(mailBody);
-					System.out.println(mailBody);
-					sendMailService.sendTestMail(email);
-
-					viewName = "jws-successfulRegisteration";
-				} else {
-					viewName = "jws-register";
-					mapDetails.put("firstName", user.getFirstName().trim());
-					mapDetails.put("lastName", user.getLastName().trim());
-					mapDetails.put("errorPassword",
-							"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers!");
-				}
-				if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-					session.removeAttribute("registerCaptcha");
-				}
-			} else {
-
-				user.setPassword(null);
-				user.setIsActive(Constants.ISACTIVE);
-				JwsUser userEntityFromVo = user.convertVOToEntity(user);
-				userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
-				userEntityFromVo.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
-				userRepository.save(userEntityFromVo);
-
-				// adding role to the user
-				JwsUserRoleAssociation userRoleAssociation = new JwsUserRoleAssociation();
-				userRoleAssociation.setRoleId(Constants.AUTHENTICATED_ROLE_ID);
-				userRoleAssociation.setUserId(userEntityFromVo.getUserId());
-				userRoleAssociation.setUpdatedDate(new Date());
-				userRoleRepository.save(userRoleAssociation);
-
-				TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
-				int					width				= 300;
-				int					height				= 300;
-				String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
-						+ userEntityFromVo.getUserId() + ".png";
-				File				file				= new File(filePath);
-				FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-				String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(userEntityFromVo.getEmail(),
-						"Jquiver", userEntityFromVo.getSecretKey());
-				twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
-
-				Email email = new Email();
-				email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-				email.setSubject("TOTP Login");
-				String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system", "adminEmailId");
-				String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io" : propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
-				email.setMailFrom(InternetAddress.parse(adminEmail));
-				Map<String, Object>	mailDetails	= new HashMap<>();
-				TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
-				String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-						templateVO.getTemplateName(), mailDetails);
-				email.setBody(mailBody);
-				System.out.println(mailBody);
-
-				List<EmailAttachedFile> attachedFiles = new ArrayList<>();
-				EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
-				emailAttachedFile.setFile(file);
-				attachedFiles.add(emailAttachedFile);
-				viewName = "jws-successfulRegisteration";
-
-				CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
-				if (mailSuccess.isDone()) {
-					email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
-				}
-
-			}
-
-			mapDetails.put("emailId", user.getEmail());
+			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 		}
-
+		String verificationType = mapDetails.get("verificationType").toString();
+		switch (verificationType) {
+			case Constants.OTP_VERFICATION:
+				userManagementService.createUserForOtpAuth(user);
+				break;
+			case Constants.PASSWORD_VERFICATION:
+				userManagementService.createUserForPasswordAuth(user);
+				break;
+			case Constants.TOTP_VERFICATION:
+				userManagementService.createUserForTotpAuth(user);
+				break;
+		}
+		if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+			HttpSession session = request.getSession();
+			session.removeAttribute("registerCaptcha");
+		}
+		mapDetails.put("emailId", user.getEmail());
 		TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-
-	}
-
-	private JSONObject getJsonObjectFromPropertyValue(JSONObject jsonObject, JSONArray jsonArray, String propertyName)
-			throws JSONException {
-		for (int i = 0; i < jsonArray.length(); i++) {
-			jsonObject = jsonArray.getJSONObject(i);
-			if (jsonObject.get("name").toString().equalsIgnoreCase(propertyName)) {
-				break;
-			} else {
-				jsonObject = null;
-			}
-		}
-		return jsonObject;
 	}
 
 	@GetMapping(value = "/confirm-account")
@@ -361,7 +217,7 @@ public class JwsUserRegistrationController {
 	}
 
 	@GetMapping(value = "/captcha/{flagCaptcha}")
-	public void loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
+	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
 		String captchaStr = CaptchaUtil.getCaptchaString();
 		System.out.println(captchaStr);
@@ -373,6 +229,7 @@ public class JwsUserRegistrationController {
 		OutputStream outputStream = response.getOutputStream();
 		CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream);
 		outputStream.close();
+		return captchaStr;
 	}
 
 	@GetMapping(value = "/profile")

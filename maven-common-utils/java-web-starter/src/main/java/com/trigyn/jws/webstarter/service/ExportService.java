@@ -457,6 +457,7 @@ public class ExportService {
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, fileUploadExportModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME, version, userName, "");
+			fileUploadExportModule.setModuleDetailsMap(new HashMap<>());
 		}
 
 		return null;
@@ -495,6 +496,7 @@ public class ExportService {
 			XMLUtil.generateMetadataXML(null, dynaRestModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + com.trigyn.jws.dynarest.utils.Constants.DYNAMIC_REST_DIRECTORY_NAME, version,
 					userName, "");
+			dynaRestModule.setModuleDetailsMap(new HashMap<>());
 		}
 		return null;
 	}
@@ -624,6 +626,7 @@ public class ExportService {
 			XMLUtil.generateMetadataXML(null, templateDownloadUploadModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + com.trigyn.jws.templating.utils.Constant.TEMPLATE_DIRECTORY_NAME, version,
 					userName, "");
+			templateDownloadUploadModule.setModuleDetailsMap(new HashMap<>());
 		}
 		return null;
 	}
@@ -645,6 +648,7 @@ public class ExportService {
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, dashletDownloadUploadModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + Constants.DASHLET_DIRECTORY_NAME, version, userName, "");
+			dashletDownloadUploadModule.setModuleDetailsMap(new HashMap<>());
 		}
 		return null;
 	}
@@ -667,6 +671,7 @@ public class ExportService {
 			XMLUtil.generateMetadataXML(null, dynamicFormDownloadUploadModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + com.trigyn.jws.dynamicform.utils.Constant.DYNAMIC_FORM_DIRECTORY_NAME,
 					version, userName, "");
+			dynamicFormDownloadUploadModule.setModuleDetailsMap(new HashMap<>());
 		}
 		return null;
 	}
@@ -688,6 +693,7 @@ public class ExportService {
 			moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
 			XMLUtil.generateMetadataXML(null, helpManualImportExportModule.getModuleDetailsMap(),
 					downloadFolderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME, version, userName, "");
+			helpManualImportExportModule.setModuleDetailsMap(new HashMap<>());
 		}
 
 		return null;
@@ -775,6 +781,7 @@ public class ExportService {
 				XMLUtil.generateMetadataXML(null, fileImportExportModule.getModuleDetailsMap(),
 						downloadFolderLocation + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME, version, userName,
 						"");
+				fileImportExportModule.setModuleDetailsMap(new HashMap<>());
 			}
 		}
 		return null;

@@ -80,6 +80,7 @@ function disableSendOtpBtn() {
 		
 function saveOtpAndSendMail() {
 	$(".alert-danger").hide();
+	$(".alert-success").hide();
 	disableSendOtpBtn();
 	var otp 	= 	generateOTP();
 	var email	=	$("#email").val();
@@ -92,12 +93,11 @@ function saveOtpAndSendMail() {
 	  type : "GET",
 	  async: false,
 	  data: {
-         	email		: email,
-		generatedOtp: otp
+         	email		: email
 	  },
 	  url : contextPath+"/cf/saveOtpAndSendMail",				  
       success : function(data) {
-                      
+      	$("#otpSuccessMsg").show();            
 	  },
       error : function(xhr, error){
       	if (xhr != undefined && xhr.status == 404) {

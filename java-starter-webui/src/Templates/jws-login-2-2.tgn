@@ -16,7 +16,7 @@
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
          <span class="formicosn"><i class="fa fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entertotp" "Enter OTP"/>" required>   
+         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entertotp" "Enter TOTP"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p>
       <#if innerTemplateObj.enableCaptcha == "true">     

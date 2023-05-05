@@ -15,9 +15,15 @@
 }
 
 /* Style the buttons inside the tab */
+
+
+.jws-count-wrap{
+	    font-weight: normal;
+}
 .tab button {
 	 display: block;
     background-color: inherit;
+    font-weight:bold;
    
     padding: 22px 16px;
     width: 100%;

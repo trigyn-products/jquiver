@@ -24,10 +24,10 @@
             <input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="" >
             <label for="selectAll"> Select All </label>
         </li>
-        <li id="expand" class="expandcls restapiiconhover" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg"> </li>
-        <li class="sortclickcls restapiiconhover" title='Sort'>
-            <span class="sorting" id="sorting" onclick="">
-            <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg"></span>
+          <li id="expand" class=" restapiiconhover expandcls " title='Expand All'><span class="expandalliconsls"></span> </li>
+        <li class="sortclickcls restapiiconhover "  id="sorting" title='Sort'>
+            <span class="sorting sorticonslcas"  onclick=""> 
+           </span>
             <div class="sortblock" id="sortclickev" >
                 <div class="updownblock"> <span class="uparow sorticoncls activecls" id="sortdown"  data-order="ASC" onclick="markSort(this);">
                     <i class="fa fa-sort-amount-asc " aria-hidden="true"></i> </span> 

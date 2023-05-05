@@ -243,9 +243,9 @@
 					colM = [
 						{ title: "Action", width: 20, maxWidth: 20, align: "center", render: updateNotificationRenderer, dataIndx: "" },
 						{ title: "",hidden: true, width: 130, dataIndx: "notificationId" },
-				        { title: "Target Platform", width: 100,  dataIndx: "targetPlatform", align: "left", halign: "center",
+				        { title: "Message Text", width: 100,  dataIndx: "messageText", align: "left", halign: "center",
 				        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
-				        { title: "Message Type", width: 160, dataIndx: "messageType", align: "left", halign: "center", 
+				        { title: "Message Type", width: 160, dataIndx: "messageType", align: "left", halign: "center", render: messageTypeRenderer,
 				        	filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 						    { title: "Updated By", width: 160, dataIndx: "updatedBy", align: "left", halign: "center"},
 							{ title: "Updated Date", width: 200, dataIndx: "updatedDate", align: "left", halign: "center", render: notificationDateRenderer}
@@ -570,6 +570,17 @@
 	function notificationDateRenderer(uiObject) {
 		return formatDate(uiObject.rowData.updatedDate);
 	}
+	
+	 function messageTypeRenderer(uiObject) {
+        if(uiObject.rowData.messageType == 0){
+            return "Informative";
+        } else if (uiObject.rowData.messageType == 1) {
+             return "Warning";
+        } else if(uiObject.rowData.messageType == 2) {
+             return "Error";  
+       }
+        return "";
+    }
 
 	function dashboardDateRenderer(uiObject) {
 		return formatDate(uiObject.rowData.lastUpdatedTs);

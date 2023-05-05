@@ -64,39 +64,39 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 @Transactional
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-	private static final Logger			logger						= LogManager.getLogger(FilesStorageServiceImpl.class);
+	private static final Logger logger = LogManager.getLogger(FilesStorageServiceImpl.class);
 
 	@Autowired
-	private PropertyMasterService		propertyMasterService		= null;
+	private PropertyMasterService propertyMasterService = null;
 
 	@Autowired
-	private PropertyMasterDetails		propertyMasterDetails		= null;
+	private PropertyMasterDetails propertyMasterDetails = null;
 
 	@Autowired
-	private IUserDetailsService			userdetailsService			= null;
+	private IUserDetailsService userdetailsService = null;
 
 	@Autowired
-	private FileUploadRepository		fileUploadRepository		= null;
+	private FileUploadRepository fileUploadRepository = null;
 
 	@Autowired
-	private FileUploadTempRepository	fileUploadTempRepository	= null;
+	private FileUploadTempRepository fileUploadTempRepository = null;
 
 	@Autowired
-	private FileUploadConfigRepository	fileUploadConfigRepository	= null;
+	private FileUploadConfigRepository fileUploadConfigRepository = null;
 
 	@Autowired
-	private FileUploadConfigDAO			fileUploadConfigDAO			= null;
+	private FileUploadConfigDAO fileUploadConfigDAO = null;
 
 	@Autowired
-	private TemplatingUtils				templatingUtils				= null;
+	private TemplatingUtils templatingUtils = null;
 
-	private final static String			JWS_SALT					= "main alag duniya";
-
-	@Autowired
-	private DBTemplatingService			templatingService			= null;
+	private final static String JWS_SALT = "main alag duniya";
 
 	@Autowired
-	private ActivityLog					activitylog					= null;
+	private DBTemplatingService templatingService = null;
+
+	@Autowired
+	private ActivityLog activitylog = null;
 
 	@Override
 	public void init() {
@@ -117,20 +117,20 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				fileAssociationId);
 
 		try {
-			LocalDate		localDate		= LocalDate.now();
-			Integer			year			= localDate.getYear();
-			Integer			month			= localDate.getMonthValue();
-			Integer			date			= localDate.getDayOfMonth();
-			String			fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
-			StringJoiner	location		= new StringJoiner("" + File.separatorChar);
+			LocalDate localDate = LocalDate.now();
+			Integer year = localDate.getYear();
+			Integer month = localDate.getMonthValue();
+			Integer date = localDate.getDayOfMonth();
+			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+			StringJoiner location = new StringJoiner("" + File.separatorChar);
 			location.add(fileUploadDir);
 			location.add(year.toString()).add(month.toString()).add(date.toString());
 			if (Boolean.FALSE.equals(new File(location.toString()).exists())) {
 				Files.createDirectories(Paths.get(location.toString()));
 			}
-			FileUploadTemp	fileUpload	= saveFileTempDetails(location.toString(), file.getOriginalFilename(),
-					fileBinId, fileAssociationId, UUID.randomUUID().toString(), 1, null, UUID.randomUUID().toString());
-			Path			root		= Paths.get(location.toString());
+			FileUploadTemp fileUpload = saveFileTempDetails(location.toString(), file.getOriginalFilename(), fileBinId,
+					fileAssociationId, UUID.randomUUID().toString(), 1, null, UUID.randomUUID().toString());
+			Path root = Paths.get(location.toString());
 			Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
 			CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(),
 					root.resolve(fileUpload.getPhysicalFileName()).toFile());
@@ -142,13 +142,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	public FileUploadTemp saveFileTempDetails(String location, String originalFilename, String fileBinId,
-			String fileAssociationId, String fileUploadId, Integer action, String fileUploadTempId, String physicalFileName) {
+			String fileAssociationId, String fileUploadId, Integer action, String fileUploadTempId,
+			String physicalFileName) {
 		logger.debug(
 				"Inside FilesStorageServiceImpl.saveFileTempDetails(location: {}, originalFilename: {}, fileBinId: {}, fileAssociationId: {})",
 				location, originalFilename, fileBinId, fileAssociationId);
 
-		UserDetailsVO	userDetailsVO	= userdetailsService.getUserDetails();
-		FileUploadTemp	fileUpload		= new FileUploadTemp();
+		UserDetailsVO userDetailsVO = userdetailsService.getUserDetails();
+		FileUploadTemp fileUpload = new FileUploadTemp();
 		fileUpload.setFileUploadTempId(fileUploadTempId);
 		fileUpload.setFileUploadId(fileUploadId);
 		fileUpload.setFilePath(location);
@@ -167,8 +168,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				"Inside FilesStorageServiceImpl.saveFileDetails(location: {}, originalFilename: {}, fileBinId: {}, fileAssociationId: {})",
 				location, originalFilename, fileBinId, fileAssociationId);
 
-		UserDetailsVO	userDetailsVO	= userdetailsService.getUserDetails();
-		FileUpload		fileUpload		= new FileUpload();
+		UserDetailsVO userDetailsVO = userdetailsService.getUserDetails();
+		FileUpload fileUpload = new FileUpload();
 		fileUpload.setFilePath(location);
 		fileUpload.setOriginalFileName(originalFilename);
 		fileUpload.setPhysicalFileName(UUID.randomUUID().toString());
@@ -183,8 +184,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.load(fileUploadId: {})", fileUploadId);
 
 		try {
-			Map<String, Object>	details				= new HashMap<>();
-			FileUpload			fileUploadDetails	= fileUploadRepository.findById(fileUploadId).orElse(null);
+			Map<String, Object> details = new HashMap<>();
+			FileUpload fileUploadDetails = fileUploadRepository.findById(fileUploadId).orElse(null);
 			if (fileUploadDetails == null) {
 				List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository
 						.findAllTempFileUpload(fileUploadId);
@@ -198,19 +199,18 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (fileUploadDetails == null) {
 				throw (new Exception("file not found with id : " + fileUploadId));
 			}
-			Path		root		= Paths.get(fileUploadDetails.getFilePath());
-			Path		filePath	= root.resolve(fileUploadDetails.getPhysicalFileName());
-			Resource	resource	= new UrlResource(filePath.toUri());
-			String		mimeType	= URLConnection.guessContentTypeFromName(fileUploadDetails.getOriginalFileName());
+			Path root = Paths.get(fileUploadDetails.getFilePath());
+			Path filePath = root.resolve(fileUploadDetails.getPhysicalFileName());
+			Resource resource = new UrlResource(filePath.toUri());
+			String mimeType = URLConnection.guessContentTypeFromName(fileUploadDetails.getOriginalFileName());
 			if (resource.exists() || resource.isReadable()) {
-				File	newFile		= resource.getFile();
-				byte[]	newFiles	= CryptoUtils.decrypt(JWS_SALT, newFile, null);
+				File newFile = resource.getFile();
+				byte[] newFiles = CryptoUtils.decrypt(JWS_SALT, newFile, null);
 				details.put("file", newFiles);
 
 			} else {
-				String		filePathStr	= fileUploadDetails.getFilePath() + "/"
-						+ fileUploadDetails.getPhysicalFileName();
-				InputStream	in			= FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
+				String filePathStr = fileUploadDetails.getFilePath() + "/" + fileUploadDetails.getPhysicalFileName();
+				InputStream in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
 				if (in == null) {
 					throw new Exception("Could not read the file with name - " + fileUploadDetails.getOriginalFileName()
 							+ " : fileBinId : " + fileUploadDetails.getFileBinId() + " : fileUploadId : "
@@ -238,8 +238,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 		try {
 			fileUploadRepository.deleteAll();
-			String	fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
-			Path	root			= Paths.get(fileUploadDir);
+			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+			Path root = Paths.get(fileUploadDir);
 			FileSystemUtils.deleteRecursively(root.toFile());
 		} catch (Exception a_exc) {
 			logger.error("Error: ", a_exc.getMessage());
@@ -251,13 +251,11 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.loadAll()");
 
 		try {
-			List<FileUpload>	fileUploads	= fileUploadRepository.findAll();
-			List<FileInfo>		fileInfos	= fileUploads.stream().map(files -> {
-												File file = new File(files.getFilePath());
-												return new FileInfo(files.getFileUploadId(),
-														files.getOriginalFileName(), file.length());
-											})
-					.collect(Collectors.toList());
+			List<FileUpload> fileUploads = fileUploadRepository.findAll();
+			List<FileInfo> fileInfos = fileUploads.stream().map(files -> {
+				File file = new File(files.getFilePath());
+				return new FileInfo(files.getFileUploadId(), files.getOriginalFileName(), file.length());
+			}).collect(Collectors.toList());
 			return fileInfos;
 		} catch (Exception a_exc) {
 			logger.error("Could not load the files!");
@@ -270,8 +268,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.getFileDetailsByFileUploadIds(fileUploadIdList: {})",
 				fileUploadIdList);
 
-		List<FileUpload>	fileUploadList	= fileUploadRepository.findAllByFileUploadIds(fileUploadIdList);
-		List<FileInfo>		fileInfoList	= convertFileUploadToFileInfo(fileUploadList);
+		List<FileUpload> fileUploadList = fileUploadRepository.findAllByFileUploadIds(fileUploadIdList);
+		List<FileInfo> fileInfoList = convertFileUploadToFileInfo(fileUploadList);
 		return fileInfoList;
 	}
 
@@ -282,11 +280,11 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				"Inside FilesStorageServiceImpl.getFileDetailsByConfigId(fileBinId: {}, fileAssociationId: {}, requestParamMap: {})",
 				fileBinId, fileAssociationId, requestParamMap);
 
-		List<FileUpload>	fileUploadList		= new ArrayList<>();
-		Integer				isAllowed			= hasPermission(fileBinId, fileAssociationId, null,
-				Constants.VIEW_FILE_VALIDATOR, requestParamMap);
+		List<FileUpload> fileUploadList = new ArrayList<>();
+		Integer isAllowed = hasPermission(fileBinId, fileAssociationId, null, Constants.VIEW_FILE_VALIDATOR,
+				requestParamMap);
 		if (isAllowed > 0) {
-			fileUploadList	= fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
+			fileUploadList = fileUploadRepository.findAllFilesByConfigId(fileBinId, fileAssociationId);
 		}
 		List<FileInfo> fileInfoList = convertFileUploadToFileInfo(fileUploadList);
 		return fileInfoList;
@@ -296,9 +294,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.convertFileUploadToFileInfo(fileUploads: {})", fileUploads);
 		List<FileInfo> fileInfos = new ArrayList<>();
 		for (FileUpload fileUploadEntity : fileUploads) {
-			String	filePath	= fileUploadEntity.getFilePath() + File.separator
-					+ fileUploadEntity.getPhysicalFileName();
-			File	file		= new File(filePath);
+			String filePath = fileUploadEntity.getFilePath() + File.separator + fileUploadEntity.getPhysicalFileName();
+			File file = new File(filePath);
 			if (file.length() == 0) {
 				InputStream in = FilesStorageServiceImpl.class.getResourceAsStream(filePath);
 				if (in == null) {
@@ -390,9 +387,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	}
 
 	public String isValidQueries(MultiValueMap<String, String> formData) throws Exception {
-		Map<String, Object>	invalidQueryMap	= validateFileQueries(formData);
-		StringBuilder		errorMessage	= new StringBuilder();
-		Map<String, String>	queryNameMap	= Constants.getQueryName();
+		Map<String, Object> invalidQueryMap = validateFileQueries(formData);
+		StringBuilder errorMessage = new StringBuilder();
+		Map<String, String> queryNameMap = Constants.getQueryName();
 
 		for (Map.Entry<String, Object> invalidQuery : invalidQueryMap.entrySet()) {
 
@@ -423,13 +420,13 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 		Map<String, Object> invalidQueryMap = new HashMap<>();
 		if (CollectionUtils.isEmpty(formData) == false) {
-			String				fileBinId				= formData.getFirst("fileBinId");
-			String				selectFileQuery			= formData.getFirst("selectValidator_query");
-			String				uploadFileQuery			= formData.getFirst("uploadValidator_query");
-			String				viewFileQuery			= formData.getFirst("viewValidator_query");
-			String				deleteFileQuery			= formData.getFirst("deleteValidator_query");
+			String fileBinId = formData.getFirst("fileBinId");
+			String selectFileQuery = formData.getFirst("selectValidator_query");
+			String uploadFileQuery = formData.getFirst("uploadValidator_query");
+			String viewFileQuery = formData.getFirst("viewValidator_query");
+			String deleteFileQuery = formData.getFirst("deleteValidator_query");
 
-			Map<String, String>	fileValidatorQueries	= new HashMap<>();
+			Map<String, String> fileValidatorQueries = new HashMap<>();
 			fileValidatorQueries.put("uploadValidator_query", uploadFileQuery);
 			fileValidatorQueries.put("viewValidator_query", viewFileQuery);
 			fileValidatorQueries.put("deleteValidator_query", deleteFileQuery);
@@ -443,9 +440,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.validateSelectQuery(fileBinId: {}, selectQuery: {})", fileBinId,
 				selectQuery);
 
-		Map<String, Object>	invalidQueryMap		= new HashMap<>();
-		Map<String, String>	invalidColumnMap	= new HashMap<>();
-		Map<String, Object>	requestParamMap		= new HashMap<>();
+		Map<String, Object> invalidQueryMap = new HashMap<>();
+		Map<String, String> invalidColumnMap = new HashMap<>();
+		Map<String, Object> requestParamMap = new HashMap<>();
 
 		requestParamMap.put("fileBinId", fileBinId);
 		requestParamMap.put("moduleName", "File Bin");
@@ -455,9 +452,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		Map<String, String> requiredColumnMap = Constants.getSelectRequiredColumnMap();
 		try {
 			if (StringUtils.isBlank(selectQuery) == false) {
-				String				query					= templatingUtils.processTemplateContents(selectQuery,
-						"fileViewQuery", requestParamMap);
-				Map<String, String>	resultSetMetadataMap	= fileUploadConfigDAO.validateFileQuery(null, query,
+				String query = templatingUtils.processTemplateContents(selectQuery, "fileViewQuery", requestParamMap);
+				Map<String, String> resultSetMetadataMap = fileUploadConfigDAO.validateFileQuery(null, query,
 						requestParamMap);
 
 				if (CollectionUtils.isEmpty(resultSetMetadataMap) == false) {
@@ -488,8 +484,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.validateDMLQueries(fileBinId: {}, fileValidatorQueries: {})",
 				fileBinId, fileValidatorQueries);
 
-		Map<String, Object>	invalidQueryMap	= new HashMap<>();
-		Map<String, Object>	parameterMap	= new HashMap<>();
+		Map<String, Object> invalidQueryMap = new HashMap<>();
+		Map<String, Object> parameterMap = new HashMap<>();
 
 		parameterMap.put("fileBinId", fileBinId);
 		parameterMap.put("moduleName", "File Bin");
@@ -498,8 +494,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 		if (CollectionUtils.isEmpty(fileValidatorQueries) == false) {
 			for (Map.Entry<String, String> validatorQueryMap : fileValidatorQueries.entrySet()) {
-				Map<String, String>	invalidColumnMap	= new HashMap<>();
-				Map<String, String>	requiredColumnMap	= Constants.getFileValidatorColumnMap();
+				Map<String, String> invalidColumnMap = new HashMap<>();
+				Map<String, String> requiredColumnMap = Constants.getFileValidatorColumnMap();
 
 				if (StringUtils.isBlank(validatorQueryMap.getValue()) == false) {
 					String query = templatingUtils.processTemplateContents(validatorQueryMap.getValue(),
@@ -540,9 +536,19 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				"Inside FilesStorageServiceImpl.validateFilePermission(fileBinId: {}, fileAssociationId: {}, fileUploadId: {}, parameterMap: {})",
 				fileBinId, fileAssociationId, fileUploadId, parameterMap);
 
-		String		queryContent	= "";
+		String queryContent = "";
 
-		FileUpload	fileUpload		= fileUploadRepository.findFileBinIdByUploadId(fileUploadId);
+		FileUpload fileUpload = fileUploadRepository.findFileBinIdByUploadId(fileUploadId);
+
+		List<FileUpload> a_fileUpload = fileUploadRepository.findAllByFileBinId(fileBinId);
+
+		if (a_fileUpload != null && a_fileUpload.isEmpty() == false) {
+			for(int iCounter = 0; iCounter < a_fileUpload.size(); iCounter++) {
+				fileBinId = a_fileUpload.get(iCounter).getFileBinId();
+				fileAssociationId = a_fileUpload.get(iCounter).getFileAssociationId();
+				fileUploadId = a_fileUpload.get(iCounter).getFileUploadId();
+			}
+		}
 		if (fileUpload != null && StringUtils.isBlank(fileBinId) == true) {
 			fileBinId = fileUpload.getFileBinId();
 		}
@@ -554,73 +560,66 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		if (fileUpload == null && fileBinId == null && fileAssociationId == null) {
 			List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
 			if (fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
-				fileBinId			= fileUploadTempDetails.get(0).getFileBinId();
-				fileAssociationId	= fileUploadTempDetails.get(0).getFileAssociationId();
+				fileBinId = fileUploadTempDetails.get(0).getFileBinId();
+				fileAssociationId = fileUploadTempDetails.get(0).getFileAssociationId();
 			}
 		}
+		
+		if (null != parameterMap || parameterMap.isEmpty() == false) {
+			parameterMap.put("fileBinId", fileBinId);
+			parameterMap.put("fileUploadId", fileUploadId);
+			parameterMap.put("fileAssociationId", fileAssociationId);
+		}
+		
+		FileUploadConfig fileUploadConfig = fileUploadConfigRepository.getFileUploadConfig(fileBinId);
 
-		parameterMap.put("fileBinId", fileBinId);
-		parameterMap.put("fileUploadId", fileUploadId);
-		parameterMap.put("fileAssociationId", fileAssociationId);
+		Integer queryType = (Integer) parameterMap.get("queryType");
 
-		FileUploadConfig	fileUploadConfig	= fileUploadConfigRepository.getFileUploadConfig(fileBinId);
+		String templateName = "";
 
-		Integer				queryType			= parameterMap.get("queryType") == null
-				? Constants.SELECT_FILE_VALIDATOR
-				: (Integer) parameterMap.get("queryType");
+		int a_queryTypeValidator = 1;
 
-		String				templateName		= "fileSelectValidatorQuery";
-		int					queryTypeValidator	= 1;
 		if (fileUploadConfig != null) {
 			if (queryType.equals(Constants.UPLOAD_FILE_VALIDATOR)) {
-				queryContent	= fileUploadConfig.getUploadQueryContent();
-				templateName	= "fileUploadValidatorQuery";
+				queryContent = fileUploadConfig.getUploadQueryContent();
+				templateName = "fileUploadValidatorQuery";
+				a_queryTypeValidator = fileUploadConfig.getUploadQueryType();
 			} else if (queryType.equals(Constants.VIEW_FILE_VALIDATOR)) {
-				queryContent	= fileUploadConfig.getViewQueryContent();
-				templateName	= "fileViewValidatorQuery";
-			} else {
-				queryContent	= fileUploadConfig.getDeleteQueryContent();
-				templateName	= "fileDeleteValidatorQuery";
+				queryContent = fileUploadConfig.getViewQueryContent();
+				templateName = "fileViewValidatorQuery";
+				a_queryTypeValidator = fileUploadConfig.getViewQueryType();
+			} else if (queryType.equals(Constants.DELETE_FILE_VALIDATOR)) {
+				queryContent = fileUploadConfig.getDeleteQueryContent();
+				templateName = "fileDeleteValidatorQuery";
+				a_queryTypeValidator = fileUploadConfig.getDeleteQueryType();
 			}
 		}
+		
 		// Below code is added to handle the null pointer exception if queryContent is
 		// not passed.
 		if (queryContent == null || queryContent.isBlank() || queryContent.isEmpty()) {
-			queryContent = "select 1";
+			queryContent = "";
+		}
+		if(null != queryContent || queryContent.isBlank() == false || queryContent.isEmpty() == false) {
+			queryContent = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
 		}
 
-		List<Map<String, Object>>	resultSet	= new ArrayList<>();
-		if (StringUtils.isBlank(queryContent) == false
-				&& Constants.QueryType.SELECT.getQueryType() == queryTypeValidator) {
-			String						query		= templatingUtils.processTemplateContents(queryContent, templateName,
-			      						     		                       				parameterMap);
+		List<Map<String, Object>> resultSet = new ArrayList<>();
+		if ((StringUtils.isBlank(queryContent) == false && a_queryTypeValidator == 1)) {
+			String query = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
 			resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
-		} else {
-			TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
-			StringBuilder	resultStringBuilder	= new StringBuilder();
+		} else if ((StringUtils.isBlank(queryContent) == false && a_queryTypeValidator == 4)) {
+			TemplateVO templateVO = templatingService.getTemplateByName("script-util");
+			StringBuilder resultStringBuilder = new StringBuilder();
 			resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-			ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
-			ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
-			
-			parameterMap.forEach((key, value) -> scriptEngine.put(key, value));
-			UserDetailsVO detailsVO = userdetailsService.getUserDetails();
-			if (detailsVO != null) {
-				scriptEngine.put("loggedInUserName", detailsVO.getUserName());
-				scriptEngine.put("loggedInUserRoleList", detailsVO.getRoleIdList());
-				scriptEngine.put("loggedInUserId", detailsVO.getUserId());
-				scriptEngine.put("fullName", detailsVO.getFullName());
-				scriptEngine.put("userObject", detailsVO);
-			}
-			Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
-			
-			Map systemProperties = new HashMap();
-			propertyMasterMap.forEach((key, value) -> systemProperties.put(key.getPropertyName(), value));
-			
-			scriptEngine.put("systemProperties", propertyMasterMap);
-			
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+			ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
+
+			scriptEngine.put("requestDetails", parameterMap);
+
 			HttpServletRequest requestObject = getRequest();
-			
-			if(requestObject != null) {
+
+			if (requestObject != null) {
 				Map<String, String> headerMap = new HashMap<>();
 				Enumeration<String> headerNames = requestObject.getHeaderNames();
 				if (headerNames != null) {
@@ -629,15 +628,14 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 						headerMap.put(header, requestObject.getHeader(header));
 					}
 				}
-				
 				scriptEngine.put("httpRequestObject", requestObject);
 				scriptEngine.put("requestHeaders", headerMap);
 				scriptEngine.put("session", requestObject.getSession());
 			}
-			
+
 			resultStringBuilder.append(queryContent.toString());
-			Object				result			= scriptEngine.eval(resultStringBuilder.toString());
-			Map<String, Object>	resultSetMap	= new HashMap<>();
+			Object result = scriptEngine.eval(resultStringBuilder.toString());
+			Map<String, Object> resultSetMap = new HashMap<>();
 			resultSetMap.put("isAllowed", result);
 			if (resultSetMap.size() > 0) {
 				resultSet = new ArrayList<>();
@@ -646,12 +644,12 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		}
 		return resultSet;
 	}
-	
+
 	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		if(sra != null) {
+		if (sra != null) {
 			return sra.getRequest();
-		} else 
+		} else
 			return null;
 	}
 
@@ -664,17 +662,17 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	 * Purpose of this method is to log activities</br>
 	 * in File Bins-Common File Module.
 	 * 
-	 * @author              Bibhusrita.Nayak
-	 * @param  returnResult
+	 * @author Bibhusrita.Nayak
+	 * @param returnResult
 	 * @throws Exception
 	 */
 	private void logActivity(Map<String, List<Object[]>> returnResult) throws Exception {
-		Map<String, String>	requestParams		= new HashMap<>();
-		UserDetailsVO		detailsVO			= userdetailsService.getUserDetails();
-		Date				activityTimestamp	= new Date();
+		Map<String, String> requestParams = new HashMap<>();
+		UserDetailsVO detailsVO = userdetailsService.getUserDetails();
+		Date activityTimestamp = new Date();
 		for (Map.Entry<String, List<Object[]>> entry : returnResult.entrySet()) {
-			String			key	= entry.getKey();
-			List<Object[]>	val	= entry.getValue();
+			String key = entry.getKey();
+			List<Object[]> val = entry.getValue();
 			for (Object[] queryRes : val) {
 				if (queryRes != null) {
 					if (key == "INSERT") {
@@ -699,10 +697,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		List<FileUploadTemp> tempFileUploadDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
 		if (tempFileUploadDetails != null) {
 			for (FileUploadTemp fileUploadTemp : tempFileUploadDetails) {
-				String	filePath	= fileUploadTemp.getFilePath() + File.separator
-						+ fileUploadTemp.getPhysicalFileName();
-				File	file		= new File(filePath);
-				if(file.exists()) {
+				String filePath = fileUploadTemp.getFilePath() + File.separator + fileUploadTemp.getPhysicalFileName();
+				File file = new File(filePath);
+				if (file.exists()) {
 					file.delete();
 				}
 				fileUploadTempRepository.deleteById(fileUploadTemp.getFileUploadTempId());
@@ -714,22 +711,22 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	@Override
 	public void commitChanges(String fileBinId, String fileAssociationId, String fileUploadTempId) throws Exception {
-		List<FileUploadTemp>		fileUploadDetails	= fileUploadTempRepository
-				.getAllTempDeletedFileUploadId(fileBinId, fileAssociationId, fileUploadTempId);
+		List<FileUploadTemp> fileUploadDetails = fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
+				fileAssociationId, fileUploadTempId);
 
-		List<FileUploadTemp>	fileUploadTempDetails	= fileUploadTempRepository
+		List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository
 				.getAllTempDeletedFileUploadTempId(fileBinId, fileAssociationId, fileUploadTempId);
-		
+
 		List<FileUploadTemp> fileList = new ArrayList<>();
-		if(fileUploadDetails != null && fileUploadDetails.isEmpty() == false) {
+		if (fileUploadDetails != null && fileUploadDetails.isEmpty() == false) {
 			fileList.addAll(fileUploadDetails);
 		}
-		if(fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
+		if (fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
 			fileList.addAll(fileUploadTempDetails);
 		}
-		
-		Map<String, List<Object[]>>	returnResult		= fileUploadConfigDAO.commitChanges(fileBinId,
-				fileAssociationId, fileUploadTempId);
+
+		Map<String, List<Object[]>> returnResult = fileUploadConfigDAO.commitChanges(fileBinId, fileAssociationId,
+				fileUploadTempId);
 		/* Method called for implementing Activity Log */
 		logActivity(returnResult);
 		fileUploadConfigDAO.clearTempFileBin(fileBinId, fileAssociationId, fileUploadTempId);
@@ -737,9 +734,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (fileUpload != null) {
 				File file = new File(fileUpload.getFilePath());
 				if (file.exists()) {
-					Path		root		= Paths.get(fileUpload.getFilePath());
-					Path		filePath	= root.resolve(fileUpload.getPhysicalFileName());
-					Resource	resource	= new UrlResource(filePath.toUri());
+					Path root = Paths.get(fileUpload.getFilePath());
+					Path filePath = root.resolve(fileUpload.getPhysicalFileName());
+					Resource resource = new UrlResource(filePath.toUri());
 					if (resource.exists() || resource.isReadable()) {
 						resource.getFile().delete();
 					}
@@ -751,17 +748,17 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	@Override
 	public String update(MultipartFile file, String fileUploadId) throws Exception {
-		UserDetailsVO	userDetailsVO		= userdetailsService.getUserDetails();
-		FileUpload		fileUploadDetail	= fileUploadRepository.findById(fileUploadId)
+		UserDetailsVO userDetailsVO = userdetailsService.getUserDetails();
+		FileUpload fileUploadDetail = fileUploadRepository.findById(fileUploadId)
 				.orElseThrow(() -> new Exception("file not found with id : " + fileUploadId));
 		fileUploadDetail.setUpdatedBy(userDetailsVO.getUserName());
 		try {
-			LocalDate		localDate		= LocalDate.now();
-			Integer			year			= localDate.getYear();
-			Integer			month			= localDate.getMonthValue();
-			Integer			date			= localDate.getDayOfMonth();
-			String			fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
-			StringJoiner	location		= new StringJoiner("" + File.separatorChar);
+			LocalDate localDate = LocalDate.now();
+			Integer year = localDate.getYear();
+			Integer month = localDate.getMonthValue();
+			Integer date = localDate.getDayOfMonth();
+			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+			StringJoiner location = new StringJoiner("" + File.separatorChar);
 			location.add(fileUploadDir);
 			location.add(year.toString()).add(month.toString()).add(date.toString());
 			if (Boolean.FALSE.equals(new File(location.toString()).exists())) {
@@ -786,8 +783,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		List<FileUploadTemp> fileUploadDetails = fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
 				fileAssociationId, null);
 		if (fileUploadDetails != null && fileUploadDetails.size() > 0) {
-			String[]	fileTempIds	= new String[fileUploadDetails.size()];
-			int			fileCounter	= 0;
+			String[] fileTempIds = new String[fileUploadDetails.size()];
+			int fileCounter = 0;
 			for (FileUploadTemp fileUpload : fileUploadDetails) {
 				if (fileUpload != null) {
 					fileTempIds[fileCounter] = fileUpload.getFileUploadId();
@@ -810,8 +807,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 				if (supportedExtensions != null && supportedExtensions.isEmpty() == false && files != null
 						&& files.length > 0 && files[0] != null) {
-					MultipartFile	file		= files[0];
-					String			fileName	= file.getOriginalFilename();
+					MultipartFile file = files[0];
+					String fileName = file.getOriginalFilename();
 					if (fileName.contains(".")) {
 						String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
 						if (supportedExtensions.contains(fileExtension) == false) {
@@ -832,8 +829,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (fileUploadConfig != null) {
 				BigDecimal maxFileSize = fileUploadConfig.getMaxFileSize();
 				if (files != null && files.length > 0 && files[0] != null) {
-					MultipartFile	file		= files[0];
-					long			fileSize	= file.getSize();
+					MultipartFile file = files[0];
+					long fileSize = file.getSize();
 					if (fileSize > maxFileSize.longValue()) {
 						return false;
 					}
@@ -853,20 +850,20 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			return;
 		}
 		for (int iFileCounter = 0; iFileCounter < fileUploadTempIds.length; iFileCounter++) {
-			String					fileUploadTempId	= fileUploadTempIds[iFileCounter];
-			List<FileUploadTemp>	fileUploadDetails	= fileUploadTempRepository
-					.getAllTempDeletedFileUploadId(fileBinId, fileAssociationId, fileUploadTempId);
-			List<FileUploadTemp>	fileUploadTempDetails	= fileUploadTempRepository
+			String fileUploadTempId = fileUploadTempIds[iFileCounter];
+			List<FileUploadTemp> fileUploadDetails = fileUploadTempRepository.getAllTempDeletedFileUploadId(fileBinId,
+					fileAssociationId, fileUploadTempId);
+			List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository
 					.getAllTempDeletedFileUploadTempId(fileBinId, fileAssociationId, fileUploadTempId);
-			
+
 			List<FileUploadTemp> fileList = new ArrayList<>();
-			if(fileUploadDetails != null && fileUploadDetails.isEmpty() == false) {
+			if (fileUploadDetails != null && fileUploadDetails.isEmpty() == false) {
 				fileList.addAll(fileUploadDetails);
 			}
-			if(fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
+			if (fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
 				fileList.addAll(fileUploadTempDetails);
 			}
-			
+
 			fileUploadConfigDAO.clearTempFileBin(fileBinId, fileAssociationId, fileUploadTempId);
 
 			for (FileUploadTemp fileUpload : fileList) {
@@ -896,12 +893,12 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				fileBinId, fileAssociationId);
 
 		try {
-			LocalDate		localDate		= LocalDate.now();
-			Integer			year			= localDate.getYear();
-			Integer			month			= localDate.getMonthValue();
-			Integer			date			= localDate.getDayOfMonth();
-			String			fileUploadDir	= propertyMasterService.findPropertyMasterValue("file-upload-location");
-			StringJoiner	location		= new StringJoiner("" + File.separatorChar);
+			LocalDate localDate = LocalDate.now();
+			Integer year = localDate.getYear();
+			Integer month = localDate.getMonthValue();
+			Integer date = localDate.getDayOfMonth();
+			String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+			StringJoiner location = new StringJoiner("" + File.separatorChar);
 			location.add(fileUploadDir);
 			location.add(year.toString()).add(month.toString()).add(date.toString());
 			if (Boolean.FALSE.equals(new File(location.toString()).exists())) {
@@ -909,10 +906,10 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			}
 			List<FileUploadTemp> fileUploadTempDetails = fileUploadTempRepository.findAllTempFileUpload(fileUploadId);
 			if (fileUploadTempDetails.size() > 0) {
-				FileUploadTemp	fileUpload	= saveFileTempDetails(location.toString(), file.getOriginalFilename(),
+				FileUploadTemp fileUpload = saveFileTempDetails(location.toString(), file.getOriginalFilename(),
 						fileBinId, fileAssociationId, fileUploadTempDetails.get(0).getFileUploadId(), 1,
 						fileUploadTempDetails.get(0).getFileUploadTempId(), UUID.randomUUID().toString());
-				Path			root		= Paths.get(location.toString());
+				Path root = Paths.get(location.toString());
 				Files.copy(file.getInputStream(), root.resolve(fileUpload.getPhysicalFileName()));
 				CryptoUtils.encrypt(JWS_SALT, root.resolve(fileUpload.getPhysicalFileName()).toFile(),
 						root.resolve(fileUpload.getPhysicalFileName()).toFile());

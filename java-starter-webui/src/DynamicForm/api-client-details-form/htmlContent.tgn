@@ -1,84 +1,84 @@
 <head>
-<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
-<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
-<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-        
+	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
 </head>
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addeditdetails')}</h2> 
-		<div class="clearfix"></div>		
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addeditdetails')}</h2>
+		<div class="clearfix"></div>
 	</div>
-  <form method="post" name="addEditForm" id="addEditForm">
-    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-    
-    	<div class="row">
-				<input type="hidden" data-type="varchar" id="clientid" name="clientid"  value="${(resultSetObject.client_id)!""}" >
-	    		<div class="col-6">
-					<div class="col-inner-form full-form-fields">
-						            <label for="clientname" style="white-space:nowrap"><span class="asteriskmark">*</span>
+	<form method="post" name="addEditForm" id="addEditForm">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+
+		<div class="row">
+			<input type="hidden" data-type="varchar" id="clientid" name="clientid"  value="${(resultSetObject.client_id)!""}" >
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<label for="clientname" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.clientname')}
 						            </label>
-								<input type="text" data-type="varchar" id="clientname" name="clientname"  value="${(resultSetObject.client_name)!""}" maxlength="100" placeholder="Client Name" class="form-control">
+					<input type="text" data-type="varchar" id="clientname" name="clientname"  value="${(resultSetObject.client_name)!""}" maxlength="100" placeholder="Client Name" class="form-control">
 					</div>
 				</div>
-                <div class="col-6">
-                    <div class="col-inner-form full-form-fields">
-                        <label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
+				<div class="col-6">
+					<div class="col-inner-form full-form-fields">
+						<label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
                             ${messageSource.getMessage('jws.encryptionalgorithm')}</label>
-                        <div class="search-cover">
-                            <select class="form-control" id="algoAutocomplete" name="algoAutocomplete" onchange="changeEncAlgorithm()">	
+						<div class="search-cover">
+							<select class="form-control" id="algoAutocomplete" name="algoAutocomplete" onchange="changeEncAlgorithm()">
 							</select>
-                        </div>
-                    </div>
+						</div>
+					</div>
 				</div>
-	    		<div class="col-12">
+				<div class="col-12">
 					<div class="col-inner-form full-form-fields">
 						<label for="clientkey" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						     	${messageSource.getMessage('jws.clientkey')}
 						</label>
-                        <div class="input-group">
-								<input type="text" data-type="varchar" id="clientkey" name="clientkey"  value="${(resultSetObject.client_key)!""}" 
+						<div class="input-group">
+							<input type="text" data-type="varchar" id="clientkey" name="clientkey"  value="${(resultSetObject.client_key)!""}"
                                     maxlength="100" placeholder="Client Key" class="form-control" readonly style="margin-right: 10px;">
-                                <input id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('clientkey','clientkeyCopyBtn')">
+							<input id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('clientkey','clientkeyCopyBtn')">
                         </div>
+						</div>
 					</div>
-				</div>
-	    		<div id="publicKeyDiv" class="col-12" style="display:none;">
-					<div class="col-inner-form full-form-fields">
-                        <label id="lblPublicKey" for="publicKey" style="white-space:nowrap;"><span id="astr_1" class="asteriskmark">*</span>
+					<div id="publicKeyDiv" class="col-12" style="display:none;">
+						<div class="col-inner-form full-form-fields">
+							<label id="lblPublicKey" for="publicKey" style="white-space:nowrap;"><span id="astr_1" class="asteriskmark">*</span>
 			            	${messageSource.getMessage('jws.publickey')}
 			            </label>
-                        <div class="input-group">
-						<textarea rows="3" data-type="varchar" id="publicKey" name="publicKey"  maxlength="1000" placeholder="Public Key"  style="margin-right: 5px;" class="form-control">${(resultSetObject.client_public_key)!""}</textarea>
-					
-                        <input id="publicKeyCopyBtn" class="btn btn-secondary" name="publicKeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('publicKey','publicKeyCopyBtn')">
+							<div class="input-group">
+								<textarea rows="3" data-type="varchar" id="publicKey" name="publicKey"  maxlength="1000" placeholder="Public Key"  style="margin-right: 5px;" class="form-control">${(resultSetObject.client_public_key)!""}</textarea>
+
+								<input id="publicKeyCopyBtn" class="btn btn-secondary" name="publicKeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('publicKey','publicKeyCopyBtn')">
                         </div>
-                    </div>
-				</div>
-	    		<div class="col-12">
-					<div class="col-inner-form full-form-fields">
-                        
-						    <label id="lblClientSecret" for="clientsecret" style="white-space:nowrap"><span id="astr_2" class="asteriskmark">*</span>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="col-inner-form full-form-fields">
+
+								<label id="lblClientSecret" for="clientsecret" style="white-space:nowrap"><span id="astr_2" class="asteriskmark">*</span>
 						      	${messageSource.getMessage('jws.clientsecret')}
-						    </label> 
-                        <div class="input-group">
-						<textarea rows="3" data-type="varchar" id="clientsecret" name="clientsecret" maxlength="1000" placeholder="Client Secret" style="margin-right: 5px;" class="form-control">${(resultSetObject.client_secret)!""}</textarea>
-                                                   
-                            <input id="clientsecretCopyBtn" class="btn btn-secondary" name="clientsecretCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('clientsecret','clientsecretCopyBtn')">
+						    </label>
+								<div class="input-group">
+									<textarea rows="3" data-type="varchar" id="clientsecret" name="clientsecret" maxlength="1000" placeholder="Client Secret" style="margin-right: 5px;" class="form-control">${(resultSetObject.client_secret)!""}</textarea>
+
+									<input id="clientsecretCopyBtn" class="btn btn-secondary" name="clientsecretCopyBtn" value="${messageSource.getMessage('jws.copy')}" type="button" onclick="copyToClipboard('clientsecret','clientsecretCopyBtn')">
                         </div>
-					</div>
-				</div>
-	    		<!--div class="col-6">
+								</div>
+							</div>
+							<!--div class="col-6">
 					<div class="col-inner-form full-form-fields">
 						    <label id="lblInclusionUrlPattern" for="inclusionUrlPattern" style="white-space:nowrap"><span id="astr_3" class="asteriskmark">*</span>
 						      	${messageSource.getMessage('jws.inclusionpattern')}
@@ -87,63 +87,65 @@
 					            
                     </div>
 				</div-->
-                <div class="col-6">
-					<div class="col-inner-form full-form-fields">
-						    <label for="inputText" style="white-space:nowrap">
+							<div class="col-6">
+								<div class="col-inner-form full-form-fields">
+									<label for="inputText" style="white-space:nowrap">
 						      	${messageSource.getMessage('jws.testinput')}
-						    </label> 
-                        <div class="input-group"> 
-                        <textarea rows="3" data-type="varchar" id="inputText" name="inputText" style="margin-right: 10px;" maxlength="1000" placeholder="Test Input" class="form-control"></textarea>
-                        <div class="btn-group-vertical">
-                        <input id="encryptBtn" class="btn btn-secondary" style="margin-bottom: 10px;" name="encryptBtn" value="${messageSource.getMessage('jws.encrypt')}" type="button" onclick="encrypt();">
-                        <input id="decryptBtn" class="btn btn-secondary" name="decryptBtn" value="${messageSource.getMessage('jws.decrypt')}" type="button" onclick="decrypt();">
+						    </label>
+									<div class="input-group">
+										<textarea rows="3" data-type="varchar" id="inputText" name="inputText" style="margin-right: 10px;" maxlength="1000" placeholder="Test Input" class="form-control"></textarea>
+										<div class="btn-group-vertical">
+											<input id="encryptBtn" class="btn btn-secondary" style="margin-bottom: 10px;" name="encryptBtn" value="${messageSource.getMessage('jws.encrypt')}" type="button" onclick="encrypt();">
+											<input id="decryptBtn" class="btn btn-secondary" name="decryptBtn" value="${messageSource.getMessage('jws.decrypt')}" type="button" onclick="decrypt();">
                         </div>
-                        </div>
-                    </div>
-				</div>
-                <div class="col-6">
-					<div class="col-inner-form full-form-fields">
-						    <label for="outputText" style="white-space:nowrap">
+										</div>
+									</div>
+								</div>
+								<div class="col-6">
+									<div class="col-inner-form full-form-fields">
+										<label for="outputText" style="white-space:nowrap">
 						      	${messageSource.getMessage('jws.testoutput')}
-						    </label>  
-                        <textarea rows="3" data-type="varchar" id="outputText" name="outputText" maxlength="1000" placeholder="Test Output" class="form-control"></textarea>
-					            
-                    </div>
-				</div>
-				
-				<input type="hidden" data-type="varchar" id="updatedby" name="updatedby"  value="${(resultSetObject.updated_by)!""}" >
-				<input type="hidden" data-type="varchar" id="createdby" name="createdby"  value="${(resultSetObject.created_by)!""}" >
-				<input type="hidden" data-type="timestamp" id="updateddate" name="updateddate"  value="${(resultSetObject.updated_date)!""}" >
+						    </label>
+										<textarea rows="3" data-type="varchar" id="outputText" name="outputText" maxlength="1000" placeholder="Test Output" class="form-control"></textarea>
+
+									</div>
+								</div>
+
+								<input type="hidden" data-type="varchar" id="updatedby" name="updatedby"  value="${(resultSetObject.updated_by)!""}" >
+								<input type="hidden" data-type="varchar" id="createdby" name="createdby"  value="${(resultSetObject.created_by)!""}" >
+								<input type="hidden" data-type="timestamp" id="updateddate" name="updateddate"  value="${(resultSetObject.updated_date)!""}" >
     	</div>
-    
-  </form>
+
+	</form>
 	<div class="row">
 		<div class="col-12">
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
-                    <div id="keyPairGeneratorDiv"style="display:none;">
-                        <input id="keyPairGeneratorBtn" style="margin-right:2.5px;" onclick="generateKeyPair();" class="btn btn-primary" name="keyPairGeneratorBtn" value="Generate Key Pair" type="button">
+					<div id="keyPairGeneratorDiv" style="display:none;">
+						<input id="keyPairGeneratorBtn" style="margin-right:2.5px;" onclick="generateKeyPair();" class="btn btn-primary" name="keyPairGeneratorBtn" value="Generate Key Pair" type="button">
                     </div>
-                    <div id="savedAction">
-                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
-                    </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
-                    <div class="dropdown-menu action-cls"  id="actionDiv">
-                    	<ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
-                        </ul>
-                    </div>  
-                </div>
-				<span onclick="backToPreviousPage();">
+						<div id="savedAction">
+							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+						</div>
+						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+						<div class="dropdown-menu action-cls" id="actionDiv">
+							<ul class="dropdownmenu">
+								<li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">
+									${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+								<li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">
+									${messageSource.getMessage("jws.saveAndEdit")}</li>
+							</ul>
+						</div>
+					</div>
+					<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
-				</span> 
+				</span>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<script>
-	document.title = "Manage API Client Details";
+	<script>
+		document.title = "Manage API Client Details";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	 let isEdit = 0;
@@ -401,7 +403,7 @@
 			success : function(data) {				
 				for (let property in data) {					
 					if(data[property].encryptionAlgoName != undefined){
-						$("#algoAutocomplete").append("<option value="+property+">"+data[property].encryptionAlgoName+"</option>");
+						$("#algoAutocomplete").append("<option value="+data[property].encryptionAlgoId+">"+data[property].encryptionAlgoName+"</option>");
 					}                	    				
 				}
 				
@@ -417,4 +419,4 @@
 		toggleTextField(item)
 	}
 	
-</script>
+	</script>

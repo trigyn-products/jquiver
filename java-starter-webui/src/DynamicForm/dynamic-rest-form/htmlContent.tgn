@@ -161,16 +161,28 @@
 			</div>
             </div>
 			<div id="deleteHeader"></div>		
-			<div id="methodSignatureDiv" class="col-12 method-sign-info-div">
-				<h3 class="titlename method-sign-info">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label id = "methodSignatureHeading" for="methodSignature">${messageSource.getMessage('jws.mtdsignature')} with Example</label>
-				</h3>
-                <pre style="font-weight:normal">
-				<span id="methodSignature"><span>
-                   
-                </pre>    
-			</div>
-			<br>			 			 
+			<div id="methodSignatureDiv" class="col-12 method-sign-info-div" style="margin-bottom:15px;">
+
+
+				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
+				</a>
+
+				<!-- <h3 class="titlename method-sign-info">
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i><label id = "methodSignatureHeading" for="methodSignature"></label>
+				</h3> -->
+
+					<div class="collapse" id="tipscolpasemethod">
+						<div class="tipscontent">
+							<pre style="font-weight:normal">
+											<span id="methodSignature"><span>
+							                   
+							                </pre>
+						</div>
+					</div>
+
+                 
+			</div>			 			 
 			 <div class="bs-example" id="xmlFormatDiv"  style="display:none; padding-bottom: 2%;">
                <div class="accordion" id="accordionExample">
                   <div class="card customcardblock">

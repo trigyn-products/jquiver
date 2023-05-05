@@ -2,7 +2,7 @@ class HomePage {
 	constructor() {
         setTimeout(function() {
     		getNotifications();
-        }, 5000);    
+        }, 1000);    
 
 	}
 }
@@ -20,7 +20,7 @@ HomePage.prototype.fn = {
 			$("#bodyDiv").removeClass("overlaycls");
 			//$(".jws-body-overlay").removeClass("overlaycls");
 		}else{
-			$("#mySidenav").css("width", "250px");
+			$("#mySidenav").css("width", "270px");
 			$("#closebtni").addClass("showcls");
 			$("#openbtni").addClass("hidecls");
 			$('body').css('background-color', 'rgba(0,0,0,0.4)');
@@ -81,9 +81,17 @@ HomePage.prototype.fn = {
 			return;
 		}
 		
+/*		$("#menuUL").find("li").each(function(a_index, a_element) {
+	    	console.log($(a_element).find("a").length);
+	    	if($(a_element).find("a").length > 0){
+	    		console.log($($(a_element).find("a")[0]).text().trim());
+	    	}
+	    }); */
+		let inputText = $("#searchInput").val().toUpperCase();
 		$("#menuUL").find("li").hide();
 		$("#menuUL").find("a").each(function(a_index, a_element) {
 			if ($(a_element).text().trim().toUpperCase().indexOf(inputText) > -1) {
+				$(a_element).closest("li").show();
 				let divGroupElement = $(a_element).closest("div");
 				let rootElement = $(divGroupElement).prev();
 				$(rootElement).removeClass("panel-collapsed");

@@ -1,6 +1,5 @@
 
 function getNotifications() {
-
 	$.ajax({
 		url: contextPathHome + '/api/gnd',
 		type: "GET",
@@ -29,6 +28,7 @@ function getNotifications() {
 					}
 
 					if (jsonObject[counter]["display_once"] == 0) {
+						/*If display_once is disabled, then the notification will be displayed once a day.*/
 						setCookie(jsonObject[counter]["notificationId"], jsonObject[counter]["notificationId"], 1);
 					} else {
 						setCookie(jsonObject[counter]["notificationId"], jsonObject[counter]["notificationId"], 365)

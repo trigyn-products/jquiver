@@ -37,6 +37,12 @@ public final class Constants {
 	public final static String	TRUE					= "true";
 
 	public final static String	FALSE					= "false";
+	
+	public static final String	PASSWORD_VERFICATION	= "1";
+	
+	public static final String	OTP_VERFICATION			= "0";
+	
+	public static final String	TOTP_VERFICATION		= "2";
 
 	public enum AuthType {
 		@Deprecated

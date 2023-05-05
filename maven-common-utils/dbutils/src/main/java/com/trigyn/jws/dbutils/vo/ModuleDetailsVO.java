@@ -20,7 +20,7 @@ public class ModuleDetailsVO implements Serializable {
 
 	private String				moduleId			= null;
 	private String				moduleName			= null;
-	private String				moduleURL			= null;
+	private String				moduleUrl			= null;
 	private String				parentModuleId		= null;
 	private String				parentModuleName	= null;
 	private Integer				sequence			= null;
@@ -43,12 +43,12 @@ public class ModuleDetailsVO implements Serializable {
 
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleUrl, String parentModuleId, String parentModuleName,
 			Integer sequence, Integer isInsideMenu, Integer includeLayout, Integer targetLookupId, String targetLookupDesc,
 			String targetTypeId, String headerJson, String requestParamJson, Integer openInNewTab, String menuStyle, Integer isHomePage) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
-		this.moduleURL			= moduleURL;
+		this.moduleUrl			= moduleUrl;
 		this.parentModuleId		= parentModuleId;
 		this.parentModuleName	= parentModuleName;
 		this.sequence			= sequence;
@@ -65,25 +65,25 @@ public class ModuleDetailsVO implements Serializable {
 		
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL) {
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleUrl) {
 		this.moduleId	= moduleId;
 		this.moduleName	= moduleName;
-		this.moduleURL	= moduleURL;
+		this.moduleUrl	= moduleUrl;
 	}
 
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleUrl, String parentModuleId, String parentModuleName,
 			Integer sequence, Long subModuleCount) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
-		this.moduleURL			= moduleURL;
+		this.moduleUrl			= moduleUrl;
 		this.parentModuleId		= parentModuleId;
 		this.parentModuleName	= parentModuleName;
 		this.sequence			= sequence;
 		this.subModuleCount		= subModuleCount;
 	}
 
-	public ModuleDetailsVO(String moduleURL, Integer targetLookupId, String targetTypeId, Integer includeLayout, String headerJson, String requestParamJson) {
-		this.moduleURL			= moduleURL;
+	public ModuleDetailsVO(String moduleUrl, Integer targetLookupId, String targetTypeId, Integer includeLayout, String headerJson, String requestParamJson) {
+		this.moduleUrl			= moduleUrl;
 		this.targetLookupId		= targetLookupId;
 		this.targetTypeId		= targetTypeId;
 		this.includeLayout		= includeLayout;
@@ -91,11 +91,11 @@ public class ModuleDetailsVO implements Serializable {
 		this.requestParamJson 	= requestParamJson;
 	}
 	
-	public ModuleDetailsVO(String moduleId, String moduleName, String moduleURL, String parentModuleId, String parentModuleName,
+	public ModuleDetailsVO(String moduleId, String moduleName, String moduleUrl, String parentModuleId, String parentModuleName,
 			Integer sequence, Long subModuleCount, String targetTypeId, Integer targetLookupId, String requestParamJson, Integer openInNewTab, String menuStyle,Integer isHomePage) {
 		this.moduleId			= moduleId;
 		this.moduleName			= moduleName;
-		this.moduleURL			= moduleURL;
+		this.moduleUrl			= moduleUrl;
 		this.parentModuleId		= parentModuleId;
 		this.parentModuleName	= parentModuleName;
 		this.sequence			= sequence;
@@ -124,12 +124,12 @@ public class ModuleDetailsVO implements Serializable {
 		this.moduleName = moduleName;
 	}
 
-	public String getModuleURL() {
-		return moduleURL;
+	public String getModuleUrl() {
+		return moduleUrl;
 	}
 
-	public void setModuleURL(String moduleURL) {
-		this.moduleURL = moduleURL;
+	public void setModuleUrl(String moduleUrl) {
+		this.moduleUrl = moduleUrl;
 	}
 
 	public String getParentModuleId() {
@@ -293,7 +293,7 @@ public class ModuleDetailsVO implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(headerJson, includeLayout, isInsideMenu, moduleId, moduleName, moduleURL, parentModuleId, parentModuleName,
+		return Objects.hash(headerJson, includeLayout, isInsideMenu, moduleId, moduleName, moduleUrl, parentModuleId, parentModuleName,
 				roleIdList, sequence, subModuleCount, targetLookupDesc, targetLookupId, targetLookupName, targetTypeId);
 	}
 
@@ -311,7 +311,7 @@ public class ModuleDetailsVO implements Serializable {
 		ModuleDetailsVO other = (ModuleDetailsVO) obj;
 		return Objects.equals(headerJson, other.headerJson) && Objects.equals(includeLayout, other.includeLayout)
 				&& Objects.equals(isInsideMenu, other.isInsideMenu) && Objects.equals(moduleId, other.moduleId)
-				&& Objects.equals(moduleName, other.moduleName) && Objects.equals(moduleURL, other.moduleURL)
+				&& Objects.equals(moduleName, other.moduleName) && Objects.equals(moduleUrl, other.moduleUrl)
 				&& Objects.equals(parentModuleId, other.parentModuleId) && Objects.equals(parentModuleName, other.parentModuleName)
 				&& Objects.equals(roleIdList, other.roleIdList) && Objects.equals(sequence, other.sequence)
 				&& Objects.equals(subModuleCount, other.subModuleCount) && Objects.equals(targetLookupDesc, other.targetLookupDesc)
@@ -322,8 +322,8 @@ public class ModuleDetailsVO implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("ModuleDetailsVO [moduleId=").append(moduleId).append(", moduleName=").append(moduleName).append(", moduleURL=")
-				.append(moduleURL).append(", parentModuleId=").append(parentModuleId).append(", parentModuleName=").append(parentModuleName)
+		builder.append("ModuleDetailsVO [moduleId=").append(moduleId).append(", moduleName=").append(moduleName).append(", moduleUrl=")
+				.append(moduleUrl).append(", parentModuleId=").append(parentModuleId).append(", parentModuleName=").append(parentModuleName)
 				.append(", sequence=").append(sequence).append(", isInsideMenu=").append(isInsideMenu).append(", includeLayout=")
 				.append(includeLayout).append(", targetLookupId=").append(targetLookupId).append(", targetLookupDesc=")
 				.append(targetLookupDesc).append(", targetLookupName=").append(targetLookupName).append(", targetTypeId=")

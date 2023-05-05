@@ -503,32 +503,37 @@ public class JwsUserManagementController {
 	@ResponseBody
 	public String saveOtpAndSendMail(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String	userEmailId		= request.getParameter("email");
-		String	generatedOtp	= request.getParameter("generatedOtp");
+		//String	generatedOtp	= request.getParameter("generatedOtp");
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			Map<String, Object>	mapDetails	= new HashMap<>();
+			if(userEmailId == null || userEmailId.isEmpty()) {
+	        	response.sendError(HttpStatus.BAD_REQUEST.value(), "Email is required.");
+				return null;
+	        }
 			JwsUser	existingUser	= userManagementService.findByEmailIgnoreCase(userEmailId);
-	        if(existingUser == null) {
+	        if(existingUser == null ) {
 	        	response.sendError(HttpStatus.NOT_FOUND.value(), "User not found");
 				return null;
 	        }
-			boolean				isOtpValid	= otpService.validateOTP(userEmailId, Integer.valueOf(generatedOtp));
+	        Integer	generatedOtp	= otpService.generateOTP(userEmailId);
+			boolean				isOtpValid	= otpService.validateOTP(userEmailId, generatedOtp);
 			if (!isOtpValid) {
 				userConfigService.getConfigurableDetails(mapDetails);
 				mapDetails.put("email", userEmailId);
 				mapDetails.put("oneTimePassword", generatedOtp);
-				JwsUser userOtpUpdateInfo = otpService.createOtp(mapDetails);
+				JwsUser userOtpUpdateInfo = otpService.saveOtp(mapDetails);
 				if (userOtpUpdateInfo != null) {
 					otpService.sendMailForOtp(mapDetails);
 					mapDetails.put("successOtpPasswordMsg",
 							"Check your email for a instructions to login through OTP. If it doesn’t appear within a few minutes, check your spam folder.");
 				}
-				return generatedOtp;
+				return generatedOtp.toString();
 			}
-			generatedOtp = String.valueOf(otpService.getOPTByKey(userEmailId));
+			generatedOtp = otpService.getOPTByKey(userEmailId);
 			mapDetails.put("email", userEmailId);
 			mapDetails.put("oneTimePassword", generatedOtp);
 			otpService.sendMailForOtp(mapDetails);
-			return generatedOtp;
+			return generatedOtp.toString();
 		} else {
 			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;

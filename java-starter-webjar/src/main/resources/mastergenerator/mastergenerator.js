@@ -58,12 +58,15 @@ function createTable(columns) {
     for(let iCounter = 0; iCounter < columns.length; ++iCounter) {
         let trElement = null;
         if(columns[iCounter]['_unsupported']){
-        	trElement =$("<tr class='details' style='border: 1px solid red;' ></tr>");
+        	trElement = $("<tr class='details' style='border: 1px solid red;' ></tr>");
+        	$(trElement).append("<td>&nbsp;</td>");
+        	$(trElement).append("<td>&nbsp;</td>");
         }else{
         	trElement =$("<tr class='details' ></tr>");
+        	$(trElement).append("<td><input class='grid_enable' id='tenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToGridDetails(this)'></td>");
+            $(trElement).append("<td><input class='grid_visible' id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>"); 	
         }
-        $(trElement).append("<td><input class='grid_enable' id='tenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToGridDetails(this)'></td>");
-        $(trElement).append("<td><input class='grid_visible' id='thidden_"+iCounter+"' type='checkbox' disabled onchange='updateGridDetails(this)'></td>");
+        
         let displayName = capitalizeFirstLetter(columns[iCounter]['tableColumnName'].replaceAll("_", " "));
         let nameCol = "<td>";
         if(columns[iCounter]['_unsupported']){
@@ -88,11 +91,14 @@ function createTable(columns) {
     	 let trElement = null;
          if(columns[iCounter]['_unsupported']){
          	trElement =$("<tr class='details' style='border: 1px solid red;' ></tr>");
+         	$(trElement).append("<td>&nbsp;</td>");
+        	$(trElement).append("<td>&nbsp;</td>");
          }else{
          	trElement =$("<tr class='details' ></tr>");
+         	$(trElement).append("<td><input class='form_enable' id='tfenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
+            $(trElement).append("<td><input class='form_visible' id='tfhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
          }
-        $(trElement).append("<td><input class='form_enable' id='tfenabled_"+iCounter+"' type='checkbox' onchange='addRemoveToFormDetails(this)'></td>");
-        $(trElement).append("<td><input class='form_visible' id='tfhidden_"+iCounter+"' type='checkbox' disabled onchange='updateFormDetails(this)'></td>");
+       
         let displayName = capitalizeFirstLetter(columns[iCounter]['tableColumnName'].replaceAll("_", " "));
         let nameCol = "<td>";
         if(columns[iCounter]['_unsupported']){
@@ -338,13 +344,12 @@ function createMaster() {
 	if(isValidData === false){
 		return false;
 	}
-	menuDetails["moduleName"]=$("#menuDisplayName").val();
+	menuDetails["moduleName"]=$("#menuDisplayName").val(); 
 	menuDetails["parentModuleId"]=$("#parentModuleName").val();
-	menuDetails["moduleURL"]=$("#moduleURL").val();
-	
+	menuDetails["moduleUrl"]=$("#moduleURL").val();
 
 	dynamicFormModuleDetails["moduleName"]=$("#formDisplayName").val();
-	dynamicFormModuleDetails["moduleURL"]=$("#formModuleURL").val();
+	dynamicFormModuleDetails["moduleUrl"]=$("#formModuleURL").val();
 	
 	let roleIds =[];
 	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
@@ -394,11 +399,7 @@ function validateForm(){
 			return false;
 		}
 	}
-	if($("._unsupported").length > 0){
-		showMessage("Please check for unsupported types tagged with " + '<i class="fa fa-exclamation-triangle _unsupported" aria-hidden="true" style="color:red"></i>', "warn");
-		isValid = false;
-	}
-	
+		
 	if($(".grid_enable:checked").length < 1){
 		showMessage("Please mark at least one column as added in grid", "warn");
 		return false;

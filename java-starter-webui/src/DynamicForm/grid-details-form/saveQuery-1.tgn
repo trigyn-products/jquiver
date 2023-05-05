@@ -6,6 +6,11 @@
   		,grid_table_name = :gridTableName 
   		,grid_column_names = :gridColumnName
   		,query_type = :queryType
+      	,<#if  (formData?api.getFirst("dataSourceId"))?has_content>
+        	datasource_id = :dataSourceId
+      	<#else>
+      		datasource_id = NULL
+      	</#if>
   		,<#if  (formData?api.getFirst("customFilterCriteria"))?has_content>
 			custom_filter_criteria = :customFilterCriteria
 		<#else>
@@ -24,8 +29,8 @@
   ,:gridTableName
   ,:gridColumnName
   ,:queryType
-  , <#if  (formData?api.getFirst("datasourceId"))?has_content>
-     :datasourceId
+  ,<#if  (formData?api.getFirst("dataSourceId"))?has_content>
+     :dataSourceId
   <#else>
      NULL
   </#if>

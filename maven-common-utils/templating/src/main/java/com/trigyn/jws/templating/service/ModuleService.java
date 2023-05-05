@@ -202,8 +202,8 @@ public class ModuleService {
 				for (String pathVariable : pathVariableList) {
 					newURL = new StringBuilder(pathVariable);
 					for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-						if (moduleDetailsVO.getModuleURL().matches(".*\\b" + newURL + "\\b.*")
-								|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
+						if (moduleDetailsVO.getModuleUrl().matches(".*\\b" + newURL + "\\b.*")
+								|| moduleDetailsVO.getModuleUrl().equals(moduleURL)) {
 							moduleIdDB = moduleDetailsVO.getModuleId();
 						}
 					}
@@ -211,8 +211,8 @@ public class ModuleService {
 			} else {
 				List<ModuleDetailsVO> moduleDetailsVOs = getAllModuleId(moduleId);
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOs) {
-					if (moduleDetailsVO.getModuleURL().matches(".*\\b" + moduleURL + "\\b.*")
-							|| moduleDetailsVO.getModuleURL().equals(moduleURL)) {
+					if (moduleDetailsVO.getModuleUrl().matches(".*\\b" + moduleURL + "\\b.*")
+							|| moduleDetailsVO.getModuleUrl().equals(moduleURL)) {
 						moduleIdDB = moduleDetailsVO.getModuleId();
 					}
 				}
@@ -228,8 +228,8 @@ public class ModuleService {
 			boolean moduleUrlExist = false;
 			if(moduleDetailsVOList.size()>0) {
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-					if(moduleDetailsVO.getModuleURL().length() >= maxModuleUrl.length() && moduleDetailsVO.getModuleURL().matches("#+")) {
-						maxModuleUrl = moduleDetailsVO.getModuleURL();
+					if(moduleDetailsVO.getModuleUrl().length() >= maxModuleUrl.length() && moduleDetailsVO.getModuleUrl().matches("#+")) {
+						maxModuleUrl = moduleDetailsVO.getModuleUrl();
 						moduleUrlExist = true;
 					}
 				}
@@ -299,7 +299,7 @@ public class ModuleService {
 			moduleListing.setRequestParamJson(moduleDetailsVO.getRequestParamJson());
 		}
 		moduleListing.setSequence(moduleDetailsVO.getSequence());
-		moduleListing.setModuleUrl(moduleDetailsVO.getModuleURL());
+		moduleListing.setModuleUrl(moduleDetailsVO.getModuleUrl());
 		moduleListing.setOpenInNewTab(moduleDetailsVO.getOpenInNewTab());
 		moduleListing.setMenuStyle(moduleDetailsVO.getMenuStyle());
 		moduleListing.setIsCustomUpdated(1);
@@ -342,7 +342,7 @@ public class ModuleService {
 		ModuleDetailsVO vo = new ModuleDetailsVO();
 		vo.setIsInsideMenu(moduleListing.getIsInsideMenu());
 		vo.setModuleId(moduleListing.getModuleId());
-		vo.setModuleURL(moduleListing.getModuleUrl());
+		vo.setModuleUrl(moduleListing.getModuleUrl());
 		vo.setParentId(moduleListing.getParentId());
 
 		List<String> roleIdList = new ArrayList<>();
@@ -351,11 +351,14 @@ public class ModuleService {
 				roleIdList.add(mra.getRoleId());
 			}
 		}
-		vo.setRoleIdList(roleIdList);
-
 		vo.setSequence(moduleListing.getSequence());
 		vo.setTargetLookupId(moduleListing.getTargetLookupId());
 		vo.setTargetTypeId(moduleListing.getTargetTypeId());
+		vo.setHeaderJson(moduleListing.getHeaderJson());
+		vo.setIncludeLayout(moduleListing.getIncludeLayout());
+		vo.setIsHomePage(moduleListing.getIsHomePage());
+		vo.setMenuStyle(moduleListing.getMenuStyle());
+		vo.setOpenInNewTab(moduleListing.getOpenInNewTab());
 		return vo;
 	}
 
@@ -407,7 +410,7 @@ public class ModuleService {
 						.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
 				moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 				if (!CollectionUtils.isEmpty(targetTypeList)) {
-					moduleDetailsMap.put("moduleUrl", moduleDetailsVO.getModuleURL());
+					moduleDetailsMap.put("moduleUrl", moduleDetailsVO.getModuleUrl());
 					moduleDetailsMap.put("headerJson", moduleDetailsVO.getHeaderJson());
 					moduleDetailsMap.put("requestParamJson", moduleDetailsVO.getRequestParamJson());
 					moduleDetailsMap.put("includeLayout", moduleDetailsVO.getIncludeLayout());
@@ -500,7 +503,9 @@ public class ModuleService {
 	}
 
 	public void saveModuleListing(ModuleListing moduleListing) throws Exception {
+		
 		moduleListing.setIsCustomUpdated(1);
+		moduleListing.getModuleUrl();
 		iModuleListingRepository.save(moduleListing);
 	}
 
@@ -511,6 +516,7 @@ public class ModuleService {
 			module = module.getObject();
 
 			ModuleDetailsVO vo = convertModuleEntityToVO(module);
+			
 			Gson gson = new Gson();
 			ObjectMapper objectMapper = new ObjectMapper();
 			String dbDateFormat = propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,

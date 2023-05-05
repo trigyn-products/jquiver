@@ -83,6 +83,7 @@ public class UserConfigService {
 																						.equals("verificationType")).findFirst().orElse(null);
 																		if (verficationType != null) {
 																			jwsUserLoginVO.setVerificationType(Integer.valueOf(verficationType.getValue()));
+																			mapDetails.put("verificationType", verficationType.getValue());
 																			if (VerificationType.TOTP.getVerificationType().equals(verficationType.getValue())) {
 																				mapDetails.put("enableGoogleAuthenticator", true);
 																			}

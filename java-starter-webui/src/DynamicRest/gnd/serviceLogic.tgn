@@ -11,18 +11,19 @@ function loadNotifications(daoResults) {
 	    var selectCriteria = daoResults["allNotifications"][counter]["selection_criteria"];
 		/**Added Datasource Id col. in Notification Module, based on which the Selection Criteria Query will be executed.**/
 		var dataSourceId = daoResults["allNotifications"][counter]["datasource_id"];
-			var map = new HashMap();   	
-			var resultList = jq_getDBResult(selectCriteria,dataSourceId, null);
-				if(resultList.data_list != undefined && resultList["actionStatus"] != false){
-				if(resultList != null && resultList.isEmpty() == false && resultList.data_list[0]["noti_count"] >=1) {
+		var map = new HashMap();   
+		var tempContent = jq_evalTemplateByContent(selectCriteria, params);	
+		var resultList = jq_getDBResult(tempContent,dataSourceId, params);
+		if(resultList.data_list != undefined && resultList["actionStatus"] != false){
+			if(resultList != null && resultList.isEmpty() == false && resultList.data_list[0]["noti_count"] >=1) {
 				map.put("notificationId", daoResults["allNotifications"][counter]["notification_id"]);
 				map.put("messageText", daoResults["allNotifications"][counter]["message_text"]);
 				map.put("messageType", daoResults["allNotifications"][counter]["message_type"]);
 				map.put("msgValidFrom", daoResults["allNotifications"][counter]["message_valid_from"]);
 				validNotificationList.add(map);					
 			}
-		  }
 		}
+	}
 	return validNotificationList;
 }
 

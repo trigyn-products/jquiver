@@ -22,7 +22,14 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 
 	@Query(" SELECT new com.trigyn.jws.usermanagement.vo.JwsRoleVO( r.roleId,r.roleName) FROM JwsEntityRoleAssociation AS jera INNER JOIN jera.role  AS r WHERE jera.entityId=:entityId AND jera.moduleId=:moduleId  AND jera.isActive=:isActive")
 	List<JwsRoleVO> getRoles(String entityId, String moduleId, Integer isActive);
-
+	
+	@Modifying
+	@Query("UPDATE JwsEntityRoleAssociation" + 
+			" SET isActive = :isActive, isCustomUpdated = 1" + 
+			" WHERE roleId = 'b4a0dda1-097f-11eb-9a16-f48e38ab9348'" + 
+			" AND entityId IN :entityIds")
+	void toggleAnonymousUserAccess(Integer isActive, List<String> entityIds);
+	
 	@Modifying
 	@Query(" UPDATE JwsEntityRoleAssociation SET isActive=:isActive WHERE moduleTypeId =:moduleTypeId  AND roleId=:roleId")
 	void updateEntityRelatedToModule(Integer moduleTypeId, String roleId, Integer isActive);

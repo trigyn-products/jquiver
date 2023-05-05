@@ -28,7 +28,7 @@
 </head>
         <div class="favrightblock"> 
             <div class="favblock">
-                <div class="fav-image" data-hover="&#9733" onclick="addRemoveFav()">&#9734;</div>         
+                <div class="fav-image" data-hover="&#9733" title="Add/Remove Favourite" onclick="addRemoveFav()">&#9734;</div>         
             </div>
 
             <div class="selectblock"> 

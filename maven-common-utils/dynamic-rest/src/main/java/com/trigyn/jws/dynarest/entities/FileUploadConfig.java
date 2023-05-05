@@ -137,9 +137,9 @@ public class FileUploadConfig {
 		file.setLastUpdatedTs(lastUpdatedTs);
 		file.setMaxFileSize(maxFileSize);
 		file.setNoOfFiles(noOfFiles);
-		file.setUploadQueryContent(uploadQueryContent);
-		file.setViewQueryContent(viewQueryContent);
-		file.setDeleteQueryContent(deleteQueryContent);
+		file.setUploadQueryContent(uploadQueryContent != null ? uploadQueryContent.trim() : "");
+		file.setViewQueryContent(viewQueryContent != null ? viewQueryContent.trim() : "");
+		file.setDeleteQueryContent(deleteQueryContent != null ? deleteQueryContent.trim() : "");
 		file.setDatasourceId(datasourceId);
 		file.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
 		file.setCreatedDate(createdDate);
@@ -179,7 +179,7 @@ public class FileUploadConfig {
 	}
 
 	public String getUploadQueryContent() {
-		return uploadQueryContent;
+		return uploadQueryContent != null ? uploadQueryContent.trim() : "";
 	}
 
 	public void setUploadQueryContent(String uploadQueryContent) {
@@ -187,7 +187,7 @@ public class FileUploadConfig {
 	}
 
 	public String getViewQueryContent() {
-		return viewQueryContent;
+		return viewQueryContent != null ? viewQueryContent.trim() : "";
 	}
 
 	public void setViewQueryContent(String viewQueryContent) {
@@ -195,7 +195,7 @@ public class FileUploadConfig {
 	}
 
 	public String getDeleteQueryContent() {
-		return deleteQueryContent;
+		return deleteQueryContent != null ? deleteQueryContent.trim() : "";
 	}
 
 	public void setDeleteQueryContent(String deleteQueryContent) {
@@ -251,7 +251,7 @@ public class FileUploadConfig {
 	}
 
 	public Integer getUploadQueryType() {
-		return uploadQueryType;
+		return uploadQueryType != null ? uploadQueryType : 1;
 	}
 
 	public void setUploadQueryType(Integer uploadQueryType) {
@@ -259,7 +259,7 @@ public class FileUploadConfig {
 	}
 
 	public Integer getViewQueryType() {
-		return viewQueryType;
+		return viewQueryType != null ? viewQueryType : 1;
 	}
 
 	public void setViewQueryType(Integer viewQueryType) {
@@ -267,7 +267,7 @@ public class FileUploadConfig {
 	}
 
 	public Integer getDeleteQueryType() {
-		return deleteQueryType;
+		return deleteQueryType != null ? deleteQueryType : 1;
 	}
 
 	public void setDeleteQueryType(Integer deleteQueryType) {

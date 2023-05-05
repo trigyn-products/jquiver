@@ -160,11 +160,13 @@ public final class DBExtractor {
 				return "textarea";
 			case Types.INTEGER:
 			case Types.SMALLINT:
+			case Types.TINYINT:
 				return "int";
 			case Types.DECIMAL:
 			case Types.NUMERIC:
 			case Types.DOUBLE:
-			case Types.FLOAT:	
+			case Types.FLOAT:
+			case Types.REAL:	
 				return "decimal";
 			case Types.DATE:
 			case Types.TIMESTAMP:

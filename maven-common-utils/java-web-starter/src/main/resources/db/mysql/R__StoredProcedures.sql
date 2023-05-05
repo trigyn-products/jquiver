@@ -630,7 +630,7 @@ FETCH curP INTO db_format;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_from,''', db_format,''') as validFrom ');
   SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.message_valid_till,''', db_format,''') as validTill ');
-  SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.updated_date,''', db_format,''') as updatedDate ');
+  SET @resultQuery = CONCAT(@resultQuery, ', date_format(gun.updated_date,''', '%d-%b-%Y %H:%M:%S',''') as updatedDate ');
   SET @resultQuery = CONCAT(@resultQuery, ', gun.`display_once` AS displayOnce ');
   SET @fromString  = ' FROM jq_generic_user_notification AS gun';
   SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = gun.notification_id AND jmv.entity_name = 'jq_generic_user_notification' ");

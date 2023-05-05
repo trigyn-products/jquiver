@@ -243,7 +243,7 @@
 
 	<div class="row margin-t-b">
 		<div class="col-12">
-			<h3  class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.sqlscriptjavascript')}</h3>
+			<h3  class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.sqlScript')}</h3>
             
             <div id="sqlContainer" class="html_script">
 				<div class="grp_lblinp">

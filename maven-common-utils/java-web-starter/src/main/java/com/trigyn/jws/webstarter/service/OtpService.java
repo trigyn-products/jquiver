@@ -74,17 +74,17 @@ public class OtpService implements InitializingBean{
 		super();
 	}
     
- 	public JwsUser createOtp(Map<String, Object> mapDetails) {  
+ 	public JwsUser saveOtp(Map<String, Object> mapDetails) {  
 
         // Update OTP and Requested Time to user e-mail into database
     	JwsUser	updatedUserInfo	= null;
         JwsUser	existingUser	= userRepository.findByEmailIgnoreCase((String) mapDetails.get("email"));
         if (existingUser != null) {
-        	existingUser.setOneTimePassword(passwordEncoder.encode((String) mapDetails.get("oneTimePassword")));
+        	existingUser.setOneTimePassword(passwordEncoder.encode(String.valueOf(mapDetails.get("oneTimePassword"))));
 			existingUser.setOtpRequestedTime(new Date());
 			updatedUserInfo	=  userRepository.save(existingUser);
 			if (updatedUserInfo != null) {
-				updateCatche(existingUser.getEmail(), Integer.valueOf((String) mapDetails.get("oneTimePassword")));
+				updateCatche(existingUser.getEmail(), Integer.valueOf(String.valueOf(mapDetails.get("oneTimePassword"))));
 			}
         }
         return updatedUserInfo;
@@ -117,7 +117,6 @@ public class OtpService implements InitializingBean{
 			long 	maxOtpActiveTime 	= Long.valueOf(otpExpiryTime);
 			long 	diffInMinutes 		= TimeUnit.MILLISECONDS.toMinutes(currentTime.getTime() - otpSentTime.getTime());
 			otpNumber = getOPTByKey(email);
-			
 			if (passwordEncoder.matches(String.valueOf(otpNumber), existingUser.getOneTimePassword()) && diffInMinutes < maxOtpActiveTime)
 				return true;
 		
@@ -157,7 +156,7 @@ public class OtpService implements InitializingBean{
     public Integer generateOTP(String key) {
         Random random = new Random();
         int OTP = 100000 + random.nextInt(900000);
-        otpCache.put(key, OTP);
+       // otpCache.put(key, OTP);
         return OTP;
     }
 

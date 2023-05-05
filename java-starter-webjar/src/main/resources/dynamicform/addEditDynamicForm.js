@@ -873,6 +873,7 @@ function validateData() {
 	let serializedForm = $("#" + formName).serializeArray();
 	serializedForm.push({ "name": "isEdit", "value": (isEdit + ""), "valueType": "int" });
 	serializedForm.push({ "name": "formId", "value": formId, "valueType": "varchar" });
+	 let isEditFound = false;
 	for (let iCounter = 0, length = serializedForm.length; iCounter < length; iCounter++) {
 		let fieldValue = $.trim(serializedForm[iCounter].value);
 		let fieldName = $.trim(serializedForm[iCounter].name);
@@ -886,7 +887,16 @@ function validateData() {
 			$("#" + fieldName).closest("div").parent().effect("highlight", {}, 3000);
 			return undefined;
 		}
+	
+		if(fieldName === "isEdit"){
+		        serializedForm[iCounter].value = isEdit;
+		        serializedForm[iCounter].valueType = "int";
+		}
 	}
+    
+    if(isEditFound == false){
+            serializedForm.push({ "name": "isEdit", "value": (isEdit + ""), "valueType": "int" });
+    }
 	serializedForm = serializedForm.formatSerializedArray();
 
 	let files = $("#" + formName).find("input:file:not(.optional)");

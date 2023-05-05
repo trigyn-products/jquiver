@@ -151,7 +151,6 @@ public class MasterCreatorService {
 		Integer				insideMenu				= formData.get("isMenuAddActive") == null ? 0
 				: Integer.parseInt((String) formData.get("isMenuAddActive"));
 		ModuleDetailsVO		menuData				= new ModuleDetailsVO();
-
 		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			menuData = processMenu(inputDetails.getFirst("menuDetails"));
 		}
@@ -159,7 +158,7 @@ public class MasterCreatorService {
 		dynamicFormModuleDetails = processMenu(inputDetails.getFirst("dynamicFormModuleDetails"));
 		dynamicFormModuleDetails.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
 
-		DynamicForm			dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleURL(),
+		DynamicForm			dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleUrl(),
 				inputDetails.get("dbProductName").toString());
 
 		Map<String, String>	requestParams	= logActivity();
@@ -172,7 +171,7 @@ public class MasterCreatorService {
 
 		activitylog.activitylog(requestParams);
 		TemplateMaster templateMaster = saveTemplateMasterDetails(inputDetails, gridDetails.getGridId(),
-				dynamicForm.getFormId(), formData, dynamicFormModuleDetails.getModuleURL());
+				dynamicForm.getFormId(), formData, dynamicFormModuleDetails.getModuleUrl());
 		requestParams.put("entityName", templateMaster.getTemplateName());
 		requestParams.put("masterModuleType", Constants.Modules.TEMPLATING.getModuleName());
 		activitylog.activitylog(requestParams);
@@ -335,7 +334,10 @@ public class MasterCreatorService {
 		if (formData.get("dataSourceId") != null) {
 			dataSourceId = formData.get("dataSourceId").toString();
 		}
-		String						primaryKey			= formData.get("primaryKey").toString();
+		String primaryKey = null;
+		if(formData.get("primaryKey").toString() != null) {
+			primaryKey			= formData.get("primaryKey").toString();
+		}
 		String						moduleName			= formData.get("moduleName") + "-form";
 		String						description			= formData.get("moduleName") + " Form";
 		List<String>				formDetailsString	= new ObjectMapper()
@@ -435,8 +437,11 @@ public class MasterCreatorService {
 		selectQuery.append(columns.toString()).append(" FROM ").append(tableName).append(" WHERE ");
 		StringJoiner	whereClause	= new StringJoiner(" AND ");
 		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
+		String value = null;
 		for (String key : primaryKeys) {
-			String value = key + " = " + "'${" + key.replaceAll("_", "") + "!\"\"}'";
+			
+			 value = key + " = " + "${" + key.replaceAll("_", "") + "! 'null' }";
+			
 			whereClause.add(value.replace("\\", ""));
 		}
 		selectQuery.append(whereClause.toString());

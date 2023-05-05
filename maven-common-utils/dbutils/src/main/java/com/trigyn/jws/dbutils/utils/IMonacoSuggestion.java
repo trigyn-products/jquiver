@@ -2,7 +2,6 @@ package com.trigyn.jws.dbutils.utils;
 
 import java.util.List;
 
-import org.apache.logging.log4j.core.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
@@ -32,15 +31,31 @@ public interface IMonacoSuggestion {
 			{ "loggedInUserRoleList", "requestDetails[\\\\\"loggedInUserRoleList\\\\\"]" },
 			{ "loggedInUserId  ", "requestDetails[\\\\\"loggedInUserId\\\\\"]" },
 			{ "loggedInUserFullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
-			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"]" },
+			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"][\\\\\"<Key Name>\\\\\"]" },
 			{ "contextPath  ", "requestDetails[\\\\\"contextPath\\\\\"]" },
 			{ "requestDetails  ", "requestDetails[\\\\\"\\\\\"]" },
 			{ "daoResults  ", "daoResults[\\\\\"Query Variable Name\\\\\"]" },
 			{ "files", "files[\\\\\"<File Input Name>\\\\\"]"  },
 			{ "requestBody", "requestBody" },
 			{ "header", "requestHeaders[\\\\\"<Key Name>\\\\\"]"},
-			{ "session", "session[\\\\\"<Key Name>\\\\\"]" },
+			{ "session", "httpRequestObject[\\\\\"session\\\\\"]" },
 			{ "httpRequestObject", "httpRequestObject" }
+			};
+	
+	public static final String JSfileSuggestions[][] = {
+			{ "loggedInUserEmail","requestDetails[\\\\\"loggedInUserName\\\\\"]" },
+			{ "loggedInUserRoleList", "requestDetails[\\\\\"loggedInUserRoleList\\\\\"]" },
+			{ "loggedInUserId  ", "requestDetails[\\\\\"loggedInUserId\\\\\"]" },
+			{ "loggedInUserFullName  ", "requestDetails[\\\\\"fullName\\\\\"]" },
+			{ "userObject  ", "requestDetails[\\\\\"userObject\\\\\"][\\\\\"<Key Name>\\\\\"]" },
+			{ "contextPath  ", "requestDetails[\\\\\"contextPath\\\\\"]" },
+			{ "requestDetails  ", "requestDetails[\\\\\"\\\\\"]" },
+			{ "header", "requestHeaders[\\\\\"<Key Name>\\\\\"]"},
+			{ "session", "httpRequestObject[\\\\\"session\\\\\"]" },
+			{ "httpRequestObject", "httpRequestObject" },
+			{ "fileBinId", "requestDetails[\\\\\"fileBinId\\\\\"]" },
+			{ "fileUploadId", "requestDetails[\\\\\"fileUploadId\\\\\"]" },
+			{ "fileAssociationId", "requestDetails[\\\\\"fileAssociationId\\\\\"]" }
 			};
 
 	public static final String JSSuggestions[][] = { 
@@ -103,6 +118,29 @@ public interface IMonacoSuggestion {
 		System.arraycopy(JStemplateSuggestions, 0, finalSuggestionList, 0, JStemplateSuggestions.length);
 		System.arraycopy(DSSuggestions, 0, finalSuggestionList, JStemplateSuggestions.length, DSSuggestions.length);
 		System.arraycopy(JSSuggestions, 0, finalSuggestionList, JStemplateSuggestions.length + DSSuggestions.length,
+				JSSuggestions.length);
+
+		return getSuggestion(finalSuggestionList);
+
+	}
+	
+	public static String getfileJSSuggestion(AdditionalDatasourceRepository dataSourceObject) {
+		String dataSourceId = "";
+		String datasourceName = "";
+		List<AdditionalDatasource> list = dataSourceObject.findAll(); 
+		String[][] DSSuggestions = new String[list.size()][list.size()];
+		for (int iCounter = 0; iCounter < list.size(); iCounter++) {
+			dataSourceId = list.get(iCounter).getAdditionalDatasourceId();
+			datasourceName = list.get(iCounter).getDatasourceName();
+			String[] DSSuggestionsnew = { datasourceName + "-DS", dataSourceId };
+			DSSuggestions[iCounter] = DSSuggestionsnew;
+		}
+
+		String finalSuggestionList[][] = new String[JSfileSuggestions.length + JSSuggestions.length
+				+ DSSuggestions.length][];
+		System.arraycopy(JSfileSuggestions, 0, finalSuggestionList, 0, JSfileSuggestions.length);
+		System.arraycopy(DSSuggestions, 0, finalSuggestionList, JSfileSuggestions.length, DSSuggestions.length);
+		System.arraycopy(JSSuggestions, 0, finalSuggestionList, JSfileSuggestions.length + DSSuggestions.length,
 				JSSuggestions.length);
 
 		return getSuggestion(finalSuggestionList);
