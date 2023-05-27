@@ -3,6 +3,7 @@ package com.trigyn.jws.templating.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,7 +81,7 @@ public class MenuService {
 			} else {
 				templateDetails.put("statusCode", statusCode);
 				if(statusCode == 403) {
-					templateDetails.put("errorMessage", "<#noparse>You do not have enough privilege to access this module </#noparse>");
+					templateDetails.put("errorMessage", "You do not have enough privilege to access this module");
 				} 
 			}
 			if(templatingService.getTemplateByNameWithoutAuthorization("error-page") != null) {
@@ -99,9 +100,13 @@ public class MenuService {
 
 		// https://stackoverflow.com/questions/17022363/track-url-change-with-google-analytics-without-reloading-the-page
 		Map<String, String>	childTemplateDetails	= new HashMap<>();
-		String				innerTemplate			= templateEngine.processTemplateContents(templateInnerVO.getTemplate(),
-				templateInnerVO.getTemplateName(), templateDetails);
-		childTemplateDetails.put("template-body", innerTemplate);
+//		String				innerTemplate			= templateEngine.processTemplateContents(templateInnerVO.getTemplate(),
+//				templateInnerVO.getTemplateName(), templateDetails);
+//		childTemplateDetails.put("template-body", innerTemplate);
+		childTemplateDetails = templateDetails.entrySet()
+		        .stream().collect(Collectors.toMap(Map.Entry::getKey,
+                  e -> String.valueOf(e.getValue())));
+		childTemplateDetails.put("template-body", templateInnerVO.getTemplate());
 		if (templateDetails.get("entityType") == null) {
 			Map<String, Object> entityDetails = new HashMap<String, Object>();
 			entityDetails.put("entityType", "template");
@@ -174,7 +179,7 @@ public class MenuService {
 			} else {
 				templateMap.put("statusCode", statusCode);
 				if(statusCode == 403) {
-					templateMap.put("errorMessage", "<#noparse>You do not have enough privilege to access this module </#noparse>");
+					templateMap.put("errorMessage", "You do not have enough privilege to access this module ");
 				} 
 			}
 			templateVO = templatingService.getTemplateByName("error-page");

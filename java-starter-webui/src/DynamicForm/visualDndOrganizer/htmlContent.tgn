@@ -1,0 +1,387 @@
+<style>
+    .dragdropmainblock {
+        display: flex;
+        margin-bottom: 30px;
+    }
+
+    .navdragdropblock{
+        min-height: 450px;
+    }
+    
+    .imgblock {
+    position: fixed;
+    width: 18%;
+    }
+ 
+
+    .dragdroplist {
+        padding: 0px;
+        margin: 0px;
+        width: 75%;
+        border-left: 1px dashed #ccc;
+        padding-left: 25px;
+    }
+
+    .dropcontaint {
+        width: 25%;
+        margin-right: 30px;
+    }
+
+    .dropcontaint h3 {
+        font-size: 18px;
+        margin: 0 0 10px;
+        text-align: center;
+        color: #666;
+        padding: 20px;
+    }
+
+    ol{
+    padding: 0px;
+    list-style: none;
+    }
+
+    .mainliblock{
+        display: flex;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        width: 100%;
+        font-size: 13px;
+        margin-bottom:2px;
+    }
+
+    .mainliblock:hover {
+        background: #f6f6f6;
+        border: 1px dashed #005da3;
+    }
+
+    .firstrowcls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .firstrowcls h3 {
+        font-size: 16px;
+        margin: 0px 0 5px;
+    }
+
+    .rightsection a {
+        font-style: italic;
+        text-decoration: underline;
+    }
+
+    .leftsection a {
+        text-decoration: underline;
+    }
+
+    .leftsection a:hover,
+    .rightsection a:hover {
+        text-decoration: none;
+    }
+
+    .secondrow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .dragaction .fa {
+        padding: 5px;
+        color: var(--bluebgcolor);
+    }
+
+    .moveicon {
+        background: #e9e9e9;
+        padding: 10px 20px;
+        display: flex;
+        cursor: move;
+        
+    }
+
+    .moveicon:hover {
+        background: #f5f2f2;
+    }
+
+    .maincontent {
+        display: flex;
+        width: 88%;
+        flex-direction: column;
+        margin: 10px 0 10px 15px;
+    }
+ 
+     .dragdroplist li ol {
+        margin-left: 39px;
+        width: 95% !important;
+    }
+
+	.dragaction .fa{
+		cursor: pointer !important;
+	}
+
+      li{
+          position:relative;
+      }
+
+   </style>
+
+<head>
+    <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/nestedsortable/nestedSortable.js"></script>
+</head>
+<form method="post"   name="addEditForm" id="addEditForm" ></form>
+<input type="hidden" data-type="text" id="isEdit" name="isEdit" data-type="int" value="0">
+<div class="container navdragdropblock">
+    <div class="dragdropmainblock">
+        <div class="dropcontaint">
+            <div class="imgblock">
+                <h3>Drag and drop and place in sequence your links</h3>
+                <img src="${(contextPath)!''}/webjars/1.0/images/dragdropimg.svg">
+            </div>          
+        </div>          
+        <ol class="sortable dragdroplist">
+            <#assign visualDataList=resultSetObject.visualDndData>
+            <#if visualDataList?? && visualDataList?has_content>
+                <#list visualDataList as key, value>
+                    <#assign parentData=value>
+                    <#if parentData?? && parentData?has_content>
+                        <li class="" id="${parentData.moduleId}">
+                            <div class="mainliblock">
+                            <span class="moveicon"><img src="${(contextPath)!''}/webjars/1.0/images/dragdripicon.svg"></span>
+                            <div class="maincontent">
+                                <div class="firstrowcls">
+                                    <h3>${parentData.moduleName}</h3>
+                                    <div class="dragaction">
+                                        <#if "true"==parentData.openInNewTab>
+                                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                                        </#if>
+                                        <i class="fa fa-pencil-square-o" onclick ="submitFormData('Site Layout','${parentData.moduleURL}')" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <#if "null" !=parentData.targetTypeId>
+                                    <div class="secondrow">
+                                        <div class="leftsection">
+                                            <strong>${parentData.targetLookupId}:</strong>
+                                            <span onclick ="submitFormData('${parentData.targetLookupId}','${parentData.targetTypeId}')"><a href="#">${parentData.targetTypeId}</a></span>
+                                        </div>
+                                        <div class="rightsection">
+                                            <a href="${(contextPath)!''}/view/${parentData.moduleURL}"
+                                                target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}/view/${parentData.moduleURL}</a>
+                                        </div>
+                                    </div>
+                                <#else>
+                                    <div class="secondrow">
+                                        <div class="leftsection">
+                                            <strong>${parentData.targetLookupId}:</strong>
+                                            <span >N.A.</span>
+                                        </div>
+                                        <div class="rightsection">           
+                                        </div>
+                                    </div>
+                                </#if>
+                            </div>
+                            </div>
+                            <#list parentData.children as key1, value1>
+                            <#assign childData=value1>
+                            <#if childData?? && childData?has_content>
+                                <ol data-parent="${parentData.moduleId}">
+                                <li class="" id="${childData.moduleId}">
+                                    <div class="mainliblock">
+                                        <span class="moveicon"><img src="${(contextPath)!''}/webjars/1.0/images/dragdripicon.svg"></span>
+                                            <div class="maincontent">
+                                                <div class="firstrowcls">
+                                                    <h3>${childData.moduleName}</h3>
+                                                        <div class="dragaction">
+                                                            <#if "true"==childData.openInNewTab>
+                                                                <i class="fa fa-external-link" aria-hidden="true"></i>
+                                                            </#if>
+                                                            <i class="fa fa-pencil-square-o" onclick ="submitFormData('Site Layout','${childData.moduleURL}')" aria-hidden="true"></i>
+                                                        </div>
+                                                </div>
+                                                <#if "null" !=childData.targetTypeId>
+                                                    <div class="secondrow">
+                                                        <div class="leftsection">
+                                                            <strong>${childData.targetLookupId}:</strong>
+                                                            <span onclick ="submitFormData('${childData.targetLookupId}','${childData.targetTypeId}')"><a href="#">${childData.targetTypeId}</a></span>
+                                                        </div>
+                                                        <div class="rightsection">
+                                                            <a href="${(contextPath)!''}/view/${childData.moduleURL}"
+                                                                target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}/view/${childData.moduleURL}</a>
+                                                        </div>
+                                                    </div>
+                                                <#else>
+                                                    <div class="secondrow">
+                                                        <div class="leftsection">
+                                                            <strong>${childData.targetLookupId}:</strong>
+                                                            <span >N.A.</span>
+                                                        </div>
+                                                        <div class="rightsection">
+                                                        </div>
+                                                    </div>
+                                                </#if>
+                                            </div>
+                                    </div>
+                                </li>
+                                </ol>
+                            </#if>
+                            </#list>
+                            </li>
+                        </#if>
+                </#list>
+            </#if>
+        </ol>
+            
+        </div>
+        
+            <div class="row">
+                <div class="col-12">
+                    <div class="float-right">
+                        <div class="btn-group dropup custom-grp-btn">
+                            <div id="savedAction">
+                                <button type="button" id="saveAndEdit" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Edit);">${messageSource.getMessage("jws.save")}</button>
+                            </div>                       
+                        </div>
+                        <span onclick="backToMenuListingPage();">
+                    <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                </span>
+                    </div>
+                </div>
+    </div>
+</div>
+  
+    <script>
+        document.title = "Organize Menu(s)";
+        contextPath = "${contextPath}";  
+        formId = "${formId}";
+        let isEdit = 0;
+        $().ready(function(){
+        var menuArray;
+        var ns = $('ol.sortable').nestedSortable({
+            forcePlaceholderSize: true,
+            handle: 'div',
+            helper: 'clone',
+            items: 'li',
+            opacity: .6,
+            placeholder: 'placeholder',
+            revert: 250,
+            tabSize: 25,
+            tolerance: 'pointer',
+            toleranceElement: '> div',
+            maxLevels: 2,
+            isTree: true,
+            expandOnHover: 700,
+            startCollapsed: false,
+            change: function(){
+                      
+            } 
+        });
+        
+    });
+          
+function submitFormData(targetLookupId,targetTypeId) {
+    if( targetLookupId == "Template"){
+        targetLookupId = "Templating"
+    }
+    $.ajax({
+    type : "GET",
+    async: false,
+    url : contextPath+"/api/getFormData",
+    data : {
+    targetLookupId: targetLookupId,
+    targetTypeId: targetTypeId
+    },
+    success : function(data) {
+        let form = $(JSON.parse(data[0].formData));
+        $("body").append(form);
+        $(form).attr("action", contextPath + $(form).attr("action"));
+        $(form).find("input").each(function(index, inputElem) {
+            if ($(inputElem).attr("name") !== "formId") {
+                $(inputElem).val(data[0].entityId);
+            }
+            })
+            $(form).attr('target', '_blank');
+            $("body").append(form);
+            $(form).submit();
+    }
+    });
+}/**
+* This method should return non null or defined object in order to
+* submit the form. return null or undefined in case your custom / additional
+* validation fails. If you don't want to perform any validation then either
+* delete the method or return the same object.
+*
+* If you want to change the name of the form, then implement below method and return
+* the form name in String
+*
+* getFormName();
+*
+* you also want to call below lines to focus and highlight erroneous field
+* $("#"+fieldName).focus();
+* $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
+* showMessage("Issue in input", "warn");
+*/
+function onValidation(a_serializedFormData){
+    var objects = $("ol li");
+    var prevID = "", prevIndex = -1;
+    var visualDataArr=[];
+    objects.each(function(index, element){
+        let currentIndex = $(element).parent().find("li").index($(element));
+        var visualdataObj={
+            "moduleId":$(element).prop("id"),
+            "sequence":currentIndex+1,
+            "parentId":null
+        };
+        var p = $(element).parent();
+        var isChild = false;
+        while($(p).prop("tagName") !== undefined){
+            if($(p).prop("tagName") === "LI"){
+                isChild = true;
+                break;
+             }
+             p = $(p).parent();
+            if($(p).prop("tagName") === undefined){
+                break;
+             }
+         }
+        if(isChild){
+    		visualdataObj["sequence"]=$(element).parent().parent().find("li").index($(element));
+            visualdataObj["parentId"]=prevID;
+         }else{
+            prevIndex = currentIndex;
+            prevID = $(element).prop("id");            
+         }        
+            visualDataArr.push(visualdataObj);
+    });
+	
+    var  formDataJsonString =a_serializedFormData.get("formData");
+    var formDataJson = JSON.parse(formDataJsonString);
+    formDataJson.push({"name": "visualData", "value":visualDataArr, "valueType": "varchar"});
+    a_serializedFormData.set('formData', JSON.stringify(formDataJson));
+    return     a_serializedFormData;
+}
+
+/**
+* this method is called when there is a successful response from server.
+* you can use this to take other actions in case you need to. Success
+* message will be shown before calling this method.
+* you can define getSuccessMessage() function and return string for custom success message
+*/
+function onSuccess(a_serverResponse){
+
+}
+
+/**
+* this method is called when there is any error at server while executing server side
+* code.
+* you can use this to take other actions in case you need to.
+* error message will be shown before calling this method
+* you can define getErrorMessage() function and return string for custom error message
+*/
+function onError(jqXHR, exception){
+
+}
+
+function backToMenuListingPage() {
+    location.href = contextPath+"/cf/mul";
+}
+    </script>

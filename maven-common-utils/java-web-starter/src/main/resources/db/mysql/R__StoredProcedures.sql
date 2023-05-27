@@ -1560,3 +1560,15 @@ BEGIN
  
 END;
 
+
+CREATE  OR REPLACE VIEW `jq_manage_entity_role_listing` AS
+SELECT `a`.`entityRoleId` AS `entityRoleId`,`a`.`entityId` AS `entityId`,`a`.`entityName` AS `entityName`,`a`.`moduleId` AS `moduleId`,
+	`a`.`moduleName` AS `moduleName`,`a`.`role_name` AS `role_name`,`a`.`role_id` AS `role_id`,`a`.`is_active` AS `is_active` 
+	FROM ((SELECT `jera`.`entity_role_id` AS `entityRoleId`,`jera`.`entity_id` AS `entityId`,`jera`.`entity_name` AS `entityName`,
+	`jera`.`module_id` AS `moduleId`,`jmm`.`module_name` AS `moduleName`,`jr`.`role_name` AS `role_name`,`jera`.`role_id` AS `role_id`,
+	`jera`.`is_active` AS `is_active` FROM ((`jq_entity_role_association` `jera` LEFT JOIN `jq_role` `jr` ON(`jera`.`role_id` = `jr`.`role_id`)) 
+	JOIN `jq_master_modules` `jmm` ON(`jmm`.`module_id` = `jera`.`module_id`)) WHERE `jr`.`is_active` = 1 AND `jera`.`module_type_id` = 0)
+	 UNION (SELECT `jrma`.`role_module_id` AS `entityRoleId`,`jrma`.`module_id` AS `entityId`,`jmm`.`module_name` AS `entityName`,
+	 '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS `moduleId`,'Master module' AS `moduleName`,`jr`.`role_name` AS `role_name`,`jrma`.`role_id` AS `role_id`,
+	 `jrma`.`is_active` AS `is_active` FROM ((`jq_role` `jr` LEFT JOIN `jq_role_master_modules_association` `jrma` ON(`jrma`.`role_id` = `jr`.`role_id`)) 
+	 LEFT JOIN `jq_master_modules` `jmm` ON(`jrma`.`module_id` = `jmm`.`module_id`)) WHERE `jmm`.`is_perm_supported` = 1)) `a`;

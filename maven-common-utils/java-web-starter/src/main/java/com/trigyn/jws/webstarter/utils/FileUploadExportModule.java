@@ -69,10 +69,10 @@ public class FileUploadExportModule {
 				File newFile = resource.getFile();
 				in = new FileInputStream(newFile);
 			} else {
-				String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
+				String filePathStr = fu.getFilePath() + File.separator + fu.getPhysicalFileName();
 				in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
 				if (in == null) {
-					throw new RuntimeException("Could not read the file!");
+					throw new RuntimeException("Could not read the file! Location: " + filePathStr);
 				}
 			}
 			Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));

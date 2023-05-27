@@ -358,7 +358,7 @@ public class DynamicFormModule implements DownloadUploadModule<DynamicForm> {
 		for (DynamicForm dynamicForm : formList) {
 			boolean	isCheckSumChanged	= false;
 			String	formName			= dynamicForm.getFormName();
-			String	formFolder			= folderLocation + File.separator + formName;
+			String	formFolder			= folderLocation + File.separator + formName.trim();
 			if (!new File(formFolder).exists()) {
 				File fileDirectory = new File(formFolder);
 				fileDirectory.mkdirs();

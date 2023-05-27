@@ -5,8 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,8 +20,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JwtUtil {
+	
+	private final Log								logger						= LogFactory.getLog(getClass());
 
-	private final String SECRET_KEY = "6c88085e-43a7-11eb-933e-f48e38ab9348";
+	@Autowired
+	@Lazy
+	private PropertyMasterService	propertyMasterService	= null;
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -31,7 +41,17 @@ public class JwtUtil {
 	}
 
 	private Claims extractAllClaims(String token) {
-		return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+		String secretKey;
+		try {
+			secretKey = propertyMasterService.findPropertyMasterValue("system", "system",
+					"jwsSecretKey");
+			if(secretKey !=null)
+				return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+		} catch (Exception exec) {
+			logger.error("Failed : Error while extract " + exec.getMessage());
+		}
+		return null;
+		
 	}
 
 	private Boolean isTokenExpired(String token) {
@@ -44,10 +64,19 @@ public class JwtUtil {
 	}
 
 	private String createToken(Map<String, Object> claims, String subject) {
-
-		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 90 * 60)) // 150 mins
-				.signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+		String secretKey = null;
+		try {
+			secretKey = propertyMasterService.findPropertyMasterValue("system", "system",
+					"jwsSecretKey");
+			if(secretKey !=null)
+				return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+						.setExpiration(new Date(System.currentTimeMillis() + 1000 * 90 * 60)) // 150 mins
+						.signWith(SignatureAlgorithm.HS256, secretKey).compact();
+		} catch (Exception exec) {
+			logger.error("Failed : Error while creating token " + exec.getMessage());
+		}
+		return secretKey;
+		
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {

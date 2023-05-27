@@ -22,20 +22,26 @@
   
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.templating')}</h2> 
-        <div class="float-right"> 
-        	${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+         <div class="float-right"> 
+            <div class="addonbtnblock">
+        	${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
             <#if environment == "dev">
-                <input id="downloadTemplate" class="btn btn-primary" onclick= "downloadTemplate();" name="downloadTemplate" value="${messageSource.getMessage('jws.downloadtemplate')}" type="button">
-                <input id="uploadTemplate" class="btn btn-primary" onclick= "uploadTemplate();" name="uploadTemplate" value="${messageSource.getMessage('jws.uploadTemplate')}" type="button">
+
+             <button id="downloadTemplate" onclick= "downloadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.downloadtemplate')}</button>
+
+             <button id="uploadTemplate" onclick= "uploadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.uploadTemplate')}</button>               
+               
             </#if>
-            <input id="addFreemarkerTemplate" onclick="submitForm()" class="btn btn-primary" name="addFreemarkerTemplate" value="${messageSource.getMessage('jws.addtemp')}" type="button">
-            <span onclick="backToWelcomePage();">
-            <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-           </span>    
+            
+             <button id="addFreemarkerTemplate" onclick="submitForm()" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addtemp')}</button> 
+
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+            </div>
         </div>
         
         <div class="clearfix"></div>        

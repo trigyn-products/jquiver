@@ -1,0 +1,5 @@
+function getFormData(requestDetails, daoResults) {
+    return daoResults["formData"];
+}
+
+getFormData(requestDetails, daoResults);

@@ -1,12 +1,6 @@
 
-  <#noparse>
    <#if isEdit == 1>
-  </#noparse>
     ${updateQuery}
-  <#noparse>
     <#else>
-  </#noparse>
     ${insertQuery}
-  <#noparse>
     </#if>
-  </#noparse>

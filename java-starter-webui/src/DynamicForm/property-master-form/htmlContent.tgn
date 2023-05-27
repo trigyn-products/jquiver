@@ -58,7 +58,7 @@
 				<div class="col-inner-form full-form-fields">
 					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyvalue')}</label>
 					<div class="txtWrapper">
-					<textarea placeholder="Proper value" id="propertyValue" name="propertyValue" rows="4" required class="form-control"><#noparse>${(resultSetObject?api.get("property_value"))!""}</#noparse></textarea>
+					<textarea placeholder="Proper value" id="propertyValue" name="propertyValue" rows="4" required class="form-control">${(resultSetObject?api.get("property_value"))!""}</textarea>
 					<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                     </div>
 				</div>

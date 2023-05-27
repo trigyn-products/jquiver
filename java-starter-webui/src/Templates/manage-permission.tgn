@@ -31,16 +31,17 @@ contextPath = "${contextPath}";
 
 $(function () {
    <#outputformat "HTML">
+    let roleName = $("#typeRole option:selected").text();
+	let roleId = $("#typeRole").val();
+		
+    let inputField = "<input type='button' class='cm-select-btn btn btn-primary whitetext' name='"+roleName+"' attr='"+roleId+"'  value='Select All' onclick='checkAllBoxes(this);' > <input type='button' class='cm-select-btn btn btn-secondary whitetext' name='"+roleName+"' attr='"+roleId+"'  value='Deselect All' onclick='checkAllBoxes(this);' >"
 	let colM = [
 		 { title: "${messageSource.getMessage('jws.moduleName')}", align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
         filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.entityname')}", align: "center", dataIndx: "entityName", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        <#list roles as role>
-              { title: "Permission", minwidth: 200, render:addCheckBox, align: "center",  dataIndx: "${role?api.getRoleName()}", halign: "center", attr:"${role?api.getRoleId()}", 
-         filter: {type: "<input type='button' class='cm-select-btn btn btn-primary whitetext' name='${role?api.getRoleName()}' attr='${role?api.getRoleId()}'  value='Select All' onclick='checkAllBoxes(this);' > <input type='button' class='cm-select-btn btn btn-secondary whitetext' name='${role?api.getRoleName()}' attr='${role?api.getRoleId()}'  value='Deselect All' onclick='checkAllBoxes(this);' >"}}
-        	${(role?is_last)?then("", "," )}
-        </#list>
+        { title: "Permission", minwidth: 200, render:addCheckBox, align: "center",  dataIndx: "is_active", halign: "center", attr:"role_id", 
+         filter: {type: inputField}}
  
 	];
     </#outputformat>
@@ -60,6 +61,7 @@ $(function () {
 function backToPreviousPage() {
     location.href = contextPath + "/cf/um";
 }
+
 var grid;
 var contextPath = "${contextPath}";
 var moduleType = [{"": "All"}];
@@ -95,6 +97,7 @@ function checkAllBoxes(uiObject) {
         entityData.entityName = value["entityName"];
         entityData.moduleId = value["moduleId"];
         entityData.entityId = value["entityId"];
+        entityData.entityRoleId = value["entityRoleId"];
         entityData.isActive = attrChecked;
         entityDataList.push(entityData);
     });
@@ -103,22 +106,21 @@ function checkAllBoxes(uiObject) {
 
 function addCheckBox(uiObject) {
     let rowIndxPage = uiObject.rowIndxPage;
-    let columnName = uiObject.dataIndx;
-    let attrChecked = uiObject.rowData[columnName] == null ? false : uiObject.rowData[columnName].split("@::@")[1] == "0" ? false : true;
+    let attrChecked = uiObject.rowData["is_active"] == null ? false : uiObject.rowData["is_active"] == "0" ? false : true;
     let moduleId = uiObject.rowData.moduleId == null ? "" : uiObject.rowData.moduleId;
     var addChkBoxString = '';
     if(attrChecked) {
     	if(moduleId=='7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8'){
-    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' checked onchange='saveModuleData(this);' name='isActiveCheckbox' id='" + uiObject.rowData["entityId"] + "_" + uiObject.column.attr + "' col='" + columnName + "' rowIndxPage='" + rowIndxPage + "' ></center></div>";
+    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' checked onchange='saveModuleData(this);' name='isActiveCheckbox' id='" + uiObject.rowData["entityId"] + "_" + uiObject.rowData["role_id"]  + "' rowIndxPage='" + rowIndxPage + "' ></center></div>";
     	}else{
-    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' id='" + uiObject.rowData["entityRoleId"] + "_" + uiObject.column.attr + "' checked onchange='saveEntityRole(this)' col='" + columnName + "' rowIndxPage='" + rowIndxPage + "' ></center></div>";
+    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' id='" + uiObject.rowData["entityRoleId"] + "_" + uiObject.rowData["role_id"]  + "' checked onchange='saveEntityRole(this)'  rowIndxPage='" + rowIndxPage + "' ></center></div>";
     	}
         
     } else {
     	if(moduleId=='7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8'){
-    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' onchange='saveModuleData(this);' name='isActiveCheckbox' id='" + uiObject.rowData["entityId"] + "_" + uiObject.column.attr + "' col='" + columnName + "' rowIndxPage='" + rowIndxPage + "' ></center></div>";
+    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' onchange='saveModuleData(this);' name='isActiveCheckbox' id='" + uiObject.rowData["entityId"] + "_" + uiObject.rowData["role_id"]  + "'  rowIndxPage='" + rowIndxPage + "' ></center></div>";
     	}else{
-    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' id='" + uiObject.rowData["entityRoleId"] + "_" + uiObject.column.attr + "' onchange='saveEntityRole(this)' col='" + columnName + "' rowIndxPage='" + rowIndxPage + "' ></center></div>";
+    		addChkBoxString = "<div style='width:100%;'><center><input type='checkbox' id='" + uiObject.rowData["entityRoleId"] + "_" + uiObject.rowData["role_id"] + "' onchange='saveEntityRole(this)'  rowIndxPage='" + rowIndxPage + "' ></center></div>";
     	}
         
     }
@@ -128,15 +130,14 @@ function addCheckBox(uiObject) {
 function saveEntityRole(thisObj) {
     let entityDataList = [];
     let attrChecked = thisObj.checked == true ? 1 : 0;
-    let columnName = thisObj.getAttribute("col");
     let rowData = grid.pqGrid("getRowData", { rowIndx: thisObj.getAttribute("rowIndxPage") });
-    let colData = grid.pqGrid("getColumn", { dataIndx: columnName });
-    let entityRoleId = rowData[columnName] == null ? null : rowData["entityRoleId"];
+    let entityRoleId = rowData["role_id"] == null ? null : rowData["entityRoleId"];
     let entityData = new Object();
-    entityData.roleId = colData["attr"];
+    entityData.roleId = $("#typeRole").val();
     entityData.entityName = rowData["entityName"];
     entityData.moduleId = rowData["moduleId"];
     entityData.entityId = rowData["entityId"];
+    entityData.entityRoleId = rowData["entityRoleId"];
     entityData.isActive = attrChecked;
     entityDataList.push(entityData);
     saveEntity(entityDataList);
@@ -163,19 +164,11 @@ function handleEntityRole() {
 		let roleName = $("#typeRole option:selected").text();
 		let gridNew = $("#divManageEntityRoleGrid").pqGrid();
 		if(gridNew != undefined) {
-			let colM = $("#divManageEntityRoleGrid").pqGrid("option", "colModel");
-			if(colM.length != null && colM.length > 0) {
-				for(var i = 2; i < colM.length; i++) {
-					var column = colM[i],
-						dataIndx = column.dataIndx;
-					if(dataIndx == roleName) {
-						column.hidden = false;
-					} else {
-						column.hidden = true;
-					}
-				}
-				gridNew.pqGrid("refreshDataAndView");
-			}
+
+            let postData = {gridId:"manageEntityRoleGrid","cr_role_id":"str_"+$("#typeRole").val()}
+            gridNew.pqGrid( "option", "dataModel.postData", postData);
+			gridNew.pqGrid("refreshDataAndView");
+		
 		}
 	}    
 }
@@ -190,13 +183,13 @@ function saveModuleData (thisObj){
   roleModule.roleId = roleModuleArray[1];
   roleModule.isActive = ($(thisObj).is(":checked") ? 1 : 0);
 	$.ajax({
-	     		type : "POST",
-       			contentType : "application/json",
-	     		url : contextPath+"/cf/srm",
-	     		data : JSON.stringify(roleModule),
-	            success: function(data) {
-	            }
-	     	});
+        type : "POST",
+        contentType : "application/json",
+        url : contextPath+"/cf/srm",
+        data : JSON.stringify(roleModule),
+        success: function(data) {
+        }
+    });
 }
 
 </script>

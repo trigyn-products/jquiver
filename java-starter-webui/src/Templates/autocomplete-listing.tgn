@@ -20,31 +20,31 @@
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.typeAheadAutocomplete')}</h2> 
 		<div class="float-right">
 
-            <div class="addonbtnblock">
-		    ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+           <div class="addonbtnblock">
+		    ${messageSource.getMessage('jws.show')}
+            <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-            </select>
+              </select>
 
-           <a href="${(contextPath)!''}/cf/ad"> 
-                  <span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
+               <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
+                    </button>
+                </span>
 
-                    </span>					 
-				</a>
+                 <button  id="demoAutocomplete" type="button"  onclick="location.href='${(contextPath)!''}/cf/da'" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.demo')}</button>
+
+           
+                <button  id="addAutocompleteDetails" type="button"   onclick="submitForm()" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addautocomplete')}</button>
 
 
-            <a href="${(contextPath)!''}/cf/da" class="noborder"> 
-				<input id="demoAutocomplete" class="btn btn-primary" value="${messageSource.getMessage('jws.demo')}" type="button">
-			</a
 
-			 <a href=""> 
-			<!--	<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button"> -->
-			</a> 
-			<input id="addAutocompleteDetails" onclick="submitForm()" class="extramargin btn btn-primary" value="${messageSource.getMessage('jws.addautocomplete')}" type="button">
-			<span onclick="backToWelcomePage();" class="backbtncls">
-  		  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-  		 	</span>	
+              <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+			 
+ 		
             </div>
 		</div>
 		

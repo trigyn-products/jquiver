@@ -7,7 +7,7 @@
         <div class="blockname">
         <label class="methodtypeblock methodtypeblock-${dynaList.jws_request_type_lower}" >
         <input type="checkbox" onclick="CheckedAll();" class="checkall apiChk" value="${dynaList.dynarestId}">${dynaList.jws_request_type} </label>
-         <div class="methodblocktwo" onclick="bindAccordian(this)">  ${dynaList.rest_api_url}</div>
+         <div class="methodblocktwo" id="methodblocktwo_${counter}" onclick="bindAccordian(this)">${getSystemProperty('base-url')}${(contextPath)!''}/${urlComponent !''}/${dynaList.rest_api_url}</div>
 		     </div>
 		 
 		   <div class="collapse restapiotherblock" id="collapseone_${counter}">

@@ -117,23 +117,36 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	public Authentication authenticate(Authentication authentication) {
 
 		Authentication authResponse = null;
-
 		try {
-
 			String	username	= authentication.getName();
 			JwsUser	userEntity	= userRepository.findByEmailIgnoreCase(username);
 			String	authType	= request.getParameter("enableAuthenticationType");
+			String authTypeHeader = null;
+			if (authType == null || authType.isEmpty()|| authType.isBlank()) {
+				authTypeHeader = request.getHeader("at");
+				if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+					authType = Constants.DAO_ID;
+				} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+					authType = Constants.LDAP_ID;
+				} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+					authType = Constants.OAUTH_ID;
+				}
+			}
+			if(authType == null && authTypeHeader==null) {
+				throw new IllegalArgumentException("Authentication is required.");
+			}
 			if (userEntity == null && authType.equals(Constants.DAO_ID)) {
 				throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 			} else if (authType.equals(Constants.LDAP_ID) && userEntity == null) {
-				String ldapServerDisplayId = request.getParameter("ldapConfig");
-				JwsUserVO  jwsUserVO = ldapUserService.findUserInfoFromLdap(ldapServerDisplayId, username);
+				String		ldapServerDisplayId	= request.getParameter("ldapConfig");
+				JwsUserVO	jwsUserVO			= ldapUserService.findUserInfoFromLdap(ldapServerDisplayId, username);
 				if (jwsUserVO == null) {
 					throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 				}
-				JwsUser jwsUser =ldapUserService.createUserFromLdap(jwsUserVO);
+				JwsUser jwsUser = ldapUserService.createUserFromLdap(jwsUserVO);
 				if (jwsUser == null) {
-					throw new UsernameNotFoundException(String.format("Failed : Error while creating the user '%s'.", username));
+					throw new UsernameNotFoundException(
+							String.format("Failed : Error while creating the user '%s'.", username));
 				}
 			}
 			switch (authType) {

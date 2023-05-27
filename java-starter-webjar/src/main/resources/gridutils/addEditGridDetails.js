@@ -7,7 +7,7 @@ function saveData (){
 	}
 	let isDataSaved = false;
 	if($("#customFilterCriteria").val().trim() !== ''){
-		$("#customFilterCriteriaHidden").val("<#noparse>" + $("#customFilterCriteria").val().replace(/'/g, "''") + "</#noparse>" );
+		$("#customFilterCriteriaHidden").val($("#customFilterCriteria").val().replace(/'/g, "''") );
 	}else{
 		$("#customFilterCriteriaHidden").val("");
 	}

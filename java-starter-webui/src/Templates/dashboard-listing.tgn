@@ -17,16 +17,24 @@
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.dashboard')}</h2> 
 		<div class="float-right">
-		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+             <div class="addonbtnblock">
+		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
-			<input class="btn btn-primary" name="createDashboard" value="${messageSource.getMessage('jws.createNewDashboard')}" type="button" onclick="submitForm(this)">
-			<input class="btn btn-primary" name="manageDashlets" value="${messageSource.getMessage('jws.manageDashblet')}" type="button" onclick="openDashlets(this)">
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-			</span>	
+		
+
+             <button type="button"  onclick="submitForm(this)" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.createNewDashboard')}</button>
+
+		 
+            <button type="button"  onclick="openDashlets(this)" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.manageDashblet')}</button>
+            
+
+			 <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+             </div>
 		</div>
 		
 		<div class="clearfix"></div>		

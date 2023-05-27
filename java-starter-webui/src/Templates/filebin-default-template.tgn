@@ -1,6 +1,5 @@
 <#if selectedTab == "htmlContent">
 ```HTML
-<#noparse>
 <!-- HTML Header -->
 <head>
     <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
@@ -22,12 +21,10 @@
 	<div class="col-12">
         <div id="fileUploadMaster" class="col-8 fileupload dropzone"></div>
     </div>
-</#noparse>
 ```
 
 <#elseif selectedTab == "jsContent">
 ```JavaScript
-<#noparse>
 	document.title = "Manage File Bin Configuration";
 	let contextPath = "${(contextPath)!''}";
 
@@ -98,6 +95,5 @@
         input.remove();
         showMessage("File path copied successfully", "success");
     }
-</#noparse>
 ```
 </#if>

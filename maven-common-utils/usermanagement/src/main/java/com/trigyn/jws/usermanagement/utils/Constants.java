@@ -1,5 +1,8 @@
 package com.trigyn.jws.usermanagement.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Constants {
 
 	private Constants() {
@@ -43,21 +46,43 @@ public final class Constants {
 	public static final String	OTP_VERFICATION			= "0";
 	
 	public static final String	TOTP_VERFICATION		= "2";
+	
+	public final static String	ANONYMOUS_USER_NAME		= "ANONYMOUS";
 
 	public enum AuthType {
 		@Deprecated
-		INMEMORY(1), DAO(2), LDAP(3), OAUTH(4), SAML(5);
+		INMEMORY("inmemore", 1), 
+		DAO("7d1dba821", 2), 
+		LDAP("7d1ldap821", 3), 
+		OAUTH("7d1oa821", 4);
+		//TODO : SAML will be uncommented once its implemented.
+		//,SAML("", 5);
 
-		final Integer authType;
+		private final Integer authType;
+		private final String authAtID;
+		private static Map<String, AuthType> authTypeMap = new HashMap<>();
+		
+		static {
+	        for (AuthType value : values()) {
+	            authTypeMap.put(value.authAtID, value);
+	        }
+	    }
 
-		AuthType(Integer authType) {
-			this.authType = authType;
+		AuthType(String a_strAuthID, Integer a_authType) {
+			authAtID = a_strAuthID;
+			authType = a_authType;
 		}
 
 		public Integer getAuthType() {
 			return authType;
 		}
+		
+		public static AuthType valueOfAt(String at) {
+	        return authTypeMap.get(at);
+	    }
 	}
+	
+	
 
 	public enum VerificationType {
 		OTP("0"), PASSWORD("1"), TOTP("2");

@@ -19,22 +19,25 @@
     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.notificationlisting')}</h2> 
         <div class="float-right">
-            <div class="addonbtnblock">
-         <!-- <a href="${(contextPath)!''}/cf/ad"> 
+           <div class="addonbtnblock">
+              <!-- <a href="${(contextPath)!''}/cf/ad"> 
 					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
 				</a> -->
 
 
-                <a href="${(contextPath)!''}/cf/ad"> 
-                	<span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
-                    </span>					 
-				</a>
+               <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
+                    </button>
+                </span>
 
 
-             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.createnew')} </button>
-            <span onclick="backToWelcomePage();" class="backbtncls">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-            </span> 
+             <button type="submit" class="spacingclss btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.createnew')} </button>
+
+
+                 <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+
             </div>
         </div>
         

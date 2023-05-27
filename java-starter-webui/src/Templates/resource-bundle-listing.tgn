@@ -59,7 +59,7 @@
 </form>
 
 <script>
-	document.title = "Multilingual Module List";
+	document.title = "Internationalization Module List";
 	contextPath = "${(contextPath)!''}";
 	
 	$(function () {

@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -709,10 +710,15 @@ public class UserManagementService {
 	public void saveUpdateEntityRole(List<JwsEntityRoleAssociationVO> entityRoleAssociations) {
 
 		for (JwsEntityRoleAssociationVO jwsEntityRoleAssociationVO : entityRoleAssociations) {
+			JwsEntityRoleAssociation jwsEntityRoleAssociationData = entityRoleAssociationRepository.getJwsEntityRoleAssociation(jwsEntityRoleAssociationVO.getEntityRoleId());
 			JwsEntityRoleAssociation jwsEntityRoleAssociation = jwsEntityRoleAssociationVO
-					.convertVOtoEntity(jwsEntityRoleAssociationVO);
+					.convertVOtoEntity(jwsEntityRoleAssociationData, jwsEntityRoleAssociationVO);
 			// logActivity(jwsEntityRoleAssociation.getJwsRole().getRoleName()+'-'+jwsEntityRoleAssociation.getEntityName(),jwsEntityRoleAssociation.getIsActive(),Constants.MANAGEENTITYROLES);
-			jwsEntityRoleAssociation.setLastUpdatedBy("admin");
+			String updatedBy = "admin@jquiver.io";
+			if(userDetailsService != null && userDetailsService.getUserDetails() != null && userDetailsService.getUserDetails().getUserId() != null) {
+				updatedBy = userDetailsService.getUserDetails().getUserId();
+			}
+			jwsEntityRoleAssociation.setLastUpdatedBy(updatedBy);
 			String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(
 					jwsEntityRoleAssociation.getEntityId(), jwsEntityRoleAssociation.getRoleId());
 			jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
@@ -1081,6 +1087,10 @@ public class UserManagementService {
 			
 			entityRoleAssociationRepository.toggleAnonymousUserAccess(isAuthenticated? 0 : 1, secureEntityIDs);
 			
+			List<String> secureMasterModuleIDs = xmlExtractorForMasterModule();
+			
+			roleModuleRepository.toggleAnonymousUserAccessInMasterModule(isAuthenticated? 0 : 1, secureMasterModuleIDs);
+			
 		} catch (Exception a_exception) {
 			logger.error("Error occured in updateAuthProperties.", a_exception);
 			return false;
@@ -1152,6 +1162,74 @@ public class UserManagementService {
 
 		return l_secureEntityIDs;
 	}
+	
+	/**
+	 * Extracts all the IDs for secure entities taken from XML file into a List of String for 
+	 * Master Module as role association with master module exists in a separate table
+	 * and we need to secure anonymous access for them after extracting the module ids
+	 * @author Anomitro.Mukherjee
+	 * 
+	 * @return
+	 */
+	private List<String> xmlExtractorForMasterModule() {
+		List<String> l_secureEntityIDs = new ArrayList<String>();
+		try {
+			/*
+			 * SAXParserFactory is a factory API that enables applications to configure and
+			 * obtain a SAX based parser to parse XML documents.
+			 */
+			SAXParserFactory	factory		= SAXParserFactory.newInstance();
+
+			// Creating a new instance of a SAXParser using
+			// the currently configured factory parameters.
+			SAXParser			saxParser	= factory.newSAXParser();
+
+			// DefaultHandler is Default base class for SAX2
+			// event handlers.
+			DefaultHandler	l_handler					= new DefaultHandler() {
+														boolean l_entityID = false;
+
+														// Receive notification of the start of an
+														// element. parser starts parsing a element
+														// inside the document
+														public void startElement(String uri, String localName,
+																String qName, Attributes attributes)
+																throws SAXException {
+
+															if (qName.equalsIgnoreCase("entityID")) {
+																l_entityID = true;
+															}
+
+														}
+
+														// Receive notification of character data
+														// inside an element, reads the text value of
+														// the currently parsed element
+														public void characters(char a_ch[], int a_start, int a_length)
+																throws SAXException {
+
+															if (l_entityID) {
+																l_secureEntityIDs.add(new String(a_ch, a_start, a_length));
+																l_entityID = false;
+															}
+
+														}
+													};
+
+			/*
+			 * Parse the content described by the giving Uniform Resource Identifier (URI)
+			 * as XML using the specified DefaultHandler.
+			 */
+			InputStream		l_secureEntitiesStream	= new ClassPathResource("secureMasterModulesXML.xml").getInputStream();
+			saxParser.parse(l_secureEntitiesStream, l_handler);
+
+		} catch (Exception exception) {
+			logger.error("Error in Master Module XML Extractor ", exception);
+		}
+
+		return l_secureEntityIDs;
+	}
+
 
 	private boolean checkVerificationStep(List<JwsUserLoginVO> multiAuthLoginVOs) {
 		try {
@@ -1534,7 +1612,27 @@ public class UserManagementService {
 		sendMailService.sendTestMail(email);
 	}
 
-	public boolean validateUserRegistration(HttpServletRequest request, JwsUserVO user, Map<String, Object> mapDetails) {
+	public boolean validateUserRegistration(HttpServletRequest request, JwsUserVO user, Map<String, Object> mapDetails) throws JSONException, Exception {
+		Map<String, Object> authDetails = new HashMap<>();
+		userConfigService.getConfigurableDetails(authDetails);
+		List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) authDetails
+				.get("activeAutenticationDetails");
+		JwsUserLoginVO		daoAuthDetails	= multiAuthLoginVOs.stream()
+				.filter(loginVO -> loginVO.getAuthenticationType().equals(Constants.AuthType.DAO.getAuthType()))
+				.findAny().orElse(null);
+		
+		if(daoAuthDetails == null) {
+			mapDetails.put("error", "Authentication not supported.");
+			mapDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED);
+			return true;
+		}else {
+			String verificationType = request.getParameter("verificationType");
+			if(verificationType!=null && daoAuthDetails.getVerificationType().compareTo(Integer.valueOf(verificationType)) !=0 ) {
+				mapDetails.put("error", "Authentication not supported.");
+				mapDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED);
+				return true;
+			}
+		}
 		if(user !=null && (user.getEmail()==null || user.getEmail().isEmpty())) {
 			mapDetails.put("error", "Email is requred ");
 			mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);

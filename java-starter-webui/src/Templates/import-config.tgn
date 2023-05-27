@@ -10,6 +10,27 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />       
 <script src="${(contextPath)!''}/webjars/1.0/importExport/import.js"></script> 
+
+<style>
+    .displayflx{
+        display: flex;
+    align-items: center;
+    
+    }
+
+.importfeildconfig {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+    </style>
+
+
+
 </head>
 <div class="pg-import-config">
 <div class="container">
@@ -34,18 +55,25 @@
      <div class="upload" id="parentUpload">
     	<div class="upload-box" id="uploadBox">
             <form id="importForm" id="formUploadBox">
-            	<i class="fa fa-download fa-4x"></i>
-        	<input class="fileuploaddoc" type="file" id="inputFile" name="inputFile">
-        	<div class="edit">
-        		<span><div id="file-upload-filename" style="display: inline-block;"></div></span>
-        		<button id="btnUpload" type="button" class="btn btn-primary">${messageSource.getMessage('jws.import')}</button>
-      		</div>
+
+                <div class="displayflx">
+                    
+                    <div class="importfeildconfig">
+                        <input class="fileuploaddoc" type="file" id="inputFile" name="inputFile">
+                        <div id="file-upload-filename" style="display: inline-block;"></div>
+                        <i class="fa fa-download fa-4x"></i>
+                    </div>
+
+         	        
+        		    <button id="btnUpload" type="button" class="btn btn-primary">${messageSource.getMessage('jws.import')}</button>
+ 
+                </div>
      	     </form>      
     	</div>
      </div>
      </div>
      
-		<div id="divHtmlTable">
+		<div id="divHtmlTable" style="width:100%;">
 			<table class="table table-striped" id="htmlTable">
 				<thead class="thead-light">
 					<tr>

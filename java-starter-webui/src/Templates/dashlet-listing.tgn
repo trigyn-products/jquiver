@@ -21,28 +21,33 @@
 		<div class="float-right">
 
             <div class="addonbtnblock">
-		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
 			<#if environment == "dev">
-				<input id="downloadDashlet" class="btn btn-primary" onclick= "dashletListing.downloadDashlet();" name="downloadDashlet" value="Download Dashlets" type="button">
-				<input id="uploadDashlet" class="btn btn-primary" onclick= "dashletListing.uploadDashlet();" name="uploadDashlet" value="Upload Dashlets" type="button">
+
+             <button  id="downloadDashlet" onclick= "dashletListing.downloadDashlet();"  type="button" class="spacingclss btn btn-primary ">Download Dashlets</button>
+
+           <button  id="uploadDashlet" onclick= "dashletListing.uploadDashlet();"   type="button" class="spacingclss btn btn-primary ">Upload Dashlets</button>			 
+
+
 			</#if>
 
-            <a  href="${(contextPath)!''}/cf/ad"> 
-               <span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
-                    </span>					 
-				</a>
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
+                    </button>
+                </span>
 
 			<!-- <a href="${(contextPath)!''}/cf/ad"> 
 				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
 			</a> -->
-			<input class="btn btn-primary" name="createDashlet" value="${messageSource.getMessage('jws.createNewDashlet')}" type="button" onclick="dashletListing.submitForm(this)">
-    		<span onclick="dashletListing.backToDashboarListing();" class="backbtncls">
-    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-    	 	</span>	
+
+            
+                <button onclick="dashletListing.submitForm(this)" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.createNewDashlet')}</button>
+
+                 <button onclick="dashletListing.backToDashboarListing();"  type="button" class="spacingclss btn btn-secondary">${messageSource.getMessage('jws.back')}</button>    		 
 
             </div>
 		</div>

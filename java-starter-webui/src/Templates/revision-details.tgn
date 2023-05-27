@@ -10,6 +10,24 @@
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 
+<style>
+    .searchblockrevision {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.searchrevision {
+    background:var(--bluebgcolor);
+    padding: 10px;
+    margin-left: -1px;
+    z-index: 9;
+    color: #fff;
+        cursor: pointer;
+}
+    </style>
+
+
 </head>
 <div class="pg-revision-history">
 	<div class="container" style="padding-top: 40px">
@@ -44,27 +62,29 @@
 	
 		<div class="row margin-t-b">
 	
-				<div class="col-6">
+				<div class="col-4">
 					<h3 id="diffEditorHeader" class="titlename">${messageSource.getMessage("jws.currentContent")}</h3>
 				</div>
-				<div class="col-6">
+				<div class="col-8">
+
+                    <div class="searchblockrevision">
 					<#if isImport == "true"> 
-						<label class="versioning-label" >${messageSource.getMessage('jws.importdata')} </label>
+						<label  style="    width: 118px;">${messageSource.getMessage('jws.importdata')} </label>
 					<#else>
-						<label for="revisionAutocomplete" class="versioning-label" >${messageSource.getMessage("jws.revisionTime")}: </label>
+						<label for="revisionAutocomplete" style="    width: 118px;" >${messageSource.getMessage("jws.revisionTime")}: </label>
 					</#if>
-					<div class="col-inner-form full-form-fields">
+					<div class="col-inner-form full-form-fields" style="display:flex; width:100%;    align-items: center;">
 						<#if isImport == "false"> 
 							<div class="search-cover pull-left">
 								<input type="text" id="revisionAutocomplete" value= "" name="revisionAutocomplete" class="form-control">
 								<i class="fa fa-search" aria-hidden="true"></i>
 							</div>
 						</#if>
-						<span onclick="copyJsonData()"  class="grid_action_icons pull-left">
-	
-	                        <span class="cm-iconsvg"><img src="${(contextPath)!''}/webjars/1.0/images/text-push-right-1.svg"></span>
-	                    </span>
+						<span onclick="copyJsonData()" class="searchrevision">
+                                <i class="fa fa-clipboard" aria-hidden="true"></i>
+ 	                    </span>
 					</div>
+                    </div>
 				</div>
 		</div>
 		<div class="row">		

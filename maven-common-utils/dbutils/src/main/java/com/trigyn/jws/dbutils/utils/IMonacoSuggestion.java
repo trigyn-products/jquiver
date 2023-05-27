@@ -26,6 +26,24 @@ public interface IMonacoSuggestion {
 			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"},
 			{ "httpRequestObject  ", "<#noparse>{httpRequestObject?api.getMethod()  !\\'\\'}</#noparse>" } };
 	
+	public static final String templateDynamicFormSuggestion[][] = {
+			{ "loggedInUserEmail", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
+			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList[<sequence>] !\\'\\'}</#noparse>" },
+			{ "templateWithoutParams ", "<#noparse><@templateWithoutParams \\'your-template-name\\'/></#noparse>" },
+			{ "templateWithParams  ", "<#noparse><@templateWithParams \\'your-template-Name\\' templateParam/></#noparse>" },
+			{ "resourceBundle ", "<#noparse><@resourceBundle \\'your.key\\' /></#noparse>" },
+			{ "resourceBundleWithDefault  ", "<#noparse><@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/></#noparse>" },
+			{ "loggedInUserId  ", "<#noparse>{loggedInUserId  !\\'\\'}</#noparse>" },
+			{ "loggedInUserFullName  ", "<#noparse>{fullName  !\\'\\'}</#noparse>" },
+			{ "userObject  ", "<#noparse>{userObject.userid  !\\'\\'}</#noparse>" },
+			{ "contextPath  ", "<#noparse>{contextPath  !\\'\\'}</#noparse>" },
+			{ "messageSource  ", "<#noparse>{messageSource.getMessage(\\'your.key\\')  !\\'\\'}</#noparse>" },
+			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"},
+			{ "httpRequestObject  ", "<#noparse>{httpRequestObject?api.getMethod()  !\\'\\'}</#noparse>"},
+			{ "resultSetObject  ", "<#noparse>{(resultSetObject.\\'yourkey\\') !\\'\\'}</#noparse>" }, 
+			{ "resultSetList  ", "<#noparse>{resultSetList?api.get(\\'yourkey\\')}</#noparse>" }
+			};
+	
 	public static final String JStemplateSuggestions[][] = {
 			{ "loggedInUserEmail","requestDetails[\\\\\"loggedInUserName\\\\\"]" },
 			{ "loggedInUserRoleList", "requestDetails[\\\\\"loggedInUserRoleList\\\\\"]" },
@@ -96,10 +114,16 @@ public interface IMonacoSuggestion {
 			{ "jq_logActivity", "jq_logActivity(a_requestParams)" },
 			{ "jq_addNotifications", "jq_addNotifications(a_requestParams)" } };
 
+	public static String getTemplateDynamicFormSuggestion() {
+
+		return getSuggestion(templateDynamicFormSuggestion);
+	}
+	
 	public static String getTemplateSuggestion() {
 
 		return getSuggestion(templateSuggestion);
 	}
+
 
 	public static String getJSSuggestion(AdditionalDatasourceRepository dataSourceObject) {
 		String dataSourceId = "";

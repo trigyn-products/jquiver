@@ -646,4 +646,226 @@
 		<type>site-layout/module-listing</type>
 		<entityID>cb04a77e-fb36-4136-a46b-ed6766c717d4</entityID>
 	</secureEntity>
+	<!-- Grid Util -->
+	<secureEntity>
+		<name>Autocomplete Details Listing</name>
+		<type>grid-util</type>
+		<entityID>autocompleteListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Custom DB Resource Bundle Listing</name>
+		<type>grid-util</type>
+		<entityID>customResourceBundleListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dashboard Master Listing</name>
+		<type>grid-util</type>
+		<entityID>dashboardMasterListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dashlet Master Listing</name>
+		<type>grid-util</type>
+		<entityID>dashletMasterListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dynamic Form Master</name>
+		<type>grid-util</type>
+		<entityID>dynamicFormListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dynamic Rest API listing</name>
+		<type>grid-util</type>
+		<entityID>dynarestGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dynamic REST API Listing</name>
+		<type>grid-util</type>
+		<entityID>dynarestListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Failed mails listing</name>
+		<type>grid-util</type>
+		<entityID>failedMailsGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Files</name>
+		<type>grid-util</type>
+		<entityID>filesExportGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>File Upload Config</name>
+		<type>grid-util</type>
+		<entityID>fileUploadConfigGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Grid Details Listing</name>
+		<type>grid-util</type>
+		<entityID>gridDetailsListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>helpManualListingGrid</name>
+		<type>grid-util</type>
+		<entityID>helpManualListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Home Page Listing</name>
+		<type>grid-util</type>
+		<entityID>homePageListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>jq-additional-datasourceGrid</name>
+		<type>grid-util</type>
+		<entityID>jq-additional-datasourceGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>jq-schedulerGrid</name>
+		<type>grid-util</type>
+		<entityID>jq-schedulerGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>API Clients Grid</name>
+		<type>grid-util</type>
+		<entityID>jq_api_client_details_grid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>user listing</name>
+		<type>grid-util</type>
+		<entityID>jwsUserListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Import Export Permission Listing</name>
+		<type>grid-util</type>
+		<entityID>manageEntityPermissionListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>manage entity roles listing</name>
+		<type>grid-util</type>
+		<entityID>manageEntityRoleGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>manual-entryGrid</name>
+		<type>grid-util</type>
+		<entityID>manual-entryGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>manual-typeGrid</name>
+		<type>grid-util</type>
+		<entityID>manual-typeGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Menu Module Listing</name>
+		<type>grid-util</type>
+		<entityID>moduleListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Notification Details Listing</name>
+		<type>grid-util</type>
+		<entityID>notificationDetailsListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Property master listing</name>
+		<type>grid-util</type>
+		<entityID>propertyMasterListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Property Master Listing</name>
+		<type>grid-util</type>
+		<entityID>propertyMasterListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>DB Resource Bundle Listing</name>
+		<type>grid-util</type>
+		<entityID>resourceBundleListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>role listing</name>
+		<type>grid-util</type>
+		<entityID>roleGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>roleGrid</name>
+		<type>grid-util</type>
+		<entityID>roleListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Template Listing</name>
+		<type>grid-util</type>
+		<entityID>templateListingGrid</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>userListingGrid</name>
+		<type>grid-util</type>
+		<entityID>userListingGrid</entityID>
+	</secureEntity>
+	<!-- TypeAhead Autocomplete -->
+	<secureEntity>
+		<name>dashboardListing</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>dashboardListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>dynamicForms</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>dynamicForms</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>dynarestListing</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>dynarestListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>encryptAlgoAutocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>encryptAlgoAutocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>home-page-role</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>home-page-role</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>jq-restapi-autocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>jq-restapi-autocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>quickJumpAutocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>quickJumpAutocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>resourcesAutocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>resourcesAutocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>revisionAutocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>revisionAutocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>rolesAutocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>rolesAutocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>site-layout-url-autocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>site-layout-url-autocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>table-autocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>table-autocomplete</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>templateListing</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>templateListing</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>user-favorite-entity-autocomplete</name>
+		<type>type-ahead autocomplete</type>
+		<entityID>user-favorite-entity-autocomplete</entityID>
+	</secureEntity>
 </secureEntities>

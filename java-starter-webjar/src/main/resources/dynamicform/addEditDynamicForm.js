@@ -150,9 +150,7 @@ class AddEditDynamicForm {
 				wordWrapColumn: 250,
 				wordWrapMinified: true,
 				wrappingIndent: "indent",
-				"autoIndent": true,
-    			"formatOnPaste": true,
-    			"formatOnType": true
+				"autoIndent": true
 			});
 			var newSuggestionsArray = [];
 			for (var iCounter = 0; iCounter < suggestionArray.length; iCounter++) {
@@ -937,6 +935,18 @@ function validateData() {
 		}
 	}
 	return data;
+}
+
+function pushToSerializedData(a_serializedFormData, a_name, a_value, a_valueType) {	
+	if(a_value != null && a_value != undefined && typeof a_value == "object") {
+		a_value=JSON.stringify(a_value);
+	}
+
+	var  formDataJsonString = a_serializedFormData.get("formData");
+    var formDataJson = JSON.parse(formDataJsonString);
+    formDataJson.push({"name": a_name, "value": a_value, "valueType": a_valueType});
+    a_serializedFormData.set('formData', JSON.stringify(formDataJson));
+    return a_serializedFormData;
 }
 
 

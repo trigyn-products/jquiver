@@ -96,16 +96,18 @@ public class JwsEntityRoleAssociationVO {
 		this.moduleTypeId = moduleTypeId;
 	}
 
-	public JwsEntityRoleAssociation convertVOtoEntity(JwsEntityRoleAssociationVO entityRoleAssociation) {
-		JwsEntityRoleAssociation association = new JwsEntityRoleAssociation();
-		association.setEntityId(entityRoleAssociation.getEntityId());
-		association.setEntityName(entityRoleAssociation.getEntityName());
-		association.setEntityRoleId(entityRoleAssociation.getEntityRoleId());
-		association.setModuleId(entityRoleAssociation.getModuleId());
-		association.setRoleId(entityRoleAssociation.getRoleId());
-		association.setIsActive(entityRoleAssociation.getIsActive());
-		association.setModuleTypeId(entityRoleAssociation.getModuleTypeId());
-		return association;
+	public JwsEntityRoleAssociation convertVOtoEntity(JwsEntityRoleAssociation entityRoleAssociation, JwsEntityRoleAssociationVO entityRoleAssociationVO) {
+		if(entityRoleAssociation == null) {
+			entityRoleAssociation = new JwsEntityRoleAssociation();
+		}
+		entityRoleAssociation.setEntityId(entityRoleAssociationVO.getEntityId());
+		entityRoleAssociation.setEntityName(entityRoleAssociationVO.getEntityName());
+		entityRoleAssociation.setEntityRoleId(entityRoleAssociationVO.getEntityRoleId());
+		entityRoleAssociation.setModuleId(entityRoleAssociationVO.getModuleId());
+		entityRoleAssociation.setRoleId(entityRoleAssociationVO.getRoleId());
+		entityRoleAssociation.setIsActive(entityRoleAssociationVO.getIsActive());
+		entityRoleAssociation.setModuleTypeId(entityRoleAssociationVO.getModuleTypeId());
+		return entityRoleAssociation;
 	}
 
 	public JwsEntityRoleAssociationVO convertEntityToVO(JwsEntityRoleAssociation entityRoleAssociation) {

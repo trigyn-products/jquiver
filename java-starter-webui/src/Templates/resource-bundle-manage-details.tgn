@@ -118,7 +118,7 @@
 
  </div>
  <script>
- 	document.title = "Manage Multilingual Module Details";
+ 	document.title = "Manage Internationalization Module Details";
     <#outputformat "HTML">
 	contextPath = "${(contextPath)!''}";
 	let resourceBundleKey = "${(resourceBundleKey)!''}";

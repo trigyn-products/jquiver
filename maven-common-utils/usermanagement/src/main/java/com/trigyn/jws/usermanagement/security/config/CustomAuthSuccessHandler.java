@@ -101,6 +101,16 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 				List<JwsUserLoginVO>	multiAuthLoginVO	= (List<JwsUserLoginVO>) authenticationDetails
 						.get("activeAutenticationDetails");
 				String					authType			= request.getParameter("enableAuthenticationType");
+				if (authType == null || authType.isEmpty()|| authType.isBlank()) {
+					authType = request.getHeader("at");
+					if (authType.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+						authType = Constants.DAO_ID;
+					} else if (authType.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+						authType = Constants.LDAP_ID;
+					} else if (authType.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+						authType = Constants.OAUTH_ID;
+					}
+				}
 				if (multiAuthLoginVO != null && authType !=null && authType.equals("2")) {
 					for (JwsUserLoginVO jwsUserLoginVO : multiAuthLoginVO) {
 						Integer	authTypeId = jwsUserLoginVO.getAuthenticationType().intValue();

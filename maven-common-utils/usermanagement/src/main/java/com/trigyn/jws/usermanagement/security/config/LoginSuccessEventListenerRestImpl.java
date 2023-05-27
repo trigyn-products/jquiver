@@ -58,6 +58,16 @@ public class LoginSuccessEventListenerRestImpl implements LoginSuccessEventListe
 			HttpServletRequest	request		= ((ServletRequestAttributes) Objects
 					.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
 			String				authType	= request.getParameter("enableAuthenticationType");
+			if (authType == null || authType.isEmpty()|| authType.isBlank()) {
+				authType = request.getHeader("at");
+				if (authType.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+					authType = Constants.DAO_ID;
+				} else if (authType.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+					authType = Constants.LDAP_ID;
+				} else if (authType.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+					authType = Constants.OAUTH_ID;
+				}
+			}
 			String	authHeaderType		= "";
 			if(authType!=null) {
 				if(Integer.valueOf(authType) == Constants.AuthType.LDAP.getAuthType()) {

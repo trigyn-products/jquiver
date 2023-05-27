@@ -24,9 +24,15 @@
             <input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="" >
             <label for="selectAll"> Select All </label>
         </li>
-          <li id="expand" class=" restapiiconhover expandcls " title='Expand All'><span class="expandalliconsls"></span> </li>
-        <li class="sortclickcls restapiiconhover "  id="sorting" title='Sort'>
-            <span class="sorting sorticonslcas"  onclick=""> 
+        <li title='Internal/External'>
+           <select id="internal" name="internal"  class="form-control" onchange="changeUrl(this)">
+              <option value="0">${messageSource.getMessage('jws.internal')}</option> 
+              <option value="1">${messageSource.getMessage('jws.external')}</option> 
+            </select>
+        </li>
+        <li id="expand" class="expandcls restapiiconhover" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg"> </li>
+        <li class="sortclickcls restapiiconhover" id="sorting" title='Sort'>
+            <span class="sorting"  onclick=""> <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg">
            </span>
             <div class="sortblock" id="sortclickev" >
                 <div class="updownblock"> <span class="uparow sorticoncls activecls" id="sortdown"  data-order="ASC" onclick="markSort(this);">
@@ -58,7 +64,12 @@ $(function() {
 });
 /**For loading the Rest API Contents on load on calling the getRestAPI*/
 function loadRestAPI(a_offset) {
-   
+    var urlComponent = "";
+    if($("#internal").val() == "0"){
+        urlComponent = "api";
+    }else {
+        urlComponent = "japi";
+    }
     if(a_offset == 0) {
         $("#viewRestAPI").html("");
     }
@@ -70,7 +81,8 @@ function loadRestAPI(a_offset) {
         url : "${contextPath!''}/api/getRestAPI",
         data:{
             "offset": a_offset,
-            "startCount": a_offset *10
+            "startCount": a_offset *10,
+            "urlComponent": urlComponent+""
             },
         success : function(data) {
             $("#viewRestAPI").append(data);
@@ -111,7 +123,12 @@ getDynaExport(select_All, exportIdList,l_columnName,a_sortOrder);
 
 /** Called from getExport()*/
 function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
-    
+    var urlComponent = "";
+    if($("#internal").val() == "0"){
+        urlComponent = "api";
+    } else {
+        urlComponent = "japi";
+    }
     if(l_columnName == undefined && a_sortOrder == undefined){
         l_columnName = "restURL";
         a_sortOrder = "ASC";
@@ -123,7 +140,8 @@ function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
         data:{"dynaId":JSON.stringify(dynaId),
             "select_All": select_All+"",
             "l_columnName": l_columnName+"",
-            "a_sortOrder": a_sortOrder+""            
+            "a_sortOrder": a_sortOrder+"",
+            "urlComponent": urlComponent+""            
             },
         success : function(data) {
               var a_strSourceBody = data;
@@ -131,7 +149,7 @@ function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
               form .target ="_blank";
               form .id="stmtForm";
               form .method = "POST";
-              form .action = "${contextPath!''}/api/getdownloadedAPI";
+              form .action = "${contextPath!''}/api/exportAPIList";
               var mapInput = document.createElement("input");
               mapInput.type = "hidden";
               mapInput.name = "a_strSourceBody";
@@ -329,12 +347,35 @@ $(document).ready(function () {
 });
 /**Ends Here*/
    
-/** For Toggling or Expandin/Collapsing individual dic on click of the respective div*/    
+/** For Toggling or Expanding/Collapsing individual dic on click of the respective div*/    
 function bindAccordian(a_element) {
     $(a_element).toggleClass('colpasecls');
     $(a_element).closest(".methodnameblock").find('.restapiotherblock').slideToggle(1000);
 }
 /**Ends Here*/
+
+function changeUrl(a_element) {
+var restDivlen = $('#viewRestAPI .methodnameblock').length;
+for(iCounter = 0;iCounter<restDivlen;iCounter++)
+{
+   var methodUrl = "";
+   var splitUrl = "";
+   const methodUrlDiv = document.getElementById("methodblocktwo_"+iCounter);
+    if($(a_element).val() == "0")
+    {
+       methodUrl = $("#methodblocktwo_"+iCounter).text().trim();
+       splitUrl = methodUrl.split("japi/")[1];
+       methodUrlDiv.textContent = '';
+       methodUrlDiv.append("${getSystemProperty('base-url')}${(contextPath)!''}/api/"+splitUrl);
+    } else {
+       methodUrl = $("#methodblocktwo_"+iCounter).text().trim();
+       splitUrl = methodUrl.split("api/")[1];
+       methodUrlDiv.textContent = '';
+       methodUrlDiv.append("${getSystemProperty('base-url')}${(contextPath)!''}/japi/"+splitUrl);
+    }
+}
+    
+}
 
 function backToDynarestListingPage() {
     location.href = contextPath+"/cf/dynl";

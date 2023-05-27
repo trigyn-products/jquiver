@@ -82,9 +82,7 @@ AddEditDashlet.prototype.fn = {
 					scrollBeyondLastLine: false,
 					readOnly: false,
 					theme: "vs-dark",
-					"autoIndent": true,
-	    			"formatOnPaste": true,
-	    			"formatOnType": true
+					"autoIndent": true
 	        	});
 	        	dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
 			    	typeOfAction('dashlet-manage-details',  $("#savedAction").find("button"), 

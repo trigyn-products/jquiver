@@ -92,7 +92,6 @@ margin: 0px;
 .type-block {
     display: flex;
 }
- 
 
  .tdpadding.restbodycolor.methodtypeblock-get{
        background:#E0EDF9 !important;
@@ -242,7 +241,7 @@ margin: 0px;
           <tbody>
             <tr>
               <td style="width:30%;font-family:Times New Roman;"><div class="methodtypeblock methodtypeblock-${dynaList.jws_request_type_lower}" id="methodTypeDiv_${dynaList.dynarestId}"> ${dynaList.jws_request_type} </div></td>
-              <td style="width:70%;text-align: left; font-family:Times New Roman;"> ${dynaList.rest_api_url}</td>
+              <td style="width:70%;text-align: left; font-family:Times New Roman;"> ${getSystemProperty('base-url')}${(contextPath)!''}/${urlComponent!''}/${dynaList.rest_api_url}</td>
             </tr>
           </tbody>
         </table></td>

@@ -1229,6 +1229,10 @@
 				map.set(moduleType, exportObj);
 				
 				$('#selectedCount_'+moduleType).text(0);
+
+				if(moduleType == "Grid") {
+					openTab(event, gridID, moduleType);
+				}
 			}
 		});
 		 $("#deselectAllChkBx").attr("disabled", "disabled");
@@ -1373,6 +1377,8 @@
     				if(data.startsWith("fail:")){
     					var errorMessageString = data.substring(5);
     					showMessage(errorMessageString, "error");
+    				} else {
+    					showMessage("Files exported successfully.", "success");
     				}
     			},
     		        

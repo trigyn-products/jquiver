@@ -19,33 +19,34 @@
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.formBuilder')}</h2> 
 		<div class="float-right">
             <div class="addonbtnblock">
-            ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
+            ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
             
-             <a href="${(contextPath)!''}/cf/ad"> 
-                <span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
-                    </span>					 
-				</a>
+                        
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
+                    </button>
+                </span>
+             
 				
 			<#if environment == "dev">
-				<input id="downloadForm" class="btn btn-primary" style="margin-left:5px;margin-right:5px;" onclick= "downloadForm();" name="downloadForm" value="${messageSource.getMessage('jws.downloadforms')}" type="button">
-				<input id="uploadForm" class="btn btn-primary"  style="margin: 0 5px 0 0;" onclick= "uploadForm();" name="uploadForm" value="${messageSource.getMessage('jws.uploadforms')}" type="button">
-			</#if>
 
-           
+             <button  id="downloadForm" name="downloadForm"  type='button' onclick= "downloadForm();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.downloadforms')}">${messageSource.getMessage('jws.downloadforms')}                  
+                </button>
 
-    		<!-- <a href="${(contextPath)!''}/cf/ad"> 
-				<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
-			</a> -->
+                 <button  id="uploadForm" name="uploadForm"  type='button' onclick= "uploadForm();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.uploadforms')}">${messageSource.getMessage('jws.uploadforms')}                  
+                </button> 
+			</#if> 
 
+              <button  name="addNewDynamicForm"  type='button'  onclick="submitForm(this)" class="spacingclss btn btn-primary " title="${messageSource.getMessage('jws.addform')}">${messageSource.getMessage('jws.addform')}               
+                </button> 
 
-			<input class="btn btn-primary" name="addNewDynamicForm" value="${messageSource.getMessage('jws.addform')}" type="button" onclick="submitForm(this)">
-    		<span onclick="backToHome();" class="backbtncls">
-    	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-    		</span>	
+                  <button type='button'onclick="backToHome();"  class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+ 
             </div>
 		</div>
 		

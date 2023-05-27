@@ -39,7 +39,7 @@ import com.trigyn.jws.webstarter.utils.Constant;
 
 @RestController
 @RequestMapping(value = "/cf")
-@PreAuthorize("hasPermission('module','Miltilingual')")
+@PreAuthorize("hasPermission('module','Internalization')")
 public class ResourceBundleCrudController {
 
 	private final static Logger		logger					= LogManager.getLogger(ResourceBundleCrudController.class);

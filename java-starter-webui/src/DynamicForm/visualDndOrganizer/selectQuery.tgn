@@ -1,0 +1,44 @@
+function visualDndData()
+{
+    var System = Java.type("java.lang.System");
+    var ArrayList = Java.type("java.util.ArrayList");
+    var queryResult={};
+getVisualData=jq_getDBResult("SELECT * FROM(SELECT ml.module_id AS moduleId,mli18n.module_name AS moduleName,ml.module_url AS moduleURL,sequence,(SELECT module_name FROM jq_module_listing_i18n WHERE module_id = ml.parent_id) AS parentModuleName,ml.is_inside_menu AS isInsideMenu,(SELECT DESCRIPTION FROM jq_module_target_lookup WHERE lookup_id = target_lookup_id) AS targetLookupId,(SELECT template_name FROM jq_template_master WHERE template_id = target_type_id UNION SELECT form_name FROM jq_dynamic_form WHERE form_id = target_type_id UNION SELECT jws_dynamic_rest_url FROM jq_dynamic_rest_details WHERE jws_dynamic_rest_id = target_type_id UNION SELECT dashboard_name FROM jq_dashboard WHERE dashboard_id = target_type_id) AS targetTypeId,ml.open_in_new_tab AS openInNewTab FROM jq_module_listing AS ml LEFT OUTER JOIN jq_module_listing_i18n AS mli18n ON ml.module_id = mli18n.module_id AND mli18n.language_id = 1 WHERE ml.is_inside_menu = '1') a ORDER BY a.parentModuleName , a.sequence ASC",null,null);
+var visualDndData = {};
+for(var iCounter=0;iCounter<getVisualData.data_list.length;iCounter++)
+{
+    if(getVisualData.data_list[iCounter].parentModuleName == null){
+        var visualParentData = {
+        "moduleId": getVisualData.data_list[iCounter].moduleId+"",
+        "moduleName": getVisualData.data_list[iCounter].moduleName+"",
+        "moduleURL": getVisualData.data_list[iCounter].moduleURL+"",
+        "sequence": getVisualData.data_list[iCounter].sequence+"",
+        "parentModuleName": getVisualData.data_list[iCounter].parentModuleName+"",
+        "isInsideMenu": getVisualData.data_list[iCounter].isInsideMenu+"",
+        "targetLookupId": getVisualData.data_list[iCounter].targetLookupId+"",
+        "targetTypeId": getVisualData.data_list[iCounter].targetTypeId+"",
+        "openInNewTab": getVisualData.data_list[iCounter].openInNewTab+"",
+        "children":[]
+        }
+        visualDndData[getVisualData.data_list[iCounter].moduleName] = visualParentData;
+    }else{
+        var visualChildData = {
+        "moduleId": getVisualData.data_list[iCounter].moduleId+"",
+        "moduleName": getVisualData.data_list[iCounter].moduleName+"",
+        "moduleURL": getVisualData.data_list[iCounter].moduleURL+"",
+        "sequence": getVisualData.data_list[iCounter].sequence+"",
+        "parentModuleName": getVisualData.data_list[iCounter].parentModuleName+"",
+        "isInsideMenu": getVisualData.data_list[iCounter].isInsideMenu+"",
+        "targetLookupId": getVisualData.data_list[iCounter].targetLookupId+"",
+        "targetTypeId": getVisualData.data_list[iCounter].targetTypeId+"",
+        "openInNewTab": getVisualData.data_list[iCounter].openInNewTab+""
+        }
+        var parent = visualDndData[getVisualData.data_list[iCounter].parentModuleName];
+        parent.children.push(visualChildData);
+        visualDndData[getVisualData.data_list[iCounter].parentModuleName] = parent;
+}
+    queryResult.visualDndData = visualDndData;
+}
+    return queryResult;
+}
+visualDndData();

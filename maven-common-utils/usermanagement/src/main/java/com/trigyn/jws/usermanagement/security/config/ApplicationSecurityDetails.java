@@ -40,6 +40,8 @@ public class ApplicationSecurityDetails {
 	@Autowired
 	private JwsAuthenticationTypeRepository	authenticationTypeRepository	= null;
 
+	private Map<String, Object>				activeAuthDetails				= new HashMap<>();
+
 	final ObjectMapper						mapper							= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);;
 
@@ -78,6 +80,11 @@ public class ApplicationSecurityDetails {
 								MultiAuthSecurityDetailsVO userLoginVO = new MultiAuthSecurityDetailsVO();
 								userLoginVO.setAuthenticationTypeVO(authenticationTypeVO);
 								userLoginVO.setConnectionDetailsVO(connectionSpecification);
+								if (isAuthenticationEnabled && connectionSpecification.getAuthenticationType().getValue()
+										.equalsIgnoreCase("true")) {
+									activeAuthDetails.put(authenticationTypeVO.getId().toString(),
+											connectionSpecification);
+								}
 								multiAuthDetails.add(userLoginVO);
 							}
 
@@ -90,6 +97,7 @@ public class ApplicationSecurityDetails {
 
 			authenticationDetails.put("isAuthenticationEnabled", isAuthenticationEnabled);
 			authenticationDetails.put("authenticationDetails", multiAuthDetails);
+			authenticationDetails.put("activeAuthDetails", activeAuthDetails);
 			return authenticationDetails;
 		}
 		return null;

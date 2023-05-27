@@ -102,6 +102,8 @@ function saveOtpAndSendMail() {
       error : function(xhr, error){
       	if (xhr != undefined && xhr.status == 404) {
 			$("#userNotFoundError").show();
+		}if (xhr != undefined && xhr.status == 503) {
+			$("#smtpconfigerror").show();
 		}else{
 			showMessage("Error occurred while saving", "error");
       	}

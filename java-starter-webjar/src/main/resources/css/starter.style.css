@@ -191,7 +191,7 @@ body.darktheme {
 
 
  
-#languageOptions option{
+.darktheme #languageOptions option{
 	    color: var(--white) !important;
 }
 
@@ -610,11 +610,33 @@ div.pq-grid-center {
 @media screen and (max-width: 992px) {
 	.container {
 		max-width: 100% !important;
-		display: block;
+		display: table;
+	}
+	
+	.themecolorpalette{
+		display:none;
 	}
 	.archprofile {
 		flex: 0 0 50% !important;
 		max-width: 50% !important;
+	}
+	
+	.login_bg_mobile .col-7{
+		display:none;
+	}
+	
+	.remebermeblock{
+	margin-bottom: 15px;
+	}
+	
+	.login_bg_mobile .form-signin-heading{
+		margin-top:0px;
+	}
+	
+	.cookieConsentContainer{
+		width: 90% !important;
+    	margin: 20px auto 20px;
+    	    position: relative;
 	}
 }
 
@@ -656,6 +678,8 @@ supports (-moz-appearance:none) {body { height:100%;
 .custom-list-home .mb-1 {
 	color:  var(--bluebgcolor);
 }
+
+
 
 .html_script {
 	width: 100%;
@@ -877,6 +901,26 @@ span.grid_action_icons:hover .fa {
     overflow: hidden;
 }
 
+.btn {
+    padding: 5px 10px !important;
+    line-height: inherit !important;
+    font-size: 14px !important;
+}
+
+.btn-secondary{
+	color: var(--bluebgcolor) !important;
+	background: var(--white) !important;
+	border-color:  var(--bluebgcolor) !important;
+}
+
+
+.btn-secondary:hover{
+	color: var(--white) !important;
+	background: var(--bluebgcolor) !important;
+	border-color:  var(--bluebgcolor) !important;
+}
+
+
 /***** 
 .btn-primary:before{
 	    content: "";
@@ -930,6 +974,7 @@ span.grid_action_icons:hover .fa {
 	opacity: 0.9;
     
 }
+
 
 
 .btn-primary:focus, .btn-primary.focus{
@@ -3071,9 +3116,13 @@ to {
 	margin: 0 3px !important;
 }
 
-.cm-select-btn:hover {
+.btn-secondary.cm-select-btn.whitetext{
+	color:#000 !important;
+}
+
+.btn-secondary.cm-select-btn.whitetext:hover {
 	background-color: gray;
-	color: #ffffff;
+	color: #ffffff !important;
 }
 
 .cm-select-btn:active {
@@ -3240,7 +3289,7 @@ to {
 }
 
 .cm-boxleft.export-cm-boxleft {
-	height: calc(100vh - 305px);
+	height: calc(100vh - 255px);
 	overflow: hidden;
 	padding: 0px;
 }
@@ -3281,12 +3330,12 @@ to {
 }
 
 .cm-boxright .pq-grid-center{
-    height: calc(100vh - 355px);		
+    height: calc(100vh - 305px);		
 }
 
 .cm-boxright .pq-grid-cont-outer{
     position: absolute;
-    height: calc(100vh - 435px);
+    height: calc(100vh - 385px);
     overflow: auto;
     width: 100%;
 }
@@ -3354,22 +3403,20 @@ to {
 }
 
 .cm-customimport .upload {
-	max-width: 280px;
-	max-height: 105px;
+    width: 100% !important;
 }
 
 .cm-customimport .fileuploaddoc {
-	width: 60%;
-	position: absolute;
-	left: 5px;
-	top: 30%;
-	opacity: 0;
-}
+ }
 
 .cm-customimport #importForm {
-	margin-bottom: 0;
-	cursor: pointer;
+ 
 }
+
+div#parentUploadBox {
+    width: 100% !important;
+}
+
 
 .cm-customimport span {
 	position: relative;
@@ -3378,24 +3425,20 @@ to {
 }
 
 .cm-customimport .upload .upload-box {
-	border: solid 1px #cfcfcf;
-	padding: 5px 10px 5px;
-	position: relative;
-	background-color: #f1f1f1;
-	margin-bottom: 10px;
+  	position: relative;
+ 	margin-bottom: 10px;
+ 	width:100% !important;
 }
 
 .cm-customimport .upload .upload-box #file-upload-filename {
-	display: inline-block;
+	    margin-right: 20px !important;
+	    display: none !important;
 }
 
 .cm-customimport .upload .upload-box .fa {
-	color: #cfcfcf;
-	z-index: 0;
-	position: relative;
-	font-size: 45px !important;
-	top: 3px;
+	color: var(--bluebgcolor); 
 	cursor: pointer !important;
+	    font-size: 22px !important;
 }
 
 .cm-customimport .upload .edit>div {
@@ -3413,8 +3456,7 @@ to {
 }
 
 .cm-customimport #btnUpload {
-	float: right;
-	margin-top: 7px;
+     padding: 8px;
 }
 
 .cm-customimport .upload .upload-box .edit {
@@ -3648,9 +3690,9 @@ to {
 .cm-impobtn.outline {
 	z-index: 3;
 	background: #fff;
-	color: #1172c4;
+	color:  var(--bluebgcolor);
 	font-size: 14px;
-	border-color: #1172c4;
+	border-color: var(--bluebgcolor);
 	border-style: solid;
 	width: 120px;
 	border-width: 1px;
@@ -3673,9 +3715,9 @@ to {
 .cm-expobtn.outline {
 	z-index: 3;
 	background: #fff;
-	color: #1172c4;
+	color:  var(--bluebgcolor);
 	font-size: 14px;
-	border-color: #1172c4;
+	border-color: var(--bluebgcolor);
 	border-style: solid;
 	width: 120px;
 	border-width: 1px;
@@ -3960,6 +4002,9 @@ to {
 }
 
 @media only screen and (max-width: 1024px) {
+	
+	 
+	
 	.tablescroll {
 		overflow: auto;
 	}
@@ -4847,7 +4892,7 @@ color: #000;
 }
 
 #languageOptions option{
-	color:#000;
+	color:#000 !important;
 }
 
 .btn-primary.disabled, .btn-primary:disabled {
@@ -5000,13 +5045,12 @@ color: #000;
     position: relative;
     outline: none;
     color: #000;
-    border: 1px solid #919191;
-    border-radius: 0.25rem;
-    top: 2px;
-    margin-left: 10px;
-    margin-right: 4px;
+    border: 1px solid var(--bluebgcolor) !important;
+    border-radius: 3px;
+     margin-left: 10px;
+    margin-right:0px;
     cursor: pointer;
-    margin-top: -2px;
+    margin-top:0px;
 }
 
 #fileUploadMaster .fileupload {
@@ -5543,9 +5587,17 @@ table.customtblecls tr:nth-child(odd) {
 	margin: 0 25px 0 0;
 }
 
-.profilepic {
-	
+.profilepic:hover a{
+	text-decoration:none;
 }
+
+.profilepic.element .namcls{
+	border:1px solid lightgray;
+}
+
+.profilepic.element .desg{
+ }
+
 
 .profilepic img {
 	height: 150px;
@@ -5567,7 +5619,7 @@ table.customtblecls tr:nth-child(odd) {
 .udetails {
 	color: #fff;
 	margin: 10px 0 25px;
-	background: #a1cff7;
+	background:var(--bluebgcolor);
 	margin-top: -46px;
 	border: 1px solid #ccc;
 	padding: 65px 0 30px;
@@ -5593,6 +5645,7 @@ table.customtblecls tr:nth-child(odd) {
 	padding: 25px 0 60px;
 	border-radius: 30px 30px 0 0;
 	height: 200px;
+	border: 1px solid var(--bluebgcolor);
 }
 
 .centercls {
@@ -6193,15 +6246,15 @@ table.customtblecls tr:nth-child(odd) {
 }
 
 div.pq-loading-mask>div {
-	padding-top: 70px;
-	padding-right: 0;
-	padding-left: 0;
-	background: #fff url(../images/loading.gif);
-	background-position: top center;
-	background-repeat: no-repeat;
-	height: 22px;
-	width: 98px;
-	text-align: center;
+	padding-top: 70px !important;
+	padding-right: 0 !important;
+	padding-left: 0 !important;
+	background: #fff url(../images/loading.gif) !important;
+	background-position: top center !important;
+	background-repeat: no-repeat !important;
+	height: 22px !important;
+	width: 98px !important;
+	text-align: center !important;
 }
 
 /**************************** PQ Gird Pagination UI END *********************/
@@ -7038,18 +7091,20 @@ font-size: 18px !important;
     margin-top: 0;
 }
 
-input#viewNotificationBtn {
-    padding: 0px;
+input#viewNotificationBtn{
+    padding: 0px !important;
     border: 0px;
     font-size: 10px;
     position: absolute;
-    background: #023256;
+    background: #000 !important;
+    color: #fff !important;
     border-radius: 50%;
     height: 15px;
     width: 15px;
     top: 5px;
     right: 3px;
     line-height: 16px;
+    font-size: 11px !important;
 }
 
 .notificationpopup{
@@ -7536,6 +7591,16 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 	 background-color: var(--bluebgcolor) !important;
 }
 
+.iconscover {
+    border: 1px solid var(--bluebgcolor) !important;
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+.iconscover:hover {
+    background-color: var(--bluebgcolor);
+}
+
  
 .managepermisionicon{
 	 background-color: var(--bluebgcolor) !important;
@@ -7555,6 +7620,24 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
   	mask: url(../images/managepermision.svg) no-repeat center / contain;
   -webkit-mask: url(../images/managepermision.svg) no-repeat center / contain;
 }
+
+
+.menulisticon{
+	 background-color: var(--bluebgcolor) !important;
+  	mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
+  -webkit-mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
+      height: 25px;
+    width: 25px;
+    padding: 0px !important;
+    margin: 1px auto 0 !important;
+}
+
+ .menulisticon:hover{
+	 background-color: var(--white) !important;
+  	mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
+  -webkit-mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
+}
+
 
 
 .rolemangementicon{
@@ -7604,7 +7687,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
- .mailconfigicon:hover{
+ .iconscover:hover .mailconfigicon{
 	 background-color: var(--white) !important;
   	mask: url(../images/mailconfig.svg) no-repeat center / contain;
   -webkit-mask: url(../images/mailconfig.svg) no-repeat center / contain;
@@ -7617,7 +7700,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
-.addonbtnblock a:hover .definhomepageicon{
+.iconscover:hover .definhomepageicon{
 	 background-color: var(--white);
   	mask: url(../images/definehomepage.svg) no-repeat center / contain;
   -webkit-mask: url(../images/definehomepage.svg) no-repeat center / contain;
@@ -7665,7 +7748,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
-.addonbtnblock a:hover .commanfileuser{
+.iconscover:hover .commanfileuser{
 	 background-color: var(--white);
   	mask: url(../images/commanfilesuser.svg) no-repeat center / contain;
   -webkit-mask: url(../images/commanfilesuser.svg) no-repeat center / contain;
@@ -7677,7 +7760,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
   -webkit-mask: url(../images/adddatasource.svg) no-repeat center / contain;
 }
 
-.addonbtnblock a:hover .addresourceicon{
+.iconscover:hover .addresourceicon{
 	 background-color: var(--white);
   	mask: url(../images/adddatasource.svg) no-repeat center / contain;
   -webkit-mask: url(../images/adddatasource.svg) no-repeat center / contain;
@@ -7690,7 +7773,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
-.addonbtnblock a:hover .apiclienticon{
+.iconscover:hover .apiclienticon{
 	 background-color: var(--white);
   	mask: url(../images/APIClients.svg) no-repeat center / contain;
   -webkit-mask: url(../images/APIClients.svg) no-repeat center / contain;
@@ -7703,7 +7786,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
   -webkit-mask: url(../images/Sedulericon.svg) no-repeat center / contain;
 }
 
-.addonbtnblock a:hover .Sedulericoncls{
+.iconscover:hover .Sedulericoncls{
 	 background-color: var(--white);
   	mask: url(../images/Sedulericon.svg) no-repeat center / contain;
   -webkit-mask: url(../images/Sedulericon.svg) no-repeat center / contain;
@@ -7715,7 +7798,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
   -webkit-mask: url(../images/viewapi.svg) no-repeat center / contain;
 }
 
-.addonbtnblock a:hover .viewapiicons{
+.iconscover:hover .viewapiicons{
 	 background-color: var(--white);
   	mask: url(../images/viewapi.svg) no-repeat center / contain;
   -webkit-mask: url(../images/viewapi.svg) no-repeat center / contain;
@@ -7735,6 +7818,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     margin: 0px;
     height: 25px;
     width: 25px;
+    border:none !important;
 }
 
 .addonbtnblock .extramargin{
@@ -7850,7 +7934,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 .resapiactionbtn ul.restaction > li:hover{
-	text-decoration: underline;
+	text-decoration: none;
 }
 
 .resapiactionbtn ul.restaction li:first-child{
@@ -8062,8 +8146,8 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     border-radius: 5px !important;
 }
 
-.backbtncls{
-	margin-left:5px;
+.spacingclss {
+    margin: 0 4px;
 }
  
 /*this is for full screen of textarea*/
@@ -8289,3 +8373,18 @@ div.pq-grid tr:hover{
   background: #555; 
 }
  
+ 
+ 
+      .moveiconmenu {
+    color: var(--bluebgcolor); 
+}
+
+.pq-page-placeholder .pq-pager-input{
+	
+    max-width: 150px;
+    min-width: 20px !important;
+}
+
+.homedropdown{
+	margin-right:10px;
+}

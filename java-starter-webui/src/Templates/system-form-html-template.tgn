@@ -28,7 +28,9 @@
     	<div class="row">
     	
     	<#list columnDetails as columnDetailsList>
-			<#if (columnDetailsList.columnType) != "hidden">
+         <#assign optionalClass=" optional ">
+
+			<#if (columnDetailsList.columnType) != "hidden" && (columnDetailsList.autoIncrement) == false>
 	    		<div class="col-3">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
@@ -91,8 +93,16 @@
 						</#if>
 					</div>
 				</div>
-			<#else>
-				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" >
+            <#elseif (columnDetailsList.autoIncrement) == true>
+
+                <div class="col-3" title="Auto Increment">
+					<div class="col-inner-form full-form-fields">
+                        <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
+						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
+					</div>
+				</div>
+            <#elseif (columnDetailsList.autoIncrement) == false>
+				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" >     
 			</#if>
     	</#list>
     	</div>
@@ -139,13 +149,13 @@
         Calendar.setup({
 			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
 			inputField : "${(columnDetailsList.columnName)!""}",
-			dateFormat : "%d-%b-%Y",
+			dateFormat : "%d-%B-%Y",
 			weekNumbers: true,
             showTime: 12,
 			onSelect   : function() { 
 				let selectedDate = this.selection.get();
 				let date = Calendar.intToDate(selectedDate);
-				date = Calendar.printDate(date, "%d-%b-%Y");
+				date = Calendar.printDate(date, "%d-%B-%Y");
 				$("#"+this.inputField.id).val(date);
 				this.hide(); 
 			}
@@ -198,6 +208,15 @@
 	*      $("#"+fieldName).focus();
 	*      $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
 	*      showMessage("Issue in input", "warn");
+	* 
+	* In case a processed value has to be passed to the server for saving/processing, then you can call
+	* function pushToSerializedData.
+	* The default parameters to be passed will be, 
+	*		a_serializedFormData: This is the input for this method.
+	* 		a_name				: This is the parameter name, which will be used to access the parameter at server side.
+	*		a_value				: This will be String value, which will be saved at the used to save/update at server.
+	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
+	*
 	*/
 	function onValidation(a_serializedFormData){
 	    

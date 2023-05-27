@@ -16,6 +16,15 @@
 <link rel="stylesheet" type="text/css" href="${contextPath!''}/webjars/1.0/JSCal2/css/steel/steel.css" />
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+
+
+<style>
+    .flexcls{
+        display:flex;
+    }
+    </style>
+
+
 </head>
 
 <div class="pg-export-config">
@@ -23,8 +32,8 @@
 <div class="container">
     <div class="cm-card">
 	<div class="topband cm-card-header">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.exportconfiguration')}</h2>
-        <div class="float-right">
+		<h2 class="title-cls-name float-left" style="margin-top: 5px;">${messageSource.getMessage('jws.exportconfiguration')}</h2>
+        <div class="float-right flexcls">
             <div class="flexblock">
             <div id="expHeader" class="flexblock">
                 ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
@@ -41,12 +50,41 @@
                         </button>
                 </span>
             </div>
+            
+            </div>
+
+            <div id="mainTabBtn">
+		        <input id="nextBtn" class="btn btn-primary" style="float:right;padding: 6px 12px;    margin: 0 6px;" 
+			            name="nextBtn" value="Next" type="button" onclick="gotoNextPage()">
+                <div class="jws-deselect-btn btn btn-primary">
+                    <input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx"
+                        onchange="deselectAll();" style="float:left;">
+                    <label for="deselectAllChkBx">${messageSource.getMessage('jws.deselectall')}</label> 
+                </div>
+		    </div>
+
+            <div id="nextTabBtn" style="display: none;">
+                <button id="download" class="btn btn-primary" style="float: right; margin: 0 9px;" name="downloadBtn"
+                    type="button" onclick="downloadAll()">Export to Folder <i class="fa fa-download" aria-hidden="true"></i></button>
+            
+                <button id="exportBtn" class="btn btn-primary" style="float: right;    margin: 0 0 0 9px;" name="exportBtn"
+                    type="button" onclick="exportData()">
+                    Export Zip
+                </button>
+                <input id="prevBtn" class="btn btn-primary" style="float: right;" name="prevBtn"
+                    value="Previous" type="button" onclick="gotoPrevPage()">
+            </div>
+
             <span onclick="backToPreviousPage();" >
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
             </span>	
-            </div>
-		    <div class="clearfix"></div>	
+
         </div>
+        
+		<div id="exportFormDiv" style = "display:none"></div>
+
+
+		   
 	</div>
 	
 
@@ -121,32 +159,7 @@
 
     </div>
 
-    <div class="cm-card-footer"><div class="clearfix"></div>
-		<div id="mainTabBtn">
-		<input id="nextBtn" class="btn btn-primary" style="float:right;" 
-			name="nextBtn" value="Next" type="button" onclick="gotoNextPage()">
-		<div class="jws-deselect-btn btn btn-primary">
-			<input type="checkbox" id="deselectAllChkBx" name="deselectAllChkBx"
-				 onchange="deselectAll();" style="float:left;">
-			<label for="deselectAllChkBx">${messageSource.getMessage('jws.deselectall')}</label> 
-		</div>
-		</div>
-		<div id="nextTabBtn" style="display: none;">
-            <button id="exportBtn" class="btn btn-primary" style="float: right;" name="exportBtn"
-			    type="button" onclick="exportData()">
-                Export <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-                </button>
-            <#if serverProfile?? && serverProfile == "dev">    
-			<button id="download" class="btn btn-secondary" style="float: right;" name="downloadBtn"
-			     type="button" onclick="downloadAll()">Download <i class="fa fa-download" aria-hidden="true"></i></button>
-
-			</#if>
-            <input id="prevBtn" class="btn btn-primary" style="float: right;" name="prevBtn"
-			    value="Previous" type="button" onclick="gotoPrevPage()">
-		</div>
-        </div>
-		<div id="exportFormDiv" style = "display:none"></div>
-    </div>
+     
 </div>
 </div>
 <script>

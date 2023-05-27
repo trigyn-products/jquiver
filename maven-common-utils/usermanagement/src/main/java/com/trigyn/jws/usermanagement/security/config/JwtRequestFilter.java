@@ -3,7 +3,6 @@ package com.trigyn.jws.usermanagement.security.config;
 import java.io.IOException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -33,7 +32,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
+import com.trigyn.jws.usermanagement.utils.Constants.AuthType;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -65,9 +64,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		try {
 			String	url				= request.getRequestURI();
-
 			String	apiUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
-
 			if (url != null && apiUrlProperty != null && url.contains("/" + apiUrlProperty + "/")) {
 				chain.doFilter(new HttpServletRequestWrapper(request) {
 
@@ -78,7 +75,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 					@Override
 					public StringBuffer getRequestURL() {
-						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/", "/" + "api" + "/"));
+						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/",
+								"/" + "api" + "/"));
 					}
 
 				}, response);
@@ -87,78 +85,74 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 			if (authenticationDetails != null) {
 
-				@SuppressWarnings("unchecked")
-				List<MultiAuthSecurityDetailsVO> multiAuthLogiVos = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
-						.get("authenticationDetails");
-				if (multiAuthLogiVos != null && multiAuthLogiVos.isEmpty() == false) {
+				String	requestUri			= request.getRequestURI().substring(request.getContextPath().length());
+				String	authorizationHeader	= request.getHeader("Authorization");
+				String	authTypeAtHeader	= request.getHeader("at");
+				String	authenticationType	= request.getParameter("enableAuthenticationType");
+				String	username			= null;
+				String	jwt					= null;
+				String	requestAuthType		= (authenticationType != null) ? authenticationType
+						: ((authTypeAtHeader != null)
+								? String.valueOf(AuthType.valueOfAt(authTypeAtHeader).getAuthType())
+								: null);
+				if (requestAuthType != null && authorizationHeader != null
+						&& authorizationHeader.startsWith("Bearer ")) {
+					jwt = authorizationHeader.substring(7);
+					if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.DAO.getAuthType()
+							|| Integer.valueOf(requestAuthType) == Constants.AuthType.LDAP.getAuthType()) {
+						username = jwtUtil.extractUsername(jwt);
+					} else if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.OAUTH.getAuthType()) {
+						username = retrieveUsernameFromJwtToken(jwt);
+						if (username == null) {
+							username = jwtUtil.extractUsername(jwt);
+						}
+					}
+				}
+				if (jwt != null && username == null) {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN,
+							"You do not have enough privilege to access this module");
+					return;
+				}
+				boolean				authTypeActive		= false;
+				Map<String, Object>	activeAuthDetails	= (Map<String, Object>) authenticationDetails
+						.get("activeAuthDetails");
+				if (activeAuthDetails != null) {
+					authTypeActive = activeAuthDetails
+							.containsKey(String.valueOf(AuthType.valueOfAt(authTypeAtHeader).getAuthType()));
+				}
+				if (username != null && username.equalsIgnoreCase("anonymous") == false && authTypeActive == false) {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN,
+							"You do not have enough privilege to access this module");
+					return;
+				}
 
-					String requestUri = request.getRequestURI().substring(request.getContextPath().length());
-					for (MultiAuthSecurityDetailsVO multiAuthLogin : multiAuthLogiVos) {
-						Integer	authType			= multiAuthLogin.getAuthenticationTypeVO().getId();
-						String	authorizationHeader	= request.getHeader("Authorization");
-						String	authTypeHeader		= request.getHeader("at");
-						String	username			= null;
-						String	jwt					= null;
-						if ((requestUri.startsWith("/japi/") && !requestUri.equals("/japi/error"))
-								|| (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
-							if (requestUri.startsWith("/japi/") && !requestUri.equals("/japi/error")) {
-								if ((authType == Constants.AuthType.DAO.getAuthType()
-										&& "enableDatabaseAuthentication".equals(multiAuthLogin.getConnectionDetailsVO()
-												.getAuthenticationType().getName())
-										&& "true".equals(multiAuthLogin.getConnectionDetailsVO().getAuthenticationType()
-												.getValue())
-										&& Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey()
-												.equals(authTypeHeader.trim()))
-										|| (authType == Constants.AuthType.LDAP.getAuthType()
-												&& "enableLdapAuthentication".equals(multiAuthLogin
-														.getConnectionDetailsVO().getAuthenticationType().getName())
-												&& Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey()
-														.equals(authTypeHeader.trim()))) {
-									if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-										jwt			= authorizationHeader.substring(7);
-										username	= jwtUtil.extractUsername(jwt);
-									}
-								} else if (authType == Constants.AuthType.OAUTH.getAuthType()
-										&& "oauth-clients".equals(multiAuthLogin.getConnectionDetailsVO()
-												.getAuthenticationType().getName())
-										&& "true".equals(multiAuthLogin.getConnectionDetailsVO().getAuthenticationType()
-												.getValue())
-										&& Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey()
-												.equals(authTypeHeader.trim())) {
-									if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-										jwt			= authorizationHeader.substring(7);
-										username	= retrieveUsernameFromJwtToken(jwt);
-										if (username == null) {
-											username = jwtUtil.extractUsername(jwt);
-										}
-									}
-								}
+				if (username != null && authTypeActive && requestAuthType != null
+						&& username.equalsIgnoreCase("anonymous") == false) {
+
+					if (requestUri != null
+							&& (requestUri.startsWith("/japi/") && requestUri.equals("/japi/error") == false)
+							|| (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))) {
+
+						if (activeAuthDetails != null && activeAuthDetails.isEmpty() == false
+								&& SecurityContextHolder.getContext().getAuthentication() != null) {
+							UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+							if (userDetails == null || userDetails.isEnabled() == false) {
+								response.sendError(HttpServletResponse.SC_FORBIDDEN,
+										"You do not have enough privilege to access this module");
+								return;
 							}
-							if ((requestUri.startsWith("/japi/") && !requestUri.equals("/japi/error")
-									&& username != null
-									&& SecurityContextHolder.getContext().getAuthentication() == null)
-									|| username != null) {
+							if (jwt != null && jwtUtil.validateToken(jwt, userDetails)) {
 
-								UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-								if (((authType == Constants.AuthType.DAO.getAuthType()
-										|| authType == Constants.AuthType.LDAP.getAuthType())
-										&& jwtUtil.validateToken(jwt, userDetails))
-										|| authType == Constants.AuthType.OAUTH.getAuthType()) {
-
-									UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-											userDetails, null, userDetails.getAuthorities());
-									usernamePasswordAuthenticationToken
-											.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-									SecurityContextHolder.getContext()
-											.setAuthentication(usernamePasswordAuthenticationToken);
-									break;
-								}
+								UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+										userDetails, null, userDetails.getAuthorities());
+								usernamePasswordAuthenticationToken
+										.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+								SecurityContextHolder.getContext()
+										.setAuthentication(usernamePasswordAuthenticationToken);
 							}
 						}
 					}
 				}
-
 			}
 
 			chain.doFilter(request, response);
@@ -213,50 +207,5 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 		return null;
 	}
-
-	// private String retrieveUsernameFromOauthToken(String token) throws Exception
-	// {
-	// DecodedJWT decodedJWT = JWT.decode(token);
-	// try {
-	// String tenantID = "b04f6450-2e93-4532-8e83-fc394c677028";
-	// // For Azure AD V2 token
-	// String providerURLV2 = "https://login.microsoftonline.com/" + tenantID +
-	// "/discovery/v2.0/keys";
-	// String issuerV2 = "https://login.microsoftonline.com/" + tenantID + "/v2.0";
-	//
-	// JwkProvider provider = new JwkProviderBuilder(
-	// new URL("https://login.microsoftonline.com/common/discovery/keys")).build();
-	// Jwk jwk = provider.get(decodedJWT.getKeyId());
-	// Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(),
-	// null);
-	// JWTVerifier verifier = JWT.require(algorithm).withIssuer(issuerV2).build();
-	//
-	// return verifier.verify(decodedJWT).getClaim("upn").asString();
-	//
-	// } catch (Exception a_exc) {
-	// logger.error("Error while retrieving user name from jwt token of OAUTH
-	// authentication", a_exc);
-	// String appID = decodedJWT.getClaims().get("appid").asString();
-	//
-	// System.out.println("Header = " + decodedJWT.getHeader());
-	// System.out.println("Algorithm = " + decodedJWT.getAlgorithm());
-	// System.out.println("Audience = " + decodedJWT.getAudience());
-	// decodedJWT.getClaims().forEach((k, v) -> {
-	// System.out.println("Claim " + k + " = " + v.asString());
-	// });
-	// System.out.println("ContentType = " + decodedJWT.getContentType());
-	// System.out.println("ExpiresAt = " + decodedJWT.getExpiresAt());
-	// System.out.println("Id = " + decodedJWT.getId());
-	// System.out.println("Issuer = " + decodedJWT.getIssuer());
-	// System.out.println("Subject = " + decodedJWT.getSubject());
-	//
-	// if (appID != null && appID.equals(oAuthDetails.getOAuthClientId())
-	// && decodedJWT.getExpiresAt().after(new Date())) {
-	// return decodedJWT.getClaims().get("upn").asString();
-	// }
-	//
-	// }
-	// return null;
-	// }
 
 }

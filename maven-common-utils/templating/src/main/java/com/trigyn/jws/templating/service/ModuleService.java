@@ -318,9 +318,7 @@ public class ModuleService {
 		}
 
 		moduleListing.setTargetLookupId(moduleDetailsVO.getTargetLookupId());
-		if (!StringUtils.isBlank(moduleDetailsVO.getTargetTypeId())) {
-			moduleListing.setTargetTypeId(moduleDetailsVO.getTargetTypeId());
-		}
+		moduleListing.setTargetTypeId(moduleDetailsVO.getTargetTypeId());
 		moduleListing.setUpdatedDate(new Date());
 		return moduleListing;
 	}

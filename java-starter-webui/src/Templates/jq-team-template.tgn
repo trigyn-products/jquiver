@@ -24,7 +24,7 @@
     </div>
  
     <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                  <span class="namcls">Sr Software Engineer</span>
             <a href="https://www.linkedin.com/in/abde17/" target="_blank">
                 <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Abhay Desai.png" alt="Abhay Desai" title="Sr Software Engineer"/>
@@ -36,7 +36,7 @@
             </a>
         </div>
         
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
             <span class="namcls">Sr Technical Analyst</span>
                    
             <a href="https://www.linkedin.com/in/akram-bhasha-mohammad-80778841/" target="_blank">
@@ -47,7 +47,7 @@
             </a>
         </div>
         
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
 
                  <span class="namcls">Sr Technical Analyst</span>
                 
@@ -98,7 +98,7 @@
             </a>
         </div>
 
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                     
                 <span class="namcls">Sr Software Engineer</span>
             <a href="https://www.linkedin.com/in/ravi-gowda-9a5a6aa9" target="_blank">
@@ -110,7 +110,7 @@
             </a>
         </div>
         
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                 <span class="namcls">Sr Technical Analyst</span>
             <a href="https://www.linkedin.com/in/satishchandra-pandey-4b490031/" target="_blank">
                 <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Satish Pandey.jpg" alt="Satish Pandey" title="Sr Technical Analyst"/>
@@ -122,7 +122,7 @@
             </a>
         </div>
         
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
 
                 <span class="namcls">Designer- UI</span>
             <a href="https://www.linkedin.com/in/satyawan-sawant-06925212a/" target="_blank">
@@ -154,4 +154,4 @@
 
 <script>
     document.title = "Meet the Team"    
- </script>  
+ </script>

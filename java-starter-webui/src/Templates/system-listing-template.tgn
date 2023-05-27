@@ -45,10 +45,12 @@
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             </#if>
           </#list>
-            	{ title: "<#noparse><@resourceBundle</#noparse> 'jws.action' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+            	{ title: "<#noparse><@resourceBundle</#noparse> 'jws.action' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
         ];
     
-    	//uncomment below section if you want sorting on any specific column by default
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
     	let dataModel = {
     		url: contextPath + "/cf/pq-grid-data"
     		/*,sortIndx: "lastUpdatedTs",
@@ -64,9 +66,11 @@
     
     });
     
-    //uncomment below method and set as formatter for your column if 
-    //you want date format
-    //render: dateFormatter
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
     /*
     function dateFormatter(uiObject){
     	let dateToBeFormatted = uiObject.rowData.yourColumn;
@@ -74,7 +78,7 @@
     }*/
     
     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
-    function manageRecord(uiObject) {
+    function actionButtonRenderer(uiObject) {
         listingData  [uiObject.rowIndx] = uiObject.rowData;
         let rowIndx = uiObject.rowIndx;
         return '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>'jws.edit'<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>'.toString();

@@ -3,6 +3,7 @@
     <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
     <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 </head>
+
 <form action="${(contextPath)!''}/cf/sat" method="POST" id="userManagement" name="userManagement">
     <div class="container">
         <div class="cm-card">
@@ -10,18 +11,18 @@
                 <h2 class="title-cls-name float-left">User Management</h2>
                 <div class="float-right">
                     <div class="addonbtnblock">
-                    <span class="btniconplace">     
+                    <span class="iconscover spacingclss">     
                        <button type="button" title="Manage Permissions" id="btnManagePermission" class="managepermisionicon  actionimgbtn lefrightspace"> </button></span>
 
-                       <span class="btniconplace">  
+                       <span class="iconscover spacingclss">  
                   <button type="button" id="btnManageRoles" title="Manage Roles" class="rolemangementicon actionimgbtn lefrightspace"> </button>
                        </span>
 
-                      <span class="btniconplace"> 
+                      <span class="iconscover spacingclss"> 
                    <button type="button" id="btnManageUser" title="Manage Users" class="manageusericon actionimgbtn lefrightspace" "></button>
                       </span>
 
-                    <button type="button" id="btnRestartServer" class="lefrightspace btn btn-primary">Restart Server</button>
+                    
                 </div>
                 </div>
                 <div class="clearfix"></div>
@@ -88,7 +89,8 @@
             </div>
         </div>
     </div>
-</form>   
+</form>
+   
 <script>
 document.title = "User Management Configuration";
 contextPath 	= "${contextPath}";
@@ -96,8 +98,16 @@ let oAuthClientDetails 	= [];
 let selectedValues = [];
 var onLoad = false;
 var isAdminEmailExist = false;
-$(document).ready(function () {
+var initialFormData = new Object();
 
+$(window).on("load", function(){
+    let userManagementFields = $("#userManagement").serializeArray();
+    initialFormData = JSON.stringify(userManagementFields);
+	 //console.log("On Window Load "+initialFormData);
+	 //localStorage.setItem("userManagementFields", JSON.stringify($("#userManagement").serializeArray())); 
+})
+
+$(document).ready(function () {	
 	selectedValues = [];
 	onLoad = true;
 	$("#isAuthenticationEnabled").attr("checked",${isAuthenticationEnabled?c});
@@ -147,30 +157,73 @@ $(document).ready(function () {
 				},	
 					
 	       ],	
-	       open		: function( event, ui ) {	    		
+	       open		: function( event, ui ) {	 
+                  		
 		   	   $(".ui-dialog-titlebar")	
 		   	    .find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")	
-		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');	
-		   }		
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+
+               
+		   }	
 		
 		});
         	
     });
+
+    
 		
 	$('#userManagement').submit(function(e) {       
-
+		
+		//console.log("Changes detected inside save"+JSON.stringify($("#userManagement").serializeArray()))
 		e.preventDefault();	
 		var form 				= 	this;
 		var formData 			= 	{};
 		var authProperties		=	[];
-		let errorFlag 		=	validateFormSubmit();		
+		let errorFlag 		=	validateFormSubmit();
+        if(JSON.stringify($("#userManagement").serializeArray()) === initialFormData){
+				showMessage("No changes detected in Configuration", "warn");
+				errorFlag = true; 
+			}		
 		if(errorFlag == false){
-			$.each(this, function(i, v){
-				var input 			= $(v);
+			
+			let updatedUserManagementDiv = $("#userManagement").serializeArray();
+			//console.log("Updated Form Fields" + JSON.stringify(updatedUserManagementDiv));
+			//console.log("localStorage Fields" + localStorage.getItem("userManagementFields"));
+			
+          
+                
+         //Modal for Save
+		let saveAuth = $('<div id="saveAuthentication"></div>');	
+		var thisObj = $(this);
+		var lastIndex = $(this).attr('id').split("-").pop();
+		$("body").append(saveAuth);	
+        
+		$("#saveAuthentication").html("Saving authentication changes require & will shutdown the sever, you'll have to start the server manually. <br> Do you want to save & shutdown the server?");	
+		$("#saveAuthentication").dialog({	
+			bgiframe		: true,	
+			autoOpen		: true, 	
+			modal		 	: true,	
+			closeOnEscape 	: true,	
+			draggable	 	: true,	
+			resizable	 	: false,
+            width           : 460,	
+			title		 	: "Save Authentication Configuration?",	
+			"class": 'btn btn-primary',
+			position: {
+				my: "center", at: "center"
+			},
+			buttons		 	: [{	
+					text	: "Save",
+					"class": 'btn btn-primary',
+					click	: function(){
+                   debugger
+                        $('#userManagement *').filter(':input').each(function( i, v ) {
+                            var input 			= $(v);
 				var type 			= input.attr("type");
 				var attrId 			= input.attr("id");
 				var authTypes 		= 	[];
-				if (typeof attrId != "undefined") {
+                if (typeof attrId != "undefined") {
+                    
 					var val = '';
 					switch (type) { 
 					case 'checkbox': 
@@ -196,27 +249,95 @@ $(document).ready(function () {
 							authPropsData.authTypes = authTypes;						
 							authProperties.push(authPropsData);									
 						}											
-					}												
-				}			
-			});
+					}	
+                }
+            });					
+			 
 			formData.authProperties	= authProperties;		
 			var formJsonData = JSON.stringify(formData);
-			//console.log('Form Data : '+formJsonData);
-			$.ajax({
+			//console.log('Form Data : '+formJsonData);        
+                    
+                       
+				$.ajax({
 				type : "POST",				
 				url : contextPath+"/cf/sat",
 				dataType : 'json',
 				data : formJsonData,
 				contentType: "application/json",				
 				success: function(data) {
-					window.location.reload();
+					
 					selectedVerificationType = $("#verificationStep").val();
 					showMessage("Information saved successfully", "success");
+                    showMessage("Shutting down Server, please wait...", "warn");
+					//location.href = contextPath+"/cf/login";
+					shutDownServer();
+					
 				}
-			});		
+			});
+						$(this).dialog("destroy");	
+						$(this).remove();	
+					}	
+	           	},{	
+					text :"Cancel",
+					"class":"btn btn-secondary",
+					click: function() { 
+						showMessage("Save cancelled", "warn");	
+						$(this).dialog("destroy");	
+						$(this).remove();	
+					},	
+				},	
+					
+	       ],	
+	       open		: function( event, ui ) {	    		
+		   	   $(".ui-dialog-titlebar")	
+		   	    .find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")	
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');	
+		   },
+           close : function(){
+               showMessage("Save cancelled","warn")
+           }	
+           
+           		
+		
+		});
+
+       
+		
+		//End of Modal   
+			// if (confirm("Do you want to save selected auth config? Server will be stopped, need manual restart...") == true) {
+            	
+            
+			// } else {
+			// 	   showMessage("Save cancelled", "warn");
+			// 	   window.location.reload()
+			// }
+			
+           
 		}		
 				
 	});	
+	
+	
+	function shutDownServer(){
+	
+		 $.ajax({
+			type : "GET",
+			url : contextPath+"/cf/shutdown-app",
+			data : { 
+				
+			},
+			success: function(data) {
+					
+					var millisecondsToWait = 2000;
+					setTimeout(function() {
+						showMessage("Server is shutting down.", "warn");
+					}, millisecondsToWait);  
+			},
+			error: function(xhr, data){
+				showMessage("Error while closing the application server.", "error");
+			} 
+        });	
+	}
 	
 	$('input[name="testLdapAuth"]').click(function(e){		
 		e.preventDefault(); 
@@ -232,26 +353,6 @@ $(document).ready(function () {
         
     });
 	
-	$('#btnRestartServer').on('click', function(e){
-		e.preventDefault();	
-		$.ajax({
-			type : "GET",
-			url : contextPath+"/cf/restart",
-			data : { 
-				
-			},
-			success: function(data) {
-					location.href = contextPath+"/cf/home";
-					var millisecondsToWait = 2000;
-					setTimeout(function() {
-						showMessage("Server is restarting.", "warn");
-					}, millisecondsToWait);  
-			},
-			error: function(xhr, data){
-				showMessage("Error while restarting the server.", "error");
-			} 
-        });
-	});
 	
 	$('#btnManagePermission').on('click', function(){
 		let enabled = checkAuthenticatedEnabled();	
@@ -300,13 +401,16 @@ $(document).ready(function () {
 
 function validateFormSubmit(){
 	var errorFlag = false;		
-	
 	let isAuthChecked = $('#isAuthenticationEnabled').is(':checked');
-	if($(".dividesection").length==0 && isAuthChecked){
-		showMessage("No authentication is added !", "error");
-		errorFlag = true;
-		return errorFlag;
-	}
+	if(isAuthChecked){
+        $('.dividesection').find('select').each(function() {
+            if ($(this).val() === '' || $(this).val() === '-1') {                
+                showMessage("No authentication is added !", "error");
+                errorFlag = true;
+                return errorFlag;
+            }
+        });
+    }
 	$('.asteriskmark').next('input').each(function(e){	
 		if ($(this).val() === '' && $(this).is(":visible") == true) {				
 			showMessage("Please fill all fields!", "error");
@@ -377,7 +481,8 @@ function getParsedJSONProperties(properties) {
 	if(properties!= undefined && properties != ""){	
 		parsedProperties 	= JSON.parse(decodeURIComponent(properties));
 	}
-
+    //console.log("Properties ::"+JSON.stringify(properties));
+    //console.log("Parsed Properties ::"+JSON.stringify(parsedProperties));
 	parsedProperties = JSON.parse(parsedProperties);
 	return parsedProperties;
 }

@@ -123,10 +123,9 @@ public class URLExceptionHandler implements ErrorController {
 				}
 			}
 			if (exception != null) {
-				parameterMap.put("errorMessage", "<#noparse>" + exception.getCause() + "</#noparse>");
+				parameterMap.put("errorMessage", exception.getCause());
 			} else {
-				parameterMap.put("errorMessage",
-						"<#noparse>" + httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) + "</#noparse>");
+				parameterMap.put("errorMessage", httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) );
 			}
 
 		}

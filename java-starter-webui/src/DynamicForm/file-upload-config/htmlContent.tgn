@@ -243,7 +243,6 @@
 						</div>
 					</div>
 
-					<#noparse>
 						<#if (resultSet)?? && resultSet?size !=0>
 							<#list resultSet as resultSetList>
 								<textarea name="uploadValidator_query" id="uploadValidator_query" style="display: none">
@@ -262,7 +261,6 @@
 								<textarea id="viewValidator_query" name="viewValidator_query" style="display: none"></textarea>
 								<textarea id="deleteValidator_query" name="deleteValidator_query" style="display: none"></textarea>
 						</#if>
-					</#noparse>
 	</form>
 
 	<div id="tabs">
@@ -362,6 +360,7 @@
 	  $("#tabs").tabs();
 	  <#if (resultSet)??>
 		<#list resultSet as resultSetList>
+			$("#fileBinId").prop("readonly", true);
 			$("#fileBinId").val('${resultSetList?api.get("fileBinId")}');
 			$("#fileTypeSupported").val('${resultSetList?api.get("fileTypeSupported")}');
 			$("#maxFileSize").val('${resultSetList?api.get("maxFileSize")}');

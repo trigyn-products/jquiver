@@ -47,7 +47,7 @@
 					<span class="asteriskmark">*</span><label for="dynarestUrl">${messageSource.getMessage('jws.resturl')} </label>	
 					 <span class="copyblockcls" onclick="dynarest.copyUrlContextPath()">				
 					 <span id="urlPrefixLabel" ></span>
-                     <i class="fa fa-clipboard" aria-hidden="true""  id="restUrlSpan" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+                     <i class="fa fa-clipboard" aria-hidden="true"  id="restUrlSpan" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
                      <i title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>" id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();dynarest.copyUrlActualPath()"></i>
 					</span>			
 					

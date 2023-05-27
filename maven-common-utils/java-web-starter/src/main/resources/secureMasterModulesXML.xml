@@ -1,0 +1,123 @@
+<secureEntities>
+	<!-- Master Module -->
+	<secureEntity>
+		<name>Grid Utils</name>
+		<type>master-module</type>
+		<entityID>07067149-098d-11eb-9a16-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Permission</name>
+		<type>master-module</type>
+		<entityID>12ec53b3-5669-11eb-9e7a-f48e38ab8cd7</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dashlet</name>
+		<type>master-module</type>
+		<entityID>19aa8996-80a2-11eb-971b-f48e38ab8cd7</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Templating</name>
+		<type>master-module</type>
+		<entityID>1b0a2e40-098d-11eb-9a16-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>File Bin</name>
+		<type>master-module</type>
+		<entityID>248ffd91-7760-11eb-94ed-f48e38ab8cd7</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Form Builder</name>
+		<type>master-module</type>
+		<entityID>30a0ff61-0ecf-11eb-94b2-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Master Generator</name>
+		<type>master-module</type>
+		<entityID>4461bbae-8c8f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity>
+	 <secureEntity>
+		<name>REST API</name>
+		<type>master-module</type>
+		<entityID>47030ee1-0ecf-11eb-94b2-f48e38ab9348</entityID>
+	</secureEntity> 
+	<secureEntity>
+		<name>Internalization</name>
+		<type>master-module</type>
+		<entityID>5559212c-8c8f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Files</name>
+		<type>master-module</type>
+		<entityID>5c4358e2-b69a-11ed-983d-7c8ae1bb24d8</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>User Management</name>
+		<type>master-module</type>
+		<entityID>5f6dd374-8c8f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity>  
+	<secureEntity>
+		<name>Notification</name>
+		<type>master-module</type>
+		<entityID>6ac6a54c-8d3f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity>
+	 <secureEntity>
+		<name>Application Configuration</name>
+		<type>master-module</type>
+		<entityID>76270518-8c8f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity> 
+	<secureEntity>
+		<name>Master module</name>
+		<type>master-module</type>
+		<entityID>7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8</entityID>
+	</secureEntity> 
+	<secureEntity>
+		<name>Additional Datasource</name>
+		<type>master-module</type>
+		<entityID>799947cc-b6cb-11eb-8529-0242ac130003</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>TypeAhead Autocomplete</name>
+		<type>master-module</type>
+		<entityID>91a81b68-0ece-11eb-94b2-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Import/Export</name>
+		<type>master-module</type>
+		<entityID>96917c8e-8c8f-11eb-8dcd-0242ac130003</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Users</name>
+		<type>master-module</type>
+		<entityID>aa3e68ac-8d42-11eb-98cc-9840bb1e8144</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Roles</name>
+		<type>master-module</type>
+		<entityID>aa3e68ac-8d42-11eb-98cc-9840bb1e8155</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Dashboard</name>
+		<type>master-module</type>
+		<entityID>b0f8646c-0ecf-11eb-94b2-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Site Layout</name>
+		<type>master-module</type>
+		<entityID>c6cc466a-0ed3-11eb-94b2-f48e38ab9348</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>API Clients</name>
+		<type>master-module</type>
+		<entityID>ded49cbd-ed7c-40ce-b1f8-c2e34ad33473</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Scheduler</name>
+		<type>master-module</type>
+		<entityID>fcd0df1f-783f-11eb-94ed-f48e38ab8cd6</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Help Manual</name>
+		<type>master-module</type>
+		<entityID>fcd0df1f-783f-11eb-94ed-f48e38ab8cd7</entityID>
+	</secureEntity>
+</secureEntities>

@@ -12,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +24,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -62,9 +59,6 @@ public class MultiHttpSecurityConfig {
 	// Arrays.asList("google", "facebook");
 
 	@Autowired
-	private JwtRequestFilter				jwtRequestFilter				= null;
-
-	@Autowired
 	private ServletContext					servletContext					= null;
 
 	@Autowired
@@ -92,31 +86,9 @@ public class MultiHttpSecurityConfig {
 		return new CustomLogoutSuccessHandler();
 	}
 
+	
 	@Configuration
 	@Order(1)
-	public class ApiSecurityAdapter extends WebSecurityConfigurerAdapter {
-
-		@Autowired
-		private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint = null;
-
-		@Bean
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/japi/**") // <= Security only available for /japi/**
-					.authorizeRequests().antMatchers("/japi/register", "/japi/login", "/japi/error").permitAll()
-					.anyRequest().authenticated().and().csrf().disable().exceptionHandling()
-					.authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
-					.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		}
-	}
-
-	@Configuration
-	@Order(2)
 	public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
@@ -176,7 +148,7 @@ public class MultiHttpSecurityConfig {
 												.permitAll()
 												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
 														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
-														"/cf/sendConfigureTOTPMail")
+														"/cf/sendConfigureTOTPMail","/japi/**")
 												.permitAll().antMatchers("/login/**", "/logout/**").permitAll()
 												.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
 												.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")
@@ -199,7 +171,7 @@ public class MultiHttpSecurityConfig {
 												.permitAll()
 												.antMatchers("/cf/register", "/cf/confirm-account", "/cf/captcha/**",
 														"/cf/changePassword", "/cf/updatePassword", "/cf/configureTOTP",
-														"/cf/sendConfigureTOTPMail")
+														"/cf/sendConfigureTOTPMail", "/japi/**")
 												.permitAll().antMatchers("/login/**", "/logout/**").permitAll()
 												.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf")
 												.permitAll().and().csrf().disable().formLogin().loginPage("/cf/login")

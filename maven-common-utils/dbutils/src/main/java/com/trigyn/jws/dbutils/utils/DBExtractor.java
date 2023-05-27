@@ -51,9 +51,16 @@ public final class DBExtractor {
 		try {
 
 			Connection			con		= dataSource.getConnection();
-			ResultSet			rs		= con.createStatement().executeQuery("select *  from " + a_tableName);
-			ResultSetMetaData	rsmd	= rs.getMetaData();
 			DatabaseMetaData	dbmd	= con.getMetaData();
+			String productName = dbmd.getDatabaseProductName();
+			String queryTableName = a_tableName;
+			if(productName.equalsIgnoreCase("postgresql")) {
+				queryTableName = "\"" + a_tableName + "\"";		
+			}
+			String executeQueryString = "select *  from " + queryTableName;
+			ResultSet			rs		= con.createStatement().executeQuery(executeQueryString);
+			ResultSetMetaData	rsmd	= rs.getMetaData();
+			
 
 			String				colName	= null;
 			for (int iColCounter = 1; iColCounter <= rsmd.getColumnCount(); iColCounter++) {
@@ -79,7 +86,7 @@ public final class DBExtractor {
 				dbCol.put("columnSize", rsmd.getColumnDisplaySize(iColCounter));
 				dbCol.put("isMandatory", rsmd.isNullable(iColCounter) == 0);
 				dbCol.put("precision", rsmd.getPrecision(iColCounter));
-				dbCol.put("isAutoIncrement", rsmd.isAutoIncrement(iColCounter));
+				dbCol.put("autoIncrement", rsmd.isAutoIncrement(iColCounter));
 
 				dbStructure.add(dbCol);
 			}
@@ -114,14 +121,26 @@ public final class DBExtractor {
 			case "NVARCHAR2":
 			case "LONGVARCHAR":
 			case "LONGNVARCHAR":
+			case "CHARACTER VARYING":
+			case "TEXT":
+			case "TINYTEXT":
+			case "LONGTEXT":
+			case "MEDIUMTEXT":	
+			case "UUID":	
 				return "text";
 			case "INTEGER":
+			case "INT1":
+			case "INT2":
+			case "INT3":	
 			case "INT4":
+			case "INT8":	
 			case "INT":	
 			case "SMALLINT":
+			case "BIGINT":	
 			case "LONG":
 			case "BOOLEAN":
-			case "TINYINT":	
+			case "TINYINT":
+			case "SERIAL" :	
 				return "int";
 			case "DECIMAL":
 			case "NUMERIC":
@@ -131,20 +150,24 @@ public final class DBExtractor {
 			case "BINARY_FLOAT":
 			case "BINARY_DOUBLE":
 			case "REAL":
-			case "FLOAT8":	
+			case "FLOAT8":
+			case "DOUBLE PRECISION":	
 				return "decimal";
 			case "DATE":
+			case "TIME":	
 			case "DATETIME":
 			case "TIMESTAMP":
 			case "TIMESTAMP_WITH_TIMEZONE":
 			case "TIMESTAMP_WITH_LOCAL_TIMEZONE":
 				return "date";
+				
 		}
 		// Decimal, Float, boolean, bit, tinyint and all are pending
 		return null;
 	}
 
 	private static String getDBType(int a_colType, int a_colLength) {
+		
 		switch (a_colType) {
 			case Types.CHAR:
 			case Types.NCHAR:
@@ -160,7 +183,7 @@ public final class DBExtractor {
 				return "textarea";
 			case Types.INTEGER:
 			case Types.SMALLINT:
-			case Types.TINYINT:
+			case Types.TINYINT:	
 				return "int";
 			case Types.DECIMAL:
 			case Types.NUMERIC:
@@ -171,7 +194,7 @@ public final class DBExtractor {
 			case Types.DATE:
 			case Types.TIMESTAMP:
 			case Types.TIMESTAMP_WITH_TIMEZONE:
-				return "date";
+				return "date";	
 		}
 		// boolean, bit, tinyint and all are pending
 		return null;

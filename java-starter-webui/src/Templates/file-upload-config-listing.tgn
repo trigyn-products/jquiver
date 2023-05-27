@@ -16,27 +16,28 @@
 <div class="container">
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.fileUploadConfig')}</h2> 
-        <div class="float-right">
-         <div class="addonbtnblock">
-         
-          <a href="#"  onclick="fileUploadMaster();"> 
-               <span class="addonicons shedulericon commanfileuser" title="${messageSource.getMessage('jws.commonfiles')}"> 
-                    </span>					 
-				</a>
-				
-       		<!-- <span onclick="fileUploadMaster();">
-				<input id="fileUploadBtn" class="btn btn-primary pull-left margin-r-5" name="fileUploadBtn" value="" type="button">
-			</span> -->
+        <div class="float-right"> 
 			
 		  <form id="formFileUpload" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+           <div class="addonbtnblock">
                 <input type="hidden" name="formId" value="40289d3d750decc701750e3f1e3c0000"/>
                 <input type="hidden" name="fileBinId" id="fileBinId" value=""/>
-                <button type="submit" class="btn btn-primary">${messageSource.getMessage('jws.addFileConfiguration')}</button>
+
+                <span class="iconscover spacingclss">
+                    <button type='button'onclick="fileUploadMaster();" class="addonicons commanfileuser" title="${messageSource.getMessage('jws.commonfiles')}">
+                    </button>
+                </span>
+
+                <button type="submit" class="spacingclss btn btn-primary">
+                    ${messageSource.getMessage('jws.addFileConfiguration')}
+                </button>
+
+                <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+                 </div>
             </form>
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-			</span>	   
-        </div>
+			  
+       
         </div>
         <div class="clearfix"></div>        
         </div>

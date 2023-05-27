@@ -37,6 +37,10 @@ class AddEditModule {
 		if (targetLookupId === "7") {
 			moduleDetails.moduleUrl = $("#externalURL").val();
 			moduleDetails.targetTypeId = $("#targetType").val();
+		} else if(targetLookupId === "6") {
+			moduleDetails.targetTypeNameId = null; 
+        	moduleDetails.targetTypeId = null; 
+        	moduleDetails.moduleUrl = $("#moduleURL").val();
 		} else {
 			moduleDetails.moduleUrl = $("#moduleURL").val();
 			moduleDetails.targetTypeId = $("#targetTypeNameId").val();

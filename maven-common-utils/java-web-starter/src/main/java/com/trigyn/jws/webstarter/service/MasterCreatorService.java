@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.persistence.PersistenceException;
@@ -111,6 +112,8 @@ public class MasterCreatorService {
 
 	@Autowired
 	private ActivityLog						activitylog						= null;
+	
+	private static final String				PRIMARY_KEY				= "PK";
 
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
 		Map<String, Object>		templateMap			= new HashMap<>();
@@ -349,7 +352,7 @@ public class MasterCreatorService {
 			saveResourseKey(map);
 
 		}
-		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey);
+		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey, dataSourceId);
 		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(dataSourceId, dbProductName, tableName,
 				formDetails, moduleURL);
 		String				saveQuery			= dynamicFormDetails.get("save-template");
@@ -428,7 +431,7 @@ public class MasterCreatorService {
 	}
 
 	private String generateSelectQueryForForm(String tableName, List<Map<String, Object>> formDetails,
-			String primaryKey) throws Exception {
+			String primaryKey, String dataSourceId) throws Exception {
 		StringBuilder	selectQuery	= new StringBuilder("SELECT ");
 		StringJoiner	columns		= new StringJoiner(",");
 		for (Map<String, Object> details : formDetails) {
@@ -438,9 +441,32 @@ public class MasterCreatorService {
 		StringJoiner	whereClause	= new StringJoiner(" AND ");
 		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
 		String value = null;
+		
+		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName,
+				dataSourceId);
+		boolean isStringID = false;
+		for (Map<String, Object> info : tableDetails) {
+			if(info.get("columnType") == null) {
+				
+				continue;
+			}
+			String	dataType	= info.get("dataType").toString();
+			String	columnKey	= info.get("columnKey").toString();
+			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
+				if(dataType.equalsIgnoreCase("text")) {
+					isStringID = true;
+				}
+			}
+		}
+		
 		for (String key : primaryKeys) {
-			
-			 value = key + " = " + "${" + key.replaceAll("_", "") + "! 'null' }";
+			String coloumnName = key;
+			if(isStringID) {
+				value = coloumnName + " = '" + "${" + key.replaceAll("_", "") + "! 'null' }'";
+			}
+			else {
+				value = coloumnName + " = " + "${" + key.replaceAll("_", "") + "! 'null' }";
+			}
 			
 			whereClause.add(value.replace("\\", ""));
 		}

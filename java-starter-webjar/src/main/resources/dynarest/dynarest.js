@@ -82,9 +82,7 @@ class DynamicRest {
 				wordWrapColumn: 100,
 				wordWrapMinified: true,
 				wrappingIndent: "indent",
-				"autoIndent": true,
-    			"formatOnPaste": true,
-    			"formatOnType": true
+				"autoIndent": true
 			});
 			/**Added for displaying Custom Suggestions in Monaco Editor */
 			var newSuggestionsArray = [];

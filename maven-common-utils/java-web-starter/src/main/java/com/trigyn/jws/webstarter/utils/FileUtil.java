@@ -16,7 +16,10 @@ public class FileUtil {
 	public static String generateTemporaryFilePath(String tempFolderName, String randomId) {
 
 		String	systemPath			= System.getProperty("java.io.tmpdir");
-		String	tempFilePath	= systemPath + File.separator + tempFolderName;
+		if(systemPath.endsWith(File.separator) == false) {
+			systemPath += File.separator;
+		}
+		String	tempFilePath	= systemPath + tempFolderName;
 
 		File	f				= new File(tempFilePath);
 		if (f.exists() && f.isDirectory()) {

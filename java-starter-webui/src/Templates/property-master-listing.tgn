@@ -14,28 +14,29 @@
 <div class="container">
 	<div class="topband">
 		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.applicationConfiguration')}</h2> 
-		<div class="float-right">
-			 <form id="addEditMailConfiguration" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+		<div class="float-right" style="display:flex;">
+			 <form id="addEditMailConfiguration" action="${(contextPath)!''}/cf/df" method="post" style="margin:0px">
+              <div class="addonbtnblock">
                 <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
                 <input type="hidden" name="ownerId" id="ownerId" value=""/>
                 <input type="hidden" name="ownerType" id="ownerType" value=""/>
                 <input type="hidden" name="propertyName" id="propertyName" value=""/>              
 
-                 <span class="btniconplace"> 
-                	<button type="submit" title="Mail configuration" class="mailconfigicon actionimgbtn"> </button>
+                 <span class="iconscover spacingclss"> 
+                	<button type="submit" title="Mail configuration" class="mailconfigicon addonicons"> </button>
                  </span>
+              </div>
             </form>
             
-			<form id="addEditProperty" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+			<form id="addEditProperty" action="${(contextPath)!''}/cf/df" method="post"  style="margin:0px">
                 <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
                 <input type="hidden" name="propertyMasterId" id="propertyMasterId" value=""/>
-                <button type="submit" class="btn btn-primary"> ${messageSource.getMessage('jws.addProperty')} </button>
+                <button type="submit" class="spacingclss btn btn-primary"> ${messageSource.getMessage('jws.addProperty')} </button>
             </form>
 
-           
-			<span onclick="backToWelcomePage();">
-				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-			</span>	
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
 		</div>
 		
 		<div class="clearfix"></div>		

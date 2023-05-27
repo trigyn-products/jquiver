@@ -298,14 +298,12 @@ let savedHeaderJson = "";
 let savedRequestParamJson = "";
 let selectedLanguageId = getCookie("locale");
   
-<#noparse>
 	<#if (moduleDetailsVO?api.getHeaderJson())?has_content>
 	    savedHeaderJson = JSON.parse('${(moduleDetailsVO?api.getHeaderJson())!""}');
 	</#if>
 	<#if (moduleDetailsVO?api.getRequestParamJson())?has_content>
 	    savedRequestParamJson = JSON.parse('${(moduleDetailsVO?api.getRequestParamJson())!""}');
 	</#if>
-</#noparse>
 $(function() {
    
     $("#targetLookupType option[value='4']").remove();

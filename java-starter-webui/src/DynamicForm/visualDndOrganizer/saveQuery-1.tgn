@@ -1,0 +1,14 @@
+var System = Java.type("java.lang.System");
+ var HashMap =  Java.type("java.util.HashMap");
+function updateVisualData(){
+    var params = new HashMap();
+    for(counter=0; counter < requestDetails["visualData"].length;counter++) {
+        params.clear();
+        params.put('moduleId', requestDetails["visualData"][counter]["moduleId"]);
+        params.put('sequence', requestDetails["visualData"][counter]["sequence"]);
+        params.put('parentId', requestDetails["visualData"][counter]["parentId"]);
+        jq_updateDBQuery("UPDATE jq_module_listing SET parent_id = :parentId ,sequence = :sequence WHERE module_id = :moduleId", null, params);
+    }
+    return 1;
+}
+updateVisualData();

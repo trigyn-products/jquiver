@@ -17,7 +17,8 @@
     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.manualtypelisting')}</h2> 
         <div class="float-right">
-        ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" style="width:100px; height: 32px;">   
+             <div class="addonbtnblock">
+        ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" style="width:100px; height: 32px;">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
@@ -25,15 +26,16 @@
             <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
         		<#list loggedInUserRoleList as loggedInUserRole>
             		<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>  
-            			<button type="submit" class="btn btn-primary" onclick="createNew()"> ${messageSource.getMessage('jws.createnewmanual')} </button>
+            			<button type="submit" class="spacingclss btn btn-primary" onclick="createNew()"> ${messageSource.getMessage('jws.createnewmanual')} </button>
 						<#break>
         			</#if>
         		</#list>
     		</#if>
 					
-            <span onclick="backToWelcomePage();">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-            </span> 
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+        </div>
         </div>
         
         <div class="clearfix"></div>        

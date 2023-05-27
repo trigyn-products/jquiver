@@ -13,9 +13,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,6 +59,9 @@ public class HomeController {
 
 	@Autowired
 	private JwsUserRegistrationController	jwsUserRegistrationController	= null;
+	
+	@Autowired
+	private ApplicationContext context;
 
 	@RequestMapping(value = { "", "/", "/home" }, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
@@ -93,6 +100,13 @@ public class HomeController {
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
+	}
+	
+	@GetMapping("/shutdown-app")
+	public void shutdownApp() {
+
+	    int exitCode = SpringApplication.exit(context, (ExitCodeGenerator) () -> 1);
+	    System.exit(exitCode);
 	}
 
 }

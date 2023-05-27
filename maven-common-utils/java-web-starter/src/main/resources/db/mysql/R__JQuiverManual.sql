@@ -697,13 +697,13 @@ Steps to create module url with path variables:
 
 **Step 1: ** Create new template and access the path variables using freemarker list directives:
 
-<#noparse>
+
 <#if pathVariableList?? && pathVariableList?size != 0>
 	<#list pathVariableList as pathVariable>
     	${pathVariable?cap_first}
 	</#list>
 </#if>
-</#noparse>
+
 
 ![](/cf/files/b92c317e-d2fd-44b5-a972-9ca18af4705d)
 
@@ -849,7 +849,7 @@ Default macros provided are :-
 Template without parameters:**
 
 Syntax:
-<#noparse><@templateWithoutParams templateName/>
+<@templateWithoutParams templateName/>
 
 Example:
 <@templateWithoutParams "role-autocomplete"/>
@@ -886,7 +886,7 @@ Syntax:
 <@resourceBundleWithDefault resource-key default-text/>
 
 Example:
-<@resourceBundleWithDefault "jws.addProperty" "Add property"/></#noparse>
+<@resourceBundleWithDefault "jws.addProperty" "Add property"/>
 
 ![](/cf/files/4028168b7647e50a0176488f60ba0006)
 
@@ -959,7 +959,7 @@ To enable captcha in any form add following piece of code in html and JS ready f
 ```
 <div class="col-3">
 	<p>
-		<img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''''}/cf/captcha/<#noparse>${formId}</#noparse>_captcha">
+		<img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''''}/cf/captcha/${formId}_captcha">
 		<span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
 		<label for="captcha" class="sr-only">Enter Captcha</label>
 		<input type="text" id="formCaptcha" name="formCaptcha" class="form-control" placeholder="Enter Captcha"  >
@@ -1016,7 +1016,7 @@ In case of invalid captcha application will return **412** Precondition failed H
 	}
 ```
 
-**Note: **Make sure name attribute of input type is **formCaptcha** and src of img element is **<#noparse>${(contextPath)!''''}/cf/captcha/${formId}_captcha</#noparse>**
+**Note: **Make sure name attribute of input type is **formCaptcha** and src of img element is **${(contextPath)!''''}/cf/captcha/${formId}_captcha**
 
 **How to handle custom exception messages**
 
@@ -2466,12 +2466,12 @@ If you have calendar in any of your form or template, then following has to be t
 
 **Step 1:**
 Import following js into your form/template
-<#noparse>
+
 ```
 <script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 ```
-</#noparse>
+
 
 **Step 2:**
 Below code snippet has to be added, to define the calendar component. This will allow you to define the date format, time format, input field on which calendar is declared etc.

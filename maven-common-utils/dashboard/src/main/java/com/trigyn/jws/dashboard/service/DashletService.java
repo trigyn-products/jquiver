@@ -333,10 +333,8 @@ public class DashletService {
 		try {
 			if (dashletId != null && !dashletId.equals("") && !dashletId.isEmpty()) {
 				dashletVO = findDashletByDashletId(dashletId);
-				StringBuilder	dashletBody		= new StringBuilder("<#noparse>").append(dashletVO.getDashletBody())
-						.append("</#noparse>");
-				StringBuilder	dashletQuery	= new StringBuilder("<#noparse>").append(dashletVO.getDashletQuery())
-						.append("</#noparse>");
+				StringBuilder	dashletBody		= new StringBuilder(dashletVO.getDashletBody());
+				StringBuilder	dashletQuery	= new StringBuilder(dashletVO.getDashletQuery());
 				dashletVO.setDashletBody(dashletBody.toString());
 				dashletVO.setDashletQuery(dashletQuery.toString());
 				List<DashletPropertyVO>	dashletPropertyVOList	= getDashletPropertyByDashletId(dashletId);

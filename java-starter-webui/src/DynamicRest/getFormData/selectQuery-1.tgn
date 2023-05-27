@@ -1,0 +1,24 @@
+SELECT form_id AS entityId,form_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_dynamic_form LEFT OUTER JOIN
+jq_master_modules AS jmm ON jmm.module_name = :targetLookupId 
+where form_name = :targetTypeId
+union
+SELECT jml.module_id AS entityId,jmm.module_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_module_listing AS jml LEFT OUTER JOIN
+jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE jml.module_url = :targetTypeId
+union
+SELECT template_id AS entityId,template_name AS entityName,jmm.auxiliary_data AS
+formData FROM jq_template_master
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE template_name = :targetTypeId
+union
+SELECT jws_dynamic_rest_url AS entityId,jws_dynamic_rest_url AS entityName,
+jmm.auxiliary_data AS formData FROM jq_dynamic_rest_details
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE jws_dynamic_rest_url = :targetTypeId
+union
+SELECT dashboard_id AS entityId,dashboard_name AS entityName,jmm.auxiliary_data AS formData
+FROM jq_dashboard
+LEFT OUTER JOIN jq_master_modules AS jmm ON jmm.module_name = :targetLookupId
+WHERE dashboard_name = :targetTypeId

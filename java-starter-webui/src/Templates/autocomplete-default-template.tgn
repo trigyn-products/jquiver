@@ -1,6 +1,5 @@
 <#if selectedTab == "htmlContent">
 ```HTML
-<#noparse>
 <!-- HTML Header -->
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
@@ -30,12 +29,10 @@
 </div>
 <!-- End - Multiselect HTML Body -->
 
-</#noparse>
 ```
 
 <#elseif selectedTab == "jsContent">
 ```JavaScript
-<#noparse>
 /*Start - Autocomplete code*/
 contextPath = "${contextPath!''}";
 let autocomplete;
@@ -111,6 +108,5 @@ $(function () {
 </script>
 
 /*End - Multiselect code*/
-</#noparse>
 ```
 </#if>

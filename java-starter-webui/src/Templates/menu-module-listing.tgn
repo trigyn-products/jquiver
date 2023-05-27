@@ -19,27 +19,27 @@
 		<div class="float-right">
 		
 		 <div class="addonbtnblock">
-        	${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+        	${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
-            
-            
-              <a href="#" onclick="configHomePage(this)"> 
-               <span class="addonicons shedulericon definhomepageicon" title="${messageSource.getMessage('jws.definehomepage')}"> 
-                    </span>							 
-				</a>
-	<!-- <span>
-  		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="" type="button" onclick="configHomePage(this)">
-		</span> -->
-		<span>
-  		    <input id="addModule" class="btn btn-primary" name="addGridDetails" style="margin-right: 5px;" value="${messageSource.getMessage('jws.addModule')}" type="button" onclick="submitForm();">
-		</span>
 
-         <span onclick="backToWelcomePage();">
-          	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-         </span>	
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="configHomePage(this)" class="addonicons definhomepageicon" title="${messageSource.getMessage('jws.definehomepage')}">
+                    </button>
+                </span>
+                
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/view/visualDnd'" class="addonicons menulisticon" title="Additional Datasource">
+                    </button>
+                </span>
+	 
+                 <button  name="addGridDetails" id="addModule" type="submit" onclick="submitForm();" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addModule')}</button>
+
+                <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
 		</div>
 			</div>
 		<div class="clearfix"></div>		

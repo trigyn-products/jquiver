@@ -73,7 +73,11 @@ function createTable(columns) {
         	nameCol += '<i class="fa fa-exclamation-triangle _unsupported" aria-hidden="true" style="color:red" title="Unsupported Datatype : '+columns[iCounter]['dataType']+'"></i>&nbsp;';
         }
         if(columns[iCounter]['columnKey']=='PK'){
-        	nameCol+= ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key"></i> '
+        	nameCol+= ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key';
+        	if(columns[iCounter]['autoIncrement'] === true){
+        		nameCol += ', Auto Generated';       		
+        	}
+        	nameCol += '"></i> ';
         }else if(columns[iCounter]['isMandatory']==true){
         	nameCol += '<span class="fromMandatory" title="Mandatory" style="font-size: 16px;color: red;filter: drop-shadow(0px 0px 1px black);"> &#9733; </span>';
         }
@@ -106,7 +110,11 @@ function createTable(columns) {
         }
         
         if(columns[iCounter]['columnKey']=='PK'){
-        	nameCol+= ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key"></i> '
+        	nameCol += ' <i class="fa fa-key" aria-hidden="true" style="filter: drop-shadow(1px 1px 1px black); color:yellow" title="Primary Key';
+        	if(columns[iCounter]['autoIncrement'] === true){
+        		nameCol += ', Auto Generated';       		
+        	}
+        	nameCol += '"></i> ';
         }else if(columns[iCounter]['isMandatory']==true){
         	nameCol += '<span class="fromMandatory" title="Mandatory" style="font-size: 16px;color: red;filter: drop-shadow(0px 0px 1px black);"> &#9733; </span>';
         }
@@ -301,7 +309,7 @@ function getMultilingualData(elementId, resourceTxt){
 					updateResourceKeyMap(data, elementId, displayId, resourceKey);
 		        },
 				error : function(xhr, error){
-					showMessage("Error occurred while fetching multilingual text", "error");
+					showMessage("Error occurred while fetching internationalized text", "error");
 			   	},
 						
 		    });

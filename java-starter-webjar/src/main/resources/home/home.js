@@ -18,6 +18,11 @@ HomePage.prototype.fn = {
 			$("#closebtni").addClass("hidecls");
 			$('body').css('background-color', 'white');
 			$("#bodyDiv").removeClass("overlaycls");
+			$("#searchInput").val("");
+			
+			$("#menuUL").find("li").show();
+			$("#menuUL").find("li a").addClass("panel-collapsed");
+			$("#menuUL").find("li div.collapse").hide();
 			//$(".jws-body-overlay").removeClass("overlaycls");
 		}else{
 			$("#mySidenav").css("width", "270px");
@@ -76,7 +81,12 @@ HomePage.prototype.fn = {
 	},
 
 	menuSearchFilter: function(a_event) {
+		$("#menuUL").find("li").show();
+		$("#menuUL").find("li a").addClass("panel-collapsed");
+		$("#menuUL").find("li div.collapse").hide();
+		
 		if(a_event && ((a_event.originalEvent && a_event.originalEvent.keyCode == 27) || a_event.keyCode == 27)){
+			$("#searchInput").val("");
 			this.toggleNavigation();
 			return;
 		}
@@ -88,17 +98,20 @@ HomePage.prototype.fn = {
 	    	}
 	    }); */
 		let inputText = $("#searchInput").val().toUpperCase();
-		$("#menuUL").find("li").hide();
-		$("#menuUL").find("a").each(function(a_index, a_element) {
-			if ($(a_element).text().trim().toUpperCase().indexOf(inputText) > -1) {
-				$(a_element).closest("li").show();
-				let divGroupElement = $(a_element).closest("div");
-				let rootElement = $(divGroupElement).prev();
-				$(rootElement).removeClass("panel-collapsed");
-				$(rootElement).find("i").removeClass('fa fa-caret-down').addClass('fa fa-caret-up');
-				$(a_element).parents().show()
-			}
-		});
+		if(inputText.trim().length > 0) {
+			$("#menuUL").find("li").hide();
+			$("#menuUL").find("a").each(function(a_index, a_element) {
+				if ($(a_element).text().trim().toUpperCase().indexOf(inputText) > -1) {
+					$(a_element).closest("li").show();
+					let divGroupElement = $(a_element).closest("div");
+					$(a_element).closest("li").find("ul").show();
+					let rootElement = $(divGroupElement).prev();
+					$(rootElement).removeClass("panel-collapsed");
+					$(rootElement).find("i").removeClass('fa fa-caret-down').addClass('fa fa-caret-up');
+					$(a_element).parents().show()
+				}
+			});
+		}
 	}
 }
 

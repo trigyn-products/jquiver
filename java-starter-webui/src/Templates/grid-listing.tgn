@@ -23,7 +23,7 @@
            
 		<form id="addEditGridForm" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
          <div class="addonbtnblock">
-		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+		${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
@@ -35,20 +35,21 @@
 	            <!-- <a href="${(contextPath)!''}/cf/ad"> 
 					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
 				</a> -->
+                
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
+                    </button>
+                </span>
+               
+                <button type="submit" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addgrid')}</button>
 
-                <a href="${(contextPath)!''}/cf/ad"> 
-                 <span class="addonicons addresourceicon shedulericon" title="Additional Datasource">
-                    </span>					 
-				</a>
+                <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
 
 
-	            <button type="submit" class="btn btn-primary ">${messageSource.getMessage('jws.addgrid')}</button>
         	</form>
 
-         <span onclick="backToWelcomePage();" class="backbtncls">
-          	<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-         </span>
-
+         
 		</div>	
 		</div>
 		

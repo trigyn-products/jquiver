@@ -73,7 +73,7 @@ public class TypeAheadService {
 		/**Ends Here*/
 		Autocomplete	autocomplete	= typeAheadRepository.findById(encodedAutoCompleteId)
 				.orElseThrow(() -> new Exception("Autocomplete not found with id : " + encodedAutoCompleteId));
-		String			selectQuery		= "<#noparse>" + autocomplete.getAutocompleteSelectQuery() + "</#noparse>";
+		String			selectQuery		=  autocomplete.getAutocompleteSelectQuery();
 		AutocompleteVO	autocompleteVO	= new AutocompleteVO(autocomplete.getAutocompleteId(),
 				autocomplete.getAutocompleteDesc(), selectQuery, autocomplete.getDatasourceId());
 		return autocompleteVO;

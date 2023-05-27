@@ -91,7 +91,7 @@ public class JwsUserManagementController {
 	
 	@Autowired
 	private LdapConfigService			ldapService					= null;
-
+	
 	@GetMapping(value = "/um")
 	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws Exception {
@@ -363,8 +363,15 @@ public class JwsUserManagementController {
 		return userManagementService.getModules();
 	}
 
-	@GetMapping(value = "/restart")
-	public void restart() {
+	/**
+	 * 
+	 * Saving (new) authentication configuration now shuts down jquiver rather than restarting it
+	 * associated ajax call and Restart button has also been removed from user management
+	 * 
+	 */
+	//@GetMapping(value = "/restart")
+	@Deprecated
+	private void restart() {
 		new Thread(() -> {
 			try {
 				TimeUnit.SECONDS.sleep(1);
@@ -499,47 +506,6 @@ public class JwsUserManagementController {
 		userManagementService.forceChangePassword();
 	}
 
-	@GetMapping(value = "/saveOtpAndSendMail")
-	@ResponseBody
-	public String saveOtpAndSendMail(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String	userEmailId		= request.getParameter("email");
-		//String	generatedOtp	= request.getParameter("generatedOtp");
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			Map<String, Object>	mapDetails	= new HashMap<>();
-			if(userEmailId == null || userEmailId.isEmpty()) {
-	        	response.sendError(HttpStatus.BAD_REQUEST.value(), "Email is required.");
-				return null;
-	        }
-			JwsUser	existingUser	= userManagementService.findByEmailIgnoreCase(userEmailId);
-	        if(existingUser == null ) {
-	        	response.sendError(HttpStatus.NOT_FOUND.value(), "User not found");
-				return null;
-	        }
-	        Integer	generatedOtp	= otpService.generateOTP(userEmailId);
-			boolean				isOtpValid	= otpService.validateOTP(userEmailId, generatedOtp);
-			if (!isOtpValid) {
-				userConfigService.getConfigurableDetails(mapDetails);
-				mapDetails.put("email", userEmailId);
-				mapDetails.put("oneTimePassword", generatedOtp);
-				JwsUser userOtpUpdateInfo = otpService.saveOtp(mapDetails);
-				if (userOtpUpdateInfo != null) {
-					otpService.sendMailForOtp(mapDetails);
-					mapDetails.put("successOtpPasswordMsg",
-							"Check your email for a instructions to login through OTP. If it doesn’t appear within a few minutes, check your spam folder.");
-				}
-				return generatedOtp.toString();
-			}
-			generatedOtp = otpService.getOPTByKey(userEmailId);
-			mapDetails.put("email", userEmailId);
-			mapDetails.put("oneTimePassword", generatedOtp);
-			otpService.sendMailForOtp(mapDetails);
-			return generatedOtp.toString();
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
-		}
-	}
-	
 	@PostMapping(value = "/checkLdapConnection")
 	public Boolean checkLdapConnection(@RequestBody MultiValueMap<String, Object> formLdapData,
 			HttpServletRequest a_httpServletRequest) throws Exception {

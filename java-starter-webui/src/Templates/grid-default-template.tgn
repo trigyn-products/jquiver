@@ -1,6 +1,5 @@
 <#if selectedTab == "htmlContent">
 ```HTML
-<#noparse>
 <!-- HTML Head -->
 <head>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
@@ -27,12 +26,10 @@
 	<div id="yourGridId" class="tablescrollcls"></div>
 
 </div>
-</#noparse>
 ```
 
 <#elseif selectedTab == "jsContent">
 ```JavaScript
-<#noparse>
 	contextPath = "${contextPath!''}";
 	let primaryKeyDetails = {"key":""};
     let listingData  = [];
@@ -78,6 +75,5 @@
 	function backToWelcomePage() {
 		location.href = contextPath+"/cf/home";
 	}
-</#noparse>
 ```
 </#if>

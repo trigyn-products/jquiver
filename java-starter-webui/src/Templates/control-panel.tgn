@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div> 
-       <div class="col-05 float-right"> 
+       <div class="col-05 float-right homedropdown"> 
         ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   

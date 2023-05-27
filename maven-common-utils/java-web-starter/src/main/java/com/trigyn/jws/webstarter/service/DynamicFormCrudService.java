@@ -75,11 +75,11 @@ public class DynamicFormCrudService {
 		DynamicForm			dynamicForm	= new DynamicForm();
 		if (StringUtils.isNotEmpty(formId)) {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
-			dynamicForm.setFormBody("<#noparse>" + dynamicForm.getFormBody() + "</#noparse>");
-			dynamicForm.setFormSelectQuery("<#noparse>" + dynamicForm.getFormSelectQuery() + "</#noparse>");
+			dynamicForm.setFormBody(dynamicForm.getFormBody());
+			dynamicForm.setFormSelectQuery(dynamicForm.getFormSelectQuery());
 		}
 		/* Populating ContextPath and JavaScript Suggestions in Monaco Editor */
-		String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
+		String contextSuggestions = IMonacoSuggestion.getTemplateDynamicFormSuggestion();
 		String jSSuggestions = IMonacoSuggestion.getJSSuggestion(additionalDatasourceRepository);
 		templateMap.put("suggestions", contextSuggestions);
 		templateMap.put("JSsuggestions", jSSuggestions);
