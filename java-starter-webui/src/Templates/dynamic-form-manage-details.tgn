@@ -37,7 +37,7 @@
     <form id="dynamicform" method="post" >
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
-             <#outputformat "HTML">
+            
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span>
@@ -168,7 +168,7 @@
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
 				</div>
-                 </#outputformat>
+                
 			</div>
 		</div>
 
@@ -189,6 +189,7 @@
 	</textarea>
 <script>
 	document.title = "Manage Dynamic Form Details";
+  
 	contextPath = "${(contextPath)!''}";
 	let dashletSQLEditor;
 	let dashletHTMLEditor;
@@ -217,6 +218,7 @@
     formName = $.trim(formName);
      </#outputformat>
   	$(function () {
+         
   		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
   		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2") {
   		 	$("#dataSource").val(null);

@@ -750,7 +750,7 @@ const SaveAction = {
 Object.freeze(SaveAction);
 var isInAction = false;
 
-function onSaveButtonClick(a_actionType) {
+function onSaveButtonClick(a_actionType, isEdit) {
 	if (isInAction) {
 		showMessage("Multiple save action is not allowed", "error");
 		return;
@@ -798,6 +798,8 @@ function onSaveButtonClick(a_actionType) {
 			return;
 		}
 	}
+	
+	
 
 	if (formData != null) {
 		$.ajax({
@@ -808,32 +810,36 @@ function onSaveButtonClick(a_actionType) {
 			contentType: false,
 			data: formData,
 			success: function(data) {
-				showMessage(successMsg, "success");
-				isInAction = false;
-				if (typeof onSuccess == "function") {
-					try {
-						onSuccess(data, a_actionType);
-					} catch (excp) {
-						showMessage("Exception occurred while executing onSuccess", "error");
-						return;
-					}
-				}
-				if (a_actionType == SaveAction.Return) {
-					if (typeof backToPreviousPage == "function") {
+					showMessage(successMsg, "success");
+					isInAction = false;
+					if (typeof onSuccess == "function") {
 						try {
-							backToPreviousPage();
+							onSuccess(data, a_actionType);
 						} catch (excp) {
-							showMessage("Exception occurred while executing backToPreviousPage", "error");
+							showMessage("Exception occurred while executing onSuccess", "error");
 							return;
 						}
 					}
-					localStorage.setItem("jwsModuleAction", "saveAndReturn");
-				} else if (a_actionType == SaveAction.CreateNew) {
-					window.location = window.location.href.split("?")[0];
-					localStorage.setItem("jwsModuleAction", "saveAndCreateNew");
-				} else {
-					localStorage.setItem("jwsModuleAction", "saveAndEdit");
-				}
+					if (a_actionType == SaveAction.Return) {
+						if (typeof backToPreviousPage == "function") {
+							try {
+								backToPreviousPage();
+							} catch (excp) {
+								showMessage("Exception occurred while executing backToPreviousPage", "error");
+								return;
+							}
+						}
+						localStorage.setItem("jwsModuleAction", "saveAndReturn");
+						
+					} else if (a_actionType == SaveAction.CreateNew) {
+						window.location = window.location.href.split("?")[0];
+						localStorage.setItem("jwsModuleAction", "saveAndCreateNew");
+					} else {
+						localStorage.setItem("jwsModuleAction", "saveAndEdit");
+					}
+					changeDefaultAction()
+						
+					
 			},
 			error: function(xhr, error) {
 				isInAction = false;
@@ -853,6 +859,55 @@ function onSaveButtonClick(a_actionType) {
 	}
 	fileBinTempMap = new Map();
 }
+
+const changeDefaultAction = function() {
+	debugger
+	let actionSaved = localStorage.getItem("jwsModuleAction");
+	
+	if(isEdit == null || isEdit == undefined){
+		document.write("isEdit variable is not availabe in JavaScript global scope");
+		return;
+	}
+	
+	
+	if ((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit") {
+		$("#actionDiv").find("#saveAndEdit").remove();
+		return true;
+	}
+
+	if (actionSaved !== null && actionSaved !== "") {
+		let defaultAction = $("#savedAction").find("button");
+		let savedActionId = $(defaultAction).prop("id");
+		if (savedActionId !== actionSaved) {
+			let updatedText = $("#actionDiv").find("#" + actionSaved).text();
+
+			let savedActionText = $("#savedAction").text();
+			
+			let saveFunction = new Object();
+			saveFunction["saveAndEdit"] = "SaveAction.Edit";
+			saveFunction["saveAndReturn"] = "SaveAction.Return";
+			saveFunction["saveAndCreateNew"] = "SaveAction.CreateNew";
+			
+			$("#actionDiv").find("#" + actionSaved).html(savedActionText);
+			
+			$("#actionDiv").find("#" + actionSaved).attr("onClick", "onSaveButtonClick("+saveFunction[savedActionId]+","+isEdit+")");
+			$("#actionDiv").find("#" + actionSaved).prop("id", savedActionId);
+			
+			
+			$(defaultAction).prop("id", actionSaved);
+			$(defaultAction).html(updatedText);
+			
+			$(defaultAction).attr("onClick", "onSaveButtonClick("+saveFunction[actionSaved]+","+isEdit+")");
+			
+		}
+		
+	}
+
+	if (isEdit === 0 || isEdit === "") {
+		$("#actionDiv").find("#saveAndEdit").remove();
+	}
+}
+
 
 function validateData() {
 	let formName = "addEditForm";

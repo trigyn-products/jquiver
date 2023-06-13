@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,7 @@ import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import com.trigyn.jws.dynarest.repository.FileUploadRepository;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.gridutils.entities.GridDetails;
@@ -133,6 +135,9 @@ public class ExportService {
 	private String							version							= null;
 
 	private String							userName						= null;
+	
+	@Autowired
+	private FileUploadRepository				fileUploadRepository	= null;
 
 	public List<Map<String, Object>> getAllCustomEntity() {
 		return importExportCrudDAO.getAllCustomEntity();
@@ -176,6 +181,16 @@ public class ExportService {
 							if (exportTableMap.containsKey(type.toUpperCase())) {
 								list = exportTableMap.get(type.toUpperCase());
 							}
+							/*
+							 * if(type!=null && type.isEmpty() == false &&
+							 * type.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.
+							 * getModuleType()) && explrObject!=null &&
+							 * explrObject.getString("moduleID")!=null) { Optional<FileUpload> fileUpload =
+							 * fileUploadRepository.findById(explrObject.getString("moduleID"));
+							 * if(fileUpload!=null && fileUpload.get()!=null) {
+							 * list.add(fileUpload.get().getFileBinId()); } }else {
+							 * list.add(explrObject.getString("moduleID")); }
+							 */
 							list.add(explrObject.getString("moduleID"));
 							exportTableMap.put(type.toUpperCase(), list);
 						}
@@ -765,47 +780,39 @@ public class ExportService {
 			List<Object> exportableList = importExportCrudDAO.getAllExportableData(
 					CrudQueryStore.HQL_QUERY_TO_FETCH_FILES_DATA_FOR_EXPORT, exportedList, null, null, null);
 			validate(exportableList, exportedList, Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType());
-			FileUploadXMLVO fileUploadExportXMLVO = null;
+			Map<String, List<FileUpload>> uploadMap =  new HashMap();
 			if (exportableList != null && !exportableList.isEmpty()) {
-				fileUploadExportXMLVO = new FileUploadXMLVO();
+				
 				for (Object obj : exportableList) {
-					if (!exportedList.contains(((FileUpload) obj).getFileUploadId())) {
-						throw new Exception("Data mismatch while exporting Files.");
-					}
-					if(checkFileExist(obj)) {
-						fileUploadExportXMLVO.getFileUploadDetails().add(((FileUpload) obj));
+					FileUpload fileUpload = ((FileUpload) obj);
+					
+					if(fileUpload!=null && uploadMap!=null && uploadMap.containsKey(fileUpload.getFileBinId())) {
+						uploadMap.get(fileUpload.getFileBinId()).add(fileUpload);
+					}else {
+						List<FileUpload> fileUploads = new ArrayList<>();
+						fileUploads.add(((FileUpload) obj));
+						uploadMap.put(fileUpload.getFileBinId(), fileUploads);
 					}
 				}
-				fileImportExportModule.exportData(((FileUploadXMLVO) fileUploadExportXMLVO), downloadFolderLocation);
-				moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
-				XMLUtil.generateMetadataXML(null, fileImportExportModule.getModuleDetailsMap(),
-						downloadFolderLocation + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME, version, userName,
-						"");
-				fileImportExportModule.setModuleDetailsMap(new HashMap<>());
+			}
+			FileUploadXMLVO fileUploadExportXMLVO = null;
+			for (Entry<String, List<FileUpload>> entry : uploadMap.entrySet()) {
+				String	key	= entry.getKey();
+				List<FileUpload>	files	= entry.getValue();
+				if (key != null && files.isEmpty()== false) {
+					fileUploadExportXMLVO = new FileUploadXMLVO();
+					fileUploadExportXMLVO.setFileUploadDetails(files);
+					fileImportExportModule.exportData(((FileUploadXMLVO) fileUploadExportXMLVO), downloadFolderLocation);
+					moduleListMap.put(moduleType, Constant.FOLDER_EXPORT_TYPE);
+					XMLUtil.generateMetadataXML(null, fileImportExportModule.getModuleDetailsMap(),
+							downloadFolderLocation + File.separator + Constant.FILES_UPLOAD_DIRECTORY_NAME, version, userName,
+							"");
+					
+				}
 			}
 		}
 		return null;
 
 	}
 	
-	private Boolean checkFileExist(Object obj) throws MalformedURLException, IOException, FileNotFoundException {
-		FileUpload				fu			= (FileUpload) obj;
-		Path		fileRoot		= Paths.get(fu.getFilePath());
-		Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
-		Resource	resource		= new UrlResource(filePath.toUri());
-		InputStream	in;
-		if (resource.exists() || resource.isReadable()) {
-			File newFile = resource.getFile();
-			in = new FileInputStream(newFile);
-		} else {
-			String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
-			in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
-		}
-		if (in != null) {
-			return Boolean.TRUE;
-		}else {
-			return Boolean.FALSE;
-		}
-	}
-
 }

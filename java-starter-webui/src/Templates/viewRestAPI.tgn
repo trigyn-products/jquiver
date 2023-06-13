@@ -24,15 +24,9 @@
             <input type = "checkbox" id="selectAll" name="selectAll" class="selectAll" onclick="" >
             <label for="selectAll"> Select All </label>
         </li>
-        <li title='Internal/External'>
-           <select id="internal" name="internal"  class="form-control" onchange="changeUrl(this)">
-              <option value="0">${messageSource.getMessage('jws.internal')}</option> 
-              <option value="1">${messageSource.getMessage('jws.external')}</option> 
-            </select>
-        </li>
-        <li id="expand" class="expandcls restapiiconhover" title='Expand All'> <img src="${contextPath !''}/webjars/1.0/images/expanall.svg"> </li>
-        <li class="sortclickcls restapiiconhover" id="sorting" title='Sort'>
-            <span class="sorting"  onclick=""> <img src="${contextPath !''}/webjars/1.0/images/sorticons.svg">
+        <li id="expand" class=" restapiiconhover expandcls " title='Expand All'><span class="expandalliconsls"></span> </li>
+        <li class="sortclickcls restapiiconhover "  id="sorting" title='Sort'>
+            <span class="sorting sorticonslcas"  onclick=""> 
            </span>
             <div class="sortblock" id="sortclickev" >
                 <div class="updownblock"> <span class="uparow sorticoncls activecls" id="sortdown"  data-order="ASC" onclick="markSort(this);">
@@ -48,7 +42,7 @@
                 </ul>
             </div>
             </li>
-            <li title='Export' id="exportvtb" class="restapiiconhover" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o"></i></label></li>
+            <li title='Export' id="exportvtb" class="restapiiconhover" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o" style="font-size:20px !important;"></i></label></li>
         </ul>
         </div>
      <div id="viewRestAPI" class="getapidetailsblock">

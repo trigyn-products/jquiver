@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 
@@ -113,7 +114,10 @@ public class JwsSchedulerJob implements Job {
 				}
 			}
 
-			Builder builder = WebClient.builder().baseUrl(restApiUrl)
+			Builder builder = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder().codecs(
+	                clientCodecConfigurer ->
+	                clientCodecConfigurer.defaultCodecs().maxInMemorySize(10000000))
+	        .build()).baseUrl(restApiUrl)
 					.defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
 					.defaultHeader(HttpHeaders.USER_AGENT, "JQuiver").defaultHeader("schId", schedulerId);
 

@@ -26,6 +26,8 @@ import com.trigyn.jws.dashboard.service.DashletService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
+import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
+import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
@@ -58,6 +60,9 @@ public class MasterModuleService {
 
 	@Autowired
 	private SessionLocaleResolver		sessionLocaleResolver		= null;
+	
+	@Autowired
+	private JwsDynamicRestDetailService jwsService = null;
 
 	public List<JwsMasterModules> getModules() {
 
@@ -161,6 +166,11 @@ public class MasterModuleService {
 				String				template	= dynamicFormService.loadDynamicForm(targetTypeId, parameterMap, null);
 				Map<String, Object>	templateMap	= new HashMap<>();
 				templateMap.put("formId", targetTypeId);
+				return template;
+			} else if (targetLookupId.equals(Constant.TargetLookupId.DYNAMICREST.getTargetLookupId())) {
+				parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
+				RestApiDetails restApiDetails 	= jwsService.getRestApiDetailsById(targetTypeId);
+				String template = restApiDetails.getServiceLogic();
 				return template;
 			}
 		}

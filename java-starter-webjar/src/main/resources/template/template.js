@@ -147,8 +147,7 @@ class TemplateEngine {
 				},
 			});
 		} else {
-			$('#errorMessage').html("Template name and content cannot be blank");
-			$('#errorMessage').show();
+			showMessage("Template name and content cannot be blank", "warn");
 		}
 		return isDataSaved;
 	}

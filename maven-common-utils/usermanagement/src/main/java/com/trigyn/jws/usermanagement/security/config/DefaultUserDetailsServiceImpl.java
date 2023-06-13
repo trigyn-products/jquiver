@@ -108,15 +108,16 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 				if(null == loginType) {
 					// TODO :: Restructure the code using ternary operator.
 					loginType = request.getHeader("at");
-					if (loginType.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+					if (Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey().equals(loginType)) {
 						loginType = Constants.DAO_ID;
-					} else if (loginType.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+					} else if (Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey().equals(loginType)) {
 						loginType = Constants.LDAP_ID;
-					} else if (loginType.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+					} else if (Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey().equals(loginType)) {
 						loginType = Constants.OAUTH_ID;
 					}
 				}
-				if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false && loginType!=null && loginType.equals(Constants.DAO_ID)) {
+				
+				if (multiAuthLoginVOs != null && multiAuthLoginVOs.isEmpty() == false && loginType!=null && Constants.DAO_ID.equals(loginType)) {
 					for (JwsUserLoginVO multiAuthLogin : multiAuthLoginVOs) {
 						if (Constants.AuthType.DAO.getAuthType() == multiAuthLogin.getAuthenticationType()) {
 							Map<String, Object> loginAttributes = multiAuthLogin.getLoginAttributes();

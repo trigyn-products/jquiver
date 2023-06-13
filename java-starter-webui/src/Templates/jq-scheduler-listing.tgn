@@ -13,6 +13,12 @@
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
 
+<style>
+    #log-history-popup {
+        height: 50vh !important;
+    }
+</style>
+
 <div class="container">
     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.scheduler')}</h2> 

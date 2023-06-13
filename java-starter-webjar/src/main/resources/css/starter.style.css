@@ -625,6 +625,83 @@ div.pq-grid-center {
 		display:none;
 	}
 	
+	.homepageheader{
+	
+	}
+	
+	.homepageheader img{
+		display:none;
+	}
+	
+	.homepageheader p{
+		display:none;
+	}
+	
+		.multilang_block, .usernameblock, .notificationblock {
+  	display:none !important;
+}
+	
+	.desktop-buttons{
+		display:none;
+	}
+ 
+ .mobile-buttons{
+	display:block !important;
+}
+
+.mobile-buttons.spacingclss.btn {
+	padding: 8px 10px !important;
+
+}
+
+.displaynone-mob{
+	display:none !important;
+}
+
+.main-container{
+	    border: 0px !important;
+    box-shadow: none !important;
+    padding:0px !important;
+}
+
+.topband {
+    display: flex;
+    flex-direction: column;
+}
+
+.topband .title-cls-name{
+	margin:0 0 15px !important;
+	font-size:16px !important;
+	
+}
+
+ 
+
+.navbar-brand.col-md-3.col-lg-2.mr-0.px-3{
+	    width: 40%;
+	    margin:0px !important;
+	        padding: 0px 0 0 10px !important;
+}
+	
+	.responsiveblock{
+		
+	}
+	
+	
+	.navbar-nav {
+    margin: 5px 0 0 0 !important;
+}
+
+
+	.navbar {
+    height: auto !important;
+}
+	
+	.displaynonecls{
+		display:none;
+	}
+
+	
 	.remebermeblock{
 	margin-bottom: 15px;
 	}
@@ -905,6 +982,7 @@ span.grid_action_icons:hover .fa {
     padding: 5px 10px !important;
     line-height: inherit !important;
     font-size: 14px !important;
+     border-radius: 4px !important;
 }
 
 .btn-secondary{
@@ -4003,7 +4081,9 @@ div#parentUploadBox {
 
 @media only screen and (max-width: 1024px) {
 	
-	 
+	 .mobile-objects{
+	 	display:none !important;
+	 }
 	
 	.tablescroll {
 		overflow: auto;
@@ -4109,6 +4189,7 @@ div#parentUploadBox {
 		font-size: 22px;
 		position: relative;
 		display: table;
+		font-size:14px;
 	}
 	.cm-iconboxwrap {
 		height: 300px;
@@ -4870,27 +4951,9 @@ div.rich-autocomplete .rich-autocomplete-list .rich-autocomplete-list-item,
 	margin:10px 0 0 0;
 }
 
-#languageOptions {
-    padding:0px;
-    position: relative;
-    margin-top: 0;
-    outline: none;
-    top: 2px;
-    color: #fff;
-    border: 1px solid var(--bluebgcolor);
-    border-radius: 5px;
-    background: none;
-    cursor: pointer;
-}
+ 
 
-.topband #languageOptions {
-color: #000;
-    margin-right: 10px;
-    border-radius: 0.25rem;
-    border: 1px solid #919191;
-    padding: 6px;;
-}
-
+ 
 #languageOptions option{
 	color:#000 !important;
 }
@@ -5566,6 +5629,7 @@ table.customtblecls tr:nth-child(odd) {
 
 .plusticon .fa:hover {
 	color:  var(--bluebgcolor);
+	opacity: 0.9;
 }
 
 .minusicon {
@@ -5659,7 +5723,8 @@ table.customtblecls tr:nth-child(odd) {
 }
 
 .cusrorhandcls .fa:hover {
-	color: #02598d;
+	color: var(--bluebgcolor);
+	opacity:0.9;
 }
 
 .copybtn {
@@ -7096,15 +7161,16 @@ input#viewNotificationBtn{
     border: 0px;
     font-size: 10px;
     position: absolute;
-    background: #000 !important;
+    background: #000000d9 !important;
     color: #fff !important;
     border-radius: 50%;
     height: 15px;
     width: 15px;
-    top: 5px;
+    top: 8px;
     right: 3px;
-    line-height: 16px;
-    font-size: 11px !important;
+    line-height: 17px !important;
+    font-size: 9px !important;
+    border-radius: 100px !important;
 }
 
 .notificationpopup{
@@ -7241,6 +7307,8 @@ input#viewNotificationBtn{
      display: flex;
     width: 100%;
         margin-bottom: 8px;
+        text-align: justify;
+text-justify: inter-word;
  }
  
  
@@ -7597,7 +7665,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     border-radius: 3px;
 }
 
-.iconscover:hover {
+.iconscover.spacingclss:hover {
     background-color: var(--bluebgcolor);
 }
 
@@ -7615,7 +7683,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 
 
 
- .managepermisionicon:hover{
+ .iconscover:hover .managepermisionicon{
 	 background-color: var(--white) !important;
   	mask: url(../images/managepermision.svg) no-repeat center / contain;
   -webkit-mask: url(../images/managepermision.svg) no-repeat center / contain;
@@ -7651,7 +7719,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 }
 
 
- .rolemangementicon:hover{
+ .iconscover:hover .rolemangementicon{
 	 background-color: var(--white) !important;
   	mask: url(../images/rolemangement.svg) no-repeat center / contain;
   -webkit-mask: url(../images/rolemangement.svg) no-repeat center / contain;
@@ -7668,7 +7736,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     margin: 1px auto 0 !important;
 }
 
- .manageusericon:hover{
+  .iconscover:hover .manageusericon{
 	 background-color: var(--white) !important;
   	mask: url(../images/usermanagment.svg) no-repeat center / contain;
   -webkit-mask: url(../images/usermanagment.svg) no-repeat center / contain;
@@ -7857,10 +7925,12 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 	display:inline-block;
 }
 
-.multilingselectbox{
-	
+.multilingselectbox {
+    background: none;
+    color: #fff !important;
+    border: none;
+    cursor: pointer;
 }
-
 .restapiaccordian .ui-accordion-header-icon{
 	float: right;
     margin-top: 10px;
@@ -8256,12 +8326,12 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
 
 .tablescrollcls .pq-grid-cont-outer{
     height: 368px;
-    overflow-y: auto;
+    overflow: auto;
     position: absolute;
     left: 0px;
     right: 0px;
     top: 82px;
-}
+ }
 
 .tablescrollcls .pq-grid-center{
 	    min-height: 450px;
@@ -8337,7 +8407,7 @@ div.pq-grid tr:hover{
 
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle{
 	    background-color: var(--bluebgcolor) !important;
-    border-color: var(--bluebgcolor) !important;
+    border-color: var(--bluebgcolor) !important;.pq-grid.ui-widget.ui-widget-content
 }
 
 .noborder{
@@ -8384,7 +8454,41 @@ div.pq-grid tr:hover{
     max-width: 150px;
     min-width: 20px !important;
 }
+ 
 
-.homedropdown{
-	margin-right:10px;
+	
+	.lang-HTML{
+	    word-break: break-all;
+    white-space: pre-wrap;
+	}
+
+.mobile-buttons{
+	display:none;
 }
+
+
+ 
+
+ 
+
+.pq-pager-msg, .pq-grid span.pq-separator{
+	display:none;
+}
+
+.pq-page-placeholder span{
+	display:none;
+}
+
+.mobile-objects{
+	display:block;
+}
+
+.onoffswitch-checkbox:disabled ~ label{
+	    opacity: 0.2;
+    cursor: no-drop;
+}
+
+
+
+
+ 

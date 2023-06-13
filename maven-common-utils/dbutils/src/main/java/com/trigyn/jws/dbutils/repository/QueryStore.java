@@ -74,7 +74,7 @@ public final class QueryStore {
 			+ " WHERE ml.moduleUrl LIKE :moduleURL AND ml.moduleId != :moduleId ";
 
 	public static final String	JPA_QUERY_TO_GET_ALL_MODULE_TARGET_LOOKUP			= "SELECT new com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO "
-			+ " (mtl.lookupId AS lookupId, mtl.description AS description ) " + " FROM ModuleTargetLookup AS mtl";
+			+ " (mtl.lookupId AS lookupId, mtl.description AS description ) " + " FROM ModuleTargetLookup AS mtl ORDER BY description ASC";
 
 	public static final String	JPA_QUERY_TO_GET_MODULE_TARGET_LOOKUP_NAME			= "SELECT mtl.description AS description "
 			+ " FROM ModuleTargetLookup AS mtl " + " WHERE mtl.lookupId = :targetTypeId ORDER BY description ASC ";

@@ -28,5 +28,7 @@ REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_na
 VALUES ("jq-schedulerGrid", 'jq-schedulerGrid', 'jq-scheduler Listing', 'jq_scheduler_view'
 ,'*', 1, 2, 'admin@jquiver.io', NOW(), NOW());
 
+ALTER TABLE jq_job_scheduler_log MODIFY response_body longtext;
+
 SET FOREIGN_KEY_CHECKS=1;
 

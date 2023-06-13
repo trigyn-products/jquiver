@@ -8,7 +8,7 @@
  <div class="container ">
     <div class="page-header homepageheader">
         <img src="${(contextPath)!''}/webjars/1.0/images/jquiver_blue_trans.png" class="homepagelogoimg">
-         <div class="col-05 float-right" style="width:300px;">
+         <div class="col-lg-5 col-12 float-right" style="width:300px;">
                 <div class="col-inner-form full-form-fields" >
                     <div class="search-cover">
                     	<input class="form-control" id="quickJumpAutocomplete" type="text" >
@@ -16,18 +16,20 @@
                     </div>
                 </div>
             </div> 
-       <div class="col-05 float-right homedropdown"> 
+       <div class="col-lg-4 col-12 float-right homedropdown mobile-objects"> 
+           <div class="pull-right">
         ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>
                 <option value="3">${messageSource.getMessage('jws.favourite')}</option>                 
             </select>
+           </div>
          </div>
          
  
  
-        <p>
+        <p class="mobile-objects">
             <i>
                 ${messageSource.getMessage('jws.opinionatedview')}
             </i>

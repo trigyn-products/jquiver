@@ -15,30 +15,40 @@
         <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.multilingual')}</h2> 
         <div class="float-right">
-		    ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()" >   
-                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-            </select>
+            <div class="addonbtnblock">
+                        ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()" >   
+                            <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                            <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                            <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                        </select>
        
-       <select id="languageOptions" onchange="changeLanguage()">
-          <#list languageVOList as languageVO>
-            <#if languageVO??>
-              <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
-                <option value="${(languageVO?api.getLocaleId())!''}" selected>${languageVO?api.getLanguageName()}</option>
-              <#else>
-                <option value="${(languageVO?api.getLocaleId())!''}">${languageVO?api.getLanguageName()}</option>
-              </#if>
-            </#if>
-          </#list>
-        </select>
-             <input name="addResourceBundle" class="btn btn-primary" value="${messageSource.getMessage('jws.addResourceBundle')}" type="button" onclick="submitForm(this)">
-         <span onclick="backToWelcomePage();">
-              <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
-         </span>    
+                    <select id="languageOptions" class="spacingclss typeSelectDropDown"  onchange="changeLanguage()">
+                    <#list languageVOList as languageVO>
+                        <#if languageVO??>
+                        <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
+                            <option value="${(languageVO?api.getLocaleId())!''}" selected>${languageVO?api.getLanguageName()}</option>
+                        <#else>
+                            <option value="${(languageVO?api.getLocaleId())!''}">${languageVO?api.getLanguageName()}</option>
+                        </#if>
+                        </#if>
+                    </#list>
+                    </select>        
+
+                 <button type='button' onclick="submitForm(this)" class="spacingclss btn btn-primary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.addResourceBundle')}</button>
+
+
+                  <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+           
+                
+            </div>
+             
+            
+        
         </div>
         
-        <div class="clearfix"></div>        
+               <div class="clearfix"></div> 
         </div>
         
         <div id="divdbResourceBundleGrid" class="tablescrollcls"></div>

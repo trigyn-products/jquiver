@@ -14,13 +14,39 @@
     }
  
 
-    .dragdroplist {
+    .nodata_found  {
+    padding: 0px;
+    margin: 40px 0 0 0;
+    width: 95%;
+    border: none;
+    padding-left: 25px;
+    text-align: center;
+    border-left: 1px dashed #ccc;
+    min-height: 350px;
+}
+
+.dragdropgraph{
+    height: 250px;
+    width: auto;
+}
+
+    .nodata_found h3{
+        font-size:18px;
+        margin:0px 0 20px;
+    }
+
+    .nodata_found h3 a{
+
+    }
+
+    .dragdroplist{
         padding: 0px;
         margin: 0px;
         width: 75%;
         border-left: 1px dashed #ccc;
         padding-left: 25px;
     }
+
 
     .dropcontaint {
         width: 25%;
@@ -130,18 +156,22 @@
     <script src="${(contextPath)!''}/webjars/1.0/nestedsortable/nestedSortable.js"></script>
 </head>
 <form method="post"   name="addEditForm" id="addEditForm" ></form>
+<form action="${(contextPath)!''}/cf/aem" method="POST" id="formMuRedirect">
+<input type="hidden" id="moduleId" name="module-id"></form>
 <input type="hidden" data-type="text" id="isEdit" name="isEdit" data-type="int" value="0">
 <div class="container navdragdropblock">
-    <div class="dragdropmainblock">
-        <div class="dropcontaint">
-            <div class="imgblock">
-                <h3>Drag and drop and place in sequence your links</h3>
-                <img src="${(contextPath)!''}/webjars/1.0/images/dragdropimg.svg">
-            </div>          
+ <div class="dragdropmainblock">
+    <div class="dropcontaint">
+        <div class="imgblock">
+            <h3>Drag and drop and place in sequence your links</h3>
+            <img src="${(contextPath)!''}/webjars/1.0/images/dragdropimg.svg">
         </div>          
-        <ol class="sortable dragdroplist">
-            <#assign visualDataList=resultSetObject.visualDndData>
-            <#if visualDataList?? && visualDataList?has_content>
+    </div> 
+ 
+<#if resultSetObject.visualDndData?? && resultSetObject.visualDndData?has_content>
+    <#assign visualDataList=resultSetObject.visualDndData>
+        <#if visualDataList?? && visualDataList?has_content && visualDataList?size gt 1 > 
+           <ol class="sortable dragdroplist">     
                 <#list visualDataList as key, value>
                     <#assign parentData=value>
                     <#if parentData?? && parentData?has_content>
@@ -225,14 +255,11 @@
                                 </ol>
                             </#if>
                             </#list>
-                            </li>
-                        </#if>
+                        </li>
+                    </#if>
                 </#list>
-            </#if>
-        </ol>
-            
+            </ol>      
         </div>
-        
             <div class="row">
                 <div class="col-12">
                     <div class="float-right">
@@ -247,6 +274,26 @@
                     </div>
                 </div>
     </div>
+            <#else>
+            <div class="nodata_found">
+                <h3>Not enough menu items available.</h3>
+                <h3>To create menu.<a href="#" onclick="submitForm();"> Click here</a></h3>
+                <span onclick="backToMenuListingPage();">
+                    <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                </span>
+            </div>   
+        </#if>
+   
+     </#if>
+     <#if !resultSetObject.visualDndData?? && !resultSetObject.visualDndData?has_content>
+      <div class="nodata_found">
+                <h3>Not enough menu items available.</h3>
+                <h3>To create menu.<a href="#" onclick="submitForm();"> Click here</a></h3>
+                <span onclick="backToMenuListingPage();">
+                    <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                </span>
+            </div> 
+     </#if>
 </div>
   
     <script>
@@ -304,7 +351,16 @@ function submitFormData(targetLookupId,targetTypeId) {
             $(form).submit();
     }
     });
-}/**
+}
+	function submitForm(sourceElement) {
+		let moduleId;
+		if(sourceElement !== undefined){
+			moduleId = sourceElement.id
+		}
+		$("#moduleId").val(moduleId);
+		$("#formMuRedirect").submit();
+	}
+/**
 * This method should return non null or defined object in order to
 * submit the form. return null or undefined in case your custom / additional
 * validation fails. If you don't want to perform any validation then either
@@ -357,7 +413,13 @@ function onValidation(a_serializedFormData){
     var formDataJson = JSON.parse(formDataJsonString);
     formDataJson.push({"name": "visualData", "value":visualDataArr, "valueType": "varchar"});
     a_serializedFormData.set('formData', JSON.stringify(formDataJson));
-    return     a_serializedFormData;
+    if(visualDataArr.length > 0){
+        return  a_serializedFormData;
+    }else{
+        showMessage("No menus to save.", "info");
+        return null;
+    }
+    
 }
 
 /**
@@ -384,4 +446,5 @@ function onError(jqXHR, exception){
 function backToMenuListingPage() {
     location.href = contextPath+"/cf/mul";
 }
+
     </script>

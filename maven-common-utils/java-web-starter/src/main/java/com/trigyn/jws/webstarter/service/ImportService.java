@@ -68,7 +68,6 @@ import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ExportModule;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
-import com.trigyn.jws.dbutils.vo.xml.FilesImportExportVO;
 import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
@@ -98,10 +97,8 @@ import com.trigyn.jws.dynarest.repository.SchedulerDAO;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
-import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
 import com.trigyn.jws.dynarest.vo.SchedulerVO;
 import com.trigyn.jws.gridutils.dao.GridDetailsDAO;
-import com.trigyn.jws.gridutils.dao.GridUtilsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
@@ -744,7 +741,24 @@ public class ImportService {
 				com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
 		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
 		objectMapper.setDateFormat(dateFormat);
-		Map<String, Object>	objectMap	= objectMapper.convertValue(jsonObj, TreeMap.class);
+		Map	objectMap	= objectMapper.convertValue(jsonObj, Map.class);
+		String				jsonStr		= gson.toJson(objectMap);
+		outputMap.put(moduleType + moduleID, jsonStr);
+		outputMap	= putEntityIntoMap(moduleType + moduleID, outputMap, entity);
+		outputMap	= putModuleTypeIntoMap(moduleType + moduleID, outputMap, moduleType);
+		return outputMap;
+	}
+	
+	private Map<String, Object> updateFilesOutputMap(Map<String, Object> outputMap, String moduleID, Object jsonObj,
+			Object entity, String moduleType) throws Exception {
+		Gson			gson			= new Gson();
+		ObjectMapper	objectMapper	= new ObjectMapper();
+		String			dbDateFormat	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+				com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+		DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
+		objectMapper.setDateFormat(dateFormat);
+		List	objectMap	= objectMapper.convertValue(jsonObj, List.class);
 		String				jsonStr		= gson.toJson(objectMap);
 		outputMap.put(moduleType + moduleID, jsonStr);
 		outputMap	= putEntityIntoMap(moduleType + moduleID, outputMap, entity);
@@ -1005,10 +1019,25 @@ public class ImportService {
 			// imporatableDataJson.get("exportedFormatObject");
 			Map<String, String>	entityStringMap	= g.fromJson(exportedFormatObject.toString(), Map.class);
 			String				entityString	= entityStringMap.get(moduleType.toLowerCase() + importId);
-
+			
+			if (entityString == null && moduleType != null) {
+				for (Map.Entry<String, String> entry : entityStringMap.entrySet()) {
+					String	fileKey	= entry.getKey();
+					String	fileDeatil	= entry.getValue();
+					if(fileKey!=null && fileDeatil!=null) {
+						FileUploadImportEntity	fileImportEntity	= g.fromJson(fileDeatil,
+								FileUploadImportEntity.class);
+						for (FileUpload fileUpload : fileImportEntity.getFiles()) {
+							if(fileUpload!=null && fileUpload.getFileUploadId().equals(importId)) {
+								entityString = entityStringMap.get("files" + fileUpload.getFileBinId());
+								moduleType = "files";
+							}
+						}
+					}
+				}
+			}
 			saveEntityOnLoad(moduleType, entityString, importId, isOnLoad);
 			importId = importId.replace(moduleType, "");
-
 			String version = String.valueOf(moduleVersionDAO.getVersionIdByEntityId(importId));
 			if (version == null || "".equals(version) || "null".equals(version)) {
 				version = "NA";
@@ -1048,6 +1077,7 @@ public class ImportService {
 			Map<String, String>	pendingDashboardEntityStringMap		= new HashMap<>();
 			Map<String, String>	pendingPermissionEntityStringMap	= new HashMap<>();
 			Map<String, String>	pendingSchedulerEntityStringMap	= new HashMap<>();
+			Map<String, String>	pendingFilesEntityStringMap			= new HashMap<>();
 
 			for (Entry<String, String> entry : entityStringMap.entrySet()) {
 				String	importId		= entry.getKey();
@@ -1074,6 +1104,11 @@ public class ImportService {
 
 						if (Constant.MasterModuleType.SCHEDULER.getModuleType().equalsIgnoreCase(moduleType)) {
 							pendingSchedulerEntityStringMap.put(importId, entityString);
+							continue;
+						}
+						
+						if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
+							pendingFilesEntityStringMap.put(importId, entityString);
 							continue;
 						}
 
@@ -1119,6 +1154,16 @@ public class ImportService {
 					saveEntityOnLoad(Constant.MasterModuleType.SCHEDULER.getModuleType(), entityString, importId, isOnLoad);
 				} else {
 					saveEntityOnLoad(Constant.MasterModuleType.SCHEDULER.getModuleType(), entityString, importId, isOnLoad);
+				}
+			}
+			
+			for (Entry<String, String> entry : pendingFilesEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+					saveEntityOnLoad(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType(), entityString, importId, isOnLoad);
 				}
 			}
 		} catch (Exception a_excep) {
@@ -1463,7 +1508,6 @@ public class ImportService {
 				if(isOnLoad == false || (isOnLoad && files != null && files.isEmpty() == false)) {
 					saveAndUploadFiles(files, Constant.FILES_UPLOAD_DIRECTORY_NAME);
 				}
-				// TODO : Import version update
 			}
 		}catch (FileUploadException fue) {
 			 throw new FileUploadException("fail:" + "Error while importing File Bin");
@@ -1723,13 +1767,13 @@ public class ImportService {
 				+ File.separator;
 		MetadataXMLVO	metadataXMLVO	= readMetaDataXML(filesFolderPath);
 		for (Modules module : metadataXMLVO.getExportModules().getModule()) {
-			if (module.getFiles() != null && module.getFiles().getFileUploadList().isEmpty() == false) {
+			if (module.getFileUploadList() != null && module.getFileUploadList().isEmpty() == false) {
 				String					moduleName				= module.getModuleName();
 				String					moduleID				= module.getModuleID();
-				FilesImportExportVO		fileImportVo			= module.getFiles();
+				List<FileUploadExportVO>		fileImportVos			= module.getFileUploadList();
 				FileUploadImportEntity	fileUploadImportEntity	= (FileUploadImportEntity) fileUploadExportModule
-						.importData(filesFolderPath, moduleName, moduleID, fileImportVo);
-				updateOutputMap(outputMap, moduleID, fileImportVo, fileUploadImportEntity,
+						.importData(filesFolderPath, moduleName, moduleID, fileImportVos);
+				updateFilesOutputMap(outputMap, moduleID, fileImportVos, fileUploadImportEntity,
 						Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase());
 			}
 		}
@@ -1804,9 +1848,21 @@ public class ImportService {
 	
 	private List<FileUpload> getFileImportEntity(String importId, FileUploadImportEntity	fileImportEntity) {
 		List<FileUpload> files = new ArrayList<>();
-		if(fileImportEntity.getFiles().size() > 0 && fileImportEntity.getFiles().isEmpty() == false) {
+		boolean importAll  = true;
+		for (FileUpload fileUpload : fileImportEntity.getFiles()) {
+			if(fileUpload!=null && fileUpload.getFileUploadId().equals(importId)) {
+				importAll = false;
+				break;
+			}
+		}
+		if(importId!=null && fileImportEntity!=null && fileImportEntity.getFiles()!=null && fileImportEntity.getFiles().size() > 0 && fileImportEntity.getFiles().isEmpty() == false) {
 			for (FileUpload fileUpload : fileImportEntity.getFiles()) {
-				if(fileUpload.getFileUploadId().equalsIgnoreCase(importId)) {
+				if(importAll == false) {
+					if(fileUpload!=null && importId != null && importId.equalsIgnoreCase(fileUpload.getFileUploadId())) {
+						files.add(fileUpload);
+						break;
+					}
+				} else {
 					files.add(fileUpload);
 				}
 			}

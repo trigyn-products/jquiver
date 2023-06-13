@@ -120,7 +120,6 @@
 	
 	function saveData (){
 	    if(validateFields() == false){
-	        $("#errorMessage").show();
 	        return false;
 	    }
 	    let isDataSaved = false;
@@ -187,7 +186,7 @@
         const comment = $("#comment").val().trim();
         if(ownerId == "" || ownerType == "" || propertyName == "" 
                 || propertyValue == "" || appVersion == "" ){
-            $("#errorMessage").html("Fields marked with an * are required");
+            showMessage("Fields marked with an * are required", "warn");
     		return false;
         }
         return true;

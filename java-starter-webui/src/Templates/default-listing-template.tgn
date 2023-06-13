@@ -30,7 +30,7 @@
 
 
 <script>
-	document.title = "Template Module List";
+	document.title = "Default Template List";
 	contextPath = "${contextPath}";
 	$(function () {
 	//Add all columns that needs to be displayed in the grid

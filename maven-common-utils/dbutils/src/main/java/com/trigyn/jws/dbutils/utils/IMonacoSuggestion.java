@@ -12,36 +12,36 @@ public interface IMonacoSuggestion {
 	public AdditionalDatasourceRepository additionalDatasourceRepository = null;
 
 	public static final String templateSuggestion[][] = {
-			{ "loggedInUserEmail", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
-			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList[<sequence>] !\\'\\'}</#noparse>" },
-			{ "templateWithoutParams ", "<#noparse><@templateWithoutParams \\'your-template-name\\'/></#noparse>" },
-			{ "templateWithParams  ", "<#noparse><@templateWithParams \\'your-template-Name\\' templateParam/></#noparse>" },
-			{ "resourceBundle ", "<#noparse><@resourceBundle \\'your.key\\' /></#noparse>" },
-			{ "resourceBundleWithDefault  ", "<#noparse><@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/></#noparse>" },
-			{ "loggedInUserId  ", "<#noparse>{loggedInUserId  !\\'\\'}</#noparse>" },
-			{ "loggedInUserFullName  ", "<#noparse>{fullName  !\\'\\'}</#noparse>" },
-			{ "userObject  ", "<#noparse>{userObject.userid  !\\'\\'}</#noparse>" },
-			{ "contextPath  ", "<#noparse>{contextPath  !\\'\\'}</#noparse>" },
-			{ "messageSource  ", "<#noparse>{messageSource.getMessage(\\'your.key\\')  !\\'\\'}</#noparse>" },
-			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"},
-			{ "httpRequestObject  ", "<#noparse>{httpRequestObject?api.getMethod()  !\\'\\'}</#noparse>" } };
+			{ "loggedInUserEmail", "{loggedInUserName!\\'\\'}" },
+			{ "loggedInUserRoleList", "{loggedInUserRoleList[<sequence>] !\\'\\'}" },
+			{ "templateWithoutParams ", "<@templateWithoutParams \\'your-template-name\\'/>" },
+			{ "templateWithParams  ", "<@templateWithParams \\'your-template-Name\\' templateParam/>" },
+			{ "resourceBundle ", "<@resourceBundle \\'your.key\\' />" },
+			{ "resourceBundleWithDefault  ", "<@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/>" },
+			{ "loggedInUserId  ", "{loggedInUserId  !\\'\\'}" },
+			{ "loggedInUserFullName  ", "{fullName  !\\'\\'}" },
+			{ "userObject  ", "{userObject.userid  !\\'\\'}" },
+			{ "contextPath  ", "{contextPath  !\\'\\'}" },
+			{ "messageSource  ", "{messageSource.getMessage(\\'your.key\\')  !\\'\\'}" },
+			{ "systemProperties  ", "{getSystemProperty(\\'yourkey\\')}"},
+			{ "httpRequestObject  ", "{httpRequestObject?api.getMethod()  !\\'\\'}" } };
 	
 	public static final String templateDynamicFormSuggestion[][] = {
-			{ "loggedInUserEmail", "<#noparse>{loggedInUserName!\\'\\'}</#noparse>" },
-			{ "loggedInUserRoleList", "<#noparse>{loggedInUserRoleList[<sequence>] !\\'\\'}</#noparse>" },
-			{ "templateWithoutParams ", "<#noparse><@templateWithoutParams \\'your-template-name\\'/></#noparse>" },
-			{ "templateWithParams  ", "<#noparse><@templateWithParams \\'your-template-Name\\' templateParam/></#noparse>" },
-			{ "resourceBundle ", "<#noparse><@resourceBundle \\'your.key\\' /></#noparse>" },
-			{ "resourceBundleWithDefault  ", "<#noparse><@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/></#noparse>" },
-			{ "loggedInUserId  ", "<#noparse>{loggedInUserId  !\\'\\'}</#noparse>" },
-			{ "loggedInUserFullName  ", "<#noparse>{fullName  !\\'\\'}</#noparse>" },
-			{ "userObject  ", "<#noparse>{userObject.userid  !\\'\\'}</#noparse>" },
-			{ "contextPath  ", "<#noparse>{contextPath  !\\'\\'}</#noparse>" },
-			{ "messageSource  ", "<#noparse>{messageSource.getMessage(\\'your.key\\')  !\\'\\'}</#noparse>" },
-			{ "systemProperties  ", "<#noparse>{getSystemProperty(\\'version\\')}</#noparse>"},
-			{ "httpRequestObject  ", "<#noparse>{httpRequestObject?api.getMethod()  !\\'\\'}</#noparse>"},
-			{ "resultSetObject  ", "<#noparse>{(resultSetObject.\\'yourkey\\') !\\'\\'}</#noparse>" }, 
-			{ "resultSetList  ", "<#noparse>{resultSetList?api.get(\\'yourkey\\')}</#noparse>" }
+			{ "loggedInUserEmail", "{loggedInUserName!\\'\\'}" },
+			{ "loggedInUserRoleList", "{loggedInUserRoleList[<sequence>] !\\'\\'}" },
+			{ "templateWithoutParams ", "<@templateWithoutParams \\'your-template-name\\'/>" },
+			{ "templateWithParams  ", "<@templateWithParams \\'your-template-Name\\' templateParam/>" },
+			{ "resourceBundle ", "<@resourceBundle \\'your.key\\' />" },
+			{ "resourceBundleWithDefault  ", "<@resourceBundleWithDefault \\'your.key\\' \\'Default Value\\'/>" },
+			{ "loggedInUserId  ", "{loggedInUserId  !\\'\\'}" },
+			{ "loggedInUserFullName  ", "{fullName  !\\'\\'}" },
+			{ "userObject  ", "{userObject.userid  !\\'\\'}" },
+			{ "contextPath  ", "{contextPath  !\\'\\'}" },
+			{ "messageSource  ", "{messageSource.getMessage(\\'your.key\\')  !\\'\\'}" },
+			{ "systemProperties  ", "{getSystemProperty(\\'yourkey\\')}"},
+			{ "httpRequestObject  ", "{httpRequestObject?api.getMethod()  !\\'\\'}"},
+			{ "resultSetObject  ", "{(resultSetObject.\\'yourkey\\') !\\'\\'}" }, 
+			{ "resultSetList  ", "{resultSetList?api.get(\\'yourkey\\')}" }
 			};
 	
 	public static final String JStemplateSuggestions[][] = {

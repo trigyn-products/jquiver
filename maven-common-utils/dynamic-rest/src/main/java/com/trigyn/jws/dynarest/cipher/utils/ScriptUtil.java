@@ -892,6 +892,11 @@ public class ScriptUtil {
 		}
 	}
 
+	/**
+	 * @param a_strRestXML
+	 * @return
+	 * @apiNote : For Internal API calls, URL should be prefix with JAPI not API
+	 */
 	public final Object executeRESTCall(String a_strRestXML) {
 		// return custom rest response object
 

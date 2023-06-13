@@ -14,6 +14,7 @@
 <script src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
  
  <!-- 
     below two lines are for custom implementation. The CSS & JS can be modified from 
@@ -47,7 +48,7 @@
 			<li class="nav-item text-nowrap">
 				<div class="row margin-r-5 profile-tray">
 					<ul>
-						<li>
+						<li class="multilang_block">
                             <span class="multilingicon">
                                 <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png">	</span>					
 					       <select class="multilingselectbox" id="languageOptions" onchange="changeLanguage()">
@@ -58,7 +59,7 @@
                         
 
 
-            			<li>                          
+            			<li class="notificationblock">                          
 
             				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
                                  <i class="fa fa-bell" aria-hidden="true"></i> </a>
@@ -71,7 +72,7 @@
 							</a>
 						</li>
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
-                        	<li><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
+                        	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
                             	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>
@@ -127,7 +128,7 @@
                                     <#else>
                                    <#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1)>  
                                 <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas" >    
-                                   <div class="dr-menu" style="display:flex;    width: 100%;">
+                                   <div class="dr-menu" style="display:flex;    width: 247px;">
                                     <a href = "${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}" class="nav-link drclickmenu" style="width:85%;"  target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
                                     </a>
                                     <a class= " nav-link clickable panel-collapsed" style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">                                         

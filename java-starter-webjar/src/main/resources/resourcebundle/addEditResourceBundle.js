@@ -83,9 +83,9 @@ class AddEditResourceBundle {
 		
 		let resourceKey = $("#resourceBundleKey").val().trim();
 		if(resourceKey === ""){
+			$("#resourceBundleKey").closest("div").parent().effect("highlight", {}, 3000);
 			$("#resourceBundleKey").focus();
-			$("#errorMessage").show();
-			$('#errorMessage').html("Please enter the key");
+			showMessage("Please enter the key", "warn");
 			return false;
 		}else if(addEditFlag == "isAdd"){
 			let isKeyExist = true;
@@ -117,13 +117,11 @@ class AddEditResourceBundle {
 	
 		let eng = $("#textBx_1").val().trim();
 		if(eng === ""){
+			$("#textBx_1").effect("highlight", {}, 3000);
 			$("#textBx_1").focus();
-			$("#errorMessage").show();
-			$('#errorMessage').html("Please enter the English Text");
+			showMessage("Please enter the English Text", "warn");
 			return false;
 		}else{
-			$("#errorMessage").html("");
-			$("#errorMessage").hide();
 			return true;
 		}
 	}

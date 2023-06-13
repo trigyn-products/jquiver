@@ -68,7 +68,7 @@
             <div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.moduleName')}</label>
-					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control">
+					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control" readonly = "true">
 				</div>
 			</div>
 		</div>
@@ -125,7 +125,7 @@
 
 				<div class="col-inner-form full-form-fields">
 					<label for="menuDisplayName" style="white-space:nowrap">Menu Display Name</label>
-					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
+					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control" readonly = "true">
 				</div>
 			</div>
 
@@ -141,7 +141,7 @@
 					<i id="moduleUrlIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','moduleURL');" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
 					</span>
 					 
-					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
+					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control" readonly = "true">
 				</div>
 			</div>
             <div class="col-4">
@@ -183,7 +183,7 @@
 
 				<div class="col-inner-form full-form-fields">
 					<label for="formDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.moduleName")}</label>
-					<input type="text"  id = "formDisplayName" name = "formDisplayName" value = "" maxlength="100" class="form-control">
+					<input type="text"  id = "formDisplayName" name = "formDisplayName" value = "" maxlength="100" class="form-control" readonly = "true">
 				</div>
 			</div>
 
@@ -199,7 +199,7 @@
 					</span>
 					
 					
- 					<input type="text"  id = "formModuleURL" name = "formModuleURL" value = "" maxlength="200" class="form-control">
+ 					<input type="text"  id = "formModuleURL" name = "formModuleURL" value = "" maxlength="200" class="form-control" readonly = "true">
 				</div>
 			</div>
         </div>
@@ -254,16 +254,6 @@
 	let tableAutocomplete;
 	let resourceKeyMap = new Map();
 	
-	 $(document).ready(function(){
-		$("#moduleName").keyup(function(){
-            $("#menuDisplayName").val(this.value);
-            $("#moduleURL").val(this.value);
-            $("#formDisplayName").val(this.value+ '-form');
-            $("#formModuleURL").val(this.value+ '-f');
-		});
-	});
-	
-	
 	$(function() {
 		getAllDatasource(0);
 		tableAutocomplete = $("#tableAutocomplete").autocomplete({
@@ -296,12 +286,35 @@
                 resetObjects();
             },       
 	    });
-	    
 	    let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         multiselect.setSelectedObject(defaultAdminRole);
 	});
 	
-	
+	$(document).ready(function(){
+		$("#moduleName").keyup(function(){
+            $("#menuDisplayName").val(this.value);
+            $("#moduleURL").val(this.value);
+            if($("#moduleName").val() === ""){
+				$("#formDisplayName").val("");
+	            $("#formModuleURL").val("");
+			} else {
+            $("#formDisplayName").val(this.value+ '-form');
+            $("#formModuleURL").val(this.value+ '-f');
+            }
+		});
+		
+	});
+
+   
+    $("#tableAutocomplete").on('change',function(){
+        if($.trim(this.value).length < 1) {
+            $("#moduleName").prop("readonly", true);
+            $("#menuDisplayName").prop("readonly", true);  
+            $("#moduleURL").prop("readonly", true); 
+            $("#formDisplayName").prop("readonly", true); 
+            $("#formModuleURL").prop("readonly", true); 
+        }
+        });
 
     function selectAllIncludedListing(){
         $("#listingDetailsTable tr td:first-child input").prop('checked', $("#chkSelectAllIncludedListing").prop('checked'));

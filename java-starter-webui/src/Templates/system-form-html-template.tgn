@@ -13,7 +13,7 @@
         </#if>
 	</#list>
 </#if>
-        
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
 <div class="container">
@@ -31,7 +31,7 @@
          <#assign optionalClass=" optional ">
 
 			<#if (columnDetailsList.columnType) != "hidden" && (columnDetailsList.autoIncrement) == false>
-	    		<div class="col-3">
+	    		<div class="col-lg-3 col-12">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
 							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date">
@@ -95,7 +95,7 @@
 				</div>
             <#elseif (columnDetailsList.autoIncrement) == true>
 
-                <div class="col-3" title="Auto Increment">
+                <div class="col-lg-3 col-12" title="Auto Increment">
 					<div class="col-inner-form full-form-fields">
                         <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
@@ -114,14 +114,12 @@
 		<div class="col-12">
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
-                    <div id="savedAction">
-                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return);">${messageSource.getMessage("jws.saveAndReturn")}</button>
-                    </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    <span id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></span>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="onSaveButtonClick(SaveAction.Edit);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="onSaveButtonClick(SaveAction.Edit, isEdit);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                         </ul>
                     </div>  
                 </div>
@@ -150,7 +148,7 @@
 			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
 			inputField : "${(columnDetailsList.columnName)!""}",
 			dateFormat : "%d-%B-%Y",
-			weekNumbers: true,
+			weekNumbers: true,          
             showTime: 12,
 			onSelect   : function() { 
 				let selectedDate = this.selection.get();
@@ -170,7 +168,7 @@
       		<#if (columnDetails)??>
     	        <#list columnDetails as columnDetailsList>
                     <#if (columnDetailsList.columnType) == "date">
-                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName)}<#noparse>)}</#noparse>',false),"%d-%b-%Y"));
+                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName)}<#noparse>)}</#noparse>',false),"%d-%B-%Y"));
                     </#if>
                 </#list>    
             </#if>
@@ -189,7 +187,7 @@
       </#if>
     </#noparse>
     
-	savedAction("addEditForm", isEdit);
+	changeDefaultAction()
 	hideShowActionButtons();
   });
   

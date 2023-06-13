@@ -233,10 +233,15 @@ public class MasterCreatorService {
 			menuData.setTargetLookupId(2);
 		}
 
-		if (StringUtils.isNotBlank(menuData.getParentModuleId())) {
-			menuData.setSequence(moduleService.getMaxSequenceByParent(menuData.getParentModuleId()));
+		if (entity instanceof DynamicForm == false) {
+			if (StringUtils.isNotBlank(menuData.getParentModuleId())) {
+				menuData.setSequence(moduleService.getMaxSequenceByParent(menuData.getParentModuleId()));
+			} else {
+				menuData.setSequence(moduleService.getModuleMaxSequence());
+			}
 		} else {
-			menuData.setSequence(moduleService.getModuleMaxSequence());
+			menuData.setIsInsideMenu(0);
+			menuData.setSequence(null);
 		}
 		String menuId = moduleService.saveModuleDetails(menuData);
 		menuData.setModuleId(menuId);

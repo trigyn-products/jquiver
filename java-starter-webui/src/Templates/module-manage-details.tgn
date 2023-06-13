@@ -93,6 +93,27 @@
               </div>
             </div>
             
+
+                <div class="col-4">
+            <div class="col-inner-form full-form-fields">
+                    <label for="openInNewTab" style="white-space:nowrap">${messageSource.getMessage("jws.openinnewtab")}</label>
+                    <div class="onoffswitch">
+                        <input type="hidden" id="isOpenInNewTab" name="isOpenInNewTab" value="${(moduleDetailsVO?api.getOpenInNewTab())!''}">
+                        <#if (moduleDetailsVO?api.getOpenInNewTab())?? && moduleDetailsVO?api.getOpenInNewTab() == 1>
+                            <input type="checkbox" id="openInNewTab" checked name="openInNewTab" class="onoffswitch-checkbox">
+                        <#elseif (moduleDetailsVO?api.getIsInsideMenu())?? && moduleDetailsVO?api.getIsInsideMenu() == 1>
+                            <input type="checkbox" id="openInNewTab" name="openInNewTab" class="onoffswitch-checkbox">
+                        <#else>
+                            <input type="checkbox" id="openInNewTab"  name="openInNewTab" class="onoffswitch-checkbox" disabled >
+                        </#if>
+                        <label class="onoffswitch-label" for="openInNewTab">
+                            <span class="onoffswitch-inner"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                </div>
+                </div>    
+
             <div class="col-4" id="includeLayoutDiv">               
 
                 <div style="display:Flex">
@@ -119,25 +140,7 @@
                     </div>       
                 </div>
 			 </div>
-           
-                <div class="col-4">
-            <div class="col-inner-form full-form-fields">
-                    <label for="openInNewTab" style="white-space:nowrap">${messageSource.getMessage("jws.openinnewtab")}</label>
-                    <div class="onoffswitch">
-                        <input type="hidden" id="isOpenInNewTab" name="isOpenInNewTab" value="${(moduleDetailsVO?api.getOpenInNewTab())!''}">
-                        <#if (moduleDetailsVO?api.getOpenInNewTab())?? && moduleDetailsVO?api.getOpenInNewTab() == 1>
-                            <input type="checkbox" id="openInNewTab" checked name="openInNewTab" class="onoffswitch-checkbox">
-                        <#else>
-                            <input type="checkbox" id="openInNewTab"  name="openInNewTab" class="onoffswitch-checkbox">
-                        </#if>
-                        <label class="onoffswitch-label" for="openInNewTab">
-                            <span class="onoffswitch-inner"></span>
-                            <span class="onoffswitch-switch"></span>
-                        </label>
-                    </div>
-                </div>
-                </div>    
-            
+
           </div>
         <div class="row">    
               <div class="col-4">
@@ -320,7 +323,6 @@ $(function() {
 	$("#txtContentLangLabel").text(selectedLanguageId);
     savedAction("module-manage-details", moduleId);
     hideShowActionButtons();
-    
     if(targetLookupId === ""){
         $("#targetLookupType").val(6);
     }

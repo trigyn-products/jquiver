@@ -124,7 +124,6 @@ AddEditDashlet.prototype.fn = {
 		let isValid = context.validateDashletMandatoryFields();
 		let sequenceCounter = 0;
 		if(isValid){
-			$("#errorMessage").hide();
 			$("#dashletProps").find('tr.dashlet_property').each (function() {
 				let dashletProperty = new Object();
 	  			$(this).find('td > input').each (function() {
@@ -192,7 +191,6 @@ AddEditDashlet.prototype.fn = {
 	        	
 			});
 		}else{
-			$("#errorMessage").show();
 			window.scrollTo(0, 0);
 		}
 		return isDataSaved;
@@ -201,57 +199,61 @@ AddEditDashlet.prototype.fn = {
 	validateDashletMandatoryFields : function(){
 		let dashletName=$("#dashletName").val().trim();
 		if(dashletName ==""){
+			$("#dashletName").closest("div").parent().effect("highlight", {}, 3000);
 			$("#dashletName").focus();
-			$('#errorMessage').html("Please enter Dashlet name");
+			showMessage("Please enter Dashlet name", "warn");
 			return false;
 		}
 		
 		let dashletTitle=$("#dashletTitle").val().trim();
 		if(dashletTitle ==""){
+			$("#dashletTitle").closest("div").parent().effect("highlight", {}, 3000);
 			$("#dashletTitle").focus();
-			$('#errorMessage').html("Please enter Dashlet title");
+			showMessage("Please enter Dashlet title", "warn");
 			return false;
 		}
 		
 		let xCoordinate=$("#xCoordinate").val().trim();
 		if(xCoordinate ==""){
+			$("#xCoordinate").effect("highlight", {}, 3000);
 			$("#xCoordinate").focus();
-			$('#errorMessage').html("Please enter Dashlet X Coordinate");
+			showMessage("Please enter Dashlet X Coordinate", "warn");
 			return false;
 		}
 		
 		let yCoordinate=$("#yCoordinate").val().trim();
 		if(yCoordinate ==""){
+			$("#yCoordinate").effect("highlight", {}, 3000);
 			$("#yCoordinate").focus();
-			$('#errorMessage').html("Please enter Dashlet Y Coordinate");
+			showMessage("Please enter Dashlet Y Coordinate", "warn");
 			return false;
 		}
 		
 		let widthDimension=$("#width").val().trim();
 		if(widthDimension ==""){
+			$("#width").effect("highlight", {}, 3000);
 			$("#width").focus();
-			$('#errorMessage').html("Please enter Dashlet width  dimension");
+			showMessage("Please enter Dashlet width  dimension", "warn");
 			return false;
 		}
 		
 		let heightDimension=$("#height").val().trim();
 		if(heightDimension ==""){
+			$("#height").effect("highlight", {}, 3000);
 			$("#height").focus();
-			$('#errorMessage').html("Please enter Dashlet height dimension");
+			showMessage("Please enter Dashlet height dimension", "warn");
 			return false;
 		}
 		
 		let sqlScriptValidation=dashletSQLEditor.getValue().trim();
 		if(sqlScriptValidation ==""){
-			$("#sqlContainer").focus();
-			$('#errorMessage').html("Please enter sql script");
+			showMessage("Please enter sql script", "warn");
 			return false;
 		}
 		
 		let dashletHTMLEditorValidation=dashletHTMLEditor.getValue().trim();
 		if(dashletHTMLEditorValidation ==""){
-			$("#htmlEditor").focus();	
-			$('#errorMessage').html("Please enter html script");
+			showMessage("Please enter html script", "warn");
 			return false;
 		}
 		
@@ -262,8 +264,7 @@ AddEditDashlet.prototype.fn = {
 
 		let dashletSQLEditorValidation=dashletSQLEditor.getValue().trim();
 		if(dashletSQLEditorValidation ==""){
-			$("#htmlEditor").focus();	
-			$('#errorMessage').html("Please enter SQL/JS script");
+			showMessage("Please enter SQL/JS script", "warn");	
 			return false;
 		}
 		

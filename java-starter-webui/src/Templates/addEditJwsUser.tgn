@@ -232,8 +232,8 @@
         $("#forcePasswordChange").prop("disabled",true);
 		$("#forcePasswordChange").prop("checked",false);
     }
-    var verificationType = ${verificationType!''};
-    if(authenticationType == 2 && verificationType == 0) {
+    var verificationType = "${verificationType!''}";
+    if(authenticationType == 2 && verificationType == "0") {
         $("#forcePasswordChange").prop("disabled",true);
 		$("#forcePasswordChange").prop("checked",false);
 		$("#isActive").prop("checked",true);

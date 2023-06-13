@@ -1400,10 +1400,10 @@
 	function updateFileExportRenderer(uiObject) {
 		const id = uiObject.rowData.file_upload_id;
 		const name = uiObject.rowData.original_file_name;
+		const fileType = uiObject.file_bin_id;
 		const version = getVersion(uiObject);
 		const isSystemVariable =  1;
 		const moduleType = "Files";
-		
 		let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 		let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
 		

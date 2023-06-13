@@ -11,7 +11,7 @@ import com.trigyn.jws.dbutils.entities.PropertyMaster;
 public interface PropertyMasterRepository extends JpaRepositoryImplementation<PropertyMaster, String> {
 
 	@Modifying
-	@Query(" UPDATE PropertyMaster SET propertyValue=:propertyValue WHERE propertyName =:propertyName ")
+	@Query(" UPDATE PropertyMaster SET propertyValue=:propertyValue, is_custom_updated = 1 WHERE propertyName =:propertyName ")
 	void updatePropertyValueByName(String propertyValue, String propertyName);
 
 	@Query()

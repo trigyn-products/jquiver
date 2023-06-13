@@ -24,6 +24,71 @@
     </div>
  
     <div class="row">
+    
+    	<div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                <span class="namcls">Associate Architect-UI</span>
+            <a href="https://www.linkedin.com/in/amit-jadhav-3308782b/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Amit Jadhav.jpg" alt="Amit Jadhav" title="Associate Architect-UI"/>
+                 <div class="udetails">
+               <span class="desg">Amit Jadhav</span>
+                   
+               
+                </div>
+            </a>
+        </div>
+     
+    	<div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+                <span class="namcls">Software Engineer</span>
+            <a href="https://www.linkedin.com/in/anomitro1995/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Anomitro_Mukherjee.jpg" alt="Anomitro Mukherjee" title="Software Engineer"/>
+                 <div class="udetails">
+               <span class="desg">Anomitro Mukherjee</span>
+                   
+               
+                </div>
+            </a>
+        </div>
+     
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Sr. Software Engineer</span>
+            <a href="https://www.linkedin.com/in/bibhusrita-nayak-819330231/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Bibhusrita Nayak.jpg" alt="Bibhusrita Nayak" title="Sr. Software Engineer"/>
+                  <div class="udetails">
+             <span class="desg">Bibhusrita Nayak</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+     
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Team Lead</span>
+            <a href="https://www.linkedin.com/in/mini-pillai-b01807112/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Mini Pillai.jpg" alt="Mini Pillai" title="Team Lead"/>
+                  <div class="udetails">
+             <span class="desg">Mini Pillai</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
+
+                <span class="namcls">Associate Technical Lead</span>
+            <a href="https://www.linkedin.com/in/shrinath-halki-1848b230/" target="_blank">
+                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Shrinath Halki.jpg" alt="Shrinath Halki" title="Associate Technical Lead"/>
+                  <div class="udetails">
+             <span class="desg">Shrinath Halki</span>
+                      
+               
+                </div>
+            </a>
+        </div>
+    	
+    	
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                  <span class="namcls">Sr Software Engineer</span>
             <a href="https://www.linkedin.com/in/abde17/" target="_blank">
@@ -60,44 +125,6 @@
             </a>
         </div>
     
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
-                <span class="namcls">Associate Architect-UI</span>
-            <a href="https://www.linkedin.com/in/amit-jadhav-3308782b/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Amit Jadhav.jpg" alt="Amit Jadhav" title="Associate Architect-UI"/>
-                 <div class="udetails">
-               <span class="desg">Amit Jadhav</span>
-                   
-               
-                </div>
-            </a>
-        </div>
-     
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
-
-                <span class="namcls">Sr. Software Engineer</span>
-            <a href="https://www.linkedin.com/in/bibhusrita-nayak-819330231/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Bibhusrita Nayak.jpg" alt="Bibhusrita Nayak" title="Sr. Software Engineer"/>
-                  <div class="udetails">
-             <span class="desg">Bibhusrita Nayak</span>
-                      
-               
-                </div>
-            </a>
-        </div>
-     
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
-
-                <span class="namcls">Team Lead</span>
-            <a href="https://www.linkedin.com/in/mini-pillai-b01807112/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Mini Pillai.jpg" alt="Mini Pillai" title="Team Lead"/>
-                  <div class="udetails">
-             <span class="desg">Mini Pillai</span>
-                      
-               
-                </div>
-            </a>
-        </div>
-
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                     
                 <span class="namcls">Sr Software Engineer</span>
@@ -130,19 +157,6 @@
                 <div class="udetails" style="background:lightgray">
                  
                 <span class="desg">Satyawan Sawant</span>
-               
-                </div>
-            </a>
-        </div>
-        
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic">
-
-                <span class="namcls">Associate Technical Lead</span>
-            <a href="https://www.linkedin.com/in/shrinath-halki-1848b230/" target="_blank">
-                <img class="team-img" width="150px" height="160px" src="${(contextPath)!''}/webjars/1.0/images/Shrinath Halki.jpg" alt="Shrinath Halki" title="Associate Technical Lead"/>
-                  <div class="udetails">
-             <span class="desg">Shrinath Halki</span>
-                      
                
                 </div>
             </a>

@@ -1,26 +1,30 @@
 package com.trigyn.jws.dbutils.vo.xml;
 
+import java.util.List;
+import java.util.Map;
+
 public class Modules {
 
-	private String				moduleID;
+	private String									moduleID;
 
-	private String				moduleName;
+	private String									moduleName;
 
-	private String				moduleType;
+	private String									moduleType;
 
-	private TemplateExportVO	template;
+	private TemplateExportVO						template;
 
-	private DashletExportVO		dashlet;
+	private DashletExportVO							dashlet;
 
-	private DynamicFormExportVO	dynamicForm;
+	private DynamicFormExportVO						dynamicForm;
 
-	private HelpManualTypeExportVO	helpManual;
+	private HelpManualTypeExportVO					helpManual;
+
+	private FileUploadConfigExportVO				fileBin;
+
+	private DynaRestExportVO						dynaRestExportVO;
+
+	private List<FileUploadExportVO>				fileUploadList;
 	
-	private FileUploadConfigExportVO fileBin;
-	
-	private DynaRestExportVO dynaRestExportVO;
-	
-	private FilesImportExportVO			files;
 
 	public String getModuleID() {
 		return moduleID;
@@ -93,13 +97,15 @@ public class Modules {
 	public void setDynaRestExportVO(DynaRestExportVO dynaRestExportVO) {
 		this.dynaRestExportVO = dynaRestExportVO;
 	}
-	
-	public FilesImportExportVO getFiles() {
-		return files;
+
+	public List<FileUploadExportVO> getFileUploadList() {
+		return fileUploadList;
 	}
 
-	public void setFiles(FilesImportExportVO files) {
-		this.files = files;
+	public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
+		this.fileUploadList = fileUploadList;
 	}
+
+	
 
 }

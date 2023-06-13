@@ -204,13 +204,13 @@ public class DynamicFormService {
 			formHtmlTemplateMap.put("suggestions", contextSuggestions);
 			formHtmlTemplateMap.put("JSsuggestions", jSSuggestions);
 			formHtmlTemplateMap.put("JSfilesuggestions", filejSSuggestions);
-			templateHtml = templateEngine.processTemplateContents(formBody, formName, formHtmlTemplateMap);
+//			templateHtml = templateEngine.processTemplateContents(formBody, formName, formHtmlTemplateMap);
 			Boolean includeLayout = requestParam.get("includeLayout") == null ? Boolean.TRUE
 					: Boolean.parseBoolean(requestParam.get("includeLayout").toString());
 			if (Boolean.TRUE.equals(includeLayout)) {
-				return menuService.getTemplateWithSiteLayoutWithoutProcess(templateHtml, formHtmlTemplateMap);
+				return menuService.getTemplateWithSiteLayoutWithoutProcess(formBody, formHtmlTemplateMap);
 			} else {
-				return templateHtml;
+				return templateEngine.processTemplateContents(formBody, formName, formHtmlTemplateMap);
 			}
 
 		} catch (Exception a_exc) {
@@ -1036,7 +1036,7 @@ public class DynamicFormService {
 				} else if (dbProductName != null && dbProductName.contains("oracle:thin")) {
 					value = "TO_DATE(:".concat(formFieldName).concat(", 'DD-MONTH-YYYY') ");
 				} else {
-					value = "STR_TO_DATE(:".concat(formFieldName).concat(", \"%d-%b-%Y\") ");
+					value = "STR_TO_DATE(:".concat(formFieldName).concat(", \"%d-%M-%Y\") ");
 				}
 				formFieldVal.append(value);
 

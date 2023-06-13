@@ -61,6 +61,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
@@ -299,6 +300,10 @@ public class JwsDynamicRestDetailService {
 
 	public RestApiDetails getRestApiDetails(String requestUri) {
 		return dyanmicRestDetailsRepository.findByJwsDynamicRestUrl(requestUri);
+	}
+	
+	public RestApiDetails getRestApiDetailsById(String dynaId) {
+		return dyanmicRestDetailsRepository.findAllJavaDynarestsByRestId(dynaId);
 	}
 
 	public Map<String, Object> executeDAOQueries(String dynarestId, Map<String, Object> parameterMap,
@@ -908,7 +913,10 @@ public class JwsDynamicRestDetailService {
 					}
 				}
 			}
-			WebClient webClient = webClientBuilder.build();
+			WebClient webClient = webClientBuilder.exchangeStrategies(ExchangeStrategies.builder().codecs(
+	                clientCodecConfigurer ->
+	                clientCodecConfigurer.defaultCodecs().maxInMemorySize(10000000))
+					.build()).build();
 			RequestHeadersSpec reqHeaderSpec = null;
 			RequestBodySpec reqBodySpec = webClient.method(HttpMethod.resolve(webClientVO.getRequestType()))
 					.uri(webClientVO.getWebClientURL(), uri -> uri.queryParams(queryParamMultipvalueMap).build());

@@ -138,10 +138,9 @@
 	
     $('#btnUpload').on('click', function() {
     	var data= document.getElementById('inputFile');
-    	console.log(data.files);
-    	if(data.files.length==0){
+    	if(data.files.length == 0){
 	    	data.focus();
-	    	showMessage("Invalid file  imported.", "error");
+	    	showMessage("Please select a file to be imported", "warn");
 	    	return false;
     	} else {
     		var fileExtn= data.files[0].name.substr((data.files[0].name.lastIndexOf('.') + 1));

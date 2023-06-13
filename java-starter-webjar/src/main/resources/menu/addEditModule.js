@@ -27,7 +27,6 @@ class AddEditModule {
 		/** Ends Here */
 
 		if (context.validateMandatoryFileds() == false) {
-			$("#errorMessage").show();
 			return false;
 		}
 
@@ -78,7 +77,6 @@ class AddEditModule {
 			contentType: "application/json",
 			data: JSON.stringify(moduleDetails),
 			success: function(data) {
-				$("#errorMessage").hide();
 				context.saveEntityRoleAssociation(data);
 				context.parentModuleId = $("#parentModuleName").find(":selected").val();
 				showMessage("Information saved successfully", "success");
@@ -94,39 +92,43 @@ class AddEditModule {
 	}
 
 	validateMandatoryFileds = function() {
-		$('#errorMessage').html("");
 		let moduleName = $("#moduleName").val().trim();
 		if (moduleName === "") {
+			$("#moduleName").closest("div").parent().effect("highlight", {}, 3000);
 			$("#moduleName").focus();
-			$('#errorMessage').html("Please enter module name");
+			showMessage("Please enter module name", "warn");
 			return false;
 		}
 
 		let contextType = $("#targetLookupType").find(":selected").val();
 		if (contextType === "") {
+			$("#targetLookupType").closest("div").parent().effect("highlight", {}, 3000);
 			$("#targetLookupType").focus();
-			$('#errorMessage').html("Please select context type");
+			showMessage("Please select context type", "warn");
 			return false;
 		}
 
 		let contextName = $("#targetTypeName").val();
 		if (contextName === "" && contextType != "6" && contextType != "7") {
+			$("#targetTypeName").closest("div").parent().effect("highlight", {}, 3000);
 			$("#targetTypeName").focus();
-			$('#errorMessage').html("Please select context name");
+			showMessage("Please select context name", "warn");
 			return false;
 		}
 
 		let sequence = $("#sequence").val().trim();
 		if (sequence === "" && ($("#insideMenuCheckbox").prop("checked")) === true) {
+			$("#sequence").closest("div").parent().effect("highlight", {}, 3000);
 			$("#sequence").focus();
-			$('#errorMessage').html("Please enter sequence number");
+			showMessage("Please enter sequence number", "warn");
 			return false;
 		}
 
 		let moduleURL = $("#moduleURL").val().trim();
 		if ((moduleURL === "" || moduleURL.length > 200 || moduleURL.indexOf("#") != -1 || moduleURL.indexOf(" ") != -1) && contextType != "7" && contextType != "6") {
+			$("#moduleURL").closest("div").parent().effect("highlight", {}, 3000);
 			$("#moduleURL").focus();
-			$('#errorMessage').html("Please enter valid URL");
+			showMessage("Please enter valid URL", "warn");
 			return false;
 		}
 
@@ -134,22 +136,27 @@ class AddEditModule {
 		if (contextType === "7") {
 			let externalURL = $("#externalURL").val().trim();
 			if (externalURL === "" || externalURL.indexOf(" ") != -1) {
+				$("#externalURL").closest("div").parent().effect("highlight", {}, 3000);
 				$("#externalURL").focus();
-				$('#errorMessage').html("Please enter valid URL");
+				showMessage("Please enter valid URL", "warn");
 				return false;
 			}
 		}
 		var errorExist = false;
 		$.each($('.key'), function() {
 			if ($(this).val().length == 0) {
-				$('#errorMessage').html("Please enter response header key");
+				$(this).effect("highlight", {}, 3000);
+				$(this).focus();
+				showMessage("Please enter response header key", "warn");
 				errorExist = true;
 			}
 
 		});
 		$.each($('.value'), function() {
 			if ($(this).val().length == 0) {
-				$('#errorMessage').html("Please enter response header value");
+				$(this).effect("highlight", {}, 3000);
+				$(this).focus();
+				showMessage("Please enter response header value", "warn");
 				errorExist = true;
 			}
 
@@ -193,15 +200,15 @@ class AddEditModule {
 					let moduleId = $("#moduleId").val();
 					if (moduleIdName != undefined && moduleIdName != moduleId) {
 						isDataExist = true;
-						$('#errorMessage').html("Module name already exist");
+						showMessage("Module name already exist", "warn");
 					}
 					if (isDataExist == false && moduleIdSequence != undefined && moduleIdSequence != moduleId) {
 						isDataExist = true;
-						$('#errorMessage').html("Sequence number already exist");
+						showMessage("Sequence number already exist", "warn");
 					}
 					if (isDataExist == false && moduleIdURL != undefined && moduleIdURL != moduleId && moduleURL !== "#" && targetLookupId != "7") {
 						isDataExist = true;
-						$('#errorMessage').html("Module URL already exist");
+						showMessage("Module URL already exist", "warn");
 					}
 					if (moduleId == "" && parentModuleURL != undefined && targetLookupId == "6") {
 						isDataExist = false;
@@ -216,9 +223,6 @@ class AddEditModule {
 			},
 
 		});
-		if (isDataExist === true) {
-			$("#errorMessage").show();
-		}
 		return isDataExist;
 	}
 
@@ -351,6 +355,9 @@ class AddEditModule {
 		if (isInsideMenu) {
 			$("#isInsideMenu").val(1);
 			$("#sequence").prop('disabled', false);
+			/**Added for making  openInNewTab enabled when Include in Menu is checked or enabled.*/
+			$("#openInNewTab").prop('disabled', false);
+			/**Ends here */
 			$("#parentModuleName").prop('disabled', false);
 			if (sequence !== undefined && sequence !== "") {
 				$("#sequence").val(sequence);
@@ -364,6 +371,9 @@ class AddEditModule {
 			$("#sequence").val("");
 			$("#sequence").prop('disabled', true);
 			$("#parentModuleName").prop('disabled', true);
+			/**Added for making  openInNewTab disabled when Include in Menu is un-checked.*/
+			$("#openInNewTab").prop('disabled', true);
+			/**Ends here */
 		}
 
 	}
@@ -432,8 +442,10 @@ class AddEditModule {
 				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="text">';
 			} else if (key == "Content-Language") {
 				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="hidden">' + selectedLanguageId;
-			} else {
+			} else if (key == "Powered-By") {
 				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="hidden">' + value;
+			} else {
+				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="text">';
 			}
 		} else {
 			row += '<input class="key" type="text"></td><td><input class="value" type="text" >';

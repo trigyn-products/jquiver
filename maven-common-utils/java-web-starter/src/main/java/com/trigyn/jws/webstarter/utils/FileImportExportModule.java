@@ -2,13 +2,15 @@ package com.trigyn.jws.webstarter.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,6 @@ import org.springframework.stereotype.Component;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
-import com.trigyn.jws.dbutils.vo.xml.FilesImportExportVO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.webstarter.vo.FileUploadImportEntity;
@@ -58,6 +59,7 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 			List<FileUpload>			fileUploadDetails		= fileUploadXMLVO.getFileUploadDetails();
 			SimpleDateFormat			formattedDate			= new SimpleDateFormat("yyyy/MM/dd");
 			List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
+			String fileBinId = null;
 			for (FileUpload fu : fileUploadDetails) {
 				int		filePathIdx			= -1;
 				String	exportPath			= null;
@@ -109,12 +111,13 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 					Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
 					Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
 				}
-				FilesImportExportVO	filesExportVO	= new FilesImportExportVO(fileUploadExportVOList);
-				Map<String, Object>	map				= new HashMap<>();
-				map.put("moduleName", Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType());
-				map.put("moduleObject", filesExportVO);
-				moduleDetailsMap.put(fu.getFileUploadId(), map);
+				fileBinId = fu.getFileBinId();
+				
 			}
+			Map<String, Object>	map				= new HashMap<>();
+			map.put("moduleName", Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType());
+			map.put("moduleObject", fileUploadExportVOList);
+			moduleDetailsMap.put(fileBinId, map);
 		}
 	}
 
@@ -122,10 +125,9 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 	public Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
 			throws Exception {
 		FileUploadImportEntity	fileUploadImportEntity	= null;
-
-		FilesImportExportVO		filsImpExpVO			= (FilesImportExportVO) importObject;
 		List<FileUpload>		fileUploads				= new ArrayList<>();
-		for (FileUploadExportVO fueVO : filsImpExpVO.getFileUploadList()) {
+		List<FileUploadExportVO>		filsImpExpVOs			= (List<FileUploadExportVO>) importObject;
+		for (FileUploadExportVO fueVO : filsImpExpVOs) {
 			FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
 					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(), fueVO.getFileBinId(),
 					fueVO.getFileAssociationId());
@@ -141,6 +143,26 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 
 	public void setModuleDetailsMap(Map<String, Map<String, Object>> moduleDetailsMap) {
 		this.moduleDetailsMap = moduleDetailsMap;
+	}
+	
+	private Boolean checkFileExist(Object obj) throws MalformedURLException, IOException, FileNotFoundException {
+		FileUpload				fu			= (FileUpload) obj;
+		Path		fileRoot		= Paths.get(fu.getFilePath());
+		Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
+		Resource	resource		= new UrlResource(filePath.toUri());
+		InputStream	in;
+		if (resource.exists() || resource.isReadable()) {
+			File newFile = resource.getFile();
+			in = new FileInputStream(newFile);
+		} else {
+			String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
+			in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
+		}
+		if (in != null) {
+			return Boolean.TRUE;
+		}else {
+			return Boolean.FALSE;
+		}
 	}
 
 }

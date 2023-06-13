@@ -55,7 +55,7 @@ public class GridUtility {
 			int counter = 0;
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					query.append("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
 				} else {					
 					query.append("("+sf.getField() + " LIKE ? ");
 				}
@@ -151,7 +151,7 @@ public class GridUtility {
 			int counter = 0;
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					query.append("CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
 				} else {					
 					query.append("("+sf.getField() + " LIKE ? ");
 				}

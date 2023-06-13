@@ -3,7 +3,8 @@
 function backToPreviousPage() {
 	location.href = contextPath+"/cf/home";
 }
-
+let  primaryKey = '';
+let  primaryKeyCounter = 0;
 function populateFields(tableName, dbProductID){
     let selectedTable = tableName;
     $.ajax({
@@ -14,11 +15,24 @@ function populateFields(tableName, dbProductID){
         	dbProductID : dbProductID
         },
         success : function(data) {
+        	    
+        	$("#moduleName").prop("readonly", false);
+        	$("#menuDisplayName").prop("readonly", false);  
+        	$("#moduleURL").prop("readonly", false); 
+        	$("#formDisplayName").prop("readonly", false); 
+        	$("#formModuleURL").prop("readonly", false); 
+        	
 			resetObjects();
             $("#moduleName").val(selectedTable.replaceAll("_", "-"));
             $("#formDisplayName").val(selectedTable.replaceAll("_", "-")+"-form");
             $("#formModuleURL").val(selectedTable.replaceAll("_", "-")+"-f");
-            let primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
+             primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
+             primaryKeyCounter = data.filter(element => {
+            	 if(element.columnKey == "PK"){
+            		 return true;
+            	 }
+            	 return false;
+             }).length;
             let columns = data.map(element => element["tableColumnName"]);
             $("#columns").val(columns.toString());
             $("#primaryKey").val(primaryKey);
@@ -35,6 +49,7 @@ function populateFields(tableName, dbProductID){
 				showMessage("Error occurred while creating master", "error");
 	   	},
     });
+   
 }
 
 function resetObjects(){
@@ -49,6 +64,10 @@ function resetObjects(){
 	$("#moduleName").val("");
 	$("#formDisplayName").val("");
     $("#formModuleURL").val("");
+    $('#chkSelectAllIncludedListing').prop("checked", false);
+    $('#chkSelectAllIncludedForm').prop("checked", false);
+    $('#chkSelectAllHiddenListing').prop("checked", false);
+    $('#chkSelectAllHiddenForm').prop("checked", false);
 }
 
 function createTable(columns) {
@@ -397,10 +416,25 @@ function createMaster() {
     })
 }
 
-
 function validateForm(){
 	
 	$('#errorMessage').hide();
+	
+	if(primaryKeyCounter > 1){
+		showMessage("Please select a table with a single primary key", "warn");
+		return false;
+	}
+	
+	if(primaryKey=== '' || primaryKey === undefined){
+		showMessage("Please select a table with a primary key", "warn");
+		return false;
+	}
+	
+	if($("#tableAutocomplete").val().length < 1){
+		showMessage("Please select a valid table to proceed", "warn");
+		return false;
+    }
+	
 	
 	if($("#showInMenu").prop("checked")){
 		if(validateSiteLayoutDetails() == false){
@@ -427,6 +461,7 @@ function validateForm(){
 		showMessage("Please mark at least one column as visible in form", "warn");
 		return false;
 	}
+	
 	
 	
 	let isValid = true;

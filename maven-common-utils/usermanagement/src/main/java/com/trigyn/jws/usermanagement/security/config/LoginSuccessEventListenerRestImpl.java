@@ -60,11 +60,11 @@ public class LoginSuccessEventListenerRestImpl implements LoginSuccessEventListe
 			String				authType	= request.getParameter("enableAuthenticationType");
 			if (authType == null || authType.isEmpty()|| authType.isBlank()) {
 				authType = request.getHeader("at");
-				if (authType.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+				if (Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey().equals(authType)) {
 					authType = Constants.DAO_ID;
-				} else if (authType.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+				} else if (Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey().equals(authType)) {
 					authType = Constants.LDAP_ID;
-				} else if (authType.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+				} else if (Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey().equals(authType)) {
 					authType = Constants.OAUTH_ID;
 				}
 			}
