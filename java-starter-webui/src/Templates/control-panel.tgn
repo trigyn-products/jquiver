@@ -3,6 +3,18 @@
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+
+<style>
+.margintop{
+    margin-top:0px;
+    padding:0px;
+}
+
+.margintop .typeSelectDropDown{
+padding: 8px 5px;
+}
+</style>
+
 </head>
 
  <div class="container ">
@@ -16,7 +28,7 @@
                     </div>
                 </div>
             </div> 
-       <div class="col-lg-4 col-12 float-right homedropdown mobile-objects"> 
+       <div class="col-lg-4 col-12 float-right homedropdown mobile-objects margintop"> 
            <div class="pull-right">
         ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   

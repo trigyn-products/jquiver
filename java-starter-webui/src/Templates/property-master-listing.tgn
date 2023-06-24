@@ -76,11 +76,11 @@
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "${messageSource.getMessage('jws.propertyvalue')}", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",render: formatpropValue,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.modifiedBy')}", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.updatedBy')}", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.comments')}", width: 130, dataIndx: "comments", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.modifiedDate')}", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center"  },
+			{ title: "${messageSource.getMessage('jws.modifiedDate')}", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center", render: formatLastUpdatedDate  },
 			{ title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
 		];
 		let dataModel = {
@@ -147,4 +147,8 @@
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
 </script>

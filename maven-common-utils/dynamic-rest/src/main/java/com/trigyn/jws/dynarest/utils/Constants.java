@@ -41,6 +41,7 @@ public final class Constants {
 	public static final Integer			EMAIL_CONTENT_TYPE_THREE				= 3;
 	public static final Integer			IS_SECURED								= 1;
 	public static final Integer			IS_NOT_SECURED							= 0;
+	public static final Integer		    ALL_REQ_TYPE_ID					        = 9;
 
 	private static Map<String, String>	SELECT_REQUIRED_COLUMN_MAP				= new HashMap<String, String>();
 
@@ -96,6 +97,62 @@ public final class Constants {
 
 		public int getQueryType() {
 			return queryType;
+		}
+	}
+	
+	public enum Action {
+		ADD("ADD"), EDIT("EDIT"), DELETE("DELETE"), OPEN("OPEN"), PERMISSIONACTIVATED("PERMISSION ACTIVATED"),
+		PERMISSIONINACTIVATED("PERMISSION INACTIVATED"), SCHEDULEREXECUTIONFAILED("SCHEDULER EXECUTION FAILED"),
+		SCHEDULEREXECUTED("SCHEDULER EXECUTED SUCCESSFULLY"), APIEXECUTED("Api Executed"),
+		APIEXECFAILED("Api Execution Failed");
+
+		final String action;
+
+		Action(String i) {
+			action = i;
+		}
+
+		public String getAction() {
+			return action;
+		}
+
+	}
+	public enum Changetype {
+		SYSTEM("System", 2), CUSTOM("Custom", 1);
+
+		final String	changetype;
+		final int		typeInt;
+
+		Changetype(String typeName, int a_typeInt) {
+			changetype	= typeName;
+			typeInt		= a_typeInt;
+		}
+
+		public String getChangetype() {
+			return changetype;
+		}
+
+		public int getChangeTypeInt() {
+			return typeInt;
+		}
+
+	}
+	public enum Modules {
+
+		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"), FILEBIN("File Bin"),
+		HELPMANUAL("Help Manual"), MULTILINGUAL("MultiLingual"), NOTIFICATION("Notification"),
+		APPLICATIONCONFIGURATION("Application Configuration"), USERMANAGEMENT("User Management"),
+		APICLIENTS("API Clients"), SCHEDULER("Scheduler");
+
+		final String moduleName;
+
+		Modules(String moduleName) {
+			this.moduleName = moduleName;
+		}
+
+		public String getModuleName() {
+			return moduleName;
 		}
 	}
 }

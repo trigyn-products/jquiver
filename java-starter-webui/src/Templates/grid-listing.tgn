@@ -96,10 +96,10 @@
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.gridcolnames')}", width: 100, align: "center", dataIndx: "gridColumnName", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
 	       { title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "lastUpdatedBy", align: "left", halign: "center",
-            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, align: "left", render: editGridDetails, dataIndx: "action", sortable: false }
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },    
+	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+	        { title: "${messageSource.getMessage('jws.action')}", width: 110, align: "left", render: editGridDetails, dataIndx: "action", sortable: false }
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",

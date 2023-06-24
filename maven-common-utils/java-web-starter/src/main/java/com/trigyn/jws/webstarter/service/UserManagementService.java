@@ -709,15 +709,26 @@ public class UserManagementService {
 
 	public void saveUpdateEntityRole(List<JwsEntityRoleAssociationVO> entityRoleAssociations) {
 
+		if(userDetailsService == null || userDetailsService.getUserDetails() == null) {
+			logger.error("Updation of permission is not allowed while authentication is disabled.", "error");
+			return;
+		}
+		
 		for (JwsEntityRoleAssociationVO jwsEntityRoleAssociationVO : entityRoleAssociations) {
 			JwsEntityRoleAssociation jwsEntityRoleAssociationData = entityRoleAssociationRepository.getJwsEntityRoleAssociation(jwsEntityRoleAssociationVO.getEntityRoleId());
 			JwsEntityRoleAssociation jwsEntityRoleAssociation = jwsEntityRoleAssociationVO
 					.convertVOtoEntity(jwsEntityRoleAssociationData, jwsEntityRoleAssociationVO);
 			// logActivity(jwsEntityRoleAssociation.getJwsRole().getRoleName()+'-'+jwsEntityRoleAssociation.getEntityName(),jwsEntityRoleAssociation.getIsActive(),Constants.MANAGEENTITYROLES);
-			String updatedBy = "admin@jquiver.io";
+			String updatedBy = null;
 			if(userDetailsService != null && userDetailsService.getUserDetails() != null && userDetailsService.getUserDetails().getUserId() != null) {
 				updatedBy = userDetailsService.getUserDetails().getUserId();
 			}
+			
+			if(updatedBy == null) {
+				logger.error("Updation of permission is not allowed for invalid user.", "error");
+				return;
+			}
+			
 			jwsEntityRoleAssociation.setLastUpdatedBy(updatedBy);
 			String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(
 					jwsEntityRoleAssociation.getEntityId(), jwsEntityRoleAssociation.getRoleId());

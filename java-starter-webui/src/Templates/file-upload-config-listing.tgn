@@ -66,6 +66,8 @@
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 			{ title: "${messageSource.getMessage('jws.noOfFiles')}", width: 160, dataIndx: "noOfFiles", align: "left", halign: "center", 
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+	        { title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "lastUpdatedBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },  	
 	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 160, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate },
 	        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editFileUploadConfig, sortable: false}
 	    ];

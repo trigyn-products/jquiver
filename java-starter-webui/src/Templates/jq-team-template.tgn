@@ -14,7 +14,7 @@
 
                  <span class="namcls">The Architect</span>
             <a href="https://www.linkedin.com/in/adchowdhury/" target="_blank">
-                <img class="team-img" width="150px" src="${(contextPath)!''}/webjars/1.0/images/Aniruddha Chowdhury.png" alt="aNIRUDDHA" title="The Architect"/>
+                <img class="team-img" width="150px" src="${(contextPath)!''}/webjars/1.0/images/adc.png" alt="aNIRUDDHA" title="The Architect"/>
 
                 <div class="udetails">  
                 <span class="desg">Aniruddha Chowdhury</span>  
@@ -87,7 +87,9 @@
                 </div>
             </a>
         </div>
-    	
+        
+   	</div>
+   	<div class="row">
     	
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 profilepic element">
                  <span class="namcls">Sr Software Engineer</span>
@@ -167,5 +169,5 @@
 </div>
 
 <script>
-    document.title = "Meet the Team"    
+    document.title = "JQuiver Team"    
  </script>

@@ -364,12 +364,17 @@ public class MasterCreatorService {
 		String				htmlTemplate		= dynamicFormDetails.get("form-template");
 		DynamicForm			dynamicForm			= new DynamicForm();
 
+		if(detailsService.getUserDetails().getFullName()!= null) {
+			dynamicForm.setLastUpdatedBy(detailsService.getUserDetails().getFullName());
+			dynamicForm.setCreatedBy(detailsService.getUserDetails().getFullName());
+		}
+		
 		dynamicForm.setFormDescription(description);
 		dynamicForm.setFormSelectQuery(selectQuery);
 		dynamicForm.setFormBody(htmlTemplate);
 		dynamicForm.setFormName(moduleName);
 		dynamicForm.setSelectQueryType(1);
-		dynamicForm.setCreatedBy("admin");
+		
 		dynamicForm.setCreatedDate(new Date());
 		dynamicForm.setDatasourceId(dataSourceId);
 		dynamicForm.setIsCustomUpdated(1);
@@ -535,8 +540,10 @@ public class MasterCreatorService {
 		templateMaster.setTemplateName(moduleName);
 		templateMaster.setTemplate(template);
 		templateMaster.setUpdatedDate(new Date());
-		templateMaster.setCreatedBy("admin");
-		templateMaster.setUpdatedBy("admin");
+		if(detailsService.getUserDetails().getFullName()!= null) {
+		templateMaster.setCreatedBy(detailsService.getUserDetails().getFullName());
+		templateMaster.setUpdatedBy(detailsService.getUserDetails().getFullName());
+		}
 		templateMaster.setIsCustomUpdated(1);
 		return dbTemplatingService.saveTemplateMaster(templateMaster);
 	}

@@ -103,14 +103,18 @@
 
 UPDATE jq_dynamic_rest_details SET created_by='admin';
 
-UPDATE jq_template_master SET created_by='admin', updated_by='admin';
-UPDATE jq_dashlet SET created_by='admin', updated_by='admin';
-UPDATE jq_dynamic_rest_details SET created_by='admin';
-UPDATE jq_dynamic_form SET created_by='admin';
-UPDATE jq_grid_details SET created_by='admin';
-UPDATE jq_entity_role_association SET last_updated_by='admin';
-UPDATE jq_autocomplete_details SET created_by='admin', last_updated_by='admin';
-update jq_dynamic_form SET last_updated_by='admin';
-UPDATE jq_file_upload_config SET created_by='admin', last_updated_by='admin';
+UPDATE jq_template_master SET created_by='admin', updated_by='admin@jquiver.io';
+UPDATE jq_dashlet SET created_by='admin', updated_by='admin@jquiver.io';
+UPDATE jq_dynamic_rest_details SET created_by='admin@jquiver.io';
+UPDATE jq_dynamic_rest_details SET last_updated_by='admin@jquiver.io';
+UPDATE jq_dynamic_form SET created_by='admin@jquiver.io';
+UPDATE jq_dynamic_form SET last_updated_by='admin@jquiver.io';
+UPDATE jq_grid_details SET created_by='admin@jquiver.io';
+UPDATE jq_grid_details SET last_updated_by='admin@jquiver.io';
+UPDATE jq_entity_role_association SET last_updated_by='admin@jquiver.io';
+UPDATE jq_autocomplete_details SET created_by='admin@jquiver.io';
+UPDATE jq_autocomplete_details SET last_updated_by='admin@jquiver.io';
+UPDATE jq_file_upload_config SET created_by='admin@jquiver.io';
+UPDATE jq_file_upload_config SET last_updated_by='admin@jquiver.io';
 
 SET FOREIGN_KEY_CHECKS=1;

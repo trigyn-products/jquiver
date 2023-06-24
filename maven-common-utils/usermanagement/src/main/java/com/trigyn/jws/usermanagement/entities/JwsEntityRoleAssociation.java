@@ -41,7 +41,7 @@ public class JwsEntityRoleAssociation {
 	private JwsRole	role			= null;
 
 	@Column(name = "last_updated_date")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date	lastUpdatedDate	= null;
 
 	@Column(name = "last_updated_by")

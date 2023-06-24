@@ -15,7 +15,7 @@
 
 	<div class="container">
 		<div class="row topband">
-            <#outputformat "HTML">
+           
 			<div class="col-4">
 				<#if (autocompleteVO.autocompleteId)??>
 				    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editautocomplete')}</h2> 
@@ -186,7 +186,7 @@
 					</span> 
 				</div>
 			</div>
-           </#outputformat>
+          
 	</div>
  	
 <textarea id="sqlContentDiv" style="display: none">
@@ -206,7 +206,7 @@
 	let oldAutocompleteId;
 	
 	$(function() {
-         
+        
 	    $("#tabs").tabs();
 	    addEditAutocomplete = new AddEditAutocomplete();
 	    addEditAutocomplete.loadAutocompletDetails();

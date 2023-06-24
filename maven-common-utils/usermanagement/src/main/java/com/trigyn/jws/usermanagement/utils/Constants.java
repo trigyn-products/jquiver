@@ -48,6 +48,8 @@ public final class Constants {
 	public static final String	TOTP_VERFICATION		= "2";
 	
 	public final static String	ANONYMOUS_USER_NAME		= "ANONYMOUS";
+	
+	public final static Integer	CLUSTER_ACTIVE_TIME		= 1;
 
 	public enum AuthType {
 		@Deprecated

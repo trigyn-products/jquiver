@@ -1,6 +1,6 @@
 <#assign optionalClass=" optional ">
 <head>
-<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 <#if (columnDetails)??>
 	<#list columnDetails as columnDetailsList>
         <#if columnDetailsList?api.get('columnType') == "date">
@@ -114,8 +114,10 @@
 		<div class="col-12">
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
+                    <span id="savedAction">
                     <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
-                    <span id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></span>
+                    </span>
+                    <span id="actionDropdownBtn" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></span>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>

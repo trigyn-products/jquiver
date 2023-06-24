@@ -443,6 +443,11 @@
 	</secureEntity>
 	<!-- Dynamic REST APIs -->
 	<secureEntity>
+		<name>onLogin</name>
+		<type>dynamic-rest-api</type>
+		<entityID>98a0986b-ef60-4c3b-a381-dfd2cbf10842</entityID>
+	</secureEntity>
+	<secureEntity>
 		<name>exportAPI</name>
 		<type>dynamic-rest-api</type>
 		<entityID>02803859-5344-4bbb-a5b6-a7dee0fb15c6</entityID>

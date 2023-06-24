@@ -87,8 +87,10 @@
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
 				{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy" ,hidden: true, align: "left", halign: "center",
 					filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+				 { title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "lastUpdatedBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },	
 				{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
-				{ title: "${messageSource.getMessage('jws.action')}", width: 50, maxWidth: 145, dataIndx: "action", align: "left", halign: "left", render: editDynamicFormFormatter, sortable: false}
+				{ title: "${messageSource.getMessage('jws.action')}", width: 100, maxWidth: 145, dataIndx: "action", align: "left", halign: "left", render: editDynamicFormFormatter, sortable: false}
 			];
 			let dataModel = {
         		url: contextPath+"/cf/pq-grid-data",

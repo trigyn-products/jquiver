@@ -371,6 +371,7 @@
 			$("#methodSignature").text(`
 					var System = Java.type("java.lang.System");
 					var HashMap = Java.type("java.util.HashMap");
+
 					function log2Console(a_strMessage){
 					    var isToPrint = true;
 					    if(isToPrint == false){
@@ -378,15 +379,17 @@
 					    }
 					    System.out.println(a_strMessage);
 					}
-					function doSomething(){
-					\xa0\xa0var returnObject = new HashMap()
-					\xa0\xa0returnObject.put("property_01", "property_01_value");
-					\xa0\xa0returnObject.put("property_02", "property_02_value");
-					\xa0\xa0returnObject.put("property_03", "property_03_value");
+
+                    function doSomething(){
+					\xa0\xa0\xa0\xa0var returnObject = new HashMap();
+					\xa0\xa0\xa0\xa0returnObject.put("property_01", "property_01_value");
+					\xa0\xa0\xa0\xa0returnObject.put("property_02", "property_02_value");
+					\xa0\xa0\xa0\xa0returnObject.put("property_03", "property_03_value");
 					
-					    return JSON.stringify(returnObject);
+					\xa0\xa0\xa0\xa0return returnObject;
                     }
 					doSomething();
+                   
                     `)
 					 
          } else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "application/json") {
@@ -399,7 +402,7 @@
 		else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "application/octet-stream"){
 		$("#methodSignatureDiv").show();
 		$("#methodSignatureHeading").text(`Method Signature with Example`);
-		$("#methodSignature").text(`
+		$("#methodSignature").html(`
 		import java.util.Map;
 		import javax.servlet.http.HttpServletRequest;
 		import com.trigyn.jws.dbutils.vo.FileInfo;
@@ -454,7 +457,7 @@
     else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml"){
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	
 	public T ` + $("#dynarestMethodName").val() +
 	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
@@ -471,7 +474,7 @@
 	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml") {
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	var System = Java.type("java.lang.System");
 	function log2Console(a_strMessage){
 	
@@ -504,7 +507,7 @@
 	} else if(value == "2" && $('#dynarestProdTypeId').find(":selected").text() == "application/xml") {
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	&lt;#-- any valid XML structure --&gt;
 	&lt;note&gt;
 		\xa0\xa0&lt;to&gt;Tove&lt;/to&gt;
@@ -517,7 +520,7 @@
     else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "text/html"){
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	public T ` + $("#dynarestMethodName").val() +
 	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
 	
@@ -527,7 +530,7 @@
 	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "text/html") {
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	var System = Java.type("java.lang.System");
 	
 	function log2Console(a_strMessage){
@@ -551,14 +554,14 @@
 	$("#methodSignatureHeading").text(`FTL text select with HTML attributes`);
 	$("#methodSignature").html(`
 	&lt;&num;assign helloWorldinBold =  `)
-    var text1 = "\"&lt;b&gt;Hello World&lt;/b&gt;\" /&gt;"
+    var text1 = `\" <b> Hello World  </b> \" >`
 	document.getElementById("methodSignature").textContent+=text1;
 	$("#methodSignature").append("\n&dollar;{helloWorldinBold}");
 	}
 	else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "text/plain"){
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	public T ` + $("#dynarestMethodName").val() +
 	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
 	
@@ -568,7 +571,7 @@
 	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "text/plain") {
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	var System = Java.type("java.lang.System");
 	
 	function log2Console(a_strMessage){
@@ -592,13 +595,13 @@
 	$("#methodSignatureHeading").text(`FTL simple text select`);
 	$("#methodSignature").html(`
 	&lt;&num;assign helloWorld = `)
-	var text1 = "\"Hello World\" /&gt;"
+	var text1 = "\"Hello World\" >"
 	document.getElementById("methodSignature").textContent+=text1;
 	$("#methodSignature").append("\n&dollar;{helloWorld}");
 	}else if(value == "1" && $('#dynarestProdTypeId').find(":selected").text() == "email/xml"){
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	public T ` + $("#dynarestMethodName").val() +
 	` (HttpServletRequest a_httpServletRequest, Map&lt;String, FileInfo&gt; files, Map&lt;String, Object&gt; daoResultSets,UserDetailsVO userDetails) {
     String xmlInString = 
@@ -659,7 +662,7 @@
 	} else if(value == "3" && $('#dynarestProdTypeId').find(":selected").text() == "email/xml") {
 	$("#methodSignatureDiv").show();
 	$("#methodSignatureHeading").text(`Method Signature with Example`);
-	$("#methodSignature").text(`
+	$("#methodSignature").html(`
 	var System = Java.type("java.lang.System");
 	var HashMap = Java.type("java.util.HashMap");
 	

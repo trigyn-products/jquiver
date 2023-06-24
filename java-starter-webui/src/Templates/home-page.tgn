@@ -5,15 +5,16 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
-<script src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
-<script src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
  
  <!-- 
@@ -92,97 +93,236 @@
 	</nav>
 
 <div class="container-fluid ">
-	<div class="row">
-		<nav id="mySidenav"  class=" bg-dark sidenav sidebar">
-			<div class="nav-inside">
-				<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter(event)">
-				<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
+		<div class="row">
+			<nav id="mySidenav" class=" bg-dark sidenav sidebar">
+				<div class="nav-inside">
+					<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter(event)">
+					<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </span>
-				<ul id="menuUL" class="nav flex-column customnav">
-					<#if moduleDetailsVOList??>
-						<#list moduleDetailsVOList as moduleDetailsVO>
-							<#assign openTarget = "" />
-							<#assign targetBlank = moduleDetailsVO?api.getOpenInNewTab()!"">
-							
-							<#if targetBlank?has_content && targetBlank == 1>
-								<#assign openTarget = "_blank" />
-							</#if>
+					<ul id="menuUL" class="nav flex-column customnav">
+						<#if moduleDetailsVOList??>
+							<#list moduleDetailsVOList as moduleDetailsVO>
+								<#assign openTarget="" />
+								<#assign targetBlank=moduleDetailsVO?api.getOpenInNewTab()!"">
 
-							<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
-									<#assign json_obj = moduleDetailsVO?api.getRequestParamJson()!"">
-									<input type="hidden" id="${moduleDetailsVO?api.getModuleId()!''}" name="${moduleDetailsVO?api.getModuleId()!''}" value='${json_obj!""}' />
-							</#if>
-							<#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1) || moduleDetailsVO?api.getTargetLookupId()==6 >
+									<#if targetBlank?has_content && targetBlank==1>
+										<#assign openTarget="_blank" />
+									</#if>
 
-                             <#if moduleDetailsVO?api.getTargetLookupId()==6 >
-                                <#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1)>
-                                <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas" >
-                                   <a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}                                        
-                                    </a>
-                                    <#else>
-                                      <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >
-                                   <a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}                                        
-                                    </a>
-                                   </#if>
-                                    <#else>
-                                   <#if ((moduleDetailsVO?api.getSubModuleCount())?? && (moduleDetailsVO?api.getSubModuleCount()) gte 1)>  
-                                <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas" >    
-                                   <div class="dr-menu" style="display:flex;    width: 247px;">
-                                    <a href = "${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}" class="nav-link drclickmenu" style="width:85%;"  target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
-                                    </a>
-                                    <a class= " nav-link clickable panel-collapsed" style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">                                         
-                                     </a>
-                                    </div>
-                                   <#else>
-                                   <li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >    
-                                   <div class="dr-menu" style="display:flex;    width: 247px;">
-                                    <a href = "${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}" class="nav-link drclickmenu" style="width:85%;"  target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
-                                    </a>
-                                    <a class= " nav-link clickable panel-collapsed" style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">                                         
-                                     </a>
-                                    </div>
-                                    </#if>
-                                   </#if>
-                                 
-									<div class="collapse collapsein" >
-										<ul class="subcategory">
-											<#list moduleDetailsVOList as moduleDetailsVOChild>
-												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
-													<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
-														<li>
-															<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
-														</li>
-													<#else>
-														<li>
-															<a href = "${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}" class="nav-link" target="${openTarget}">${moduleDetailsVOChild?api.getModuleName()!''}</a> 
-														</li>
+									<#if moduleDetailsVO?api.getTargetLookupId()?has_content &&
+										moduleDetailsVO?api.getTargetLookupId()==7 &&
+										moduleDetailsVO?api.getTargetTypeId()?has_content>
+										<#assign json_obj=moduleDetailsVO?api.getRequestParamJson()!"">
+											<input type="hidden" id="${moduleDetailsVO?api.getModuleId()!''}" name="${moduleDetailsVO?api.getModuleId()!''}" value='${json_obj!""}' />
+							</#if>
+											<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+												(moduleDetailsVO?api.getSubModuleCount()) gte 1) ||
+												moduleDetailsVO?api.getTargetLookupId()==6>
+
+												<#if moduleDetailsVO?api.getTargetLookupId()==6>
+													<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+														(moduleDetailsVO?api.getSubModuleCount()) gte 1)>
+														<#if targetBlank?has_content && targetBlank==1>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																<a class="nav-link clickable panel-collapsed"
+																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																</a>
+																<#else>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																<a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}
+																</a>
+														</#if>
+														<#else>
+															<#if targetBlank?has_content && targetBlank==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<a class="nav-link clickable panel-collapsed"
+																		target="${openTarget}"
+																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																	</a>
+																	<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<a class="nav-link clickable panel-collapsed"
+																		target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																	</a>
+															</#if>
 													</#if>
-													
+													<#else>
+														<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+															(moduleDetailsVO?api.getSubModuleCount()) gte 1)>
+															<#if targetBlank?has_content && targetBlank==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																	<div class="dr-menu" style="display:flex;">
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link drclickmenu"
+																			style="width:100%;" target="${openTarget}"
+																			onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																		</a>
+																		<a class=" nav-link clickable panel-collapsed"
+																			style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;" ">                                         
+                                     </a>
+                                    </div>
+                                    <#else>
+                                        <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																			<div class="dr-menu" style="display:flex;">
+																				<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																					class="nav-link drclickmenu"
+																					style="width:100%;"
+																					target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																				</a>
+																				<a class=" nav-link clickable panel-collapsed"
+																					style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;" ">                                         
+                                     </a>
+                                    </div>
+                                     </#if>
+                                   <#else>
+                                   <#if targetBlank?has_content && targetBlank == 1>
+                                   <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >    
+                                   <div class=" dr-menu" style="display:flex;">
+																					<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																						class="nav-link drclickmenu"
+																						style="width:100%;"
+																						target="${openTarget}"
+																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																					</a>
+																					<a class=" nav-link clickable panel-collapsed"
+																						style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">
+																					</a>
+																			</div>
+																			<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<div class="dr-menu" style="display:flex;">
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link drclickmenu"
+																			style="width:100%;"
+																			target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																		</a>
+																		<a class=" nav-link clickable panel-collapsed"
+																			style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">
+																		</a>
+																	</div>
+															</#if>
+														</#if>
 												</#if>
-											</#list>
-										</ul>
-									</div>
-							 </li>
-							<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
-								<#if moduleDetailsVO?api.getTargetLookupId()?has_content && moduleDetailsVO?api.getTargetLookupId() == 7 && moduleDetailsVO?api.getTargetTypeId()?has_content>
-									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
-										<span data-feather="file"></span>
-										<a href = "#" onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')" class="nav-link" target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}</a>
-									</li>
-								<#else>
-									<li class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
-										<span data-feather="file"></span>
-										<a href = "${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}" class="nav-link" target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}</a>
-									</li>								
-								</#if>
-							</#if>
-						
-						</#list>
-					</#if>
+
+												<div class="collapse collapsein">
+
+													<ul class="subcategory">
+														<#list moduleDetailsVOList as moduleDetailsVOChild>
+															<#if (moduleDetailsVOChild?api.getParentModuleId())?? &&
+																(moduleDetailsVOChild?api.getParentModuleId())==(moduleDetailsVO?api.getModuleId())>
+
+																<#assign openTargetChild="" />
+																<#assign
+																	targetBlankChild=moduleDetailsVOChild?api.getOpenInNewTab()!"">
+
+																	<#if targetBlankChild?has_content &&
+																		targetBlankChild==1>
+																		<#assign openTargetChild="_blank" />
+																	</#if>
+
+																	<#if moduleDetailsVO?api.getTargetLookupId()?has_content
+																		&& moduleDetailsVO?api.getTargetLookupId()==7 &&
+																		moduleDetailsVO?api.getTargetTypeId()?has_content>
+																		<#if targetBlankChild?has_content &&
+																			targetBlankChild==1>
+																			<li>
+																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																					class="nav-link"
+																					target="${openTargetChild}"
+																					onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																			</li>
+																			<#else>
+																				li>
+																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																					class="nav-link"
+																					target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																				</li>
+																		</#if>
+																		<#else>
+																			<#if targetBlankChild?has_content &&
+																				targetBlankChild==1>
+																				<li>
+																					<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																						class="nav-link"
+																						target="${openTargetChild}"
+																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																				</li>
+																				<#else>
+																					<li>
+																						<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																							class="nav-link"
+																							target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																					</li>
+																			</#if>
+																	</#if>
+
+															</#if>
+														</#list>
+													</ul>
+												</div>
+												</li>
+												<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
+                                                    <#assign openTargetFile="" />
+								                            <#assign targetBlankFile=moduleDetailsVO?api.getOpenInNewTab()!"">
+
+									                   <#if targetBlankFile?has_content && targetBlankFile==1>
+										                  <#assign openTargetFile="_blank" />
+									                    </#if>
+													<#if moduleDetailsVO?api.getTargetLookupId()?has_content &&
+														moduleDetailsVO?api.getTargetLookupId()==7 &&
+														moduleDetailsVO?api.getTargetTypeId()?has_content>
+                                                        
+														<#if targetBlankFile?has_content && targetBlankFile==1>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																<span data-feather="file"></span>
+																<a href="#"
+																	onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																	class="nav-link" target="openTargetFile"
+																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+															</li>
+															<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																	<span data-feather="file"></span>
+																	<a href="#"
+																		onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																		class="nav-link"
+																		target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
+																</li>
+														</#if>
+														<#else>
+															<#if targetBlankFile?has_content && targetBlankFile==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																	<span data-feather="file"></span>
+																	<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																		class="nav-link" target="${openTargetFile}"
+																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+																</li>
+																<#else>
+																	<li
+																		class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																		<span data-feather="file"></span>
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link"
+																			target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
+																	</li>
+															</#if>
+													</#if>
+											</#if>
+
+							</#list>
+						</#if>
 				</div>
 			</nav>
-	
 	<main id="main" class="main-container">
 		
 		<!--  Theme Color and dark mode code -->

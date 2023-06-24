@@ -75,19 +75,30 @@ public class HomeController {
 					Constant.IS_HOME_PAGE);
 			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
 			
-			if(roleNameList.size() >= 2 && roleNameList.contains("ADMIN") 
-					&& roleNameList.contains("AUTHENTICATED")) {
+			String path = httpServletRequest.getRequestURL().toString().toLowerCase();
+			
+			if(roleNameList.contains("ADMIN")) { // Admin cannot have any home page, so always control-panel will be the home
 				return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
-			} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
-					roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true) {
-				return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
-			} else {
+			}
+			
+			if(path.contains("cf/home")) {
+				if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == false) && 
+					roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
+					return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+				}else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
+						roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
+					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
+				}
+			}else {
 				if (CollectionUtils.isEmpty(homePageURLList) == false) {
 					for (String homePageURL : homePageURLList) {
 						if (StringUtils.isBlank(homePageURL) == false) {
 							return masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
 						}
 					}
+				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
+						roleNameList.contains("anonymous")){
+					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
 				}
 			}
 			

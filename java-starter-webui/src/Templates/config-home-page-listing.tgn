@@ -164,7 +164,12 @@
 		} else {
 			actionElement += '<span id="'+roleId+'" data-role-name="'+roleName+'" onclick="editHomePage(this)" class= "grid_action_icons"><i class="fa fa-pencil" title="Edit module"></i></span>'.toString();
 		}
-		actionElement += '<span onclick=\'openModuleListing("'+moduleURL+'")\' class= "grid_action_icons"><i class="fa fa-eye" title="View module"></i></span>'.toString();
+		if(moduleId == null){
+            actionElement += '<span onclick="return false;" class= "grid_action_icons"><i class="fa fa-eye-slash" title="View module"></i></span>'.toString();
+        }else {
+        	actionElement += '<span onclick=\'openModuleListing("'+moduleURL+'")\' class= "grid_action_icons"><i class="fa fa-eye" title="View module"></i></span>'.toString();
+        }
+		
 		return actionElement;
 	}
   

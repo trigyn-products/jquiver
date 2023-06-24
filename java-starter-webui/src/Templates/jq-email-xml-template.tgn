@@ -1,26 +1,26 @@
 <emails>
    <email>
-	   <header>
+	   <header><!-- This is optional.-->
 	      <property name="">value here</property>
 	      <property name="">value here</property>
 	   </header>
 	   <sender><!-- This is optional. Default mail configuration will be used, if not provided. -->
-	      <name ></name>
-	      <mailid ></mailid>
+	      <name></name>
+	      <mailid></mailid>
           <replyTo></replyTo><!-- this is optional -->
 	   </sender>
 	   <recepients separatemails="true|false"><!-- separatemails is optional. If true, all recepients will receive separate emails. --> 
 	      <recepient type="to|cc|bcc">
-	         <name ></name>
-	         <mailid ></mailid>
+	         <name></name>
+	         <mailid></mailid>
 	      </recepient>
 	      <recepient type="to|cc|bcc">
-	         <name ></name>
-	         <mailid ></mailid>
+	         <name></name>
+	         <mailid></mailid>
 	      </recepient>
 	      <recepient type="to|cc|bcc">
-	         <name ></name>
-	         <mailid ></mailid>
+	         <name></name>
+	         <mailid></mailid>
 	      </recepient>
 	   </recepients>
         <failedrecepients>
@@ -31,7 +31,11 @@
 	     </failedrecepients>
        <subject><!-- Mail subject to be included here --></subject>
 	   <body contenttype="text/html | text/plain" content="1|2|3">
-		<!-- if content = 1 then email body which doesnot require processing| 2 then template name to be included| 3 template content to be processed and included as body -->
+		<!-- 
+			if content = 1 then email body which doesnot require processing | 
+						 2 then template name to be included | 
+						 3 template content to be processed and included as body 
+		-->
 	   	<![CDATA[
 			<!-- Mail Body to be included here -->
 		]]>

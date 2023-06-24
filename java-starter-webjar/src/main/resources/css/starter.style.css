@@ -948,7 +948,7 @@ table.pq-td-border-right>tbody>tr>.pq-grid-cell {
 	right: 0;
 }
 
-span.grid_action_icons {
+.pq-grid-table .fa{
 	border-radius: 4px;
 	background: #f2f2f2;
 	display: inline-block;
@@ -957,7 +957,7 @@ span.grid_action_icons {
 	cursor: pointer;
 }
 
-span.grid_action_icons:hover {
+.pq-grid-table .fa:hover {
 	background: var(--bluebgcolor);
     color: #fff !important;
 }
@@ -2044,6 +2044,8 @@ td, th {
 .tipscontent span{
 	    display: flex;
     padding: 15px 0 10px;
+        word-wrap: break-word;
+    white-space: break-spaces;
 }
 
 .method-sign-info {
@@ -2616,6 +2618,7 @@ p.divdeform {
 	left: 15px;
 }
 
+
 .forgotpassword {
 	display: block;
 	text-align: right;
@@ -2799,6 +2802,11 @@ p.divdeform {
 	-webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);
 -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);
 box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);
+transform: translateY(calc(-1.5rem / 5));
+}
+
+.list-group-item{
+	    transition: ease 0.5s;
 }
 
 .home_block .w-100 {
@@ -3619,7 +3627,7 @@ div#parentUploadBox {
 .pg-manual-display .tabs {
 	background-color: #ffffff;
 	border: 1px solid #ccc;
-	height: calc(100vh - 217px);
+	height: calc(100vh - 153px);
 	overflow: hidden;
 	position: relative;
 	width: 100%;
@@ -3649,6 +3657,7 @@ div#parentUploadBox {
 .searchblockcyst {
 	width: 85%;
 	position: relative;
+	margin-bottom:0px !important;
 }
 
 .pg-manual-display .tabs button {
@@ -3691,7 +3700,7 @@ div#parentUploadBox {
 	margin: 0px !important;
 	padding: 10px;
 	background: #f1f1f1;
-	height: calc(100vh - 193px);
+	height: calc(100vh - 171px);
 	position: relative;
 	width: 18%;
 	display: block;
@@ -4084,6 +4093,14 @@ div#parentUploadBox {
 	 .mobile-objects{
 	 	display:none !important;
 	 }
+	 
+	 .pq-pager-msg, .pq-grid span.pq-separator{
+	display:none;
+}
+
+.pq-page-placeholder span{
+	display:none;
+}
 	
 	.tablescroll {
 		overflow: auto;
@@ -6480,7 +6497,7 @@ div.pq-loading-mask>div {
 	background: #fff url(../images/Rectangle.svg);
 	width: 81.7%;
 	box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.58);
-	height: calc(100vh - 193px);
+	height: calc(100vh - 173px);
 	overflow-x: auto;
 	border-radius: 5px;
 }
@@ -7700,7 +7717,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     margin: 1px auto 0 !important;
 }
 
- .menulisticon:hover{
+.iconscover:hover .menulisticon{
 	 background-color: var(--white) !important;
   	mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
   -webkit-mask: url(../images/menulistbtn1.svg) no-repeat center / contain;
@@ -7736,7 +7753,7 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
     margin: 1px auto 0 !important;
 }
 
-  .iconscover:hover .manageusericon{
+ .iconscover:hover .manageusericon{
 	 background-color: var(--white) !important;
   	mask: url(../images/usermanagment.svg) no-repeat center / contain;
   -webkit-mask: url(../images/usermanagment.svg) no-repeat center / contain;
@@ -8471,13 +8488,7 @@ div.pq-grid tr:hover{
 
  
 
-.pq-pager-msg, .pq-grid span.pq-separator{
-	display:none;
-}
 
-.pq-page-placeholder span{
-	display:none;
-}
 
 .mobile-objects{
 	display:block;
@@ -8488,7 +8499,109 @@ div.pq-grid tr:hover{
     cursor: no-drop;
 }
 
+.formicosn .fa.fa-key{
+	transform: rotate(134deg);	
+}
+
+fieldset{
+border: 1px solid black;
+border-right: 1px solid lightgray;
+border-left: 1px solid lightgray;
+border-bottom: 1px solid lightgray;
+border-radius: 5px;
+padding: 3px;
+}
 
 
 
- 
+
+legend{
+border-radius: 5px;
+background: lightgray;
+margin-left: 5px;
+width: auto;
+padding: 0 7px 0 7px;
+}
+
+
+/******************New Checkbox CSS Start********/ 
+
+
+.newswitch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 25px;
+}
+
+.newswitch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.newswitch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border:1px solid var(--bluebgcolor);
+}
+
+.newswitch .slider:before {
+    position: absolute;
+    content: "";
+    height: 32px;
+    width: 32px;
+    left: -2px;
+    bottom: -4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border: 1px solid var(--bluebgcolor);
+}
+
+.newswitch input:checked + .slider {
+  background-color: #ccc;
+}
+
+.newswitch input:focus + .slider {
+  box-shadow: 0 0 1px var(--bluebgcolor);
+}
+
+.newswitch input:checked + .slider:before {
+  -webkit-transform: translateX(33px);
+  -ms-transform: translateX(33px);
+  transform: translateX(33px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.newswitch input:checked+.slider {
+    background-color: var(--bluebgcolor) !important;
+}
+
+.newswitch input:disabled ~ span{
+	    opacity: 0.2;
+    cursor: no-drop;
+}
+
+/******************New Checkbox CSS End********/ 
+
+
+.caret-icon{
+    display: flex;
+    align-items: center;
+}

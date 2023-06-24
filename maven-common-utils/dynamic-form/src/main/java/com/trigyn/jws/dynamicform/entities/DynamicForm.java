@@ -59,7 +59,7 @@ public class DynamicForm {
 	private String						formBodyChecksum		= null;
 
 	@Column(name = "last_updated_by")
-	private String						lastUpdatedBy			= null;
+	private String						lastUpdatedBy			= "admin@jquiver.io";
 
 	@Column(name = "last_updated_ts")
 	private Date						lastUpdatedTs			= null;

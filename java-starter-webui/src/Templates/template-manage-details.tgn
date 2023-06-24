@@ -35,7 +35,7 @@
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<div class="row">
-        <#outputformat "HTML">
+       
 	    	<div class="col-9">
 				<div class="col-inner-form full-form-fields">
 					 <input type="hidden" id="templateId" name="templateId" value="${(templateDetails.templateId)!0}"/>
@@ -108,7 +108,7 @@
 				</div>
 			</div>
 		</div>
-</#outputformat>
+
 </div>
 
 <script>

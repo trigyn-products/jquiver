@@ -2,8 +2,12 @@
 </head>
 <div class="container" style="padding-top: 40px">
     <div class="page-header">
-        
+        <h1>Your page header</h1>
     </div>
 
 	
 </div>
+
+<script>
+document.title="Your page title";
+</script>

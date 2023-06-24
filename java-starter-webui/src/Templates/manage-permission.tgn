@@ -92,14 +92,17 @@ function checkAllBoxes(uiObject) {
     let currentPageRecords = grid.pqGrid("option", "dataModel.data");
     $.each(currentPageRecords, function(key, value) {
         let entityData = new Object();
-        $("#" + value["entityRoleId"] + "_" + roleId).prop("checked", attrChecked);
-        entityData.roleId = roleId;
-        entityData.entityName = value["entityName"];
-        entityData.moduleId = value["moduleId"];
-        entityData.entityId = value["entityId"];
-        entityData.entityRoleId = value["entityRoleId"];
-        entityData.isActive = attrChecked;
-        entityDataList.push(entityData);
+        
+        if($("#" + value["entityRoleId"] + "_" + roleId).prop("checked") != attrChecked) {
+	        $("#" + value["entityRoleId"] + "_" + roleId).prop("checked", attrChecked);
+	        entityData.roleId = roleId;
+	        entityData.entityName = value["entityName"];
+	        entityData.moduleId = value["moduleId"];
+	        entityData.entityId = value["entityId"];
+	        entityData.entityRoleId = value["entityRoleId"];
+	        entityData.isActive = attrChecked;
+	        entityDataList.push(entityData);
+        }
     });
     saveEntity(entityDataList);
 }

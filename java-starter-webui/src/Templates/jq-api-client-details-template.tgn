@@ -14,13 +14,15 @@
 </head>
 
 <div class="container">
-    <div class="topband">
+     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.apiclients')}</h2> 
         <div class="float-right">
-             <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
+            <div class="addonbtnblock">
+             <button type="submit" class="btn btn-primary spacingclss" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
             <span onclick="backToWelcomePage();">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span> 
+            </div>
         </div>
         
         <div class="clearfix"></div>        

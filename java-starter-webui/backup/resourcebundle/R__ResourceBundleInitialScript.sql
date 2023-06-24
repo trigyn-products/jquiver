@@ -101,7 +101,7 @@ REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.n
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.notification', 3, '&#2309;&#2343;&#2367;&#2360;&#2370;&#2330;&#2344;&#2366;'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.number', 1, 'Number'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.number', 3, '&#2360;&#2306;&#2326;&#2381;&#2351;&#2366;'); 
-REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.parentModuleName', 1, 'Parent Module Name'); 
+REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.parentModuleName', 1, 'Parent'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.personal', 1, 'Personal'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.placeholderName', 1, 'Placeholder Name'); 
 REPLACE INTO jq_resource_bundle (resource_key, language_id, text) VALUES ('jws.resource', 1, 'Resource'); 

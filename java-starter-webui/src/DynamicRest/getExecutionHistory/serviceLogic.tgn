@@ -13,5 +13,5 @@
 </#list>
 
 <#if ((l_offset + 1) * 10 < responseCount[0].responses?number)>
-<center><button onclick="loadExecutionHistory(${l_offset + 1},'${schedulerID}')">Load More</button></center>
+<center><button class="btn btn-secondary" onclick="loadExecutionHistory(${l_offset + 1},'${schedulerID}')">Load More</button></center>
 </#if>

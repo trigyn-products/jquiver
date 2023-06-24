@@ -3,12 +3,15 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+
 <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 </head>
 
@@ -31,7 +34,7 @@
                 </span>
                 
                 <span class="iconscover spacingclss">
-                 <button type='button' onclick="location.href='${(contextPath)!''}/view/visualDnd'" class="addonicons menulisticon" title="Additional Datasource">
+                 <button type='button' onclick="location.href='${(contextPath)!''}/view/visualDnd'" class="addonicons menulisticon" title="Organize Menu(s)">
                     </button>
                 </span>
 	 
@@ -73,13 +76,16 @@
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.moduleUrl')}", width: 160, align: "center", dataIndx: "moduleURL", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.parentModuleName')}", width: 200, align: "center", dataIndx: "parentModuleName", align: "left", halign: "center",
+	        { title: "${messageSource.getMessage('jws.parentModuleName')}", width: 120, align: "center", dataIndx: "parentModuleName", align: "left", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-	        { title: "${messageSource.getMessage('jws.sequencenumber')}", width: 100, dataIndx: "sequence", align: "right", halign: "right",
+	        { title: "${messageSource.getMessage('jws.sequencenumber')}", width: 100, dataIndx: "sequence", align: "center", halign: "center",
 	        	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
 	        { title: "${messageSource.getMessage('jws.insidemenu')}", width: 100, align: "center", dataIndx: "isInsideMenu", align: "center", halign: "center", render: formatIsInsideMenu},
-	        { title: "${messageSource.getMessage('jws.homepage')}", maxwidth: 150, align: "center", dataIndx: "isHomePage", align: "center", halign: "center", render: formatIsHomePage},
-          { title: "${messageSource.getMessage('jws.action')}", width: 90, maxWidth: 145, dataIndx: "action", align: "left", halign: "left", render: editModule, sortable: false}
+	        { title: "${messageSource.getMessage('jws.homepage')}", maxwidth: 100, align: "center", dataIndx: "isHomePage", align: "center", halign: "center", render: formatIsHomePage},
+            { title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "lastUpdatedBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },    
+	        { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, align: "center", dataIndx: "lastUpdatedTs", align: "left", halign: "center", render: formatLastUpdatedDate},
+          { title: "${messageSource.getMessage('jws.action')}", width: 100, maxWidth: 145, dataIndx: "action", align: "left", halign: "left", render: editModule, sortable: false}
 		];
 		let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
@@ -93,6 +99,8 @@
           additionalParameters: {"cr_moduleTypeId":"str_1"}
 	  });
 	});
+
+    
   
     function changeType() {
         var type = $("#typeSelect").val();   
@@ -201,4 +209,9 @@
 	function configHomePage() {
 		$("#configHomePageListing").submit();
 	}
+
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        return formatDate(lastUpdatedTs);
+    }
 </script>

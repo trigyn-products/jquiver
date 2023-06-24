@@ -16,6 +16,8 @@ public class RestApiDetails {
 
 	private String	reponseType			= null;
 
+	private Integer	reponseTypeId		= null;
+
 	private String	serviceLogic		= null;
 
 	private Integer	platformId			= null;
@@ -23,8 +25,10 @@ public class RestApiDetails {
 	private String	methodType			= null;
 
 	private String	headerJson			= null;
-	
-	private Integer isSecured			= null;
+
+	private Integer	isSecured			= null;
+
+	private Integer	methodTypeId		= null;
 
 	public RestApiDetails() {
 	}
@@ -38,6 +42,39 @@ public class RestApiDetails {
 		this.methodName			= methodName;
 		this.methodDescription	= methodDescription;
 		this.reponseType		= reponseType;
+		this.serviceLogic		= serviceLogic;
+		this.platformId			= platformId;
+		this.methodType			= methodType;
+		this.headerJson			= headerJson;
+		this.isSecured			= isSecured;
+	}
+
+	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
+			String methodDescription, String reponseType, String serviceLogic, Integer platformId, String methodType,
+			String headerJson, Integer isSecured, Integer methodTypeId) {
+		this.dynamicId			= dynamicId;
+		this.dynamicRestUrl		= dynamicRestUrl;
+		this.rbacId				= rbacId;
+		this.methodName			= methodName;
+		this.methodDescription	= methodDescription;
+		this.reponseType		= reponseType;
+		this.serviceLogic		= serviceLogic;
+		this.platformId			= platformId;
+		this.methodType			= methodType;
+		this.headerJson			= headerJson;
+		this.isSecured			= isSecured;
+		this.methodTypeId		= methodTypeId;
+	}
+
+	public RestApiDetails(String dynamicId, String dynamicRestUrl, Integer rbacId, String methodName,
+			String methodDescription, Integer reponseTypeId, String serviceLogic, Integer platformId, String methodType,
+			String headerJson, Integer isSecured) {
+		this.dynamicId			= dynamicId;
+		this.dynamicRestUrl		= dynamicRestUrl;
+		this.rbacId				= rbacId;
+		this.methodName			= methodName;
+		this.methodDescription	= methodDescription;
+		this.reponseTypeId		= reponseTypeId;
 		this.serviceLogic		= serviceLogic;
 		this.platformId			= platformId;
 		this.methodType			= methodType;
@@ -213,6 +250,22 @@ public class RestApiDetails {
 
 	public void setIsSecured(Integer isSecured) {
 		this.isSecured = isSecured;
+	}
+
+	public Integer getReponseTypeId() {
+		return reponseTypeId;
+	}
+
+	public void setReponseTypeId(Integer reponseTypeId) {
+		this.reponseTypeId = reponseTypeId;
+	}
+
+	public Integer getMethodTypeId() {
+		return methodTypeId;
+	}
+
+	public void setMethodTypeId(Integer methodTypeId) {
+		this.methodTypeId = methodTypeId;
 	}
 
 }

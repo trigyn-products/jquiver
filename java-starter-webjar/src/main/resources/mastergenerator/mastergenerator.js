@@ -6,6 +6,7 @@ function backToPreviousPage() {
 let  primaryKey = '';
 let  primaryKeyCounter = 0;
 function populateFields(tableName, dbProductID){
+	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
     let selectedTable = tableName;
     $.ajax({
         url  : contextPath + "/cf/mtd",
@@ -39,14 +40,17 @@ function populateFields(tableName, dbProductID){
             $("#menuDisplayName").val(selectedTable.replaceAll("_", "-"));
             $("#moduleURL").val(selectedTable.replaceAll("_", "-"));
             createTable(data);
+            $.unblockUI();
         },
 		error : function(xhr, error){
-			if(xhr.status == 406)
+			if(xhr.status == 406){
 				showMessage("Database reference has unsupported datatype, recheck!", "warn");			
-			else if(xhr.status == 409)
+			}else if(xhr.status == 409){
 				showMessage("Modules with given data already exists! Re enter form", "warn");
-			else
+			}else{
 				showMessage("Error occurred while creating master", "error");
+			}
+			$.unblockUI();
 	   	},
     });
    

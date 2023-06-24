@@ -129,6 +129,7 @@ public class ModuleService {
 	public String saveModuleDetails(ModuleDetailsVO moduleDetailsVO) throws Exception {
 		ModuleListing moduleListing = convertModuleVOToEntitity(moduleDetailsVO);
 		ModuleListingI18n moduleListingI18n = convertModuleVOToI18nEntitity(moduleDetailsVO);
+		moduleListing.setLastUpdatedBy(detailsService.getUserDetails().getFullName());
 		moduleListing = iModuleListingRepository.save(moduleListing);
 		ModuleListingI18nPK moduleListingI18nPK = moduleListingI18n.getId();
 		moduleListingI18nPK.setModuleId(moduleListing.getModuleId());

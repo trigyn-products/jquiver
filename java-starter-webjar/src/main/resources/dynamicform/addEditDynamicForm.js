@@ -755,6 +755,7 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		showMessage("Multiple save action is not allowed", "error");
 		return;
 	}
+	
 	isInAction = true;
 	let formData = null;
 	try {
@@ -762,11 +763,13 @@ function onSaveButtonClick(a_actionType, isEdit) {
 	} catch (excp) {
 		showMessage("Exception occurred while validating form", "error");
 		isInAction = false;
+		$.unblockUI();
 		return;
 	}
 	if (formData === undefined) {
 		showMessage("All fields are mandatory", "warn");
 		isInAction = false;
+		$.unblockUI();
 		return false;
 	}
 
@@ -774,6 +777,7 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		formData = onValidation(formData);
 		if (formData == null || formData == undefined) {
 			isInAction = false;
+			$.unblockUI();
 			return false;
 		}
 	}
@@ -785,6 +789,7 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		} catch (excp) {
 			isInAction = false;
 			showMessage("Exception occurred while geeting success message", "error");
+			$.unblockUI();
 			return;
 		}
 	}
@@ -795,11 +800,12 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		} catch (excp) {
 			isInAction = false;
 			showMessage("Exception occurred while getting error message", "error");
+			$.unblockUI();
 			return;
 		}
 	}
 	
-	
+	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
 
 	if (formData != null) {
 		$.ajax({
@@ -817,6 +823,7 @@ function onSaveButtonClick(a_actionType, isEdit) {
 							onSuccess(data, a_actionType);
 						} catch (excp) {
 							showMessage("Exception occurred while executing onSuccess", "error");
+							$.unblockUI();
 							return;
 						}
 					}
@@ -837,8 +844,8 @@ function onSaveButtonClick(a_actionType, isEdit) {
 					} else {
 						localStorage.setItem("jwsModuleAction", "saveAndEdit");
 					}
-					changeDefaultAction()
-						
+					changeDefaultAction();
+					$.unblockUI();
 					
 			},
 			error: function(xhr, error) {
@@ -847,13 +854,13 @@ function onSaveButtonClick(a_actionType, isEdit) {
 				if (xhr.status == 412) {
 					showMessage("Invalid Captcha", "error");
 					$("#reloadCaptcha").trigger("click");
-				}
-				else {
+				}else {
 					showMessage(errorMsg, "error");
 					if (typeof onError == "function") {
 						onError(xhr, error);
 					}
 				}
+				$.unblockUI();
 			},
 		});
 	}
@@ -861,7 +868,6 @@ function onSaveButtonClick(a_actionType, isEdit) {
 }
 
 const changeDefaultAction = function() {
-	debugger
 	let actionSaved = localStorage.getItem("jwsModuleAction");
 	
 	if(isEdit == null || isEdit == undefined){

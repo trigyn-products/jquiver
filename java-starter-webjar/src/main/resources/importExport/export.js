@@ -355,7 +355,7 @@
 				                sortIndx: sortIndex,
 				                sortDir: "up"
 				            },
-				            additionalParameters: {"cr_jws_dynamic_rest_type_id":"str_"+selectedType}
+				           additionalParameters: {"cr_dynarestTypeId":"str_"+selectedType}
 				 		 });
 					}
 				} else if(moduleType == "Permission") {

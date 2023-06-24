@@ -255,7 +255,7 @@ public class Dashboard implements Serializable {
 				+ ", createdBy='" + getCreatedBy() + "'" + ", createdDate='" + getCreatedDate() + "'"
 				+ ", lastUpdatedTs='" + getLastUpdatedTs() + "'" + ", isDeleted='" + getIsDeleted() + "'"
 				+ ", isDraggable='" + getIsDraggable() + "'" + ", isExportable='" + getIsExportable() + "'"
-				+ ", dashboardRoles='" + getDashboardRoles() + "'" + ", dashboardDashlets='" + getDashboardDashlets()
+				+ ", dashboardRoles='" + getDashboardRoles() 
 				+ "'" + ", dashboardRoleAssociations='" + getDashboardRoles() + "'" + "}";
 	}
 

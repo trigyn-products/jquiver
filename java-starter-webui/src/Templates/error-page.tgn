@@ -38,9 +38,10 @@
 
         <div id="errorDetailsDiv" class="errorDetailsDivcls">
           ${(errorMessage)!''}
-          
+           <#if (statusCode)?? && (statusCode)?has_content>
           <#if statusCode == 403 && ((!loggedInUserName?? && !loggedInUserName?has_content) || loggedInUserName == 'anonymous') >
           ${messageSource.getMessage('jws.please')} <a href="${(contextPath)!''}/cf/login">${messageSource.getMessage('jws.login')}</a> ${messageSource.getMessage('jws.loginwithreqdaccess')}
+          </#if>
           </#if>
         </div>
             

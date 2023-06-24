@@ -88,6 +88,9 @@ public class ModuleListing implements Serializable {
 
 	@Column(name = "is_custom_updated")
 	private Integer						isCustomUpdated			= 1;
+	
+	@Column(name = "last_updated_by")
+	private String						lastUpdatedBy				= "admin@jquiver.io";
 
 	public ModuleListing() {
 	}
@@ -95,7 +98,7 @@ public class ModuleListing implements Serializable {
 	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
 			String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup,
-			Integer openInNewTab, String menuStyle) {
+			Integer openInNewTab, String menuStyle, String lastUpdatedBy) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -107,12 +110,13 @@ public class ModuleListing implements Serializable {
 		this.moduleTargetLookup		= moduleTargetLookup;
 		this.openInNewTab			= openInNewTab;
 		this.menuStyle				= menuStyle;//New Column Added for displaying Menu Style
+		this.lastUpdatedBy			= lastUpdatedBy;
 	}
 
 	public ModuleListing(String moduleId, String moduleUrl, String parentId, Integer sequence, Integer isInsideMenu,
 			Integer targetLookupId, String targetTypeId, List<ModuleListingI18n> moduleListingI18ns,
 			List<ModuleRoleAssociation> moduleRoleAssociations, ModuleTargetLookup moduleTargetLookup,
-			Integer openInNewTab, String menuStyle) {
+			Integer openInNewTab, String menuStyle, String lastUpdatedBy) {
 		this.moduleId				= moduleId;
 		this.moduleUrl				= moduleUrl;
 		this.parentId				= parentId;
@@ -125,6 +129,7 @@ public class ModuleListing implements Serializable {
 		this.moduleTargetLookup		= moduleTargetLookup;
 		this.openInNewTab			= openInNewTab;
 		this.menuStyle				= menuStyle;//New Column Added for displaying Menu Style
+		this.lastUpdatedBy			= lastUpdatedBy;
 	}
 
 	public String getModuleId() {
@@ -304,6 +309,16 @@ public class ModuleListing implements Serializable {
 	public void setMenuStyle(String menuStyle) {
 		this.menuStyle = menuStyle;
 	}
+	
+	
+
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
+	}
+
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
+	}
 
 	public ModuleListing getObject() {
 		ModuleListing moduleListing = new ModuleListing();
@@ -316,6 +331,7 @@ public class ModuleListing implements Serializable {
 		moduleListing.setSequence(sequence);
 		moduleListing.setTargetLookupId(targetLookupId);
 		moduleListing.setTargetTypeId(targetTypeId != null ? targetTypeId.trim() : targetTypeId);
+		moduleListing.setTargetTypeId(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 
 		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
 		if (moduleListingI18ns != null && !moduleListingI18ns.isEmpty()) {
@@ -342,6 +358,7 @@ public class ModuleListing implements Serializable {
 		moduleListing.setRequestParamJson(requestParamJson);
 		moduleListing.setOpenInNewTab(openInNewTab);//Added for Open New Tab Column
 		moduleListing.setMenuStyle(menuStyle); //Added for Menu Style Column
+		moduleListing.setLastUpdatedBy(lastUpdatedBy);
 		return moduleListing;
 	}
 
@@ -349,7 +366,7 @@ public class ModuleListing implements Serializable {
 	public int hashCode() {
 		return Objects.hash(headerJson, includeLayout, isHomePage, isInsideMenu, moduleId, moduleListingI18ns,
 				moduleRoleAssociations, moduleTargetLookup, moduleTypeId, moduleUrl, parentId, sequence, targetLookupId,
-				targetTypeId, updatedDate, headerJson, requestParamJson);
+				targetTypeId, updatedDate, headerJson, requestParamJson, lastUpdatedBy);
 	}
 
 	@Override
@@ -375,6 +392,7 @@ public class ModuleListing implements Serializable {
 				&& Objects.equals(targetLookupId, other.targetLookupId)
 				&& Objects.equals(targetTypeId, other.targetTypeId) && Objects.equals(updatedDate, other.updatedDate)
 				&& Objects.equals(headerJson, other.headerJson)
+				&& Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
 				&& Objects.equals(requestParamJson, other.requestParamJson);
 	}
 	//

@@ -173,19 +173,22 @@ function formatName(uiObject){
 		position: {
 			my: "center", at: "center"
 		},
-		buttons : [{
-				text		:"${messageSource.getMessage('jws.cancel')}",
-				click	: function() { 
-					$(this).dialog('close');
-				},
-			},
+		buttons : [
 			{
 				text		: "${messageSource.getMessage('jws.executenow')}",
+                "class": 'btn btn-primary',
 				click	: function(){
 					$(this).dialog('close');
 					executeNow(schedulerID,schedulerName);
 				}
            	},
+            {
+				text		:"${messageSource.getMessage('jws.cancel')}",
+                "class": 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			}
        ],	
 	   open: function( event, ui ) {
 			 $('.ui-dialog-titlebar')
@@ -228,19 +231,22 @@ function formatName(uiObject){
 		position: {
 			my: "center", at: "center"
 		},
-		buttons : [{
-				text		:"${messageSource.getMessage('jws.cancel')}",
-				click	: function() { 
-					$(this).dialog('close');
-				},
-			},
+		buttons : [
 			{
 				text		: "${messageSource.getMessage('jws.deleteBtnText')}",
+                "class": 'btn btn-primary',
 				click	: function(){
 					$(this).dialog('close');
 					deleteScheduler(schedulerID,schedulerName);
 				}
            	},
+           	{
+				text		:"${messageSource.getMessage('jws.cancel')}",
+                "class": 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			}
        ],	
 	   open: function( event, ui ) {
 			 $('.ui-dialog-titlebar')

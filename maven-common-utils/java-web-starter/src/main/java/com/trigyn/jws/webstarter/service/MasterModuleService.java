@@ -170,8 +170,23 @@ public class MasterModuleService {
 			} else if (targetLookupId.equals(Constant.TargetLookupId.DYNAMICREST.getTargetLookupId())) {
 				parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
 				RestApiDetails restApiDetails 	= jwsService.getRestApiDetailsById(targetTypeId);
-				String template = restApiDetails.getServiceLogic();
-				return template;
+				if(restApiDetails.getReponseTypeId() == 12 || restApiDetails.getReponseTypeId() == 13) {
+					Map<String, Object> requestParams = jwsService.validateAndProcessRequestParams(httpServletRequest, restApiDetails);
+					Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
+							requestParams, null);
+					String response = (String) jwsService.createSourceCodeAndInvokeServiceLogic(null, httpServletRequest, requestParams,
+							queriesResponse, restApiDetails);
+					if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
+						requestParams.put("entityType", Constant.MasterModuleType.DYNAREST);
+						requestParams.put("entityName", restApiDetails.getDynamicRestUrl());
+						return menuService.getTemplateWithSiteLayoutWithoutProcess(response, requestParams);
+					}
+					return response;
+				} else {
+					logger.error("This Response Type is not supported.Only text/html or text/plain response type is supported. ");
+					httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "Only text/html or text/plain response type is supported.");
+					return null;
+				}
 			}
 		}
 
