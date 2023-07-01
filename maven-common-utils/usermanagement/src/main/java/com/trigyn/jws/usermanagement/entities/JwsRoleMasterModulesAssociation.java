@@ -36,6 +36,9 @@ public class JwsRoleMasterModulesAssociation {
 	@ManyToOne
 	@JoinColumn(name = "module_id", referencedColumnName = "module_id", insertable = false, updatable = false)
 	private JwsMasterModules	module			= null;
+	
+	@Column(name = "role_type_id")
+	private Integer				roleTypeId			= 1;
 
 	public String getRoleModuleId() {
 		return roleModuleId;
@@ -87,6 +90,14 @@ public class JwsRoleMasterModulesAssociation {
 
 	public void setModule(JwsMasterModules module) {
 		this.module = module;
+	}
+	
+	public Integer getRoleTypeId() {
+		return roleTypeId;
+	}
+
+	public void setRoleTypeId(Integer roleTypeId) {
+		this.roleTypeId = roleTypeId;
 	}
 
 	public JwsRoleMasterModulesAssociation getObject() {

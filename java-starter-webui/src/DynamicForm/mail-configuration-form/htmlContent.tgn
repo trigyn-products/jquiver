@@ -123,9 +123,7 @@ input:checked + .slider:before {
   
   <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>  
   <form method="post"   name="addEditForm" id="addEditForm" >
-    
-    
-    <input type="hidden" id="mailConfigJson" name="mailConfigJson" value='${(resultSetObject.property_value)!""}'>
+    <textarea id="mailConfigJson" name="mailConfigJson" style="display:none" >${(resultSetObject.property_value)!""} </textarea>
     <input type="hidden" id="totalFailedMails" name="totalFailedMails" value="">
     <div class="row">
       <div class="col-4">
@@ -236,6 +234,7 @@ input:checked + .slider:before {
         <div class="txtWrapper">
             <textarea id="mailFooterId" name="mailFooter" rows="4" placeholder="Footer text will be appended to all outgoing mail" cols="50" class="form-control" > </textarea>
             <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true" style="top:-30px;"></i>
+            
         </div>    
         </div>
         </div>   
@@ -397,6 +396,7 @@ input:checked + .slider:before {
 	        return false;
 	    }
 	  	let jsonobject =getJsonObject();
+          
 	    saveMailConfigDetailsJson=JSON.stringify(jsonobject);
 	    $.ajax({
 	    	type : "POST",
@@ -576,7 +576,7 @@ input:checked + .slider:before {
           </#list>
         </#if>
         
-        if($("#mailConfigJson").val() !="" ){
+        if($("#mailConfigJson").val().trim() !="" ){
 	        var jsonObject = JSON.parse($("#mailConfigJson").val());
 	        $("#smtpHostId").val(jsonObject.smtpHost); 
 	        $("#smtpPortId").val(jsonObject.smtpPort);
@@ -594,7 +594,7 @@ input:checked + .slider:before {
 	                $("#replyToEmailDropdown").val("NoReply"); 
 	            }
 	        }
-        
+   
 	    	$("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
 	        $("#smtpSecurityProtocalId").val(jsonObject.smtpSecurityProtocal);
 	        $("#noOfFailedMails").val(jsonObject.failedMailCounter);
@@ -609,7 +609,7 @@ input:checked + .slider:before {
 	            $(".RemoveData").attr("disabled", "disabled");
 	            $("#isSmtpAutheticatedId").prop("checked", false);
 	        }
-	        $("#mailFooterId").val(jsonObject.mailFooter);
+	        $("#mailFooterId").val(jsonObject.mailFooter);  
       } else {
             $("#smtpHostId").val("localhost"); 
             $("#smtpPortId").val("25");
@@ -621,7 +621,7 @@ input:checked + .slider:before {
             $(".RemoveData").val("");    
             $(".RemoveData").attr("disabled", "disabled");
             $("#mailFooterId").attr("placeholder", ""); 
-            $("#mailFooterId").val("");    
+            $("#mailFooterId").text(<#noparse>"<br><br>Regards,<br>\nTeam ${messageSource.getMessage('jws.projectName')}"</#noparse>);    
      }
       
         let edit = 0;

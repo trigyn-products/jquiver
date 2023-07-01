@@ -97,7 +97,7 @@ public class ModuleRevisionService {
 	public Map<String, Object> getModuleVersioningData(HttpServletRequest a_httpServletRequest) throws Exception {
 		String					moduleType		= a_httpServletRequest.getParameter("moduleType");
 		String					entityId		= a_httpServletRequest.getParameter("entityId");
-		String					entityName		= a_httpServletRequest.getParameter("entityName");
+		String					entityName		= a_httpServletRequest.getParameter("cmvEntityName");
 		String					saveUrl			= a_httpServletRequest.getParameter("saveUrl");
 		String					previousPageUrl	= a_httpServletRequest.getParameter("previousPageUrl");
 		String					formId			= a_httpServletRequest.getParameter("formId");
@@ -110,7 +110,7 @@ public class ModuleRevisionService {
 
 		Map<String, Object>		templateMap		= new HashMap<>();
 		templateMap.put("moduleType", moduleType);
-		templateMap.put("entityName", entityName);
+		templateMap.put("cmvEntityName", entityName);
 		templateMap.put("entityId", entityId);
 		templateMap.put("revesionDetailsVOs", versionVOs);
 		templateMap.put("moduleName", moduleName);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -20,11 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletRequestWritableWrapper;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletResponseReadableWrapper;
+import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
 import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
@@ -162,16 +165,25 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 				ApiClientDetailsVO	apiClientDetailsVO		= apiClientDetailsRepository
 						.findClientDetailsByClientKey(clientKey);
+				
+				if(null == apiClientDetailsVO) {
+					httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED,
+							"Invalid Client Key ");
+					return;
+				}
 
 				String				decryptedRequestBody	= null;
 
 				String				requestBody;
-				if ("POST".equalsIgnoreCase(httpServletRequest.getMethod())) {
-					requestBody = httpServletRequest.getReader().lines()
+				if ("GET".equalsIgnoreCase(httpServletRequest.getMethod()) == false) {
+					Map<String, String[]> extraParams = new TreeMap<String, String[]>();
+					HttpServletRequest wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
+					ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(httpServletRequest);
+					requestBody = wrappedRequest.getReader().lines()
 							.collect(Collectors.joining(System.lineSeparator()));
 
 					if (requestBody != null) {
-						if (requestBody.equals("") == false) {
+						if (requestBody.equals("") == false && apiClientDetailsVO != null) {
 							// System.out.println(requestBody);
 							decryptedRequestBody = CipherUtilFactory
 									.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
@@ -252,33 +264,42 @@ public class ApiClientFilter extends OncePerRequestFilter {
 										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
 										.decrypt(httpServletRequest.getParameter(requestParamKey),
 												apiClientDetailsVO.getClientSecret());
-								requestWrapper.getParameterMap().put(requestParamKey, value);
+								
+								extraParams.put(requestParamKey, value);
+								wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
+								//requestWrapper.getParameterMap().put(requestParamKey, value);
 							}
 						}
 						isDoFilter = false;
-						chain.doFilter(requestWrapper, responseWrapper);
+						chain.doFilter(wrappedParamRequest, responseWrapper);
 
 						String encryptedResponseBody = "";
-						if (responseWrapper.getStatus() != 200) {
-							if (responseWrapper.getStatus() == 500) {
+						if(apiClientDetailsVO!=null) {
+							if (responseWrapper.getStatus() != 200) {
+								if (responseWrapper.getStatus() == 500) {
+									encryptedResponseBody = CipherUtilFactory
+											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+											.encrypt("JQ-500", apiClientDetailsVO.getClientSecret());
+								} else if (responseWrapper.getStatus() == 403) {
+									encryptedResponseBody = CipherUtilFactory
+											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+											.encrypt("JQ-403", apiClientDetailsVO.getClientSecret());
+								} else if (responseWrapper.getStatus() == 500) {
+									encryptedResponseBody = CipherUtilFactory
+											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+											.encrypt("JQ-404", apiClientDetailsVO.getClientSecret());
+								}else if (responseWrapper.getStatus() == 302) {
+									encryptedResponseBody = CipherUtilFactory
+											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+											.encrypt("JQ-302", apiClientDetailsVO.getClientSecret());
+								}
+							} else {
 								encryptedResponseBody = CipherUtilFactory
 										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.encrypt("JQ-500", apiClientDetailsVO.getClientSecret());
-							} else if (responseWrapper.getStatus() == 403) {
-								encryptedResponseBody = CipherUtilFactory
-										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.encrypt("JQ-403", apiClientDetailsVO.getClientSecret());
-							} else if (responseWrapper.getStatus() == 500) {
-								encryptedResponseBody = CipherUtilFactory
-										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.encrypt("JQ-404", apiClientDetailsVO.getClientSecret());
+										.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret());
 							}
-						} else {
-							encryptedResponseBody = CipherUtilFactory
-									.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-									.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret());
-
 						}
+						
 						httpServletResponse.setContentType(httpServletRequest.getContentType());
 						byte[] responseData = encryptedResponseBody.getBytes(responseWrapper.getCharacterEncoding());
 						httpServletResponse.setContentLength(responseData.length);

@@ -34,6 +34,8 @@ import com.trigyn.jws.usermanagement.utils.Constants.VerificationType;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 
+import io.jsonwebtoken.ExpiredJwtException;
+
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
 	private final static Logger					logger							= LogManager
@@ -49,7 +51,12 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 	private PropertyMasterService				propertyMasterService			= null;
 	
 	@Autowired
-	private JwsRoleRepository			jwsRoleRepository			= null;
+	private JwsRoleRepository			jwsRoleRepository						= null;
+	
+
+	public DefaultUserDetailsServiceImpl() {
+		super();
+	}
 
 	public DefaultUserDetailsServiceImpl(JwsUserRepository userRepository,
 			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
@@ -73,23 +80,7 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 		}
 		JwsUser user = new JwsUser();
 		if(email!=null && email.equalsIgnoreCase("anonymous")) {
-			user.setEmail("anonymous");
-			user.setFirstName("anonymous");
-			user.setLastName("anonymous");
-			user.setUserId("anonymous");
-			
-			JwsRole jwsRole = jwsRoleRepository.findByRoleName("ANONYMOUS");
-			if(jwsRole!=null) {
-				JwsRoleVO jwsRoleVO = new JwsRoleVO();
-				jwsRoleVO.setRoleId(jwsRole.getRoleId());
-				jwsRoleVO.setRoleName(jwsRole.getRoleName());
-				jwsRoleVO.setRoleDescription(jwsRole.getRoleDescription());
-				jwsRoleVO.setIsActive(jwsRole.getIsActive());
-				jwsRoleVO.setRolePriority(jwsRole.getRolePriority());
-				List<JwsRoleVO> rolesVOs = new ArrayList<>();
-				rolesVOs.add(jwsRoleVO);
-				return new UserInformation(user, rolesVOs);
-			}
+			return getAnonymousUserInformation();
 		}else {
 			user = userRepository.findByEmailIgnoreCase(email);
 		}
@@ -149,11 +140,13 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 												long	diffInMinutes		= TimeUnit.MILLISECONDS
 														.toMinutes(currentTime.getTime() - otpSentTime.getTime());
 												if (diffInMinutes > maxOtpActiveTime) {
-													throw new InvalidLoginException("Invalid OTP. Please verify again!");
+													throw new InvalidLoginException("OTP Expired ! Try again with new OTP.");
 												}
 												user.setPassword(user.getOneTimePassword());
+											} catch (InvalidLoginException exception) {
+												throw new ExpiredJwtException(null, null, exception.getMessage(), exception);
 											} catch (Exception exception) {
-												throw new InvalidLoginException("Invalid OTP. Please verify again!");
+												throw new RuntimeException("Error while getting user.");
 											}
 										}
 									}
@@ -167,6 +160,22 @@ public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 		}
 		List<JwsRoleVO> rolesVOs = userRoleAssociationRepository.getUserRoles(Constants.ISACTIVE, user.getUserId());
 		return new UserInformation(user, rolesVOs);
+	}
+	
+	public UserInformation getAnonymousUserInformation() {
+		JwsUser user = new JwsUser();
+		Map<String, Object>	attributes	= new HashMap<String, Object>();
+		List<JwsRoleVO> rolesVOs = new ArrayList<>();
+		user.setEmail("anonymous");
+		user.setFirstName("anonymous");
+		user.setLastName("anonymous");
+		user.setUserId("anonymous");
+		JwsRole jwsRole = jwsRoleRepository.findByRoleName("ANONYMOUS");
+		if(jwsRole!=null) {
+			JwsRoleVO vo = jwsRole.convertEntityToVO(jwsRole);
+			rolesVOs.add(vo);
+		}
+		return new UserInformation().create(user, attributes, rolesVOs);
 	}
 
 }

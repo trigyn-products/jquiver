@@ -763,13 +763,30 @@ function onSaveButtonClick(a_actionType, isEdit) {
 	} catch (excp) {
 		showMessage("Exception occurred while validating form", "error");
 		isInAction = false;
-		$.unblockUI();
+		
+
+		if (typeof $.unblockUI == "function") {
+			try {
+				$.unblockUI();
+			} catch (excp) {
+				showMessage("Exception occurred while calling unblockUI", "error");
+			}
+		}
+
 		return;
 	}
 	if (formData === undefined) {
 		showMessage("All fields are mandatory", "warn");
 		isInAction = false;
-		$.unblockUI();
+
+		if (typeof $.unblockUI == "function") {
+			try {
+				$.unblockUI();
+			} catch (excp) {
+				showMessage("Exception occurred while calling unblockUI", "error");
+			}
+		}
+
 		return false;
 	}
 
@@ -777,7 +794,15 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		formData = onValidation(formData);
 		if (formData == null || formData == undefined) {
 			isInAction = false;
-			$.unblockUI();
+
+			if (typeof $.unblockUI == "function") {
+				try {
+					$.unblockUI();
+				} catch (excp) {
+					showMessage("Exception occurred while calling unblockUI", "error");
+				}
+			}
+
 			return false;
 		}
 	}
@@ -789,7 +814,15 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		} catch (excp) {
 			isInAction = false;
 			showMessage("Exception occurred while geeting success message", "error");
-			$.unblockUI();
+
+			if (typeof $.unblockUI == "function") {
+				try {
+					$.unblockUI();
+				} catch (excp) {
+					showMessage("Exception occurred while calling unblockUI", "error");
+				}
+			}
+
 			return;
 		}
 	}
@@ -800,12 +833,26 @@ function onSaveButtonClick(a_actionType, isEdit) {
 		} catch (excp) {
 			isInAction = false;
 			showMessage("Exception occurred while getting error message", "error");
-			$.unblockUI();
+
+			if (typeof $.unblockUI == "function") {
+				try {
+					$.unblockUI();
+				} catch (excp) {
+					showMessage("Exception occurred while calling unblockUI", "error");
+				}
+			}
+
 			return;
 		}
 	}
-	
-	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
+
+	if (typeof $.blockUI == "function") {
+		try {
+			$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
+		} catch (excp) {
+			showMessage("Exception occurred while calling unblockUI", "error");
+		}
+	}
 
 	if (formData != null) {
 		$.ajax({
@@ -823,7 +870,14 @@ function onSaveButtonClick(a_actionType, isEdit) {
 							onSuccess(data, a_actionType);
 						} catch (excp) {
 							showMessage("Exception occurred while executing onSuccess", "error");
-							$.unblockUI();
+
+							if (typeof $.unblockUI == "function") {
+								try {
+									$.unblockUI();
+								} catch (excp) {
+									showMessage("Exception occurred while calling unblockUI", "error");
+								}
+							}
 							return;
 						}
 					}
@@ -845,7 +899,15 @@ function onSaveButtonClick(a_actionType, isEdit) {
 						localStorage.setItem("jwsModuleAction", "saveAndEdit");
 					}
 					changeDefaultAction();
-					$.unblockUI();
+
+					if (typeof $.unblockUI == "function") {
+						try {
+							$.unblockUI();
+						} catch (excp) {
+							showMessage("Exception occurred while calling unblockUI", "error");
+						}
+					}
+
 					
 			},
 			error: function(xhr, error) {
@@ -860,7 +922,15 @@ function onSaveButtonClick(a_actionType, isEdit) {
 						onError(xhr, error);
 					}
 				}
-				$.unblockUI();
+
+				if (typeof $.unblockUI == "function") {
+					try {
+						$.unblockUI();
+					} catch (excp) {
+						showMessage("Exception occurred while calling unblockUI", "error");
+					}
+				}
+
 			},
 		});
 	}

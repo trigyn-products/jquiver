@@ -610,8 +610,45 @@ div.pq-grid-center {
 @media screen and (max-width: 992px) {
 	.container {
 		max-width: 100% !important;
-		display: table;
+		display: inline-block;
 	}
+	
+	.container-fluid {
+	min-height:86%;
+	}
+	
+	.page-footer{
+	padding-top:0px !important;
+	}
+	
+	
+	.teamtitle h3{
+	font-size: 22px !important;
+    margin: 0 0 15px !important;
+	}
+	
+	.profilepic img{
+	top: 110px !important;
+    left: 37%  !important;
+        height: 100px  !important;
+    width: 100px  !important;
+	}
+	
+	.namcls{
+	    height: 150px !important;
+	    font-size: 22px !important;
+	}
+	
+	
+	.favrightblock{
+		display:none !important;
+	}
+
+	.pq-hscroll.pq-sb.pq-sb-horiz.pq-sb-horiz-t{
+		display:none;
+	}
+	
+	
 	
 	.themecolorpalette{
 		display:none;
@@ -621,9 +658,7 @@ div.pq-grid-center {
 		max-width: 50% !important;
 	}
 	
-	.login_bg_mobile .col-7{
-		display:none;
-	}
+	
 	
 	.homepageheader{
 	
@@ -706,7 +741,7 @@ div.pq-grid-center {
 	margin-bottom: 15px;
 	}
 	
-	.login_bg_mobile .form-signin-heading{
+	.D .form-signin-heading{
 		margin-top:0px;
 	}
 	
@@ -723,6 +758,26 @@ div.pq-grid-center {
 		flex: 0 0 50% !important;
 		max-width: 50% !important;
 	}
+	
+	
+	
+	
+	
+.socialloginblock{
+    flex-direction: column;
+    background: none !important;
+    padding: 0px !important;
+    border: 0px !important;
+}
+
+.block-wrap{
+	margin:5px 0px !important;
+}
+
+.form-signin-heading{
+	margin:0px !important;
+}
+
 }
 
 #bodyDiv {
@@ -1748,7 +1803,13 @@ body {
 	.sidebar {
 		top: 5rem;
 	}
+	
+	.login_bg_mobile.col-7{
+		display:none;
+	}
 }
+
+
 
 .sidebar-sticky {
 	position: relative;
@@ -4098,6 +4159,8 @@ div#parentUploadBox {
 	display:none;
 }
 
+
+
 .pq-page-placeholder span{
 	display:none;
 }
@@ -4187,10 +4250,10 @@ div#parentUploadBox {
 		display: none;
 	}
 	.udetails {
-		font-size: 28px;
+		font-size: 22px;
 	}
 	.namcls {
-		font-size: 32px !important;
+		font-size: 22px !important;
 		font-weight: normal !important;
 	}
 	.homepageheader .maintitle_name {
@@ -4202,12 +4265,17 @@ div#parentUploadBox {
 	.customnav li .nav-link {
 		font-size: 22px;
 	}
-	.footer {
-		font-size: 22px;
-		position: relative;
-		display: table;
-		font-size:14px;
+	
+	.container-fluid{
+		margin-bottom: 43px;
 	}
+	
+	.footer {
+    display: block;
+    font-size: 14px;
+    position: fixed;
+    bottom: 0px;
+}
 	.cm-iconboxwrap {
 		height: 300px;
 	}
@@ -4812,9 +4880,7 @@ caret-color: transparent;
 }
 
 @media ( min-width : 768px) {
-	span.grid_action_icons {
-		margin: 0 1px;
-	}
+	 
 	.pq-grid-center {
 		max-width: 100% !important;
 		overflow-x: scroll;
@@ -4825,11 +4891,7 @@ caret-color: transparent;
 	background-color: #fff;
 }
 
-@media only screen and (min-width:769px) {
-	span.grid_action_icons {
-		margin: 0 3px;
-	}
-}
+ 
 
 .autocomplete-clear-txt {
 	position: absolute;
@@ -8605,3 +8667,18 @@ padding: 0 7px 0 7px;
     display: flex;
     align-items: center;
 }
+
+.col-min-width{
+    min-width: 83px;
+    display: flex;
+    align-items: center;
+}
+
+.col-min-width label{
+	margin: 0px 0 0 5px;
+}
+
+	
+	
+
+ 

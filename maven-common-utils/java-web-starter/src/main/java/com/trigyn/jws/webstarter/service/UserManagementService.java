@@ -31,6 +31,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -176,7 +177,13 @@ public class UserManagementService {
 	private ActivityLog									activitylog						= null;
 	
 	@Autowired
-	private JwsConfirmationTokenRepository		confirmationTokenRepository				= null;
+	private JwsConfirmationTokenRepository				confirmationTokenRepository		= null;
+	
+	@Autowired
+	protected SessionFactory							sessionFactory					= null;
+	
+	@Autowired
+	private UserManagementService						userManagementService			= null;
 
 	private ObjectMapper								mapper							= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -216,6 +223,7 @@ public class UserManagementService {
 				jwsEntityRoleAssociation.setModuleTypeId(Constants.COMMON_MODULE_TYPE_ID);
 				jwsEntityRoleAssociation.setRoleId(jwsRole.getRoleId());
 				jwsEntityRoleAssociation.setIsCustomUpdated(1);
+			//	jwsEntityRoleAssociation.setRoleTypeId(1);
 				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 			}
 		}
@@ -291,7 +299,7 @@ public class UserManagementService {
 
 		JwsMasterModules	jwsMasterModule	= jwsmasterModuleRepository.findById(masterModuleAssociation.getModuleId())
 				.get();
-		
+		masterModuleAssociation.setRoleTypeId(2);
 		roleModuleRepository.updateJwsRoleMasterModulesAssociation(jwsMasterModule.getModuleId(),
 				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
 		JwsRole				jwsRole			= new JwsRole();
@@ -479,6 +487,7 @@ public class UserManagementService {
 		templateMap.put("userId", userId);
 		templateMap.put("formId", formId);
 		templateMap.put("verificationType", templateMap.get("verificationType"));
+		templateMap.put("authenticationType", templateMap.get("authenticationType"));
 
 		if (StringUtils.isNotEmpty(userId) && StringUtils.isBlank(formId)) {
 
@@ -582,11 +591,12 @@ public class UserManagementService {
 		mailDetails.put("password", password);
 		mailDetails.put("forcePasswordChange", forcePasswordChange);
 		mailDetails.put("userId", userId);
-
+		if(userId!=null && userId.isEmpty() == false) {
+			JwsUser jwsUser = jwsUserRepository.findByUserId(userId);
+			mailDetails.put("firstName", jwsUser.getFirstName() +" "+jwsUser.getLastName());	
+		}
 		String baseURL = getBaseURL(propertyMasterService, servletContext);
-
 		mailDetails.put("baseURL", baseURL);
-
 		email.setInternetAddressToArray(InternetAddress.parse(emailId));
 		/*For inserting notification in case of mail failure only on access of Admin*/
 		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
@@ -600,7 +610,7 @@ public class UserManagementService {
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 	}
 
@@ -626,7 +636,7 @@ public class UserManagementService {
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 	}
 
@@ -648,21 +658,37 @@ public class UserManagementService {
 		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 		Map<String, Object>	mailDetails			= new HashMap<>();
+		String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+				"adminEmailId");
+		String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+		
 		TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("totp-subject");
 		String				subject				= templatingUtils.processTemplateContents(
 				subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 		email.setSubject(subject);
 		// email.setMailFrom("admin@jquiver.com");
+		if (jwsUser != null) {
+			mailDetails.put("firstName", jwsUser.getFirstName()+" "+jwsUser.getLastName());
+		}
+		mailDetails.put("adminEmailAddress", adminEmail);
+		String baseURL = getBaseURL(propertyMasterService, servletContext);
+		mailDetails.put("baseURL", baseURL);
 		TemplateVO	templateVO	= templatingService.getTemplateByName("totp-qr-mail");
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 		List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
 		EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
 		emailAttachedFile.setFile(file);
 		attachedFiles.add(emailAttachedFile);
 		email.setAttachementsArray(attachedFiles);
+		EmailAttachedFile        qrCOdeAttachment    = new EmailAttachedFile();
+        qrCOdeAttachment.setFile(file);
+        qrCOdeAttachment.setIsEmbeddedImage(true);
+        qrCOdeAttachment.setEmbeddedImageValue("qrcode");
+        attachedFiles.add(qrCOdeAttachment);
 		CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
 		if (mailSuccess.isDone()) {
 			email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
@@ -692,7 +718,7 @@ public class UserManagementService {
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 	}
 
@@ -728,11 +754,13 @@ public class UserManagementService {
 				logger.error("Updation of permission is not allowed for invalid user.", "error");
 				return;
 			}
-			
+			JwsEntityRoleVO entityRoles = new JwsEntityRoleVO();
+			Integer roleTypeId = getRoleTypeID(entityRoles);
 			jwsEntityRoleAssociation.setLastUpdatedBy(updatedBy);
 			String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(
 					jwsEntityRoleAssociation.getEntityId(), jwsEntityRoleAssociation.getRoleId());
 			jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
+			jwsEntityRoleAssociation.setRoleTypeId(roleTypeId);
 			entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 		}
 	}
@@ -749,6 +777,79 @@ public class UserManagementService {
 
 		return masterModulesVO;
 	}
+	/** @author Bibhusrita.Nayak
+	 * 
+	 * @param entityRoles
+	 * @return
+	 * Added for getting the TypeSelect whether Custom or System of all Modules.
+	 */
+	public Integer getRoleTypeID(JwsEntityRoleVO entityRoles) {
+
+		String query = "";
+		if (entityRoles.getModuleId().equals("1b0a2e40-098d-11eb-9a16-f48e38ab9348")) {
+
+			query = "SELECT templateTypeId FROM TemplateMaster WHERE templateId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("30a0ff61-0ecf-11eb-94b2-f48e38ab9348")) {
+
+			query = "SELECT formTypeId FROM DynamicForm WHERE formId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("07067149-098d-11eb-9a16-f48e38ab9348")) {
+
+			query = "SELECT gridTypeId FROM GridDetails WHERE gridId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("248ffd91-7760-11eb-94ed-f48e38ab8cd7")) {
+
+			query = "SELECT 1";
+
+		} else if (entityRoles.getModuleId().equals("6ac6a54c-8d3f-11eb-8dcd-0242ac130003")) {
+
+			query = "SELECT 1";
+
+		} else if (entityRoles.getModuleId().equals("76270518-8c8f-11eb-8dcd-0242ac130003")) {
+
+			query = "SELECT 1";
+
+		} else if (entityRoles.getModuleId().equals("5f6dd374-8c8f-11eb-8dcd-0242ac130003")) {
+
+			query = "SELECT 2 ";
+
+		} else if (entityRoles.getModuleId().equals("47030ee1-0ecf-11eb-94b2-f48e38ab9348")) {
+
+			query = "SELECT jwsDynamicRestTypeId FROM JwsDynamicRestDetail WHERE jwsDynamicRestId = '"
+					+ entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("5559212c-8c8f-11eb-8dcd-0242ac130003")) {
+
+			query = "SELECT 2";
+
+		} else if (entityRoles.getModuleId().equals("91a81b68-0ece-11eb-94b2-f48e38ab9348")) {
+
+			query = "SELECT acTypeId FROM Autocomplete WHERE autocompleteId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("b0f8646c-0ecf-11eb-94b2-f48e38ab9348")) {
+
+			query = "SELECT dashboardType FROM Dashboard WHERE dashboardId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("c6cc466a-0ed3-11eb-94b2-f48e38ab9348")) {
+
+			query = "SELECT moduleTypeId FROM ModuleListing WHERE moduleId = '" + entityRoles.getEntityId() + "'";
+
+		} else if (entityRoles.getModuleId().equals("7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8")) {
+
+			query = "SELECT 1";
+			
+		} else if (entityRoles.getModuleId().equals("fcd0df1f-783f-11eb-94ed-f48e38ab8cd7")) {
+
+			query = "SELECT isSystemManual FROM ManualType WHERE manualId = '" + entityRoles.getEntityId() + "'";
+			
+		} else if (entityRoles.getModuleId().equals("19aa8996-80a2-11eb-971b-f48e38ab8cd7")) {
+
+			query = "SELECT dashletTypeId FROM Dashlet WHERE dashletId = '" + entityRoles.getEntityId() + "'";
+		}
+
+		return userManagementDAO.getEntityRoleTypeID(query);
+	}
 
 	public void deleteAndSaveEntityRole(JwsEntityRoleVO entityRoles) {
 
@@ -756,6 +857,8 @@ public class UserManagementService {
 			entityRoles.getRoleIds().add(Constants.ADMIN_ROLE_ID);
 			entityRoles.setRoleIds(entityRoles.getRoleIds());
 		}
+		Integer roleTypeId = getRoleTypeID(entityRoles);
+		
 		List<String>					newRoleIds				= new ArrayList<>(entityRoles.getRoleIds());
 		List<JwsEntityRoleAssociation>	entityRoleAssociations	= entityRoleAssociationRepository
 				.getEntityRoles(entityRoles.getEntityId(), entityRoles.getModuleId());
@@ -767,6 +870,7 @@ public class UserManagementService {
 				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
 				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
 				jwsEntityRoleAssociation.setIsActive(Constants.INACTIVE);
+				jwsEntityRoleAssociation.setRoleTypeId(roleTypeId);
 				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 			} else {
 				newRoleIds.remove(jwsEntityRoleAssociation.getRoleId());
@@ -774,6 +878,7 @@ public class UserManagementService {
 				jwsEntityRoleAssociation.setIsActive(Constants.ISACTIVE);
 				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
 				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+				jwsEntityRoleAssociation.setRoleTypeId(roleTypeId);
 				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 			}
 		}
@@ -788,6 +893,7 @@ public class UserManagementService {
 			entityRoleAssociation.setModuleTypeId(Constants.DEFAULT_MODULE_TYPE_ID);
 			entityRoleAssociation.setLastUpdatedDate(new Date());
 			entityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+			entityRoleAssociation.setRoleTypeId(roleTypeId);
 			entityRoleAssociationRepository.save(entityRoleAssociation);
 
 		}
@@ -1574,7 +1680,7 @@ public class UserManagementService {
 		String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 
 		List<EmailAttachedFile> attachedFiles = new ArrayList<>();
 		EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
@@ -1613,13 +1719,13 @@ public class UserManagementService {
 		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 		String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
 		mailDetails.put("baseURL", baseURL);
-
+		mailDetails.put("firstName", userEntityFromVo.getFirstName()+" "+userEntityFromVo.getLastName());
 		mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
 		TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
 		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		System.out.println(mailBody);
+		//System.out.println(mailBody);
 		sendMailService.sendTestMail(email);
 	}
 
@@ -1636,14 +1742,8 @@ public class UserManagementService {
 			mapDetails.put("error", "Authentication not supported.");
 			mapDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED);
 			return true;
-		}else {
-			String verificationType = request.getParameter("verificationType");
-			if(verificationType!=null && daoAuthDetails.getVerificationType().compareTo(Integer.valueOf(verificationType)) !=0 ) {
-				mapDetails.put("error", "Authentication not supported.");
-				mapDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED);
-				return true;
-			}
 		}
+		
 		if(user !=null && (user.getEmail()==null || user.getEmail().isEmpty())) {
 			mapDetails.put("error", "Email is requred ");
 			mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);

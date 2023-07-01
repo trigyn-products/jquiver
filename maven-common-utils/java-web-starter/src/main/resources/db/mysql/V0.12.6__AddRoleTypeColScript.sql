@@ -1,0 +1,1 @@
+ALTER TABLE jq_entity_role_association ADD COLUMN IF NOT EXISTS role_type_id INT(1) NULL;

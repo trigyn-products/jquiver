@@ -1,0 +1,1 @@
+ALTER TABLE jq_role_master_modules_association ADD COLUMN IF NOT EXISTS role_type_id INT(1) DEFAULT 2;

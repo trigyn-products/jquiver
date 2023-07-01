@@ -125,7 +125,7 @@ public class TemplatingUtils {
 			HttpServletRequest requestObject = getRequest();
 			
 			if(requestObject == null) {
-				locale = Locale.ENGLISH;
+				locale = Locale.US;
 			} else {
 				locale = localeResolver.resolveLocale(requestObject);
 				modelMap.put("httpRequestObject", requestObject);

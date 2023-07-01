@@ -24,7 +24,9 @@ public interface JwsRoleMasterModulesAssociationRepository extends JpaRepository
 	 * wrt anonymous access
 	 * @author Anomitro.Mukherjee
 	 * 
-	 * @return
+	 * @param isActive the isActive to set
+	 * @param moduleIds the moduleIds list
+	 * 
 	 */
 	@Modifying
 	@Query("UPDATE JwsRoleMasterModulesAssociation" + 

@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.internet.InternetAddress;
+import javax.servlet.ServletContext;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -207,5 +208,14 @@ public class OtpService implements InitializingBean{
 				templateVO.getTemplateName(), mapDetails);
 		email.setBody(mailBody);
 		sendMailService.sendTestMail(email);
+	}
+	
+	public String getBaseURL(PropertyMasterService propertyMasterService, ServletContext servletContext)
+			throws Exception {
+		String baseURL = propertyMasterService.findPropertyMasterValue("base-url");
+		if (servletContext.getContextPath().isBlank() == false) {
+			baseURL = baseURL + servletContext.getContextPath();
+		}
+		return baseURL;
 	}
 }

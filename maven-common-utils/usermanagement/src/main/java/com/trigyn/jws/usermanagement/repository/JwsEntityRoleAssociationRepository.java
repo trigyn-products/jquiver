@@ -28,7 +28,9 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 	 * wrt anonymous access
 	 * @author Anomitro.Mukherjee
 	 * 
-	 * @return
+	 * @param isActive the isActive to set
+	 * @param entityIds the entityId list
+	 * 
 	 */
 	@Modifying
 	@Query("UPDATE JwsEntityRoleAssociation" + 

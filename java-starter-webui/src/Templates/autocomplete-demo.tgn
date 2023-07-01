@@ -26,7 +26,7 @@
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     <div class="row">
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap"><@resourceBundle "jws.autocomplete" /></label>
 				<div class="search-cover">
@@ -36,7 +36,7 @@
  			</div>
 		</div>
 	
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompletePrefetch')}</label>
 				<div class="search-cover">
@@ -50,7 +50,7 @@
 	
     <div class="row">
     
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompleteLocalSotrage')}</label>
 				<div class="search-cover">
@@ -60,7 +60,7 @@
  			</div>
 		</div>
 		
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.autocompleteClearText')}</label>
 				<div class="search-cover">			
@@ -72,7 +72,7 @@
 	</div>
 	
 	<div class="row">	
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.multiselect')}</label>
 				<div class="search-cover">			
@@ -82,7 +82,7 @@
  			</div>
 		</div>
 		
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.dependentMultiselect')}</label>
 				<div class="search-cover">			
@@ -93,7 +93,7 @@
 		</div>
 		
 		
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 				<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.multiselectLocalStorage')}</label>
 				<div class="search-cover">				

@@ -107,7 +107,7 @@ function createTable(columns) {
         nameCol += "<label id='tcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
         $(trElement).append(nameCol);
         
-        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateGridDetailsI18nResourceKey(this.id)' placeholder='Resource Key'></td>");
         $(trElement).append("<td><input id='tdisplay_"+iCounter+"' disabled type='text' onchange='updateGridDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
         $(trElement).append("<input id='tdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
 
@@ -143,7 +143,7 @@ function createTable(columns) {
         }
         nameCol += "<label id='tfcolumn_"+iCounter+"'>" + columns[iCounter]['tableColumnName']+"</label></td>";
         $(trElement).append(nameCol);
-        $(trElement).append("<td><input id='tfdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='I18N Resource Key'></td>");
+        $(trElement).append("<td><input id='tfdisplay_"+iCounter+"_i18n' disabled type='text' data-previous-key='' value='' onchange='updateFormDetailsI18nResourceKey(this.id)' placeholder='Resource Key'></td>");
         $(trElement).append("<td><input id='tfdisplay_"+iCounter+"' disabled type='text' onchange='updateFormDetailsDisplayName(this.id)' value='"+displayName+"'></td>");
 		$(trElement).append("<input id='tfdisplay_"+iCounter+"_hd' type='hidden' value='"+displayName+"'>");
 		 

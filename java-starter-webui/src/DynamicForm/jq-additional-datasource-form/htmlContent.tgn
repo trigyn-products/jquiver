@@ -241,9 +241,10 @@
         let userName = $("#username").val().trim();
         let password = $("#password").val().trim();
         let dataSourceName = $("#datasourcename").val().trim();
-        $.ajax({
+       
+         $.ajax({
 		    type : "POST",
-		    async: false,
+		    async:false,
 		    url : contextPath+"/api/jq-db-datasource",
             data:{
                 adi: additionalDatasourceId,
@@ -252,16 +253,18 @@
                 curl: connectionUrl,
                 un: userName,
                 pwd: password,
-            },
-            success : function(data) {
-                isDataSaved = true;
-			    showMessage("Datasource saved successfully", "success");
-		    },
-	        error : function(xhr, error){
-		        showMessage(xhr.responseText, "error");
-	        },
+            },    
+          error : function(xhr, error) {	
+	           if(xhr.responseText == "Success"){   
+	              isDataSaved = true;
+				  showMessage("Datasource saved successfully", "success");
+	            } else{
+	              showMessage("Error occured while saving", "error");
+	            }      
+		},
+	        
 		});
-		return isDataSaved; 
+		return  isDataSaved; 
     }
 	
 
@@ -308,7 +311,6 @@
         	showMessage("Password is mandatory", "warn");
         	return false;
         }
-        
         $.ajax({
 		    type : "POST",
             async: true,
@@ -319,11 +321,12 @@
 		    	un: userName,
 		    	pwd: password,
 		    },
-            success : function(data) {
-                showMessage("Connection successful", "success");
-		    },
-	        error : function(xhr, error){
-		        showMessage(xhr.responseText, "error"); 
+            error : function(xhr, error){
+                if(xhr.responseText == "Success"){   
+                    showMessage("Connection successful", "success");
+                } else{
+                    showMessage("Error occured while tesing connection", "error"); 
+                }
 	        },
 		});
     }

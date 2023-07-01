@@ -60,6 +60,7 @@ import com.trigyn.jws.dynarest.repository.FileUploadRepository;
 import com.trigyn.jws.dynarest.utils.Constants;
 import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.dynarest.vo.EmailAttachedFile;
+import com.trigyn.jws.templating.utils.TemplatingUtils;
 
 @Service
 @Transactional
@@ -82,6 +83,9 @@ public class SendMailService {
 
 	@Autowired
 	private FileUploadRepository fileUploadRepository = null;
+	
+	@Autowired
+	private TemplatingUtils					templatingUtils					= null;
 
 	@Async
 	public CompletableFuture<Boolean> sendTestMail(Email mail) throws Exception {
@@ -305,14 +309,21 @@ public class SendMailService {
 					}
 				}
 			}
-			/** Added for Mail Footer */
-			if (mailFooterString != null && mailFooterString.isEmpty() == false) {
-				if (mail.getMailFooter().contains("cid")) {
-					mailBody = mailBody + "	<br>" + mail.getMailFooter();
-					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
-				} else {
-					mailBody = mailBody + "	<br>" + mail.getMailFooter();
-					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+			if(mail!=null && mail.getMailFooter()!=null) {
+				String mailFooter = mail.getMailFooter() ;
+				if(mailFooter!=null) {
+					mailFooter = templatingUtils.processMultipleTemplateContents(mailFooter,
+							"footer", new HashMap<String, Object>(), new HashMap<String, String>());
+					/** Added for Mail Footer */
+					if (mailFooterString != null && mailFooterString.isEmpty() == false) {
+						if (mail.getMailFooter().contains("cid")) {
+							mailBody = mailBody + "	<br>" + mailFooter;
+							messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+						} else {
+							mailBody = mailBody + "	<br>" + mailFooter;
+							messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+						}
+					}
 				}
 			}
 			/** Ends Here */
@@ -653,17 +664,26 @@ public class SendMailService {
 					}
 				}
 			}
-			/** Added for Mail Footer */
-			if (mailFooterString != null && mailFooterString.isEmpty() == false) {
-				if (mail.getMailFooter().contains("cid")) {
-					mailBody = mailBody + "	<br>" + mail.getMailFooter();
-					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
-				} else {
-					mailBody = mailBody + "	<br>" + mail.getMailFooter();
-					messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+			if(mail!=null && mail.getMailFooter()!=null) {
+				String mailFooter = mail.getMailFooter() ;
+				if(mailFooter!=null) {					
+					mailFooter = templatingUtils.processMultipleTemplateContents(mailFooter,
+							"footer", new HashMap<String, Object>(), new HashMap<String, String>());
+					/** Added for Mail Footer */
+					if (mailFooterString != null && mailFooterString.isEmpty() == false) {
+						if (mail.getMailFooter().contains("cid")) {
+							mailBody = mailBody + "	<br>" + mailFooter;
+							messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+						} else {
+							mailBody = mailBody + "	<br>" + mailFooter;
+							messageBodyPart.setContent(mailBody, "text/html; charset=utf-8");
+						}
+					} 
 				}
 			}
+			
 			/** Ends Here */
+			
 
 			message.setSentDate(new Date());
 			message.setContent(mimeMultipart);
@@ -811,7 +831,7 @@ public class SendMailService {
 			htmlBuilder.append("<p><b>Subject:</b> " + mail.getSubject() + "</p>");
 			htmlBuilder.append("<body><p><b>To:</b></p></body>");
 			String mailStr = "";
-			if (mailToList.length > 0) {
+			if (mailToList != null && mailToList.length > 0) {
 				for (int i = 0; i < mailToList.length; i++) {
 					mailStr += mailToList[i].getAddress();
 					htmlBuilder.append(mailStr);
@@ -820,7 +840,7 @@ public class SendMailService {
 				htmlBuilder.append("");
 			}
 			htmlBuilder.append("<body><p><b>Cc:</b></p></body>");
-			if (ccList.length > 0) {
+			if (ccList != null && ccList.length > 0) {
 				for (int i = 0; i < ccList.length; i++) {
 					mailStr += ccList[i].getAddress();
 					htmlBuilder.append(mailStr);
@@ -829,7 +849,7 @@ public class SendMailService {
 				htmlBuilder.append("");
 			}
 			htmlBuilder.append("<body><p><b>Bcc:</b></p></body>");
-			if (bccList.length > 0) {
+			if (bccList != null && bccList.length > 0) {
 				for (int i = 0; i < bccList.length; i++) {
 					mailStr += bccList[i].getAddress();
 					htmlBuilder.append(mailStr);

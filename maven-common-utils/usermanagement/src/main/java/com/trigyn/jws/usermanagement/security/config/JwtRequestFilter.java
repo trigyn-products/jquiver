@@ -3,6 +3,7 @@ package com.trigyn.jws.usermanagement.security.config;
 import java.io.IOException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -91,6 +92,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				String	authenticationType	= request.getParameter("enableAuthenticationType");
 				String	username			= null;
 				String	jwt					= null;
+				if(authTypeAtHeader !=null && null == AuthType.valueOfAt(authTypeAtHeader)){
+					response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Authentication not supported");
+					return;
+					
+				}
 				String	requestAuthType		= (authenticationType != null) ? authenticationType
 						: ((authTypeAtHeader != null)
 								? String.valueOf(AuthType.valueOfAt(authTypeAtHeader).getAuthType())
@@ -103,8 +109,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 						username = jwtUtil.extractUsername(jwt);
 					} else if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.OAUTH.getAuthType()) {
 						username = retrieveUsernameFromJwtToken(jwt);
+						if("jq_532".equalsIgnoreCase(username)) {
+							response.sendError(HttpServletResponse.SC_FORBIDDEN,
+									"You do not have enough privilege to access this module due to password expiry.");
+							return;
+						}
 						if (username == null) {
 							username = jwtUtil.extractUsername(jwt);
+						}
+					}
+				}
+				if(request.getRequestURL()!=null) {
+					String fullURL = request.getRequestURL().toString();
+					if(fullURL !=null) {
+						String lastUri = fullURL.substring(fullURL.lastIndexOf('/')+1);
+						if(lastUri!=null && jwt == null && lastUri !=null &&  lastUri.equalsIgnoreCase("login") == false) {
+							response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED,
+									"JWT Token is not available.");
+							return;
 						}
 					}
 				}
@@ -116,7 +138,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				boolean				authTypeActive		= false;
 				Map<String, Object>	activeAuthDetails	= (Map<String, Object>) authenticationDetails
 						.get("activeAuthDetails");
-				if (activeAuthDetails != null) {
+				if (activeAuthDetails != null && authTypeAtHeader!=null) {
 					authTypeActive = activeAuthDetails
 							.containsKey(String.valueOf(AuthType.valueOfAt(authTypeAtHeader).getAuthType()));
 				}
@@ -141,7 +163,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 										"You do not have enough privilege to access this module");
 								return;
 							}
-							if (jwt != null && jwtUtil.validateToken(jwt, userDetails)) {
+							if (jwt != null && ((requestAuthType != null
+									&& Integer.valueOf(requestAuthType) != Constants.AuthType.OAUTH.getAuthType()
+									&& jwtUtil.validateToken(jwt, userDetails))
+									|| Integer.valueOf(requestAuthType) == Constants.AuthType.OAUTH.getAuthType())) {
 
 								UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 										userDetails, null, userDetails.getAuthorities());
@@ -161,7 +186,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			logger.error(
 					"Inside JwtRequestFilter - ExpiredJwtException - Error occurred while processing the request (Request URI: {}})",
 					request.getRequestURI(), expiredException);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, expiredException.getMessage());
+			response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, expiredException.getMessage());
 			return;
 		} catch (SignatureException signatureException) {
 			logger.error(
@@ -183,7 +208,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			return;
 		}
 	}
-
+	
 	private String retrieveUsernameFromJwtToken(String token) throws Exception {
 		try {
 			DecodedJWT jwt = JWT.decode(token);
@@ -191,14 +216,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				JwkProvider	provider	= null;
 				Jwk			jwk			= null;
 				Algorithm	algorithm	= null;
-
-				provider = new UrlJwkProvider(new URL("https://login.microsoftonline.com/common/discovery/keys"));
-				System.out.println(jwt.getKeyId());
+				String providerUrl = propertyMasterService.findPropertyMasterValue("system", "system",
+						"JwkProvider");
+				if(providerUrl!=null) {
+					provider = new UrlJwkProvider(new URL(providerUrl));
+				}
 				jwk			= provider.get(jwt.getKeyId());
 				algorithm	= Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 				algorithm.verify(jwt);// if the token signature is invalid, the method will throw
 										// SignatureVerificationException
 
+				Date expiration = jwt.getClaim("exp").asDate();
+				if(expiration.before(new Date())) {
+					logger.error("JWT Token expired");
+					return "jq_532";
+				}
+				
 				return jwt.getClaim("upn").asString();
 			}
 

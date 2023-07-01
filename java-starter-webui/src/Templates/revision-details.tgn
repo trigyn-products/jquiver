@@ -2,8 +2,6 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<script src="${(contextPath)!''}/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
@@ -118,7 +116,7 @@
 <script>
 contextPath = "${(contextPath)!''}";
 const entityId = "${(entityId)!''}";
-const entityName = "${(entityName)!''}";
+const cmvEntityName = "${(cmvEntityName)!''}";
 let updatedJson;
 let compareJsonEditor;
 let diffEditorArray = new Array();
@@ -128,6 +126,7 @@ let importJson;
 let isNonVersioningModule;
 let nonVersioningFetchURL;
 $(function(){
+    debugger;
 	isImport = "${(isImport)!''}";
 	isNonVersioningModule = "${(isNonVersioningModule)!''}";
 	
@@ -149,7 +148,7 @@ $(function(){
         autocompleteId: 'revisionAutocomplete',
         prefetch : true,
         enableClearText : true,
-        render: function(item) {
+        render: function(item) {debugger;
         	var renderStr ='';
         	if(item.emptyMsg == undefined || item.emptyMsg === '')
     		{
@@ -163,7 +162,7 @@ $(function(){
         },
         additionalParamaters: {
 			 entityId: entityId
-			,entityName: entityName
+			,cmvEntityName: cmvEntityName
 			,dateFormat: $("#dateFormat").val()
 		},
         extractText: function(item) {
@@ -233,7 +232,7 @@ function getUpdatedData(){
 		url : contextPath+"/cf/uj",
 		async: false,
 		data : {
-			entityName : entityName,
+			cmvEntityName : cmvEntityName,
 			entityId : entityId,
 		},
 		success : function(data) {

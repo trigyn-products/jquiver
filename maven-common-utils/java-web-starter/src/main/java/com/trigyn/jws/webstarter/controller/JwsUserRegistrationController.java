@@ -228,7 +228,6 @@ public class JwsUserRegistrationController {
 	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
 		String captchaStr = CaptchaUtil.getCaptchaString();
-		System.out.println(captchaStr);
 		int			width	= 130;
 		int			height	= 59;
 		HttpSession	session	= request.getSession();
@@ -297,9 +296,18 @@ public class JwsUserRegistrationController {
 			Integer	generatedOtp	= otpService.generateOTP(userEmailId);
 			boolean	isOtpValid		= otpService.validateOTP(userEmailId, generatedOtp);
 			if (isOtpValid == false) {
+				String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+						"adminEmailId");
+				String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+						: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+				
 				userConfigService.getConfigurableDetails(mapDetails);
 				mapDetails.put("email", userEmailId);
 				mapDetails.put("oneTimePassword", generatedOtp);
+				mapDetails.put("adminEmailAddress", adminEmail);
+				mapDetails.put("firstName", existingUser.getFirstName()+ " "+ existingUser.getLastName());
+				String baseURL = otpService.getBaseURL(propertyMasterService, servletContext);
+				mapDetails.put("baseURL", baseURL);
 				JwsUser userOtpUpdateInfo = otpService.saveOtp(mapDetails);
 				if (userOtpUpdateInfo != null) {
 					otpService.sendMailForOtp(mapDetails);

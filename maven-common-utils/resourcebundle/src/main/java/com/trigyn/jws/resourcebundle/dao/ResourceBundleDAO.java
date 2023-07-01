@@ -32,6 +32,7 @@ public class ResourceBundleDAO extends DBConnection {
 		query.setParameter("resourceBundleKey", resourceBundleKey);
 		query.setParameter("languageId", languageId);
 		query.setParameter("text", text);
+		query.setParameter("isCustomUpdated", 1);
 		query.executeUpdate();
 	}
 

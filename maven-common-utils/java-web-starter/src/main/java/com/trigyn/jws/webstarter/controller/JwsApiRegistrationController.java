@@ -135,11 +135,7 @@ public class JwsApiRegistrationController {
 	
 	private Map<String, Object> validateLoginDetails(Map<String, Object> authDetails, AuthenticationRequest authenticationRequest, HttpServletRequest httpServletRequest) {
 		Map<String, Object> responseDetails = new HashMap<>();
-		/*
-		 * if(authenticationRequest == null) { responseDetails.put("errorMessage",
-		 * "Email/Password is required"); responseDetails.put("errorCode",
-		 * HttpStatus.BAD_REQUEST); return responseDetails; }
-		 */
+
 		if(authenticationRequest != null && authenticationRequest.getUsername().isEmpty()) {
 			responseDetails.put("errorMessage", "Email is required");
 			responseDetails.put("errorCode", HttpStatus.BAD_REQUEST.value());
@@ -162,13 +158,6 @@ public class JwsApiRegistrationController {
 			responseDetails.put("errorMessage", "Authentication not supported.");
 			responseDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED.value());
 			return responseDetails;
-		}else {
-			String verificationType = httpServletRequest.getParameter("verificationType");
-			if(verificationType!=null && daoAuthDetails.getVerificationType().compareTo(Integer.valueOf(verificationType)) !=0 ) {
-				responseDetails.put("errorMessage", "Authentication not supported.");
-				responseDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED.value());
-				return responseDetails;
-			}
 		}
 		
 		Map<String, Object>	daoAuthAttributes	= daoAuthDetails.getLoginAttributes();

@@ -76,7 +76,7 @@
 </div>
 
 <form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
-	<input type="hidden" id="entityName" name="entityName" value="jq_dynamic_rest_details">
+	<input type="hidden" id="cmvEntityName" name="cmvEntityName" value="jq_dynamic_rest_details">
     <input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="dynarest">

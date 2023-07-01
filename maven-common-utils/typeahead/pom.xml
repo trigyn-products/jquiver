@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.trigyn</groupId>
 		<artifactId>commonutils</artifactId>
-		<version>1.5.1-SNAPSHOT</version>
+		<version>1.5.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>typeahead</artifactId>
-	<version>1.5.1-SNAPSHOT</version>
+	<version>1.5.2-SNAPSHOT</version>
 	<name>typeahead</name>
 	<description>Type ahead</description>
 
@@ -21,19 +21,19 @@
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>gridutils</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>usermanagement</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.trigyn</groupId>
 			<artifactId>templating</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>

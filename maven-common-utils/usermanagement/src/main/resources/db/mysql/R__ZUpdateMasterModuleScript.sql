@@ -1,15 +1,5 @@
  SET FOREIGN_KEY_CHECKS=0;
  
- REPLACE INTO jq_master_modules(module_id, module_name, is_system_module, auxiliary_data, module_type_id) VALUES
- 
-('4461bbae-8c8f-11eb-8dcd-0242ac130003', 'Master Generator', 1, '', 11),
-('5559212c-8c8f-11eb-8dcd-0242ac130003', 'Miltilingual', 1, '', 12),
-('6ac6a54c-8d3f-11eb-8dcd-0242ac130003', 'Notification', 1, '', 13),
-('5f6dd374-8c8f-11eb-8dcd-0242ac130003', 'User Management', 1, '', 14),
-('699ac104-8c8f-11eb-8dcd-0242ac130003', 'Security Management', 1, '', 15),
-('76270518-8c8f-11eb-8dcd-0242ac130003', 'Application Configuration', 1, '', 16),
-('96917c8e-8c8f-11eb-8dcd-0242ac130003', 'Import/Export', 1, '', 18); 
- 
  UPDATE jq_master_modules SET sequence = "1" WHERE module_id="4461bbae-8c8f-11eb-8dcd-0242ac130003";
  UPDATE jq_master_modules SET sequence = "2" WHERE module_id="07067149-098d-11eb-9a16-f48e38ab9348";
  UPDATE jq_master_modules SET sequence = "3" WHERE module_id="91a81b68-0ece-11eb-94b2-f48e38ab9348";
@@ -29,39 +19,6 @@
  UPDATE jq_master_modules SET sequence = "17" WHERE module_id="fcd0df1f-783f-11eb-94ed-f48e38ab8cd7";
  UPDATE jq_master_modules SET sequence = "18" WHERE module_id="96917c8e-8c8f-11eb-8dcd-0242ac130003";
  
- INSERT INTO jq_role_master_modules_association (role_module_id, role_id, module_id, is_active) VALUES
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','4461bbae-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','4461bbae-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','4461bbae-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','5559212c-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','5559212c-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','5559212c-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','19aa8996-80a2-11eb-971b-f48e38ab8cd7', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','19aa8996-80a2-11eb-971b-f48e38ab8cd7', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','19aa8996-80a2-11eb-971b-f48e38ab8cd7', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','5f6dd374-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','5f6dd374-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','5f6dd374-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','699ac104-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','699ac104-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','699ac104-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','76270518-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','76270518-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','76270518-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','96917c8e-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','96917c8e-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','96917c8e-8c8f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','6ac6a54c-8d3f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','6ac6a54c-8d3f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','6ac6a54c-8d3f-11eb-8dcd-0242ac130003', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','fcd0df1f-783f-11eb-94ed-f48e38ab8cd7', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','fcd0df1f-783f-11eb-94ed-f48e38ab8cd7', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','fcd0df1f-783f-11eb-94ed-f48e38ab8cd7', 1),
-  (UUID(),'2ace542e-0c63-11eb-9cf5-f48e38ab9348','248ffd91-7760-11eb-94ed-f48e38ab8cd7', 1),
-  (UUID(),'ae6465b3-097f-11eb-9a16-f48e38ab9348','248ffd91-7760-11eb-94ed-f48e38ab8cd7', 1),
-  (UUID(),'b4a0dda1-097f-11eb-9a16-f48e38ab9348','248ffd91-7760-11eb-94ed-f48e38ab8cd7', 1);
-  
-  
   UPDATE jq_master_modules SET grid_details_id = "gridDetailsListing", module_type="Grid",
   	is_perm_supported="1", is_entity_perm_supported=1, is_imp_exp_supported="1" WHERE module_id="07067149-098d-11eb-9a16-f48e38ab9348";
   UPDATE jq_master_modules SET grid_details_id = "dashletMasterListingGrid", module_type="Dashlets",
@@ -95,26 +52,16 @@
   	is_perm_supported="1", is_entity_perm_supported=1, is_imp_exp_supported="1", grid_details_id="helpManualListingGrid"
   	WHERE module_id="fcd0df1f-783f-11eb-94ed-f48e38ab8cd7";
   	
- REPLACE INTO jq_master_modules(module_id, module_name, sequence, is_system_module, grid_details_id, module_type, is_perm_supported, is_entity_perm_supported, is_imp_exp_supported) VALUES
-('12ec53b3-5669-11eb-9e7a-f48e38ab8cd7', 'Permission', 18, 1, 'manageEntityPermissionListing', 'Permission', 0, 0, 1),
-('aa3e68ac-8d42-11eb-98cc-9840bb1e8144', 'Users', 19, 1, 'userListingGrid', 'ManageUsers', 0, 0, 1),
-('aa3e68ac-8d42-11eb-98cc-9840bb1e8155', 'Roles', 22, 1, 'roleListingGrid', 'ManageRoles', 0, 0, 1),
-('fcd0df1f-783f-11eb-94ed-f48e38ab8cd6', 'Scheduler', 23, 1, 'jq-schedulerGrid', 'Scheduler', 0, 0, 1);
-
 UPDATE jq_dynamic_rest_details SET created_by='admin';
 
-UPDATE jq_template_master SET created_by='admin', updated_by='admin@jquiver.io';
-UPDATE jq_dashlet SET created_by='admin', updated_by='admin@jquiver.io';
-UPDATE jq_dynamic_rest_details SET created_by='admin@jquiver.io';
-UPDATE jq_dynamic_rest_details SET last_updated_by='admin@jquiver.io';
-UPDATE jq_dynamic_form SET created_by='admin@jquiver.io';
-UPDATE jq_dynamic_form SET last_updated_by='admin@jquiver.io';
-UPDATE jq_grid_details SET created_by='admin@jquiver.io';
-UPDATE jq_grid_details SET last_updated_by='admin@jquiver.io';
-UPDATE jq_entity_role_association SET last_updated_by='admin@jquiver.io';
-UPDATE jq_autocomplete_details SET created_by='admin@jquiver.io';
-UPDATE jq_autocomplete_details SET last_updated_by='admin@jquiver.io';
-UPDATE jq_file_upload_config SET created_by='admin@jquiver.io';
-UPDATE jq_file_upload_config SET last_updated_by='admin@jquiver.io';
+UPDATE jq_template_master SET created_by='admin@jquiver.io', updated_by='admin@jquiver.io' WHERE template_type_id=2 AND is_custom_updated=0;
+UPDATE jq_dashlet SET created_by='admin@jquiver.io', updated_by='admin@jquiver.io';
+UPDATE jq_dynamic_rest_details SET created_by='admin@jquiver.io' WHERE jws_dynamic_rest_type_id=2 AND is_custom_updated=0;
+UPDATE jq_dynamic_form SET created_by='admin@jquiver.io' WHERE form_type_id=2 AND is_custom_updated=0;
+UPDATE jq_grid_details SET created_by='admin@jquiver.io' WHERE grid_type_id=2 AND is_custom_updated=0;
+UPDATE jq_entity_role_association SET last_updated_by='admin@jquiver.io' WHERE module_type_id=2 AND is_custom_updated=0;
+UPDATE jq_autocomplete_details SET created_by='admin@jquiver.io', last_updated_by='admin' WHERE ac_type_id=2 AND is_custom_updated=0;
+update jq_dynamic_form SET last_updated_by='admin@jquiver.io' WHERE form_type_id=2 AND is_custom_updated=0;
+UPDATE jq_file_upload_config SET created_by='admin@jquiver.io', last_updated_by='admin@jquiver.io' WHERE is_custom_updated=0;
 
 SET FOREIGN_KEY_CHECKS=1;

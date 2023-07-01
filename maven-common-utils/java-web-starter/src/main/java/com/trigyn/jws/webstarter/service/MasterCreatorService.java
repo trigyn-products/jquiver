@@ -16,6 +16,8 @@ import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -54,6 +56,7 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
+import org.apache.logging.log4j.Logger;
 
 @Service
 @Transactional(readOnly = false)
@@ -114,6 +117,8 @@ public class MasterCreatorService {
 	private ActivityLog						activitylog						= null;
 	
 	private static final String				PRIMARY_KEY				= "PK";
+	
+	private final static Logger				logger					= LogManager.getLogger(MasterCreatorService.class);
 
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
 		Map<String, Object>		templateMap			= new HashMap<>();
@@ -365,8 +370,12 @@ public class MasterCreatorService {
 		DynamicForm			dynamicForm			= new DynamicForm();
 
 		if(detailsService.getUserDetails().getFullName()!= null) {
-			dynamicForm.setLastUpdatedBy(detailsService.getUserDetails().getFullName());
-			dynamicForm.setCreatedBy(detailsService.getUserDetails().getFullName());
+			dynamicForm.setLastUpdatedBy(detailsService.getUserDetails().getUserName());
+			dynamicForm.setCreatedBy(detailsService.getUserDetails().getUserName());
+		}
+		else {
+			logger.error("Error in user details, user details user name cannot be null", detailsService.getUserDetails().getUserName());
+			throw new RuntimeException("Invalid user, can't create form");
 		}
 		
 		dynamicForm.setFormDescription(description);
@@ -472,10 +481,10 @@ public class MasterCreatorService {
 		for (String key : primaryKeys) {
 			String coloumnName = key;
 			if(isStringID) {
-				value = coloumnName + " = '" + "${" + key.replaceAll("_", "") + "! 'null' }'";
+				value = coloumnName + " = \"" + "${" + key.replaceAll("_", "") + "! '' }\"";
 			}
 			else {
-				value = coloumnName + " = " + "${" + key.replaceAll("_", "") + "! 'null' }";
+				value = coloumnName + " = " + "${" + key.replaceAll("_", "") + "! '' }";
 			}
 			
 			whereClause.add(value.replace("\\", ""));
@@ -541,8 +550,12 @@ public class MasterCreatorService {
 		templateMaster.setTemplate(template);
 		templateMaster.setUpdatedDate(new Date());
 		if(detailsService.getUserDetails().getFullName()!= null) {
-		templateMaster.setCreatedBy(detailsService.getUserDetails().getFullName());
-		templateMaster.setUpdatedBy(detailsService.getUserDetails().getFullName());
+		templateMaster.setCreatedBy(detailsService.getUserDetails().getUserName());
+		templateMaster.setUpdatedBy(detailsService.getUserDetails().getUserName());
+		}
+		else {
+			logger.error("Error in user details, user details user name cannot be null", detailsService.getUserDetails().getUserName());
+			throw new RuntimeException("Invalid user, can't create template");
 		}
 		templateMaster.setIsCustomUpdated(1);
 		return dbTemplatingService.saveTemplateMaster(templateMaster);

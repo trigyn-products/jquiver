@@ -38,8 +38,9 @@ public class GridUtility {
 				joiner.add(criteriaParam);
 			}
 
-			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
+			if (gridParams.getCriteriaParams().entrySet().size() >=1) {
 				query.append(joiner.toString() + " = ? ");
+			
 			} else {
 				query.append(joiner.toString());
 			}
@@ -134,7 +135,7 @@ public class GridUtility {
 				joiner.add(criteriaParam);
 			}
 
-			if (gridParams.getCriteriaParams().entrySet().size() == 1) {
+			if (gridParams.getCriteriaParams().entrySet().size() >=1) {
 				query.append(joiner.toString() + " = ? ");
 			} else {
 				query.append(joiner.toString());

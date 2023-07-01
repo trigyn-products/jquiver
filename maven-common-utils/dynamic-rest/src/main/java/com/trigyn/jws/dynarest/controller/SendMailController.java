@@ -37,6 +37,7 @@ public class SendMailController {
 		Email		email			= new Email();
 		String		jsonString		= httpServletRequest.getParameter("saveMailConfigDetailsJson");
 		TemplateVO	templateDetails	= dbTemplatingService.getTemplateByName(Constant.MAIL_TEMPLATE_NAME);
+		email.setSubject(Constant.TEST_MAIL_SUBJECT);
 		email.setBody(templateDetails.getTemplate());
 		/*For inserting notification in case of mail failure only on access of Admin*/
 		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());

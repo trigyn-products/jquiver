@@ -13,8 +13,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -45,10 +47,15 @@ public class JwtUtil {
 		try {
 			secretKey = propertyMasterService.findPropertyMasterValue("system", "system",
 					"jwsSecretKey");
-			if(secretKey !=null)
+			if(secretKey !=null) {
 				return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+			}
+		}catch (ExpiredJwtException exec) {
+			logger.error("Failed : Invalid JWT Token. " + exec.getMessage());
+			throw new ExpiredJwtException(null, null, "Invalid JWT Token. Please try again with new token !", exec);
 		} catch (Exception exec) {
 			logger.error("Failed : Error while extract " + exec.getMessage());
+			throw new RuntimeException("Failed : Error while extract " + exec.getMessage());
 		}
 		return null;
 		

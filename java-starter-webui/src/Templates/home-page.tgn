@@ -232,14 +232,14 @@
 																		moduleDetailsVO?api.getTargetTypeId()?has_content>
 																		<#if targetBlankChild?has_content &&
 																			targetBlankChild==1>
-																			<li>
+																			<li class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
 																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
 																					class="nav-link"
 																					target="${openTargetChild}"
 																					onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																			</li>
 																			<#else>
-																				li>
+																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
 																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
 																					class="nav-link"
 																					target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
@@ -248,14 +248,14 @@
 																		<#else>
 																			<#if targetBlankChild?has_content &&
 																				targetBlankChild==1>
-																				<li>
+																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
 																					<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
 																						class="nav-link"
 																						target="${openTargetChild}"
 																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																				</li>
 																				<#else>
-																					<li>
+																					<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}"> 
 																						<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
 																							class="nav-link"
 																							target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
@@ -294,6 +294,7 @@
 																	<span data-feather="file"></span>
 																	<a href="#"
 																		onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+												
 																		class="nav-link"
 																		target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
 																</li>

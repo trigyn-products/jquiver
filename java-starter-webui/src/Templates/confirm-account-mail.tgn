@@ -1,1 +1,10 @@
- To confirm your account, please click here : ${baseURL}/cf/confirm-account?token=${tokenId}
+<h1>Welcome to <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></h1> 
+
+<b>Dear ${firstName}</b>,
+<br></br><br></br>
+Thank you for signing up to <@resourceBundleWithDefault "jws.projectName" "JQuiver"/>. We're really happy to have you on board.
+
+<br></br><br></br>
+<a href="${baseURL}/cf/confirm-account?token=${tokenId}" target="_blank" style="padding: 12px 24px; border-radius: 4px;"><b>Click here.</b></a>  to confirm and login to your account. 
+
+<br></br>

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +41,7 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.repository.JwsResetPasswordTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.UserManagementService;
@@ -82,7 +84,13 @@ public class JwsResetPasswordController {
 	private ServletContext					servletContext					= null;
 	
 	@Autowired
-   	private IUserDetailsService					userDetailsService						= null;
+   	private IUserDetailsService				userDetailsService				= null;
+	
+	@Autowired
+   	private JwtUtil  						jwtUtil							= null;
+	
+	@Autowired
+	private UserDetailsService				userDetailsServiceImpl			= null;
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
@@ -148,14 +156,20 @@ public class JwsResetPasswordController {
 				String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
 						subjectTemplateVO.getTemplateName(), mailDetails);
 				email.setSubject(subject);
-
+				String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+						"adminEmailId");
+				String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+						: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+				
+				mailDetails.put("firstName", existingUser.getFirstName()+" "+existingUser.getLastName());
 				mailDetails.put("baseURL", baseURL);
 				mailDetails.put("tokenId", tokenId);
+				mailDetails.put("adminEmailAddress", adminEmail);
 				TemplateVO	templateVO	= templatingService.getTemplateByName("reset-password-mail");
 				String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mailDetails);
 				email.setBody(mailBody);
-				System.out.println(mailBody);
+				//System.out.println(mailBody);
 				sendMailService.sendTestMail(email);
 
 				mapDetails.put("successResetPasswordMsg",
@@ -433,6 +447,15 @@ public class JwsResetPasswordController {
 			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;
 		}
+	}
+	
+	@GetMapping(value = "/gt")
+	@ResponseBody
+	public String gt() throws Exception {
+		String token = jwtUtil.generateToken(userDetailsServiceImpl
+				.loadUserByUsername("anonymous"));
+		return token;
+		
 	}
 
 }

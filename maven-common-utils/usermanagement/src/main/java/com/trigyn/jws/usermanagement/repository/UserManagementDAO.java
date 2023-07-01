@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 
@@ -110,5 +111,12 @@ public class UserManagementDAO extends DBConnection {
 		}else {
 			getCurrentSession().saveOrUpdate(role);
 		}
+	}
+	
+	public Integer getEntityRoleTypeID(String query)
+	{
+		Query querynew = getCurrentSession().createQuery(query);
+		return (Integer) querynew.uniqueResult();
+		
 	}
 }

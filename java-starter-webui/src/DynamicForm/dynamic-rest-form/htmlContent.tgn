@@ -230,7 +230,7 @@
 
 		<div class="row margin-t-b">  
             <div class="col-12" id="button">
-                <button type="button" class=" btn btn-primary float-right" id="addDaoQuery" onclick="showDaoQuery();">${messageSource.getMessage('jws.addQuery')}</button>
+                <input id="addDaoQuery" class="btn btn-secondary float-right" value="${messageSource.getMessage('jws.addQuery')}" onclick="showDaoQuery();" type="button">
  </div>           
 			<div class="col-12"  id="daoDiv">
 				<h3 id="titlename" class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.daoqueries')}</h3>               

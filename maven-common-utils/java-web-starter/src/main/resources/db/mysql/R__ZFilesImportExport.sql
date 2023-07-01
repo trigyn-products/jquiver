@@ -1,1 +1,0 @@
-INSERT INTO `jq_master_modules` (`module_id`, `module_name`, `sequence`, `is_system_module`, `auxiliary_data`, `module_type_id`, `grid_details_id`, `module_type`, `is_entity_perm_supported`, `is_imp_exp_supported`, `is_perm_supported`) VALUES('5c4358e2-b69a-11ed-983d-7c8ae1bb24d8','Files','20','1',NULL,NULL,'filesExportGrid','Files','0','1','0');

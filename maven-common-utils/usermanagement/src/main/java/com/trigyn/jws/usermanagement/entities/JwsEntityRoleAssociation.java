@@ -55,6 +55,9 @@ public class JwsEntityRoleAssociation {
 
 	@Column(name = "is_custom_updated")
 	private Integer	isCustomUpdated	= 1;
+	
+	@Column(name = "role_type_id")
+	private Integer	roleTypeId	= 1;
 
 	@ManyToOne
 	@JoinColumn(name = "role_id", referencedColumnName = "role_id", insertable = false, updatable = false)
@@ -146,6 +149,14 @@ public class JwsEntityRoleAssociation {
 
 	public void setIsCustomUpdated(Integer isCustomUpdated) {
 		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public Integer getRoleTypeId() {
+		return roleTypeId;
+	}
+
+	public void setRoleTypeId(Integer roleTypeId) {
+		this.roleTypeId = roleTypeId;
 	}
 
 	public JwsEntityRoleAssociation getObject() {

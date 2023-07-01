@@ -9,6 +9,9 @@
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 </head>
 
 <div class="container">
@@ -47,7 +50,7 @@
 </div>
 
 <form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
-    <input type="hidden" id="entityName" name="entityName" value="jq_property_master">
+    <input type="hidden" id="cmvEntityName" name="cmvEntityName" value="jq_property_master">
 	<input type="hidden" id="entityId" name="entityId">
 	<input type="hidden" id="moduleName" name="moduleName">
 	<input type="hidden" id="moduleType" name="moduleType" value="propertyMaster">
@@ -78,9 +81,9 @@
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
 			{ title: "${messageSource.getMessage('jws.updatedBy')}", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center",
+			{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center", render: formatLastUpdatedDate,
 				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-			{ title: "${messageSource.getMessage('jws.modifiedDate')}", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center", render: formatLastUpdatedDate  },
+			{ title: "${messageSource.getMessage('jws.modifiedDate')}", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center"},
 			{ title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
 		];
 		let dataModel = {
@@ -148,7 +151,8 @@
         location.href = contextPath+"/cf/home";
 	}
     function formatLastUpdatedDate(uiObject){
-        const lastUpdatedTs = uiObject.rowData.lastUpdatedTs;
+        debugger;
+        const lastUpdatedTs = uiObject.rowData.lastModifiedDate;
         return formatDate(lastUpdatedTs);
     }
 </script>

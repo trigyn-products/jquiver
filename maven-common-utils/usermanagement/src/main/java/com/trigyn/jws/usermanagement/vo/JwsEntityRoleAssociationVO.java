@@ -23,6 +23,8 @@ public class JwsEntityRoleAssociationVO {
 	private Integer	isActive		= null;
 
 	private Integer	moduleTypeId	= 0;
+	
+	private Integer	roleTypeId	= 1;
 
 	public String getEntityRoleId() {
 		return entityRoleId;
@@ -96,6 +98,14 @@ public class JwsEntityRoleAssociationVO {
 		this.moduleTypeId = moduleTypeId;
 	}
 
+	public Integer getRoleTypeId() {
+		return roleTypeId;
+	}
+
+	public void setRoleTypeId(Integer roleTypeId) {
+		this.roleTypeId = roleTypeId;
+	}
+
 	public JwsEntityRoleAssociation convertVOtoEntity(JwsEntityRoleAssociation entityRoleAssociation, JwsEntityRoleAssociationVO entityRoleAssociationVO) {
 		if(entityRoleAssociation == null) {
 			entityRoleAssociation = new JwsEntityRoleAssociation();
@@ -107,6 +117,7 @@ public class JwsEntityRoleAssociationVO {
 		entityRoleAssociation.setRoleId(entityRoleAssociationVO.getRoleId());
 		entityRoleAssociation.setIsActive(entityRoleAssociationVO.getIsActive());
 		entityRoleAssociation.setModuleTypeId(entityRoleAssociationVO.getModuleTypeId());
+		entityRoleAssociation.setRoleTypeId(1);
 		return entityRoleAssociation;
 	}
 
@@ -119,6 +130,7 @@ public class JwsEntityRoleAssociationVO {
 		association.setRoleId(entityRoleAssociation.getRoleId());
 		association.setIsActive(entityRoleAssociation.getIsActive());
 		association.setModuleTypeId(entityRoleAssociation.getModuleTypeId());
+		association.setRoleTypeId(1);
 		return association;
 	}
 

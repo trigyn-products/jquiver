@@ -1,11 +1,3 @@
-UPDATE jq_module_listing SET last_updated_by = 'admin@jquiver.io' WHERE module_type_id=2 AND is_custom_updated=0;
-UPDATE jq_dynamic_rest_details SET last_updated_by = 'admin@jquiver.io' WHERE jws_dynamic_rest_type_id=2 AND is_custom_updated=0;
-UPDATE jq_dynamic_form SET last_updated_by = 'admin@jquiver.io' WHERE form_type_id=2 AND is_custom_updated=0;
-UPDATE `jq_file_upload_config` SET last_updated_by = 'admin@jquiver.io' WHERE is_custom_updated=0;
-UPDATE `jq_autocomplete_details` SET last_updated_by = 'admin@jquiver.io' WHERE ac_type_id=2 AND is_custom_updated=0;
-UPDATE `jq_grid_details` SET last_updated_by = 'admin@jquiver.io' WHERE grid_type_id=2 AND is_custom_updated=0;
-UPDATE `jq_template_master` SET updated_by = 'admin@jquiver.io' WHERE  is_custom_updated=0;
-
 DROP PROCEDURE IF EXISTS gridDetails;
 
 CREATE  OR REPLACE VIEW `jq_grid_details_view` AS

@@ -16,7 +16,7 @@
 	<div class="container">
 		<div class="row topband">
            
-			<div class="col-4">
+			<div class="col-sm-4 col-12">
 				<#if (autocompleteVO.autocompleteId)??>
 				    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editautocomplete')}</h2> 
 		        <#else>
@@ -24,7 +24,7 @@
 		        </#if>
 		    </div>
 	    
-	        <div class="col-8">    
+	        <div class="col-sm-8 col-12">    
 				<#if (autocompleteVO.autocompleteId)?? && (autocompleteVO.autocompleteId)?has_content>	 
 			        <#assign ufAttributes = {
 			            "entityType": "TypeAhead Autocomplete",
@@ -41,20 +41,20 @@
     <form id="autocompleteForm" method="post" >
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	  <div class="row">
-	    <div class = "col-6">
+	    <div class = "col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoId"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.autocompleteid')} </label>
 	        <input id="autoId" name="autocompleteId" onkeyup="addEditAutocomplete.hideErrorMessage();" onkeydown="addEditAutocomplete.updateOldVal()" onkeyup="addEditAutocomplete.updateAutocompleTemplate()" class="form-control" type="text" value="${(autocompleteVO.autocompleteId)!''}">
 			</div>
 	    </div>
-	    <div class="col-6">
+	    <div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 	        <label for="autoDesc">${messageSource.getMessage('jws.autocompletedescription')} </label>
 	        <input name="autocompleteDesc" class="form-control" type="text" value="${(autocompleteVO.autocompleteDesc)!''}">
 			</div>
 	    </div>
 
-		<div class="col-6">
+		<div class="col-sm-6 col-12">
 			<div class="col-inner-form full-form-fields">
 	        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
 	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
@@ -159,7 +159,7 @@
    
   </form>
   <div class="row">
-	<div class="col-3">   
+	<div class="col-sm-3 col-12">   
   		<input id="moduleId" value="91a81b68-0ece-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
   		<@templateWithoutParams "role-autocomplete"/>
   	</div>

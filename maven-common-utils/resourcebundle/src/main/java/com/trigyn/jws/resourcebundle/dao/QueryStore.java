@@ -29,6 +29,6 @@ public final class QueryStore {
 			+ " WHERE lg.languageId = :languageId AND lg.isDeleted = :isDeleted ";
 
 	public static final String	SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE					= " INSERT IGNORE INTO jq_resource_bundle VALUES "
-			+ "(:resourceBundleKey, :languageId, :text)";
+			+ "(:resourceBundleKey, :languageId, :text, :isCustomUpdated)";
 
 }

@@ -222,18 +222,14 @@
         $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
      	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
      }
-    let authenticationType;
-     <#list systemProperties as key, value>
-            <#if key.propertyName == "authentication-type">
-                authenticationType = JSON.stringify(${value});
-            </#if>
-        </#list>
+    let authenticationType = "${authenticationType!''}";
+     
     if(authenticationType == 4) {
         $("#forcePasswordChange").prop("disabled",true);
 		$("#forcePasswordChange").prop("checked",false);
     }
     var verificationType = "${verificationType!''}";
-    if(authenticationType == 2 && verificationType == "0") {
+    if(authenticationType == 2 && (verificationType == "0" || verificationType == "2")) {
         $("#forcePasswordChange").prop("disabled",true);
 		$("#forcePasswordChange").prop("checked",false);
 		$("#isActive").prop("checked",true);

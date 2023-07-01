@@ -62,6 +62,7 @@ public class JwsRoleMasterModulesAssociationVO implements Serializable {
 		masterModuleAssociation.setRoleId(jwsRoleMasterModulesAssociationVO.getRoleId());
 		masterModuleAssociation.setModuleId(jwsRoleMasterModulesAssociationVO.getModuleId());
 		masterModuleAssociation.setIsActive(jwsRoleMasterModulesAssociationVO.getIsActive());
+		masterModuleAssociation.setRoleTypeId(2);
 
 		return masterModuleAssociation;
 	}

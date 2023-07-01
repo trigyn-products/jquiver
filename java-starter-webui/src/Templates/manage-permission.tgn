@@ -5,10 +5,12 @@
 </head>
 <div class="container">
     <div class="topband">
-         <#outputformat "HTML">
+         
         <h2 class="title-cls-name float-left"> ${messageSource.getMessage('jws.managepermissions')} </h2>
+       
+       
         <div class="float-right">
-            <select class="typeSelectDropDown" id="typeRole" onchange="handleEntityRole()">
+            <select class="typeSelectDropDown" id="typeRole" onchange="changeType()">
                 <#if roles ??>
                     <#list roles as role>
                         <option value="${role?api.getRoleId()}">${role?api.getRoleName()}</option>
@@ -18,8 +20,18 @@
             <span onclick="backToPreviousPage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span>
-                 </#outputformat>
+                
         </div>
+          
+           <div class="pull-right">
+        ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>               
+            </select>
+           </div>
+          
+
         <div class="clearfix"></div>
     </div>
     <div id="divManageEntityRoleGrid"></div>
@@ -30,21 +42,23 @@ document.title = "Manage Permissions";
 contextPath = "${contextPath}";
 
 $(function () {
-   <#outputformat "HTML">
+
     let roleName = $("#typeRole option:selected").text();
 	let roleId = $("#typeRole").val();
-		
+    $("#typeSelect").each(function () {
+        $(this).val($(this).find("option[selected]").val());
+    });
     let inputField = "<input type='button' class='cm-select-btn btn btn-primary whitetext' name='"+roleName+"' attr='"+roleId+"'  value='Select All' onclick='checkAllBoxes(this);' > <input type='button' class='cm-select-btn btn btn-secondary whitetext' name='"+roleName+"' attr='"+roleId+"'  value='Deselect All' onclick='checkAllBoxes(this);' >"
 	let colM = [
 		 { title: "${messageSource.getMessage('jws.moduleName')}", align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
         filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
-        { title: "${messageSource.getMessage('jws.entityname')}", align: "center", dataIndx: "entityName", align: "left", halign: "center",
+        { title: "${messageSource.getMessage('jws.entityname')}", align: "center", dataIndx: "entityname", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
-        { title: "Permission", minwidth: 200, render:addCheckBox, align: "center",  dataIndx: "is_active", halign: "center", attr:"role_id", 
+        { title: "${messageSource.getMessage('jws.permission')}", minwidth: 200, render:addCheckBox, align: "center",  dataIndx: "is_active", halign: "center", attr:"role_id", 
          filter: {type: inputField}}
  
 	];
-    </#outputformat>
+   
 	let dataModel = {
 	   	url: contextPath+"/cf/pq-grid-data",
     };
@@ -55,7 +69,7 @@ $(function () {
       freezeCols: 2,
       dataModel: dataModel
   });
-  handleEntityRole();
+ changeType();
 });
 
 function backToPreviousPage() {
@@ -80,8 +94,8 @@ $.ajax({
 });
 
 function moduleTypes(uiObject) {
-    let cellValue = uiObject.rowData.moduleId;
-	let moduleTypeName = moduleType.find(el => el[cellValue])[cellValue];
+    let cellValue = uiObject.rowData.moduleid;
+	let moduleTypeName = moduleType.find(el => el[cellValue])[cellValue];	
     return moduleTypeName;
 }
 
@@ -156,25 +170,25 @@ function saveEntity(entityDataList) {
     });
 }
 
-function changeRole() {    
-    if($("#divManageEntityRoleGrid")[0] != undefined) {
-        handleEntityRole();
+ function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"manageEntityRoleGrid"
+            ,"cr_role_id":"str_"+$("#typeRole").val()}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"manageEntityRoleGrid"
+                    ,"cr_role_type_id":typeCondition,
+                    "cr_role_id":"str_"+$("#typeRole").val()
+                    }
+        }
+        
+        let gridNew = $( "#divManageEntityRoleGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
     }
-}
-
-function handleEntityRole() {
-	if($("#divManageEntityRoleGrid")[0] != undefined) {
-		let roleName = $("#typeRole option:selected").text();
-		let gridNew = $("#divManageEntityRoleGrid").pqGrid();
-		if(gridNew != undefined) {
-
-            let postData = {gridId:"manageEntityRoleGrid","cr_role_id":"str_"+$("#typeRole").val()}
-            gridNew.pqGrid( "option", "dataModel.postData", postData);
-			gridNew.pqGrid("refreshDataAndView");
-		
-		}
-	}    
-}
 
 //Add logic to save form data
 function saveModuleData (thisObj){

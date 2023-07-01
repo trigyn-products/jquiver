@@ -95,7 +95,7 @@
 			value="${messageSource.getMessage('jws.importall')}" type="button" onclick="importAll()">
 
 		<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
-		    <input type="hidden" id="entityName" name="entityName">
+		    <input type="hidden" id="cmvEntityName" name="cmvEntityName">
 		    <input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
 			<input type="hidden" id="moduleType" name="moduleType">

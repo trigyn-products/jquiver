@@ -1,6 +1,13 @@
 <head>
 <script src="${(contextPath)!''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+
+<style>
+.tableoverflow{
+    width:100%;
+    overflow:auto;
+}
+    </style>
 </head>
 
 
@@ -28,7 +35,7 @@
 	<form method="post" name="createMasterForm" id="createMasterForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
-			<div class="col-4">
+			<div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
 	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
 	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
@@ -36,7 +43,7 @@
 	        		</select>
            		</div>
 			</div>
-			<div class="col-4">
+			<div class="col-sm-4 col-12">
                 <div class="col-inner-form full-form-fields">
                     <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.selecttable')}</label>
                     <div class="search-cover">
@@ -46,7 +53,7 @@
                     <input type="hidden" id="selectTable" name="selectTable">
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.moduleName')}</label>
 					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control">
@@ -63,15 +70,17 @@
                 <h4>${messageSource.getMessage('jws.Listing')}</h4><hr/>
             </div>
             <div class="col-12 margin-t-b">
+                <div class="tableoverflow">
                 <table id="listingDetailsTable">
                     <tr>
-                       <th><input type="checkbox" id="chkSelectAllIncludedListing" onclick="selectAllIncludedListing()"/> <label style="cursor:pointer" for="chkSelectAllIncludedListing">${messageSource.getMessage('jws.included')}</label></th>
-                        <th><input type="checkbox" id="chkSelectAllHiddenListing" onclick="selectAllHiddenListing()"/> <label for="chkSelectAllHiddenListing" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></th>
-                        <th>${messageSource.getMessage('jws.columnName')}</th>
-                        <th>${messageSource.getMessage('jws.resourcekey')}</th>
-                        <th>${messageSource.getMessage('jws.displayName')}</th>
+                       <th> <span class="col-min-width"><input type="checkbox" id="chkSelectAllIncludedListing" onclick="selectAllIncludedListing()"/> <label style="cursor:pointer" for="chkSelectAllIncludedListing">${messageSource.getMessage('jws.included')}</label></span></th>
+                        <th> <span class="col-min-width"><input type="checkbox" id="chkSelectAllHiddenListing" onclick="selectAllHiddenListing()"/> <label for="chkSelectAllHiddenListing" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></span></th>
+                        <th> <span class="col-min-width">${messageSource.getMessage('jws.columnName')}</span></th>
+                        <th> <span class="col-min-width">${messageSource.getMessage('jws.resourcekey')}</span></th>
+                        <th> <span class="col-min-width">${messageSource.getMessage('jws.displayName')}</span></th>
                     </tr>
                 </table>
+                </div>
             </div>
             
         </div>
@@ -82,7 +91,7 @@
         <div class="cm-menutable">
 
         <div class="row" style="display:none">
-            <div class="col-3">
+            <div class="col-sm-3 col-12">
 				<div class="col-inner-form full-form-fields">
 					<label for="showInMenu" style="white-space:nowrap">
                         ${messageSource.getMessage('jws.showInMenu')}
@@ -101,7 +110,7 @@
 		</div>
         <div class="row">
         
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 
 				<div class="col-inner-form full-form-fields">
 					<label for="menuDisplayName" style="white-space:nowrap">Menu Display Name</label>
@@ -109,7 +118,7 @@
 				</div>
 			</div>
 
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
 					<label for="moduleURL" style="white-space:nowrap">					
 					${messageSource.getMessage("jws.moduleUrl")}					
@@ -124,7 +133,7 @@
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
 				</div>
 			</div>
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
 					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
 					<select id="parentModuleName" name="parentModuleName" class="form-control">
@@ -146,20 +155,22 @@
                 <h4>${messageSource.getMessage('jws.form')}</h4><hr/>
             </div>
             <div class="col-12 margin-t-b">
+                 <div class="tableoverflow">
                 <table id="formDetailsTable">
                     <tr>
-                        <th><input type="checkbox" id="chkSelectAllIncludedForm" onclick="selectAllIncludedForm()"/> <label style="cursor:pointer" for="chkSelectAllIncludedForm">${messageSource.getMessage('jws.included')}</label></th>
-                        <th><input type="checkbox" id="chkSelectAllHiddenForm" onclick="selectAllHiddenForm()"/> <label for="chkSelectAllHiddenForm" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></th>
-                        <th>${messageSource.getMessage('jws.columnName')}</th>
-                        <th>${messageSource.getMessage('jws.resourcekey')}</th>
-                        <th>${messageSource.getMessage('jws.displayName')}</th>
+                         <th> <span class="col-min-width"><input type="checkbox" id="chkSelectAllIncludedForm" onclick="selectAllIncludedForm()"/> <label style="cursor:pointer" for="chkSelectAllIncludedForm">${messageSource.getMessage('jws.included')}</label></span></th>
+                         <th> <span class="col-min-width"><input type="checkbox" id="chkSelectAllHiddenForm" onclick="selectAllHiddenForm()"/> <label for="chkSelectAllHiddenForm" style="cursor:pointer">${messageSource.getMessage('jws.hidden')}</label></span></th>
+                        <th> <span class="col-min-width">${messageSource.getMessage('jws.columnName')}</span></th>
+                         <th> <span class="col-min-width">${messageSource.getMessage('jws.resourcekey')}</span></th>
+                         <th> <span class="col-min-width">${messageSource.getMessage('jws.displayName')}</span></th>
                     </tr>
                 </table>
+                 </div>
             
             </div>
         </div>
         <div class="row">
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 
 				<div class="col-inner-form full-form-fields">
 					<label for="formDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.moduleName")}</label>
@@ -167,7 +178,7 @@
 				</div>
 			</div>
 
-            <div class="col-4">
+            <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
 					<label for="formModuleURL" style="white-space:nowrap">${messageSource.getMessage('jws.form')} ${messageSource.getMessage("jws.moduleUrl")}</label>
 					
@@ -188,7 +199,7 @@
 	<input id="isDev" type="hidden" value="${(isDev)?c!''}">
 	
 	<div class="row">
-		<div class="col-4"> 
+		<div class="col-sm-4 col-12"> 
 			<@templateWithoutParams "role-autocomplete"/>
 		</div>
 	</div> 
