@@ -17,10 +17,8 @@ public class SenderXMLVO {
 	@XmlElement(name = "mailid")
 	private String	mailId			= null;
 	
-	/** Added replyTo tag*/
 	@XmlElement(name = "replyTo")
 	private String	replyTo			= null;
-	/**Ends here*/
 
 	public String getName() {
 		return name;
@@ -37,7 +35,6 @@ public class SenderXMLVO {
 	public void setMailId(String mailId) {
 		this.mailId = mailId;
 	}
-	/**Added getter and setter for replyTo*/
 	public String getReplyTo() {
 		return replyTo;
 	}
@@ -45,7 +42,6 @@ public class SenderXMLVO {
 	public void setReplyTo(String replyTo) {
 		this.replyTo = replyTo;
 	}
-	/**Ends Here*/
 	
 	@Override
 	public int hashCode() {

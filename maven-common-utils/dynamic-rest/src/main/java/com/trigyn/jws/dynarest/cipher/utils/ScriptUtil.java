@@ -893,9 +893,11 @@ public class ScriptUtil {
 	}
 
 	/**
-	 * @param a_strRestXML
-	 * @return
-	 * @apiNote : For Internal API calls, URL should be prefix with JAPI not API
+	 * 
+	 * For Internal API calls, URL should be prefix with JAPI not API
+	 * 
+	 * @param a_strRestXML the a_strRestXML to set
+	 * @return customResponseEntity to be returned
 	 */
 	public final Object executeRESTCall(String a_strRestXML) {
 		// return custom rest response object
@@ -991,8 +993,8 @@ public class ScriptUtil {
 	 * will last for one month
 	 * 
 	 * @author Bibhusrita.Nayak
-	 * @param a_requestParams
-	 * @return 
+	 * @param a_requestParams the a_requestParams to be set
+	 * @return returnObject to return map of respose
 	 */
 	public final Map<String, String> addNotification(Map<String, Object> a_requestParams) {
 		Map<String, String> returnObject = new HashMap<String, String>();

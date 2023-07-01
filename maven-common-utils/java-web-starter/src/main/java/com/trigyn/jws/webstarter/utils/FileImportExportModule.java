@@ -29,7 +29,7 @@ import com.trigyn.jws.webstarter.vo.FileUploadImportEntity;
 import com.trigyn.jws.webstarter.xml.FileUploadXMLVO;
 
 /**
- * @summary This class is used for File Import Export
+ * This class is used for File Import Export
  * @author Shrinath.Halki
  */
 @Component("fileImportExportModule")

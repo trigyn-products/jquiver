@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author: aNIRUDDHA
- * @since: 10-Jun-2023
+ * @author aNIRUDDHA
+ * @since 10-Jun-2023
  */
 
 public class InstanceVersion {

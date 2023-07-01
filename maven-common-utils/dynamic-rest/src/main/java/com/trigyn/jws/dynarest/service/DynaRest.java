@@ -36,6 +36,8 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get dynamic rest details
+	 * 
+	 * @return map return dynarest details
 	 *
 	 */
 	public Map<String, Object> getDynamicRestDetails(HttpServletRequest a_httpServletRequest, 
@@ -50,6 +52,8 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get default template listing
+	 * 
+	 * @return map return response map
 	 *
 	 */
 	public Map<String, Object> defaultTemplates(HttpServletRequest a_httpServletRequest, 
@@ -62,6 +66,7 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get value from property master
+	 * @return map return property string
 	 *
 	 */
 	public String getPropertyValueFromPropertyMaster(HttpServletRequest a_httpServletRequest, 
@@ -79,6 +84,7 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get translation from resource bundle
+	 * @return map return map of translation
 	 *
 	 */
 	public Map<String, Object> getTranslationByKey(HttpServletRequest a_httpServletRequest, 
@@ -98,6 +104,7 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get template content by name and process template content
+	 * @return map return template
 	 *
 	 */
 	public String getTemplate(HttpServletRequest a_httpServletRequest, Map<String, FileInfo> files, 

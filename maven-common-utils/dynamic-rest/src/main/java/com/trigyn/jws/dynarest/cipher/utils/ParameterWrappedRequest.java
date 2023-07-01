@@ -17,8 +17,8 @@ public class ParameterWrappedRequest extends HttpServletRequestWrapper {
 	 * request object without prematurely reading parameters from the original
 	 * request.
 	 * 
-	 * @param request
-	 * @param additionalParams
+	 * @param request the request to set
+	 * @param additionalParams the additionalParams map to set
 	 */
 	public ParameterWrappedRequest(final HttpServletRequest request, final Map<String, String[]> additionalParams) {
 		super(request);

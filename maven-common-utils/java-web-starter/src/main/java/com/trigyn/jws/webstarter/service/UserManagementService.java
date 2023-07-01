@@ -777,11 +777,14 @@ public class UserManagementService {
 
 		return masterModulesVO;
 	}
-	/** @author Bibhusrita.Nayak
-	 * 
-	 * @param entityRoles
-	 * @return
+	/** 
 	 * Added for getting the TypeSelect whether Custom or System of all Modules.
+	 * 
+	 * @author Bibhusrita.Nayak
+	 * 
+	 * @param entityRoles is the list of entity role object.
+	 * @return integer value to get roleTypeId
+	 * 
 	 */
 	public Integer getRoleTypeID(JwsEntityRoleVO entityRoles) {
 
