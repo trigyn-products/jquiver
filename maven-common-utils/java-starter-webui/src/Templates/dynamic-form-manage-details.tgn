@@ -1,0 +1,319 @@
+<head>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+	<div class="row topband">
+		<div class="col-4">
+			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content>
+			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editdynamicform')}</h2> 
+	        <#else>
+	            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.adddynamicform')}</h2> 
+	        </#if>
+	    </div>
+        
+       	<div class="col-8">
+	        <#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content>
+	        <#assign ufAttributes = {
+	            "entityType": "Form Builder",
+	            "entityId": "formId",
+	            "entityName": "formName"
+	        }>
+	        <@templateWithParams "user-favorite-template" ufAttributes />
+	        </#if>
+	     </div>
+        
+		<div class="clearfix"></div>                         
+	</div>
+                              
+    <form id="dynamicform" method="post" >
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+		<div class="row">
+            
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<span class="asteriskmark">*</span>
+					<label for="formName" >${messageSource.getMessage('jws.formname')} </label>
+					<input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
+					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" onkeyup="addEdit.hideErrorMessage();" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
+				</div>
+			</div>
+                                                                                                                        
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+					<label for="formDescription" >${messageSource.getMessage('jws.formdescription')} </label>
+					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
+				</div>
+			</div>
+			<div class="col-6">
+				<div class="col-inner-form full-form-fields">
+	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')}</label>
+	        		<select id="selectQueryType" name="selectQueryType" class="form-control" onchange="updateSelectDataSource(this)">
+	        			<option id="selectQueryType" value="1" selected>${messageSource.getMessage('jws.selectquery')}</option>
+	        			<option id="jsQueryType" value="2">${messageSource.getMessage('jws.javaScriptContent')}</option>
+	        		</select>
+           			</div>
+			</div>
+
+			<div id="divDatasourceId" class="col-6">
+				<div class="col-inner-form full-form-fields">
+	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
+	        			<option id="defaultConnection" value="" data-product-name="default">${messageSource.getMessage('jws.defaultconnection')}</option>
+	        		</select>
+           		</div>
+			</div>
+                
+            <#if !(dynamicForm?api.getFormId())?? && !(dynamicForm?api.getFormId())?has_content>   
+	            <div id="tableAutocompleteDiv" class="col-6">
+					<div class="col-inner-form full-form-fields">
+	                    <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.selecttable')}</label>
+	                    <div class="search-cover">
+	                        <input class="form-control" id="tableAutocomplete" type="text">
+	                    	<i class="fa fa-search" aria-hidden="true"></i>
+	                    </div>
+	                	<input type="hidden" id="formTemplate" name="formTemplate">
+	            	</div>
+				</div>
+			</#if>
+				
+
+		</div>
+        
+   <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+				
+				 <a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+                </a>
+
+                <div class="collapse" id="tipscolpase">
+                    <div class="tipscontent">
+                    <span id="contextParameter">${messageSource.getMessage('jws.javascriptsuggestions')}</span>
+                        <h3 class="titlename method-sign-info">
+                        <label for="ftlParameter">${messageSource.getMessage('jws.sqlorftlparamandmacros')} :</label>   </h3>
+                        <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+                    </div>
+                </div>        
+         
+         
+         </div>	
+               
+        <div class="row margin-t-b">  
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.selectscript')}</h3>
+            	<div class="html_script">
+					<div class="grp_lblinp">
+	                	<div  class="ace-editor-container" id="sqlContainer">
+	                		<div class= "ace-editor"  id="sqlEditor">
+	                		</div>
+	                	</div>
+                	</div>
+                </div>
+			</div>
+		</div>                  
+                              
+        <div class="row margin-t-b">
+			<div class="col-12">
+				<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.htmlScript')}</h3>
+				<div class="html_script">
+					<div class="grp_lblinp">
+						<div id="htmlContainer" class="ace-editor-container">
+							<div id="htmlEditor" class="ace-editor">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+               
+             
+        <div class="row margin-t-b">  
+			<div class="col-12">
+				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.save/update')}</h3>
+				<div id = "saveScriptContainer"></div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-3">        
+   				<input id="moduleId" value="30a0ff61-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+     	 		<@templateWithoutParams "role-autocomplete"/>
+     	 	</div>
+     	 </div>
+     	  
+		<div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropup custom-grp-btn">
+						<div id="savedAction">
+							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
+						</div>
+						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+						<div class="dropdown-menu action-cls"  id="actionDiv">
+							<ul class="dropdownmenu">
+								<li id="saveAndCreateNew" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+								<li id="saveAndEdit" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+							</ul>
+						</div> 
+					</div>
+					<span onclick="addEdit.backToDynamicFormListing();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+					</span> 
+				</div>
+                
+			</div>
+		</div>
+
+            <input type="hidden" name="formSelectQuery" id="formSelectQuery">
+            <input type="hidden" name="formBody" id="formBody">
+            <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
+            <input type="hidden" name="formSaveQuery" id="formSaveQuery">                     
+        </form>
+    </div>
+
+    <input type="hidden" id="dataSourceId" value="${(dynamicForm.datasourceId)!''}"> 
+  	<textarea id="sqlContent" style="display: none">
+    	${(dynamicForm?api.getFormSelectQuery())!""}
+	</textarea>
+	
+	<textarea id="saveSqlContent" style="display: none">
+    	${(dynamicForm?api.getFormSaveQuery())!""}
+	</textarea>
+<script>
+	document.title = "Manage Dynamic Form Details";
+  
+	contextPath = "${(contextPath)!''}";
+	let dashletSQLEditor;
+	let dashletHTMLEditor;
+	let dashletSAVESQLEditor;
+	let dashletSQLEditors = [];
+	let formQueryIds = [];
+	let initialFormData;
+	let tableAutocomplete;
+	let monacoSugg;
+    let suggestionArray;
+    let jsSuggestionArray;
+    let jsSugg;
+    let selectQueryType;
+	
+	const addEdit = new AddEditDynamicForm();
+    /*For Updating Monaco Suggestions*/
+    selectQueryType = document.getElementById("selectQueryType").value;
+    monacoSugg = '${(suggestions)!""}';
+    suggestionArray = JSON.parse(monacoSugg);
+    jsSugg = '${(JSsuggestions)!""}';
+    jsSuggestionArray = JSON.parse(jsSugg);
+    <#outputformat "HTML">
+    let formName = "${(dynamicForm?api.getFormName())!''}";
+	let formId = "${(dynamicForm?api.getFormId())!''}";
+    
+    formName = $.trim(formName);
+     </#outputformat>
+  	$(function () {
+         
+  		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
+  		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2") {
+  		 	$("#dataSource").val(null);
+			$("#dataSource").closest('div').hide();
+  		 }
+	    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+		
+		savedAction("dynamic-form-manage-details", formId);
+	    hideShowActionButtons();
+	    
+	     <#if !(dynamicForm.formId)?? && !(dynamicForm.formId)?has_content>
+	    	getAllDatasource(0);
+	    	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+	        multiselect.setSelectedObject(defaultAdminRole);
+	    	tableAutocomplete = $("#tableAutocomplete").autocomplete({
+		        autocompleteId: "table-autocomplete",
+		        prefetch : true,
+		        render: function(item) {
+		            var renderStr ="";
+		            if(item.emptyMsg == undefined || item.emptyMsg === ""){
+		                renderStr = "<p>"+item.tableName+"</p>";
+		            }else{
+		                renderStr = item.emptyMsg;    
+		            }                                
+		            return renderStr;
+		        },
+		        additionalParamaters: {},
+		        requestParameters: {
+		        	dbProductName: $("#dataSource").find(":selected").data("product-name"),
+		        },
+		        extractText: function(item) {
+		            return item.tableName;
+		        },
+		        select: function(item) {
+		            let dbProductID = $("#dataSource").find(":selected").val();
+					let dbProductName = $("#dataSource").find(":selected").data("product-name");
+		            $("#tableAutocomplete").blur();
+		            $("#selectTable").val(item.tableName);
+		            loadTableTemplate(item.tableName, dbProductID, dbProductName);
+		        },     
+		    });
+		<#else>
+			getAllDatasource(1);
+			$("#formName").prop("disabled", true);
+            
+	    </#if>
+        
+  	});
+
+	function updateSelectDataSource(element) {
+		let selectedOptionVal = $(element).val();
+		if(selectedOptionVal === "2"){
+			$("#dataSource").val(null);
+			$("#divDatasourceId").hide();
+			$("#selectTable").val(null);
+			$("#tableAutocompleteDiv").hide();
+		}else{
+			$("#divDatasourceId").show();
+			$("#tableAutocompleteDiv").show();
+           }
+        /*Called for Updating Monaco Suggestions on change of SelectQueryType*/
+         updateMonacoSugg(element);
+    }
+    /*Written for Updating Monaco Suggestions on change of SelectQueryType*/
+    function updateMonacoSugg(element) {
+         let selectedOptionVal = $(element).val();
+         selectQueryType = document.getElementById("selectQueryType").value;
+         if(selectedOptionVal == "1"){
+            monacoSugg = '${(suggestions)!""}';
+            suggestionArray = JSON.parse(monacoSugg);
+        }else  if(selectedOptionVal == "2" ){
+            jsSugg = '${(JSsuggestions)!""}';
+            jsSuggestionArray = JSON.parse(jsSugg);
+        }      
+    }
+
+	function loadTableTemplate(tableName, dbProductID, dbProductName){
+    	$.ajax({
+        	type: "POST",
+        	url: contextPath+"/cf/dfte",
+         	data: {
+            	tableName: tableName,
+				dbProductID: dbProductID,
+				dbProductName: dbProductName
+          	},
+          	success: function(data) {
+  		    	dashletHTMLEditor.setValue(data["form-template"].trim());
+  		    	dashletSAVESQLEditor.setValue(data["save-template"].trim());
+  		    	dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
+          	}
+        });
+	}
+   
+    
+</script>

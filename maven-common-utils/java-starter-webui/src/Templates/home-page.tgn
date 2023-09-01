@@ -1,0 +1,499 @@
+<head>
+<link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+ <!-- 
+    below two lines are for custom implementation. The CSS & JS can be modified from 
+    template management module.
+ -->
+<link rel="stylesheet" href="${contextPath}/view/custom-style-css" />
+<script src="${contextPath}/view/custom-js"></script>
+
+<title><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></title> 
+
+ </head>
+
+<body>
+ 		<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
+		<!-- <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a> -->
+ 		
+ 		
+ 		
+ 		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/">
+	 		<#if messageSource.getMessage("jws.projectName") != "JQuiver">
+	 			<@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+	 		<#else>
+	 			<img src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png">
+	 		</#if> 		
+ 		</a> 
+
+         <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
+         <div class="hamburgermenu" onclick="homePageFn.toggleNavigation()">
+           <div class="icon"></div>
+        </div>
+		</#if>
+        
+        <ul class="navbar-nav px-3 float-right">
+			<li class="nav-item text-nowrap">
+				<div class="row margin-r-5 profile-tray">
+					<ul>
+						<li class="multilang_block">
+                            <span class="multilingicon">
+                                <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png">	</span>					
+					       <select class="multilingselectbox" id="languageOptions" onchange="changeLanguage()">
+					        </select>
+                            </span>
+						</li>
+
+                        
+
+
+            			<li class="notificationblock">                          
+
+            				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
+                                 <i class="fa fa-bell" aria-hidden="true"></i> </a>
+                              <input id="viewNotificationBtn" onclick="loadNotificationView()" class="btn btn-secondary" name="viewNotificationBtn" value="0" type="button">                      
+                        	
+						</li>
+                        <li>
+            				<a class="nav-link " href="${(contextPath)!''}/view/jqhm" title="<@resourceBundleWithDefault 'jws.helpManual' 'Help Manual'/>" target="_blank">
+							<i class="fa fa-question-circle" aria-hidden="true"></i>
+							</a>
+						</li>
+            			<#if loggedInUserName?? && loggedInUserName != "anonymous">
+                        	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
+                            <li>
+                            	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
+                            		<i class="fa fa-sign-out" aria-hidden="true"></i>
+                            	</a>
+                            </li>
+                        <#elseif loggedInUserName?? && loggedInUserName == "anonymous" && isAuthEnabled?c == "true" >
+                        	<li>
+                        		<a class="nav-link signout-icon" href="${(contextPath)!''}/cf/login" title="<@resourceBundleWithDefault 'jws.login' 'Login'/>">
+                        			<img src="${(contextPath)!''}/webjars/1.0/images/login.png" class="login-img-cls">
+                        		</a>
+                        	</li>
+            			</#if>
+        			</ul>
+                  </div>
+             </li>
+          </ul>
+	</nav>
+
+<div class="container-fluid ">
+		<div class="row">
+			<nav id="mySidenav" class=" bg-dark sidenav sidebar">
+				<div class="nav-inside">
+					<input class="form-control form-control-dark w-100" id="searchInput" type="text" placeholder="Search" aria-label="Search" onkeyup="homePageFn.menuSearchFilter(event)">
+					<span id="menuSearchClear" onclick="homePageFn.clearMenuSearch()" class="menu-clear-txt">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </span>
+					<ul id="menuUL" class="nav flex-column customnav">
+						<#if moduleDetailsVOList??>
+							<#list moduleDetailsVOList as moduleDetailsVO>
+								<#assign openTarget="" />
+								<#assign targetBlank=moduleDetailsVO?api.getOpenInNewTab()!"">
+
+									<#if targetBlank?has_content && targetBlank==1>
+										<#assign openTarget="_blank" />
+									</#if>
+
+									<#if moduleDetailsVO?api.getTargetLookupId()?has_content &&
+										moduleDetailsVO?api.getTargetLookupId()==7 &&
+										moduleDetailsVO?api.getTargetTypeId()?has_content>
+										<#assign json_obj=moduleDetailsVO?api.getRequestParamJson()!"">
+											<input type="hidden" id="${moduleDetailsVO?api.getModuleId()!''}" name="${moduleDetailsVO?api.getModuleId()!''}" value='${json_obj!""}' />
+							</#if>
+											<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+												(moduleDetailsVO?api.getSubModuleCount()) gte 1) ||
+												moduleDetailsVO?api.getTargetLookupId()==6>
+
+												<#if moduleDetailsVO?api.getTargetLookupId()==6>
+													<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+														(moduleDetailsVO?api.getSubModuleCount()) gte 1)>
+														<#if targetBlank?has_content && targetBlank==1>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																<a class="nav-link clickable panel-collapsed"
+																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																</a>
+																<#else>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																<a class="nav-link clickable panel-collapsed">${moduleDetailsVO?api.getModuleName()!''}
+																</a>
+														</#if>
+														<#else>
+															<#if targetBlank?has_content && targetBlank==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<a class="nav-link clickable panel-collapsed"
+																		target="${openTarget}"
+																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																	</a>
+																	<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<a class="nav-link clickable panel-collapsed"
+																		target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																	</a>
+															</#if>
+													</#if>
+													<#else>
+														<#if ((moduleDetailsVO?api.getSubModuleCount())?? &&
+															(moduleDetailsVO?api.getSubModuleCount()) gte 1)>
+															<#if targetBlank?has_content && targetBlank==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																	<div class="dr-menu" style="display:flex;">
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link drclickmenu"
+																			style="width:100%;" target="${openTarget}"
+																			onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																		</a>
+																		<a class=" nav-link clickable panel-collapsed"
+																			style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;" ">                                         
+                                     </a>
+                                    </div>
+                                    <#else>
+                                        <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
+																			<div class="dr-menu" style="display:flex;">
+																				<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																					class="nav-link drclickmenu"
+																					style="width:100%;"
+																					target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																				</a>
+																				<a class=" nav-link clickable panel-collapsed"
+																					style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;" ">                                         
+                                     </a>
+                                    </div>
+                                     </#if>
+                                   <#else>
+                                   <#if targetBlank?has_content && targetBlank == 1>
+                                   <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >    
+                                   <div class=" dr-menu" style="display:flex;">
+																					<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																						class="nav-link drclickmenu"
+																						style="width:100%;"
+																						target="${openTarget}"
+																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
+																					</a>
+																					<a class=" nav-link clickable panel-collapsed"
+																						style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">
+																					</a>
+																			</div>
+																			<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
+																	<div class="dr-menu" style="display:flex;">
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link drclickmenu"
+																			style="width:100%;"
+																			target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
+																		</a>
+																		<a class=" nav-link clickable panel-collapsed"
+																			style="position: absolute;    right: 0px; width: 30px; top: 0px;height:38px;">
+																		</a>
+																	</div>
+															</#if>
+														</#if>
+												</#if>
+
+												<div class="collapse collapsein">
+
+													<ul class="subcategory">
+														<#list moduleDetailsVOList as moduleDetailsVOChild>
+															<#if (moduleDetailsVOChild?api.getParentModuleId())?? &&
+																(moduleDetailsVOChild?api.getParentModuleId())==(moduleDetailsVO?api.getModuleId())>
+
+																<#assign openTargetChild="" />
+																<#assign
+																	targetBlankChild=moduleDetailsVOChild?api.getOpenInNewTab()!"">
+
+																	<#if targetBlankChild?has_content &&
+																		targetBlankChild==1>
+																		<#assign openTargetChild="_blank" />
+																	</#if>
+
+																	<#if moduleDetailsVO?api.getTargetLookupId()?has_content
+																		&& moduleDetailsVO?api.getTargetLookupId()==7 &&
+																		moduleDetailsVO?api.getTargetTypeId()?has_content>
+																		<#if targetBlankChild?has_content &&
+																			targetBlankChild==1>
+																			<li class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
+																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																					class="nav-link"
+																					target="${openTargetChild}"
+																					onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																			</li>
+																			<#else>
+																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
+																				<a onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																					class="nav-link"
+																					target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																				</li>
+																		</#if>
+																		<#else>
+																			<#if targetBlankChild?has_content &&
+																				targetBlankChild==1>
+																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
+																					<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																						class="nav-link"
+																						target="${openTargetChild}"
+																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																				</li>
+																				<#else>
+																					<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}"> 
+																						<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																							class="nav-link"
+																							target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
+																					</li>
+																			</#if>
+																	</#if>
+
+															</#if>
+														</#list>
+													</ul>
+												</div>
+												</li>
+												<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
+                                                    <#assign openTargetFile="" />
+								                            <#assign targetBlankFile=moduleDetailsVO?api.getOpenInNewTab()!"">
+
+									                   <#if targetBlankFile?has_content && targetBlankFile==1>
+										                  <#assign openTargetFile="_blank" />
+									                    </#if>
+													<#if moduleDetailsVO?api.getTargetLookupId()?has_content &&
+														moduleDetailsVO?api.getTargetLookupId()==7 &&
+														moduleDetailsVO?api.getTargetTypeId()?has_content>
+                                                        
+														<#if targetBlankFile?has_content && targetBlankFile==1>
+															<li
+																class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																<span data-feather="file"></span>
+																<a href="#"
+																	onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+																	class="nav-link" target="openTargetFile"
+																	onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+															</li>
+															<#else>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																	<span data-feather="file"></span>
+																	<a href="#"
+																		onclick="submitTargetUrl('${moduleDetailsVO?api.getModuleUrl()}','${moduleDetailsVO?api.getTargetTypeId()}','${moduleDetailsVO?api.getModuleId()!''}')"
+												
+																		class="nav-link"
+																		target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
+																</li>
+														</#if>
+														<#else>
+															<#if targetBlankFile?has_content && targetBlankFile==1>
+																<li
+																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																	<span data-feather="file"></span>
+																	<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																		class="nav-link" target="${openTargetFile}"
+																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
+																</li>
+																<#else>
+																	<li
+																		class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
+																		<span data-feather="file"></span>
+																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																			class="nav-link"
+																			target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
+																	</li>
+															</#if>
+													</#if>
+											</#if>
+
+							</#list>
+						</#if>
+				</div>
+			</nav>
+	<main id="main" class="main-container">
+		
+		<!--  Theme Color and dark mode code -->
+        <div class="themecolorpalette">
+                <div class="colorpalette-hover">
+                    <img src="${(contextPath)!''}/webjars/1.0/images/color_colors_themes.png">
+                </div>
+                <div class="colorpalette">
+                    <button type="button" class="bluecolortheme colorbtn" onclick="themColor('005da3')">Blue</button>
+                    <button type="button" class="orangecolortheme colorbtn" onclick="themColor('FF9800')">Orange</button>
+                    <button type="button" class="purplecolortheme colorbtn" onclick="themColor('7B1FA2')">purple</button>
+                    <button type="button" class="greencolortheme colorbtn" onclick="themColor('008a00')">Green</button>
+                    <button type="button" class="browncolortheme colorbtn" onclick="themColor('ba4b4b')">Brown</button>
+                    
+					<div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">
+		                <span class="darkmodeon"><i class="fa fa-sun-o"></i></span>
+		                <span class="darkmodeoff"><i class="fa fa-moon-o"></i></span>
+		            </div>
+                </div>
+        </div>
+	
+		<div id="bodyDiv">
+			<#include "template-body">
+		</div>
+	</main>
+	
+	</div>
+</div>
+<div class="clearfix"></div>
+<footer class="page-footer font-small blue pt-4">
+    <div class="footer bg-dark">
+        <div class="text-center">
+            <small>${messageSource.getMessage('jws.copywright©')} <a href = "https://www.trigyn.com/" target="_blank">${messageSource.getMessage('jws.trigyntech')}</a></small>
+            <small class="float-right"><a href = "${(contextPath)!''}/view/team" target="_blank">${(jquiverVersion)!'1.0.0'}</a></small>
+        </div>
+    </div>
+</footer>
+<div id="divNotificationView"></div>
+</body>
+
+
+<script>
+// Get the root element
+var r = document.querySelector(':root');
+
+// Create a function for setting a variable value
+
+function themColor(color){    
+     r.style.setProperty('--bluebgcolor', '#'+color);
+     setCookie("theme", color, 100);
+}
+
+function onDarkMode(){
+	if($("#darkmodebtn").hasClass("darkonoff") == false){
+		setCookie("darkMode", "true", 100);
+	}else{
+		setCookie("darkMode", "false", 100);
+	}
+	$("body").toggleClass("darktheme");
+	$("#darkmodebtn").toggleClass("darkonoff");
+}
+    
+
+    
+	const contextPathHome = "${contextPath}";
+	contextPath = "${contextPath}";
+	let homePageFn;
+	let jqJSDateFormat;
+	
+ 
+
+	$(function() {
+ 	     if(getCookie("theme").trim().length > 0){			
+			 themColor(getCookie("theme"));
+		 }  else{
+			 themColor('005DA3'); 
+		 }  
+ 	  
+ 	  if(getCookie("darkMode").trim() === "true"){
+		$("body").addClass("darktheme");
+		$("#darkmodebtn").addClass("darkonoff");
+	  }
+	  	    
+      let selectedLanguageId = getCookie("locale");
+      if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
+        setCookie("locale", "en_US", 1);
+        location.reload();
+
+      }
+		  
+	  const homePage = new HomePage();
+	  homePageFn = homePage.fn;
+	  homePageFn.collapsableMenu();
+	  disableInputSuggestion();
+	  
+	  <#list systemProperties as key, value>
+        <#if key.propertyName == "jws-date-format">
+            jqJSDateFormat = JSON.stringify(${value});
+        	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
+      	</#if>
+      </#list>
+      
+      <#if loggedInUserName?? && loggedInUserName != "anonymous">
+      retrieveProfilePic();
+      </#if>
+      
+      getLanguageOption(); 
+      
+      	$("#bodyDiv").click(function(){
+      		if($(".hamburgermenu").hasClass("open")){
+      			homePageFn.toggleNavigation();
+      		}
+		}); 
+     
+	});
+
+    function retrieveProfilePic() {
+        $.ajax({
+			type : "GET",
+	    	contentType : "application/json",
+			url : contextPathHome+"/api/retrieveProfilePic",
+            success: function(data) {
+				if(data == undefined || data.length==0) {
+	                if(document.getElementById("iClass") != null) {
+						document.getElementById("iClass").style.display = "inline";
+	                }
+                    if(document.getElementById("profileImg") != null) {
+	                    document.getElementById("profileImg").style.display = "none";
+                    }
+				} else {
+	                $("#profileImg").attr("src", contextPathHome + "/cf/files/" + data[0].fileUploadId);
+					document.getElementById("iClass").style.display = "none";
+	                document.getElementById("profileImg").style.display = "inline";
+	            }
+			},
+			error: function(data) {
+				showMessage("Error occurred while retrieving details", "error");
+			},
+		});
+    }
+
+	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId) {
+		let requestParams = $("#"+requestParamsModuleId).val();
+		let form = $('<form id="targetUrlForm"' + requestParamsModuleId + '" action="' + moduleURL + '" method="' + actionType + '">');
+		if(requestParams != ''){
+			var jsonRequestParams = $.parseJSON(requestParams);
+			$.each(jsonRequestParams, function(key, val) {	 
+				form.append('<input name="' + key + '" value="' + val + '" type="hidden" />');
+			});
+		}
+		form.append('</form>');
+		$(form).attr('target', '_blank');
+		$('body').append(form);
+		$(form).submit();
+		$("#targetUrlForm"+requestParamsModuleId).remove();
+        /*Written for hiding menu when navigating to external URL in new tab*/
+       if($(".hamburgermenu").hasClass("open") && homePageFn){
+        	homePageFn.toggleNavigation();
+        }
+    }
+     //Added for setting Default Cookie 
+     window.onload = function() { cookieConsent(); };
+
+</script>
+<#assign gaAttributes = {
+"enableGoogleAnalytics": enableGoogleAnalytics,
+"googleAnalyticsKey": googleAnalyticsKey,
+"entityType": entityType,
+"entityName": entityName
+}>
+<@templateWithParams "google-analytics-template" gaAttributes />

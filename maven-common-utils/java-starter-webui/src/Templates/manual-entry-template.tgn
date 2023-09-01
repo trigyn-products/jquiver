@@ -1,0 +1,192 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 id="title" class="title-cls-name float-left"></h2> 
+        <div class="float-right">
+            <form id="viewManualForm" action="${(contextPath)!''}/cf/manual" method="get" target="_blank" class="margin-r-5 pull-left">
+  				<input id="manualTypeView" name="mt" type="hidden" value="${mt}">
+  				<button type="submit" class="btn btn-primary"> ${messageSource.getMessage('jws.viewmanual')} </button>
+			</form>
+            <form id="addEditRecords" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+                <input type="hidden" name="formId" value="8a80cb81754acbf701754ae3d1c2000c"/>
+                <input type="hidden" name="manualentryid" id="manualentryid" value=""/>
+                <input type="hidden" name="manualType" id="manualType" value="${mt}"/>
+                <input type="hidden" name="manualName" id="manualName" value="${mn}">
+                <input type="hidden" name="sequence" id="sequence" value=""/>
+                <button type="submit" class="btn btn-primary"> ${messageSource.getMessage('jws.createentry')} </button>
+            </form>
+
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+    <div id="manual-entryGrid"></div>
+
+    <div id="snackbar"></div>
+    <div id="deleteEntry"></div>
+
+</div>
+
+<script>
+    contextPath = "${(contextPath)!''}";
+    let manualType = "${mt}";
+    let dateFormat = "${(dbDateFormat)!''}";
+    let manualObject = new HelpManual();
+    let nextEntrySequence = 0;
+    let manualdata;
+    $(function () {
+       	
+        let formElement = $("#addEditRecords")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("8a80cb81754acbf701754ae3d1c2000c", formDataJson);
+        manualdata = manualObject.getManualDetails();
+        $("#title").html(manualdata.find(manual => {return manual["manual_id"] == manualType})["name"]);
+        getMaxSequenceNumber();
+        
+        //Add all columns that needs to be displayed in the grid
+        let colM = [
+            { title: "Entry name", width: 130, dataIndx: "entry_name", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            { title: "Sort index", width: 130, dataIndx: "sort_index", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            { title: "Last updated by", width: 130, dataIndx: "last_updated_by", align: "left", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            { title: "Last Updated Timestamp", width: 130, dataIndx: "last_modified_on", align: "left", align: "left", halign: "center" , render: lastUpdatedDate },
+            { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+        ];
+    	
+    	let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "last_modified_on",
+            sortDir: "down"
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#manual-entryGrid").grid({
+          gridId: "manual-entryGrid",
+          colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_manual_type" : "str_"+manualType},
+          loadCallback: function(event, ui) {
+              $("#sequence").val(nextEntrySequence);
+          }
+        });
+        
+
+    });
+    
+    //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function manageRecord(uiObject) {
+        let rowIndx = uiObject.rowIndx;
+        return '<span id="'+rowIndx+'" onclick=\'createNew("'+uiObject.rowData.manual_entry_id+'")\' class= "grid_action_icons"><i class="fa fa-pencil"></i></span><span id="'+rowIndx+'" onclick="deleteEntry(this)" class= "grid_action_icons"><i class="fa fa-trash"></i></span>'.toString();
+    }
+    
+    function lastUpdatedDate(uiObject) {
+        let lastModifiedDate = new Date(uiObject.rowData.last_modified_on);
+        let lastModifiedDatea = Calendar.printDate(lastModifiedDate,"%d-%m-%Y %H:%M:%S %p");
+        return lastModifiedDatea;
+    }
+    
+    //Add logic to navigate to create new record
+    function createNew(element) {
+        $("#manualentryid").val(element);
+        $("#addEditRecords").submit();
+    }
+    
+    function getMaxSequenceNumber(){
+        $.ajax({
+		    type : "POST",
+			async : true,
+			url : contextPath+"/api/manual-entry-sequence",
+			data : {
+			 	manualType : manualType
+			},success: function(maxManualSequence){
+				if(maxManualSequence !== ""){ 
+                	nextEntrySequence = parseInt(maxManualSequence) + 1;
+                }
+            },error: function(data, errorMessage, xhr){
+                showMessage("Error occurred while fetching max sequence", "error")
+            },
+	    });
+    }
+	
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath+"/cf/help";
+    }
+
+    function deleteEntry(element) {
+        let rowData = $( "#manual-entryGrid" ).pqGrid("getRowData", {rowIndx: element.id});
+        let manualEntryId = rowData.manual_entry_id;
+        let manualTypeId  = rowData.manual_type;
+        let sortIndex = rowData.sort_index;
+        let entryName = rowData.entry_name;
+		$("#deleteEntry").html("Are you sure you want to delete " + entryName + "?");
+		$("#deleteEntry").dialog({
+		bgiframe		 : true,
+		autoOpen		 : true, 
+		modal		 : true,
+		closeOnEscape : true,
+		draggable	 : true,
+		resizable	 : false,
+		title		 : "Delete",
+		buttons		 : [{
+				text		:"Cancel",
+				click	: function() { 
+					$(this).dialog("close");
+				},
+			},
+			{
+				text		: "Delete",
+				click	: function(){
+					$(this).dialog("close");
+					deleteManualEntry(manualEntryId, manualTypeId, sortIndex);
+					let gridNew = $("#manual-entryGrid").pqGrid();
+        			gridNew.pqGrid("refreshDataAndView" ); 
+				}
+           	},
+       ],	
+		open		: function( event, ui ) {
+			 $(".ui-dialog-titlebar")
+		   	    .find("button").removeClass("ui-dialog-titlebar-close").addClass("ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close")
+		       .prepend("<span class='ui-button-icon ui-icon ui-icon-closethick'></span>").append("<span class='ui-button-icon-space'></span>");
+       		}	
+	   });
+    }
+    
+    function deleteManualEntry(manualEntryId, manualTypeId, sortIndex){ 
+    	$.ajax({
+		    type : "DELETE",
+			async : true,
+			url : contextPath+"/cf/dme",
+			data : {
+				mt : manualTypeId,
+			 	mei : manualEntryId,
+			 	si: sortIndex,
+			},success: function(data){
+                showMessage("Manual entry deleted successfully", "success");
+            },error: function(data, errorMessage, xhr){
+                showMessage("Error occurred while deleting manual entry", "error");
+            },
+	    });
+    }
+</script>

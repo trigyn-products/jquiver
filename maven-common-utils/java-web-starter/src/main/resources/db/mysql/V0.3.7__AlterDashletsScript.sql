@@ -1,0 +1,1 @@
+ALTER TABLE `jq_dashlet` MODIFY dashlet_title VARCHAR(500) NOT NULL;

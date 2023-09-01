@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="https://www.w3.org/TR/html401/">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">  </DocumentProperties>  
+    <Styles>
+      <Style ss:ID="Default" ss:Name="Normal">
+        <Alignment ss:Vertical="Bottom"/>
+        <Borders/>
+        <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+        <Interior/>
+        <NumberFormat/>
+        <Protection/>
+     </Style>
+     <Style ss:ID="headers">
+        <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        </Borders>
+        <Font ss:FontName="Arial" ss:Color="#800000" ss:Bold="1"/>
+        <Interior  ss:Pattern="Solid"/>
+   </Style>
+   <Style ss:ID="s17">
+        <Alignment ss:Horizontal="Left" ss:Vertical="Bottom" ss:WrapText="1"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+        </Borders>
+        <Font ss:FontName="Arial" ss:Color="#000000"/>
+        <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+   </Style>
+</Styles>
+<Worksheet ss:Name="Resource Bundle">
+   
+  <Table >    
+        <Column  ss:AutoFitWidth="0" ss:Width="300"/>
+        <Column  ss:AutoFitWidth="0" ss:Width="300"/>
+        <Column ss:AutoFitWidth="0" ss:Width="300"/>
+        <Column  ss:AutoFitWidth="0" ss:Width="300"/>
+        <Row>
+        <Cell  ss:StyleID="headers"><Data ss:Type="String">Key</Data></Cell>
+            <#list languages as lang>
+                <Cell  ss:StyleID="headers"><Data ss:Type="String">${lang.localeId}-${lang.languageName}</Data></Cell>
+            </#list>
+        
+    </Row>
+
+        <#list resourceBundlelist?keys as key>
+    <Row>
+            <Cell ss:StyleID="s17"><Data ss:Type="String">${key}</Data></Cell>
+                <#list resourceBundlelist?api.get(key) as rb>
+                <#list languages as lang>
+                    <#if lang.languageId==rb.languageId>
+                    <Cell ss:StyleID="s17"><Data ss:Type="String">${rb.resourceBundleText}</Data></Cell>
+                    </#if>
+                </#list>
+            </#list>
+    </Row>
+        </#list>
+   </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Zoom>90</Zoom>
+   <Selected/>
+   <FreezePanes/>
+   <FrozenNoSplit/>
+   <SplitHorizontal>1</SplitHorizontal>
+   <TopRowBottomPane>1</TopRowBottomPane>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+</Worksheet>
+</Workbook>

@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	<parent>
+		<groupId>com.trigyn</groupId>
+		<artifactId>commonutils</artifactId>
+		<version>1.5.2-SNAPSHOT</version>
+	</parent>
+	<packaging>jar</packaging>
 	<groupId>com.trigyn</groupId>
-	<artifactId>jquiver</artifactId>
-	<version>1.22-SNAPSHOT</version>
-	<packaging>maven-archetype</packaging>
-	<description>JQuiver</description>
-	<name>jquiver</name>
-	<url>https://github.com/trigyn-products/jquiver/tree/master/jquiver-archetype</url>
+	<artifactId>webui</artifactId>
+	<version>1.0.4-SNAPSHOT</version>
+	<name>webui</name>
+	<description>WebUI for Java starter project.</description>
+	<url>https://github.com/trigyn-products/java-web-starter</url>
 
 	<organization>
 		<url>https://trigyn.com</url>
@@ -18,7 +24,7 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
@@ -29,11 +35,11 @@
 	<licenses>
 		<license>
 			<name>MIT License</name>
-			<url>https://github.com/trigyn-products/jquiver/blob/master/LICENSE</url>
+			<url>https://github.com/trigyn-products/java-web-starter/blob/master/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<developers>
 		<developer>
 			<name>Aniruddha DuttaChowdhury</name>
@@ -42,12 +48,12 @@
 			<organization>Trigyn</organization>
 			<organizationUrl>https://www.trigyn.com</organizationUrl>
 			<roles>
-		        <role>architect</role>
-		        <role>developer</role>
-	      	</roles>
-	      	<properties>
-        		<picUrl>https://jquiver.io/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0</picUrl>
-      		</properties>	      	
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<properties>
+				<picUrl>https://jquiver.io/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0</picUrl>
+			</properties>
 			<timezone>UTC+05:30</timezone>
 		</developer>
 		<developer>
@@ -57,43 +63,62 @@
 			<organization>Trigyn</organization>
 			<organizationUrl>https://www.trigyn.com</organizationUrl>
 			<roles>
-		        <role>developer</role>
-	      	</roles>
-	      	<properties>
-        		<picUrl>https://jquiver.io/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4</picUrl>
-      		</properties>
+				<role>developer</role>
+			</roles>
+			<properties>
+				<picUrl>https://jquiver.io/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4</picUrl>
+			</properties>
 			<timezone>UTC+05:30</timezone>
 		</developer>
 	</developers>
 
 	<scm>
-		<connection>scm:git:https://github.com/trigyn-products/jquiver.git</connection>
-		<developerConnection>scm:git:git@github.com:trigyn-products/jquiver.git</developerConnection>
-		<url>https://github.com/trigyn-products/jquiver/tree/master/jquiver-archetype</url>
-		<tag>jquiver-1.2</tag>
+		<connection>scm:git:https://github.com/trigyn-products/jws-webui.git</connection>
+		<developerConnection>scm:git:git@github.com:trigyn-products/jws-webui.git</developerConnection>
+		<url>https://github.com/trigyn-products/java-web-starter</url>
+		<tag>webui-1.0</tag>
 	</scm>
 
-		<build>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.archetype</groupId>
-				<artifactId>archetype-packaging</artifactId>
-				<version>3.1.2</version>
-			</extension>
-		</extensions>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<destinationDir>${project.build.outputDirectory}</destinationDir>
+		<webui-version>${project.version}</webui-version>
+	</properties>
 
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-archetype-plugin</artifactId>
-					<version>3.1.2</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+	<dependencies>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.5.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>write-project-properties</goal>
+						</goals>
+						<configuration>
+							<outputFile>${project.build.outputDirectory}/webui-pom.properties</outputFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+				<mainClass>com.trigyn.JQuiverApplication</mainClass>
+				</configuration>
 				<dependencies>
 					<!-- The following enables the "thin jar" deployment option. -->
 					<dependency>
@@ -101,33 +126,34 @@
 						<artifactId>spring-boot-thin-layout</artifactId>
 						<version>1.0.11.RELEASE</version>
 					</dependency>
+					
 				</dependencies>
 			</plugin>
-			 <plugin>
+			<plugin>
 				<groupId>org.springframework.boot.experimental</groupId>
 				<artifactId>spring-boot-thin-maven-plugin</artifactId>
 				<version>1.0.25.RELEASE</version>
 				<executions>
 					<execution>
-					<!-- Download the dependencies at build time -->
-					<id>resolve</id>
-					<goals>
-						<goal>resolve</goal>
-					</goals>
-					<inherited>false</inherited>
+						<!-- Download the dependencies at build time -->
+						<id>resolve</id>
+						<goals>
+							<goal>resolve</goal>
+						</goals>
+						<inherited>false</inherited>
 					</execution>
 				</executions>
 			</plugin>
-            		<plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<executions>
 					<execution>
-							<id>default-deploy</id>
-							<phase>deploy</phase>
-							<goals>
-								<goal>deploy</goal>
-							</goals>
+						<id>default-deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -173,9 +199,15 @@
 					</execution>
 				</executions>
 			</plugin>
-        </plugins>
-    </build>
-<profiles>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src</directory>
+				<targetPath>${destinationDir}/webui</targetPath>
+			</resource>
+		</resources>
+	</build>
+	<profiles>
 		<!-- GPG Signature on release -->
 		<profile>
 			<id>release-sign-artifacts</id>
@@ -201,6 +233,7 @@
 							</execution>
 						</executions>
 					</plugin>
+
 				</plugins>
 			</build>
 		</profile>

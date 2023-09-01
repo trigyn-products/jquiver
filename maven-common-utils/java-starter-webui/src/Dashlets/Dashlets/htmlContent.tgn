@@ -1,0 +1,66 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>   
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+</head>
+
+<div class="container">
+		
+		<div id="divdDashletMasterGrid"></div>
+
+		<div id="snackbar"></div>
+</div>
+
+
+<form action="${(contextPath)!''}/cf/aedl" method="POST" id="formDMRedirect">
+	<input type="hidden" id="dashletId" name="dashlet-id">
+</form>
+<script>
+	$(function () {
+		var colM = [
+			{ title: "${messageSource.getMessage('jws.dashletName')}", width: 130, dataIndx: "dashletName" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.dashletTitle')}", width: 130, dataIndx: "dashletTitle", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.createdBy')}", width: 100, dataIndx: "createdBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.createdDate')}", width: 100, dataIndx: "createdDate", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, dataIndx: "updatedBy" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.updatedDate')}", width: 100, dataIndx: "updatedDate" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.status')}", width: 160, dataIndx: "status" , align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain",  listeners: ["change"] }},
+			{ title: "${messageSource.getMessage('jws.action')}", width: 50, dataIndx: "action", align: "center", halign: "center", render: editDashlet}
+		];
+	
+		var grid = $("#divdDashletMasterGrid").grid({
+			gridId: "dashletMasterListingGrid",
+			colModel: colM
+		});
+	});
+	function editDashlet(uiObject) {
+		const dashletId = uiObject.rowData.dashletId;
+		return '<span id="'+dashletId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil"  title="${messageSource.getMessage("jws.editDashlet")}"></i></span>'.toString();
+	}
+	
+	function submitForm(element) {
+	  $("#dashletId").val(element.id);
+	  $("#formDMRedirect").submit();
+	}
+	
+	function backToDashboarListing() {
+		location.href = contextPath+"/cf/dbm";
+	}
+</script>

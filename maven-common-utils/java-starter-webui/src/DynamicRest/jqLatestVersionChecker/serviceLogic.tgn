@@ -1,0 +1,56 @@
+var System = Java.type("java.lang.System");
+
+
+function versionChecker(requestDetails, daoResults) {
+    var output =  daoResults["webXMLresult"];
+    var mavenAppTs = JSON.parse(output.responseBody)["response"]["docs"][0]["timestamp"];
+    var mavenVersion = JSON.parse(output.responseBody)["response"]["docs"][0]["latestVersion"];
+    
+    var localVersion = (jq_getDBResult("Select property_value from jq_property_master where property_name = 'last-deployed-version'", null, null).data_list[0]["property_value"]);
+
+   
+    if(localVersion.indexOf("-SNAPSHOT") > -1){
+        localVersion = localVersion.substring(0, localVersion.indexOf("-"));
+    }
+
+    var localTime = new Date().getTime();
+
+    var message = '';
+    var difference = 0;
+    var daysDifference= 0;
+
+    var compareVersion = (mavenVersion.localeCompare(localVersion, undefined, { numeric: true, sensitivity: 'base' }));
+
+
+    if(compareVersion == -1){
+        message = "You are currently using a Snapshot version, it is a build in progress";
+    }
+    else if(compareVersion == 1){
+        difference = localTime - mavenAppTs;
+        daysDifference = Math.floor(difference/1000/60/60/24);
+         message = "You are currently using an outdated version, it has been "+daysDifference+" days. Please update soon!";
+    }
+    else if(compareVersion == 0){
+        message = "You are using the latest version";
+    }
+    
+   
+    var versionCheck = {
+        "compareVersion" : compareVersion,
+        "daysdiff" : daysDifference
+    }
+    var user = requestDetails["fullName"]
+    var contextPathHome = requestDetails["contextPath"];
+
+    var versionCheckCounter = jq_getDBResult("SELECT COUNT(*) AS cnt FROM jq_property_master WHERE property_name = 'versionCheck'", null, null).data_list[0]["cnt"];
+   
+    if(versionCheckCounter < 1){ 
+           jq_updateDBQuery("Insert into jq_property_master (property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments) Values (UUID(), 'system', 'system', 'versionCheck',  '"+ JSON.stringify(versionCheck)+ "' ,'0', NOW(),'"+user+"','1.051','version check scheduler has been triggered')",null, null);
+    }else {
+           jq_updateDBQuery("UPDATE jq_property_master SET property_value = '"+JSON.stringify(versionCheck)+"' WHERE property_name = 'versionCheck'", null, null);
+    }
+     
+    return message;
+
+}
+versionChecker(requestDetails, daoResults);

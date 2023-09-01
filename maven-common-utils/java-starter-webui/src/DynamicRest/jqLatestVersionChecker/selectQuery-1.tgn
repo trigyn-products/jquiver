@@ -1,0 +1,16 @@
+<rest>
+    <url>https://search.maven.org/solrsearch/select</url> <!-- mandatory -->
+    <type>GET</type> <!-- mandatory -->
+    <request>
+        <query-param> <!-- optional-->
+            <parameter>
+                <name>q</name>
+                <value>g:"com.trigyn"+AND+a:"java-web-starter"</value>
+            </parameter>
+            <parameter>
+                <name>wt</name>
+                <value>json</value>
+            </parameter>
+        </query-param>
+    </request>
+</rest>

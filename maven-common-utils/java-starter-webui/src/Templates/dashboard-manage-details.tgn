@@ -1,0 +1,257 @@
+<head>
+<script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+
+<style>
+.flexpoerpty{
+    display:flex;
+ flex-direction: column;
+}
+
+.flexpoerpty label{
+    font-weight:bold;
+}
+
+    </style>
+</head> 
+
+<div class="container"> 
+
+		<div class="row topband">
+			<div class="col-4">
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
+		        <#else>
+		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashboard")}</h2>  
+		        </#if>
+		   	</div>
+	    
+	        <div class="col-8">   
+				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
+			        <#assign ufAttributes = {
+			            "entityType": "Dashboard",
+			            "entityId": "dashboardId",
+			            "entityName": "dashboardName"
+			        }>
+		        <@templateWithParams "user-favorite-template" ufAttributes />
+	     		</#if> 
+			</div>
+			
+		<div class="clearfix"></div>		
+	</div>
+
+	<div id="formDiv">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	 
+	 	<div class="row">
+			<input type="hidden" id = "dashboardId" name = "dashboardId" value = "${(dashboard?api.getDashboardId())!''}">
+			
+			<div class="col-4" id="dashboardTypeDiv">
+				<div class="col-inner-form full-form-fields">
+					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
+					<input type="text"  id = "dashboardName" name = "dashboardName" value = "${(dashboard?api.getDashboardName())!''}" maxlength="100" class="form-control">
+				</div>
+			</div>
+		
+         <div class="col-4">
+            <div class="col-inner-form full-form-fields">
+				<label for="associatedDashlets" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.dashlets')}</label>
+				<div class="search-cover">
+					<input class="form-control" id="associatedDashlets" type="text">
+					<i class="fa fa-search" aria-hidden="true"></i>
+            	</div>
+ 			</div>
+ </div>		
+ <div class="clearfix"></div>
+    		
+             <div class="col-4">
+				<div id="draagableDiv" class="flexpoerpty">
+                    <label class="pull-left" for="isDraggableId">${messageSource.getMessage("jws.draggableDashboard")}</label>
+                    <label class="newswitch">
+                      <input type="checkbox" id="isDraggableId"  name="isDraggable" value="${(dashboard?api.getIsDraggable())!''}" ${(dashboard?api.getIsDraggable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeDraggableValue();">
+                       <span class="slider round"></span>
+                    </label>
+				</div>	
+				<div class="clearfix"></div>
+		    </div>
+            </div>	
+            <div class="col-3 "> 
+				<div class="flexpoerpty" id="exportableDiv" hidden>
+
+                    <label for="isExportableId">${messageSource.getMessage("jws.exportableDashboard")}</label>
+	                    <label class="newswitch">
+                     <input type="checkbox" id="isExportableId" name="isExportable" value="${(dashboard?api.getIsExportable())!''}" ${(dashboard?api.getIsExportable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeExportableValue();" >
+                       <span class="slider round"></span>
+                    </label>
+      			</div>
+	
+          </div>
+
+          <div class="row margin-t-b">
+		<div class="col-12">
+			<h3 class="titlename"><span class="asteriskmark">*</span>Dashboard Header</h3>
+			<div class="html_script">
+				<div class="grp_lblinp">
+					<div id="htmlContainer" class="ace-editor-container">
+						<div id="htmlEditor" class="ace-editor"></div>
+					</div>
+				</div>
+			</div>
+		</div> 
+	</div>
+  			
+    		<div class="clearfix"></div>
+     	</div>
+	 
+	 	<div class="row">
+			<div class="col-3">   
+	 			<input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
+    			<@templateWithoutParams "role-autocomplete"/>
+    		</div>
+    	</div>	
+		
+		<div class="row margin-t-10">
+			<div class="col-12">
+				<div class="float-right">
+					<div class="btn-group dropup custom-grp-btn">
+			            <div id="savedAction">
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		                </div>
+		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		            	<div class="dropdown-menu action-cls"  id="actionDiv">
+		                	<ul class="dropdownmenu">
+		                    	<li id="saveAndCreateNew" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    </ul>
+	                    </div> 
+	                </div>
+					<span onclick="addEditDashboardFn.backToDashboardListingPage();">
+						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+					</span> 
+				</div>
+			</div>
+		</div>		
+       
+	<textarea id="htmlContent" style="display: none">
+        ${(dashboard?api.getDashboardBody())!''}
+	</textarea>
+    
+</div>
+
+<script>
+	document.title = "Manage Dashboard Module Details";
+	contextPath = "${(contextPath)!''}";
+    var dashboardHTMLEditor;
+	const dashboardId = "${(dashboard?api.getDashboardId())!''}"; 
+	let addEditDashboardFn;
+	
+	$(function() {
+		  
+	  	const addEditDashboard = new AddEditDashboard(dashboardId,dashboardHTMLEditor);
+	  	addEditDashboardFn = addEditDashboard.fn;
+	  	addEditDashboardFn.loadDashboardPage();
+	  
+		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
+			getSavedEntity();
+		}
+	  	savedAction("dashboard-manage-details", dashboardId);
+	  	hideShowActionButtons();
+        if(dashboardId == ""){
+            $("#htmlContent").text('<script>\n$(function() {\n\t//console.log( "ready!" );\n});\n<\/\script>\n<style>\n</style>');
+        }
+        
+	});
+
+  var dashletMultiselect;
+$(function () {	
+	dashletMultiselect = $("#associatedDashlets").multiselect({
+        autocompleteId: "DashletAutocomplete",
+        enableClearAll: true,
+        additionalParamaters: {dashboardId: $('#dashboardId').val()},
+        render: function(item) {
+        	var renderStr ="";  
+            /**Written for preventing Cross Site Scripting*/
+            var dashletName = item.dashletName;
+            var encodedName = $('<div />').text(dashletName).html();     
+            /**Ends Here*/
+        	if(item.emptyMsg == undefined || item.emptyMsg === "")
+    		{
+        		renderStr = "<p>"+encodedName+"</p>";
+    		}
+        	else
+    		{
+        		renderStr = item.emptyMsg;	
+    		}	    				        
+            return renderStr;
+        },
+        extractText: function(item) {
+            return item.dashletName;
+        },
+        selectedItemRender: function(item){
+            return item.dashletName;
+        },
+        select: function(item) {
+            $("#associatedDashlets").blur();
+            dashletMultiselect.setSelectedObject(item);
+        },     
+    }
+    );
+     dashletMultiselect.createElementForMultiselect =  function(context, multiselectId, itemData) {
+        if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+        	context.selectedObject.push(itemData);
+            const element = context.options.selectedItemRender(itemData);
+            /**Written for preventing Cross Site Scripting*/
+            var dashletName = element;
+            encodedName = $('<div />').text(dashletName).html();
+            /**Ends Here*/
+            let listsdashElement = $("<li id='"+itemData.dashletId+"_li'></li>");
+            let liId = listsdashElement[0].id;
+        
+           if(liId == itemData.dashletId+"_li"){     
+                let itemSpan = $('<span class="ml-selected-item" id="'+itemData.dashletId+'">'+encodedName+'</span>');
+                listsdashElement.append(itemSpan);
+                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+                deleteItemcontext.data("selected-item", itemData);
+                listsdashElement.append(deleteItemcontext);
+                $("#associatedDashlets_selectedOptions_ul").append(listsdashElement);
+                var deleteItem = function(event) {
+                    var data = $(deleteItemcontext).data("selected-item");
+                    context.deleteItem.apply(deleteItemcontext, [multiselectId, data, context]);                        
+                };
+                    deleteItemcontext.click(deleteItem);  
+                let noOfElements = parseInt($("#"+multiselectId+"_count > span").text());
+                $("#"+multiselectId+"_count > span").text(noOfElements+1);
+                $("#"+multiselectId+"_count").removeClass("disable_cls");
+                $("#"+multiselectId+"_count > span" ).css("pointer-events","auto");
+                context.selectedObjects.push(itemData);   
+           } 
+        }else{
+        	showMessage("Data already present in the list", "info")
+        }
+        $(context.element).val("");   
+    }
+
+    dashletMultiselect.setSelectedObject = function (item){ 
+        dashletMultiselect.createElementForMultiselect(this, this.element[0].id, item);
+        	return this.selectedObject;
+    }
+     
+    dashletMultiselect.options.duplicateCheckRule = function(list, obj) {
+        var iCounter;
+        for (iCounter = 0; iCounter < list.length; iCounter++) {
+            if (list[iCounter].dashletId === obj.dashletId) {
+                return true;
+            }
+        }
+        return false;
+       }
+        addEditDashboardFn.getdashboarddashlet();
+	});
+  
+</script>
+<script src="${(contextPath)!''}/webjars/1.0/dashboard/addEditDashboard.js"></script>

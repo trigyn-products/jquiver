@@ -1,0 +1,62 @@
+<script src="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.js"></script>
+<style>
+.dragbox{
+    border:1px solid #ccc;
+}
+
+.panel-body{
+    padding:10px;
+}
+
+.grid-stack-item-content{
+    text-align:left;
+}
+
+.dragbox .panel-body{
+    padding:10px;
+}
+
+.dashboardtitle{
+
+}
+</style>
+<div class="clearfix"></div>
+ <#list DashletDetails as dasletObj>
+<div dashlet-id="${dasletObj.dashletId}" class="grid-stack-item" data-gs-x="${xCord}" data-gs-y="${yCord}" data-gs-width="${width}" data-gs-height="${height}" style="position: absolute;">
+        
+     <div class="panel panel-default
+ <#if isDraggable == 1 >grid-stack-item-content</#if> ">
+   
+        <#if showHeader == 1 >
+        <div class="row heading panel-heading dashlet-header-panel">
+          <div class="dashlet_header_block">
+              <div class="dashlet_title_name">
+                      <span class="float-left"><b>${dasletObj.dashletTitle}</b></span>
+              </div>
+              
+              <div class="dashlet_header_buttons">
+                   <span class="dashlet_common_button" onclick="refreshDashletContent('${dasletObj.dashletId}');">
+                   <i class="fa fa-refresh" aria-hidden="true"></i>
+                 </span>
+              
+                 <span class="dashlet_common_button" onclick="openConfigurationDialog('${dasletObj.dashletId}');">
+                  <i class="fa fa-filter" aria-hidden="true"></i>
+                 </span>
+              </div>
+          </div>
+</div>
+           <div class="panel-body">
+            <div id="dashlet_${dasletObj.dashletId}">
+              ${content}
+            </div>        
+      </div>
+          <#else>
+          <div class="panel-body">
+            <div id="dashlet_${dasletObj.dashletId}">
+              ${content}
+            </div>        
+      </div>
+          </#if>
+</div>
+    </div>
+ </#list>

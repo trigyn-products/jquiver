@@ -1,0 +1,157 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
+
+<style type="text/css">
+.area{
+  width:100%;
+}
+</style>
+</head>
+<div class="container">
+		<div class="topband">
+		<#if (resourceBundleKey)?? && (resourceBundleKey)?has_content>
+		    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editResourceBundle")}</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addResourceBundle")}</h2> 
+        </#if> 
+		<div class="float-right">
+			<span onclick="addEditResourceBundle.backToResourceBundleListing();">
+				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+			</span> 	
+		</div>
+		
+		<div class="clearfix"></div>		
+		</div>
+		
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+		<form id="resourceBundleForm" method="post">
+			<div class="row">
+				<div class="col-12">
+					<div class="col-inner-form full-form-fields">
+						<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>
+						<a class="tipsicon tipslabelright collapsed" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                    </a>
+
+                      <div id="ftlParameterDiv" style="margin-top:10px;">
+                            <div class="collapse tipsdetailsblock" id="tipscolpase" style="margin-bottom :20px">
+                                <div class="tipscontent">     
+                                    <h3 class="titlename method-sign-info">
+                                    <label for="ftlParameter">For FTL : </label>   </h3>
+                                  <span id="ftlParameter" style="font-family: Verdana, sans-serif;">&lt;&commat;resourceBundleWithDefault 'your.key' 'Default Value'/&gt;</span> 
+                                    
+                                    <h3 class="titlename method-sign-info">
+                                    <label for="cs_jscript">For Client Side JavaScript : </label>   </h3>
+                                     <span id="cs_jscript"><pre style="font-family: Verdana, sans-serif; width : 100%">
+                                    <label style="font-style: italic; user-select: none;">	Call the following method in the begining of the page or onpageload with all required keys for this page. Then the resourceBundleDataMap will be populated and you can access it directly :</label>
+                                    <label>     resourceBundleData("your.key1","your.key2","your.key3"); </label>
+                                        <hr><label style="font-style: italic; user-select: none;">  Access your resource keys :</label>
+                                     <label>    resourceBundleDataMap["your.key1"]; </label></pre></span>
+                                    
+                                    <h3 class="titlename method-sign-info">
+                                    <label for="cs_jscript">For Server Side JavaScript : </label>   </h3>
+                                    <span id="cs_jscript" style="font-family: Verdana, sans-serif;">var localText = jq_getDBResult("SELECT rb.* FROM `jq_resource_bundle` rb, `jq_language` l WHERE rb.resource_key='your.key' AND rb.language_id=l.language_id AND l.language_code='" + jq_getCookiesFromRequest("locale").value + "'", null, null).data_list[0].text;</span>
+                                </div>
+                            </div>    
+                     </div>
+
+                     <div class="input-group" style="margin-top:20px;">
+						<input type="text" id="resourceBundleKey" name="resourceBundleKey" class="form-control" maxlength="255" value="${(resourceBundleKey)!''}" disabled="true"/>                
+                            <span id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" onclick="copyToClipboard('resourceBundleKey','clientkeyCopyBtn')"" style="border-radius: 0px 3px 3px 0 !important;" title="Copy"> <i class="fa fa-clipboard" aria-hidden="true" 
+                                    style=" padding-top:3px !important; "></i></span>             
+                            </div>                       
+                            <span onclick="copyJsonData()" class="searchrevision">                       
+               
+						</div>
+						 </div>
+					</div>
+
+			<div class="row">
+				<#list languageVOList as languages>
+					<div class="col-sm-4 col-12">
+						<div class="col-inner-form full-form-fields">
+							<#if (languages.languageId) == 1>
+								<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resource")} </label>
+								<label>${languages.languageName}</label>
+							<#else>
+								<label for="targetPlatform">${messageSource.getMessage("jws.resource")} </label>
+								<label>${languages.languageName}</label>
+							</#if>
+							<div class="txtWrapper">
+							<textarea id="textBx_${languages.languageId}" name="${languages.localeId}" rows="8" class="area">${(resourceBundleVOMap?api.get(languages.languageId).getText())!''}</textarea>
+							<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
+		                    </div>					
+						</div>							  
+					</div>
+				</#list>
+			</div>
+		</form>
+				
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('resource-bundle-manage-details', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="typeOfAction('resource-bundle-manage-details', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfAction('resource-bundle-manage-details', this, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div> 
+                </div>
+				<span onclick="addEditResourceBundle.backToResourceBundleListing();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+	
+
+ </div>
+ <script>
+ 	document.title = "Manage Internationalization Module Details";
+    <#outputformat "HTML">
+	contextPath = "${(contextPath)!''}";
+	let resourceBundleKey = "${(resourceBundleKey)!''}";
+	var resourceBundleFormData = new Array();
+	let addEditResourceBundle;
+	$(function() {
+        $( ".txtWrapper i" ).click(function() {
+            let elem = $(this).prev().get()[0];
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+            
+            $(this).prev().focus();
+        });
+		
+	 	addEditResourceBundle = new AddEditResourceBundle(resourceBundleFormData);
+		addEditResourceBundle.loadAddEditResourceBundlePage();
+		savedAction("resource-bundle-manage-details", resourceBundleKey);
+		hideShowActionButtons();
+	});
+    </#outputformat>
+    
+    function copyToClipboard(textName, btnName) {
+      var copyText = document.getElementById(textName);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+      document.execCommand("copy"); 
+      showMessage("Data copied", "success");
+}
+</script>

@@ -1,0 +1,22 @@
+<#--
+sample JSON below
+[{"key":"1","value":"2023"},{"key":"2","value":"2024"}]
+-->
+
+<div class="col-12 margin-b-10">
+    
+	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+	<select id="${innerTemplateObj.propertyId!''}" class="select form-control" name="${innerTemplateObj.propertyId!''}">
+   
+        <#if innerTemplateObj.propertyValue?? && innerTemplateObj.propertyValue?has_content>
+            <#assign dashletListMap =  innerTemplateObj.propertyValue?eval>
+            <#list dashletListMap as o>
+            <option value="${o.key}"
+            <#if o.key == innerTemplateObj.defaultValue>
+            selected
+            </#if>
+            >${o.value}</option>
+            </#list>
+        </#if>
+    </select>
+</div>

@@ -1,0 +1,407 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+
+<style>
+
+
+.ui-dialog-buttonset button:first-child{
+    color: #fff;
+    background: var(--bluebgcolor);
+    border-color: var(--bluebgcolor);
+    position: relative;
+    overflow: hidden;
+}
+
+
+.ui-dialog{
+    width:450px !important;
+}
+
+.ui-dialog-buttonset button:last-child{
+    color: var(--bluebgcolor) !important;
+    background: var(--white) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
+.ui-dialog-buttonset button:last-child:hover {
+    color: var(--white) !important;
+    background: var(--bluebgcolor) !important;
+
+}
+
+#rejectedDiv{
+margin:15px 0;
+}
+ 
+#rejectedDiv input{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width:100%;
+}
+
+#importDiv{
+margin:15px 0;
+}
+ 
+#importDiv input{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width:100%;
+}
+
+.noteclass{
+    font-weight: normal;
+    color: #000;
+    font-style: italic;
+    font-size: 13px;
+    margin: 6px 0 0 0;
+    text-align: right;
+}
+
+
+
+    </style>
+
+</head>
+
+<div class="container">
+        <div class="topband">
+        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.multilingual')}</h2> 
+        <div class="float-right">
+            <div class="addonbtnblock">
+                        ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()" >   
+                            <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                            <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                            <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                        </select>
+       
+                    <select id="languageOptions" class="spacingclss typeSelectDropDown"  onchange="changeLanguage()">
+                    <#list languageVOList as languageVO>
+                        <#if languageVO??>
+                        <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
+                            <option value="${(languageVO?api.getLocaleId())!''}" selected>${languageVO?api.getLanguageName()}</option>
+                        <#else>
+                            <option value="${(languageVO?api.getLocaleId())!''}">${languageVO?api.getLanguageName()}</option>
+                        </#if>
+                        </#if>
+                    </#list>
+                    </select>        
+
+                
+
+                 <button type='button' onclick="importRB()" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.import')}" style="padding: 8px 10px !important;"><i class="fa fa-download"></i>  
+                  <input type="file" id="my_file" style="display: none;" />                
+                 </button>
+                 <button type='button' onclick="exportGrid();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.export')}" style="padding: 8px 10px !important;"><i class="fa fa-upload"></i>                                   
+                 </button>
+
+                   <button type='button' onclick="submitForm(this)" class="spacingclss btn btn-primary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.addResourceBundle')}</button>
+
+                 <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+            
+               <div id="importDiv" style="display:none"></div>
+               <div id="rejectedDiv" style="display:none"></div>
+
+           
+                
+            </div>
+             
+            
+        
+        </div>
+        
+               <div class="clearfix"></div> 
+        </div>
+        
+        <div id="divdbResourceBundleGrid" class="tablescrollcls"></div>
+<div id="exportFormDiv" style = "display:none"></div>
+</div>
+
+
+<form action="${(contextPath)!''}/cf/aerb" method="POST" id="formRbRedirect">
+	<input type="hidden" id="resource-key" name="resource-key">
+</form>
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="cmvEntityName" name="cmvEntityName" value="jq_resource_bundle">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="resourceBundle">
+	<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/srbv">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/rb">
+</form>
+
+<script>
+	document.title = "Internationalization Module List";
+	contextPath = "${(contextPath)!''}";
+	
+	$(function () {
+		$("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+		let formElement = $("#formRbRedirect")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("resource-bundle-manage-details", formDataJson);
+		
+	    let colM = [
+	        { title: "${messageSource.getMessage('jws.resourceKey')}", width: 130, dataIndx: "resourceKey", align: "left", halign: "center", render: formatResourceKey,
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "Resource Type", width: 130, dataIndx: "resourceType", align: "left", halign: "center",hidden:"true",
+             filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+	        { title: "${messageSource.getMessage('jws.languageName')}", width: 100, dataIndx: "languageName", align: "left", halign: "center", 
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+	        { title: "${messageSource.getMessage('jws.text')}", width: 160, dataIndx: "resourceBundleText", align: "left", halign: "center", render: formatResourceBundleText,
+	        filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+             { title: "${messageSource.getMessage('jws.updatedBy')}", width: 100, align: "center", hidden: false, sortable : true, dataIndx: "updatedBy", align: "left", halign: "center",
+            	filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
+            { title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 100, align: "center", sortable : true, dataIndx: "updatedDate", align: "left", halign: "center", render: formatLastUpdatedDate},
+	        { title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: editDBResource, sortable: false}
+	    ];
+	    
+	    let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "lastUpdatedTs",
+        	sortDir: "up",
+    	};
+	    let grid = $("#divdbResourceBundleGrid").grid({
+	      gridId: "customResourceBundleListingGrid",
+	      colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_resource_type":"str_1"}
+	  	});
+  	});
+  	
+
+    function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"customResourceBundleListingGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"customResourceBundleListingGrid"
+                    ,"cr_resource_type":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#divdbResourceBundleGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.updatedDate;
+        return formatDate(lastUpdatedTs);
+    }
+	function editDBResource(uiObject) {
+		const resourceKey = uiObject.rowData.resourceKey;
+        const updatedDate = uiObject.rowData.lastUpdatedTs;
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement;
+		actionElement = '<span id="'+resourceKey+'" onclick="submitForm(this)" class= "grid_action_icons" title="${messageSource.getMessage('jws.editResourceBundle')}"><i class="fa fa-pencil" title=""></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+resourceKey+'_entity" name="'+resourceKey+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+		return actionElement;
+	}
+
+    /*Written for preventing Cross Site Scripting*/
+     function formatResourceKey(uiObject){   
+        const resourcekey = uiObject.rowData.resourceKey;
+        var encodedKey = $('<div />').text(resourcekey).html();
+        return encodedKey;             
+    }
+    /**Ends Here*/
+    
+     function formatResourceBundleText(uiObject){   
+        const resourceBundleText = uiObject.rowData.resourceBundleText;
+        var encodedKey = $('<div />').text(resourceBundleText).html();
+        return encodedKey;             
+    }
+
+	function submitForm(element) {
+	  $("#resource-key").val(element.id);
+	  $("#formRbRedirect").submit();
+	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+	
+	let selectedLanguageId = getCookie("locale");
+	if(selectedLanguageId !== ""){
+		$("#languageOptions option[value="+selectedLanguageId+"]").prop("selected","selected");
+	}
+  
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
+
+
+  function exportGrid() {
+         var resource_type = $("#typeSelect").val();       
+         var gridParam = $( "#divdbResourceBundleGrid" ).pqGrid( "saveState");
+         $.ajax({
+                url:contextPath+"/cf/erb",
+                type: "POST",                
+    			async: false,
+                data:{"entityStringMap":gridParam,"gridId":"jq_export_resource_budle_view","resource_type":resource_type},
+                success : function(data) {
+    				if(data.startsWith("fail:")){                      
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				} else {
+    					$("#exportFormDiv")
+        				.html(
+        						"<form name='exportForm' method='post' id='exportForm' action='"+contextPath+"/cf/dExport'> "
+        								+ "<input type='hidden' id='filePath' name='filePath' value='"
+        								+ data
+        								+ "'/>"
+        								+ "</form>");
+        				$("#exportForm").submit();
+        				showMessage("Data exported successfully", "success");
+    				}
+    			},
+    		        
+    		    error : function(xhr, error){
+                    	showMessage("Error occurred while exporting", "error");
+    		    },
+    		        	
+    		});
+        }
+        
+    function importRB(){
+        
+	$("#importDiv").html(" <form id='importForm'  enctype='multipart/form-data' ><div><input type='file'  id='inputFile'/> </div><p class='noteclass'>Note: Upload only  Excel'.xml' file up to 2MB file size .</p></form>");
+	$("#importDiv").dialog({
+	bgiframe	: true,
+	autoOpen	: true, 
+	modal		: true,
+	closeOnEscape : true,
+	draggable	: true,
+	resizable	: false,
+	title		: "${messageSource.getMessage('jws.import')}"+" File",
+	position: {
+		my: "center", at: "center"
+	},
+	buttons : [
+		{
+			text		: "${messageSource.getMessage('jws.import')}",
+			click	: function(){
+          var accepted_file_endings = ["xml"];
+          var data= document.getElementById('inputFile');
+                if(data.files.length == 0){
+                    data.focus();
+                    showMessage("Please select a file to be imported", "warn");
+                    return false;
+                } else {
+                    var fileExtn= data.files[0].name.substr((data.files[0].name.lastIndexOf('.') + 1));
+                    var extension = data.files[0].type;
+                    if($.inArray(fileExtn.toLowerCase(),accepted_file_endings) == -1) {
+                        showMessage("Invalid file format  imported.", "error");
+                        data.focus();
+                        return false;
+	  		}
+	    	    var fileSize = Math.round((data.files[0].size / 1024));
+                if (fileSize >= 2*1024) {
+                   showMessage("File too large .", "error");
+                    data.focus();
+                    return false;
+                } 
+                else 
+                {
+                      importResourceBundle();  
+                	$(this).dialog('close');
+           
+               }
+			
+            	
+    	}
+			
+			}
+       	},
+           {
+			text	:"Cancel",
+			click	: function() { 
+				$(this).dialog('close');
+			},
+		}
+   ],	
+   open: function( event, ui ) {
+		 $('.ui-dialog-titlebar')
+	   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+	       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+   		}	
+       });
+	
+    }
+     function importResourceBundle() {        
+        var formData = new FormData();
+        formData.append("filePath", document.getElementById("inputFile").files[0]);
+				 $.ajax({
+                url:contextPath+"/cf/irb",
+                type: "POST", 
+                enctype: 'multipart/form-data',
+		        processData: false,
+		        contentType: false,
+                data:formData,
+                success : function(data) {
+    				if(data.startsWith("fail:")){                      
+    					var errorMessageString = data.substring(5);
+    					showMessage(errorMessageString, "error");
+    				}
+                    if(data.startsWith("rejected:")){                      
+    					var errorMessageString = data.substring(10,data.length-1);
+                        var myarray=errorMessageString.split(",");
+                        
+                         $("#rejectedDiv").html("<textarea rows = '5' id='rejectedArea' style='width:100%;font-weight: bold;' ></textarea>");
+                     
+                         const node =  document.createTextNode("Below Keys are not imported due to invalid Character.   Allowed characters are a-z, A-Z, 0-9, _, -, .,:"+"\n");
+                        
+                         const rejectedArea=document.getElementById("rejectedArea");
+                         //rejectedArea.append(" Please enter valid Resource Key for below keys. Failed Count - ");
+                         rejectedArea.append(node);
+
+                                for(var i = 0; i < myarray.length; i++) {
+                                     rejectedArea.append(i+1+") "+myarray[i].trim()+"\n");
+                              } 
+                       
+                        $("#rejectedDiv").dialog({
+                            title:"Data imported successfully",
+                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); changeType();} } ]
+                          });
+    				} else {
+                      showMessage("Data imported successfully", "success");
+                      changeType();
+    				}
+    			},    		        
+    		    error : function(xhr, error){
+                    	showMessage("Error occurred while importing", "error");
+    		    },
+    		        	
+    		});
+          
+        }
+       
+   
+</script>

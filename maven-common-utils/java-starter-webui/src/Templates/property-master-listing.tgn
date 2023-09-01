@@ -1,0 +1,157 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.applicationConfiguration')}</h2> 
+		<div class="float-right" style="display:flex;">
+			 <form id="addEditMailConfiguration" action="${(contextPath)!''}/cf/df" method="post" style="margin:0px">
+              <div class="addonbtnblock">
+                <input type="hidden" name="formId" value="193d770c-1217-11eb-980f-802bf9ae2eda"/>
+                <input type="hidden" name="ownerId" id="ownerId" value=""/>
+                <input type="hidden" name="ownerType" id="ownerType" value=""/>
+                <input type="hidden" name="propertyName" id="propertyName" value=""/>              
+
+                 <span class="iconscover spacingclss"> 
+                	<button type="submit" title="Mail configuration" class="mailconfigicon addonicons"> </button>
+                 </span>
+              </div>
+            </form>
+            
+			<form id="addEditProperty" action="${(contextPath)!''}/cf/df" method="post"  style="margin:0px">
+                <input type="hidden" name="formId" value="8a80cb8174bf3b360174bfae9ac80006"/>
+                <input type="hidden" name="propertyMasterId" id="propertyMasterId" value=""/>
+                <button type="submit" class="spacingclss btn btn-primary"> ${messageSource.getMessage('jws.addProperty')} </button>
+            </form>
+
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+		</div>
+		
+		<div class="clearfix"></div>		
+	</div>
+		
+	<div id="propertyMasterListingGrid"></div>
+
+</div>
+
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+    <input type="hidden" id="cmvEntityName" name="cmvEntityName" value="jq_property_master">
+	<input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="propertyMaster">
+	<input type="hidden" id="formId" name="formId" value="8a80cb8174bf3b360174bfae9ac80006">
+	<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/pml">
+</form>
+
+
+<script>
+	document.title = "Application Configuration Module List";
+	contextPath = "${(contextPath)!''}";
+	let grid;
+	$(function () {
+	    localStorage.removeItem("imporatableData");
+	    localStorage.removeItem("importedIdList");
+	    let formElement = $("#addEditProperty")[0].outerHTML;
+		let formDataJson = JSON.stringify(formElement);
+		sessionStorage.setItem("property-master-form", formDataJson);
+		
+		let colM = [
+			{ title: "${messageSource.getMessage('jws.ownerid')}", width: 130, dataIndx: "ownerId", align: "left", align: "left", halign: "center",render: formatOwnerId,
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.ownertype')}", width: 130, dataIndx: "ownerType", align: "left", align: "left", halign: "center",render: formatOwnerType,
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.propertyname')}", width: 130, dataIndx: "propertyName", align: "left", align: "left", halign: "center",render: formatpropName,
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.propertyvalue')}", width: 130, dataIndx: "propertyValue", align: "left", align: "left", halign: "center",render: formatpropValue,
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.updatedBy')}", width: 130, dataIndx: "modifiedBy", align: "left", align: "left", halign: "center",
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.lastUpdatedDate')}", width: 130, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center", render: formatLastUpdatedDate,
+				filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+			{ title: "${messageSource.getMessage('jws.modifiedDate')}", hidden: true, dataIndx: "lastModifiedDate", align: "left", align: "left", halign: "center"},
+			{ title: "${messageSource.getMessage('jws.action')}", maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
+		];
+		let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+        	sortIndx: "propertyName",
+        	sortDir: "up",
+    	};	
+		grid = $("#propertyMasterListingGrid").grid({
+	      gridId: "propertyMasterListingGrid",
+	      colModel: colM,
+          dataModel: dataModel
+	  	});
+	
+	});
+	
+	function manageRecord(uiObject) {
+        let propertyMasterId = uiObject.rowData.propertyMasterId;
+		const propertyName = uiObject.rowData.propertyName;		
+		const revisionCount = uiObject.rowData.revisionCount;
+		
+		let actionElement = '<span id="'+propertyMasterId+'" onclick="submitForm(this)" class= "grid_action_icons"><i class="fa fa-pencil" ></i></span>';
+		if(revisionCount > 1){
+			actionElement = actionElement + '<span id="'+propertyMasterId+'_entity" name="'+propertyName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+		return actionElement;
+	}
+	 /*Written for preventing Cross Site Scripting*/
+     function formatOwnerId(uiObject){   
+        const ownerid = uiObject.rowData.ownerId;
+        var encodedId = $('<div />').text(ownerid).html();
+        return encodedId;             
+    }
+     function formatOwnerType(uiObject){   
+        const ownertype = uiObject.rowData.ownerType;
+        var encodedType = $('<div />').text(ownertype).html();
+        return encodedType;             
+    }
+    function formatpropName(uiObject){   
+        const propName = uiObject.rowData.propertyName;
+        var encodedName = $('<div />').text(propName).html();
+        return encodedName;             
+    }
+     function formatpropValue(uiObject){   
+        const propValue = uiObject.rowData.propertyValue;
+        var encodedValue = $('<div />').text(propValue).html();
+        return encodedValue;             
+    }
+    /**Ends Here*/
+	function submitForm(element) {
+		$("#propertyMasterId").val(element.id);
+		$("#addEditProperty").submit();
+	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+      	$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+      	$("#revisionForm").submit();
+    }
+
+	function backToWelcomePage() {
+        location.href = contextPath+"/cf/home";
+	}
+    function formatLastUpdatedDate(uiObject){
+        const lastUpdatedTs = uiObject.rowData.lastModifiedDate;
+        return formatDate(lastUpdatedTs);
+    }
+</script>

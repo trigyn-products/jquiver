@@ -1,0 +1,11 @@
+<h1>Verification code</h1>
+</br></br>
+<b>Dear ${firstName}</b>,
+</br></br>
+<#compress>
+Please use the below verification code on the <a href="${baseURL}" target="_blank" ><b><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></b></a> web site.
+</#compress> 
+</br></br>
+<b style="font-size: 130%">"${oneTimePassword}"</b>
+</br></br>
+If you didn't request this, you can ignore this email or contact ${adminEmailAddress}

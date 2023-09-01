@@ -1,0 +1,128 @@
+<head>
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">${pageTitle!"Your page title here"}</h2> 
+        <div class="float-right">
+             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.createnew')} </button>
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+    <div class="table_responsive">
+         <div class="cursor show"></div>  
+            <div id="${gridId}" class="tablescrollcls"></div>
+    </div>
+
+    <div id="snackbar"></div>
+</div>
+
+<script>
+    contextPath = <#noparse>"${(contextPath)!''}"</#noparse>;
+    let primaryKeyDetails = ${primaryKeyObject};
+     let listingData  = [];
+     <#assign booleanFieldExists = false>
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+          <#list gridDetails as gridInfo>
+          	<#if (gridInfo.i18nResourceKey)?? && (gridInfo.i18nResourceKey)?has_content>
+            	{ title: "<#noparse><@resourceBundle</#noparse> '${(gridInfo.i18nResourceKey)!''}' <#noparse>/></#noparse>", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            <#else>          
+            	{ title: "${(gridInfo.displayName)!''}", hidden : ${(gridInfo.hidden)?c}, width: 130, dataIndx: "${(gridInfo.column)}", align: "left", halign: "center",  
+                <#if (gridInfo.datatype)?? && (gridInfo.datatype) == "boolean"  >
+                render: checkBoxRenderer, 
+                <#assign booleanFieldExists = true>
+                 </#if>
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            </#if>
+          </#list>
+            	{ title: "<#noparse><@resourceBundle</#noparse> 'jws.action' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#${gridId}").grid({
+          gridId: "${gridId}",
+          colModel: colM,
+          dataModel: dataModel
+        });
+    
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }*/
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    <#if  booleanFieldExists?? && booleanFieldExists == false>
+    /*
+	</#if>
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "&#9745;" : "&#9744;") + "</span>";
+       
+    }
+    <#if  booleanFieldExists?? && booleanFieldExists == false>
+    */
+    </#if>
+
+    
+
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+        listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;
+        return '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>'jws.edit'<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>'.toString();
+    }
+
+    function upsert(a_rowID){
+    	let redirectURL = contextPath+"/view/${(dfModuleURL)!''}";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    	 	<#list primaryKeys as primaryKey>
+    			redirectURL += '?${primaryKey?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
+        	</#list>
+    	}
+    	location.href = redirectURL;
+    }
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;
+        
+    }
+</script>

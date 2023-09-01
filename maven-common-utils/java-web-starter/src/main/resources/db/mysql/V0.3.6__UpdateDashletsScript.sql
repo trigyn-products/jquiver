@@ -1,0 +1,1 @@
+UPDATE jq_dashlet SET result_variable_name = 'resultSet' WHERE dashlet_id IN ('09b78b43-eade-11ea-a036-e454e805e22f','0eb8adc4-eade-11ea-a036-e454e805e22f','31c9ffa9-eadf-11ea-a036-e454e805e22f','37dbbc8d-eadf-11ea-a036-e454e805e22f','3d97273b-eadf-11ea-a036-e454e805e22f','44cb330d-eadf-11ea-a036-e454e805e22f')

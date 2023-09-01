@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd xmlns="http://pmd.sourceforge.net/report/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/report/2.0.0 http://pmd.sourceforge.net/report_2_0_0.xsd"
+    version="6.21.0" timestamp="2023-08-31T14:19:49.854">
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dashboard\entities\DashboardDashletAssociation.java">
+<violation beginline="67" endline="67" begincolumn="24" endcolumn="41" rule="OverrideBothEqualsAndHashcode" ruleset="Error Prone" package="com.trigyn.jws.dashboard.entities" class="DashboardDashletAssociation" method="equals" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#overridebothequalsandhashcode" priority="3">
+Ensure you override both equals() and hashCode()
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dashboard\entities\Dashlet.java">
+<violation beginline="329" endline="329" begincolumn="20" endcolumn="29" rule="OverrideBothEqualsAndHashcode" ruleset="Error Prone" package="com.trigyn.jws.dashboard.entities" class="Dashlet" method="hashCode" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#overridebothequalsandhashcode" priority="3">
+Ensure you override both equals() and hashCode()
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dynamicform\service\DynamicFormService.java">
+<violation beginline="270" endline="293" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="316" endline="338" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="357" endline="367" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="389" endline="399" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="402" endline="412" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="415" endline="425" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="428" endline="444" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynamicform.service" class="DynamicFormService" method="logActivity" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dynarest\cipher\utils\ScriptUtil.java">
+<violation beginline="727" endline="727" begincolumn="41" endcolumn="60" rule="ReturnFromFinallyBlock" ruleset="Error Prone" package="com.trigyn.jws.dynarest.cipher.utils" class="ScriptUtil" method="getFileContent" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#returnfromfinallyblock" priority="3">
+Avoid returning from a finally block
+</violation>
+<violation beginline="776" endline="776" begincolumn="49" endcolumn="68" rule="ReturnFromFinallyBlock" ruleset="Error Prone" package="com.trigyn.jws.dynarest.cipher.utils" class="ScriptUtil" method="getFileBinContent" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#returnfromfinallyblock" priority="3">
+Avoid returning from a finally block
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dynarest\service\FilesStorageServiceImpl.java">
+<violation beginline="573" endline="577" begincolumn="25" endcolumn="25" rule="BrokenNullCheck" ruleset="Error Prone" package="com.trigyn.jws.dynarest.service" class="FilesStorageServiceImpl" method="validateFilePermission" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#brokennullcheck" priority="2">
+Method call on object which may be null
+</violation>
+<violation beginline="608" endline="610" begincolumn="25" endcolumn="25" rule="BrokenNullCheck" ruleset="Error Prone" package="com.trigyn.jws.dynarest.service" class="FilesStorageServiceImpl" method="validateFilePermission" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#brokennullcheck" priority="2">
+Method call on object which may be null
+</violation>
+<violation beginline="608" endline="610" begincolumn="25" endcolumn="25" rule="BrokenNullCheck" ruleset="Error Prone" package="com.trigyn.jws.dynarest.service" class="FilesStorageServiceImpl" method="validateFilePermission" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#brokennullcheck" priority="2">
+Method call on object which may be null
+</violation>
+<violation beginline="715" endline="715" begincolumn="33" endcolumn="44" rule="AvoidBranchingStatementAsLastInLoop" ruleset="Error Prone" package="com.trigyn.jws.dynarest.service" class="FilesStorageServiceImpl" method="chkAndDeleteFromTemp" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#avoidbranchingstatementaslastinloop" priority="2">
+Avoid using a branching statement as the last in a loop.
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dynarest\service\JwsDynamicRestDetailService.java">
+<violation beginline="325" endline="330" begincolumn="33" endcolumn="33" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="JwsDynamicRestDetailService" method="invokeAndExecuteFileOnJavascript" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="598" endline="602" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="JwsDynamicRestDetailService" method="loadDynamicRestDetails" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="909" endline="926" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="JwsDynamicRestDetailService" method="getWebClientResponse" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1237" endline="1239" begincolumn="41" endcolumn="41" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="JwsDynamicRestDetailService" method="getOneAuthenticationId" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\dynarest\service\SendMailService.java">
+<violation beginline="197" endline="197" begincolumn="83" endcolumn="147" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendTestMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+<violation beginline="324" endline="335" begincolumn="57" endcolumn="57" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendTestMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="543" endline="544" begincolumn="51" endcolumn="39" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendTestMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+<violation beginline="545" endline="545" begincolumn="59" endcolumn="123" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendTestMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+<violation beginline="693" endline="704" begincolumn="57" endcolumn="57" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendTestMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1060" endline="1060" begincolumn="83" endcolumn="147" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+<violation beginline="1187" endline="1198" begincolumn="57" endcolumn="57" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.dynarest.service" class="SendMailService" method="sendMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\gridutils\utility\GridUtility.java">
+<violation beginline="309" endline="311" begincolumn="41" endcolumn="41" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.gridutils.utility" class="GridUtility" method="generateParamMap" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\security\config\CustomAuthSuccessHandler.java">
+<violation beginline="83" endline="85" begincolumn="33" endcolumn="33" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="CustomAuthSuccessHandler" method="onAuthenticationSuccess" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="88" endline="90" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="CustomAuthSuccessHandler" method="onAuthenticationSuccess" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="148" endline="152" begincolumn="81" endcolumn="81" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="CustomAuthSuccessHandler" method="onAuthenticationSuccess" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\security\config\DefaultUserDetailsServiceImpl.java">
+<violation beginline="116" endline="154" begincolumn="65" endcolumn="65" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="DefaultUserDetailsServiceImpl" method="loadUserByUsername" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="119" endline="123" begincolumn="81" endcolumn="81" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="DefaultUserDetailsServiceImpl" method="loadUserByUsername" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\security\config\JwtRequestFilter.java">
+<violation beginline="154" endline="179" begincolumn="41" endcolumn="41" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="JwtRequestFilter" method="doFilterInternal" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="158" endline="178" begincolumn="49" endcolumn="49" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="JwtRequestFilter" method="doFilterInternal" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\security\config\LdapConfigService.java">
+<violation beginline="66" endline="71" begincolumn="49" endcolumn="49" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="LdapConfigService" method="getLdapAuthenticator" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="104" endline="106" begincolumn="49" endcolumn="49" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="LdapConfigService" method="getLdapAuthoritiesPopulator" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\security\config\UserInformation.java">
+<violation beginline="52" endline="52" begincolumn="59" endcolumn="137" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="UserInformation" method="UserInformation" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+<violation beginline="53" endline="53" begincolumn="43" endcolumn="143" rule="SimplifiedTernary" ruleset="Design" package="com.trigyn.jws.usermanagement.security.config" class="UserInformation" method="UserInformation" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#simplifiedternary" priority="3">
+Ternary operators that can be simplified with || or &amp;&amp;
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\service\UserConfigService.java">
+<violation beginline="69" endline="72" begincolumn="113" endcolumn="113" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.service" class="UserConfigService" method="getConfigurableDetails" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="133" endline="135" begincolumn="185" endcolumn="185" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.usermanagement.service" class="UserConfigService" method="getConfigurableDetails" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\usermanagement\utils\LdapConfigHelper.java">
+<violation beginline="50" endline="50" begincolumn="25" endcolumn="49" rule="AvoidBranchingStatementAsLastInLoop" ruleset="Error Prone" package="com.trigyn.jws.usermanagement.utils" class="LdapConfigHelper" method="getLdapContextSource" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_errorprone.html#avoidbranchingstatementaslastinloop" priority="2">
+Avoid using a branching statement as the last in a loop.
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\webstarter\controller\JwsUserRegistrationController.java">
+<violation beginline="299" endline="310" begincolumn="49" endcolumn="49" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.controller" class="JwsUserRegistrationController" method="saveOtpAndSendMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="302" endline="308" begincolumn="65" endcolumn="65" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.controller" class="JwsUserRegistrationController" method="saveOtpAndSendMail" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\webstarter\service\ImportService.java">
+<violation beginline="1276" endline="1276" begincolumn="57" endcolumn="109" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="ImportService" method="saveEntityOnLoad" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1291" endline="1291" begincolumn="49" endcolumn="99" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="ImportService" method="saveEntityOnLoad" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\webstarter\service\MasterCreatorService.java">
+<violation beginline="475" endline="477" begincolumn="33" endcolumn="33" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="MasterCreatorService" method="generateSelectQueryForForm" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\webstarter\service\UserManagementService.java">
+<violation beginline="974" endline="992" begincolumn="57" endcolumn="57" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="UserManagementService" method="validatePassword" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1030" endline="1040" begincolumn="25" endcolumn="25" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="UserManagementService" method="getDaoPropertyValueByName" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1036" endline="1038" begincolumn="41" endcolumn="41" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="UserManagementService" method="getDaoPropertyValueByName" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1581" endline="1612" begincolumn="81" endcolumn="81" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="UserManagementService" method="updateOAuthProperties" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1641" endline="1643" begincolumn="73" endcolumn="73" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.service" class="UserManagementService" method="updateLdapAuthProperties" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="D:\Mini\Trigyn\Jav_Web_Starter\merge_codebase\jws\maven-common-utils\java-web-starter\src\main\java\com\trigyn\jws\webstarter\utils\StaticCodeImportConfiguration.java">
+<violation beginline="139" endline="141" begincolumn="33" endcolumn="33" rule="CollapsibleIfStatements" ruleset="Design" package="com.trigyn.jws.webstarter.utils" class="StaticCodeImportConfiguration" method="explodeJar" externalInfoUrl="https://pmd.github.io/pmd-6.21.0/pmd_rules_java_design.html#collapsibleifstatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+</pmd>

@@ -1,0 +1,194 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" /white>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
+</script><script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />       
+<script src="${(contextPath)!''}/webjars/1.0/importExport/import.js"></script> 
+<script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
+
+<style>
+    .displayflx{
+        display: flex;
+    align-items: center;
+    
+    }
+
+.importfeildconfig {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+    </style>
+
+
+
+</head>
+<div class="pg-import-config">
+<div class="container">
+	<form id="homePageForm" action="${(contextPath)!''}/cf/home" method="post">
+		<input type="hidden" name="isRedirect" value="true"/>
+	</form>
+    <div class="cm-card">
+	<div class="topband cm-card-header">
+        
+                
+              
+		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.importconfiguration')}</h2>
+		<span onclick="backToPreviousPage();" class="float-right">
+			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+		</span>	
+		<div class="clearfix"></div>
+
+	</div>
+	
+
+    <div class="cm-card-body">
+       <div class="cm-customimport" id="parentUploadBox">
+
+     <div class="upload" id="parentUpload">
+    	<div class="upload-box" id="uploadBox">
+            
+            <form id="importForm" id="formUploadBox">
+                <div id="expHeader" class="flexblock" style="float: left;">
+                        ${messageSource.getMessage('jws.from')}<select id="importTypeSelect" name="importTypeSelect" class="typeSelectDropDown spacingclss" onchange="changeImportType()">   
+                        <option value="0" selected>${messageSource.getMessage('jws.fromFile')}</option>                   
+                        <option value="1" >${messageSource.getMessage('jws.fromLocal')}</option>                
+                    </select>
+                </div>
+                <div class="displayflximport" >
+                    <label for="filepathLabel" id="filepathLabel" style="white-space:nowrap;display:none;margin-bottom: 0px;">
+                        ${messageSource.getMessage('jws.filepath')}
+                        </label>
+                    <div class="col-5 " id="showFilePath" style="display:none">
+				   
+                       
+                        <input type="text" id="importFilePath" name="importFilePath"  value="${storagePath}" maxlength="500" class="form-control" >
+			        
+				    </div>
+                    <div class="importfeildconfig"  id="showFileupload" >
+                        <input class="fileuploaddoc" type="file" id="inputFile" name="inputFile">
+                        <div id="file-upload-filename" style="display: inline-block;"></div>
+                        <i class="fa fa-download fa-4x"></i>
+                    </div>
+
+         	        
+        		    <button id="btnUpload" type="button" class="btn btn-primary spacingclss">${messageSource.getMessage('jws.import')}</button>
+
+                    <!-- <button id="btnUpload" type="button"  onclick="importFromLocal()" class="btn btn-primary spacingclss">${messageSource.getMessage('jws.importFromLocal')} </button>-->
+ 
+                </div>
+     	     </form>      
+    	</div>
+     </div>
+     </div>
+     
+		<div id="divHtmlTable" style="width:100%;">
+			<table class="table table-striped" id="htmlTable">
+				<thead class="thead-light">
+					<tr>
+                        <th>Sr.No</th>
+						<th>${messageSource.getMessage('jws.moduletype')}</th>
+						<th>${messageSource.getMessage('jws.entityid')}</th>
+						<th>${messageSource.getMessage('jws.entityname')}</th>
+						<th>${messageSource.getMessage('jws.existingversion')}</th>
+						<th>${messageSource.getMessage('jws.importversion')}</th>
+						<th>${messageSource.getMessage('jws.action')}</th>
+					</tr>
+				</thead>
+				<tbody class="cm-scrollbar">
+				</tbody>
+			</table>
+		</div>
+    </div>
+    <div class="cm-card-footer">
+		<input id="importAllBtn" class="btn btn-primary" style="float: right;" name="importAllBtn"
+			value="${messageSource.getMessage('jws.importall')}" type="button" onclick="importAll()">
+
+		<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+		    <input type="hidden" id="cmvEntityName" name="cmvEntityName">
+		    <input type="hidden" id="entityId" name="entityId">
+			<input type="hidden" id="moduleName" name="moduleName">
+			<input type="hidden" id="moduleType" name="moduleType">
+			<input type="hidden" id="formId" name="formId">
+			<input type="hidden" id="saveUrl" name="saveUrl">
+			<input type="hidden" id="isImport" name="isImport">
+			<input type="hidden" id="importJson" name="importJson">
+			<input type="hidden" id="isNonVersioningModule" name="isNonVersioningModule">
+			<input type="hidden" id="nonVersioningFetchURL" name="nonVersioningFetchURL">
+			<input type="hidden" id="previousPageUrl" name="previousPageUrl">
+		</form>
+</div>
+   </div>
+   </div>
+<script>
+	document.title = "Import Configuration Module";
+	contextPath = "${contextPath}";
+	var accepted_file_endings = ["zip"];
+	
+	var zipFileJsonDataMap = new Map();
+	var imporatableData;
+	let idList = new Array();
+	var isDataAvailableForImport = false;
+	
+	$(function(){
+		var input = document.getElementById('inputFile');
+		input.addEventListener( 'change', showFileName );
+
+		imporatableData = localStorage.getItem("imporatableData");
+		let importedIdList = localStorage.getItem("importedIdList");
+    	if(importedIdList != null) {
+			idList = JSON.parse(importedIdList);
+		}
+    	
+		if(imporatableData != null) {
+			localStorage.removeItem("imporatableData");
+			loadTable(imporatableData);
+		}
+	});
+	
+    $('#btnUpload').on('click', function() {
+        var typeSelected= document.getElementById('importTypeSelect').value;
+    	var data= document.getElementById('inputFile');
+        
+        if(typeSelected==0){
+            //$('#importFilePath').val('');
+    	if(data.files.length == 0){
+	    	data.focus();
+	    	showMessage("Please select a file to be imported", "warn");
+	    	return false;
+    	} else {
+    		var fileExtn= data.files[0].name.substr((data.files[0].name.lastIndexOf('.') + 1));
+    		var extension = data.files[0].type;
+    	 	if($.inArray(fileExtn.toLowerCase(),accepted_file_endings) == -1) {
+	    		 showMessage("Invalid file  imported.", "error");
+	    		 data.focus();
+	    		 return false;
+	  		}
+        }
+        importFile();  
+        }else{
+             $('#inputFile').val('');
+            var path= document.getElementById('importFilePath').value;
+            if(path=='')
+            {
+                showMessage("File Path is empty. Please enter valid file path.", "warn");
+                //path.focus();
+	    		 return false;
+            }
+            importFromLocal();
+        }
+	    	
+    	
+    });
+    
+</script>

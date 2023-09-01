@@ -1,0 +1,93 @@
+<head>
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.css" />
+<script src="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.js"></script>
+<script src="${(contextPath)!''}/webjars/gridstack/0.4.0/dist/gridstack.jQueryUI.js"></script>
+<script>document.title="Error Page - ${(statusCode)!''}";</script>
+
+<style>
+
+.errorImg {
+    width: 100%;
+    height: auto !important;
+}
+
+.grid-stack-item.ui-draggable .panel-body .errorDetailsDivcls{
+    margin:0px;
+}
+
+.grid-stack-item.ui-draggable .panel-body .error-code{
+        font-size: 25px;
+}
+
+.grid-stack-item.ui-draggable .panel-body .container{
+    padding: 10px !important;
+    height: auto !important;
+}
+
+ 
+
+    </style>
+</head>
+
+<div class="container"> 
+	<div class="row">
+        <div class="col-sm-8 col-12">
+        <div class="error_block">
+
+        <div class="error-contentblock">
+        <div class="error-code">${(statusCode)!''}</h2></div>
+       
+        <#if (statusCode)?? && (statusCode)?has_content>
+          <#if statusCode == 404>
+            <h2 class="errorcontent">${messageSource.getMessage('jws.oopspagenot')}</h2> 
+          <#elseif statusCode == 500>
+            <h2 class="errorcontent">${messageSource.getMessage('jws.oopssomethingwrong')}</h2> 
+            <span class="error-alert float-left" onclick="showHideErrorInfo()">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+            </span>
+          </#if>
+        <#else>
+          <h2 class="errorcontent">${messageSource.getMessage('jws.oopssomethingwrong')}</h2> 
+        </#if>
+        </div>
+        <div id="errorDetailsDiv" class="errorDetailsDivcls">
+        <#if (isCustomException)?? && (isCustomException)?has_content> 
+            <#if isCustomException == true>
+                ${messageSource.getMessage(errorMessage)}
+            <#else>
+                ${(errorMessage)!''}
+            </#if>
+        <#else>
+            ${(errorMessage)!''}
+        </#if> 
+        <#if (statusCode)?? && (statusCode)?has_content> 
+            <#if statusCode == 403 && ((!loggedInUserName?? && !loggedInUserName?has_content) || loggedInUserName == 'anonymous') >
+            <#list systemProperties as key, value>
+                <#if key.propertyName == "enable-user-management" && value == "true">
+                    ${messageSource.getMessage('jws.please')} <a href="${(contextPath)!''}/cf/login">${messageSource.getMessage('jws.login')}</a> ${messageSource.getMessage('jws.loginwithreqdaccess')}
+                </#if>
+            </#list>
+            
+            </#if>
+        </#if>
+        </div>
+        </div>
+    </div>
+
+     <div class="col-sm-4 col-12">
+             <img class="errorImg" src="${(contextPath)!''}/webjars/1.0/images/error1.jpg">
+     </div>
+
+	</div>
+</div>
+
+<script>
+contextPath = "${(contextPath)!''}";
+
+function showHideErrorInfo(){
+  $("#errorDetailsDiv").slideToggle();
+}
+</script>

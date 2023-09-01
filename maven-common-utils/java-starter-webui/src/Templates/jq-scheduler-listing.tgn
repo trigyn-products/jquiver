@@ -1,0 +1,319 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" /> 
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+</head>
+
+<style>
+    #log-history-popup {
+        height: 50vh !important;
+    }
+</style>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.scheduler')}</h2> 
+        <div class="float-right">
+        	${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+            </select>
+             <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+    <div id="jq-schedulerGrid"></div>
+    <div id="log-history-popup" title="Scheduler History" style="display:none;">
+        <div id="divSchedulerLogHistory"></div>
+    </div> 
+	<div id="deleteHeader"></div>
+    <div id="snackbar"></div>
+</div>
+
+<script>
+	document.title = "Scheduler Module List";
+    contextPath = "${(contextPath)!''}";
+    let primaryKeyDetails = {"schedulerid":""};
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "${messageSource.getMessage('jws.schedulername')}", hidden : false, width: 130, dataIndx: "scheduler_name", align: "left", halign: "center",render: formatName,
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.targetapi')}", hidden : false, width: 130, dataIndx: "jws_dynamic_rest_url", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.cronexpression')}", hidden : false, width: 130, dataIndx: "cron_scheduler", align: "left", halign: "center",
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+                { title: "${messageSource.getMessage('jws.lastexecutiontime')}", hidden : false, width: 130, dataIndx: "last_response_time", align: "left", halign: "center", render: lastExecutionTimeRenderer  },
+            	{ title: "${messageSource.getMessage('jws.status')}", hidden : false, width: 90, dataIndx: "is_active", align: "left", halign: "center", render: statusRenderer  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 100, maxWidth: 145, dataIndx: "action", align: "center", align: "left", render: manageRecord, sortable: false}
+        ];
+    
+    	let dataModel = {
+        	url: contextPath+"/cf/pq-grid-data",
+    	};
+    //System will fecth grid data based on gridId
+        let grid = $("#jq-schedulerGrid").grid({
+          gridId: "jq-schedulerGrid",
+          colModel: colM,
+          dataModel: dataModel,
+          additionalParameters: {"cr_schedulerTypeId":"str_1"}
+        });
+    
+        $("#log-history-popup").dialog({
+            bgiframe: true,
+            autoOpen: false,
+            height: 100,
+            modal: true,
+            height: $(window).height() / 100 * 80,
+            width: $(window).width() / 100 * 50,
+        });
+
+    });
+    
+    function changeType() {
+        var type = $("#typeSelect").val();   
+        let postData;
+        if(type == 0) {
+            postData = {gridId:"jq-schedulerGrid"}
+        } else {
+            let typeCondition = "str_"+type;       
+   
+            postData = {gridId:"jq-schedulerGrid"
+                    ,"cr_schedulerTypeId":typeCondition
+                    }
+        }
+        
+        let gridNew = $( "#jq-schedulerGrid" ).pqGrid();
+        gridNew.pqGrid( "option", "dataModel.postData", postData);
+        gridNew.pqGrid( "refreshDataAndView" );  
+    }
+
+    /*Written for preventing Cross Site Scripting*/
+function formatName(uiObject){   
+    const schedName = uiObject.rowData.scheduler_name;
+    var encodedName = $('<div />').text(schedName).html();
+    return encodedName;             
+}
+      /**Ends Here*/
+        
+    function statusRenderer(uiObject){
+        let statusElement =  "Active";
+        if(uiObject.rowData.is_active == 0){
+            statusElement = "Inactive";
+        }
+        return statusElement;
+    }
+    
+    function lastExecutionTimeRenderer(uiObject){
+    	if(uiObject.rowData.last_response_time != null){
+        	return formatDate(uiObject.rowData.last_response_time);
+        } else {
+            return "";
+        }
+    }
+
+    //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function manageRecord(uiObject) {
+        let rowIndx = uiObject.rowIndx;
+        let schedulerID = uiObject.rowData.scheduler_id;
+        let schedulerName = uiObject.rowData.scheduler_name;
+        let updatedDate  =  uiObject.rowData.last_response_time;
+        action = '<span id="'+rowIndx+'" onclick=\' createNew("'+schedulerID+'")\'  class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+        
+        if(uiObject.rowData.schedulerTypeId == 1) {
+		        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+		        	<#list loggedInUserRoleList as loggedInUserRole>
+		            	<#if (loggedInUserRole == "ADMIN")>    
+		        			action += '<span id="'+rowIndx+'" onclick=\'openDeletConfirmation("'+schedulerID+'","'+schedulerName+'")\' class= "grid_action_icons" title="${messageSource.getMessage('jws.deleteBtnText')}"><i class="fa fa-trash "></i></span>'.toString();
+        					<#break>
+		        		</#if>
+		        	</#list>
+		        </#if>
+		        }
+        
+        if(uiObject.rowData.reminder_count > 0){
+            action += '<span onclick=\'loadExecutionHistory(0,"'+schedulerID+'","'+uiObject.rowData.scheduler_name+'")\' class= "grid_action_icons"><i class="fa fa-history"></i></span>';
+        }
+        action += '<span id="'+rowIndx+'" onclick=\'openExecuteNowConfirmation("'+schedulerID+'","'+schedulerName+'")\' class= "grid_action_icons" title="Execute Now"><i class="fa fa-play "></i></span>'.toString();
+        
+        return action;
+    }
+    
+    //Add logic to navigate to create new record
+    function createNew(schedulerID) {
+        primaryKeyDetails["schedulerid"] = schedulerID;
+        openAddEditScreen();
+    }
+    
+    function openExecuteNowConfirmation(schedulerID,schedulerName){
+		$("#deleteHeader").html("Are you sure you want to execute now?");
+		$("#deleteHeader").dialog({
+		bgiframe	: true,
+		autoOpen	: true, 
+		modal		: true,
+		closeOnEscape : true,
+		draggable	: true,
+		resizable	: false,
+		title		: "${messageSource.getMessage('jws.executenow')}",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons : [
+			{
+				text		: "${messageSource.getMessage('jws.executenow')}",
+                "class": 'btn btn-primary',
+				click	: function(){
+					$(this).dialog('close');
+					executeNow(schedulerID,schedulerName);
+				}
+           	},
+            {
+				text		:"${messageSource.getMessage('jws.cancel')}",
+                "class": 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			}
+       ],	
+	   open: function( event, ui ) {
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
+	   });
+		
+	}
+    
+    function executeNow(schedulerID,schedulerName) {
+    	$.ajax({
+            url: "${contextPath!''}/cf/execn",
+            type: "POST",
+            data:{
+            "schedulerID": schedulerID,
+            "schedulerName":schedulerName
+            },
+            async:true,
+            success: function(data){
+               $( "#jq-schedulerGrid" ).pqGrid().pqGrid( "refreshDataAndView" ); 
+				if(data == true) {                    
+					showMessage("Scheduler is executed", "info");
+				} else{
+					showMessage("Scheduler failed executed", "error");
+				}
+            },
+            error: function(xhr, exception){
+            	if (xhr != undefined && xhr.status == 500) {			
+                    showMessage(xhr.responseText, "error");
+                }else{
+                	showMessage("Error occurred while scheduling the scheduler", "error");
+                }
+            }   
+        });
+    }
+    
+    function openDeletConfirmation(schedulerID,schedulerName){
+		$("#deleteHeader").html("Are you sure you want to delete?");
+		$("#deleteHeader").dialog({
+		bgiframe	: true,
+		autoOpen	: true, 
+		modal		: true,
+		closeOnEscape : true,
+		draggable	: true,
+		resizable	: false,
+		title		: "${messageSource.getMessage('jws.deleteBtnText')}",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons : [
+			{
+				text		: "${messageSource.getMessage('jws.deleteBtnText')}",
+                "class": 'btn btn-primary',
+				click	: function(){
+					$(this).dialog('close');
+					deleteScheduler(schedulerID,schedulerName);
+				}
+           	},
+           	{
+				text		:"${messageSource.getMessage('jws.cancel')}",
+                "class": 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			}
+       ],	
+	   open: function( event, ui ) {
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
+	   });
+		
+	}
+    
+    function deleteScheduler(schedulerID,schedulerName) {
+    	$.ajax({
+            url: "${contextPath!''}/cf/delS",
+            type: "POST",
+            data:{
+            "schedulerID": schedulerID,
+            "schedulerName": schedulerName
+           
+            },
+            async:true,
+            success: function(data){
+               $( "#jq-schedulerGrid" ).pqGrid().pqGrid( "refreshDataAndView" ); 
+               showMessage("Scheduler is deleted", "info");
+            },
+            error: function(jqXHR, exception){
+                showMessage("Error occurred while deleting the scheduler", "error");
+            }   
+        });
+    }
+
+    function openAddEditScreen() {
+    	  let formId = "f44ac7ab-c61e-4df3-b40f-190262f79a39";
+    	  openForm(formId, primaryKeyDetails);
+    }
+
+    function loadExecutionHistory(a_offset, schedulerID, schedulerName){
+    	if(a_offset == 0) {
+            $("#divSchedulerLogHistory").html("");
+        }
+        $("#divSchedulerLogHistory").find("button").remove()
+        $.ajax({
+            url: "${contextPath!''}/api/getExecutionHistory",
+            type: "POST",
+            data:{"offset": a_offset,
+            "schedulerID": schedulerID},
+            async:true,
+            success: function(data){
+                $("#divSchedulerLogHistory").append(data);
+                $("#log-history-popup").dialog({ title: "Scheduler History : " + schedulerName });
+                $("#log-history-popup").dialog( "open" );
+            },
+            error: function(jqXHR, exception){
+                showMessage("Error occurred while fetching text responses", "error");
+            }   
+        });
+    }
+    
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath+"/cf/dynl";
+    }
+</script>
