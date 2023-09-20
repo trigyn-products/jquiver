@@ -32,12 +32,13 @@
 	     
 		 <div class="topband">
 			<h2 class="title-cls-name float-left history-label">${messageSource.getMessage("jws.history")}: ${(moduleName)!''}</h2> 
+             <#if isImport == "false"> 
 			<div class="float-right">
 				<span onclick="backToPreviousPage();">
 	  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 	  		 	</span>
 			</div>
-	
+             </#if>
 			<div class="clearfix"></div>
 		</div>
 		
@@ -104,9 +105,11 @@
 		    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
 		            </div> 
 				</div>
+               <#if isImport == "false"> 
 				<span onclick="backToPreviousPage();">
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
+                </#if>
 			</div>
 		</div>	
 	
@@ -137,7 +140,14 @@ $(function(){
 	}
 	
 	if(isImport == "true") {
-		importJson = JSON.parse(localStorage.getItem("importJson"));
+		let unorderedimportJson = JSON.parse(localStorage.getItem("importJson"));
+        importJson = Object.keys(unorderedimportJson).sort().reduce(
+        (obj, key) => { 
+         obj[key] = unorderedimportJson[key]; 
+         return obj;
+          }, 
+          {}
+        );
 		localStorage.removeItem("importJson");
 		setJsonEditorContent();
 	} else {

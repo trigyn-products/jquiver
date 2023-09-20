@@ -74,7 +74,7 @@ public class ModuleVersionController {
 			throws Exception {
 		logger.debug("Inside ModuleVersionController.getLastUpdatedJsonData()");
 		String	entityId	= a_httpServletRequest.getParameter("entityId");
-		String	entityName	= a_httpServletRequest.getParameter("entityName");
+		String	entityName	= a_httpServletRequest.getParameter("cmvEntityName");
 		return moduleVersionService.getLastUpdatedJsonData(entityId, entityName);
 	}
 

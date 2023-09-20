@@ -171,7 +171,8 @@ public class DynamicFormService {
 
 			if (StringUtils.isNotEmpty(selectTemplateQuery)
 					&& Constant.QueryType.SELECT.getQueryType() == form.getSelectQueryType()) {
-				selectResultSet = dynamicFormDAO.getFormData(form.getDatasourceId(), selectTemplateQuery.toString());
+				selectResultSet = dynamicFormDAO.executeQueries(form.getDatasourceId(), selectTemplateQuery.toString(), 
+											requestParam);
 			} else if (StringUtils.isNotEmpty(selectTemplateQuery) && 2 == form.getSelectQueryType()) {
 				TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
 				StringBuilder	resultStringBuilder	= new StringBuilder();
@@ -442,9 +443,6 @@ public class DynamicFormService {
 				requestParams.put("date", activityTimestamp.toString());
 				activitylog.activitylog(requestParams);
 			}
-		}
-		if (true == "common-file-form".equalsIgnoreCase(formName)) {
-			System.out.println("");
 		}
 	}
 

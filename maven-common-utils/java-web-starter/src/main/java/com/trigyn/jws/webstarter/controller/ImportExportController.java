@@ -2,9 +2,12 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,9 +33,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
+import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
+import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
@@ -59,7 +67,7 @@ public class ImportExportController {
 	private PropertyMasterService	propertyMasterService	= null;
 
 	@GetMapping(value = "/vexp", produces = MediaType.TEXT_HTML_VALUE)
-	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
+	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>			vmTemplateData		= new HashMap<>();
 			List<JwsMasterModules>		moduleVOList		= masterModuleService.getModules();
@@ -72,6 +80,9 @@ public class ImportExportController {
 			vmTemplateData.put("allEntityCount", allEntityCount);
 			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
 			return menuService.getTemplateWithSiteLayout("export-config", vmTemplateData);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading View Export page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading View Export page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -97,11 +108,15 @@ public class ImportExportController {
 	}
 
 	@GetMapping(value = "/vimp", produces = MediaType.TEXT_HTML_VALUE)
-	public String viewImport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
+	public String viewImport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object> vmTemplateData = new HashMap<>();
 			vmTemplateData.put("serverProfile", propertyMasterService.findPropertyMasterValue("profile"));
+			vmTemplateData.put("storagePath", propertyMasterService.findPropertyMasterValue("template-storage-path"));
 			return menuService.getTemplateWithSiteLayout("import-config", vmTemplateData);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading View Import page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading View Import page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -117,7 +132,7 @@ public class ImportExportController {
 	public String importFile(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
 		try {
 			Part				file			= request.getPart("inputFile");
-			Map<String, Object>	map				= importService.importConfig(file, false);
+			Map<String, Object>	map				= importService.importConfig(file, false,null);
 	
 			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
 			String				unZipFilePath	= (String) map.get("unZipFilePath");
@@ -184,14 +199,22 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/importConfig", method = RequestMethod.POST)
-	@ResponseBody
-	public String importConfig(HttpServletRequest request, HttpServletResponse httpServletResponse) {
-		try {
-			String	exportedFormatObject	= request.getParameter("exportedFormatObject");
-			String	importId		= request.getParameter("importId");
-			String	moduleType		= request.getParameter("moduleType");
 
+	@RequestMapping(value = "/importConfig", method = RequestMethod.POST,consumes="application/json")
+	@ResponseBody
+	public String importConfig(@RequestBody Map<String, String> map,HttpServletRequest request, HttpServletResponse httpServletResponse) {
+		try {
+			String	exportedFormatObject	= null;
+			String	importId		= null;
+			String	moduleType		= null;
+			for (Entry<String, String> obj : map.entrySet()) {
+				if(obj.getKey().contains("exportedFormatObject"))
+					{exportedFormatObject=obj.getValue();}
+				if(obj.getKey().contains("importId"))
+				   {importId=obj.getValue();}
+				if(obj.getKey().contains("moduleType"))
+				   {moduleType=obj.getValue();}
+			}
 			return importService.importConfig(exportedFormatObject, importId, moduleType, false, null);
 		} catch (Exception exception) {
 			logger.error("Error occured while importing data : Module Type : "+ request.getParameter("moduleType")+" ImportId : " + request.getParameter("importId"), exception);
@@ -199,12 +222,18 @@ public class ImportExportController {
 		}
 	}
 
-	@RequestMapping(value = "/importAll", method = RequestMethod.POST)
+	@RequestMapping(value = "/importAll", method = RequestMethod.POST,consumes="application/json")
 	@ResponseBody
-	public String importAll(HttpServletRequest request, HttpServletResponse httpServletResponse) {
+	public String importAll(@RequestBody Map<String, String> map,HttpServletRequest request, HttpServletResponse httpServletResponse) {
 		try {
-			String	imporatableData	= request.getParameter("imporatableData");
-			String	importedIdList	= request.getParameter("importedIdList");
+			String	imporatableData=null;
+			String	importedIdList=null;
+			for (Entry<String, String> obj : map.entrySet()) {
+				if(obj.getKey().contains("imporatableData"))
+					{imporatableData=obj.getValue();}
+				if(obj.getKey().contains("importedIdList"))
+						{importedIdList=obj.getValue();}
+			}
 
 			return importService.importAll(imporatableData, importedIdList, false);
 		} catch (FileNotFoundException f_nexcec) {
@@ -230,7 +259,8 @@ public class ImportExportController {
 	@ResponseBody
 	public String importFromLocal(HttpServletRequest request, HttpServletResponse httpServletResponse) throws Exception {
 		try {
-			Map<String, Object>	map				= importService.importConfig(null, true);
+			String				filePath			= request.getParameter("importFilePath");
+			Map<String, Object>	map				= importService.importConfig(null, true,filePath);
 	
 			MetadataXMLVO		metadataXmlvo	= (MetadataXMLVO) map.get("metadataVO");
 			String				unZipFilePath	= (String) map.get("unZipFilePath");
@@ -257,5 +287,16 @@ public class ImportExportController {
 			return "fail:" + a_exception.getMessage();
 		}
 	}
+
+
+	
+	
+	@GetMapping(value = "/permissions", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<JwsEntityRoleAssociationVO> getEntityRole(@RequestParam("entityId") String entityId,
+			@RequestParam(value="moduleId") String moduleId) throws Exception {
+
+		return exportService.getEntityPermissions(entityId, moduleId);
+	}
+
 
 }

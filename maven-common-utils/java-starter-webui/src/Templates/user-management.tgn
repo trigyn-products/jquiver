@@ -737,14 +737,14 @@ function validateSingleAuthType(verifyVal, authTypeId){
 		}	
 		$.each(parsedProperties, function(key,val){
 			if(typeof val != 'undefined' || val != null ){					
-				if(typeof key != 'undefined' && key == 'verificationType'){	
+				if(typeof key != 'undefined'){	
 					if(typeof val != 'undefined'){
 						var configurationType = val.configurationType;						
 						if(configurationType=='single')	{
 							var isExist = checkAuthValueExist(validateValues, authSelVal);				
 							if(isExist){			
 								returnResult = true;
-								return false;
+								return returnResult;
 							}else{
 								validateValues.push({id: element.id, selectedValue: authSelVal});	
 							}
@@ -754,7 +754,7 @@ function validateSingleAuthType(verifyVal, authTypeId){
 			}
 		});							
 	});	
-	return false;
+	return returnResult;
 }
 
 function checkAuthValueExist(validateValues, selectedVal){ 

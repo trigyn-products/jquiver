@@ -21,6 +21,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynamicform.controller.DynamicFormController;
 import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
@@ -43,9 +44,8 @@ public class MasterModuleController {
 	@RequestMapping()
 	@Authorized(moduleName = Constants.SITELAYOUT)
 	public Object loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
-
 			String moduleUrl = httpServletRequest.getRequestURI()
 					.substring(httpServletRequest.getContextPath().length());
 			moduleUrl = moduleUrl.replaceFirst("/view/", "");
@@ -100,6 +100,9 @@ public class MasterModuleController {
 				httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/");
 				return null;
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in loadModuleContent.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

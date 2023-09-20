@@ -18,7 +18,8 @@ SELECT
   ) AS `lastUpdatedBy`, 
   `jgd`.`last_updated_ts` AS `lastUpdatedTs`, 
   COUNT(`jmv`.`version_id`) AS `revisionCount`, 
-  MAX(`jmv`.`version_id`) AS `max_version_id` 
+  MAX(`jmv`.`version_id`) AS `max_version_id` ,
+  DATE(`jgd`.`last_updated_ts`) AS `isAfterDate`
 FROM 
   (
     (
@@ -57,7 +58,8 @@ CREATE  OR REPLACE VIEW `jq_autocomplete_listing_view` AS
   `jau`.`last_updated_ts` AS `lastUpdatedTs`, 
   `jau`.`ac_type_id` AS `autocompleteTypeId`, 
   COUNT(`jmv`.`version_id`) AS `revisionCount`, 
-  MAX(`jmv`.`version_id`) AS `max_version_id` 
+  MAX(`jmv`.`version_id`) AS `max_version_id`,
+  DATE(`jau`.`last_updated_ts`) AS `isAfterDate`
 FROM 
   (
     (
@@ -86,7 +88,7 @@ CREATE  OR REPLACE VIEW `jq_file_upload_config_listing_view` AS
   `fuc`.`file_type_supported` AS `fileTypeSupported`, 
   `fuc`.`max_file_size` AS `maxFileSize`, 
   `fuc`.`no_of_files` AS `noOfFiles`, 
-  `fuc`.`last_updated_ts` AS `lastUpdatedTs`, 
+  `fuc`.`last_updated_ts` AS `lastUpdatedTs`,
   COALESCE(
     CONCAT(
       `jus`.`first_name`, ' ', `jus`.`last_name`
@@ -95,7 +97,8 @@ CREATE  OR REPLACE VIEW `jq_file_upload_config_listing_view` AS
       `fuc`.`last_updated_by`, `fuc`.`created_by`
     )
   ) AS `lastUpdatedBy`, 
-  `fuc`.`is_deleted` AS `isDeleted` 
+  `fuc`.`is_deleted` AS `isDeleted`,  
+   DATE(`fuc`.`last_updated_ts`) AS `isAfterDate`
 FROM 
   (
     `jq_file_upload_config` `fuc` 
@@ -129,7 +132,8 @@ SELECT
     COALESCE(
       `df`.`last_updated_by`, `df`.`created_by`
     )
-  ) AS `lastUpdatedBy` 
+  ) AS `lastUpdatedBy`,
+  DATE(`df`.`last_updated_ts`) AS `isAfterDate`
 FROM 
   (
     (
@@ -175,7 +179,8 @@ SELECT
     )
   ) AS lastUpdatedBy, 
   COUNT(jmv.version_id) AS revisionCount, 
-  MAX(jmv.version_id) AS max_version_id 
+  MAX(jmv.version_id) AS max_version_id ,
+  Date(jdrd.last_updated_ts) AS `isAfterDate`
 FROM 
   jq_dynamic_rest_details AS jdrd 
   LEFT JOIN jq_user AS jus ON jus.email = COALESCE(
@@ -218,7 +223,8 @@ SELECT
   ml.last_modified_date AS lastUpdatedTs, 
   ml.target_lookup_id AS targetLookupId, 
   ml.request_param_json AS requestParamJson, 
-  ml.target_type_id AS targetTypeId 
+  ml.target_type_id AS targetTypeId ,
+  Date(ml.last_modified_date) AS `isAfterDate`
 FROM 
   jq_module_listing AS ml 
   LEFT JOIN jq_user AS jus ON jus.email = ml.last_updated_by 
@@ -260,16 +266,135 @@ SELECT
   tm.template_type_id AS templateTypeId, 
   COUNT(jmv.version_id) AS revisionCount, 
   MAX(jmv.version_id) AS max_version_id, 
-  tm.updated_date AS updatedDate 
+  tm.updated_date AS updatedDate ,
+  DATE(`tm`.`updated_date`)     AS `isAfterDate`
 FROM 
   jq_template_master AS tm 
-  LEFT JOIN jq_user AS jus ON jus.email = tm.updated_by 
+  LEFT JOIN jq_user AS jus ON jus.email = COALESCE(tm.updated_by, tm.created_by)
   LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = tm.template_id 
   AND jmv.entity_name = 'jq_template_master' 
 GROUP BY 
   tm.template_id 
 ORDER BY 
-  tm.updated_date DESC
+  tm.updated_date DESC;
 
 
+CREATE OR REPLACE VIEW `jq_customResourceBundleListingView` AS
+    SELECT 
+        `t`.`resourceKey` AS `resourceKey`,
+        `t`.`languageName` AS `languageName`,
+        `t`.`resourceBundleText` AS `resourceBundleText`,
+        `t`.`revisionCount` AS `revisionCount`,
+        `t`.`max_version_id` AS `max_version_id`,
+        `t`.`updatedBy` AS `updatedBy`,
+        `t`.`updatedDate` AS `updatedDate`,
+        `t`.`resource_type` AS `resource_type`, 
+        `t`.`isAfterDate` AS `isAfterDate` 
+    FROM
+        ((SELECT 
+            `rb`.`resource_key` AS `resourceKey`,
+                `lang`.`language_name` AS `languageName`,
+                `rb`.`text` AS `resourceBundleText`,
+                COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`rb`.`updated_by`,`rb`.`created_by`)) AS `updatedBy`,
+                COALESCE(`rb`.`updated_date`, `rb`.`created_date`) AS `updatedDate`,
+                COUNT(`jmv`.`version_id`) AS `revisionCount`,
+                MAX(`jmv`.`version_id`) AS `max_version_id`,
+                1 AS resource_type,
+                DATE(COALESCE(`rb`.`updated_date`, `rb`.`created_date`)) AS `isAfterDate`
+        FROM
+            ((`jq_resource_bundle` `rb`
+        JOIN `jq_language` `lang` ON (`lang`.`language_id` = `rb`.`language_id`))
+		LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`rb`.`updated_by`,`rb`.`created_by`))
+        LEFT JOIN `jq_module_version` `jmv` ON (`jmv`.`entity_id` = `rb`.`resource_key`
+            AND `jmv`.`entity_name` = 'jq_resource_bundle'))
+        WHERE
+            `rb`.`resource_key` NOT LIKE 'jws.%'
+        GROUP BY `jmv`.`entity_id`) UNION (SELECT 
+            `rb`.`resource_key` AS `resourceKey`,
+                `lang`.`language_name` AS `languageName`,
+                `rb`.`text` AS `resourceBundleText`,
+                COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`rb`.`updated_by`,`rb`.`created_by`)) AS `updatedBy`,
+                COALESCE(`rb`.`updated_date`, `rb`.`created_date`) AS `updatedDate`,
+                COUNT(`jmv`.`version_id`) AS `revisionCount`,
+                MAX(`jmv`.`version_id`) AS `max_version_id`,
+                2 AS resource_type,
+                DATE(COALESCE(`rb`.`updated_date`, `rb`.`created_date`)) AS `isAfterDate`
+        FROM
+            ((`jq_resource_bundle` `rb`
+        JOIN `jq_language` `lang` ON (`lang`.`language_id` = `rb`.`language_id`))
+		LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`rb`.`updated_by`,`rb`.`created_by`))
+        LEFT JOIN `jq_module_version` `jmv` ON (`jmv`.`entity_id` = `rb`.`resource_key`
+            AND `jmv`.`entity_name` = 'jq_resource_bundle'))
+        WHERE
+            `rb`.`resource_key` LIKE 'jws.%'
+        GROUP BY `jmv`.`entity_id`)) `t`;
 
+      
+      
+ CREATE OR REPLACE VIEW `jq_export_resource_budle_view` AS
+    SELECT 
+        `t`.`resourceKey` AS `resourceKey`,
+        `t`.`languageName` AS `languageName`,
+        `t`.`languageId` AS `languageId`,
+        `t`.`resourceBundleText` AS `resourceBundleText`,
+        `t`.`resource_type` AS `resource_type`,
+        `t`.`updatedBy` AS `updatedBy`,
+        `t`.`updatedDate` AS `updatedDate`
+    FROM
+        ((SELECT 
+            `rb`.`resource_key` AS `resourceKey`,
+                `lang`.`language_name` AS `languageName`,
+                `lang`.`language_id` AS `languageId`,
+                `rb`.`text` AS `resourceBundleText`,
+                1 AS `resource_type`,
+                COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`rb`.`updated_by`,`rb`.`created_by`)) AS `updatedBy`,
+                COALESCE(`rb`.`updated_date`, `rb`.`created_date`) AS `updatedDate`
+        FROM
+            ((`jq_resource_bundle` `rb`
+        JOIN `jq_language` `lang` ON (`lang`.`language_id` = `rb`.`language_id`))
+		LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`rb`.`updated_by`,`rb`.`created_by`))
+        LEFT JOIN `jq_module_version` `jmv` ON (`jmv`.`entity_id` = `rb`.`resource_key`
+            AND `jmv`.`entity_name` = 'jq_resource_bundle'))
+        WHERE
+            `rb`.`resource_key` NOT LIKE 'jws.%') UNION (SELECT 
+            `rb`.`resource_key` AS `resourceKey`,
+                `lang`.`language_name` AS `languageName`,
+                `lang`.`language_id` AS `languageId`,
+                `rb`.`text` AS `resourceBundleText`,
+                2 AS `resource_type`,
+                COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`rb`.`updated_by`,`rb`.`created_by`)) AS `updatedBy`,
+                COALESCE(`rb`.`updated_date`, `rb`.`created_date`) AS `updatedDate`
+        FROM
+            ((`jq_resource_bundle` `rb`
+        JOIN `jq_language` `lang` ON (`lang`.`language_id` = `rb`.`language_id`))
+		LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`rb`.`updated_by`,`rb`.`created_by`))
+        LEFT JOIN `jq_module_version` `jmv` ON (`jmv`.`entity_id` = `rb`.`resource_key`
+            AND `jmv`.`entity_name` = 'jq_resource_bundle'))
+        WHERE
+            `rb`.`resource_key` LIKE 'jws.%')) `t`;
+            
+ DROP PROCEDURE IF EXISTS `propertyMasterListing`; 
+CREATE OR REPLACE VIEW `jq_property_master_listing_view` AS
+SELECT
+  `jpm`.`owner_type`         AS `ownerType`,
+  `jpm`.`owner_id`           AS `ownerId`,
+  `jpm`.`property_name`      AS `propertyName`,
+  `jpm`.`property_value`     AS `propertyValue`,
+  `jpm`.`last_modified_date` AS `lastModifiedDate`,
+  CAST(`jpm`.`last_modified_date` AS DATE) AS `isAfterDate`,
+  
+  `jpm`.`app_version`        AS `appVersion`,
+  `jpm`.`comments`           AS `comments`,
+  `jpm`.`property_master_id` AS `propertyMasterId`,
+  COUNT(`jmv`.`version_id`)  AS `revisionCount`,
+  MAX(`jmv`.`version_id`)    AS `max_version_id`,
+  COALESCE(CONCAT(`jus`.`first_name`, ' ', `jus`.`last_name` ),`jpm`.`modified_by`) AS `modifiedBy` 
+FROM (`jq_property_master` `jpm`  LEFT JOIN `jq_user` `jus` ON(
+        `jus`.`email` = `jpm`.`modified_by`)
+   LEFT JOIN `jq_module_version` `jmv`
+     ON (`jmv`.`entity_id` = `jpm`.`property_master_id`
+         AND `jmv`.`entity_name` = 'jq_property_master'))
+WHERE `jpm`.`is_deleted` = 0
+    AND `jpm`.`property_name` NOT IN('acl-jws','jws-date-format')
+GROUP BY `jpm`.`property_master_id`
+ORDER BY `jpm`.`last_modified_date` DESC;

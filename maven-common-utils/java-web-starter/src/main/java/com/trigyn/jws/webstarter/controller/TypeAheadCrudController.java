@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -61,9 +62,12 @@ public class TypeAheadCrudController {
 	private TypeAheadRepository typeAheadRepository = null;
 
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
-	public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException {
+	public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("autocomplete-listing", new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Autocomplete Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Autocomplete Listing Page", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -75,9 +79,12 @@ public class TypeAheadCrudController {
 	}
 
 	@GetMapping(value = "/da", produces = MediaType.TEXT_HTML_VALUE)
-	public String demoAutocomplete(HttpServletResponse httpServletResponse) throws Exception {
+	public String demoAutocomplete(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("autocomplete-demo", new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Autocomplete Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Autocomplete Demo.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -90,7 +97,7 @@ public class TypeAheadCrudController {
 
 	@GetMapping(value = "/aea", produces = MediaType.TEXT_HTML_VALUE)
 	public String addEditAutocompleteDetails(HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 
 		try {
 			String autocompleteId = request.getParameter("acId");
@@ -115,6 +122,9 @@ public class TypeAheadCrudController {
 			// templateData.put("tableNameList", tableNameList);
 			// }
 			return menuService.getTemplateWithSiteLayout("autocomplete-manage-details", templateData);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading TypeAhead/Autocomplete Form page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured in TypeAhead/Autocomplete :  AutocompleteId : "+request.getParameter("acId"), a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

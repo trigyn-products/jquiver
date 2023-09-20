@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
@@ -66,7 +67,7 @@ public class HomeController {
 	@RequestMapping(value = { "", "/", "/home" }, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String homePage(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			UserDetailsVO	userDetailsVO		= userDetails.getUserDetails();
 			List<String>	roleNameList		= userDetailsVO.getRoleIdList();
@@ -88,6 +89,18 @@ public class HomeController {
 				}else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
 					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
+				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
+						roleNameList.contains("ADMIN") == false) {
+					if(CollectionUtils.isEmpty(homePageURLList) == false) {
+						for (String homePageURL : homePageURLList) {
+							if (StringUtils.isBlank(homePageURL) == false) {
+								return masterModuleService.loadTemplate(httpServletRequest, homePageURL, httpServletResponse);
+							}
+						}
+					} else {
+						httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Home Page is not defined");
+						return null;
+					}
 				}
 			}else {
 				if (CollectionUtils.isEmpty(homePageURLList) == false) {
@@ -99,10 +112,17 @@ public class HomeController {
 				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("anonymous")){
 					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
+				} else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
+						roleNameList.contains("ADMIN") == false &&CollectionUtils.isEmpty(homePageURLList) == true) {
+					httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Home Page is not defined");
+					return null;
 				}
 			}
 			
 			return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in homePage.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading home page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

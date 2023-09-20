@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynarest.service.SendMailService;
 import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -45,10 +46,14 @@ import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.UserManagementService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @RestController
 @RequestMapping("/cf")
 public class JwsResetPasswordController {
+	
+	private final static Logger logger = LogManager.getLogger(JwsResetPasswordController.class);
 
 	@Autowired
 	private JwsUserRepository				userRepository					= null;
@@ -94,358 +99,418 @@ public class JwsResetPasswordController {
 
 	@GetMapping(value = "/resetPasswordPage")
 	@ResponseBody
-	public String displayResetPasswordPage(ModelAndView modelAndView, HttpServletResponse response) throws Exception {
+	public String displayResetPasswordPage(ModelAndView modelAndView, HttpServletResponse response)
+			throws Exception, CustomStopException {
 		Map<String, Object> mapDetails = new HashMap<>();
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			TemplateVO templateVO = templatingService.getTemplateByName("jws-password-reset-mail");
-			userConfigService.getConfigurableDetails(mapDetails);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				TemplateVO templateVO = templatingService.getTemplateByName("jws-password-reset-mail");
+				userConfigService.getConfigurableDetails(mapDetails);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
+			} else {
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
+			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in displayResetPasswordPage.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	@PostMapping(value = "/sendResetPasswordMail")
 	@ResponseBody
-	public String sendResetPasswordMail(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
+	public String sendResetPasswordMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
+			throws Exception, CustomStopException {
 
-		String				emailTo		= request.getParameter("email");
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		String				viewName	= null;
+		String emailTo = request.getParameter("email");
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
+				if (existingUser != null) {
 
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
-			if (existingUser != null) {
+					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+							&& session.getAttribute("resetCaptcha") != null && !(request.getParameter("captcha")
+									.toString().equals(session.getAttribute("resetCaptcha").toString()))) {
+						mapDetails.put("invalidCaptcha", "Please verify captcha!");
+						viewName = "jws-password-reset-mail";
+						TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+						return templatingUtils.processTemplateContents(templateVO.getTemplate(),
+								templateVO.getTemplateName(), mapDetails);
+					} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+						session.removeAttribute("resetCaptcha");
+					}
+					existingUser.setIsActive(Constants.INACTIVE);
+					existingUser.setForcePasswordChange(Constants.INACTIVE);
+					userRepository.save(existingUser);
+					JwsResetPasswordToken resetPassword = new JwsResetPasswordToken();
+					String tokenId = UUID.randomUUID().toString();
+					resetPassword.setTokenId(tokenId);
+					resetPassword.setPasswordResetTime(Calendar.getInstance());
+					resetPassword.setUserId(existingUser.getUserId());
+					String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
 
-				if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && session.getAttribute("resetCaptcha") != null
-						&& !(request.getParameter("captcha").toString().equals(session.getAttribute("resetCaptcha").toString()))) {
-					mapDetails.put("invalidCaptcha", "Please verify captcha!");
+					if (baseURL != null && baseURL.endsWith("/")) {
+						baseURL = baseURL.substring(0, baseURL.length() - 1);
+					}
+					resetPassword.setResetPasswordUrl(baseURL + "/cf/resetPassword?token=" + tokenId);
+					resetPassword.setIsResetUrlExpired(Boolean.FALSE);
+					resetPasswordTokenRepository.save(resetPassword);
+
+					Email email = new Email();
+					email.setInternetAddressToArray(InternetAddress.parse(emailTo));
+					/* For inserting notification in case of mail failure only on access of Admin */
+					email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+					email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+					// email.setMailFrom("admin@jquiver.com");
+					Map<String, Object> mailDetails = new HashMap<>();
+					TemplateVO subjectTemplateVO = templatingService.getTemplateByName("reset-password-mail-subject");
+					String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+							subjectTemplateVO.getTemplateName(), mailDetails);
+					email.setSubject(subject);
+					String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system",
+							"adminEmailId");
+					String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io"
+							: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+
+					mailDetails.put("firstName", existingUser.getFirstName() + " " + existingUser.getLastName());
+					mailDetails.put("baseURL", baseURL);
+					mailDetails.put("tokenId", tokenId);
+					mailDetails.put("adminEmailAddress", adminEmail);
+					TemplateVO templateVO = templatingService.getTemplateByName("reset-password-mail");
+					String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+							templateVO.getTemplateName(), mailDetails);
+					email.setBody(mailBody);
+					// System.out.println(mailBody);
+					sendMailService.sendTestMail(email);
+
+					mapDetails.put("successResetPasswordMsg",
+							"Check your email for a link to reset your password. If it doesn’t appear within a few minutes, check your spam folder.");
+					viewName = "jws-password-reset-mail-success";
+				} else {
+					mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");
 					viewName = "jws-password-reset-mail";
-					TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-					return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-				} else if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-					session.removeAttribute("resetCaptcha");
 				}
-				existingUser.setIsActive(Constants.INACTIVE);
-				existingUser.setForcePasswordChange(Constants.INACTIVE);
-				userRepository.save(existingUser);
-				JwsResetPasswordToken	resetPassword	= new JwsResetPasswordToken();
-				String					tokenId			= UUID.randomUUID().toString();
-				resetPassword.setTokenId(tokenId);
-				resetPassword.setPasswordResetTime(Calendar.getInstance());
-				resetPassword.setUserId(existingUser.getUserId());
-				String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
-
-				if (baseURL != null && baseURL.endsWith("/")) {
-					baseURL = baseURL.substring(0, baseURL.length() - 1);
-				}
-				resetPassword.setResetPasswordUrl(baseURL + "/cf/resetPassword?token=" + tokenId);
-				resetPassword.setIsResetUrlExpired(Boolean.FALSE);
-				resetPasswordTokenRepository.save(resetPassword);
-
-				Email email = new Email();
-				email.setInternetAddressToArray(InternetAddress.parse(emailTo));
-				/*For inserting notification in case of mail failure only on access of Admin*/
-				email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-				email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-				// email.setMailFrom("admin@jquiver.com");
-				Map<String, Object>	mailDetails			= new HashMap<>();
-				TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("reset-password-mail-subject");
-				String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-						subjectTemplateVO.getTemplateName(), mailDetails);
-				email.setSubject(subject);
-				String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
-						"adminEmailId");
-				String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-						: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
-				
-				mailDetails.put("firstName", existingUser.getFirstName()+" "+existingUser.getLastName());
-				mailDetails.put("baseURL", baseURL);
-				mailDetails.put("tokenId", tokenId);
-				mailDetails.put("adminEmailAddress", adminEmail);
-				TemplateVO	templateVO	= templatingService.getTemplateByName("reset-password-mail");
-				String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-						mailDetails);
-				email.setBody(mailBody);
-				//System.out.println(mailBody);
-				sendMailService.sendTestMail(email);
-
-				mapDetails.put("successResetPasswordMsg",
-						"Check your email for a link to reset your password. If it doesn’t appear within a few minutes, check your spam folder.");
-				viewName = "jws-password-reset-mail-success";
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");
-				viewName = "jws-password-reset-mail";
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
 			}
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendResetPasswordMail.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	@GetMapping(value = "/resetPassword")
 	@ResponseBody
-	public String resetPasswordByURL(@RequestParam("token") String tokenId, HttpServletResponse response) throws Exception {
+	public String resetPasswordByURL(@RequestParam("token") String tokenId, HttpServletResponse response)
+			throws Exception, CustomStopException {
 
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		String				viewName	= null;
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			JwsResetPasswordToken	tokenDetails	= resetPasswordTokenRepository.findByTokenId(tokenId);
-			Boolean					isInvalidLink	= false;
-			if (tokenDetails != null && tokenDetails.getPasswordResetTime() != null
-					&& tokenDetails.getIsResetUrlExpired() != Boolean.TRUE) {
-				long		linkSendTimestamp	= tokenDetails.getPasswordResetTime().getTimeInMillis();
-				long		maxLinkActiveTime	= TimeUnit.MINUTES.toMillis(20);
-				Timestamp	currentTimestamp	= new Timestamp(System.currentTimeMillis());
-				long		milliseconds		= currentTimestamp.getTime() - linkSendTimestamp;
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				JwsResetPasswordToken tokenDetails = resetPasswordTokenRepository.findByTokenId(tokenId);
+				Boolean isInvalidLink = false;
+				if (tokenDetails != null && tokenDetails.getPasswordResetTime() != null
+						&& tokenDetails.getIsResetUrlExpired() != Boolean.TRUE) {
+					long linkSendTimestamp = tokenDetails.getPasswordResetTime().getTimeInMillis();
+					long maxLinkActiveTime = TimeUnit.MINUTES.toMillis(20);
+					Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+					long milliseconds = currentTimestamp.getTime() - linkSendTimestamp;
 
-				if (milliseconds > maxLinkActiveTime) {
-					isInvalidLink = Boolean.TRUE;
-				} else {
+					if (milliseconds > maxLinkActiveTime) {
+						isInvalidLink = Boolean.TRUE;
+					} else {
 
-					JwsUser userDetails = userRepository.findByUserId(tokenDetails.getUserId());
-					if (userDetails != null && userDetails.getEmail() != null) {
-						mapDetails.put("resetEmailId", userDetails.getEmail());
+						JwsUser userDetails = userRepository.findByUserId(tokenDetails.getUserId());
+						if (userDetails != null && userDetails.getEmail() != null) {
+							mapDetails.put("resetEmailId", userDetails.getEmail());
+						}
+						mapDetails.put("token", tokenId);
+						viewName = "jws-password-reset-page";
 					}
-					mapDetails.put("token", tokenId);
-					viewName = "jws-password-reset-page";
+				} else {
+					isInvalidLink = Boolean.TRUE;
 				}
+
+				if (isInvalidLink) {
+					mapDetails.put("inValidLink",
+							"The link is expired/invalid/broken.Please enter mail id again to get reset password link!");
+					viewName = "jws-password-reset-mail";
+				}
+
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				isInvalidLink = Boolean.TRUE;
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
 			}
-
-			if (isInvalidLink) {
-				mapDetails.put("inValidLink", "The link is expired/invalid/broken.Please enter mail id again to get reset password link!");
-				viewName = "jws-password-reset-mail";
-			}
-
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in resetPasswordByURL.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	@PostMapping(value = "/createPassword")
 	@ResponseBody
-	public String createPassword(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
-		Map<String, Object>	mapDetails		= new HashMap<>();
-		String				viewName		= null;
+	public String createPassword(HttpServletRequest request, HttpSession session, HttpServletResponse response)
+			throws Exception, CustomStopException {
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
 
-		String				password		= request.getParameter("password");
-		String				confirmpassword	= request.getParameter("confirmpassword");
-		String				resetEmailId	= request.getParameter("resetEmailId");
-		String				tokenId			= request.getParameter("token");
-		mapDetails.put("token", tokenId);
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			if (password == null || (password != null && password.trim().isEmpty()) || confirmpassword == null
-					|| (confirmpassword != null && confirmpassword.trim().isEmpty())) {
-				mapDetails.put("nonValidPassword", "Enter valid password and confirm password");
-				viewName = "jws-password-reset-page";
-			} else if (!password.equals(confirmpassword)) {
-				mapDetails.put("nonValidPassword", "Enter same password and confirm password");
-				viewName = "jws-password-reset-page";
-			} else if (password.equals(confirmpassword)) {
-				if (userManagementService.validatePassword(password)) {
-					if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && session.getAttribute("createCaptcha") != null
-							&& !(request.getParameter("captcha").toString().equals(session.getAttribute("createCaptcha").toString()))) {
-						mapDetails.put("invalidCaptcha", "Please verify captcha!");
-						viewName = "jws-password-reset-page";
-					} else {
-						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-							session.removeAttribute("createCaptcha");
-						}
-						String	encodedPassword	= passwordEncoder.encode(password);
-						JwsUser	user			= userRepository.findByEmailIgnoreCase(resetEmailId);
-						user.setIsActive(Constants.ISACTIVE);
-						user.setPassword(encodedPassword);
-						userRepository.save(user);
-
-						/*
-						 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-						 * mapDetails.put("authenticationType",
-						 * applicationSecurityDetails.getAuthenticationType()); }
-						 */
-						userConfigService.getConfigurableDetails(mapDetails);
-						resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(), tokenId);
-						mapDetails.put("resetPasswordSuccess", "Congratulations.You have successfully changed your password.");
-						viewName = "jws-login";
-					}
-				} else {
+		String password = request.getParameter("password");
+		String confirmpassword = request.getParameter("confirmpassword");
+		String resetEmailId = request.getParameter("resetEmailId");
+		String tokenId = request.getParameter("token");
+		try {
+			mapDetails.put("token", tokenId);
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				if (password == null || (password != null && password.trim().isEmpty()) || confirmpassword == null
+						|| (confirmpassword != null && confirmpassword.trim().isEmpty())) {
+					mapDetails.put("nonValidPassword", "Enter valid password and confirm password");
 					viewName = "jws-password-reset-page";
-					mapDetails.put("nonValidPassword",
-							"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
+				} else if (!password.equals(confirmpassword)) {
+					mapDetails.put("nonValidPassword", "Enter same password and confirm password");
+					viewName = "jws-password-reset-page";
+				} else if (password.equals(confirmpassword)) {
+					if (userManagementService.validatePassword(password)) {
+						if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+								&& session.getAttribute("createCaptcha") != null && !(request.getParameter("captcha")
+										.toString().equals(session.getAttribute("createCaptcha").toString()))) {
+							mapDetails.put("invalidCaptcha", "Please verify captcha!");
+							viewName = "jws-password-reset-page";
+						} else {
+							if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+								session.removeAttribute("createCaptcha");
+							}
+							String encodedPassword = passwordEncoder.encode(password);
+							JwsUser user = userRepository.findByEmailIgnoreCase(resetEmailId);
+							user.setIsActive(Constants.ISACTIVE);
+							user.setPassword(encodedPassword);
+							userRepository.save(user);
+
+							/*
+							 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+							 * mapDetails.put("authenticationType",
+							 * applicationSecurityDetails.getAuthenticationType()); }
+							 */
+							userConfigService.getConfigurableDetails(mapDetails);
+							resetPasswordTokenRepository.updateUrlExpired(Boolean.TRUE, user.getUserId(), tokenId);
+							mapDetails.put("resetPasswordSuccess",
+									"Congratulations.You have successfully changed your password.");
+							viewName = "jws-login";
+						}
+					} else {
+						viewName = "jws-password-reset-page";
+						mapDetails.put("nonValidPassword",
+								"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
+					}
+
 				}
-
+				mapDetails.put("resetEmailId", resetEmailId);
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
+			} else {
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
 			}
-			mapDetails.put("resetEmailId", resetEmailId);
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in createPassword.", custStopException);
+			throw custStopException;
 		}
-
 	}
 
 	@GetMapping(value = "/changePassword")
 	@ResponseBody
-	public String changePasswordPage(@RequestParam("token") String tokenId, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	public String changePasswordPage(@RequestParam("token") String tokenId, HttpServletRequest request,
+			HttpServletResponse response) throws Exception, CustomStopException {
 
-		String				isChangePassword	= request.getParameter("icp");
-		Map<String, Object>	mapDetails			= new HashMap<>();
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			if (StringUtils.isNotBlank(tokenId)) {
+		String isChangePassword = request.getParameter("icp");
+		Map<String, Object> mapDetails = new HashMap<>();
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				if (StringUtils.isNotBlank(tokenId)) {
 
-				JwsUser jwsUser = userRepository.findByUserId(tokenId);
-				if (jwsUser != null && (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
-					mapDetails.put("tokenId", tokenId);
-					mapDetails.put("icp", isChangePassword);
+					JwsUser jwsUser = userRepository.findByUserId(tokenId);
+					if (jwsUser != null && (jwsUser.getForcePasswordChange() == Constants.ISACTIVE
+							|| "1".equals(isChangePassword))) {
+						mapDetails.put("tokenId", tokenId);
+						mapDetails.put("icp", isChangePassword);
+					} else {
+						response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
+						return null;
+					}
+
 				} else {
 					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
 					return null;
 				}
 
+				TemplateVO templateVO = templatingService.getTemplateByName("jws-change-password");
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
-
-			TemplateVO templateVO = templatingService.getTemplateByName("jws-change-password");
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in changePasswordPage.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	@PostMapping(value = "/updatePassword")
 	@ResponseBody
-	public String updatePasswordPage(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
+	public String updatePasswordPage(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+			throws Exception, CustomStopException {
 
-		Map<String, Object>	mapDetails			= new HashMap<>();
-		String				viewName			= null;
-		String				isChangePassword	= request.getParameter("icp");
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+		String isChangePassword = request.getParameter("icp");
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				String tokenId = request.getParameter("tokenId");
+				String oldPassword = request.getParameter("password");
+				String newPassword = request.getParameter("newPassword");
+				mapDetails.put("tokenId", tokenId);
+				JwsUser jwsUser = userRepository.findByUserId(tokenId);
 
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			String	tokenId		= request.getParameter("tokenId");
-			String	oldPassword	= request.getParameter("password");
-			String	newPassword	= request.getParameter("newPassword");
-			mapDetails.put("tokenId", tokenId);
-			JwsUser jwsUser = userRepository.findByUserId(tokenId);
+				if (jwsUser != null
+						&& (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
+					BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+					if (bcrypt.matches(newPassword, jwsUser.getPassword())) {
+						viewName = "jws-change-password";
+						mapDetails.put("errorMessage", "Old Password and new password cannot be same");
+					} else {
+						if (BCrypt.checkpw(oldPassword, jwsUser.getPassword())) {
+							if (userManagementService.validatePassword(newPassword)) {
 
-			if (jwsUser != null && (jwsUser.getForcePasswordChange() == Constants.ISACTIVE || "1".equals(isChangePassword))) {
-				BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
-				if (bcrypt.matches(newPassword, jwsUser.getPassword())) {
-					viewName = "jws-change-password";
-					mapDetails.put("errorMessage", "Old Password and new password cannot be same");
-				} else {
-					if (BCrypt.checkpw(oldPassword, jwsUser.getPassword())) {
-						if (userManagementService.validatePassword(newPassword)) {
+								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
+										&& session.getAttribute("updateCaptcha") != null
+										&& !(request.getParameter("captcha").toString()
+												.equals(session.getAttribute("updateCaptcha").toString()))) {
+									mapDetails.put("invalidCaptcha", "Please verify captcha!");
+									mapDetails.put("icp", isChangePassword);
+									viewName = "jws-change-password";
+								} else {
+									if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+										session.removeAttribute("updateCaptcha");
+									}
+									jwsUser.setIsActive(Constants.ISACTIVE);
+									jwsUser.setPassword(passwordEncoder.encode(newPassword));
+									jwsUser.setForcePasswordChange(Constants.INACTIVE);
+									jwsUser.setLastPasswordUpdatedDate(new Date());
+									userRepository.save(jwsUser);
 
-							if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")
-									&& session.getAttribute("updateCaptcha") != null && !(request.getParameter("captcha").toString()
-											.equals(session.getAttribute("updateCaptcha").toString()))) {
-								mapDetails.put("invalidCaptcha", "Please verify captcha!");
-								mapDetails.put("icp", isChangePassword);
-								viewName = "jws-change-password";
-							} else {
-								if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-									session.removeAttribute("updateCaptcha");
+									/*
+									 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+									 * mapDetails.put("authenticationType",
+									 * applicationSecurityDetails.getAuthenticationType()); }
+									 */
+									userConfigService.getConfigurableDetails(mapDetails);
+
+									mapDetails.put("resetPasswordSuccess",
+											"Congratulations.You have successfully updated your password.");
+									viewName = "jws-login";
 								}
-								jwsUser.setIsActive(Constants.ISACTIVE);
-								jwsUser.setPassword(passwordEncoder.encode(newPassword));
-								jwsUser.setForcePasswordChange(Constants.INACTIVE);
-								jwsUser.setLastPasswordUpdatedDate(new Date());
-								userRepository.save(jwsUser);
-
-								/*
-								 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-								 * mapDetails.put("authenticationType",
-								 * applicationSecurityDetails.getAuthenticationType()); }
-								 */
-								userConfigService.getConfigurableDetails(mapDetails);
-
-								mapDetails.put("resetPasswordSuccess", "Congratulations.You have successfully updated your password.");
-								viewName = "jws-login";
+							} else {
+								viewName = "jws-change-password";
+								mapDetails.put("icp", isChangePassword);
+								mapDetails.put("errorMessage",
+										"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
 							}
 						} else {
 							viewName = "jws-change-password";
 							mapDetails.put("icp", isChangePassword);
 							mapDetails.put("errorMessage",
-									"Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers ");
+									"Check System generated Password or ask admin to change the password");
 						}
-					} else {
-						viewName = "jws-change-password";
-						mapDetails.put("icp", isChangePassword);
-						mapDetails.put("errorMessage", "Check System generated Password or ask admin to change the password");
 					}
+				} else {
+					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
+					return null;
 				}
+
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
-
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in updatePasswordPage.", custStopException);
+			throw custStopException;
 		}
-
 	}
 
 	@GetMapping(value = "/configureTOTP")
 	@ResponseBody
-	public String configureTOTPPage(ModelAndView modelAndView, HttpServletResponse response) throws Exception {
+	public String configureTOTPPage(ModelAndView modelAndView, HttpServletResponse response)
+			throws Exception, CustomStopException {
 		Map<String, Object> mapDetails = new HashMap<>();
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			TemplateVO templateVO = templatingService.getTemplateByName("jws-configure-totp");
-			userConfigService.getConfigurableDetails(mapDetails);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				TemplateVO templateVO = templatingService.getTemplateByName("jws-configure-totp");
+				userConfigService.getConfigurableDetails(mapDetails);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
+			} else {
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
+			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in configureTOTPPage.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	@PostMapping(value = "/sendConfigureTOTPMail")
 	@ResponseBody
-	public String sendConfigureTOTPMail(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
+	public String sendConfigureTOTPMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
+			throws Exception, CustomStopException {
 
-		String				emailTo		= request.getParameter("email");
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		String				viewName	= null;
+		String emailTo = request.getParameter("email");
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
+				if (existingUser != null) {
+					Email email = new Email();
+					userManagementService.sendMailForTotpAuthentication(existingUser, email);
 
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(emailTo);
-			if (existingUser != null) {
-				Email email = new Email();
-				userManagementService.sendMailForTotpAuthentication(existingUser, email);
-
-				mapDetails.put("successResetPasswordMsg",
-						"Check your email for a instructions to login through Google AUtheticator. If it doesn’t appear within a few minutes, check your spam folder.");
-				viewName = "jws-password-reset-mail-success";
+					mapDetails.put("successResetPasswordMsg",
+							"Check your email for a instructions to login through Google AUtheticator. If it doesn’t appear within a few minutes, check your spam folder.");
+					viewName = "jws-password-reset-mail-success";
+				} else {
+					mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");
+					viewName = "jws-configure-totp";
+				}
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");
-				viewName = "jws-configure-totp";
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
 			}
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendConfigureTOTPMail.", custStopException);
+			throw custStopException;
 		}
 	}
 	

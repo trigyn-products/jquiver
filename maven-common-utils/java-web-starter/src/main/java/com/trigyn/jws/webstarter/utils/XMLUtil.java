@@ -31,7 +31,7 @@ public class XMLUtil {
 
 	public static void generateMetadataXML(Map<String, String> moduleListMap,
 			Map<String, Map<String, Object>> exportFolderData, String downloadLocation, String version, String userName,
-			String htmlTableJSON) throws Exception {
+			String htmlTableJSON, List<Modules> existingModuleList) throws Exception {
 		MetadataXMLVO	metaDataXMLVO	= new MetadataXMLVO();
 
 		Settings		settings		= new Settings();
@@ -44,7 +44,10 @@ public class XMLUtil {
 
 		if (exportFolderData != null && !exportFolderData.isEmpty()) {
 			List<Modules> exportModuleList = new ArrayList<>();
-
+			if(existingModuleList != null && existingModuleList.isEmpty() == false) {
+				exportModuleList.addAll(existingModuleList);
+			}
+			
 			for (Entry<String, Map<String, Object>> entry : exportFolderData.entrySet()) {
 				String				moduleID	= entry.getKey();
 				Map<String, Object>	map			= entry.getValue();
@@ -106,7 +109,7 @@ public class XMLUtil {
 
 		Marshaller	jaxbMarshaller	= jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
+		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 		jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
 		jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml"));
 	}

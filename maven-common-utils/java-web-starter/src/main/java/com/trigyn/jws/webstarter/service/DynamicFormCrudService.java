@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -34,11 +37,14 @@ import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.webstarter.controller.DynamicFormCrudController;
 
 @Service
 @Transactional
 public class DynamicFormCrudService {
 
+	private final static Logger logger = LogManager.getLogger(DynamicFormCrudService.class);
+	
 	@Autowired
 	private DynamicFormCrudDAO					dynamicFormDAO					= null;
 
@@ -70,7 +76,8 @@ public class DynamicFormCrudService {
 	private AdditionalDatasourceRepository additionalDatasourceRepository;
 
 	@Transactional(readOnly = true)
-	public String addEditForm(String formId) throws Exception {
+	public String addEditForm(String formId) throws Exception, CustomStopException {
+		try {
 		Map<String, Object>	templateMap	= new HashMap<>();
 		DynamicForm			dynamicForm	= new DynamicForm();
 		if (StringUtils.isNotEmpty(formId)) {
@@ -85,6 +92,10 @@ public class DynamicFormCrudService {
 		templateMap.put("JSsuggestions", jSSuggestions);
 		templateMap.put("dynamicForm", dynamicForm);
 		return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dynamic Form page.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	@Transactional(readOnly = false)

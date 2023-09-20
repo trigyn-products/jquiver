@@ -114,7 +114,7 @@
 		<input id="importAllBtn" class="btn btn-primary" style="float: right;" name="importAllBtn"
 			value="${messageSource.getMessage('jws.importall')}" type="button" onclick="importAll()">
 
-		<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+		<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm" target="_blank">
 		    <input type="hidden" id="cmvEntityName" name="cmvEntityName">
 		    <input type="hidden" id="entityId" name="entityId">
 			<input type="hidden" id="moduleName" name="moduleName">
@@ -158,6 +158,7 @@
 	
     $('#btnUpload').on('click', function() {
         var typeSelected= document.getElementById('importTypeSelect').value;
+        localStorage.setItem("typeSelected", typeSelected);
     	var data= document.getElementById('inputFile');
         
         if(typeSelected==0){
@@ -175,7 +176,8 @@
 	    		 return false;
 	  		}
         }
-        importFile();  
+          localStorage.setItem("file",data.files[0].name);
+           importFile();  
         }else{
              $('#inputFile').val('');
             var path= document.getElementById('importFilePath').value;
@@ -185,10 +187,38 @@
                 //path.focus();
 	    		 return false;
             }
+            localStorage.setItem("importFilePath", path);
             importFromLocal();
         }
 	    	
     	
     });
+   /* window.addEventListener( "pageshow", function ( event ) {
+        
+        let backtoImport= localStorage.getItem("backtoImport");
+        if(backtoImport){
+            localStorage.removeItem("backtoImport");
+            let typeSelected= localStorage.getItem("typeSelected");
+            document.getElementById("importTypeSelect").value = typeSelected;
+        if(typeSelected==0){
+           
+         var fileName = localStorage.getItem("file");
+         $("#htmlTable > tbody").empty();
+         $("#htmlTable > tbody").append( sessionStorage.getItem("tableRow"));
+         document.getElementById('file-upload-filename').textContent=fileName;
+	        // infoArea.textContent = fileName;
+           // importFile();  
+        }
+        else{
+            let importFilePath= localStorage.getItem("importFilePath");
+            document.getElementById("importFilePath").value = importFilePath;
+            importFromLocal();
+        }
+           
+            changeImportType();
+        }
+            
+    });**/
     
+
 </script>

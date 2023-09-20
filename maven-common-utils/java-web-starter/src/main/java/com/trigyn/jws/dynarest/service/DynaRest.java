@@ -79,9 +79,6 @@ public class DynaRest {
 		String	ownerType		= a_httpServletRequest.getParameter("ownerType");
 		String	propertyName	= a_httpServletRequest.getParameter("propertyName");
 		String	propertyValue	= propertyMasterDetails.getPropertyValueFromPropertyMaster(ownerId, ownerType, propertyName);
-		if (StringUtils.isBlank(propertyValue) == false) {
-			System.out.println("Welcome to Property Master: " + propertyValue);
-		}
 		return propertyValue;
 	}
 
@@ -97,7 +94,6 @@ public class DynaRest {
 		String					resourceBundleKey		= a_httpServletRequest.getParameter("resourceBundleKey");
 		List<ResourceBundleVO>	resourceBundleVOList	= iResourceBundleRepository.findResourceBundleByKey(resourceBundleKey);
 		if (!CollectionUtils.isEmpty(resourceBundleVOList)) {
-			System.out.println("Welcome to Resource Bundle ");
 			for (ResourceBundleVO resourceBundleVO : resourceBundleVOList) {
 				responseMap.put(resourceBundleVO.getLanguageId().toString(), resourceBundleVO.getText());
 			}

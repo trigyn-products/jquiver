@@ -24,6 +24,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynarest.service.SendMailService;
 import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -128,27 +129,31 @@ public class OtpService implements InitializingBean{
 		return false;
 	}
     
-    public void sendMailForOtpAuthentication(Map<String, Object> mapDetails) throws Exception {
+	public void sendMailForOtpAuthentication(Map<String, Object> mapDetails) throws Exception, CustomStopException {
 		Map<String, Object> mailDetails = new HashMap<>();
 		Email email = new Email();
+		try {
+			email.setInternetAddressToArray(InternetAddress.parse((String) mapDetails.get("email")));
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 
-		email.setInternetAddressToArray(InternetAddress.parse((String) mapDetails.get("email")));
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		
-		TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("otp-mail-subject");
-		String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-				subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("otp-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
 
-		TemplateVO	templateVO	= templatingService.getTemplateByName("otp-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		sendMailService.sendTestMail(email);
+			TemplateVO templateVO = templatingService.getTemplateByName("otp-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForOtpAuthentication.", custStopException);
+			throw custStopException;
+		}
 	}
-    
+
     public Integer updateCatche(String email, Integer otpNumber) {
         otpCache.put(email, otpNumber);
         return otpNumber;
@@ -195,19 +200,24 @@ public class OtpService implements InitializingBean{
 
 	}
 	
-	public void sendMailForOtp(Map<String, Object> mapDetails) throws Exception {
-		Email email 					= new Email();
-		email.setInternetAddressToArray(InternetAddress.parse((String) mapDetails.get("email")));
-		TemplateVO	subjectTemplate		= templatingService.getTemplateByName("otp-mail-subject");
-		String		subject				= templatingUtils.processTemplateContents(subjectTemplate.getTemplate(),
-				subjectTemplate.getTemplateName(), mapDetails);
-		email.setSubject(subject);
+	public void sendMailForOtp(Map<String, Object> mapDetails) throws Exception, CustomStopException {
+		try {
+			Email email = new Email();
+			email.setInternetAddressToArray(InternetAddress.parse((String) mapDetails.get("email")));
+			TemplateVO subjectTemplate = templatingService.getTemplateByName("otp-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplate.getTemplate(),
+					subjectTemplate.getTemplateName(), mapDetails);
+			email.setSubject(subject);
 
-		TemplateVO	templateVO			= templatingService.getTemplateByName("otp-mail");
-		String		mailBody			= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mapDetails);
-		email.setBody(mailBody);
-		sendMailService.sendTestMail(email);
+			TemplateVO templateVO = templatingService.getTemplateByName("otp-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mapDetails);
+			email.setBody(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForOtp.", custStopException);
+			throw custStopException;
+		}
 	}
 	
 	public String getBaseURL(PropertyMasterService propertyMasterService, ServletContext servletContext)

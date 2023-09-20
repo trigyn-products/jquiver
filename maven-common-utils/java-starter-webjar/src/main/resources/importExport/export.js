@@ -1674,6 +1674,8 @@ pageModel: { type: "remote", rPP: 10, strRpp: "{0}",rPPOptions:[10,20,50,100,500
     			type : "POST",
     			url : contextPath+"/cf/etl",
     			async: false,
+                contentType: "application/json",
+    		    data : JSON.stringify(out),
     			success : function(data) {
     				if(data.startsWith("fail:")){
     					var errorMessageString = data.substring(5);

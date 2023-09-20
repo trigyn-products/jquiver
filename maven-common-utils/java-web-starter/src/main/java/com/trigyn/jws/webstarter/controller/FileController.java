@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
@@ -46,12 +47,15 @@ public class FileController {
 	private FileUploadConfigService	fileUploadConfigService	= null;
 
 	@GetMapping(value = "/fucl", produces = MediaType.TEXT_HTML_VALUE)
-	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException {
+	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	modelMap	= new HashMap<>();
 			String				environment	= propertyMasterService.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("file-upload-config-listing", modelMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading File Upload Config page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading File Upload Config Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

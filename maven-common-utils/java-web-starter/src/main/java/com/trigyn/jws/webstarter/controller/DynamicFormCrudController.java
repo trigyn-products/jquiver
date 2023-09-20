@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
@@ -67,11 +68,14 @@ public class DynamicFormCrudController {
 
 	@PostMapping(value = "/aedf", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			/* Method called for implementing Activity Log */
 			logActivity(formId);
 			return dynamicFormCrudService.addEditForm(formId);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dynamic Form page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured in Form Builder (formId: {})",formId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -134,12 +138,16 @@ public class DynamicFormCrudController {
 	}
 
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
-	public String dynamicFormMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+	public String dynamicFormMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object> modelMap = new HashMap<>();
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dynamic-form-listing", modelMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dynamic Form Listing page.", custStopException);
+			throw custStopException;
+		
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dynamic Form Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -153,12 +161,13 @@ public class DynamicFormCrudController {
 	@PostMapping(value = "/dfte", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
 		String tableName = httpServletRequest.getParameter("tableName");
+		Boolean toggleCaptcha = false;
 		String additionalDataSourceId = httpServletRequest.getParameter("dbProductID");
 		String dbProductName = httpServletRequest.getParameter("dbProductName");
 		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName,
 				additionalDataSourceId);
 		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId,
-				dbProductName);
+				dbProductName, toggleCaptcha);
 	}
 
 	@GetMapping(value = "/cdd")

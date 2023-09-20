@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.cipher.utils.RSAKeyPairGeneratorUtil;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DynarestCrudService;
 
@@ -42,7 +43,8 @@ public class DynarestCrudController {
 	private MenuService			menuService			= null;
 
 	@GetMapping(value = "/dynl", produces = MediaType.TEXT_HTML_VALUE)
-	public String loadDynarestListing(HttpServletRequest httpServletRequest) throws Exception {
+	public String loadDynarestListing(HttpServletRequest httpServletRequest) throws Exception,CustomStopException {
+		try {
 		Map<String, Object>	modelMap	= new HashMap<>();
 		String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 		modelMap.put("environment", environment);
@@ -53,6 +55,10 @@ public class DynarestCrudController {
 		urlPrefix.append(url).append("/api/");
 		modelMap.put("urlPrefix", urlPrefix);
 		return menuService.getTemplateWithSiteLayout("dynarest-details-listing", modelMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while Rest API Listing page.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	@PostMapping(value = "/sdq", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

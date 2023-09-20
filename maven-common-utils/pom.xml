@@ -85,15 +85,8 @@
 	</properties>
 
 	<modules>
-		<module>dbutils</module>
-		<module>usermanagement</module>
-		<module>resourcebundle</module>
-		<module>templating</module>
-		<module>gridutils</module>
-		<module>dashboard</module>
-		<module>typeahead</module>
-		<module>dynamic-form</module>
-		<module>dynamic-rest</module>
+		<module>java-starter-webui</module>
+		<module>java-starter-webjar</module>
 		<module>java-web-starter</module>
 	</modules>
 
@@ -167,10 +160,56 @@
 			<artifactId>jwks-rsa</artifactId>
 			<version>0.11.0</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
 			<version>3.15.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.5.5</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>commons-dbcp</groupId>
+		    <artifactId>commons-dbcp</artifactId>
+		    <version>1.2.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
+		
+        <dependency>
+       		<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-mail</artifactId>
+    	</dependency>
+    	
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		
+		
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -184,33 +223,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<compilerArgument>-parameters</compilerArgument>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<dependencies>
-					<!-- The following enables the "thin jar" deployment option. -->
-					<dependency>
-						<groupId>org.springframework.boot.experimental</groupId>
-						<artifactId>spring-boot-thin-layout</artifactId>
-						<version>1.0.11.RELEASE</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot.experimental</groupId>
-				<artifactId>spring-boot-thin-maven-plugin</artifactId>
-				<version>1.0.25.RELEASE</version>
-				<executions>
-					<execution>
-						<!-- Download the dependencies at build time -->
-						<id>resolve</id>
-						<goals>
-							<goal>resolve</goal>
-						</goals>
-						<inherited>false</inherited>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>

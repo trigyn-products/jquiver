@@ -69,9 +69,9 @@
             	{ title: "${messageSource.getMessage('jws.msgtext')}", hidden : false, width: 130, dataIndx: "messageText", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
             	{ title: "${messageSource.getMessage('jws.msgtype')}", hidden : false, width: 130, dataIndx: "messageType", align: "left", halign: "center", render:messageTypeRenderer ,
-                filter: { type: "select", condition: "equal",options : messageTypeOption, listeners: ["change"]} },
+                filter: { type: "select", condition: "eq",options : messageTypeOption, listeners: ["change"]} },
             { title: "${messageSource.getMessage('jws.displayonce')}", maxWidth: 100, dataIndx: "displayOnce", align: "left",  halign: "left", render:displayOnceRenderer,
-            filter: { type: "select", condition: "equal",options : displayOnceOption, listeners: ["change"]} },
+            filter: { type: "select", condition: "eq",options : displayOnceOption, listeners: ["change"]} },
                         	
             	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
                

@@ -1,19 +1,15 @@
 package com.trigyn.jws.webstarter.controller;
 
 import java.io.IOException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dynamicform.entities.DynamicForm;
+import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.webstarter.service.MasterCreatorService;
 
@@ -43,12 +43,18 @@ public class MasterCreatorController {
 
 	@Autowired
 	private ModuleService			moduleService			= null;
+	
+	@Autowired
+	private PropertyMasterService			propertyMasterService			= null;
 
 	@GetMapping(value = "/mg", produces = MediaType.TEXT_HTML_VALUE)
 	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			return masterCreatorService.getModuleDetails(httpServletRequest);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Master Genertor page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Master Genertor page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -62,13 +68,23 @@ public class MasterCreatorController {
 	@PostMapping(value = "/cm", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public void createMasterModulePages(@RequestBody MultiValueMap<String, String> formData,
-			HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	details			= masterCreatorService.initMasterCreationScript(formData);
 			ObjectMapper		objectMapper	= new ObjectMapper();
 			String				roleIdString	= formData.getFirst("roleIds");
 			List<String>		roleIds			= objectMapper.readValue(roleIdString, List.class);
 			masterCreatorService.saveEntityRolesForMasterGenerator(details, roleIds);
+			String				environment				= propertyMasterService.findPropertyMasterValue("system", "system",
+					"profile");
+			if ("dev".equalsIgnoreCase(environment)) {
+				TemplateMaster template=(TemplateMaster) details.get("templateMaster");
+				DynamicForm dynamicForm=(DynamicForm) details.get("dynamicForm");
+				masterCreatorService.downloadFiles(template,dynamicForm);
+			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Master Genertor page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while saving Master Module (formData: {})"+formData, a_exception);
 			if (httpServletResponse.getStatus() != HttpStatus.FORBIDDEN.value()) {

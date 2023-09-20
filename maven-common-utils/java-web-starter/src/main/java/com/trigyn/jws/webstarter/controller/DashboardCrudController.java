@@ -31,10 +31,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
+import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dbutils.vo.UserRoleVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.utils.Constants;
@@ -66,9 +67,12 @@ public class DashboardCrudController {
 
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
 	@ApiOperation(value = "Dashboard Listing")
-	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dashboard Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dashboard Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -82,7 +86,7 @@ public class DashboardCrudController {
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
 	@ApiOperation(value = "Add edit Dashboard")
 	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId,
-			HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	templateMap	= new HashMap<>();
 			Dashboard			dashboard	= new Dashboard();
@@ -100,10 +104,11 @@ public class DashboardCrudController {
 				dashboard.setDashboardRoles(new ArrayList<>());
 			}
 			templateMap.put("userRoleVOs", userRoleVOs);
-			Map<String, String> contextDetails = dashboardCrudService.findContextDetails();
-			templateMap.put("contextDetails", contextDetails);
 			templateMap.put("dashboard", dashboard);
 			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dashboard Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dashboard : DashboardId : "+ dashboardId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -148,9 +153,21 @@ public class DashboardCrudController {
 	@ResponseBody
 	public String saveDashboard(@RequestBody DashboardVO dashboardVO,
 			@RequestHeader(value = "user-id", required = false) String userId) throws Exception {
-		dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
-		dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
+		
+			dashboardCrudService.deleteAllDashletFromDashboard(dashboardVO);
+			dashboardCrudService.deleteAllDashboardRoles(dashboardVO);
 		return dashboardCrudService.saveDashboardDetails(dashboardVO, userId, Constant.MASTER_SOURCE_VERSION_TYPE);
+	}
+	
+	@GetMapping(value = "/dds",produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<DashletVO> getdashboarddashlet(@RequestParam("dashboardId") String dashboardId) throws Exception {
+		Dashboard			dashboard	= new Dashboard();
+		if (!StringUtils.isBlank(dashboardId)) {
+			dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
+			List<DashletVO> dashDashboard = dashboardCrudService.getDashletVOFromDashboard(dashboard);
+			return dashDashboard;
+		}
+		return null;
 	}
 
 	@PostMapping(value = "/sdbv")

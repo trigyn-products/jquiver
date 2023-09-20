@@ -54,6 +54,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynarest.service.SendMailService;
@@ -73,6 +74,7 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
 import com.trigyn.jws.usermanagement.repository.JwsAuthenticationTypeRepository;
 import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationRepository;
@@ -127,6 +129,9 @@ public class UserManagementService {
 
 	@Autowired
 	private UserManagementDAO							userManagementDAO				= null;
+
+	@Autowired
+	private JwsEntityRoleAssociationDAO					jwsEntityRoleAssociationDAO		= null;
 
 	@Autowired
 	private JwsUserRoleAssociationRepository			userRoleRepository				= null;
@@ -188,73 +193,88 @@ public class UserManagementService {
 	private ObjectMapper								mapper							= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-	public String addEditRole(String roleId) throws Exception {
+	public String addEditRole(String roleId) throws Exception, CustomStopException {
 
-		Map<String, Object>	templateMap	= new HashMap<>();
-		JwsRole				jwsRole		= new JwsRole();
-		if (StringUtils.isNotEmpty(roleId)) {
+		Map<String, Object> templateMap = new HashMap<>();
+		JwsRole jwsRole = new JwsRole();
+		try {
+			if (StringUtils.isNotEmpty(roleId)) {
 
-			jwsRole = jwsRoleRepository.findById(roleId).get();
-			/* Method called for implementing Activity Log */
-			logActivity(jwsRole.getRoleName(), Constants.OPEN, Constants.USERMANAGEMENT);
+				jwsRole = jwsRoleRepository.findById(roleId).get();
+				/* Method called for implementing Activity Log */
+				logActivity(jwsRole.getRoleName(), Constants.OPEN, Constants.USERMANAGEMENT);
+			}
+			templateMap.put("jwsRole", jwsRole);
+			return menuService.getTemplateWithSiteLayout("addEditRole", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in addEditRole.", custStopException);
+			throw custStopException;
 		}
-		templateMap.put("jwsRole", jwsRole);
-		return menuService.getTemplateWithSiteLayout("addEditRole", templateMap);
 	}
 
-	public void saveRoleData(JwsRoleVO roleData) {
+	public JwsRole saveRoleData(JwsRoleVO roleData) {
 		JwsRole jwsRole = roleData.convertVOToEntity(roleData);
-		jwsRoleRepository.save(jwsRole);
-
+		JwsRole newRole = jwsRoleRepository.save(jwsRole);
+		return newRole;		
+	}
+	
+	public void updateEntityRole(JwsRoleVO roleData, JwsRole newRole) {
 		// add role to entity table
-
-		if (Boolean.FALSE.equals(StringUtils.isNotEmpty(roleData.getRoleId()))
-				&& jwsRole.getIsActive() == Constants.ISACTIVE) {
+		
+		if (Boolean.TRUE.equals(StringUtils.isEmpty(roleData.getRoleId()))) {
+			// new role created
+			jwsEntityRoleAssociationDAO.createPermission(newRole.getRoleId(), roleData.getIsActive(), userDetailsService.getUserDetails().getUserId());
+		} else {
+			// update entry
 			List<JwsEntityRoleAssociation> entityRolesAssociations = entityRoleAssociationRepository
-					.findEntityByModuleTypeId(Constants.COMMON_MODULE_TYPE_ID);
+					.getEntityRolesByRoleId(roleData.getRoleId());
 			for (JwsEntityRoleAssociation currentJwsEntityRole : entityRolesAssociations) {
 				JwsEntityRoleAssociation jwsEntityRoleAssociation = new JwsEntityRoleAssociation();
+				jwsEntityRoleAssociation.setEntityRoleId(currentJwsEntityRole.getEntityRoleId());
 				jwsEntityRoleAssociation.setEntityName(currentJwsEntityRole.getEntityName());
 				jwsEntityRoleAssociation.setEntityId(currentJwsEntityRole.getEntityId());
-				jwsEntityRoleAssociation.setIsActive(Constants.ISACTIVE);
+				jwsEntityRoleAssociation.setIsActive(roleData.getIsActive());
 				jwsEntityRoleAssociation.setModuleId(currentJwsEntityRole.getModuleId());
 				jwsEntityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
 				jwsEntityRoleAssociation.setLastUpdatedDate(new Date());
-				jwsEntityRoleAssociation.setModuleTypeId(Constants.COMMON_MODULE_TYPE_ID);
-				jwsEntityRoleAssociation.setRoleId(jwsRole.getRoleId());
+				jwsEntityRoleAssociation.setModuleTypeId(currentJwsEntityRole.getModuleTypeId());
+				jwsEntityRoleAssociation.setRoleId(roleData.getRoleId());
 				jwsEntityRoleAssociation.setIsCustomUpdated(1);
-			//	jwsEntityRoleAssociation.setRoleTypeId(1);
+				jwsEntityRoleAssociation.setRoleTypeId(currentJwsEntityRole.getRoleTypeId());
 				entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 			}
 		}
-
 	}
 
-	public String manageRoleModules() throws Exception {
+	public String manageRoleModules() throws Exception, CustomStopException {
+		try {
+			Map<String, Object> mapDetails = new HashMap<>();
 
-		Map<String, Object>	mapDetails	= new HashMap<>();
+			List<JwsRole> roles = new ArrayList<>();
+			roles = jwsRoleRepository.findAllRoles();
 
-		List<JwsRole>		roles		= new ArrayList<>();
-		roles = jwsRoleRepository.findAllRoles();
+			List<JwsMasterModulesVO> masterModulesVO = new ArrayList<>();
+			List<JwsMasterModules> masterModules = new ArrayList<>();
+			masterModules = jwsmasterModuleRepository.findAllModulesForPermission(1);
 
-		List<JwsMasterModulesVO>	masterModulesVO	= new ArrayList<>();
-		List<JwsMasterModules>		masterModules	= new ArrayList<>();
-		masterModules = jwsmasterModuleRepository.findAllModulesForPermission(1);
+			for (JwsMasterModules jwsMasterModule : masterModules) {
+				masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));
+			}
 
-		for (JwsMasterModules jwsMasterModule : masterModules) {
-			masterModulesVO.add(new JwsMasterModulesVO().convertEntityToVO(jwsMasterModule));
+			List<JwsRoleMasterModulesAssociation> roleModulesAssociations = new ArrayList<>();
+			roleModulesAssociations = roleModuleRepository.findAll();
+
+			mapDetails.put("roles", roles);
+			mapDetails.put("masterModules", masterModulesVO);
+			mapDetails.put("roleModulesAssociations", roleModulesAssociations);
+
+			TemplateVO templateVO = templatingService.getTemplateByName("manageRoleModule");
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in manageRoleModules.", custStopException);
+			throw custStopException;
 		}
-
-		List<JwsRoleMasterModulesAssociation> roleModulesAssociations = new ArrayList<>();
-		roleModulesAssociations = roleModuleRepository.findAll();
-
-		mapDetails.put("roles", roles);
-		mapDetails.put("masterModules", masterModulesVO);
-		mapDetails.put("roleModulesAssociations", roleModulesAssociations);
-
-		TemplateVO templateVO = templatingService.getTemplateByName("manageRoleModule");
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				mapDetails);
 	}
 
 	/**
@@ -539,190 +559,213 @@ public class UserManagementService {
 		return menuService.getTemplateWithoutLayout("manage-user-roles-policy", templateMap);
 	}
 
-	public String loadUserManagement() throws Exception {
-		Map<String, Object>				authenticationDetails	= applicationSecurityDetails.getAuthenticationDetails();
-		List<JwsAuthenticationTypeVO>	authenticationTypes		= new ArrayList<JwsAuthenticationTypeVO>();
-		List<JwsAuthenticationTypeVO>	activAuthDetails		= new ArrayList<JwsAuthenticationTypeVO>();
-		for (JwsAuthenticationType authenticationType : authenticationTypeRepository.getAuthenticationTypes()) {
-			JwsAuthenticationTypeVO authenticationTypeVO = new JwsAuthenticationTypeVO()
-					.convertEntityToVO(authenticationType);
-			authenticationTypes.add(authenticationTypeVO);
-		}
+	public String loadUserManagement() throws Exception, CustomStopException {
+		try {
+			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
+			List<JwsAuthenticationTypeVO> authenticationTypes = new ArrayList<JwsAuthenticationTypeVO>();
+			List<JwsAuthenticationTypeVO> activAuthDetails = new ArrayList<JwsAuthenticationTypeVO>();
+			for (JwsAuthenticationType authenticationType : authenticationTypeRepository.getAuthenticationTypes()) {
+				JwsAuthenticationTypeVO authenticationTypeVO = new JwsAuthenticationTypeVO()
+						.convertEntityToVO(authenticationType);
+				authenticationTypes.add(authenticationTypeVO);
+			}
 
-		@SuppressWarnings("unchecked")
-		List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
-				.get("authenticationDetails");
-		for (MultiAuthSecurityDetailsVO sauthScurityDetails : multiAuthSecurityDetails) {
-			ConnectionDetailsJSONSpecification connectionDetails = sauthScurityDetails.getConnectionDetailsVO();
-			if (connectionDetails != null && connectionDetails.getAuthenticationType() != null
-					&& connectionDetails.getAuthenticationType().getValue().equalsIgnoreCase("true")) {
-				JwsAuthenticationTypeVO	authenticationTypeVO	= sauthScurityDetails.getAuthenticationTypeVO();
-				AuthenticationDetails	authDetails				= connectionDetails.getAuthenticationDetails();
-				if (connectionDetails.getAuthenticationType().getConfigurationType()
-						.equalsIgnoreCase(Constants.MULTI_AUTH_TYPE)) {
-					for (List<JwsAuthConfiguration> configurationDetails : authDetails.getConfigurations()) {
-						for (JwsAuthConfiguration configuration : configurationDetails) {
-							List<DropDownData> dropDownDatas = configuration.getDropDownData();
-							for (DropDownData dropDownData : dropDownDatas) {
-								if (dropDownData.getSelected()) {
-									activAuthDetails.add(authenticationTypeVO);
+			@SuppressWarnings("unchecked")
+			List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
+					.get("authenticationDetails");
+			for (MultiAuthSecurityDetailsVO sauthScurityDetails : multiAuthSecurityDetails) {
+				ConnectionDetailsJSONSpecification connectionDetails = sauthScurityDetails.getConnectionDetailsVO();
+				if (connectionDetails != null && connectionDetails.getAuthenticationType() != null
+						&& connectionDetails.getAuthenticationType().getValue().equalsIgnoreCase("true")) {
+					JwsAuthenticationTypeVO authenticationTypeVO = sauthScurityDetails.getAuthenticationTypeVO();
+					AuthenticationDetails authDetails = connectionDetails.getAuthenticationDetails();
+					if (connectionDetails.getAuthenticationType().getConfigurationType()
+							.equalsIgnoreCase(Constants.MULTI_AUTH_TYPE)) {
+						for (List<JwsAuthConfiguration> configurationDetails : authDetails.getConfigurations()) {
+							for (JwsAuthConfiguration configuration : configurationDetails) {
+								List<DropDownData> dropDownDatas = configuration.getDropDownData();
+								for (DropDownData dropDownData : dropDownDatas) {
+									if (dropDownData.getSelected()) {
+										activAuthDetails.add(authenticationTypeVO);
+									}
 								}
 							}
 						}
+					} else {
+						activAuthDetails.add(authenticationTypeVO);
 					}
-				} else {
-					activAuthDetails.add(authenticationTypeVO);
+
 				}
 
 			}
+			authenticationDetails.put("activAuthDetails", activAuthDetails);
+			authenticationDetails.put("authenticationDetails", multiAuthSecurityDetails);
+			authenticationDetails.put("authenticationTypes", authenticationTypes);
 
+			return menuService.getTemplateWithSiteLayout("user-management", authenticationDetails);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading User Management page.", custStopException);
+			throw custStopException;
 		}
-		authenticationDetails.put("activAuthDetails", activAuthDetails);
-		authenticationDetails.put("authenticationDetails", multiAuthSecurityDetails);
-		authenticationDetails.put("authenticationTypes", authenticationTypes);
-
-		return menuService.getTemplateWithSiteLayout("user-management", authenticationDetails);
 	}
 
 	private void sendMailForForcePassword(String userId, Integer forcePasswordChange, String emailId, Email email,
-			String password) throws Exception {
+			String password) throws Exception, CustomStopException {
+		try {
+			Map<String, Object> mailDetails = new HashMap<>();
+			mailDetails.put("password", password);
+			mailDetails.put("forcePasswordChange", forcePasswordChange);
+			mailDetails.put("userId", userId);
+			if (userId != null && userId.isEmpty() == false) {
+				JwsUser jwsUser = jwsUserRepository.findByUserId(userId);
+				mailDetails.put("firstName", jwsUser.getFirstName() + " " + jwsUser.getLastName());
+			}
+			String baseURL = getBaseURL(propertyMasterService, servletContext);
+			mailDetails.put("baseURL", baseURL);
+			email.setInternetAddressToArray(InternetAddress.parse(emailId));
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("force-password-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
 
-		Map<String, Object> mailDetails = new HashMap<>();
-		mailDetails.put("password", password);
-		mailDetails.put("forcePasswordChange", forcePasswordChange);
-		mailDetails.put("userId", userId);
-		if(userId!=null && userId.isEmpty() == false) {
-			JwsUser jwsUser = jwsUserRepository.findByUserId(userId);
-			mailDetails.put("firstName", jwsUser.getFirstName() +" "+jwsUser.getLastName());	
+			TemplateVO templateVO = templatingService.getTemplateByName("force-password-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			// System.out.println(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForForcePassword.", custStopException);
+			throw custStopException;
 		}
-		String baseURL = getBaseURL(propertyMasterService, servletContext);
-		mailDetails.put("baseURL", baseURL);
-		email.setInternetAddressToArray(InternetAddress.parse(emailId));
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("force-password-mail-subject");
-		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-				subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
-
-		TemplateVO	templateVO	= templatingService.getTemplateByName("force-password-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		//System.out.println(mailBody);
-		sendMailService.sendTestMail(email);
 	}
 
-	private void sendMailForUserUpdate(String userId, String emailId, Email email) throws Exception {
+	private void sendMailForUserUpdate(String userId, String emailId, Email email)
+			throws Exception, CustomStopException {
+		try {
+			Map<String, Object> mailDetails = new HashMap<>();
+			mailDetails.put("forcePasswordChange", 0);
+			mailDetails.put("userId", userId);
 
-		Map<String, Object> mailDetails = new HashMap<>();
-		mailDetails.put("forcePasswordChange", 0);
-		mailDetails.put("userId", userId);
+			String baseURL = getBaseURL(propertyMasterService, servletContext);
 
-		String baseURL = getBaseURL(propertyMasterService, servletContext);
+			mailDetails.put("baseURL", baseURL);
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+			email.setInternetAddressToArray(InternetAddress.parse(emailId));
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("user-updated-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
 
-		mailDetails.put("baseURL", baseURL);
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		email.setInternetAddressToArray(InternetAddress.parse(emailId));
-		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("user-updated-mail-subject");
-		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-				subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
-
-		TemplateVO	templateVO	= templatingService.getTemplateByName("user-updated-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		//System.out.println(mailBody);
-		sendMailService.sendTestMail(email);
+			TemplateVO templateVO = templatingService.getTemplateByName("user-updated-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			// System.out.println(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForUserUpdate.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	public void sendMailForTotpAuthentication(JwsUser jwsUser, Email email)
-			throws FileNotFoundException, AddressException, Exception {
-		TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
-		int					width				= 300;
-		int					height				= 300;
-		String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
-				+ jwsUser.getUserId() + ".png";
-		File				file				= new File(filePath);
-		FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-		String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(jwsUser.getEmail(),
-				"Jquiver", jwsUser.getSecretKey());
-		twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
+			throws FileNotFoundException, AddressException, Exception, CustomStopException {
+		try {
+			TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
+			int width = 300;
+			int height = 300;
+			String filePath = System.getProperty("java.io.tmpdir") + File.separator + jwsUser.getUserId() + ".png";
+			File file = new File(filePath);
+			FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+			String barcodeData = twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver",
+					jwsUser.getSecretKey());
+			twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
 
-		email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		Map<String, Object>	mailDetails			= new HashMap<>();
-		String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
-				"adminEmailId");
-		String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
-				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
-		
-		TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("totp-subject");
-		String				subject				= templatingUtils.processTemplateContents(
-				subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
-		// email.setMailFrom("admin@jquiver.com");
-		if (jwsUser != null) {
-			mailDetails.put("firstName", jwsUser.getFirstName()+" "+jwsUser.getLastName());
-		}
-		mailDetails.put("adminEmailAddress", adminEmail);
-		String baseURL = getBaseURL(propertyMasterService, servletContext);
-		mailDetails.put("baseURL", baseURL);
-		TemplateVO	templateVO	= templatingService.getTemplateByName("totp-qr-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		//System.out.println(mailBody);
-		List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
-		EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
-		emailAttachedFile.setFile(file);
-		attachedFiles.add(emailAttachedFile);
-		email.setAttachementsArray(attachedFiles);
-		EmailAttachedFile        qrCOdeAttachment    = new EmailAttachedFile();
-        qrCOdeAttachment.setFile(file);
-        qrCOdeAttachment.setIsEmbeddedImage(true);
-        qrCOdeAttachment.setEmbeddedImageValue("qrcode");
-        attachedFiles.add(qrCOdeAttachment);
-		CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
-		if (mailSuccess.isDone()) {
-			email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
+			email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+			Map<String, Object> mailDetails = new HashMap<>();
+			String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system",
+					"adminEmailId");
+			String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io"
+					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("totp-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
+			// email.setMailFrom("admin@jquiver.com");
+			if (jwsUser != null) {
+				mailDetails.put("firstName", jwsUser.getFirstName() + " " + jwsUser.getLastName());
+			}
+			mailDetails.put("adminEmailAddress", adminEmail);
+			String baseURL = getBaseURL(propertyMasterService, servletContext);
+			mailDetails.put("baseURL", baseURL);
+			TemplateVO templateVO = templatingService.getTemplateByName("totp-qr-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			// System.out.println(mailBody);
+			List<EmailAttachedFile> attachedFiles = new ArrayList<>();
+			EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
+			emailAttachedFile.setFile(file);
+			attachedFiles.add(emailAttachedFile);
+			email.setAttachementsArray(attachedFiles);
+			EmailAttachedFile qrCOdeAttachment = new EmailAttachedFile();
+			qrCOdeAttachment.setFile(file);
+			qrCOdeAttachment.setIsEmbeddedImage(true);
+			qrCOdeAttachment.setEmbeddedImageValue("qrcode");
+			attachedFiles.add(qrCOdeAttachment);
+			CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
+			if (mailSuccess.isDone()) {
+				email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
+			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForTotpAuthentication.", custStopException);
+			throw custStopException;
 		}
 	}
 
 	private void sendMailForO365Authentication(String userId, Integer o365Type, String emailId, Email email,
-			String password) throws Exception {
+			String password) throws Exception, CustomStopException {
+		try {
+			Map<String, Object> mailDetails = new HashMap<>();
+			mailDetails.put("userId", userId);
+			mailDetails.put("o365-type", o365Type);
 
-		Map<String, Object> mailDetails = new HashMap<>();
-		mailDetails.put("userId", userId);
-		mailDetails.put("o365-type", o365Type);
+			String baseURL = getBaseURL(propertyMasterService, servletContext);
+			mailDetails.put("baseURL", baseURL);
 
-		String baseURL = getBaseURL(propertyMasterService, servletContext);
-		mailDetails.put("baseURL", baseURL);
+			email.setInternetAddressToArray(InternetAddress.parse(emailId));
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("o365-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
 
-		email.setInternetAddressToArray(InternetAddress.parse(emailId));
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("o365-mail-subject");
-		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-				subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
-
-		TemplateVO	templateVO	= templatingService.getTemplateByName("o365-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		//System.out.println(mailBody);
-		sendMailService.sendTestMail(email);
+			TemplateVO templateVO = templatingService.getTemplateByName("o365-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			// System.out.println(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in sendMailForO365Authentication.", custStopException);
+			throw custStopException;
+		}
 	}
 
-	public String manageEntityRoles() throws Exception {
+	public String manageEntityRoles() throws Exception, CustomStopException {
+		try {
 		Map<String, Object>	mapDetails	= new HashMap<>();
 		List<JwsRole>		roles		= new ArrayList<>();
 		roles = jwsRoleRepository.findAllRoles();
@@ -731,6 +774,10 @@ public class UserManagementService {
 		TemplateVO templateVO = templatingService.getTemplateByName("manageEntityRoles");
 		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 				mapDetails);
+	} catch (CustomStopException custStopException) {
+		logger.error("Error occured in manageEntityRoles.", custStopException);
+		throw custStopException;
+	}
 	}
 
 	public void saveUpdateEntityRole(List<JwsEntityRoleAssociationVO> entityRoleAssociations) {
@@ -754,13 +801,10 @@ public class UserManagementService {
 				logger.error("Updation of permission is not allowed for invalid user.", "error");
 				return;
 			}
-			JwsEntityRoleVO entityRoles = new JwsEntityRoleVO();
-			Integer roleTypeId = getRoleTypeID(entityRoles);
+			
 			jwsEntityRoleAssociation.setLastUpdatedBy(updatedBy);
-			String entityRoleId = entityRoleAssociationRepository.getEntityRoleIdByEntityAndRoleId(
-					jwsEntityRoleAssociation.getEntityId(), jwsEntityRoleAssociation.getRoleId());
-			jwsEntityRoleAssociation.setEntityRoleId(entityRoleId);
-			jwsEntityRoleAssociation.setRoleTypeId(roleTypeId);
+			jwsEntityRoleAssociation.setEntityRoleId(jwsEntityRoleAssociationVO.getEntityRoleId());
+			jwsEntityRoleAssociation.setRoleTypeId(jwsEntityRoleAssociationVO.getRoleTypeId());
 			entityRoleAssociationRepository.save(jwsEntityRoleAssociation);
 		}
 	}
@@ -803,7 +847,7 @@ public class UserManagementService {
 
 		} else if (entityRoles.getModuleId().equals("248ffd91-7760-11eb-94ed-f48e38ab8cd7")) {
 
-			query = "SELECT 1";
+			query = "SELECT 1 from FileUploadConfig where fileBinId = '" + entityRoles.getEntityId() + "'";
 
 		} else if (entityRoles.getModuleId().equals("6ac6a54c-8d3f-11eb-8dcd-0242ac130003")) {
 
@@ -1696,40 +1740,45 @@ public class UserManagementService {
 		}
 	}
 
-	public void createUserForPasswordAuth(JwsUserVO user) throws AddressException, Exception {
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setIsActive(Constants.INACTIVE);
-		user.setForcePasswordChange(Constants.INACTIVE);
-		JwsUser userEntityFromVo = user.convertVOToEntity(user);
-		userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
-		userEntityFromVo.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
-		jwsUserRepository.save(userEntityFromVo);
+	public void createUserForPasswordAuth(JwsUserVO user) throws AddressException, Exception, CustomStopException {
+		try {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			user.setIsActive(Constants.INACTIVE);
+			user.setForcePasswordChange(Constants.INACTIVE);
+			JwsUser userEntityFromVo = user.convertVOToEntity(user);
+			userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
+			userEntityFromVo.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
+			jwsUserRepository.save(userEntityFromVo);
 
-		JwsConfirmationToken confirmationToken = new JwsConfirmationToken(userEntityFromVo);
-		confirmationTokenRepository.save(confirmationToken);
+			JwsConfirmationToken confirmationToken = new JwsConfirmationToken(userEntityFromVo);
+			confirmationTokenRepository.save(confirmationToken);
 
-		Email email = new Email();
-		email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-		// email.setMailFrom("admin@jquiver.com");
+			Email email = new Email();
+			email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
+			// email.setMailFrom("admin@jquiver.com");
 
-		Map<String, Object>	mailDetails			= new HashMap<>();
-		TemplateVO			subjectTemplateVO	= templatingService.getTemplateByName("confirm-account-mail-subject");
-		String				subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-				subjectTemplateVO.getTemplateName(), mailDetails);
-		email.setSubject(subject);
-		/*For inserting notification in case of mail failure only on access of Admin*/
-		email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
-		email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-		String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
-		mailDetails.put("baseURL", baseURL);
-		mailDetails.put("firstName", userEntityFromVo.getFirstName()+" "+userEntityFromVo.getLastName());
-		mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
-		TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
-		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), mailDetails);
-		email.setBody(mailBody);
-		//System.out.println(mailBody);
-		sendMailService.sendTestMail(email);
+			Map<String, Object> mailDetails = new HashMap<>();
+			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("confirm-account-mail-subject");
+			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+					subjectTemplateVO.getTemplateName(), mailDetails);
+			email.setSubject(subject);
+			/* For inserting notification in case of mail failure only on access of Admin */
+			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
+			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
+			String baseURL = UserManagementService.getBaseURL(propertyMasterService, servletContext);
+			mailDetails.put("baseURL", baseURL);
+			mailDetails.put("firstName", userEntityFromVo.getFirstName() + " " + userEntityFromVo.getLastName());
+			mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
+			TemplateVO templateVO = templatingService.getTemplateByName("confirm-account-mail");
+			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), mailDetails);
+			email.setBody(mailBody);
+			// System.out.println(mailBody);
+			sendMailService.sendTestMail(email);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in createUserForPasswordAuth.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	public boolean validateUserRegistration(HttpServletRequest request, JwsUserVO user, Map<String, Object> mapDetails) throws JSONException, Exception {

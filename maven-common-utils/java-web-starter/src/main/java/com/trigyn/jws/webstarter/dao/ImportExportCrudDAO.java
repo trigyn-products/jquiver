@@ -155,7 +155,7 @@ public class ImportExportCrudDAO extends DBConnection {
 	public List<Map<String, Object>> getAllEntityCount() {
 		String querySQL = "SELECT count(*) as totalCount, 'Grid' as enityType" + " FROM jq_grid_details" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Templates' as enityType" + " FROM jq_template_master" + " UNION "
-				+ " SELECT count(*) as totalCount, 'ResourceBundle' as enityType" + " FROM jq_resource_bundle" + " UNION "
+				+ " SELECT count(*) as totalCount, 'ResourceBundle' as enityType" + " FROM jq_resource_bundle where language_id=1" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Autocomplete' as enityType" + " FROM jq_autocomplete_details" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Notification' as enityType" + " FROM jq_generic_user_notification gun" + " UNION "
 				+ " SELECT count(*) as totalCount, 'Dashboard' as enityType" + " FROM jq_dashboard" + " UNION "

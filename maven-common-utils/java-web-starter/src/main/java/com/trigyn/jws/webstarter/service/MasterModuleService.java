@@ -22,8 +22,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import com.google.gson.Gson;
-import com.trigyn.jws.dashboard.service.DashletService;
+import com.trigyn.jws.dashboard.service.DashboardService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
@@ -47,7 +48,7 @@ public class MasterModuleService {
 	private MenuService					menuService					= null;
 
 	@Autowired
-	private DashletService				dashletService				= null;
+	private DashboardService				dashboardService				= null;
 
 	@Autowired
 	private IUserDetailsService			userDetails					= null;
@@ -73,7 +74,7 @@ public class MasterModuleService {
 	}
 
 	public String loadTemplate(HttpServletRequest httpServletRequest, String moduleUrl,
-			HttpServletResponse httpServletResponse) {
+			HttpServletResponse httpServletResponse) throws CustomStopException{
 		try {
 			StringBuilder queryString = new StringBuilder();
 			if (StringUtils.isNotBlank(httpServletRequest.getQueryString())) {
@@ -121,9 +122,11 @@ public class MasterModuleService {
 				if (StringUtils.isBlank(httpServletResponse.getContentType()) == false) {
 					httpServletResponse.flushBuffer();
 				}
-
 			}
 			return template;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in loadTemplate for Stop Exception.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exc) {
 			logger.error("Error while loading master module ", a_exc);
 			throw new RuntimeException(a_exc.getMessage());
@@ -131,67 +134,77 @@ public class MasterModuleService {
 	}
 
 	public String renderTemplate(HttpServletRequest httpServletRequest, Map<String, Object> moduleDetailsMap,
-			Map<String, String> requestMap, HttpServletResponse httpServletResponse) throws Exception {
-		if (CollectionUtils.isEmpty(moduleDetailsMap) == false) {
-			Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
-			parameterMap.putAll(requestMap);
-			List<String> pathVariableList = getPathVariables(httpServletRequest);
-			if (CollectionUtils.isEmpty(pathVariableList) == false) {
-				pathVariableList.remove(0);
-			}
-			parameterMap.put("pathVariableList", pathVariableList);
-			Integer	targetLookupId	= Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
-			String	templateName	= moduleDetailsMap.get("targetTypeName").toString();
-			String	targetTypeId	= moduleDetailsMap.get("targetTypeId").toString();
-			Integer	includeLayout	= Integer.parseInt(moduleDetailsMap.get("includeLayout").toString());
+			Map<String, String> requestMap, HttpServletResponse httpServletResponse)
+			throws Exception, CustomStopException {
+		try {
+			if (CollectionUtils.isEmpty(moduleDetailsMap) == false) {
+				Map<String, Object> parameterMap = validateAndProcessRequestParams(httpServletRequest);
+				parameterMap.putAll(requestMap);
+				List<String> pathVariableList = getPathVariables(httpServletRequest);
+				if (CollectionUtils.isEmpty(pathVariableList) == false) {
+					pathVariableList.remove(0);
+				}
+				parameterMap.put("pathVariableList", pathVariableList);
+				Integer targetLookupId = Integer.parseInt(moduleDetailsMap.get("targetLookupId").toString());
+				String templateName = moduleDetailsMap.get("targetTypeName").toString();
+				String targetTypeId = moduleDetailsMap.get("targetTypeId").toString();
+				Integer includeLayout = Integer.parseInt(moduleDetailsMap.get("includeLayout").toString());
 
-			if (targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
-				if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
-					return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
-				}
-				return menuService.getTemplateWithoutLayout(templateName, parameterMap);
-			} else if (targetLookupId.equals(Constant.TargetLookupId.DASHBOARD.getTargetLookupId())) {
-				Map<String, Object>	templateMap	= new HashMap<>();
-				UserDetailsVO		detailsVO	= userDetails.getUserDetails();
-				String				userId		= detailsVO.getUserId();
-				List<String>		roleIdList	= detailsVO.getRoleIdList();
-				templateMap.put("templateName", templateName);
-				String template = dashletService.getDashletUI(userId, false, targetTypeId, roleIdList, false, httpServletRequest, httpServletResponse);
-				if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
-					return menuService.getDashletWithLayout(template, templateMap);
-				}
-				return menuService.getDashletWithoutLayout(templateName, template, templateMap);
-			} else if (targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())) {
-				parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
-				String				template	= dynamicFormService.loadDynamicForm(targetTypeId, parameterMap, null);
-				Map<String, Object>	templateMap	= new HashMap<>();
-				templateMap.put("formId", targetTypeId);
-				return template;
-			} else if (targetLookupId.equals(Constant.TargetLookupId.DYNAMICREST.getTargetLookupId())) {
-				parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
-				RestApiDetails restApiDetails 	= jwsService.getRestApiDetailsById(targetTypeId);
-				if(restApiDetails.getReponseTypeId() == 12 || restApiDetails.getReponseTypeId() == 13) {
-					Map<String, Object> requestParams = jwsService.validateAndProcessRequestParams(httpServletRequest, restApiDetails);
-					Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
-							requestParams, null);
-					String response = (String) jwsService.createSourceCodeAndInvokeServiceLogic(null, httpServletRequest, requestParams,
-							queriesResponse, restApiDetails);
+				if (targetLookupId.equals(Constant.TargetLookupId.TEMPLATE.getTargetLookupId())) {
 					if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
-						requestParams.put("entityType", Constant.MasterModuleType.DYNAREST);
-						requestParams.put("entityName", restApiDetails.getDynamicRestUrl());
-						return menuService.getTemplateWithSiteLayoutWithoutProcess(response, requestParams);
+						return menuService.getTemplateWithSiteLayout(templateName, parameterMap);
 					}
-					return response;
-				} else {
-					logger.error("This Response Type is not supported.Only text/html or text/plain response type is supported. ");
-					httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "Only text/html or text/plain response type is supported.");
-					return null;
+					return menuService.getTemplateWithoutLayout(templateName, parameterMap);
+				} else if (targetLookupId.equals(Constant.TargetLookupId.DASHBOARD.getTargetLookupId())) {
+					Map<String, Object> templateMap = new HashMap<>();
+					UserDetailsVO detailsVO = userDetails.getUserDetails();
+					String userId = detailsVO.getUserId();
+					List<String> roleIdList = detailsVO.getRoleIdList();
+					templateMap.put("templateName", templateName);
+					String template = dashboardService.getDashletUI(userId, false, targetTypeId, roleIdList, false,
+							httpServletRequest, httpServletResponse);
+					if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
+						return menuService.getDashletWithLayout(template, templateMap);
+					}
+					return menuService.getDashletWithoutLayout(templateName, template, templateMap);
+				} else if (targetLookupId.equals(Constant.TargetLookupId.DYANMICFORM.getTargetLookupId())) {
+					parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
+					String template = dynamicFormService.loadDynamicForm(targetTypeId, parameterMap, null);
+					Map<String, Object> templateMap = new HashMap<>();
+					templateMap.put("formId", targetTypeId);
+					return template;
+				} else if (targetLookupId.equals(Constant.TargetLookupId.DYNAMICREST.getTargetLookupId())) {
+					parameterMap.put("includeLayout", includeLayout == 1 ? "true" : "false");
+					RestApiDetails restApiDetails = jwsService.getRestApiDetailsById(targetTypeId);
+					if (restApiDetails.getReponseTypeId() == 12 || restApiDetails.getReponseTypeId() == 13) {
+						Map<String, Object> requestParams = jwsService
+								.validateAndProcessRequestParams(httpServletRequest, restApiDetails);
+						Map<String, Object> queriesResponse = jwsService
+								.executeDAOQueries(restApiDetails.getDynamicId(), requestParams, null);
+						String response = (String) jwsService.createSourceCodeAndInvokeServiceLogic(null,
+								httpServletRequest, requestParams, queriesResponse, restApiDetails);
+						if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
+							requestParams.put("entityType", Constant.MasterModuleType.DYNAREST);
+							requestParams.put("entityName", restApiDetails.getDynamicRestUrl());
+							return menuService.getTemplateWithSiteLayoutWithoutProcess(response, requestParams);
+						}
+						return response;
+					} else {
+						logger.error(
+								"This Response Type is not supported.Only text/html or text/plain response type is supported. ");
+						httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+								"Only text/html or text/plain response type is supported.");
+						return null;
+					}
 				}
 			}
-		}
 
-		httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
-		return null;
+			httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
+			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in executeRESTCall for Stop Exception.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	public Map<String, Object> validateAndProcessRequestParams(HttpServletRequest httpServletRequest) {

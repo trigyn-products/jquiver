@@ -19,10 +19,6 @@ REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_na
 VALUES ("templateListingGrid", 'Template Listing', 'Template Listing', 'templateListing'
 ,'templateName,templateTypeId,createdBy,updatedBy, updatedDate,isAfterDate', 2, 'aar.dev@jquiver.io', NOW(), NOW());
 
-REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts) 
-VALUES ("resourceBundleListingGrid", 'DB Resource Bundle Listing', 'DB Resource Bundle Listing', 'dbResourceListing'
-,'resourceKey,languageName,resourceBundleText', 2, 'aar.dev@jquiver.io', NOW(), NOW());
-
 REPLACE INTO jq_grid_details(grid_id, grid_name, grid_description, grid_table_name, grid_column_names, grid_type_id, created_by, created_date, last_updated_ts)
 VALUES ("gridDetailsListing", 'Grid Details Listing', 'Grid Details Listing', 'gridDetails'
 ,'gridId,gridName,gridDesc,gridTableName,gridColumnName,gridTypeId,lastUpdatedBy, lastUpdatedTs,isAfterDate', 2, 'aar.dev@jquiver.io', NOW(), NOW());

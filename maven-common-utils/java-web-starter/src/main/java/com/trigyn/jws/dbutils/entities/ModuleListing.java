@@ -331,7 +331,7 @@ public class ModuleListing implements Serializable {
 		moduleListing.setSequence(sequence);
 		moduleListing.setTargetLookupId(targetLookupId);
 		moduleListing.setTargetTypeId(targetTypeId != null ? targetTypeId.trim() : targetTypeId);
-		moduleListing.setTargetTypeId(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
+		moduleListing.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 
 		List<ModuleListingI18n> moduleListingI18nsOtr = new ArrayList<>();
 		if (moduleListingI18ns != null && !moduleListingI18ns.isEmpty()) {

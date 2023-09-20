@@ -84,4 +84,5 @@ public final class CrudQueryStore {
 
 	public static final String		HQL_QUERY_TO_FETCH_FILES_DATA_FOR_EXPORT			= "FROM FileUpload AS fu WHERE "
 			+ "fu.fileUploadId IN :includeSystemConfigList";
+	
 }

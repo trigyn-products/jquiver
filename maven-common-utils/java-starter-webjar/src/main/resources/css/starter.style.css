@@ -3057,12 +3057,12 @@ div.pq-grid tr:hover {
 	border: 8px solid white;
 	line-height: 88px;
 	border-radius: 50%;
-	background:  var(--bluebgcolor);
+	background:  #005da3;
 	vertical-align: middle;
 }
 
 .cm-success-box .box>.icon:hover>.image {
-	background: var(--bluebgcolor);
+	background: #005da3;
 }
 
 .cm-success-box .box>.icon>.image>i {
@@ -3091,7 +3091,7 @@ div.pq-grid tr:hover {
 
 .cm-success-box .box>.icon>.info>h3.title {
 	margin-bottom: 15px;
-	color: var(--bluebgcolor);
+	color: #005da3;
 	margin-top: 10px;
 	font-size: 2rem;
 }
@@ -3106,7 +3106,7 @@ div.pq-grid tr:hover {
 
 .cm-success-box .box>.icon:hover>.info>h3.title, .cm-success-box .box>.icon:hover>.info>.more>a
 	{
-	color: var(--bluebgcolor);
+	color: #005da3;
 }
 
 /*custom search with icon*/
@@ -4788,15 +4788,15 @@ caret-color: transparent;
 
 .logintabsblock li a:hover{
 	text-decoration:none;
-	 background: var(--bluebgcolor);
+	 background:  #005da3;
     color: #fff;
-        border: 1px solid var(--bluebgcolor);
+        border: 1px solid  #005da3;
     
 }
 
 .logintabsblock li a.active {
-    border: 1px solid var(--bluebgcolor);
-    background: var(--bluebgcolor);
+    border: 1px solid #005da3;
+    background:  #005da3;
     color: #fff;
     padding: 11px 15px !important;
     margin-top: -3px;

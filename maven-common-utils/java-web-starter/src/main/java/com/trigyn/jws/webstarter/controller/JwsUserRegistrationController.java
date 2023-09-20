@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -126,43 +127,53 @@ public class JwsUserRegistrationController {
 
 	@GetMapping("/register")
 	@ResponseBody
-	public String userRegistrationPage(HttpServletResponse response) throws Exception {
-		Map<String, Object>	mapDetails						= new HashMap<>();
-		String				enableRegistrationPropertyName	= "enableRegistration";
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-			if (mapDetails.get(enableRegistrationPropertyName)!=null && mapDetails.get(enableRegistrationPropertyName).toString().equalsIgnoreCase("false")) {
+	public String userRegistrationPage(HttpServletResponse response) throws Exception, CustomStopException {
+		Map<String, Object> mapDetails = new HashMap<>();
+		String enableRegistrationPropertyName = "enableRegistration";
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+				if (mapDetails.get(enableRegistrationPropertyName) != null
+						&& mapDetails.get(enableRegistrationPropertyName).toString().equalsIgnoreCase("false")) {
+					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				}
+			} else {
 				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
 			}
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+			TemplateVO templateVO = templatingService.getTemplateByName("jws-register");
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in userRegistrationPage.", custStopException);
+			throw custStopException;
 		}
-		TemplateVO templateVO = templatingService.getTemplateByName("jws-register");
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 
 	}
 
 	@PostMapping(value = "/register")
 	@ResponseBody
-	public String registerUser(HttpServletRequest request, JwsUserVO user, HttpServletResponse response) throws Exception {
+	public String registerUser(HttpServletRequest request, JwsUserVO user, HttpServletResponse response)
+			throws Exception, CustomStopException {
 
-		Map<String, Object>	mapDetails		= new HashMap<>();
-		String				viewName		= "jws-successfulRegisteration";
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-			userConfigService.getConfigurableDetails(mapDetails);
-		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
-		}
-		boolean isInValid = userManagementService.validateUserRegistration(request, user, mapDetails);
-		if(isInValid) {
-			viewName = "jws-register";
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-		}
-		String verificationType = mapDetails.get("verificationType").toString();
-		switch (verificationType) {
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = "jws-successfulRegisteration";
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				userConfigService.getConfigurableDetails(mapDetails);
+			} else {
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				return null;
+			}
+			boolean isInValid = userManagementService.validateUserRegistration(request, user, mapDetails);
+			if (isInValid) {
+				viewName = "jws-register";
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
+			}
+			String verificationType = mapDetails.get("verificationType").toString();
+			switch (verificationType) {
 			case Constants.OTP_VERFICATION:
 				userManagementService.createUserForOtpAuth(user);
 				break;
@@ -172,56 +183,64 @@ public class JwsUserRegistrationController {
 			case Constants.TOTP_VERFICATION:
 				userManagementService.createUserForTotpAuth(user);
 				break;
+			}
+			if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+				HttpSession session = request.getSession();
+				session.removeAttribute("registerCaptcha");
+			}
+			mapDetails.put("emailId", user.getEmail());
+			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in registerUser.", custStopException);
+			throw custStopException;
 		}
-		if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-			HttpSession session = request.getSession();
-			session.removeAttribute("registerCaptcha");
-		}
-		mapDetails.put("emailId", user.getEmail());
-		TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
 	}
 
 	@GetMapping(value = "/confirm-account")
 	@ResponseBody
 	public String confirmUserAccount(ModelAndView modelAndView, @RequestParam("token") String confirmationToken,
-		HttpServletResponse response) throws Exception {
+			HttpServletResponse response) throws Exception, CustomStopException {
 
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		String				viewName	= null;
+		Map<String, Object> mapDetails = new HashMap<>();
+		String viewName = null;
+		try {
+			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 
-		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
+				JwsConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
 
-			JwsConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
+				if (token != null) {
+					JwsUser user = userRepository.findByEmailIgnoreCase(token.getUserRegistration().getEmail());
+					user.setIsActive(Constants.ISACTIVE);
+					userRepository.save(user);
 
-			if (token != null) {
-				JwsUser user = userRepository.findByEmailIgnoreCase(token.getUserRegistration().getEmail());
-				user.setIsActive(Constants.ISACTIVE);
-				userRepository.save(user);
+					JwsUserRoleAssociation adminRoleAssociation = new JwsUserRoleAssociation();
+					adminRoleAssociation.setUserId(user.getUserId());
+					adminRoleAssociation.setRoleId(Constants.AUTHENTICATED_ROLE_ID);
+					userRoleAssociationRepository.save(adminRoleAssociation);
 
-				JwsUserRoleAssociation adminRoleAssociation = new JwsUserRoleAssociation();
-				adminRoleAssociation.setUserId(user.getUserId());
-				adminRoleAssociation.setRoleId(Constants.AUTHENTICATED_ROLE_ID);
-				userRoleAssociationRepository.save(adminRoleAssociation);
+					StringBuffer sb = new StringBuffer("First Name :" + user.getFirstName().trim());
+					sb.append("Last Name :" + user.getLastName().trim());
+					sb.append("Email :" + user.getEmail().trim());
+					viewName = "jws-accountVerified";
+				} else {
+					response.sendError(HttpStatus.BAD_REQUEST.value(), "The link is invalid or broken!");
+					return null;
+				}
 
-				StringBuffer sb = new StringBuffer("First Name :" + user.getFirstName().trim());
-				sb.append("Last Name :" + user.getLastName().trim());
-				sb.append("Email :" + user.getEmail().trim());
-				viewName = "jws-accountVerified";
+				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
+				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+						mapDetails);
 			} else {
-				response.sendError(HttpStatus.BAD_REQUEST.value(), "The link is invalid or broken!");
+
+				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
-
-			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
-			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(), mapDetails);
-
-		} else {
-
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
-			return null;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in confirmUserAccount.", custStopException);
+			throw custStopException;
 		}
-
 	}
 
 	@GetMapping(value = "/captcha/{flagCaptcha}")

@@ -31,6 +31,7 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
@@ -94,7 +95,7 @@ public class TemplateCrudController {
 
 	@GetMapping(value = "/aet", produces = MediaType.TEXT_HTML_VALUE)
 	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			String templateId = request.getParameter("vmMasterId");
 			Map<String, Object> vmTemplateData = new HashMap<>();
@@ -111,6 +112,9 @@ public class TemplateCrudController {
 			String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
 			vmTemplateData.put("suggestions", contextSuggestions);
 			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Templating page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured in Templates : " + "Template Id : " + request.getParameter("vmMasterId"),
 					a_exception);

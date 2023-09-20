@@ -69,7 +69,7 @@ $(function () {
     let inputField =  "<button type='button' class='select_btn_new'  name='"+roleName+"' attr='"+roleId+"'  value='Select All' onclick='checkAllBoxes(this);'><i class='fa fa-check-square selectallcls' ></i></button> <button type='button' class='select_btn_new'  name='"+roleName+"' attr='"+roleId+"'  value='Deselect All' onclick='checkAllBoxes(this);'><i class='fa fa-window-close deslectcls' ></i></button>"
 	let colM = [
 		 { title: "${messageSource.getMessage('jws.moduleName')}", width: 120, align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
-        filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
+        filter: { type: "select", condition: "eq",options : moduleType, listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.entityname')}", width: 400, align: "center", dataIndx: "entityname", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.permission')}", width: 120, render:addCheckBox, align: "center",  dataIndx: "is_active", halign: "center", attr:"role_id", 

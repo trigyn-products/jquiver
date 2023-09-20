@@ -11,6 +11,5 @@ select
     jdrd.hide_dao_query AS hidedaoquery,
     jdrd.is_secured as `dynarestSecured`
 FROM 
-    jq_dynamic_rest_details as jdrd
-WHERE 
-    jdrd.jws_dynamic_rest_url = "${primaryId}"
+    jq_dynamic_rest_details as jdrd 
+    <#if primaryId??> WHERE jdrd.jws_dynamic_rest_url = :primaryId </#if>

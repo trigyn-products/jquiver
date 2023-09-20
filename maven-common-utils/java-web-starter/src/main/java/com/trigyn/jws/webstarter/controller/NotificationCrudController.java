@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
@@ -32,9 +33,12 @@ public class NotificationCrudController {
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
 	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout(Constant.GENERIC_USER_NOTIFICATION, new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Notification Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Notification Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

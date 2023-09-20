@@ -32,14 +32,12 @@ import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dbutils.vo.UserRoleVO;
-import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.service.ModuleService;
-import com.trigyn.jws.typeahead.entities.Autocomplete;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
@@ -67,11 +65,14 @@ public class MenuCrudController {
 
 	@Autowired
 	private IModuleListingRepository iModuleListingRepository = null;
-
+	
 	@GetMapping(value = "/mul", produces = MediaType.TEXT_HTML_VALUE)
-	public String moduleListingPage(HttpServletResponse httpServletResponse) throws Exception {
+	public String moduleListingPage(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Site Layout Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -85,7 +86,7 @@ public class MenuCrudController {
 
 	@PostMapping(value = "/aem", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditModule(@RequestParam(value = "module-id") String moduleId,
-			HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletRequest a_httHttpServletRequest, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 
 			Map<String, Object> templateMap = new HashMap<>();
@@ -114,6 +115,9 @@ public class MenuCrudController {
 				logActivity(moduleListing.getModuleTypeId(), moduleDetailsVO.getModuleName());
 			}
 			return menuService.getTemplateWithSiteLayout("module-manage-details", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured in Site Layout : "+"Module Id : " + moduleId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -203,11 +207,13 @@ public class MenuCrudController {
 	}
 
 	@GetMapping(value = "/chpl", produces = MediaType.TEXT_HTML_VALUE)
-	public String homePageListing(HttpServletResponse httpServletResponse) throws IOException {
-
+	public String homePageListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object> templateMap = new HashMap<>();
 			return menuService.getTemplateWithSiteLayout("config-home-page-listing", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Config Home Page Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

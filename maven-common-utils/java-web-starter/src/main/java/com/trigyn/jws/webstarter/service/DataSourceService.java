@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -168,9 +167,15 @@ public class DataSourceService {
 				}
 				con.isClosed();
 				additionalDatasourceRepo.save(additionalDatasource);
+				if(additionalDatasource !=null && additionalDatasource.getAdditionalDatasourceId()!=null) {
+					DataSourceFactory.clearDataSource(additionalDatasource.getAdditionalDatasourceId());
+				}
 				getOrInitDataSource(additionalDatasource, dbConfigMap);
 				return ResponseEntity.status(HttpStatus.OK).body("Success");
 			} catch (SQLException exception) {
+				if(additionalDatasource !=null && additionalDatasource.getAdditionalDatasourceId()!=null) {
+					DataSourceFactory.clearDataSource(additionalDatasource.getAdditionalDatasourceId());
+				}
 				logger.error("Could not connect ", exception);
 			}
 		}

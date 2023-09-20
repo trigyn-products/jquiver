@@ -5,7 +5,7 @@ function importFile() {
 	
 	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
 		
-	importedFileData = new FormData(document.getElementById("importForm"))
+	var importedFileData = new FormData(document.getElementById("importForm"))
 	$.ajax({
 		url: contextPath + '/cf/impF',
 		type: "POST",
@@ -26,12 +26,12 @@ function importFile() {
 				//localStorage.setItem("imporatableData", imporatableData);
 				let jsonObject = JSON.parse(imporatableData);
 				for (var value in jsonObject) {
-					zipFileJsonDataMap.set(value, jsonObject[value])
+					zipFileJsonDataMap.set(value, jsonObject[value]);
 				}
 
-				var exportedFormatObject = zipFileJsonDataMap.get("exportedFormatObject")
+				var exportedFormat = zipFileJsonDataMap.get("exportedFormatObject");
 				//localStorage.setItem("exportedFormatObject", JSON.stringify(exportedFormatObject));
-				exportedFormatObject=exportedFormatObject;
+				exportedFormatObject=exportedFormat;
 				var versionMap = new Map();
 				let versionJson = JSON.parse(zipFileJsonDataMap.get("versionMap"));
 				for (var value in versionJson) {
@@ -128,13 +128,18 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 				tableRow += '</tr>';
 			}
 			}
+			
 		}
 
-		$("#htmlTable > tbody").append(tableRow);
+										   
 		
-	} else {
-		$("#htmlTable > tbody").empty();
-	}
+}
+		 if(tableRow==""){
+			    tableRow="<tr><td style= 'text-align: center;font-weight: bold;'>There are no changes to import.</td></tr>"
+		  }
+		$("#htmlTable > tbody").append(tableRow);
+		sessionStorage.setItem("tableRow",tableRow);
+	
 }
 
 function submitRevisionForm(moduleType, entityId) {
@@ -260,19 +265,21 @@ function submitRevisionForm(moduleType, entityId) {
 	$("#revisionForm").submit();
 }
 
+
 function importSingle(moduleType, entityId) {
-	//let exportedFormatObject = localStorage.getItem("exportedFormatObject");
+	var exportedFormat = zipFileJsonDataMap.get("exportedFormatObject");
 	const out = Object.create(null);
-    out["exportedFormatObject"]=exportedFormatObject;
-    if(idList.length>0){
-		out["entityId"]= entityId;
+    out["exportedFormatObject"]=JSON.stringify(exportedFormat);
+    //if(idList.length>0){
+		out["importId"]= entityId;
 		out["moduleType"]= moduleType;
-    }
+   // }
 	$.ajax({
 		url: contextPath + '/cf/importConfig',
 		type: "POST",
-		async: false,
-		data:JSON.stringify(out),
+		async: false,					
+		contentType: "application/json",
+		data: JSON.stringify(out),
 		success: function(data) {
 			if (data.startsWith("fail:")) {
 				var errorMessageString = data.substring(5);
@@ -300,18 +307,18 @@ function importAll() {
 	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
 	
 //	let exportedFormatObject = localStorage.getItem("exportedFormatObject");
-    const out = Object.create(null);
-    out["imporatableData"]=imporatableData;
+    const map = Object.create(null);
+    map["imporatableData"]=imporatableData;
     if(idList.length>0){
-		out["importedIdList"]= idList;
+		map["importedIdList"]=  JSON.stringify(idList);
     }
 	if (isDataAvailableForImport == true) {
 		$.ajax({
 			url: contextPath + '/cf/importAll',
 			type: "POST",
 			async: false,			
-			 contentType: "application/json",
-			data : JSON.stringify(out),
+			contentType: "application/json",
+			data : JSON.stringify(map),
 			success: function(data) {
 				if (data.startsWith("fail:")) {
 					var errorMessageString = data.substring(5);
@@ -359,7 +366,7 @@ function showFileName(event) {
 
 function importFromLocal() {
 	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
-	importedFileData = new FormData(document.getElementById("importForm"))
+	var importedFileData = new FormData(document.getElementById("importForm"))
 	$.ajax({
 		url: contextPath + '/cf/ifl',
 		type: "POST",

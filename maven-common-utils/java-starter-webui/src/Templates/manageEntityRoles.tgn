@@ -42,7 +42,7 @@ var moduleType = [{"": "All"}];
 $(function () {
 	let colM = [
 		 { title: "${messageSource.getMessage('jws.moduleName')}", maxWidth: "30%", align: "center",  dataIndx: "moduleId", align: "left", halign: "center",render: moduleTypes,
-        filter: { type: "select", condition: "equal",options : moduleType, listeners: ["change"]} },
+        filter: { type: "select", condition: "eq",options : moduleType, listeners: ["change"]} },
         { title: "${messageSource.getMessage('jws.entityname')}", maxWidth: "30%", align: "center", dataIndx: "entityName", align: "left", halign: "center",
         filter: { type: "textbox", condition: "contain", listeners: ["change"]} },
         <#list roles as role>

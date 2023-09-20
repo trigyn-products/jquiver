@@ -153,7 +153,7 @@ input:checked + .slider:before {
       
       <div class="col-12"> 
         <fieldset class="hm-fieldset">
-         <legend class="hm-legend" style="display:flex;width: 125px;"> ${messageSource.getMessage('jws.authentication')} <label class="switch" style="margin-left:35px;margin-right:15px;"> 
+         <legend class="hm-legend" style="display:flex;width: 125px; align-items: center;"> ${messageSource.getMessage('jws.authentication')} <label class="switch" style="margin-left:35px;margin-right:15px;"> 
 
                          <div class="onoffswitch">
                                 <input class="onoffswitch-checkbox" type="checkbox" name="isSmtpAutheticatedId" id="isSmtpAutheticatedId" onclick="authenticationChecked($(this));">

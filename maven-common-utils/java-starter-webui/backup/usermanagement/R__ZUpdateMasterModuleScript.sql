@@ -73,9 +73,7 @@
   UPDATE jq_master_modules SET grid_details_id = "dynamicFormListingGrid", module_type="DynamicForm",
   	is_perm_supported="1", is_entity_perm_supported=1, is_imp_exp_supported="1" WHERE module_id="30a0ff61-0ecf-11eb-94b2-f48e38ab9348";
   UPDATE jq_master_modules SET grid_details_id = "dynarestListingGrid", module_type="DynaRest",
-  	is_perm_supported="1", is_entity_perm_supported=1, is_imp_exp_supported="1" WHERE module_id="47030ee1-0ecf-11eb-94b2-f48e38ab9348";
-  UPDATE jq_master_modules SET grid_details_id = "resourceBundleListingGrid", module_type="ResourceBundle",
-  	is_perm_supported="1", is_entity_perm_supported=0, is_imp_exp_supported="1" WHERE module_id="5559212c-8c8f-11eb-8dcd-0242ac130003";
+  	is_perm_supported="1", is_entity_perm_supported=1, is_imp_exp_supported="1" WHERE module_id="47030ee1-0ecf-11eb-94b2-f48e38ab9348"; 
   UPDATE jq_master_modules SET grid_details_id = "notificationDetailsListing", module_type="Notification",
   	is_perm_supported="1", is_entity_perm_supported=0, is_imp_exp_supported="1" WHERE module_id="6ac6a54c-8d3f-11eb-8dcd-0242ac130003";
   UPDATE jq_master_modules SET grid_details_id = "propertyMasterListingGrid", module_type="ApplicationConfiguration",

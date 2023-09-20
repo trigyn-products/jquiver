@@ -11,5 +11,5 @@ SELECT fuc.file_bin_id AS fileBinId, fuc.file_type_supported AS fileTypeSupporte
 , fuc.datasource_upload_validator AS datasourceUploadValidator
 , fuc.datasource_view_validator AS datasourceViewValidator
 , fuc.datasource_delete_validator AS datasourceDeleteValidator
-FROM jq_file_upload_config AS fuc
-WHERE fuc.file_bin_id = "${fileBinId}" AND is_deleted = 0;
+FROM jq_file_upload_config AS fuc <#if fileBinId??>
+WHERE fuc.file_bin_id = :fileBinId </#if> AND is_deleted = 0;

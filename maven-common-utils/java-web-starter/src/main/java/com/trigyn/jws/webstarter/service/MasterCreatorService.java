@@ -1,7 +1,6 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.net.URLDecoder;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,18 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.persistence.PersistenceException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +31,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
@@ -56,7 +52,6 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
-import org.apache.logging.log4j.Logger;
 
 @Service
 @Transactional(readOnly = false)
@@ -120,37 +115,41 @@ public class MasterCreatorService {
 	
 	private final static Logger				logger					= LogManager.getLogger(MasterCreatorService.class);
 
-	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception {
-		Map<String, Object>		templateMap			= new HashMap<>();
-		// List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
-		// List<String> views = dynamicFormDAO.getAllViewsListInSchema();
-		String					jQuiverVersion		= propertyMasterDetails.getSystemPropertyValue("version");
-		List<ModuleDetailsVO>	moduleListingVOList	= moduleService.getAllParentModules("");
-		String					uri					= httpServletRequest.getRequestURI()
-				.substring(httpServletRequest.getContextPath().length());
-		String					url					= httpServletRequest.getRequestURL().toString();
-		StringBuilder			urlPrefix			= new StringBuilder();
-		url = url.replace(uri, "");
-		urlPrefix.append(url).append("/view/");
+	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception, CustomStopException {
+		try {
+			Map<String, Object> templateMap = new HashMap<>();
+			// List<String> tables = dynamicFormDAO.getAllTablesListInSchema();
+			// List<String> views = dynamicFormDAO.getAllViewsListInSchema();
+			String jQuiverVersion = propertyMasterDetails.getSystemPropertyValue("version");
+			List<ModuleDetailsVO> moduleListingVOList = moduleService.getAllParentModules("");
+			String uri = httpServletRequest.getRequestURI().substring(httpServletRequest.getContextPath().length());
+			String url = getServerBaseURL(httpServletRequest);
+			StringBuilder urlPrefix = new StringBuilder();
+			url = url.replace(uri, "");
+			urlPrefix.append(url).append("/view/");
 
-		if (StringUtils.isBlank(jQuiverVersion) == false && jQuiverVersion.contains("SNAPSHOT")) {
-			templateMap.put("isDev", true);
-		} else {
-			templateMap.put("isDev", false);
+			if (StringUtils.isBlank(jQuiverVersion) == false && jQuiverVersion.contains("SNAPSHOT")) {
+				templateMap.put("isDev", true);
+			} else {
+				templateMap.put("isDev", false);
+			}
+			templateMap.put("urlPrefix", urlPrefix);
+
+			// if (!CollectionUtils.isEmpty(views)) {
+			// tables.addAll(views);
+			// }
+			// templateMap.put("tables", tables);
+			// templateMap.put("tables", tables);
+			templateMap.put("moduleListingVOList", moduleListingVOList);
+
+			return menuService.getTemplateWithSiteLayout("master-creator", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Master Genertor page.", custStopException);
+			throw custStopException;
 		}
-		templateMap.put("urlPrefix", urlPrefix);
-
-		// if (!CollectionUtils.isEmpty(views)) {
-		// tables.addAll(views);
-		// }
-		// templateMap.put("tables", tables);
-		// templateMap.put("tables", tables);
-		templateMap.put("moduleListingVOList", moduleListingVOList);
-
-		return menuService.getTemplateWithSiteLayout("master-creator", templateMap);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Map<String, Object> initMasterCreationScript(MultiValueMap<String, String> inputDetails) throws Exception {
 		String				environment				= propertyMasterService.findPropertyMasterValue("system", "system",
 				"profile");
@@ -200,13 +199,14 @@ public class MasterCreatorService {
 		createdMasterDetails.put("templateMaster", templateMaster);
 		createdMasterDetails.put("menuData", menuData);
 		createdMasterDetails.put("dynamicFormModuleDetails", dynamicFormModuleDetails);
-
-		if ("dev".equalsIgnoreCase(environment)) {
+		
+		return createdMasterDetails;
+	}
+	
+		public void downloadFiles(TemplateMaster templateMaster, DynamicForm dynamicForm) throws Exception {
 			templateCrudService.downloadTemplates(templateMaster.getTemplateId());
 			dynamicFormCrudService.downloadDynamicFormsTemplate(dynamicForm.getFormId());
 		}
-		return createdMasterDetails;
-	}
 
 	/**
 	 * Purpose of this method is to log activities</br>
@@ -351,6 +351,10 @@ public class MasterCreatorService {
 		if(formData.get("primaryKey").toString() != null) {
 			primaryKey			= formData.get("primaryKey").toString();
 		}
+		Boolean toggleCaptcha = false;
+		if(formData.get("toggleCaptcha").toString().equalsIgnoreCase("1")) {
+			toggleCaptcha = true;
+		}
 		String						moduleName			= formData.get("moduleName") + "-form";
 		String						description			= formData.get("moduleName") + " Form";
 		List<String>				formDetailsString	= new ObjectMapper()
@@ -364,7 +368,7 @@ public class MasterCreatorService {
 		}
 		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey, dataSourceId);
 		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(dataSourceId, dbProductName, tableName,
-				formDetails, moduleURL);
+				formDetails, moduleURL, toggleCaptcha);
 		String				saveQuery			= dynamicFormDetails.get("save-template");
 		String				htmlTemplate		= dynamicFormDetails.get("form-template");
 		DynamicForm			dynamicForm			= new DynamicForm();
@@ -383,7 +387,6 @@ public class MasterCreatorService {
 		dynamicForm.setFormBody(htmlTemplate);
 		dynamicForm.setFormName(moduleName);
 		dynamicForm.setSelectQueryType(1);
-		
 		dynamicForm.setCreatedDate(new Date());
 		dynamicForm.setDatasourceId(dataSourceId);
 		dynamicForm.setIsCustomUpdated(1);
@@ -408,7 +411,7 @@ public class MasterCreatorService {
 	}
 
 	private Map<String, String> generateHtmlTemplate(String dataSourceId, String dbProductName, String tableName,
-			List<Map<String, Object>> formDetails, String moduleURL) throws Exception {
+			List<Map<String, Object>> formDetails, String moduleURL, Boolean toggleCaptcha) throws Exception {
 		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(dataSourceId,
 				tableName);
 
@@ -438,14 +441,12 @@ public class MasterCreatorService {
 							columnDetails.put("i18NPresent", false);
 							columnDetails.put("fieldName", displayName);
 						}
-
 					}
-
 				}
 			}
 		}
 		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails,
-				moduleURL, dataSourceId, dbProductName);
+				moduleURL, dataSourceId, dbProductName, toggleCaptcha);
 		return templateDetails;
 	}
 
@@ -456,7 +457,7 @@ public class MasterCreatorService {
 		for (Map<String, Object> details : formDetails) {
 			columns.add(details.get("column").toString());
 		}
-		selectQuery.append(columns.toString()).append(" FROM ").append(tableName).append(" WHERE ");
+		selectQuery.append(columns.toString()).append(" FROM ").append(tableName);
 		StringJoiner	whereClause	= new StringJoiner(" AND ");
 		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
 		String value = null;
@@ -477,18 +478,15 @@ public class MasterCreatorService {
 				}
 			}
 		}
-		
+		String ifCond = null;
 		for (String key : primaryKeys) {
 			String coloumnName = key;
-			if(isStringID) {
-				value = coloumnName + " = \"" + "${" + key.replaceAll("_", "") + "! '' }\"";
-			}
-			else {
-				value = coloumnName + " = " + "${" + key.replaceAll("_", "") + "! '' }";
-			}
-			
-			whereClause.add(value.replace("\\", ""));
+			value = coloumnName + " = :" +  key.replaceAll("_", "");
+			ifCond = " <#if " + coloumnName + "??>";
+			selectQuery.append(ifCond).append(" WHERE ");
+			whereClause.add(value.replace("\\", "") + " </#if>");
 		}
+		
 		selectQuery.append(whereClause.toString());
 
 		return selectQuery.toString();
@@ -514,51 +512,56 @@ public class MasterCreatorService {
 	}
 
 	private TemplateMaster saveTemplateMasterDetails(MultiValueMap<String, String> inputDetails, String gridId,
-			String formId, Map<String, Object> formData, String moduleURL) throws Exception {
-		List<String>				gridDetailsString	= new ObjectMapper()
-				.convertValue(inputDetails.get("gridDetails"), List.class);
-		String						moduleName			= formData.get("moduleName") + "-template";
-		String						jsonString			= gridDetailsString.get(0).toString();
-		List<Map<String, Object>>	gridDetails			= new ObjectMapper().readValue(jsonString, List.class);
-		String						primaryKey			= formData.get("primaryKey").toString();
-		List<String>				primaryKeysIds		= Lists.newArrayList(primaryKey.split(",")).stream()
-				.map(element -> element.replaceAll("_", "")).collect(Collectors.toList());
-		HashMap<String, Object>		details				= new HashMap<String, Object>();
+			String formId, Map<String, Object> formData, String moduleURL) throws Exception, CustomStopException {
+		try {
+			List<String> gridDetailsString = new ObjectMapper().convertValue(inputDetails.get("gridDetails"),
+					List.class);
+			String moduleName = formData.get("moduleName") + "-template";
+			String jsonString = gridDetailsString.get(0).toString();
+			List<Map<String, Object>> gridDetails = new ObjectMapper().readValue(jsonString, List.class);
+			String primaryKey = formData.get("primaryKey").toString();
+			List<String> primaryKeysIds = Lists.newArrayList(primaryKey.split(",")).stream()
+					.map(element -> element.replaceAll("_", "")).collect(Collectors.toList());
+			HashMap<String, Object> details = new HashMap<String, Object>();
 
-		for (Map<String, Object> map : gridDetails) {
-			saveResourseKey(map);
-		}
+			for (Map<String, Object> map : gridDetails) {
+				saveResourseKey(map);
+			}
 
-		for (String ids : primaryKeysIds) {
-			details.put(ids, "");
+			for (String ids : primaryKeysIds) {
+				details.put(ids, "");
+			}
+			List<String> primaryKeys = Lists.newArrayList(primaryKey.split(","));
+			Map<String, Object> templateMap = new HashMap<String, Object>();
+			templateMap.put("formId", formId);
+			templateMap.put("dfModuleURL", moduleURL);
+			templateMap.put("gridId", gridId);
+			templateMap.put("primaryKeysIds", primaryKeysIds);
+			templateMap.put("primaryKeys", primaryKeys);
+			templateMap.put("gridDetails", gridDetails);
+			templateMap.put("primaryKeyObject", new ObjectMapper().writeValueAsString(details));
+			templateMap.put("pageTitle", formData.getOrDefault("menuDisplayName", "Page Title"));
+			TemplateVO templateVO = dbTemplatingService.getTemplateByName("system-listing-template");
+			String template = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+					templateVO.getTemplateName(), templateMap);
+			TemplateMaster templateMaster = new TemplateMaster();
+			templateMaster.setTemplateName(moduleName);
+			templateMaster.setTemplate(template);
+			templateMaster.setUpdatedDate(new Date());
+			if (detailsService.getUserDetails().getFullName() != null) {
+				templateMaster.setCreatedBy(detailsService.getUserDetails().getUserName());
+				templateMaster.setUpdatedBy(detailsService.getUserDetails().getUserName());
+			} else {
+				logger.error("Error in user details, user details user name cannot be null",
+						detailsService.getUserDetails().getUserName());
+				throw new RuntimeException("Invalid user, can't create template");
+			}
+			templateMaster.setIsCustomUpdated(1);
+			return dbTemplatingService.saveTemplateMaster(templateMaster);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in loadDynamicForm.", custStopException);
+			throw custStopException;
 		}
-		List<String>		primaryKeys	= Lists.newArrayList(primaryKey.split(","));
-		Map<String, Object>	templateMap	= new HashMap<String, Object>();
-		templateMap.put("formId", formId);
-		templateMap.put("dfModuleURL", moduleURL);
-		templateMap.put("gridId", gridId);
-		templateMap.put("primaryKeysIds", primaryKeysIds);
-		templateMap.put("primaryKeys", primaryKeys);
-		templateMap.put("gridDetails", gridDetails);
-		templateMap.put("primaryKeyObject", new ObjectMapper().writeValueAsString(details));
-		templateMap.put("pageTitle", formData.getOrDefault("menuDisplayName", "Page Title"));
-		TemplateVO		templateVO		= dbTemplatingService.getTemplateByName("system-listing-template");
-		String			template		= templatingUtils.processTemplateContents(templateVO.getTemplate(),
-				templateVO.getTemplateName(), templateMap);
-		TemplateMaster	templateMaster	= new TemplateMaster();
-		templateMaster.setTemplateName(moduleName);
-		templateMaster.setTemplate(template);
-		templateMaster.setUpdatedDate(new Date());
-		if(detailsService.getUserDetails().getFullName()!= null) {
-		templateMaster.setCreatedBy(detailsService.getUserDetails().getUserName());
-		templateMaster.setUpdatedBy(detailsService.getUserDetails().getUserName());
-		}
-		else {
-			logger.error("Error in user details, user details user name cannot be null", detailsService.getUserDetails().getUserName());
-			throw new RuntimeException("Invalid user, can't create template");
-		}
-		templateMaster.setIsCustomUpdated(1);
-		return dbTemplatingService.saveTemplateMaster(templateMaster);
 	}
 
 	public List<Map<String, Object>> getTableDetails(String tableName) {
@@ -568,6 +571,14 @@ public class MasterCreatorService {
 	public List<Map<String, Object>> getTableDetailsByTableName(String tableName, String additionalDataSourceId)
 			throws Exception {
 		return dynamicFormDAO.getTableDetailsByTableName(additionalDataSourceId, tableName);
+	}
+	
+	public String getServerBaseURL(HttpServletRequest a_httpServletRequest) throws Exception {
+		String	baseURL	= propertyMasterDetails.getPropertyValueFromPropertyMaster("system", "system", "base-url");
+		if (StringUtils.isBlank(baseURL) == false && a_httpServletRequest.getContextPath().isBlank() == false) {
+			baseURL = baseURL + a_httpServletRequest.getContextPath();
+		}
+		return baseURL;
 	}
 
 }

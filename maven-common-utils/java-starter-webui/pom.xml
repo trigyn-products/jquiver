@@ -14,70 +14,6 @@
 	<version>1.0.4-SNAPSHOT</version>
 	<name>webui</name>
 	<description>WebUI for Java starter project.</description>
-	<url>https://github.com/trigyn-products/java-web-starter</url>
-
-	<organization>
-		<url>https://trigyn.com</url>
-		<name>Trigyn</name>
-	</organization>
-
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-		</snapshotRepository>
-		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
-
-	<licenses>
-		<license>
-			<name>MIT License</name>
-			<url>https://github.com/trigyn-products/java-web-starter/blob/master/LICENSE</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-
-	<developers>
-		<developer>
-			<name>Aniruddha DuttaChowdhury</name>
-			<email>a.d.chowdhury@gmail.com</email>
-			<url>https://jquiver.io/view/team</url>
-			<organization>Trigyn</organization>
-			<organizationUrl>https://www.trigyn.com</organizationUrl>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
-			<properties>
-				<picUrl>https://jquiver.io/cf/files/0cad6a17-9f5f-4d25-b983-b8b691a144d0</picUrl>
-			</properties>
-			<timezone>UTC+05:30</timezone>
-		</developer>
-		<developer>
-			<name>Mini Pillai</name>
-			<email>minipillaister@gmail.com</email>
-			<url>https://jquiver.io/view/team</url>
-			<organization>Trigyn</organization>
-			<organizationUrl>https://www.trigyn.com</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<properties>
-				<picUrl>https://jquiver.io/cf/files/fa498f47-ba98-4f07-bb61-efc2508b21f4</picUrl>
-			</properties>
-			<timezone>UTC+05:30</timezone>
-		</developer>
-	</developers>
-
-	<scm>
-		<connection>scm:git:https://github.com/trigyn-products/jws-webui.git</connection>
-		<developerConnection>scm:git:git@github.com:trigyn-products/jws-webui.git</developerConnection>
-		<url>https://github.com/trigyn-products/java-web-starter</url>
-		<tag>webui-1.0</tag>
-	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -114,37 +50,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-				<mainClass>com.trigyn.JQuiverApplication</mainClass>
-				</configuration>
-				<dependencies>
-					<!-- The following enables the "thin jar" deployment option. -->
-					<dependency>
-						<groupId>org.springframework.boot.experimental</groupId>
-						<artifactId>spring-boot-thin-layout</artifactId>
-						<version>1.0.11.RELEASE</version>
-					</dependency>
-					
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot.experimental</groupId>
-				<artifactId>spring-boot-thin-maven-plugin</artifactId>
-				<version>1.0.25.RELEASE</version>
-				<executions>
-					<execution>
-						<!-- Download the dependencies at build time -->
-						<id>resolve</id>
-						<goals>
-							<goal>resolve</goal>
-						</goals>
-						<inherited>false</inherited>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<executions>
@@ -156,35 +61,6 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-				<configuration>
-					<localCheckout>true</localCheckout>
-					<pushChanges>false</pushChanges>
-					<mavenExecutorId>forked-path</mavenExecutorId>
-					<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-provider-gitexe</artifactId>
-						<version>1.9.5</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.7</version>
-				<extensions>true</extensions>
-				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -207,35 +83,4 @@
 			</resource>
 		</resources>
 	</build>
-	<profiles>
-		<!-- GPG Signature on release -->
-		<profile>
-			<id>release-sign-artifacts</id>
-			<activation>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

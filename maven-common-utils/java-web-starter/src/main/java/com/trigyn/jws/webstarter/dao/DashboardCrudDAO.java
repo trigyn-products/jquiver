@@ -12,11 +12,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.trigyn.jws.dashboard.dao.QueryStore;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.entities.DashletProperties;
+import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.webstarter.controller.DashboardCrudController;
 
@@ -59,7 +61,7 @@ public class DashboardCrudDAO extends DBConnection {
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
 	}
-
+	
 	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation) throws Exception {
 		getCurrentSession().saveOrUpdate(dashboardDashletAssociation);
 	}
@@ -108,11 +110,23 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 
 	public void saveDashlet(Dashlet dashlet) throws Exception {
+		getCurrentSession().flush();
 		if(dashlet.getDashletId() == null || findDashletByDashletId(dashlet.getDashletId()) == null) {
 			getCurrentSession().save(dashlet);			
 		}else {
 			getCurrentSession().saveOrUpdate(dashlet);
 		}
+	}
+	
+	public void updateDashboard(Dashboard dashboard) throws Exception {
+		getCurrentSession().flush();
+			getCurrentSession().merge(dashboard);			
+		
+	}
+
+	public void updateDashlet(Dashlet dashlet) {
+		getCurrentSession().merge(dashlet);
+		
 	}
 
 }

@@ -88,53 +88,6 @@ END;
 
 
 DROP PROCEDURE IF EXISTS dbResourceListing;
-CREATE PROCEDURE dbResourceListing(resourceKey VARCHAR(100), languageName VARCHAR(100), resourceBundleText TEXT, forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-
-
-  SET @selectQuery = ' SELECT rb.resource_key AS resourceKey, lang.language_name AS languageName, rb.`text` AS resourceBundleText, COUNT(jmv.version_id) AS revisionCount ';
-  SET @selectQuery = CONCAT(@selectQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  SET @fromString  = ' FROM jq_resource_bundle AS rb INNER JOIN jq_language AS lang ON lang.language_id = rb.language_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = rb.resource_key AND jmv.entity_name = 'jq_resource_bundle' ");
-  
-  IF languageName IS NULL THEN  
-    SET @whereString = ' WHERE lang.language_id = 1 ';
-  ELSEIF NOT languageName IS NULL THEN  
-    SET @languageName= REPLACE(languageName,"'","''");
-    SET @whereString = CONCAT(' WHERE lang.language_name LIKE ''%',@languageName,'%''');
-  END IF;
-  
-  IF NOT resourceKey IS NULL THEN
-    SET @resourceKey= REPLACE(resourceKey,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND rb.resource_key LIKE ''%',@resourceKey,'%''');
-  END IF;
-  
-  IF NOT resourceBundleText IS NULL THEN
-    SET @resourceBundleText= REPLACE(resourceBundleText,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND rb.text LIKE ''%',@resourceBundleText,'%''');
-  END IF;
-  
-  SET @groupByString = ' GROUP BY rb.resource_key ';
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY resourceKey ASC');
-  END IF;
-  
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@selectQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@selectQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
-
 
 DROP PROCEDURE IF EXISTS dashboardMasterListing;
 CREATE PROCEDURE dashboardMasterListing(dashboardName VARCHAR(50), dashboardType VARCHAR(100), contextDescription VARCHAR(1000)
@@ -144,14 +97,14 @@ BEGIN
 DECLARE db_format VARCHAR(20);
 
 
+  
   SET @resultQuery = CONCAT(" SELECT db.dashboard_id AS dashboardId, db.dashboard_name AS dashboardName, db.dashboard_type AS dashboardType "
-  ," , db.created_by AS createdBy "
-  ," ,cm.context_description AS contextDescription, COUNT(jmv.version_id) AS revisionCount ") ;
+   ," , COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', db.created_date AS createdDate ');
-  SET @resultQuery = CONCAT(@resultQuery, ', db.last_updated_ts AS lastUpdatedTs ');
-  SET @fromString  = ' FROM jq_dashboard AS db INNER JOIN jq_context_master cm ON db.context_id = cm.context_id ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'jq_dashboard' ");
+  SET @resultQuery = CONCAT(@resultQuery, ', db.last_updated_ts AS lastUpdatedTs , COALESCE(CONCAT(jus.first_name, " ", jus.last_name), db.created_by) AS createdBy ');
+  SET @fromString  = ' FROM jq_dashboard AS db' ;
+  SET @fromString = CONCAT(@fromString, " LEFT JOIN jq_user jus ON  jus.email = COALESCE(db.created_by) LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = db.dashboard_id AND jmv.entity_name = 'jq_dashboard' ");
   SET @whereString = ' WHERE db.is_deleted = 0';
   
   IF NOT dashboardName IS NULL THEN
@@ -173,12 +126,7 @@ DECLARE db_format VARCHAR(20);
     SET @lastUpdatedTs= REPLACE(lastUpdatedTs,"'","''");
     SET @whereString = CONCAT(@whereString,' AND db.last_updated_ts like ''%',@lastUpdatedTs,'%''');
   END IF;
-
-  IF NOT contextDescription IS NULL THEN
-    SET @contextDescription= REPLACE(contextDescription,"'","''");
-    SET @whereString = CONCAT(@whereString,' AND cm.context_description like ''%',@contextDescription,'%''');
-  END IF;
-  
+ 
   IF NOT dashboardType IS NULL THEN
     IF  @whereString != '' THEN
       SET @whereString = CONCAT(@whereString,' AND db.dashboard_type = ',dashboardType);
@@ -189,9 +137,9 @@ DECLARE db_format VARCHAR(20);
   
   IF NOT isAfterDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND db.last_updated_ts > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' AND db.last_updated_ts >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     ELSE
-      SET @whereString = CONCAT(@whereString,' WHERE db.last_updated_ts > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' WHERE db.last_updated_ts >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     END IF;  
   END IF;
   
@@ -225,13 +173,13 @@ DECLARE db_format VARCHAR(20);
 
 
   SET @resultQuery = CONCAT("SELECT dl.dashlet_id AS dashletId, dl.dashlet_title AS dashletTitle,dl.dashlet_name AS dashletName, "
-  ," dl.updated_by AS updatedBy, dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
+  ,"  dl.created_by AS createdBy,dl.is_active AS status, COUNT(jmv.version_id) AS revisionCount ") ;
   SET @resultQuery = CONCAT(@resultQuery, ', dl.dashlet_type_id AS dashletTypeId ');
   SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
   SET @resultQuery = CONCAT(@resultQuery, ', dl.created_date AS createdDate');
-  SET @resultQuery = CONCAT(@resultQuery, ', dl.last_updated_ts AS lastUpdatedTs ');
+  SET @resultQuery = CONCAT(@resultQuery, ', dl.last_updated_ts AS lastUpdatedTs , COALESCE(CONCAT(jus.first_name, " ", jus.last_name), COALESCE( dl.updated_by, dl.created_by) ) AS updatedBy ');
   SET @fromString  = ' FROM jq_dashlet AS dl';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'jq_dashlet' ");
+  SET @fromString = CONCAT(@fromString, "  LEFT JOIN jq_user jus ON  jus.email = COALESCE(dl.updated_by, dl.created_by) LEFT OUTER JOIN jq_module_version jmv ON jmv.entity_id = dl.dashlet_id AND jmv.entity_name = 'jq_dashlet' ");
   SET @whereString = '';
   SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
   
@@ -303,9 +251,9 @@ DECLARE db_format VARCHAR(20);
   
   IF NOT isAfterDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND dl.last_updated_ts > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' AND dl.last_updated_ts >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     ELSE
-      SET @whereString = CONCAT(@whereString,' WHERE dl.last_updated_ts > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' WHERE dl.last_updated_ts >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     END IF;  
   END IF;
   
@@ -704,9 +652,9 @@ FETCH curP INTO db_format;
   
   IF NOT isAfterDate IS NULL THEN
     IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND gun.updated_date > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' AND gun.updated_date >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     ELSE
-      SET @whereString = CONCAT(@whereString,' WHERE gun.updated_date > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
+      SET @whereString = CONCAT(@whereString,' WHERE gun.updated_date >= STR_TO_DATE(''',isAfterDate,''',''%Y-%m-%d'')');
     END IF;  
   END IF;
   
@@ -734,96 +682,6 @@ CLOSE curP;
 END;
 
 
-
-DROP PROCEDURE IF EXISTS propertyMasterListing;
-CREATE PROCEDURE propertyMasterListing(ownerType VARCHAR(100), ownerId VARCHAR(150)
-, propertyName VARCHAR(150), propertyValue VARCHAR(250), modifiedBy VARCHAR(50), appVersion DECIMAL(7,4), comments TEXT
-, isAfterDate VARCHAR(50),forCount INT, limitFrom INT, limitTo INT,sortIndex VARCHAR(100),sortOrder VARCHAR(20))
-BEGIN
-  SET @resultQuery = ' SELECT jpm.owner_type AS ownerType, jpm.owner_id AS ownerId, jpm.property_name AS propertyName '; 
-  SET @resultQuery = CONCAT(@resultQuery, ', jpm.property_value AS propertyValue, jpm.last_modified_date AS lastModifiedDate ');
-  SET @resultQuery = CONCAT(@resultQuery, ', jpm.modified_by AS modifiedBy, jpm.app_version AS appVersion, jpm.comments AS comments, jpm.property_master_id AS propertyMasterId, COUNT(jmv.version_id) AS revisionCount ');
-  SET @resultQuery = CONCAT(@resultQuery, ', MAX(jmv.version_id) AS max_version_id ');
-  
-  SET @fromString  = ' FROM jq_property_master AS jpm ';
-  SET @fromString = CONCAT(@fromString, " LEFT OUTER JOIN jq_module_version AS jmv ON jmv.entity_id = jpm.property_master_id AND jmv.entity_name = 'jq_property_master' ");
-  SET @whereString = ' WHERE jpm.is_deleted = 0 ';
-  SET @limitString = CONCAT(' LIMIT ','',CONCAT(limitFrom,',',limitTo));
-  
-  IF NOT ownerId IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.owner_id LIKE ''%',ownerId,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.owner_id LIKE ''%',ownerId,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT ownerType IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.owner_type LIKE ''%',ownerType,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.owner_type LIKE ''%',ownerType,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT propertyName IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.property_name LIKE ''%',propertyName,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.property_name LIKE ''%',propertyName,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT propertyValue IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.property_value LIKE ''%',propertyValue,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.property_value LIKE ''%',propertyValue,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT modifiedBy IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.modified_by LIKE ''%',modifiedBy,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.modified_by LIKE ''%',modifiedBy,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT comments IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.comments LIKE ''%',comments,'%''');
-    ELSE
-      SET @whereString = CONCAT('WHERE jpm.comments LIKE ''%',comments,'%''');
-    END IF;  
-  END IF;
-  
-  IF NOT isAfterDate IS NULL THEN
-    IF  @whereString != '' THEN
-      SET @whereString = CONCAT(@whereString,' AND jpm.last_modified_date > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
-    ELSE
-      SET @whereString = CONCAT(@whereString,' WHERE jpm.last_modified_date > STR_TO_DATE(''',isAfterDate,''',''%d-%b-%Y'')');
-    END IF;  
-  END IF;
-  
-  SET @groupByString = ' GROUP BY propertyMasterId ';
-  
-  IF NOT sortIndex IS NULL THEN
-      SET @orderBy = CONCAT(' ORDER BY ' ,sortIndex,' ',sortOrder);
-    ELSE
-      SET @orderBy = CONCAT(' ORDER BY lastModifiedDate DESC');
-  END IF;
-  
-	IF forCount=1 THEN
-  	SET @queryString=CONCAT('SELECT COUNT(*) FROM ( ',@resultQuery, @fromString, @whereString, @groupByString, @orderBy,' ) AS cnt');
-  ELSE
-  	SET @queryString=CONCAT(@resultQuery, @fromString, @whereString, @groupByString, @orderBy, @limitString);
-  END IF;
-
- PREPARE stmt FROM @queryString;
- EXECUTE stmt;
- DEALLOCATE PREPARE stmt;
-END;
 
 DROP PROCEDURE IF EXISTS templateListing;
 CREATE PROCEDURE templateListing(templateName VARCHAR(100), templateTypeId INT(11), createdBy VARCHAR(100),updatedBy VARCHAR(100)
@@ -1128,22 +986,6 @@ BEGIN
  DEALLOCATE PREPARE stmt;
  
 END;
-
-CREATE  OR REPLACE VIEW `jq_customResourceBundleListingView` AS
-SELECT * FROM ( SELECT
-  `rb`.`resource_key`    AS `resourceKey`,
-  `lang`.`language_name` AS `languageName`,
-  `rb`.`text`            AS `resourceBundleText`,
-  COUNT(`jmv`.`version_id`) AS `revisionCount`,
-  MAX(`jmv`.`version_id`) AS `max_version_id`
-FROM ((`jq_resource_bundle` `rb`
-    JOIN `jq_language` `lang`
-      ON (`lang`.`language_id` = `rb`.`language_id`))
-   LEFT JOIN `jq_module_version` `jmv`
-     ON (`jmv`.`entity_id` = `rb`.`resource_key`
-         AND `jmv`.`entity_name` = 'jq_resource_bundle'))
-WHERE `rb`.`resource_key` NOT LIKE 'jws.%') t;
-
 
 
 DROP PROCEDURE IF EXISTS datasourceListing;
@@ -1609,3 +1451,6 @@ UNION
                 ON       (
                                     `jrma`.`module_id` = `jmm`.`module_id`))
                 WHERE     `jmm`.`is_perm_supported` = 1 )) `a`;
+                
+                
+

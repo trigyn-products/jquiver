@@ -42,7 +42,7 @@ public class FileUtil {
 		}
 		File destDirectory = new File(targetLocation);
 		if(destDirectory.exists() == false) {
-			return "fail:Copy path doesnot exists";
+			destDirectory.mkdir();//return "fail:Copy path doesnot exists";
 		}
 		copy(sourceDirectory, destDirectory);
 	    if (sourceDirectory.exists()) {

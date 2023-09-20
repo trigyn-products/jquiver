@@ -370,7 +370,7 @@ margin:15px 0;
     					var errorMessageString = data.substring(5);
     					showMessage(errorMessageString, "error");
     				}
-                    if(data.startsWith("rejected:")){                      
+                   else if(data.startsWith("rejected:")){                      
     					var errorMessageString = data.substring(10,data.length-1);
                         var myarray=errorMessageString.split(",");
                         

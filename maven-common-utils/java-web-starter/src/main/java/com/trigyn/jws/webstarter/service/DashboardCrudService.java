@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociationPK;
@@ -33,16 +34,13 @@ import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
-
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
 
 @Service
@@ -90,9 +88,13 @@ public class DashboardCrudService {
 
 	@Autowired
 	private ActivityLog								activitylog						= null;
-
+	
+	@Autowired
+	private DashletDAO							    dashletDAO						= null;
+	
+	
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
-		return dashboardCrudDAO.findDashboardByDashboardId(dashboardId);
+		return iDashboardRepository.findById(dashboardId).orElse(null);
 	}
 
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId) throws Exception {
@@ -116,6 +118,24 @@ public class DashboardCrudService {
 			dashboardCrudDAO.deleteAllDashboardRoles(dashboardId);
 		}
 	}
+	public DashletVO findDashletByDashletId(String dashletId) throws Exception {
+		return iDashletRepository.findDashletByDashletId(dashletId);
+	}
+	
+	public List<DashletVO> getDashletVOFromDashboard(Dashboard dashboard) throws Exception {
+		
+		List<DashletVO> listDashletVO =new ArrayList();
+		if (!CollectionUtils.isEmpty(dashboard.getDashboardDashlets())) {
+			for (DashboardDashletAssociation dashboardDashletAssociation : dashboard.getDashboardDashlets()) {
+				DashletVO dashletVO = new DashletVO();
+				dashletVO.setDashletId(dashboardDashletAssociation.getDashlet().getDashletId());
+				dashletVO.setDashletName(dashboardDashletAssociation.getDashlet().getDashletName());
+				listDashletVO.add(dashletVO);
+			}
+			return listDashletVO;
+		}
+		return null;
+	}
 
 	@Transactional(readOnly = false)
 	public String saveDashboardDetails(DashboardVO dashboardVO, String userId, Integer sourceTypeId) throws Exception {
@@ -134,7 +154,10 @@ public class DashboardCrudService {
 		} else {
 			action = Constants.Action.ADD.getAction();
 		}
-		dashboardEntity = iDashboardRepository.save(dashboardEntity);
+		if(dashboardEntity.getDashboardId()!=null) {
+			dashboardCrudDAO.updateDashboard(dashboardEntity);}			
+		else {
+		dashboardEntity = iDashboardRepository.save(dashboardEntity);}
 		dashboardVO.setDashboardId(dashboardEntity.getDashboardId());
 		if (!CollectionUtils.isEmpty(dashboardVO.getRoleIdList())) {
 			for (String roleId : dashboardVO.getRoleIdList()) {
@@ -205,19 +228,36 @@ public class DashboardCrudService {
 			dashboardEntity.setDashboardId(dashboardVO.getDashboardId());
 		}
 		dashboardEntity.setDashboardName(dashboardVO.getDashboardName());
-		dashboardEntity.setContextId(dashboardVO.getContextId());
 		dashboardEntity.setIsExportable(dashboardVO.getIsExportable());
 		dashboardEntity.setIsDraggable(dashboardVO.getIsDraggable());
 		dashboardEntity.setLastUpdatedTs(date);
 		dashboardEntity.setCreatedBy(userId);
 		dashboardEntity.setCreatedDate(date);
 		dashboardEntity.setLastUpdatedTs(date);
+		dashboardEntity.setDashboardBody(dashboardVO.getDashboardBody());
 		return dashboardEntity;
 	}
+	public DashboardVO convertDashboardEntityToVO(Dashboard dashboard) {
+		DashboardVO dashboardVO = new DashboardVO();
+		dashboardVO.setDashboardId(dashboard.getDashboardId());
+		dashboardVO.setDashboardName(dashboard.getDashboardName());
+
+		List<DashboardDashletAssociation>	listDDA			= dashboard.getDashboardDashlets();
+		List<String>						dashletIDList	= new ArrayList<>();
+		for (DashboardDashletAssociation dda : listDDA) {
+			dashletIDList.add(dda.getId().getDashletId());
+		}
+		dashboardVO.setDashletIdList(dashletIDList);
+		dashboardVO.setIsDraggable(dashboard.getIsDraggable());
+		dashboardVO.setIsExportable(dashboard.getIsExportable());
+		dashboardVO.setDashboardBody(dashboard.getDashboardBody());
+		
+		return dashboardVO;
+	}
+
 
 	public DashboardVO convertDashboarEntityToVO(Dashboard dashboard) {
 		DashboardVO dashboardVO = new DashboardVO();
-		dashboardVO.setContextId(dashboard.getContextId());
 		dashboardVO.setDashboardId(dashboard.getDashboardId());
 		dashboardVO.setDashboardName(dashboard.getDashboardName());
 
@@ -236,6 +276,7 @@ public class DashboardCrudService {
 			roleIdList.add(dra.getId().getRoleId());
 		}
 		dashboardVO.setRoleIdList(roleIdList);
+		dashboardVO.setDashboardBody(dashboard.getDashboardBody());
 		return dashboardVO;
 	}
 
@@ -277,7 +318,10 @@ public class DashboardCrudService {
 	public String saveDashlet(DashletVO dashletVO, Integer sourceTypeId) throws Exception {
 
 		Dashlet dashlet = convertDashletVOToEntity(dashletVO);
-		dashlet = iDashletRepository.save(dashlet);
+		if(dashlet.getDashletId()!=null) {
+			dashboardCrudDAO.updateDashlet(dashlet);}			
+		else {
+			dashlet = iDashletRepository.save(dashlet);}
 		String	action				= "";
 		String	masterModuleType	= Constants.Modules.DASHLETS.getModuleName();
 		if (dashletVO.getDashletId().isEmpty() == false) {
@@ -346,7 +390,6 @@ public class DashboardCrudService {
 			dashlet.setDashletQuery(dashletVO.getDashletQuery());
 			dashlet.setDashletBody(dashletVO.getDashletBody());
 			dashlet.setShowHeader(dashletVO.getShowHeader());
-			dashlet.setContextId(dashletVO.getContextId());
 			dashlet.setLastUpdatedTs(date);
 			dashlet.setIsActive(dashletVO.getIsActive());
 			dashlet.setDaoQueryType(dashletVO.getDaoQueryType());

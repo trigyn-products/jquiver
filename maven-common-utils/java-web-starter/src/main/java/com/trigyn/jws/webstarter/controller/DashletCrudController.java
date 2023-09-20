@@ -15,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.scripting.bsh.BshScriptUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +31,7 @@ import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
@@ -64,12 +63,15 @@ public class DashletCrudController {
 	private ActivityLog				activitylog				= null;
 
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
-	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	modelMap	= new HashMap<>();
 			String				environment	= propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dashlet-listing", modelMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dashlet Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dashlet Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -82,22 +84,23 @@ public class DashletCrudController {
 
 	@PostMapping(value = "/aedl", produces = { MediaType.TEXT_HTML_VALUE })
 	public String createEditDashlet(@RequestParam("dashlet-id") String dashletId,
-			HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	templateMap			= new HashMap<>();
 			DashletVO			dashletVO			= dashletServive.getDashletDetailsById(dashletId);
 			Map<String, String>	componentsMap		= dashletServive
 					.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
-			Map<String, String>	contextDetailsMap	= dashboardCrudService.findContextDetails();
 			templateMap.put("dashletVO", dashletVO);
 			templateMap.put("componentMap", componentsMap);
-			templateMap.put("contextDetailsMap", contextDetailsMap);
 
 			/* Method called for implementing Activity Log */
 			if (!StringUtils.isBlank(dashletId)) {
 				logActivity(1, dashletVO.getDashletName());
 			}
 			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Dashlet Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dashlet : DashletId : "+ dashletId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

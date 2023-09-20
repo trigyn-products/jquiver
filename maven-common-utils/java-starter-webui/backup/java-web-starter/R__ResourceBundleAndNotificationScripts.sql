@@ -98,13 +98,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         var type = $("#typeSelect").val();   
         let postData;
         if(type == 0) {
-            postData = {gridId:"resourceBundleListingGrid"}
+            postData = {gridId:"customResourceBundleListingGrid"}
         } else if(type == 1){
             postData = {gridId:"customResourceBundleListingGrid"}
         } else {
             let typeCondition = "str_jws";       
    
-            postData = {gridId:"resourceBundleListingGrid"
+            postData = {gridId:"customResourceBundleListingGrid"
                     ,"cr_resourceKey":typeCondition
                     }
         }

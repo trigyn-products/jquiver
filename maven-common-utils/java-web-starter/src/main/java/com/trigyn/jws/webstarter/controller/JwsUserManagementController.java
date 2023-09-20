@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -94,10 +95,13 @@ public class JwsUserManagementController {
 	
 	@GetMapping(value = "/um")
 	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws Exception {
+			throws Exception, CustomStopException {
 
 		try {
 			return userManagementService.loadUserManagement();
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading User Management page.", custStopException);
+			throw custStopException;
 		} catch (Exception exception) {
 			logger.error("Error occured while loading User Management page.", exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -109,7 +113,7 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/rl")
-	public String roleListing(HttpServletResponse httpServletResponse) throws Exception {
+	public String roleListing(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			if (userManagementService.checkAuthenticationEnabled()) {
 				Map<String, Object> mapDetails = new HashMap<>();
@@ -119,6 +123,9 @@ public class JwsUserManagementController {
 						"You dont have rights to access these module");
 				return null;
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Role Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Role Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -134,15 +141,19 @@ public class JwsUserManagementController {
 	public Boolean saveRole(@RequestBody JwsRoleVO roleData) throws Exception {
 		/* Method called for implementing Activity Log */
 		logActivity(roleData.getRoleName(), roleData.getRoleId());
-		userManagementService.saveRoleData(roleData);
+		JwsRole jwsRole = userManagementService.saveRoleData(roleData);
+		userManagementService.updateEntityRole(roleData, jwsRole);
 		return true;
 	}
 
 	@PostMapping(value = "/aedr")
 	public String addEditRole(@RequestParam("roleId") String roleId, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			return userManagementService.addEditRole(roleId);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Role.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading role : RoleId : "+ roleId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -161,9 +172,12 @@ public class JwsUserManagementController {
 
 	@PostMapping(value = "/srm")
 	public Boolean saveRoleModules(@RequestBody JwsRoleMasterModulesAssociationVO roleModule,
-			HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return userManagementService.saveRoleModules(roleModule);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while saving Role Module.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while saving Role Module.", a_exception);
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
@@ -172,7 +186,7 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/ul")
-	public String userListing(HttpServletResponse httpServletResponse) throws Exception {
+	public String userListing(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			if (userManagementService.checkAuthenticationEnabled()) {
 				Map<String, Object>	mapDetails		= new HashMap<>();
@@ -190,6 +204,9 @@ public class JwsUserManagementController {
 						"You dont have rights to access these module");
 				return null;
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading User Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading User Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -247,10 +264,13 @@ public class JwsUserManagementController {
 
 	@PostMapping(value = "/aedu")
 	public String addEditUser(@RequestParam("userId") String userId, HttpServletResponse httpServletResponse)
-			throws IOException {
+			throws IOException, CustomStopException {
 		try {
 			boolean isProfilePage = false;
 			return userManagementService.addEditUser(userId, isProfilePage);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading User.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading user with userId::"+userId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -273,7 +293,7 @@ public class JwsUserManagementController {
 
 	@PostMapping(value = "/mpar")
 	public String manageUserRoleAndPermission(@RequestParam("userId") String userId,
-			HttpServletResponse httpServletResponse) throws IOException {
+			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			if (userManagementService.checkAuthenticationEnabled()) {
 				Map<String, Object>	mapDetails	= new HashMap<>();
@@ -287,6 +307,9 @@ public class JwsUserManagementController {
 						"You dont have rights to access these module");
 				return null;
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading manage permission page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading manage permission page with userId::"+userId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -337,9 +360,12 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/mer")
-	public String manageEntityRoles(HttpServletResponse httpServletResponse) throws Exception {
+	public String manageEntityRoles(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			return userManagementService.manageEntityRoles();
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Manage Entity Roles page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading manageEntityRoles page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
@@ -384,7 +410,7 @@ public class JwsUserManagementController {
 	}
 
 	@GetMapping(value = "/mp")
-	public String managePermissions(HttpServletResponse httpServletResponse) throws Exception {
+	public String managePermissions(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			if (userManagementService.checkAuthenticationEnabled()) {
 				Map<String, Object>	mapDetails	= new HashMap<>();
@@ -397,6 +423,9 @@ public class JwsUserManagementController {
 						"You dont have rights to access these module");
 				return null;
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Manage Permission page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading manage-permission page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

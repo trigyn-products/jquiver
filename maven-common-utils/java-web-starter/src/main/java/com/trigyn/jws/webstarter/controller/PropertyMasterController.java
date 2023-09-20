@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.templating.service.MenuService;
 
 @RestController
@@ -39,9 +40,12 @@ public class PropertyMasterController {
 	private PropertyMasterDAO		propertyMasterDAO		= null;
 
 	@GetMapping(value = "/pml", produces = MediaType.TEXT_HTML_VALUE)
-	public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException {
+	public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("property-master-listing", new HashMap<>());
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Property Master Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Property Master Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

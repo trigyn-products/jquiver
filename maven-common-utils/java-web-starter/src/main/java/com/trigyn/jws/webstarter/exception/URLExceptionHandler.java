@@ -16,10 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.NestedServletException;
 
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -47,16 +49,35 @@ public class URLExceptionHandler implements ErrorController {
 
 	@Autowired
 	private JwsRoleRepository			jwsRoleRepository			= null;
-
+	
 	@RequestMapping("/error")
 	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		Object				status			= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 		Exception			exception		= (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
+		boolean isCustomException = false;
+		int customErrorCode = Integer.MIN_VALUE;
+		String customErrorMessage = null;
+		
+		if(exception instanceof NestedServletException && exception.getCause() instanceof CustomStopException) {
+			isCustomException = true;
+			customErrorMessage = ((CustomStopException)exception.getCause()).getMessage();
+			customErrorCode = ((CustomStopException)exception.getCause()).getStatusCode();
+		}
 		TemplateVO			templateVO		= templateService.getTemplateByName("error-page");
 		Map<String, Object>	parameterMap	= new HashMap<String, Object>();
 		if (status != null) {
-			Integer statusCode = Integer.parseInt(status.toString());
+			Integer statusCode ;
+			if(isCustomException) {
+				statusCode = customErrorCode;
+				httpServletResponse.setStatus(statusCode);
+			}
+			else {
+				statusCode = Integer.parseInt(status.toString());
+			}
+			
 			parameterMap.put("statusCode", statusCode);
+			parameterMap.put("isCustomException", isCustomException);
+			
 			String url = httpServletRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI).toString()
 					.replace(httpServletRequest.getContextPath(), "");
 			if (url.contains("webjars")) {
@@ -72,24 +93,26 @@ public class URLExceptionHandler implements ErrorController {
 					if (currentStatus.value() == Integer.parseInt(errorStatusCode)) {
 						httpStatus = currentStatus;
 					}
-
 				}
-				return new ResponseEntity<String>(errorMessage, httpStatus);
+					return new ResponseEntity<String>(errorMessage, httpStatus);
 			}
 			
 			if(httpServletRequest.getHeader("X-Requested-With") != null &&
 					httpServletRequest.getHeader("X-Requested-With").equalsIgnoreCase("XMLHttpRequest")) {
 				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();
-				
 				HttpStatus hStatus = null;
 				try {
-					hStatus = HttpStatus.valueOf(Integer.parseInt(errorStatusCode));
+					if(isCustomException) {
+						hStatus = HttpStatus.valueOf(customErrorCode);
+						errorMessage = customErrorMessage;
+					} else {
+						hStatus = HttpStatus.valueOf(Integer.parseInt(errorStatusCode));
+					}
 				} catch (Throwable a_th) {
 					hStatus = HttpStatus.FAILED_DEPENDENCY;
 					a_th.printStackTrace();
 				}
-				
 				return new ResponseEntity<String>(errorMessage, hStatus);
 			}
 			
@@ -117,12 +140,17 @@ public class URLExceptionHandler implements ErrorController {
 				if ("/".equals(url) && fallbackTemplate == null) {
 					return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
 				} else if (fallbackTemplate == null) {
+					if(isCustomException) {
+						parameterMap.put("errorMessage", customErrorMessage);
+					}
 					return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 				} else {
 					return fallbackTemplate;
 				}
 			}
-			if (exception != null) {
+			if(isCustomException) {
+				parameterMap.put("errorMessage", customErrorMessage);
+			}else if (exception != null) {
 				parameterMap.put("errorMessage", exception.getCause());
 			} else {
 				parameterMap.put("errorMessage", httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE) );
