@@ -1,0 +1,33 @@
+<head>
+<link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
+     <title>Registration confirmation sent </title>
+     <@templateWithoutParams "jws-common-css-js"/>
+</head>
+<body>
+
+    <div class="container">
+        <div class="cm-success-box">
+        <div class="row">
+            <div class="col-md-12">
+
+                	<div class="box">							
+				<div class="icon">
+					<div class="image"><i class="fa fa-thumbs-o-up"></i></div>
+					<div class="info">
+						<h3 class="title">Successful</h3>
+						<p>
+                             A verification email has been sent to: <a href="${emailId}">  ${emailId} </a>
+							
+						</p>
+						
+					</div>
+				</div>
+			
+			</div> 
+
+            </div>
+        </div>
+    </div>
+    </div>
+           
+ </body>
