@@ -1,0 +1,954 @@
+{
+	"info": {
+		"_postman_id": "4fdf0f51-76d6-4c7d-b4ed-3b07ee988d94",
+		"name": "Jquiver Database Authentication",
+		"description": "#### JQuiver supports different types database authentication using the following mechanisms :\n\n1. Password\n2. Password + Captcha\n3. Email OTP\n4. Email OTP + Captcha\n5. TOTP\n6. TOTP + Captcha",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27323927",
+		"_collection_link": "https://crimson-escape-459423.postman.co/workspace/JQuiver~9f6e3b36-19b6-4cfa-923f-2c6d6dae1aa5/collection/838263-4fdf0f51-76d6-4c7d-b4ed-3b07ee988d94?action=share&source=collection_link&creator=27323927"
+	},
+	"item": [
+		{
+			"name": "Common",
+			"item": [
+				{
+					"name": "Authenticate",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "at",
+								"value": "7d1dba821",
+								"description": "Database Authentcation",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin@jquiver.io\",\r\n    \"password\": \"Admin@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/japi/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"japi",
+								"login"
+							]
+						},
+						"description": "#### **Summary:** Logs into the JQuiver Application using Password verification type\n\n**OperationId:** login\n\n**Responses:**\n\n- '200' : successful operation.\n- '400' : Empty User Name/ Invalid User\n- ' Wrong Password' : Login failed. Bad credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "Auth + Captcha",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "at",
+								"value": "7d1dba821",
+								"description": "Database Authentcation",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin@jquiver.io\",\r\n    \"password\": \"623194\",\r\n    \"captcha\" : \"BYB74A\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/japi/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"japi",
+								"login"
+							]
+						},
+						"description": "#### **Summary:** Logs user into the Jquiver Application using Password + Captcha verification type\n\n**Pre Request:** loginCaptcha should called before the request\n\n**OperationId:** login\n\n**Responses:**\n\n- '200' : successful operation.\n- '400' : Empty User Name/ Invalid User/Captca is required/Please verify captcha !.\n- ' Wrong Password' : Login failed. Bad credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "Get the login captcha",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/captcha/loginCaptcha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"captcha",
+								"loginCaptcha"
+							]
+						},
+						"description": "#### **Summary :** Pre Reuest to get Captcha for Password + Captch service."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "OTP",
+			"item": [
+				{
+					"name": "Get OTP",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/saveOtpAndSendMail?email=admin@jquiver.io",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"saveOtpAndSendMail"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@jquiver.io"
+								}
+							]
+						},
+						"description": "#### **Summary :** Pre Request to generate OTP. The generated OTP will be sent to the user through email provided."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ForgotPassword",
+			"item": [
+				{
+					"name": "Forgot password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "admin@jquiver.io",
+									"description": "Registered  user name or email",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/sendResetPasswordMail?email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"sendResetPasswordMail"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": null,
+									"description": "Email"
+								}
+							]
+						},
+						"description": "**Summary :**\n\nPre Request to generate the token for the user. The password reset link will be sent user email."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "password",
+									"value": "Admin@123",
+									"description": "New Password",
+									"type": "text"
+								},
+								{
+									"key": "confirmpassword",
+									"value": "Admin@123",
+									"description": "Confirm password same as new password",
+									"type": "text"
+								},
+								{
+									"key": "resetEmailId",
+									"value": "admin@jquiver.io",
+									"description": "Registered  user name or email",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/createPassword?token=fcfb81ab-124a-4b4a-96c5-942d006b1bf6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"createPassword"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "fcfb81ab-124a-4b4a-96c5-942d006b1bf6",
+									"description": "Token generated using forgot password"
+								}
+							]
+						},
+						"description": "#### **Summary:**\n\nThis JQuiver provides a simple password reset strategy, where users can request password reset tokens via their registered e-mail address. JQuiver application basically provides two REST endpoints one to get the Token and Verify (confirm) a token (and change the password)\n\n**Pre Request:**\n\n- Request a token : Forgot Password should be called before the request.\n    \n\n**Responses:**\n\n- 'Success' : successful operation redirects to login page.\n- Password/Confirm Password Mismatch : Enter same password and confirm password"
+					},
+					"response": []
+				},
+				{
+					"name": "Resest passord with captcha",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "password",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "confirmpassword",
+								"value": "",
+								"type": "text"
+							},
+							{
+								"key": "resetEmailId",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "password",
+									"value": "",
+									"description": "New password",
+									"type": "text"
+								},
+								{
+									"key": "confirmpassword",
+									"value": "",
+									"description": "Confirm password same as password",
+									"type": "text"
+								},
+								{
+									"key": "resetEmailId",
+									"value": "",
+									"description": "Registered  user name or email",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/createPassword?token=b6f5b101-17fe-4761-8586-f897a088fae1&captcha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"createPassword"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "b6f5b101-17fe-4761-8586-f897a088fae1",
+									"description": "Token generated using forgot password"
+								},
+								{
+									"key": "captcha",
+									"value": null,
+									"description": "Captcha generated using Get login captcha"
+								}
+							]
+						},
+						"description": "#### **Summary:**\n\nThis JQuiver provides a simple password reset strategy, where users can request password reset tokens via their registered e-mail address. JQuiver application basically provides two REST endpoints one to get the Token and Verify (confirm) a token (and change the password)\n\n**Pre Request:**\n\n- Request a token : Forgot Password should be called before the request.\n- Get the login captcha\n    \n\n**Responses:**\n\n- 'Success' : successful operation redirects to login page.\n- Password/Confirm Password Mismatch : Enter same password and confirm password"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot password with captcha",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "admin@jquiver.io",
+									"description": "Registered  user name or email",
+									"type": "text"
+								},
+								{
+									"key": "captcha",
+									"value": "xxxxxx",
+									"description": "Captcha generated using Login captcha",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/sendResetPasswordMail?email&captcha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"sendResetPasswordMail"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": null,
+									"description": "Email"
+								},
+								{
+									"key": "captcha",
+									"value": null,
+									"description": "Captcha generated using get login captcha"
+								}
+							]
+						},
+						"description": "**Summary :**\n\nPre Request to generate the token for the user. The password reset link will be sent user email."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Check REST API",
+			"item": [
+				{
+					"name": "Auth Echo Service",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8090/hrsSIT/quartz/mail/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8090",
+							"path": [
+								"hrsSIT",
+								"quartz",
+								"mail",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "at",
+								"value": "7d1dba821",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin@jquiver.io\",\r\n    \"password\": \"Admin@123\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/gt",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"gt"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "schCreate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "message",
+									"value": "Test message",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/hrsSIT/cf/scheduleTestJob",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"hrsSIT",
+								"cf",
+								"scheduleTestJob"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Registration",
+			"item": [
+				{
+					"name": "Password",
+					"item": [
+						{
+							"name": "Register with password auth and captch",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?firstName=Shrinath&lastName=Halki&email=shrinath.halki1@gmail.com&password=Admin@123&captcha=T7MC9Y&verificationType=1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "firstName",
+											"value": "Shrinath",
+											"description": "First name of the user"
+										},
+										{
+											"key": "lastName",
+											"value": "Halki",
+											"description": "Last name of the user"
+										},
+										{
+											"key": "email",
+											"value": "shrinath.halki1@gmail.com",
+											"description": "Email of the user"
+										},
+										{
+											"key": "password",
+											"value": "Admin@123",
+											"description": "Desired password"
+										},
+										{
+											"key": "captcha",
+											"value": "T7MC9Y",
+											"description": "Generated captcha using register captcha service."
+										},
+										{
+											"key": "verificationType",
+											"value": "1",
+											"description": "Verification : Password"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- 'Empty User Name/ Invalid User' : User does not exist\n- 'Empty Password / Wrong Password' : Login failed. Bad credentials.\n- Empty Captcha/ Wrong Captcha : Password must contain atleast 6 characters including UPPER/lowercase/Special charcters and numbers!"
+							},
+							"response": []
+						},
+						{
+							"name": "Register with password auth",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?firstName=Shrinath&lastName=Halki&email=halkishrinathp21@gmail.com&password=Admin@123&captcha=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "firstName",
+											"value": "Shrinath",
+											"description": "First Name of the use"
+										},
+										{
+											"key": "lastName",
+											"value": "Halki",
+											"description": "Last name of the user"
+										},
+										{
+											"key": "email",
+											"value": "halkishrinathp21@gmail.com",
+											"description": "Email ID of the user"
+										},
+										{
+											"key": "password",
+											"value": "Admin@123",
+											"description": "Desired password 8-20 characters"
+										},
+										{
+											"key": "captcha",
+											"value": "",
+											"description": "Captcha Generated using register captcha service"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- Empty Email : Email is required.\n- 'Empty User Name' : Email is required\n- 'Invalid User' : User does not exist\n- 'Empty Password / Wrong Password' : Login failed. Bad credentials."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "OTP",
+					"item": [
+						{
+							"name": "Register with OTP",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?firstName=Shrinath&lastName=Halki&email=shrinath.otp@gmail.com",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "firstName",
+											"value": "Shrinath",
+											"description": "First Name of the user"
+										},
+										{
+											"key": "lastName",
+											"value": "Halki",
+											"description": "Last Name of the user"
+										},
+										{
+											"key": "email",
+											"value": "shrinath.otp@gmail.com",
+											"description": "Email of the user"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- Empty Email : Email is required.\n- 'Empty User Name' : Email is required\n- 'Invalid User' : User does not exist"
+							},
+							"response": []
+						},
+						{
+							"name": "Register with OTP Captcha",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?firstName=Shrinath&lastName=Halki&email=shrinath.otpcaptcha@gmail.com&captcha=2APMTJ",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "firstName",
+											"value": "Shrinath",
+											"description": "First Name"
+										},
+										{
+											"key": "lastName",
+											"value": "Halki",
+											"description": "Last Name"
+										},
+										{
+											"key": "email",
+											"value": "shrinath.otpcaptcha@gmail.com",
+											"description": "Email"
+										},
+										{
+											"key": "captcha",
+											"value": "2APMTJ",
+											"description": "Captcha using Register captcha"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- Empty Email : Email is required.\n- 'Empty User Name' : Email is required\n- 'Invalid User' : User does not exist"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "TOTP",
+					"item": [
+						{
+							"name": "Register with TOTP",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?verificationType=1&firstName&lastName&email",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "verificationType",
+											"value": "1"
+										},
+										{
+											"key": "firstName",
+											"value": null,
+											"description": "First Name of the user"
+										},
+										{
+											"key": "lastName",
+											"value": null,
+											"description": "Last name of the user"
+										},
+										{
+											"key": "email",
+											"value": null,
+											"description": "Email of the user"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- Empty Email : Email is required.\n- 'Empty User Name' : Email is required\n- 'Invalid User' : User does not exist"
+							},
+							"response": []
+						},
+						{
+							"name": "Register with TOTP + Captcha",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{base_url}}/cf/register?verificationType=1&firstName&lastName&email&captcha",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"cf",
+										"register"
+									],
+									"query": [
+										{
+											"key": "verificationType",
+											"value": "1"
+										},
+										{
+											"key": "firstName",
+											"value": null,
+											"description": "First Name"
+										},
+										{
+											"key": "lastName",
+											"value": null,
+											"description": "Last Name"
+										},
+										{
+											"key": "email",
+											"value": null,
+											"description": "Email"
+										},
+										{
+											"key": "captcha",
+											"value": null,
+											"description": "captcha"
+										}
+									]
+								},
+								"description": "##### Summary : Create an user in JQuiver application.\n\n**Responses:**\n\n- 'Success' : A verification email has been sent to email ID.\n- Empty Email : Email is required.\n- 'Empty User Name' : Email is required\n- 'Invalid User' : User does not exist"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get the register captcha",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/cf/captcha/registerCaptcha",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cf",
+								"captcha",
+								"registerCaptcha"
+							]
+						},
+						"description": "#### **Summary :** Pre Reuest to get Captcha for Password + Captch service."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Security",
+			"item": [
+				{
+					"name": "http://localhost:8086/hrsSIT/japi/TestAttach",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "ck",
+								"value": "0dc893bf-8194-4ad1-818b-4677451bc72a",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "p1",
+									"value": "foG5u4YNekoxZN4Mwva+MhoVpaqyCxdA3k8VWd/xEwA=",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8086/hrsSIT/japi/TestAttach",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8086",
+							"path": [
+								"hrsSIT",
+								"japi",
+								"TestAttach"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TestAttach",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbm9ueW1vdXMiLCJleHAiOjE3MDY3ODMyNTUsImlhdCI6MTcwNjc3Nzg1NX0.r0N9BIydyluJ8yhzEX3zHGapVzVPwWbvRXqxs9P5ofI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "ck",
+						"value": "0dc893bf-8194-4ad1-818b-4677451bc72a",
+						"type": "text"
+					},
+					{
+						"key": "at",
+						"value": "7d1dba821",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "l+Ra+Ow2iRvVvnQXZ8bcVA==",
+							"value": "LNBYEpQxW2UPTLsuHjD7H706xmVQ7BIwh5euB2hosEc=",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8086/hrsSIT/japi/TestAttach",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8086",
+					"path": [
+						"hrsSIT",
+						"japi",
+						"TestAttach"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest"
+		},
+		{
+			"listen": "test"
+		}
+	]
+}
