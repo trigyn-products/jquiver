@@ -16,6 +16,8 @@ public class DashletPropertyVO implements Serializable {
 	private String				type				= null;
 
 	private String				value				= null;
+	
+	private String				validation			= null;
 
 	private String				defaultValue		= null;
 
@@ -32,21 +34,23 @@ public class DashletPropertyVO implements Serializable {
 	}
 
 	// Used to display dashlet property from config
-	public DashletPropertyVO(String dashletPropertyId, String displayName, String type, String value, String defaultValue) {
+	public DashletPropertyVO(String dashletPropertyId, String displayName, String type, String value, String validation, String defaultValue) {
 		this.dashletPropertyId	= dashletPropertyId;
 		this.displayName		= displayName;
 		this.type				= type;
 		this.value				= value;
+		this.validation 		= validation;
 		this.defaultValue		= defaultValue;
 	}
 
 	public DashletPropertyVO(String dashletPropertyId, String placeholderName, String displayName, String type, String value,
-			String defaultValue, String configurationScript, Integer toDisplay, Integer sequence, Integer isDeleted) {
+			 String validation,String defaultValue, String configurationScript, Integer toDisplay, Integer sequence, Integer isDeleted) {
 		this.dashletPropertyId		= dashletPropertyId;
 		this.placeholderName		= placeholderName;
 		this.displayName			= displayName;
 		this.type					= type;
 		this.value					= value;
+		this.validation 			= validation;
 		this.defaultValue			= defaultValue;
 		this.configurationScript	= configurationScript;
 		this.toDisplay				= toDisplay;
@@ -140,10 +144,18 @@ public class DashletPropertyVO implements Serializable {
 		this.isDeleted = isDeleted;
 	}
 
+	public String getValidation() {
+		return validation;
+	}
+
+	public void setValidation(String validation) {
+		this.validation = validation;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(configurationScript, dashletPropertyId, defaultValue, displayName, isDeleted, placeholderName, sequence,
-				toDisplay, type, value);
+				toDisplay, type, value, validation);
 	}
 
 	@Override
@@ -162,13 +174,14 @@ public class DashletPropertyVO implements Serializable {
 				&& Objects.equals(defaultValue, other.defaultValue) && Objects.equals(displayName, other.displayName)
 				&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(placeholderName, other.placeholderName)
 				&& Objects.equals(sequence, other.sequence) && Objects.equals(toDisplay, other.toDisplay)
-				&& Objects.equals(type, other.type) && Objects.equals(value, other.value);
+				&& Objects.equals(type, other.type) && Objects.equals(value, other.value) 
+				&& Objects.equals(validation, other.validation);
 	}
 
 	@Override
 	public String toString() {
 		return "DashletPropertyVO [dashletPropertyId=" + dashletPropertyId + ", placeholderName=" + placeholderName + ", displayName="
-				+ displayName + ", type=" + type + ", value=" + value + ", defaultValue=" + defaultValue + ", configurationScript="
+				+ displayName + ", type=" + type + ", value=" + value + ", validation=" + validation + ", defaultValue=" + defaultValue + ", configurationScript="
 				+ configurationScript + ", toDisplay=" + toDisplay + ", sequence=" + sequence + ", isDeleted=" + isDeleted + "]";
 	}
 

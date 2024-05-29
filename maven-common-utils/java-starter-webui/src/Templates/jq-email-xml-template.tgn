@@ -9,6 +9,7 @@
 	      <property name="">value here</property>
 	      <property name="">value here</property>
 	   </header>
+
 	   <sender><!-- This is optional. Default mail configuration will be used, if not provided. -->
 	      <name></name>
 	      <mailid></mailid>

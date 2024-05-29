@@ -1,6 +1,8 @@
 package com.trigyn.jws.quartz.service.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import org.quartz.Trigger.TriggerState;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -45,6 +48,9 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 
 	@Autowired
 	private ApplicationContext	context					= null;
+	
+	@Autowired
+	private ServerProperties serverProperties 			= null;
 
 	/**
 	 * Schedule a job by jobName at given date.
@@ -52,12 +58,12 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	@Override
 	public boolean scheduleOneTimeJob(String jobName, String jobGroup, Class<? extends QuartzJobBean> jobClass,
 			Date date, JobDataMap jobDetailMap) {
-		logger.log(Level.INFO, "Request received to scheduleJob");
+		logger.log(Level.DEBUG, "Request received to scheduleJob");
 
-		String		triggerKey	= jobName;
+		String		triggerKey	= jobGroup;
 		JobDetail	jobDetail	= JobUtil.createJob(jobClass, false, context, jobName, jobGroup, jobDetailMap);
-		logger.log(Level.INFO, "creating trigger for key :" + jobName + " at date :" + date);
-		Trigger cronTriggerBean = JobUtil.createSingleTrigger(triggerKey, date,
+		logger.log(Level.DEBUG, "creating trigger for key :" + jobName + " at date :" + date);
+		Trigger cronTriggerBean = JobUtil.createSingleTrigger(jobName, triggerKey, date,
 				SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
 		try {
 			Scheduler scheduler = schedulerFactoryBean.schedulerFactoryBean().getScheduler();
@@ -65,7 +71,7 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 				scheduler.deleteJob(jobDetail.getKey());
 			}
 			Date dt = scheduler.scheduleJob(jobDetail, cronTriggerBean);
-			logger.log(Level.INFO, "Job with key jobKey :" + jobName + " and group :" + jobGroup
+			logger.log(Level.DEBUG, "Job with key jobKey :" + jobName + " and group :" + jobGroup
 					+ " scheduled successfully for date :" + dt);
 			return true;
 		} catch (SchedulerException sche) {
@@ -84,13 +90,13 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	@Override
 	public boolean scheduleCronJob(String jobName, String jobGroup, Class<? extends Job> jobClass, Date date,
 			String cronExpression, JobDataMap jobDetailMap) {
-		logger.log(Level.INFO, "Request received to scheduleJob");
+		logger.log(Level.DEBUG, "Request received to scheduleJob");
 
 		String		triggerKey	= jobName;
 		JobDetail	jobDetail	= JobUtil.createJob(jobClass, false, context, jobName, jobGroup, jobDetailMap);
 
-		logger.log(Level.INFO, "creating trigger for key :" + jobName + " at date :" + date);
-		Trigger cronTriggerBean = JobUtil.createCronTrigger(triggerKey, date, cronExpression,
+		logger.log(Level.DEBUG, "creating trigger for key :" + jobName + " at date :" + date);
+		Trigger cronTriggerBean = JobUtil.createCronTrigger(triggerKey, jobGroup, date, cronExpression,
 				SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
 
 		try {
@@ -99,7 +105,7 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 				scheduler.deleteJob(jobDetail.getKey());
 			}
 			Date dt = scheduler.scheduleJob(jobDetail, cronTriggerBean);
-			logger.log(Level.INFO, "Job with key jobKey :" + jobName + " and group :" + jobGroup
+			logger.log(Level.DEBUG, "Job with key jobKey :" + jobName + " and group :" + jobGroup
 					+ " scheduled successfully for date :" + dt);
 			return true;
 		} catch (SchedulerException sche) {
@@ -121,11 +127,11 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	@Override
 	public boolean updateOneTimeJob(String jobName, Date date) {
 
-		logger.log(Level.INFO, "Request received for updating one time job.");
-		logger.log(Level.INFO,
+		logger.log(Level.DEBUG, "Request received for updating one time job.");
+		logger.log(Level.DEBUG,
 				"Parameters received for updating one time job : jobKey :" + jobName + ", date: " + date);
 		try {
-			Trigger		newTrigger	= JobUtil.createSingleTrigger(jobName, date,
+			Trigger		newTrigger	= JobUtil.createSingleTrigger(jobName, null, date,
 					SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
 			Scheduler	scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			Date		dt			= scheduler.rescheduleJob(TriggerKey.triggerKey(jobName), newTrigger);
@@ -143,12 +149,12 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 * Update scheduled cron job.
 	 */
 	@Override
-	public boolean updateCronJob(String jobName, Date date, String cronExpression) {
-		logger.log(Level.INFO, "Request received for updating cron job.");
+	public boolean updateCronJob(String jobName, String jobGroup, Date date, String cronExpression) {
+		logger.log(Level.DEBUG, "Request received for updating cron job.");
 
-		logger.log(Level.INFO, "Parameters received for updating cron job : jobKey :" + jobName + ", date: " + date);
+		logger.log(Level.DEBUG, "Parameters received for updating cron job : jobKey :" + jobName + ", date: " + date);
 		try {
-			Trigger		newTrigger	= JobUtil.createCronTrigger(jobName, date, cronExpression,
+			Trigger		newTrigger	= JobUtil.createCronTrigger(jobName, jobGroup, date, cronExpression,
 					SimpleTrigger.MISFIRE_INSTRUCTION_FIRE_NOW);
 			Scheduler	scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			Date		dt			= scheduler.rescheduleJob(TriggerKey.triggerKey(jobName), newTrigger);
@@ -169,14 +175,14 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean unScheduleJob(String jobName) {
-		logger.log(Level.INFO, "Request received for Unscheduleding job.");
+		logger.log(Level.DEBUG, "Request received for Unscheduleding job.");
 
 		TriggerKey tkey = new TriggerKey(jobName);
-		logger.log(Level.INFO, "Parameters received for unscheduling job : tkey :" + jobName);
+		logger.log(Level.DEBUG, "Parameters received for unscheduling job : tkey :" + jobName);
 		try {
 			Scheduler	scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			boolean		status		= scheduler.unscheduleJob(tkey);
-			logger.log(Level.INFO,
+			logger.log(Level.DEBUG,
 					"Trigger associated with jobKey :" + jobName + " unscheduled with status :" + status);
 			return status;
 		} catch (SchedulerException sche) {
@@ -197,14 +203,14 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	@Override
 	public boolean deleteJob(String jobName, String jobGroup) {
 
-		logger.log(Level.INFO, "Request received for deleting job.");
+		logger.log(Level.DEBUG, "Request received for deleting job.");
 		JobKey jkey = new JobKey(jobName, jobGroup);
-		logger.log(Level.INFO, "Parameters received for deleting job : jobKey :" + jobName);
+		logger.log(Level.DEBUG, "Parameters received for deleting job : jobKey :" + jobName);
 
 		try {
 			Scheduler	scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			boolean		status		= scheduler.deleteJob(jkey);
-			logger.log(Level.INFO, "Job with jobKey :" + jobName + " deleted with status :" + status);
+			logger.log(Level.DEBUG, "Job with jobKey :" + jobName + " deleted with status :" + status);
 			return status;
 		} catch (SchedulerException sche) {
 			logger.error(
@@ -224,15 +230,15 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean pauseJob(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "Request received for pausing job.");
+		logger.log(Level.DEBUG, "Request received for pausing job.");
 
 		JobKey jkey = new JobKey(jobName, jobGroup);
-		logger.log(Level.INFO, "Parameters received for pausing job : jobKey :" + jobName + ", jobGroup :" + jobGroup);
+		logger.log(Level.DEBUG, "Parameters received for pausing job : jobKey :" + jobName + ", jobGroup :" + jobGroup);
 
 		try {
 			Scheduler scheduler = schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			scheduler.pauseJob(jkey);
-			logger.log(Level.INFO, "Job with jobKey :" + jobName + " paused succesfully.");
+			logger.log(Level.DEBUG, "Job with jobKey :" + jobName + " paused succesfully.");
 			return true;
 		} catch (SchedulerException sche) {
 			logger.error(
@@ -252,14 +258,14 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean resumeJob(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "Request received for resuming job.");
+		logger.log(Level.DEBUG, "Request received for resuming job.");
 
 		JobKey jKey = new JobKey(jobName, jobGroup);
-		logger.log(Level.INFO, "Parameters received for resuming job : jobKey :" + jobName);
+		logger.log(Level.DEBUG, "Parameters received for resuming job : jobKey :" + jobName);
 		try {
 			Scheduler scheduler = schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			scheduler.resumeJob(jKey);
-			logger.log(Level.INFO, "Job with jobKey :" + jobName + " resumed succesfully.");
+			logger.log(Level.DEBUG, "Job with jobKey :" + jobName + " resumed succesfully.");
 			return true;
 		} catch (SchedulerException sche) {
 			logger.error(
@@ -279,14 +285,14 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean startJobNow(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "Request received for starting job now.");
+		logger.log(Level.DEBUG, "Request received for starting job now.");
 
 		JobKey jKey = new JobKey(jobName, jobGroup);
-		logger.log(Level.INFO, "Parameters received for starting job now : jobKey :" + jobName);
+		logger.log(Level.DEBUG, "Parameters received for starting job now : jobKey :" + jobName);
 		try {
 			Scheduler scheduler = schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			scheduler.triggerJob(jKey);
-			logger.log(Level.INFO, "Job with jobKey :" + jobName + " started now succesfully.");
+			logger.log(Level.DEBUG, "Job with jobKey :" + jobName + " started now succesfully.");
 			return true;
 		} catch (SchedulerException sche) {
 			logger.error("SchedulerException while starting job now with key :" + jobName + " message :"
@@ -306,9 +312,9 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean isJobRunning(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "Request received to check if job is running");
+		logger.log(Level.DEBUG, "Request received to check if job is running");
 
-		logger.log(Level.INFO, "Parameters received for checking job is running now : jobKey :" + jobName);
+		logger.log(Level.DEBUG, "Parameters received for checking job is running now : jobKey :" + jobName);
 		try {
 			Scheduler					scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
 			List<JobExecutionContext>	currentJobs	= scheduler.getCurrentlyExecutingJobs();
@@ -371,8 +377,8 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 					}
 
 					list.add(map);
-					logger.log(Level.INFO, "Job details:");
-					logger.log(Level.INFO,
+					logger.log(Level.DEBUG, "Job details:");
+					logger.log(Level.DEBUG,
 							"Job Name:" + jobName + ", Group Name:" + groupName + ", Schedule Time:" + scheduleTime);
 				}
 
@@ -414,7 +420,7 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 * Get the current state of job
 	 */
 	public String getJobState(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "JwsQuartzJobService.getJobState()");
+		logger.log(Level.DEBUG, "JwsQuartzJobService.getJobState()");
 		try {
 
 			JobKey					jobKey		= new JobKey(jobName, jobGroup);
@@ -457,7 +463,7 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 	 */
 	@Override
 	public boolean stopJob(String jobName, String jobGroup) {
-		logger.log(Level.INFO, "JwsQuartzJobService.stopJob()");
+		logger.log(Level.DEBUG, "JwsQuartzJobService.stopJob()");
 		try {
 
 			Scheduler	scheduler	= schedulerFactoryBean.schedulerFactoryBean().getScheduler();
@@ -473,5 +479,17 @@ public class JwsQuartzJobService implements IJwsQuartzJobService {
 		}
 		return false;
 	}
+	
+	public String getBaseUrl() throws UnknownHostException {
+        String	resultPath = "";
+		if (serverProperties != null) {
+			String	scheme		= serverProperties.getSsl() != null && serverProperties.getSsl().isEnabled() ? "https" : "http";
+			
+			String	serverName	= InetAddress.getLocalHost().getHostAddress();
+			int		serverPort	= serverProperties.getPort();
+			resultPath	= scheme + "://" + serverName + ":" + serverPort;
+		}
+		return resultPath;
+  }
 
 }

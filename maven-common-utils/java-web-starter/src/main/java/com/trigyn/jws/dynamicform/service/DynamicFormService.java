@@ -2,6 +2,8 @@ package com.trigyn.jws.dynamicform.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +16,9 @@ import java.util.StringJoiner;
 import java.util.UUID;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,8 +37,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
@@ -42,18 +51,26 @@ import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.FileInfo.FileType;
+import com.trigyn.jws.dbutils.vo.ScriptLibraryVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.repository.JqschedulerRepository;
+import com.trigyn.jws.dynarest.service.FileUploadConfigService;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.utils.Constants;
+
 
 @Service
 @Transactional
@@ -75,8 +92,6 @@ public class DynamicFormService {
 
 	private static final String				PRIMARY_KEY				= "PK";
 
-	private static final String				AUTO_INCREMENT			= "AUTO_INCREMENT";
-	
 	private static final String				BOOLEAN					= "boolean";
 
 	@Autowired
@@ -114,6 +129,21 @@ public class DynamicFormService {
 
 	@Autowired
 	private AdditionalDatasourceRepository	additionalDatasourceRepository;
+	
+	@Autowired
+	private FileUploadConfigService			fileUploadConfigService	= null;
+	
+	@Autowired
+	private JwsDynarestDAO					dynamicRestDAO			= null;
+	
+	@Autowired
+	protected SessionFactory				sessionFactory			= null;
+	
+	@Autowired
+	private ModuleVersionService			moduleVersionService	= null;
+	
+	@Autowired
+	private FileUploadConfigDAO 			fileUploadConfigDAO 	= null;
 
 	public String loadDynamicForm(String formId, Map<String, Object> requestParam,
 			Map<String, Object> additionalParam) throws IOException, CustomStopException {
@@ -126,6 +156,7 @@ public class DynamicFormService {
 			String				selectQuery			= null;
 			String				formBody			= null;
 			Map<String, Object>	formHtmlTemplateMap	= new HashMap<>();
+			Map<String, Object> map                 = new HashMap<>();
 			String				selectQueryFile		= "selectQuery";
 			String				htmlBodyFile		= "htmlContent";
 
@@ -168,27 +199,27 @@ public class DynamicFormService {
 				requestParam.putAll(additionalParam);
 			}
 			selectTemplateQuery = templateEngine.processTemplateContents(selectQuery, formName, requestParam);
-
-			if (StringUtils.isNotEmpty(selectTemplateQuery)
-					&& Constant.QueryType.SELECT.getQueryType() == form.getSelectQueryType()) {
-				selectResultSet = dynamicFormDAO.executeQueries(form.getDatasourceId(), selectTemplateQuery.toString(), 
-											requestParam);
-			} else if (StringUtils.isNotEmpty(selectTemplateQuery) && 2 == form.getSelectQueryType()) {
-				TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
-				StringBuilder	resultStringBuilder	= new StringBuilder();
-				resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-
-				ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
-
-				ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
-
-				resultStringBuilder.append(selectTemplateQuery.toString());
-				Map<String, Object> map = (Map<String, Object>) scriptEngine.eval(resultStringBuilder.toString());
-				if (map.size() > 0) {
-					selectResultSet = new ArrayList<>();
-					selectResultSet.add(map);
-				}
-
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+			ScriptEngine scriptEngine = null;
+			scriptEngine = scriptEngineManager.getEngineByName(Constant.SelectQueryType.getqueryTypeID(form.getSelectQueryType()).getQueryTypeName());
+			if (StringUtils.isNotEmpty(selectTemplateQuery)){
+				switch(form.getSelectQueryType()) {
+					case Constant.SELECT:
+						selectResultSet = dynamicFormDAO.executeQueries(form.getDatasourceId(), selectTemplateQuery.toString(), 
+								requestParam);
+						break;
+					case Constant.JAVASCRIPT:
+						selectResultSet = loadScriptEngineExecution(scriptEngine,selectTemplateQuery,selectResultSet);
+						break;
+					case Constant.PYTHON:
+						selectResultSet = loadScriptEngineExecution(scriptEngine,selectTemplateQuery,selectResultSet);
+						break;
+					case Constant.PHP:
+						selectResultSet = loadScriptEngineExecution(scriptEngine,selectTemplateQuery,selectResultSet);
+						break;
+					 default:
+						return null;
+					}
 			}
 			formHtmlTemplateMap.put("resultSet", selectResultSet);
 			if (selectResultSet != null && selectResultSet.size() > 0) {
@@ -223,6 +254,49 @@ public class DynamicFormService {
 			logger.error("Error occured in loadDynamicForm() : form(formId : {})", formId, a_exc);
 			throw new RuntimeException(a_exc.getMessage());
 		}
+	}
+	
+	public List<Map<String, Object>> loadScriptEngineExecution(ScriptEngine scriptEngine,String selectTemplateQuery,List<Map<String, Object>> selectResultSet)
+			throws Exception, CustomStopException {
+		StringBuilder	resultStringBuilder	= new StringBuilder();
+		Map<String, Object> map = new HashMap<>();
+		if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("ECMAScript")) {
+			TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
+			resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+		}
+		resultStringBuilder.append(selectTemplateQuery.toString());
+		try {
+		    StringWriter stringWriter = new StringWriter();
+		    scriptEngine.getContext().setWriter(new PrintWriter(stringWriter));
+		    Object scriptResult = scriptEngine.eval(resultStringBuilder.toString());
+	        if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("python")) {
+	        	// If the method has a return statement
+	        	if(scriptEngine.get("result") != null) {
+	        		Object result = scriptEngine.get("result");
+	        		map =  (Map<String, Object>) result;	
+	        	}
+	        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
+	        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+	        	Object result = stringWriter.toString();
+	        	if (result instanceof Map) {
+	        		map = (Map<String, Object>) result;
+	        	} else if (result instanceof String) {
+	        	    String jsonString = (String) result;
+	        	    ObjectMapper objectMapper = new ObjectMapper();
+	        	    map = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+	        	}
+	        } else {
+	        	map = (Map<String, Object>) scriptResult;	
+			}
+	        if (map != null ) {
+				selectResultSet = new ArrayList<>();
+				selectResultSet.add(map);
+			}
+	    } catch (ScriptException scrExc) {
+	        logger.error("Error occured in scriptEngineExecution.", scrExc);
+	    }
+		
+		return selectResultSet;
 	}
 
 	/**
@@ -263,12 +337,8 @@ public class DynamicFormService {
 			} else {
 				requestParams.put("typeSelect", Constants.Changetype.SYSTEM.getChangetype());
 			}
-			requestParams.put("userName", detailsVO.getUserName());
-			requestParams.put("message", "");
-			requestParams.put("date", activityTimestamp.toString());
-			activitylog.activitylog(requestParams);
 		} else if (null != formName && formName.equalsIgnoreCase("grid-details-form")) {
-			if ("" != formData.getFirst("primaryId")) {
+			if (formData.getFirst("primaryId").isEmpty() == false) {
 				action = Constants.Action.OPEN.getAction();
 				String selectQuery = form.getFormSelectQuery();
 				saveTemplateMap.put("primaryId", formData.getFirst("primaryId"));
@@ -287,10 +357,6 @@ public class DynamicFormService {
 				requestParams.put("entityName", formData.getFirst("primaryId"));
 				requestParams.put("action", action);
 				requestParams.put("masterModuleType", Constants.Modules.GRIDUTILS.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (null != entityName && "jq_dynamic_rest_details".equalsIgnoreCase(entityName)) {
@@ -309,33 +375,18 @@ public class DynamicFormService {
 			}
 			requestParams.put("entityName", formData.getFirst("dynarestUrl"));
 			requestParams.put("masterModuleType", Constants.Modules.DYNAMICREST.getModuleName());
-			requestParams.put("userName", detailsVO.getUserName());
-			requestParams.put("message", "");
-			requestParams.put("date", activityTimestamp.toString());
-			activitylog.activitylog(requestParams);
 		} else if (formName != null && formName.equalsIgnoreCase("dynamic-rest-form")) {
-			if ("" != formData.getFirst("primaryId")) {
-				String selectQuery = form.getFormSelectQuery();
-				saveTemplateMap.put("primaryId", formData.getFirst("primaryId"));
-				query = templateEngine.processTemplateContents(selectQuery, "dynamic-rest-form", saveTemplateMap);
-				List<Map<String, Object>> list = dynamicFormDAO.executeQueries(form.getDatasourceId(), query,
-						saveTemplateMap);
-				for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-					Map<String, Object>	map						= (Map<String, Object>) iterator.next();
-					Integer				dynarestRequestTypeId	= (Integer) map.get("dynarestRequestTypeId");
-					if (dynarestRequestTypeId == Constants.Changetype.SYSTEM.getChangeTypeInt()) {
-						requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
-					} else if (dynarestRequestTypeId == Constants.Changetype.CUSTOM.getChangeTypeInt()) {
-						requestParams.put("typeSelect", Constants.Changetype.SYSTEM.getChangetype());
-					}
+			if (formData.getFirst("primaryId").isEmpty() == false) {
+				JwsDynamicRestDetail jwsDynamicRestDetial = dynamicRestDAO.findDynamicRestByUrl(formData.getFirst("primaryId"));
+				Integer				dynarestRequestTypeId	= jwsDynamicRestDetial.getJwsRequestTypeId();
+				if (dynarestRequestTypeId == Constants.Changetype.SYSTEM.getChangeTypeInt()) {
+					requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
+				} else if (dynarestRequestTypeId == Constants.Changetype.CUSTOM.getChangeTypeInt()) {
+					requestParams.put("typeSelect", Constants.Changetype.SYSTEM.getChangetype());
 				}
 				requestParams.put("entityName", formData.getFirst("primaryId"));
 				requestParams.put("action", Constants.Action.OPEN.getAction());
 				requestParams.put("masterModuleType", Constants.Modules.DYNAMICREST.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (null != formData.getFirst("noOfFiles")) {
@@ -349,22 +400,14 @@ public class DynamicFormService {
 			requestParams.put("action", action);
 			requestParams.put("entityName", formData.getFirst("fileBinId"));
 			requestParams.put("masterModuleType", Constants.Modules.FILEBIN.getModuleName());
-			requestParams.put("userName", detailsVO.getUserName());
-			requestParams.put("message", "");
-			requestParams.put("date", activityTimestamp.toString());
-			activitylog.activitylog(requestParams);
 		} else if ("common-file-form".equalsIgnoreCase(formName) == false
-				&& formName.equalsIgnoreCase("file-upload-config")) {
-			if ("" != formData.getFirst("fileBinId")) {
+				&& formName.equalsIgnoreCase("file-upload-config")) { 
+			if (formData.getFirst("fileBinId").isEmpty() == false) {
 				action = Constants.Action.OPEN.getAction();
 				requestParams.put("action", action);
 				requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 				requestParams.put("entityName", formData.getFirst("fileBinId"));
 				requestParams.put("masterModuleType", Constants.Modules.FILEBIN.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (entityName != null && entityName.equalsIgnoreCase("jq_property_master")) {
@@ -382,21 +425,13 @@ public class DynamicFormService {
 			requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 			requestParams.put("entityName", formData.getFirst("ownerId"));
 			requestParams.put("masterModuleType", Constants.Modules.APPLICATIONCONFIGURATION.getModuleName());
-			requestParams.put("userName", detailsVO.getUserName());
-			requestParams.put("message", "");
-			requestParams.put("date", activityTimestamp.toString());
-			activitylog.activitylog(requestParams);
 		} else if (formName != null && formName.equalsIgnoreCase("property-master-form")) {
-			if ("" != formData.getFirst("propertyMasterId")) {
+			if (formData.getFirst("propertyMasterId").isEmpty() == false) { 
 				action = Constants.Action.OPEN.getAction();
 				requestParams.put("action", action);
 				requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 				requestParams.put("entityName", formName);
 				requestParams.put("masterModuleType", Constants.Modules.APPLICATIONCONFIGURATION.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (true == "notification".equalsIgnoreCase(formName)) {
@@ -406,27 +441,19 @@ public class DynamicFormService {
 				requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 				requestParams.put("entityName", formName);
 				requestParams.put("masterModuleType", Constants.Modules.NOTIFICATION.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (formName != null && formName.equalsIgnoreCase("api-client-details-form")) {
-			if ("" != formData.getFirst("clientid")) {
+			if (formData.getFirst("clientid").isEmpty() == false) { 
 				action = Constants.Action.OPEN.getAction();
 				requestParams.put("action", action);
 				requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 				requestParams.put("entityName", formName);
 				requestParams.put("masterModuleType", Constants.Modules.APICLIENTS.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
 		if (formName != null && formName.equalsIgnoreCase("jq-scheduler-form")) {
-			if ("" != formData.getFirst("schedulerid")) {
+			if (formData.getFirst("schedulerid").isEmpty() == false) { 
 				action = Constants.Action.OPEN.getAction();
 				requestParams.put("action", action);
 				JqScheduler	jwsScheduler	= jqschedulerRepository.getOne(formData.getFirst("schedulerid"));
@@ -438,23 +465,32 @@ public class DynamicFormService {
 				}
 				requestParams.put("entityName", formName);
 				requestParams.put("masterModuleType", Constants.Modules.SCHEDULER.getModuleName());
-				requestParams.put("userName", detailsVO.getUserName());
-				requestParams.put("message", "");
-				requestParams.put("date", activityTimestamp.toString());
-				activitylog.activitylog(requestParams);
 			}
 		}
+			requestParams.put("userName", detailsVO.getUserName());
+			requestParams.put("message", "");
+			requestParams.put("date", activityTimestamp.toString());
+			activitylog.activitylog(requestParams);
+		
 	}
 
 	public Boolean saveDynamicForm(MultiValueMap<String, String> formData) throws Exception, CustomStopException {
 		logger.debug("Inside DynamicFormService.saveDynamicForm(formData: {})", formData);
 		try {
 			String saveTemplateQuery = null;
+			if(!"1".equalsIgnoreCase(formData.getFirst("edit")) && null !=formData.getFirst("fileBinId")){
+				FileUploadConfig existingfileUploadConfig=fileUploadConfigService.getFileUploadConfigByBinId(formData.getFirst("fileBinId"));
+				if(null!=existingfileUploadConfig) {
+					logger.error("Error in Dynamic Form, file bin already exist ", formData.getFirst("fileBinId"));
+					throw new RuntimeException(HttpStatus.PRECONDITION_FAILED.toString());
+				}
+			}
 			String formId = formData.getFirst("formId");
 			DynamicForm form = dynamicFormDAO.findDynamicFormById(formId);
 			form.setIsCustomUpdated(1);
 			String formName = form.getFormName();
 			Map<String, Object> saveTemplateMap = new HashMap<>();
+			Map<String, Object>	resultSetMap		= new HashMap<>();
 			saveTemplateMap.put("formData", formData);
 			formData.forEach((key, value) -> saveTemplateMap.put(key, value));
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
@@ -472,7 +508,48 @@ public class DynamicFormService {
 				}
 
 				saveTemplateQuery = templateEngine.processTemplateContents(formSaveQuery, formName, saveTemplateMap);
-				dynamicFormDAO.saveFormData(form.getDatasourceId(), saveTemplateQuery, saveTemplateMap);
+				List<Map<String, Object>> resultSet = new ArrayList<>();
+				if (Constant.QueryType.DML.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
+					try {
+						Integer affectedRowCount = dynamicFormDAO.saveFormData(form.getDatasourceId(),
+								saveTemplateQuery, saveTemplateMap);
+						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), affectedRowCount);
+					} catch (Throwable a_thr) {
+						logger.error(ExceptionUtils.getStackTrace(a_thr));
+					}
+				} else if (Constant.QueryType.SP.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
+					try {
+						resultSet = dynamicFormDAO.executeQueries(dynamicFormSaveQuery.getDatasourceId(),
+								saveTemplateQuery, saveTemplateMap);
+						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), resultSet);
+					} catch (Throwable a_thr) {
+						logger.error(ExceptionUtils.getStackTrace(a_thr));
+					}
+				} else {
+					try {
+						TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
+						StringBuilder	resultStringBuilder	= new StringBuilder();
+						resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+
+						ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
+
+						ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
+						scriptEngine.put("requestDetails", saveTemplateMap);
+					
+						List<Object> objScriptLib = dynamicFormDAO.scriptLibExecution(formId);
+						for(int iCounter = 0; iCounter<objScriptLib.size(); iCounter++) {
+			 				resultStringBuilder.append(objScriptLib.get(iCounter));
+						}
+						resultStringBuilder.append(saveTemplateQuery.toString());
+						Object result = scriptEngine.eval(resultStringBuilder.toString());
+						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), result);
+					} catch (CustomStopException custStopException) {
+						logger.error("Error occured in saveDynamicForm.", custStopException);
+						throw custStopException;
+					} catch (Throwable a_thr) {
+						logger.error(ExceptionUtils.getStackTrace(a_thr));
+					}
+				}
 			}
 			return true;
 		} catch (CustomStopException custStopException) {
@@ -480,7 +557,7 @@ public class DynamicFormService {
 			throw custStopException;
 		}
 	}
-
+	
 	public Boolean saveDynamicForm(List<Map<String, String>> formData, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		logger.debug("Inside DynamicFormService.saveDynamicForm(formData: {})", formData);
@@ -522,7 +599,6 @@ public class DynamicFormService {
 								"Copy path does not exist.");
 						return false;
 					}
-
 					uf.getValue().transferTo(new File(absolutePath));
 				}
 			}
@@ -555,52 +631,50 @@ public class DynamicFormService {
 				saveTemplateQuery = templateEngine.processTemplateContents(formSaveQuery, formName, formDetails);
 				List<Map<String, Object>> resultSet = new ArrayList<>();
 				saveTemplateMap.putAll(formDetails);
-				if (Constant.QueryType.DML.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
-					try {
-						Integer affectedRowCount = dynamicFormDAO.saveFormData(form.getDatasourceId(),
-								saveTemplateQuery, saveTemplateMap);
-						saveTemplateMap.put(dynamicFormSaveQuery.getResultVariableName(), affectedRowCount);
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-					}
-				} else if (Constant.QueryType.SP.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
-					try {
-						resultSet = dynamicFormDAO.executeQueries(dynamicFormSaveQuery.getDatasourceId(),
-								saveTemplateQuery, saveTemplateMap);
-						saveTemplateMap.put(dynamicFormSaveQuery.getResultVariableName(), resultSet);
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-					}
-				} else {
-					try {
-						TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
-						StringBuilder	resultStringBuilder	= new StringBuilder();
-						resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-
-						ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
-
-						ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
-						scriptEngine.put("requestDetails", formDetails);
-
-						if (fileMap != null && fileMap.size() > 0) {
-							scriptEngine.put("files", fileMap);
+				ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+				ScriptEngine scriptEngine = null;
+				scriptEngine = scriptEngineManager.getEngineByName(Constant.QueryType.getqueryTypeID(dynamicFormSaveQuery.getDaoQueryType()).getQueryTypeName());
+				if (dynamicFormSaveQuery.getDaoQueryType() != null){
+					switch(dynamicFormSaveQuery.getDaoQueryType()) {
+						case Constant.DML:
+							try {
+								Integer affectedRowCount = dynamicFormDAO.saveFormData(form.getDatasourceId(),
+										saveTemplateQuery, saveTemplateMap);
+								saveTemplateMap.put(dynamicFormSaveQuery.getResultVariableName(), affectedRowCount);
+							} catch (Throwable a_thr) {
+								logger.error(ExceptionUtils.getStackTrace(a_thr));
+								httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
+										ExceptionUtils.getStackTrace(a_thr));
+							}
+							break;
+						case Constant.SP:
+							try {
+								resultSet = dynamicFormDAO.executeQueries(dynamicFormSaveQuery.getDatasourceId(),
+										saveTemplateQuery, saveTemplateMap);
+								saveTemplateMap.put(dynamicFormSaveQuery.getResultVariableName(), resultSet);
+							} catch (Throwable a_thr) {
+								logger.error(ExceptionUtils.getStackTrace(a_thr));
+								httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
+										ExceptionUtils.getStackTrace(a_thr));
+							}
+							break;
+						case Constant.JS:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery,null,dynamicFormSaveQuery,scriptEngine);
+							break;
+						case Constant.PY:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery,null,dynamicFormSaveQuery,scriptEngine);
+							break;
+						case Constant.QPHP:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery,null,dynamicFormSaveQuery,scriptEngine);
+							break;
+						 default:
+							return null;
 						}
-						resultStringBuilder.append(saveTemplateQuery.toString());
-						scriptEngine.eval(resultStringBuilder.toString());
-					} catch (CustomStopException custStopException) {
-						logger.error("Error occured in saveDynamicForm.", custStopException);
-						throw custStopException;
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-						return false;
-					}
 				}
+				
 			}
 			httpServletRequest.getSession().removeAttribute(sessiongCaptcha.toString());
 		} else if (formCaptcha.equals(generatedCaptcha) == false) {
@@ -637,13 +711,9 @@ public class DynamicFormService {
 						action = Constants.Action.EDIT.getAction();
 					}
 					requestParams.put("entityName", Constants.NOTIFICATION);
-					requestParams.put("action", action);
 					requestParams.put("masterModuleType", Constants.Modules.NOTIFICATION.getModuleName());
-					requestParams.put("userName", detailsVO.getUserName());
-					requestParams.put("message", "");
-					requestParams.put("date", activityTimestamp.toString());
 					requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
-					activitylog.activitylog(requestParams);
+					requestParams.put("action", action);
 				} else if (null != data.get("name") && data.get("name").equalsIgnoreCase("clientid")) {
 					if (isEdit.equals(Constants.ISEDIT)) {
 						action = Constants.Action.ADD.getAction();
@@ -651,13 +721,9 @@ public class DynamicFormService {
 						action = Constants.Action.EDIT.getAction();
 					}
 					requestParams.put("entityName", Constants.APICLIENTS);
-					requestParams.put("action", action);
 					requestParams.put("masterModuleType", Constants.Modules.APICLIENTS.getModuleName());
-					requestParams.put("userName", detailsVO.getUserName());
-					requestParams.put("message", "");
-					requestParams.put("date", activityTimestamp.toString());
 					requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
-					activitylog.activitylog(requestParams);
+					requestParams.put("action", action);
 				} else if (null != data.get("name") && data.get("name").equalsIgnoreCase("schedulerid")) {
 					if (isEdit.equals(Constants.ISEDIT)) {
 						action = Constants.Action.ADD.getAction();
@@ -675,14 +741,15 @@ public class DynamicFormService {
 						}
 					}
 					requestParams.put("entityName", entityName);
-					requestParams.put("action", action);
 					requestParams.put("masterModuleType", Constants.Modules.SCHEDULER.getModuleName());
-					requestParams.put("userName", detailsVO.getUserName());
-					requestParams.put("message", "");
-					requestParams.put("date", activityTimestamp.toString());
-					activitylog.activitylog(requestParams);
+					requestParams.put("action", action);
 				}
+				
 			}
+				requestParams.put("userName", detailsVO.getUserName());
+				requestParams.put("message", "");
+				requestParams.put("date", activityTimestamp.toString());
+				activitylog.activitylog(requestParams);
 		}
 	}
 
@@ -754,53 +821,49 @@ public class DynamicFormService {
 				saveTemplateQuery = templateEngine.processTemplateContents(formSaveQuery, formName, formDetails);
 				List<Map<String, Object>> resultSet = new ArrayList<>();
 				saveTemplateMap.putAll(formDetails);
-				if (Constant.QueryType.DML.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
-					try {
-						Integer affectedRowCount = dynamicFormDAO.saveFormData(form.getDatasourceId(),
-								saveTemplateQuery, saveTemplateMap);
-						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), affectedRowCount);
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-					}
-				} else if (Constant.QueryType.SP.getQueryType() == dynamicFormSaveQuery.getDaoQueryType()) {
-					try {
-						resultSet = dynamicFormDAO.executeQueries(dynamicFormSaveQuery.getDatasourceId(),
-								saveTemplateQuery, saveTemplateMap);
-						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), resultSet);
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-					}
-				} else {
-					try {
-						TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
-						StringBuilder	resultStringBuilder	= new StringBuilder();
-						resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-
-						ScriptEngineManager	scriptEngineManager	= new ScriptEngineManager();
-
-						ScriptEngine		scriptEngine		= scriptEngineManager.getEngineByName("nashorn");
-						scriptEngine.put("requestDetails", formDetails);
-
-						if (fileMap != null && fileMap.size() > 0) {
-							scriptEngine.put("files", fileMap);
+				
+				ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+				ScriptEngine scriptEngine = null;
+				scriptEngine = scriptEngineManager.getEngineByName(Constant.QueryType.getqueryTypeID(dynamicFormSaveQuery.getDaoQueryType()).getQueryTypeName());
+				if (dynamicFormSaveQuery.getDaoQueryType() != null){
+					switch(dynamicFormSaveQuery.getDaoQueryType()) {
+						case Constant.DML:
+							try {
+								Integer affectedRowCount = dynamicFormDAO.saveFormData(form.getDatasourceId(),
+										saveTemplateQuery, saveTemplateMap);
+								resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), affectedRowCount);
+							} catch (Throwable a_thr) {
+								logger.error(ExceptionUtils.getStackTrace(a_thr));
+								httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
+										ExceptionUtils.getStackTrace(a_thr));
+							}
+							break;
+						case Constant.SP:
+							try {
+								resultSet = dynamicFormDAO.executeQueries(dynamicFormSaveQuery.getDatasourceId(),
+										saveTemplateQuery, saveTemplateMap);
+								resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), resultSet);
+							} catch (Throwable a_thr) {
+								logger.error(ExceptionUtils.getStackTrace(a_thr));
+								httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
+										ExceptionUtils.getStackTrace(a_thr));
+							}
+							break;
+						case Constant.JS:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery, resultSetMap,dynamicFormSaveQuery,scriptEngine);
+							break;
+						case Constant.PY:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery, resultSetMap,dynamicFormSaveQuery,scriptEngine);
+							break;
+						case Constant.QPHP:
+							scriptEngineExecution(fileMap, httpServletRequest,httpServletResponse,
+									formDetails, saveTemplateQuery, resultSetMap,dynamicFormSaveQuery,scriptEngine);
+							break;
+						 default:
+							return null;
 						}
-						scriptEngine.put("httpRequestObject", httpServletRequest);
-						resultStringBuilder.append(saveTemplateQuery.toString());
-						Object result = scriptEngine.eval(resultStringBuilder.toString());
-						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), result);
-					} catch (CustomStopException custStopException) {
-						logger.error("Error occured in saveDynamicFormV2.", custStopException);
-						throw custStopException;
-					} catch (Throwable a_thr) {
-						logger.error(ExceptionUtils.getStackTrace(a_thr));
-						httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
-								ExceptionUtils.getStackTrace(a_thr));
-						return saveTemplateMap;
-					}
 				}
 			}
 			httpServletRequest.getSession().removeAttribute(sessiongCaptcha.toString());
@@ -810,6 +873,64 @@ public class DynamicFormService {
 		}
 
 		return resultSetMap;
+	}
+	
+	public Map<String, Object> scriptEngineExecution(Map<String, FileInfo> fileMap, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
+			Map<String, Object> formDetails, String	saveTemplateQuery, Map<String, Object> resultSetMap,DynamicFormSaveQuery dynamicFormSaveQuery,ScriptEngine scriptEngine)
+			throws Exception, CustomStopException {
+		
+		try {
+			StringBuilder	resultStringBuilder	= new StringBuilder();
+			
+			if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("ECMAScript")) {
+				TemplateVO		templateVO			= templateService.getTemplateByName("script-util");
+				resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+			}
+			scriptEngine.put("requestDetails", formDetails);
+
+			if (fileMap != null && fileMap.size() > 0) {
+				scriptEngine.put("files", fileMap);
+			}
+			scriptEngine.put("httpRequestObject", httpServletRequest);
+			resultStringBuilder.append(saveTemplateQuery.toString()).append("\n");
+			List<Object> objScriptLib = dynamicFormDAO.scriptLibExecution(dynamicFormSaveQuery.getDynamicFormQueryId());
+			for(int iCounter = 0; iCounter<objScriptLib.size(); iCounter++) {
+				resultStringBuilder.append(objScriptLib.get(iCounter)).append("\n");
+			}
+		    try {
+			    StringWriter stringWriter = new StringWriter();
+			    scriptEngine.getContext().setWriter(new PrintWriter(stringWriter));
+		        Object scriptResult = scriptEngine.eval(resultStringBuilder.toString());
+		        if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("python")) {
+		        	// If the method has a return statement
+		        	if(scriptEngine.get("result") != null) {
+		        		Object result = scriptEngine.get("result");
+						resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), result);
+		        	}
+		        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
+		        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+			        String result = stringWriter.toString();
+					resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), result);
+		        } else {
+		        	if(null != scriptResult) {
+		        		resultSetMap.put(dynamicFormSaveQuery.getResultVariableName(), scriptResult);
+		        	}
+				}
+		    } catch (ScriptException e) {
+		        logger.error("Error occured in scriptEngineExecution.", e);
+		    }
+		    
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in scriptEngineExecution.", custStopException);
+			throw custStopException;
+		} catch (Throwable a_thr) {
+			logger.error(ExceptionUtils.getStackTrace(a_thr));
+			httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(),
+					ExceptionUtils.getStackTrace(a_thr));
+			
+		}
+		return resultSetMap;
+	
 	}
 
 	public String getContentForDevEnvironment(DynamicForm form, String dbContent, String fileName) throws Exception {
@@ -835,16 +956,20 @@ public class DynamicFormService {
 	}
 
 	public Map<String, String> createDefaultFormByTableName(String tableName, List<Map<String, Object>> tableDetails,
-			String moduleURL, String additionalDataSourceId, String dbProductName, Boolean toggleCaptcha) throws CustomStopException{
+			String moduleURL, String additionalDataSourceId, String dbProductName, Boolean toggleCaptcha,Boolean toggleFileBin,String fileBinId,String fileAssociationId) throws CustomStopException{
 		logger.debug(
 				"Inside DynamicFormService.createDefaultFormByTableName(tableName: {}, tableDetails: {}, moduleURL: {}, additionalDataSourceId: {}, dbProductName: {})",
-				tableName, tableDetails, moduleURL, additionalDataSourceId, dbProductName);
+				tableName, tableDetails, moduleURL, additionalDataSourceId, dbProductName,toggleCaptcha, toggleFileBin, fileBinId, fileAssociationId);
 
 		Map<String, String>	templatesMap	= new HashMap<>();
 		Map<String, Object>	parameters		= new HashMap<>();
 		parameters.put("columnDetails", tableDetails);
 		parameters.put("formName", tableName);
 		parameters.put("toggleCaptcha", toggleCaptcha);
+		parameters.put("toggleFileBin", toggleFileBin);
+		parameters.put("fileBinId", fileBinId);
+		parameters.put("fileAssociationId", "${(resultSetObject."+fileAssociationId+")!''}");
+		parameters.put("editCondition", fileAssociationId);
 		if (StringUtils.isBlank(moduleURL) == false) {
 			parameters.put("moduleURL", moduleURL);
 		}
@@ -1142,4 +1267,97 @@ public class DynamicFormService {
 
 		return value;
 	}
+	
+	@Transactional(readOnly = false)
+	public String saveScriptLibraryDetails(MultiValueMap<String, String> formDataMap, Integer sourceTypeId)
+			throws Exception {
+		logger.debug("Inside DynamicFormService.saveScriptLibraryDetails(formDataMap: {}, sourceTypeId: {})", formDataMap,
+				sourceTypeId);
+
+		ScriptLibraryDetails scriptLibrary  = new ScriptLibraryDetails();
+		UserDetailsVO			userDetailsVO			= userDetailsService.getUserDetails();
+		Date					date					= new Date();
+		String					scriptlibId				= formDataMap.getFirst("scriptlibId");
+		String					libraryName				= formDataMap.getFirst("libraryName");
+		String					description				= formDataMap.getFirst("description");
+		String					templateId				= formDataMap.getFirst("templateId");
+		String					scriptType				= formDataMap.getFirst("scriptType");
+		scriptLibrary.setScriptLibId(scriptlibId);
+		scriptLibrary.setLibraryName(libraryName);
+		scriptLibrary.setTemplateId(templateId);
+		scriptLibrary.setDescription(description);
+		scriptLibrary.setScriptType(scriptType);
+		scriptLibrary.setUpdatedDate(date);
+		scriptLibrary.setUpdatedBy(userDetailsVO.getUserName());
+		scriptLibrary.setCreatedBy(userDetailsVO.getUserName());
+		scriptLibrary.setIsCustomUpdated(1);
+		ScriptLibraryVO	scriptLibVO	= convertEntityToVO(scriptLibrary);
+		getCurrentSession().save(scriptLibrary);
+		moduleVersionService.saveModuleVersion(scriptLibVO, null, scriptlibId, "jq_script_lib_details",
+				sourceTypeId);
+		return scriptlibId;
+
+	}
+	
+	@Transactional(readOnly = false)
+	public String saveScriptLibDetails(ScriptLibraryDetails scriptLibrary, Integer sourceTypeId,String tablename)
+			throws Exception {
+		UserDetailsVO			userDetailsVO			= userDetailsService.getUserDetails();
+		Date					date					= new Date();
+		scriptLibrary.setScriptLibId(scriptLibrary.getScriptLibId());
+		scriptLibrary.setLibraryName(scriptLibrary.getLibraryName());
+		scriptLibrary.setTemplateId(scriptLibrary.getTemplateId());
+		scriptLibrary.setDescription(scriptLibrary.getDescription());
+		scriptLibrary.setScriptType(scriptLibrary.getScriptType());
+		scriptLibrary.setUpdatedDate(date);
+		scriptLibrary.setUpdatedBy(userDetailsVO.getUserName());
+		scriptLibrary.setCreatedBy(userDetailsVO.getUserName());
+		scriptLibrary.setIsCustomUpdated(1);
+		
+		ScriptLibraryVO	scriptLibVO	= convertEntityToVO(scriptLibrary);
+		getCurrentSession().save(scriptLibrary);
+		moduleVersionService.saveModuleVersion(scriptLibVO, null, scriptLibrary.getScriptLibId(), "jq_script_lib_details",
+				sourceTypeId);
+		return scriptLibrary.getScriptLibId();
+
+	}
+	
+	public Session getCurrentSession() {
+		return sessionFactory.getCurrentSession();
+	}
+	
+	public ScriptLibraryVO convertEntityToVO(ScriptLibraryDetails scriptLibrary) {
+
+		ScriptLibraryVO	scriptLibVO = new ScriptLibraryVO();
+		scriptLibVO.setScriptlibId(scriptLibrary.getScriptLibId());
+		scriptLibVO.setLibraryName(scriptLibrary.getLibraryName());
+		scriptLibVO.setTemplateId(scriptLibrary.getTemplateId());
+		scriptLibVO.setScriptType(scriptLibrary.getScriptType());
+		scriptLibVO.setDescription(scriptLibrary.getDescription());
+		scriptLibVO.setCreatedBy(scriptLibrary.getCreatedBy());
+		scriptLibVO.setUpdatedBy(scriptLibrary.getUpdatedBy());
+		scriptLibVO.setUpdatedDate(scriptLibrary.getUpdatedDate());
+		scriptLibVO.setIscustomUpdated(scriptLibrary.getIsCustomUpdated());
+		
+		return scriptLibVO;
+	}
+	
+	public Object listScriptEngines(String platformType) {
+		ScriptEngineManager manager = new ScriptEngineManager();
+		List<ScriptEngineFactory> factories = manager.getEngineFactories();
+		boolean isScriptEngPresent = false;
+		for (ScriptEngineFactory factory : factories) {
+			for (String name : factory.getNames()) {
+				if (name.trim().equalsIgnoreCase(platformType.trim())) {
+					isScriptEngPresent = true;
+					break;
+				}
+			}
+			if (isScriptEngPresent) {
+				break;
+			}
+		}
+		return isScriptEngPresent;
+	}
 }
+

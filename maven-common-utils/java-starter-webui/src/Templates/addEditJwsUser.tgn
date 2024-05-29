@@ -131,13 +131,13 @@
                 <div id="buttons" class="pull-right">
                     <div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
-                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('add-edit-user', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('add-edit-user', this, isEdit, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
                         <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
                         <div class="dropdown-menu action-cls"  id="actionDiv">
                             <ul class="dropdownmenu">
-                                <li id="saveAndCreateNew" onclick="typeOfAction('add-edit-user', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                                <li id="saveAndEdit" onclick="typeOfAction('add-edit-user', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                                <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('add-edit-user', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('add-edit-user', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                             </ul>
                         </div>  
                     </div>
@@ -173,7 +173,11 @@
 <script>
 	document.title = "Manage User Details";
 	let isProfilePage = ${isProfilePage?c};
-	let isEdit = "${jwsUser?api.getUserId()!''}";
+	let isEdit = 0;
+    let userId = "${jwsUser?api.getUserId()!''}";
+    if(userId!="") {
+        isEdit=1;
+    }
 	contextPath = "${contextPath}";
   	var fileBins = new Array();
     var fileBinDisplayTexts = null;
@@ -219,7 +223,7 @@
   	savedAction("add-edit-user", isEdit);
 	hideShowActionButtons();
      // disable authenticated role
-     if(isEdit.trim() == ""){ 
+     if(userId.trim() == ""){ 
         $("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("checked",true);
      	$("#2ace542e-0c63-11eb-9cf5-f48e38ab9348").prop("disabled",true);
      }
@@ -272,7 +276,7 @@
 		$("#isSendMail").prop("disabled",true);
 		$("#isSendMail").prop("checked",true);
 	}else{ 
-		if(isEdit.trim() !== ""){ 
+		if(userId.trim() !== "") { 
 			$("#isActive").prop("disabled",false);
 		}
 		$("#isActive").prop("checked",true);

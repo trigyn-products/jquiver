@@ -1,15 +1,30 @@
-select 
-    jdrd.jws_dynamic_rest_id as dynarestId, 
-    jdrd.jws_dynamic_rest_url as dynarestUrl, 
-    jdrd.jws_method_name as dynarestMethodName,
-    jdrd.jws_method_description as dynarestMethodDescription, 
-    jdrd.jws_platform_id as dynarestPlatformId, 
-    jdrd.jws_request_type_id as dynarestRequestTypeId, 
-    jdrd.jws_response_producer_type_id as dynarestProdTypeId, 
-    jdrd.jws_allow_files AS allowFiles, 
-    jdrd.jws_header_json AS header_json,
-    jdrd.hide_dao_query AS hidedaoquery,
-    jdrd.is_secured as `dynarestSecured`
-FROM 
-    jq_dynamic_rest_details as jdrd 
-    <#if primaryId??> WHERE jdrd.jws_dynamic_rest_url = :primaryId </#if>
+var System = Java.type("java.lang.System");
+var HashMap =  Java.type("java.util.HashMap");
+var ArrayList = Java.type("java.util.ArrayList");
+function loadRestDetails(){
+    var queryResult = {};
+    var scriptArrGlo = new Array();
+   
+    queryResult.restData = jq_getDBResult("SELECT * FROM jq_dynamic_rest_details WHERE jws_dynamic_rest_url = '${primaryId! 'null' }'", null, null).data_list;
+
+    if(queryResult.restData !=undefined &&  queryResult.restData.length != 0 ){
+        queryResult.scriptConnData = jq_getDBResult("SELECT * FROM jq_script_lib_connect where entity_id =  '"+queryResult.restData[0].jws_dynamic_rest_id+"'", null, null).data_list;
+        
+     if(queryResult.scriptConnData !=undefined &&  queryResult.scriptConnData.length !=0){
+       if(queryResult.scriptConnData[0].script_lib_id != "" ){
+         for(var iCounter=0;iCounter<queryResult.scriptConnData.length;iCounter++){
+            queryResult.scriptMultiData = jq_getDBResult("SELECT script_lib_id AS scriptId, library_name AS libraryName FROM jq_script_lib_details WHERE script_lib_id = '"+queryResult.scriptConnData[iCounter].script_lib_id+"'", null, null);
+        
+            var scriptMultiData = {"scriptId": queryResult.scriptMultiData.data_list[0].scriptId+"","libraryName": queryResult.scriptMultiData.data_list[0].libraryName+""};
+            
+            scriptArrGlo.push(scriptMultiData);
+          } 
+        queryResult.scriptMultiData = JSON.stringify(scriptArrGlo);         
+        }
+     }    
+    } 
+    queryResult.helpMtdSignData = jq_getDBResult("SELECT help_id AS HelpId, HELP AS MethodSignature FROM jq_rest_mtd_signature WHERE module_type = 'REST_API'", null, null).data_list;
+
+    return queryResult;
+}
+loadRestDetails();

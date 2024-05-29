@@ -9,6 +9,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -59,8 +60,10 @@ public class GridUtility {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else if (sf.getOp() != null) {
+				} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
 					query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+				} else {
+					query.append("(" + sf.getField() +" = ?");
 				}
 
 				if(sf.getData() != null) {
@@ -164,8 +167,10 @@ public class GridUtility {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
 				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
 					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else if (sf.getOp() != null) {
+				} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
 					query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+				} else {
+					query.append("(" + sf.getField() +" = ?");
 				}
 
 				if(sf.getData() != null) {

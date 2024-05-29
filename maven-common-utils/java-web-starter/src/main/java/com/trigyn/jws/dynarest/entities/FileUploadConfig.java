@@ -9,6 +9,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -78,6 +83,15 @@ public class FileUploadConfig {
 
 	@Column(name = "is_custom_updated")
 	private Integer		isCustomUpdated		= 1;
+	
+	@Transient
+	private String				uploadScriptLibraryId	= null;
+	
+	@Transient
+	private String				viewScriptLibraryId		= null;
+	
+	@Transient
+	private String				deleteScriptLibraryId	= null;
 
 	public FileUploadConfig() {
 
@@ -129,7 +143,39 @@ public class FileUploadConfig {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
-	public FileUploadConfig getObject() {
+	public FileUploadConfig(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
+			String uploadQueryContent, String viewQueryContent, String deleteQueryContent, String datasourceId,
+			Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs,
+			Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType, String datasourceViewValidator,
+			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated,
+			String uploadScriptLibraryId, String viewScriptLibraryId, String deleteScriptLibraryId) {
+		this.fileBinId = fileBinId;
+		this.fileTypSupported = fileTypSupported;
+		this.maxFileSize = maxFileSize;
+		this.noOfFiles = noOfFiles;
+		this.uploadQueryContent = uploadQueryContent;
+		this.viewQueryContent = viewQueryContent;
+		this.deleteQueryContent = deleteQueryContent;
+		this.datasourceId = datasourceId;
+		this.isDeleted = isDeleted;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.lastUpdatedTs = lastUpdatedTs;
+		this.uploadQueryType = uploadQueryType;
+		this.viewQueryType = viewQueryType;
+		this.deleteQueryType = deleteQueryType;
+		this.datasourceViewValidator = datasourceViewValidator;
+		this.datasourceUploadValidator = datasourceUploadValidator;
+		this.datasourceDeleteValidator = datasourceDeleteValidator;
+		this.isCustomUpdated = isCustomUpdated;
+		this.uploadScriptLibraryId = uploadScriptLibraryId;
+		this.viewScriptLibraryId = viewScriptLibraryId;
+		this.deleteScriptLibraryId = deleteScriptLibraryId;
+	}
+
+	public FileUploadConfig getObject() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper		objectMapper		= new ObjectMapper();
 		FileUploadConfig file = new FileUploadConfig();
 		file.setFileTypSupported(fileTypSupported != null ? fileTypSupported.trim() : fileTypSupported);
 		file.setFileBinId(fileBinId != null ? fileBinId.trim() : fileBinId);
@@ -142,7 +188,14 @@ public class FileUploadConfig {
 		file.setDeleteQueryContent(deleteQueryContent != null ? deleteQueryContent.trim() : "");
 		file.setDatasourceId(datasourceId);
 		file.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
+		file.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		file.setCreatedDate(createdDate);
+		file.setDatasourceUploadValidator(datasourceUploadValidator != null ? datasourceUploadValidator.trim() : "");
+		file.setDatasourceViewValidator(datasourceViewValidator != null ? datasourceViewValidator.trim() : "");
+		file.setDatasourceDeleteValidator(datasourceDeleteValidator != null ? datasourceDeleteValidator.trim() : "");
+		file.setUploadScriptLibraryId(uploadScriptLibraryId != null ? uploadScriptLibraryId.trim() : "");
+		file.setViewScriptLibraryId(viewScriptLibraryId != null ? viewScriptLibraryId.trim() : "");
+		file.setDeleteScriptLibraryId(deleteScriptLibraryId != null ? deleteScriptLibraryId.trim() : "");
 		return file;
 	}
 
@@ -346,6 +399,30 @@ public class FileUploadConfig {
 				.append(", createdDate=").append(createdDate).append(", lastUpdatedBy=").append(lastUpdatedBy)
 				.append(", lastUpdatedTs=").append(lastUpdatedTs).append("]");
 		return builder.toString();
+	}
+
+	public String getUploadScriptLibraryId() {
+		return uploadScriptLibraryId;
+	}
+
+	public void setUploadScriptLibraryId(String string) {
+		this.uploadScriptLibraryId = string;
+	}
+
+	public String getViewScriptLibraryId() {
+		return viewScriptLibraryId;
+	}
+
+	public void setViewScriptLibraryId(String string) {
+		this.viewScriptLibraryId = string;
+	}
+
+	public String getDeleteScriptLibraryId() {
+		return deleteScriptLibraryId;
+	}
+
+	public void setDeleteScriptLibraryId(String string) {
+		this.deleteScriptLibraryId = string;
 	}
 
 }

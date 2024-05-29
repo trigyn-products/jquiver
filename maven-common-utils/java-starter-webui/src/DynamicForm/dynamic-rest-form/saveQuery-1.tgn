@@ -1,41 +1,74 @@
-<#if  (formData?api.getFirst("isEdit"))?has_content &&
-(formData?api.getFirst("isEdit")) == "1">
-    UPDATE jq_dynamic_rest_details SET 
-        jws_dynamic_rest_url = :dynarestUrl
-        ,jws_method_name = :dynarestMethodName
-        ,jws_method_description = :dynarestMethodDescription
-        ,jws_request_type_id = :dynarestRequestTypeId
-        ,jws_response_producer_type_id = :dynarestProdTypeId
-        ,jws_rbac_id = 1
-        ,jws_service_logic = :serviceLogic
-        ,jws_platform_id = :dynarestPlatformId
-        ,jws_header_json = :headerJson
-        ,last_updated_by = :loggedInUserName
-        ,last_updated_ts = NOW()
-	,is_custom_updated = 1
-	,hide_dao_query = :hidedaoquery
-	,is_secured = :dynarestSecured
-    WHERE jws_dynamic_rest_id = :dynarestId   ;
-<#else>
-    INSERT INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id, 
-    jws_response_producer_type_id, jws_service_logic, jws_platform_id,jws_header_json ,
-    created_by, created_date, last_updated_ts, is_custom_updated,hide_dao_query,is_secured)
-    VALUES (
-		 :dynarestId
-         , :dynarestUrl
-         , :dynarestMethodName
-         , :dynarestMethodDescription
-         , 1
-         , :dynarestRequestTypeId
-         , :dynarestProdTypeId
-         , :serviceLogic
-         , :dynarestPlatformId
-         , :headerJson
-         , :loggedInUserName
-         , NOW()
-         , NOW()
-	 , 1
-	  , :hidedaoquery
-	  , :dynarestSecured
-    );
-</#if>
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function saveRestDetails(){
+    var map = new HashMap();
+    map.put('dynarestId', requestDetails.dynarestId);
+    map.put('dynarestUrl', requestDetails.dynarestUrl);
+    map.put('dynarestMethodName', requestDetails.dynarestMethodName);
+    map.put('dynarestMethodDescription', requestDetails.dynarestMethodDescription);
+    map.put('dynarestRequestTypeId', requestDetails.dynarestRequestTypeId);
+    map.put('dynarestProdTypeId', requestDetails.dynarestProdTypeId);
+    map.put('serviceLogic', requestDetails.serviceLogic);
+    map.put('dynarestPlatformId', requestDetails.dynarestPlatformId);
+    map.put('headerJson', requestDetails.headerJson);
+    map.put('createdby', requestDetails["loggedInUserName"]);
+    map.put('updatedby', requestDetails["loggedInUserName"]);
+    map.put('hidedaoquery', requestDetails.hidedaoquery);
+    map.put('dynarestSecured', requestDetails.dynarestSecured); 
+  
+    if(requestDetails.isEdit[0] == 1){   
+      jq_updateDBQuery('UPDATE jq_dynamic_rest_details SET jws_dynamic_rest_url = :dynarestUrl, jws_method_name = :dynarestMethodName,jws_method_description = :dynarestMethodDescription,jws_request_type_id = :dynarestRequestTypeId,jws_response_producer_type_id = :dynarestProdTypeId,jws_rbac_id = 1,jws_service_logic = :serviceLogic,jws_platform_id = :dynarestPlatformId,jws_header_json = :headerJson,last_updated_by = :updatedby,last_updated_ts = NOW(),is_custom_updated = 1,hide_dao_query = :hidedaoquery,is_secured = :dynarestSecured WHERE jws_dynamic_rest_id = :dynarestId',null, map);
+     
+    }else{
+        jq_updateDBQuery('INSERT INTO jq_dynamic_rest_details(jws_dynamic_rest_id, jws_dynamic_rest_url, jws_method_name, jws_method_description, jws_rbac_id, jws_request_type_id,jws_response_producer_type_id, jws_service_logic, jws_platform_id,jws_header_json ,created_by, created_date, last_updated_ts, is_custom_updated,hide_dao_query,is_secured)VALUES (:dynarestId,:dynarestUrl,:dynarestMethodName, :dynarestMethodDescription, 1,:dynarestRequestTypeId,:dynarestProdTypeId,:serviceLogic, :dynarestPlatformId,:headerJson,:createdby,NOW(),NOW(), 1,:hidedaoquery, :dynarestSecured)', null, map);
+       
+    }
+    if(null != requestDetails.scriptLibInsert && "" != requestDetails.scriptLibInsert && undefined != requestDetails.scriptLibInsert[0] && '[""]' != requestDetails.scriptLibInsert[0]){
+        saveDeleteScriptLibDetails(requestDetails.scriptLibInsert[0],requestDetails.dynarestId[0],"save");
+    }
+    if(null != requestDetails.scriptLibId && "" != requestDetails.scriptLibId && undefined != requestDetails.scriptLibId[0] && '[""]' != requestDetails.scriptLibId[0]){
+         saveRevisionScriptLibDetails(requestDetails.scriptLibId[0],requestDetails.dynarestId[0],"save");
+    }
+     if(null != requestDetails.scriptLibDelete && "" != requestDetails.scriptLibDelete && undefined != requestDetails.scriptLibDelete[0] && '[""]' != requestDetails.scriptLibDelete[0]){
+         saveDeleteScriptLibDetails(requestDetails.scriptLibDelete[0],requestDetails.dynarestId[0],"delete");
+    }
+  }
+  function saveDeleteScriptLibDetails(scriptLibId,entityId,type){
+        if(scriptLibId != '[""]'){
+            var scriptlibID = JSON.parse(scriptLibId);     
+            for(var iScrLibIdCounter = 0; iScrLibIdCounter<scriptlibID.length; iScrLibIdCounter++){
+                var scriptLibID = scriptlibID[iScrLibIdCounter].split(',');           
+                for(var iScrlibIdCounter = 0; iScrlibIdCounter < scriptLibID.length; iScrlibIdCounter++){
+                    var scriptId = scriptLibID[iScrlibIdCounter].split(',');
+                    if(type == "save"){
+                       var map = new HashMap();
+                       map.put('createdby', requestDetails["loggedInUserName"]);  
+                       map.put('updatedby', requestDetails["loggedInUserName"]);
+                       map.put('moduletypeid', '47030ee1-0ecf-11eb-94b2-f48e38ab9348');  
+                       jq_updateDBQuery('INSERT INTO jq_script_lib_connect (script_lib_conn_id,script_lib_id,module_type_id,entity_id,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),"'+scriptId+'",:moduletypeid,"'+entityId+'",:createdby,:updatedby,NOW(),1)', null, map);
+                    } else{
+                         jq_updateDBQuery("delete from jq_script_lib_connect where entity_id='"+entityId+"' and script_lib_id =  '"+scriptId+"'", null, null);
+                    }
+                }
+            }
+        }
+    }
+     function saveRevisionScriptLibDetails(scriptLibId,entityId,type){
+        if(scriptLibId != '[""]'){
+            var scriptlibID = JSON.parse(scriptLibId);     
+            jq_updateDBQuery("delete from jq_script_lib_connect where entity_id='"+entityId+"'", null, null);
+            for(var iScrLibIdCounter = 0; iScrLibIdCounter<scriptlibID.length; iScrLibIdCounter++){
+                var scriptLibID = scriptlibID[iScrLibIdCounter].split(',');         
+                for(var iScrlibIdCounter = 0; iScrlibIdCounter < scriptLibID.length; iScrlibIdCounter++){
+                    var scriptId = scriptLibID[iScrlibIdCounter].split(',');           
+                       var map = new HashMap();
+                       map.put('createdby', requestDetails["loggedInUserName"]);  
+                       map.put('updatedby', requestDetails["loggedInUserName"]);
+                       map.put('moduletypeid', '47030ee1-0ecf-11eb-94b2-f48e38ab9348');  
+                       jq_updateDBQuery('INSERT INTO jq_script_lib_connect (script_lib_conn_id,script_lib_id,module_type_id,entity_id,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),"'+scriptId+'",:moduletypeid,"'+entityId+'",:createdby,:updatedby,NOW(),1)', null, map);     
+                }
+            }
+        }
+    }
+saveRestDetails();

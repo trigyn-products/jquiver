@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>com.trigyn</groupId>
 	<artifactId>commonutils</artifactId>
-	<version>1.5.2-SNAPSHOT</version>
+	<version>1.5.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>JQuiver</name>
 	<description>Common utils</description>

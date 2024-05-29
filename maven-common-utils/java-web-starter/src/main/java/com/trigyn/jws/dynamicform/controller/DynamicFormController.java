@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
@@ -67,18 +66,38 @@ public class DynamicFormController {
 	@Deprecated
 	@PostMapping(value = "/sdf", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	@Authorized(moduleName = Constants.DYNAMICFORM)
-	public Boolean saveDynamicForm(@RequestBody MultiValueMap<String, String> formData,
+	public Boolean saveDynamicForm(@RequestBody MultiValueMap<String, String> formData,HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) throws Exception {
-		
 		logger.debug("Inside DynamicFormController.saveDynamicForm(formData: {})", formData.getFirst("formId"));
 		try {
 			return dynamicFormService.saveDynamicForm(formData);
 		} catch (Exception exception) {
 			logger.error("Error occured while saving dynamic form (formId: {})", formData.getFirst("formId"), exception);
-			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
+			if(exception.getMessage().equalsIgnoreCase(HttpStatus.PRECONDITION_FAILED.toString()))
+			{
+				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "File Bin already exist");
+				return null;
+			}
+			else if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
 			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			return null;
+		}
+	}
+	
+	@PostMapping(value = "/lse")
+	public Object listScriptEngines(HttpServletRequest httpServletRequest) throws Exception {
+		logger.debug("Inside DynamicFormController.listScriptEngines");
+		try {
+			String platformType = httpServletRequest.getParameter("platformId");
+			if(platformType.trim().equalsIgnoreCase("PHP") || platformType.trim().equalsIgnoreCase("JavaScript") || platformType.trim().equalsIgnoreCase("Python")) {
+				return dynamicFormService.listScriptEngines(platformType);
+			} else {
+				return true;
+			}
+		} catch (Exception exception) {
+			logger.error("Error occured while listing Script Engines", exception);
 			return null;
 		}
 	}

@@ -27,3 +27,6 @@ UPDATE `jq_template_master`   SET `created_by`='admin@jquiver.io' WHERE `created
 UPDATE `jq_template_master`  SET `updated_by`='aar@jquiver.io' WHERE `updated_by`='aar.dev@trigyn.com';
 UPDATE `jq_template_master`  SET `updated_by`='admin@jquiver.io' WHERE `updated_by`='admin';
 UPDATE `jq_template_master`   SET `updated_by`='admin@jquiver.io' WHERE `updated_by`='admin@jquiver.com';
+UPDATE `jq_dashboard_lookup_category` SET `validation`='/^[0-9]+$/' WHERE `lookup_category_id`='36874643-1e8b-11e8-8d69-000d3a173cc5';
+UPDATE `jq_dashboard_lookup_category` SET `validation`='/^(0|\\d+)\\.?\\d{0,2}$/' WHERE `lookup_category_id`='36874738-1e8b-11e8-8d69-000d3a173cc5';
+UPDATE `jq_dashboard_lookup_category` SET `validation`='/^[a-zA-Zs]*$/' WHERE `lookup_category_id`='3687356c-1e8b-11e8-8d69-000d3a173cc5'

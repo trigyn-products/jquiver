@@ -1,0 +1,287 @@
+<head> 
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+
+<style>
+    .displayflex{
+        display:flex;
+        flex-direction: column;
+    }
+
+    .displayflex label{
+		font-weight:bold;
+    }
+
+    .captchacenter{
+	    display: flex;
+	    align-items: center;
+	    margin-top: 21px;
+	}
+
+	.captchafeildbx{
+		font-weight:bold;
+	}
+
+	.captchacenter #imgCaptcha{
+	    margin:0 0 0 15px !important;
+	}
+
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left pageHeader">Add Details</h2> 
+		<div class="clearfix"></div>		
+	</div>
+  <form name="addEditForm" id="addEditForm" onsubmit="return false;" action="#">
+    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>            
+    	<div class="row">	         
+        <input type="hidden" data-type="text" id="scriptlibconnid" name="scriptlibconnid" > 
+
+        <div class="col-4">
+            <div class="col-inner-form full-form-fields">
+                <label for="scriptlibid" style="white-space:nowrap"><span class="asteriskmark">*</span>Script Library</label>
+                <div class="search-cover">
+                    <input class="form-control" id="scriptlibid" type="text">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>	
+        
+        <div class="clearfix"></div>
+            <input type="hidden" data-type="text" id="moduletypeid" name="moduletypeid">
+			<input type="hidden" data-type="text" id="entityid" name="entityid"> 
+    	</div>
+  </form>
+    <div class="row">
+		<div class="col-12">
+         <div class="float-right">	
+           <div class="btn-group dropup custom-grp-btn">
+            <#if editorName?? && editorName?has_content>
+                <span onclick="saveMultiselect('${editorName}','${scriptEdit}')">
+                    <input id="OkBtn" class="btn btn-secondary" name="OkBtn" value="OK" type="button">
+                </span> 
+            <#else>
+            <span onclick="saveMultiselect('','')">
+					<input id="OkBtn" class="btn btn-secondary" name="OkBtn" value="OK" type="button">
+			</span>
+            </#if>
+			</div>
+		</div>
+	    </div>
+    </div>
+<script>
+	document.title = "Manage Script Connect";
+	contextPath = "${contextPath}";	 
+    <#if jsonObj?? && jsonObj?has_content>
+        var json = '${jsonObj}';
+    </#if>
+    <#if editorName?? && editorName?has_content>
+        var editorName = '${editorName}';
+    </#if>
+    <#if scriptEdit?? && scriptEdit?has_content>
+        var scriptEdit = '${scriptEdit}';   
+    </#if>
+    isEdit = 0;
+    var data = "";
+
+  $(function(){
+       scriptMultiselect = $("#scriptlibid").multiselect({
+		autocompleteId: "ScriptLibAutocomplete",
+        prefetch : true,
+        enableClearText: true,
+		render: function(item) {
+			var renderStr ='';
+			if(item.emptyMsg == undefined || item.emptyMsg === '')
+			{
+				renderStr = '<p>'+item.libraryName+'</p>';
+			}
+			else
+			{
+				renderStr = item.emptyMsg;	
+			}	    				        
+			return renderStr;
+		},
+		extractText: function(item) {
+			return item.libraryName;
+		},
+         selectedItemRender: function(item){
+            return item.libraryName;
+        },
+		select: function(item) {
+			$("#scriptlibid").blur();
+            scriptMultiselect.setSelectedObject(item);
+		}, 	
+	 });
+      scriptMultiselect.createElementForMultiselect =  function(context, multiselectId, itemData) {
+        if(context.options.duplicateCheckRule(context.selectedObjects, itemData) == false) {
+        	context.selectedObject.push(itemData);
+            const element = context.options.selectedItemRender(itemData);
+            /**Written for preventing Cross Site Scripting*/
+            var libraryName = element;
+            encodedName = $('<div />').text(libraryName).html();
+            /**Ends Here*/
+            let listscriptElement = $("<li id='"+itemData.scriptId+"_li'></li>");
+            let liId = listscriptElement[0].id;
+        
+           if(liId == itemData.scriptId+"_li"){     
+                let itemSpan = $('<span class="ml-selected-item" id="'+itemData.scriptId+'">'+encodedName+'</span>');
+                listscriptElement.append(itemSpan);
+                let deleteItemcontext = $('<span class="float-right closeicon"><i class="fa fa-times-circle-o" aria-hidden="true"></i></span>');
+                deleteItemcontext.data("selected-item", itemData);
+                listscriptElement.append(deleteItemcontext);
+                $("#scriptlibid_selectedOptions_ul").append(listscriptElement);
+                var deleteItem = function(event) {
+                     data = $(deleteItemcontext).data("selected-item");
+                     deleteIdArray.push(data.scriptId);
+                    context.deleteItem.apply(deleteItemcontext, [multiselectId, data, context]);                        
+                };
+                    deleteItemcontext.click(deleteItem);  
+                let noOfElements = parseInt($("#"+multiselectId+"_count > span").text());
+                $("#"+multiselectId+"_count > span").text(noOfElements+1);
+                $("#"+multiselectId+"_count").removeClass("disable_cls");
+                $("#"+multiselectId+"_count > span" ).css("pointer-events","auto");
+                context.selectedObjects.push(itemData);   
+           } 
+        }else{
+        	showMessage("Data already present in the list", "info")
+        }
+        $(context.element).val("");   
+    }
+
+    scriptMultiselect.setSelectedObject = function (item){
+        scriptMultiselect.createElementForMultiselect(this, this.element[0].id, item);
+        return this.selectedObject;
+    }
+     
+    scriptMultiselect.options.duplicateCheckRule = function(list, obj) {
+        var iCounter;
+        for (iCounter = 0; iCounter < list.length; iCounter++) {
+            if (list[iCounter].scriptId === obj.scriptId) {
+                return true;
+            }
+        }
+        return false;
+       }
+       <#if jsonObj?? && jsonObj?has_content>
+            var jsonObj = JSON.parse(json);        
+            for(iCounter = 0;iCounter<jsonObj.length;iCounter++){
+                scriptMultiselect.setSelectedObject(jsonObj[iCounter]);  
+            }
+        </#if>
+       
+	$(".pageHeader").html("Edit Details ${(formName)!''}");
+   
+	//changeDefaultAction();
+	hideShowActionButtons();
+  });
+  
+  /**
+	* This method should return non null or defined object in order to 
+ 	* submit the form. return null or undefined in case your custom / additional 
+	* validation fails. If you don't want to perform any validation then either
+	* delete the method or return the same object.
+	* 
+	* If you want to change the name of the form, then implement below method and return 
+	* the form name in String
+	* 
+	*      getFormName();
+	* 
+	* If you want to change the URL/router of the form, then implement below method and return 
+	* the form url/router in String
+	* 
+	*      getformURL();
+	*
+	* you also want to call below lines to focus and highlight erroneous field
+	*      $("#"+fieldName).focus();
+	*      $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
+	*      showMessage("Issue in input", "warn");
+	* 
+	* In case a processed value has to be passed to the server for saving/processing, then you can call
+	* function pushToSerializedData.
+	* The default parameters to be passed will be, 
+	*		a_serializedFormData: This is the input for this method.
+	* 		a_name				: This is the parameter name, which will be used to access the parameter at server side.
+	*		a_value				: This will be String value, which will be saved at the used to save/update at server.
+	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
+	*
+	*/
+	function onValidation(a_serializedFormData){
+	          
+	    return a_serializedFormData;
+	}
+	
+  /**
+	* this method is called when there is a successful response from server.
+	* you can use this to take other actions in case you need to. Success 
+	* message will be shown before calling this method. 
+	* you can define getSuccessMessage() function and return string for custom success message
+	*/
+	function onSuccess(a_serverResponse){
+	    
+	}
+	
+  /**
+	* this method is called when there is any error at server while executing server side 
+	* code.
+	* you can use this to take other actions in case you need to.
+	* error message will be shown before calling this method. If you don't want the message to be 
+	* shown, then define getErrorMessage() function and return null or undefined.
+	*
+	* you can define getErrorMessage() function and return string for custom error message
+	*/
+	function onError(jqXHR, exception){
+	    showMessage(exception, "error");
+	}
+   
+		//Code go back to previous page
+	function saveMultiselect(editorName,scriptEdit) {
+     $.each($("#scriptlibid_selectedOptions_ul span.ml-selected-item"), function(key,val){
+      if(editorName != ""){
+        if(scriptEdit == 0){
+            if(editorName == 'upload' && scriptEdit == 0){
+                scriptIdArray.push('upload_'+val.id);
+            } else if(editorName == 'view'){
+                scriptIdArray.push('view_'+val.id);
+            } else if(editorName == 'delete'){
+                scriptIdArray.push('delete_'+val.id);
+            }
+         } else{
+             if(data.length != undefined && data == ''){
+                if(val.id.includes(editorName)){
+                    scriptIdArray.push(val.id);
+                }else{
+                    scriptIdArray.push(editorName+'_'+val.id);
+                }
+             } else{      
+                for(var iCount = 0; iCount< deleteIdArray.length; iCount++){      
+                    if(deleteIdArray[iCount].includes(editorName)){
+                        scriptIdArray.push('Del-'+deleteIdArray[iCount]);
+                    }else{
+                        scriptIdArray.push('Del-'+editorName+deleteIdArray[iCount]);
+                    }               
+                } 
+                deleteIdArray.length=0;                   
+             }
+        }
+      } else{
+          if(data == '' && data.length != undefined){   
+            scriptIdArray.push(val.id);
+          }else{
+            for(var iCount = 0; iCount< deleteIdArray.length; iCount++){
+                scriptIdArray.push('Del-'+deleteIdArray[iCount]);
+            }  
+          }
+      }       
+    });     
+        if($("#scriptlibid_selectedOptions_ul span.ml-selected-item").length == 0){
+             scriptIdArray.push('Del-'+data.scriptId);
+        }
+        $("#addEditDialog").html("");
+        $("#addEditDialog").dialog('close');
+	}
+	
+</script>

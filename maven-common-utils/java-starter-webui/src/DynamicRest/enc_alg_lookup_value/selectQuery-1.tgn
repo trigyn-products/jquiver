@@ -1,0 +1,1 @@
+SELECT enc_lookup_id AS encLookupId FROM jq_enc_alg_mod_pad_key_lookup eal WHERE eal.enc_algorithm_id = :algorithmId AND eal.enc_mode_id = :mode AND eal.enc_padding_id = :padding AND eal.enc_key_length = :keyLength

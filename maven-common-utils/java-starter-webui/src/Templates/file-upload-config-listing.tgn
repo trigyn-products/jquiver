@@ -31,6 +31,11 @@
                 <button type="submit" class="spacingclss btn btn-primary">
                     ${messageSource.getMessage('jws.addFileConfiguration')}
                 </button>
+                
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${contextPath}/view/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="Add Script Library">
+                    </button>
+                </span>  
 
                 <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
                 </button>

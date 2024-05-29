@@ -1,0 +1,83 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var ArrayList = Java.type("java.util.ArrayList");
+
+function saveScriptDetails(requestDetails){
+    var scriptList = new ArrayList();
+    var formQueryid = new ArrayList();
+    var scriptResult= "";
+    var scriptIndex ="";
+    var formQueryResult = "";
+    var formQueryIndex = "";
+    var map = new HashMap();
+    var scriptListId = JSON.parse(requestDetails.scriptIdArray);
+    scriptList = scriptListId.toString().split(",");
+    var formQueryId = JSON.parse(requestDetails.formQueryId);
+    formQueryid = formQueryId.toString().split(",");
+    map.put('createdby', requestDetails["loggedInUserName"]);
+    map.put('updatedby', requestDetails["loggedInUserName"]); 
+    map.put('scriptlibconnid', requestDetails.scriptlibconnid);
+    map.put('scriptlibid', requestDetails.scriptIdArray);  
+    map.put('moduletypeid', '30a0ff61-0ecf-11eb-94b2-f48e38ab9348'); 
+    map.put('iscustomupdated', requestDetails.iscustomupdated);
+    map.put('moduletypeid', '30a0ff61-0ecf-11eb-94b2-f48e38ab9348'); 
+    map.put('formId', requestDetails.formQueryId); 
+    map.put('iscustomupdated', requestDetails.iscustomupdated); 
+    map.put('entityid', requestDetails.formQueryId); 
+
+  if(requestDetails.isEdit == 0){
+    for(var iCount=0; iCount<formQueryid.length;iCount++){
+        formQueryResult = formQueryid[iCount].split('_')[1];
+        formQueryIndex = formQueryid[iCount].split('_')[0];
+         for(var iCounter = 0;iCounter<scriptList.length; iCounter++){
+            scriptResult = scriptList[iCounter].split('_')[0];
+            scriptIndex = scriptList[iCounter].split('_')[1];
+            if(scriptIndex == formQueryIndex){
+                map.put('scriptlibid', scriptResult);
+                map.put('entityid', formQueryResult);    
+                jq_updateDBQuery('INSERT INTO jq_script_lib_connect (script_lib_conn_id,script_lib_id,module_type_id,entity_id,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),:scriptlibid,:moduletypeid,:entityid,:createdby,:updatedby,NOW(),1)', null, map);      
+
+                }
+            }     
+            }
+        } else{
+            var script ="";
+            for(var iCount=0; iCount<formQueryid.length;iCount++){
+                formQueryResult = formQueryid[iCount].split('_')[1];
+                formQueryIndex = formQueryid[iCount].split('_')[0];
+                for(var iCounter = 0;iCounter<scriptList.length; iCounter++){
+                    scriptResult = scriptList[iCounter].split('_')[0];
+                    scriptIndex = scriptList[iCounter].split('_')[1];
+                     map.put('scriptlibid', scriptResult);
+                     map.put('entityid', formQueryResult); 
+                    var resultScript =  jq_getDBResult("SELECT count(*) AS count , script_lib_id as ScriptId FROM jq_script_lib_connect where script_lib_id =  :scriptlibid and entity_id = :entityid", null, map).data_list;
+                      
+                    if(map.get("scriptlibid").contains("Del-") == false){
+
+                        scriptResult = scriptList[iCounter].split('_')[0];
+                        scriptIndex = scriptList[iCounter].split('_')[1];
+                        if(scriptIndex == formQueryIndex){
+                            map.put('scriptlibid', scriptResult);
+                            map.put('entityid', formQueryResult); 
+                            if(resultScript[0].ScriptId != map.get("scriptlibid")){
+                            
+                            jq_updateDBQuery('INSERT INTO jq_script_lib_connect (script_lib_conn_id,script_lib_id,module_type_id,entity_id,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),:scriptlibid,:moduletypeid,:entityid,:createdby,:updatedby,NOW(),1)', null, map);
+                            }    
+                        }
+                        } else{
+                            var delscript = scriptList[iCounter].split('Del-')[1];
+                             scriptResult = delscript.split('_')[0];
+                             scriptIndex = scriptList[iCounter].split('_')[1];
+                            if(scriptIndex == formQueryIndex){
+                                map.put('scriptlibid', scriptResult);
+                                map.put('entityid', formQueryResult); 
+                  
+                                jq_updateDBQuery("delete from jq_script_lib_connect where entity_id=:entityid and script_lib_id =  '"+scriptResult+"'", null, map);
+                            }
+                        }
+                }    
+        }
+        }
+    return 1;
+}
+saveScriptDetails(requestDetails);

@@ -1,5 +1,3 @@
- 
- 
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,6 +20,14 @@
           	});
 			
 		</script>
+		
+		<style>
+			  .btn-primary {
+    padding: 10px;
+    font-size: 15px;
+    background-color: #005da3 !important;
+}
+		</style>
   </head>
   <body>
      <div class="container">

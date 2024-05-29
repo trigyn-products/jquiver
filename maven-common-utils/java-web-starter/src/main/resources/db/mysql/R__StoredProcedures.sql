@@ -1071,8 +1071,9 @@ SELECT
   `ed`.`encryption_algo_name` AS `encryption_algo_name`,
   `cd`.`updated_date`         AS `isAfterDate`
 FROM (`jq_api_client_details` `cd`
+   JOIN `jq_enc_alg_mod_pad_key_lookup` `ampk`
    JOIN `jq_encryption_algorithms_lookup` `ed`)
-WHERE `ed`.`encryption_algo_id` = `cd`.`encryption_algo_id`;
+WHERE `ampk`.`enc_lookup_id` = `cd`.`encryption_algo_id` AND `ed`.`encryption_algo_id` = `ampk`.`enc_algorithm_id`;
 
 
 
@@ -1453,4 +1454,3 @@ UNION
                 WHERE     `jmm`.`is_perm_supported` = 1 )) `a`;
                 
                 
-

@@ -271,13 +271,13 @@
                 <div id="buttons" class="pull-right">
                     <div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
-                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('module-manage-details', this, isEdit, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
                         <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
                         <div class="dropdown-menu action-cls"  id="actionDiv">
                             <ul class="dropdownmenu">
-                                <li id="saveAndCreateNew" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                                <li id="saveAndEdit" onclick="typeOfAction('module-manage-details', this, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                                <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('module-manage-details', this, isEdit, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('module-manage-details', this,  isEdit, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                             </ul>
                         </div>  
                     </div>
@@ -299,7 +299,11 @@ let sequence = "${(moduleDetailsVO?api.getSequence())!''}";
 let savedHeaderJson = "";
 let savedRequestParamJson = "";
 let selectedLanguageId = getCookie("locale");
-  
+let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
+    let isEdit = 0;
+    if(moduleId!="") {
+      isEdit=1;  
+    }
 	<#if (moduleDetailsVO?api.getHeaderJson())?has_content>
 	    savedHeaderJson = JSON.parse('${(moduleDetailsVO?api.getHeaderJson())!""}');
 	</#if>
@@ -315,12 +319,12 @@ $(function() {
     let moduleName = $('<div />').text(modulename).html();
     let parentModuleId = "${(moduleDetailsVO?api.getParentModuleId())!''}";
     let targetLookupId = "${(moduleDetailsVO?api.getTargetLookupId())!''}";
-    let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
+    //let moduleId = "${(moduleDetailsVO?api.getModuleId())!''}";
     let moduleURL = "${(moduleDetailsVO?api.getModuleUrl())!''}";
     
 	$("#txtContentLang").val(selectedLanguageId);
 	$("#txtContentLangLabel").text(selectedLanguageId);
-    savedAction("module-manage-details", moduleId);
+    savedAction("module-manage-details", isEdit);
     hideShowActionButtons();
     if(targetLookupId === ""){
         $("#targetLookupType").val(6);

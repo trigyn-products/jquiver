@@ -67,13 +67,13 @@
 				<div id="buttons" class="pull-right">
 					<div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
-                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('add-edit-role', this, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('add-edit-role', this, isEdit, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
                         <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
                         <div class="dropdown-menu action-cls"  id="actionDiv">
                             <ul class="dropdownmenu">
-                                <li id="saveAndCreateNew" onclick="typeOfAction('add-edit-role', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                                <li id="saveAndEdit" onclick="typeOfAction('add-edit-role', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                                <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('add-edit-role', this, isEdit,saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                                <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('add-edit-role', this, isEdit,saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                             </ul>
                         </div>  
                     </div>
@@ -85,7 +85,11 @@
 <script>
 	document.title = "Manage Role Details";
 	contextPath = "${contextPath}";
-  let isEdit = "${jwsRole?api.getRoleId()!''}";
+    let isEdit = 0;
+    let roleId = "${jwsRole?api.getRoleId()!''}";
+    if(roleId != "") {
+        isEdit = 1;
+    }
   $(function(){
   
    	savedAction("add-edit-role", isEdit);

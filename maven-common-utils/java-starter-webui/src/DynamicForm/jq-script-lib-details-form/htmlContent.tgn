@@ -1,0 +1,338 @@
+<#if (resultSetObject.canEdit == 1)>
+<head> 
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
+ 
+<style>
+    .displayflex{
+        display:flex;
+        flex-direction: column;
+    }
+
+    .displayflex label{
+		font-weight:bold;
+    }
+
+    .captchacenter{
+	    display: flex;
+	    align-items: center;
+	    margin-top: 21px;
+	}
+
+	.captchafeildbx{
+		font-weight:bold;
+	}
+
+	.captchacenter #imgCaptcha{
+	    margin:0 0 0 15px !important;
+	}
+
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<#if resultSetObject.scriptData?? && resultSetObject.scriptData[0]?has_content>
+	<#assign scriptData=resultSetObject.scriptData[0]>
+</#if>
+</head>
+
+<div class="container">
+	<div class="topband">
+        <#if (scriptData.script_lib_id)?? && (scriptData.script_lib_id)?has_content>
+			<h2 class="title-cls-name float-left">Edit Script Details</h2> 
+        <#else>
+            <h2 class="title-cls-name float-left">Add Script Details</h2> 
+        </#if> 
+		<div class="clearfix"></div>		
+	</div>
+  <form name="addEditScriptForm" id="addEditScriptForm" onsubmit="return false;" action="#">
+      
+    <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+    <input type="hidden" id="entityName" name="entityName" value="jq_script_lib_details">
+    
+    <div class="row">
+        <input type="hidden" data-type="text" id="scriptlibid" name="scriptlibId"  value="${(scriptData.script_lib_id)!""}" >
+        <input type="hidden" data-type="text" id="createdby" name="createdBy"  value="${(scriptData.created_by)!""}" >  
+        <input type="hidden" data-type="text" id="updatedby" name="updatedBy"  value="${(scriptData.updated_by)!""}" >  
+        <input type="hidden" data-type="text" id="updateddate" name="updatedDate"  value="${(scriptData.updated_date)!""}" >    
+
+        <div class="col-6">
+			<div class="col-inner-form full-form-fields">            
+            <label for="libraryname" style="white-space:nowrap">
+            <span class="asteriskmark">*</span>
+                ${messageSource.getMessage('jws.libname')}
+            </label>
+            <input type="text" data-type="text" id="libraryname"  maxlength="100" placeholder="${messageSource.getMessage('jws.libname')}" name="libraryName" class="form-control" value="${(scriptData.library_name)!""}">
+            </div>           
+        </div>
+
+        <div class="col-6">
+        <div class="col-inner-form full-form-fields">               
+            <label for="scripttype" style="white-space:nowrap">
+            <span class="asteriskmark">*</span>
+                ${messageSource.getMessage('jws.scriptype')}
+            </label>
+            <select class="form-control" id="scripttype"  name="scriptType" title="${messageSource.getMessage('jws.scriptype')}">
+                <option value="1" selected="selected"> ${messageSource.getMessage('jws.javaScriptContent')} </option>
+                <option value="2"> ${messageSource.getMessage('jws.python')} </option>
+                <option value="3"> ${messageSource.getMessage('jws.php')} </option>
+            </select>
+        </div>               
+        </div>
+    </div>
+    <div class="row">   
+         <div class="col-6" style="width:300px;">
+            <div class="col-inner-form full-form-fields" >
+                
+            <label for="template_name" style="white-space:nowrap">
+                <span class="asteriskmark">*</span>
+            ${messageSource.getMessage('jws.templatename')}    
+            </label>
+           <div class="search-cover">  
+                <input type="hidden" data-type="text" id="templateid" name="templateId"  value="${(scriptData.template_id)!""}" >
+                <input class="form-control" id="templateAutocomplete" type="text" value="${(scriptData.template_id)!""}" >
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+            </div>
+        </div> 
+          <div class="col-6">
+            <div class="col-inner-form full-form-fields">               
+            <label for="description" style="white-space:nowrap">
+                <span class="asteriskmark">*</span>
+                ${messageSource.getMessage('jws.description')}
+            </label>
+            <div class="txtWrapper">
+             <textarea class="form-control" rows="6" cols="90" data-type="text"  id="description" placeholder="${messageSource.getMessage('jws.description')}" name="description"  maxlength="500" onkeydown="calculateLength();" onkeyup="calculateLength();">${(scriptData.description)!""}</textarea> 
+              <i class="fa fa-arrows-alt" title="${messageSource.getMessage('jws.clickfullscreen')}" aria-hidden="true"></i>
+            </div> 
+             <div style = "position:relative;float:right;">
+                <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="500" >
+            </div>   
+            </div>     
+        </div>
+        <input type="hidden" data-type="int" id="iscustomupdated" name="iscustomUpdated"  value="${(scriptData.is_custom_updated)!""}" > 
+    	</div>
+   </form>
+	<div class="row">
+		<div class="col-12">
+			<div class="float-right">
+				<div class="btn-group dropup custom-grp-btn">
+                    <span id="savedAction">
+                    <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </span>
+                    <span id="actionDropdownBtn" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></span>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="onSaveButtonClick(SaveAction.Edit, isEdit);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>  
+                </div>
+				<span onclick="backToPreviousPage();">
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+   <div id="manageScript" style="display:none;"></div>
+</div>
+<script>
+    $("#manageScript").html("${messageSource.getMessage('jws.managescriptlib')}")
+    document.title = $("#manageScript").html();
+	contextPath = "${contextPath}";	 
+    formId = "${formId}";
+  
+	let isEdit = 0;
+    let autocompleteTemp;
+  $(function(){
+    $( ".txtWrapper i" ).click(function() {
+        let elem = $(this).prev().get()[0];
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }     
+        $(this).prev().focus();
+    });
+
+      autocompleteTemp = $("#templateAutocomplete").autocomplete({
+		autocompleteId: "templateListing",
+        prefetch : true,
+        enableClearText: true,
+		render: function(item) {
+			var renderStr ='';
+			if(item.emptyMsg == undefined || item.emptyMsg === '')
+			{
+				renderStr = '<p>'+item.targetTypeName+'</p>';
+			}
+			else
+			{
+				renderStr = item.emptyMsg;	
+			}	    				        
+			return renderStr;
+		},
+		extractText: function(item) {
+			return item.targetTypeName;
+		},
+		select: function(item) {
+			$("#templateAutocomplete").blur();
+			$("#templateid").val(item.targetTypeId);
+			$("#templateAutocomplete").val(item.targetTypeName);
+		}, 	
+	 });
+    <#if resultSetObject.tempAutocomplete?? && resultSetObject.tempAutocomplete?has_content>
+        autocompleteTemp.setSelectedObject(${(resultSetObject.tempAutocomplete)});     
+    </#if>  
+
+    // setting value on edit. 
+    <#if resultSetObject.scriptData?has_content >
+      	isEdit = 1;
+	    $(".pageHeader").html("Edit Details ${(formName)!''}");
+        var desCount = parseInt(document.getElementById('description').value.length);
+        var maxCount = 500;
+        var finalDesCount = maxCount-desCount;
+        $('#countdown').val(finalDesCount);
+    <#else>
+	
+    </#if>
+    hideShowActionButtons();
+	changeDefaultAction();
+
+  });
+  
+   function getFormName() {   
+       return "addEditScriptForm"; 
+    }
+  
+  /**
+	* This method should return non null or defined object in order to 
+ 	* submit the form. return null or undefined in case your custom / additional 
+	* validation fails. If you don't want to perform any validation then either
+	* delete the method or return the same object.
+	* 
+	* If you want to change the name of the form, then implement below method and return 
+	* the form name in String
+	* 
+	*      getFormName();
+	* 
+	* If you want to change the URL/router of the form, then implement below method and return 
+	* the form url/router in String
+	* 
+	*      getformURL();
+	*
+	* you also want to call below lines to focus and highlight erroneous field
+	*      $("#"+fieldName).focus();
+	*      $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
+	*      showMessage("Issue in input", "warn");
+	* 
+	* In case a processed value has to be passed to the server for saving/processing, then you can call
+	* function pushToSerializedData.
+	* The default parameters to be passed will be, 
+	*		a_serializedFormData: This is the input for this method.
+	* 		a_name				: This is the parameter name, which will be used to access the parameter at server side.
+	*		a_value				: This will be String value, which will be saved at the used to save/update at server.
+	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
+	*
+	*/
+	function onValidation(a_serializedFormData){    
+        if(validateFields()== true)
+        {
+            return a_serializedFormData;
+       }   
+	}
+	function validateFields(){
+        if($("#libraryname").val() == '')
+        {
+            $("#libraryname").closest("div").parent().effect("highlight", {}, 3000);
+            $("#libraryname").focus();
+            showMessage("${messageSource.getMessage('jws.allFieldsMandatory')}", "warn");
+            return false;
+        }
+             
+      if($("#templateid").val() == '')
+        {
+            $("#templateid").closest("div").parent().effect("highlight", {}, 3000);
+            $("#templateAutocomplete").focus();
+            showMessage("${messageSource.getMessage('jws.allFieldsMandatory')}", "warn");
+            return false;
+        }
+         return true;
+    }
+  /**
+	* this method is called when there is a successful response from server.
+	* you can use this to take other actions in case you need to. Success 
+	* message will be shown before calling this method. 
+	* you can define getSuccessMessage() function and return string for custom success message
+	*/
+	function onSuccess(a_serverResponse){
+        let formName = "jq-script-lib-details-form";
+	    //Call a Rest API for saving Module Version Details
+         var scriptdataObj={
+            "scriptlibId": $("#scriptlibid").val()+"",
+            "libraryName": $("#libraryname").val()+"",
+            "scriptType" : $("#scripttype").val()+"",
+            "templateId" : $("#templateid").val()+"",
+            "description": $("#description").val()+"",
+            "iscustomUpdated": $("#iscustomupdated").val()+"",
+            "scriptlibId": $("#scriptlibid").val()+"",
+            "createdBy"  : $("#createdby").val()+"",
+            "updatedBy"  : $("#updatedby").val()+"",
+            "updatedDate": $("#updateddate").val()+"",
+            "formId"     : formId+"",
+            "primaryKey" : $("#scriptlibid").val()+"",
+            "entityName" : $("#entityName").val()+"",
+            "isEdit"     : isEdit+"",
+        };
+        $.ajax({
+            url:contextPath+"/cf/ssmv",
+            type:"POST",
+            async:false,
+            data:{
+	        	scriptDataArr: JSON.stringify(scriptdataObj),
+                entityName : $("#entityName").val(),
+                entityIdObj: $("#scriptlibid").val(),   
+	        },
+            success : function(data) {
+                //showMessage("Information saved successfully", "success");
+            },
+            error : function(xhr, error){
+                showMessage("${messageSource.getMessage('jws.errSaving')}", "error");
+            },
+            
+        });
+	}
+	
+  /**
+	* this method is called when there is any error at server while executing server side 
+	* code.
+	* you can use this to take other actions in case you need to.
+	* error message will be shown before calling this method. If you don't want the message to be 
+	* shown, then define getErrorMessage() function and return null or undefined.
+	*
+	* you can define getErrorMessage() function and return string for custom error message
+	*/
+	function onError(jqXHR, exception){
+	    showMessage(exception, "error");
+	}
+
+    function calculateLength() {
+        var limitNum=500;
+        var description = $("#description").val();
+        var limitCount = $('#countdown').val();
+        limitCount = (limitNum) - description.length;
+        $('#countdown').val(limitCount);   
+    }
+
+	//Code go back to previous page
+	function backToPreviousPage() {
+			location.href = contextPath+"/view/jq-script-lib-details";
+	}
+	
+</script>
+<#else>
+<center>
+    <img style="border-radius: 25px;" src="${(contextPath)!''}/cf/files/07ec5660-9d14-4152-9131-dfd14e7b628d" />
+</center>
+</#if>

@@ -1,10 +1,6 @@
 var System = Java.type("java.lang.System");
 
 function onLogin() {
-    System.out.println(requestDetails["loggedInUserName"]);
-    System.out.println(requestDetails["loggedInUserId"]);
-    System.out.println(requestDetails["userObject"]);
-    
     return "Login successful of : " + requestDetails["loggedInUserName"];
 }  
 

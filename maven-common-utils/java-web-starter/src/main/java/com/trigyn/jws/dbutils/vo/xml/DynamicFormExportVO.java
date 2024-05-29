@@ -31,6 +31,10 @@ public class DynamicFormExportVO {
 	private Map<Integer, Integer>	queryTypeMap			= null;
 
 	private Date					lastUpdatedTs			= null;
+	
+	private Map<Integer, String>		scriptLibId			= null;
+	
+	private Map<Integer, String>	formQueryIdMap			= null;
 
 	public DynamicFormExportVO() {
 
@@ -53,6 +57,30 @@ public class DynamicFormExportVO {
 		this.datasourceDetailsMap	= datasourceDetailsMap;
 		this.queryTypeMap			= queryTypeMap;
 		this.lastUpdatedTs			= lastUpdatedTs;
+	}
+
+
+	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
+			String selectQueryFileName, String htmlBodyFileName, String dataSourceId,
+			Map<Integer, String> saveFileNameMap, Integer selectQueryType, Map<Integer, String> variableNameMap,
+			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs,
+			Map<Integer, String> scriptLibMap, Map<Integer, String> formQueryIdMap) {
+		super();
+		this.formId = formId;
+		this.formName = formName;
+		this.formDescription = formDescription;
+		this.formTypeId = formTypeId;
+		this.selectQueryFileName = selectQueryFileName;
+		this.htmlBodyFileName = htmlBodyFileName;
+		this.dataSourceId = dataSourceId;
+		this.saveFileNameMap = saveFileNameMap;
+		this.selectQueryType = selectQueryType;
+		this.variableNameMap = variableNameMap;
+		this.datasourceDetailsMap = datasourceDetailsMap;
+		this.queryTypeMap = queryTypeMap;
+		this.lastUpdatedTs = lastUpdatedTs;
+		this.scriptLibId = scriptLibMap;
+		this.formQueryIdMap = formQueryIdMap;
 	}
 
 	public String getFormId() {
@@ -194,6 +222,22 @@ public class DynamicFormExportVO {
 
 	public void setLastUpdatedTs(Date lastUpdatedTs) {
 		this.lastUpdatedTs = lastUpdatedTs;
+	}
+
+	public Map<Integer, String> getFormQueryIdMap() {
+		return formQueryIdMap;
+	}
+
+	public void setFormQueryIdMap(Map<Integer, String> formQueryIdMap) {
+		this.formQueryIdMap = formQueryIdMap;
+	}
+
+	public Map<Integer, String> getScriptLibId() {
+		return scriptLibId;
+	}
+
+	public void setScriptLibId(Map<Integer, String> scriptLibId) {
+		this.scriptLibId = scriptLibId;
 	}
 
 }

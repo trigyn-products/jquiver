@@ -43,13 +43,15 @@ public class JwsRestSchedulerService implements IJwsJobService {
 	private IJwsQuartzJobService	jobService				= ApplicationContextProvider
 			.getBean(IJwsQuartzJobService.class);
 
+	private JwsQuartzJobService jwsQuartzJobService = ApplicationContextProvider.getBean(JwsQuartzJobService.class);
+	
 	@Lazy
 	private UserDetailsService		userDetailsService		= ApplicationContextProvider
 			.getBean(UserDetailsService.class);
 
 	public JobDataMap getJobDetails(JqScheduler jwsScheduler) throws Exception {
 		String		schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
-		String		baseURL					= propertyMasterService.findPropertyMasterValue("base-url");
+		String		baseURL					= jwsQuartzJobService.getBaseUrl();
 		String		schedulerId				= jwsScheduler.getSchedulerId();
 		JobDataMap	jobDataMap				= new JobDataMap();
 		jobDataMap.put("baseURL", baseURL);
@@ -77,9 +79,9 @@ public class JwsRestSchedulerService implements IJwsJobService {
 				boolean status = jobService.scheduleCronJob(jwsScheduler.getScheduler_name(), jobGroup, JwsSchedulerJob.class,
 						new Date(), jwsScheduler.getCronScheduler(), jobDataMap);
 				if (status) {
-					LOGGER.info("Scheduler executed successfully.");
+					LOGGER.debug("Scheduler executed successfully.");
 				} else {
-					LOGGER.info("Could not start job ");
+					LOGGER.debug("Could not start job ");
 				}
 			} catch (SchedulerException sce) {
 				LOGGER.error("Could not start job with due to error - {}", sce.getLocalizedMessage());

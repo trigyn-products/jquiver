@@ -120,13 +120,13 @@
 				<div class="float-right">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
-		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
-		                    	<li id="saveAndCreateNew" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                        <li id="saveAndEdit" onclick="typeOfAction('dashboard-manage-details', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit,addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		                    </ul>
 	                    </div> 
 	                </div>
@@ -148,6 +148,10 @@
 	contextPath = "${(contextPath)!''}";
     var dashboardHTMLEditor;
 	const dashboardId = "${(dashboard?api.getDashboardId())!''}"; 
+    let isEdit = 0;
+    if(dashboardId!="") {
+      isEdit=1;  
+    }
 	let addEditDashboardFn;
 	
 	$(function() {
@@ -159,7 +163,7 @@
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		}
-	  	savedAction("dashboard-manage-details", dashboardId);
+	  	savedAction("dashboard-manage-details", isEdit);
 	  	hideShowActionButtons();
         if(dashboardId == ""){
             $("#htmlContent").text('<script>\n$(function() {\n\t//console.log( "ready!" );\n});\n<\/\script>\n<style>\n</style>');

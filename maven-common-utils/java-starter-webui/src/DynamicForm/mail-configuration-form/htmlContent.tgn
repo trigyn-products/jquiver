@@ -144,7 +144,8 @@ input:checked + .slider:before {
         <div class="col-inner-form full-form-fields">
           <label for="smtpSecurityProtocal" style="white-space:nowrap">${messageSource.getMessage('jws.securityprotocol')}</label>
           <select id="smtpSecurityProtocalId" name="smtpSecurityProtocal" onchange="populateFields(this)" class="form-control">
-              <option value="">${messageSource.getMessage('jws.select')}</option> 
+              <option value="" disabled>${messageSource.getMessage('jws.select')}</option> 
+              <option value="Plain">${messageSource.getMessage('jws.plain')}</option>
               <option value="TLS">${messageSource.getMessage('jws.tls')}</option> 
               <option value="SSL">${messageSource.getMessage('jws.ssl')}</option> 
             </select>
@@ -245,6 +246,7 @@ input:checked + .slider:before {
         
        <div class="col-5" style="float:left;">
         <div class="col-inner-form full-form-fields">      
+
         <div class="txtWrapper">
             <textarea id="mailFooterId" name="mailFooter" rows="4" placeholder="Footer text will be appended to all outgoing mail" cols="50" class="form-control" > </textarea>
             <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true" style="top:-30px;"></i>
@@ -345,10 +347,12 @@ input:checked + .slider:before {
         $("#errorMessage").show();
         return false;
     }
+
     if(checkFileUploadTempIdCookie() == true){
        
         return false;
     }
+
     var jsonobject =getJsonObject();
     saveMailConfigDetailsJson=JSON.stringify(jsonobject);
    
@@ -741,6 +745,7 @@ input:checked + .slider:before {
             } 
              return actionElem; 
         }   
+
     }
 
     /*
@@ -761,6 +766,7 @@ input:checked + .slider:before {
     /*
      * This is just for demo purpose, to show sample function from the button
      */
+
     function copyFilePath(fileName){
         let input = $("<input>");
         $("body").append(input); 
@@ -792,4 +798,5 @@ input:checked + .slider:before {
 }
 
     /**Ends Here*/
+
 </script>

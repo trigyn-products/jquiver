@@ -19,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.ModuleVersionVO;
+import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
 import com.trigyn.jws.webstarter.utils.Constant;
@@ -83,13 +84,14 @@ public class ModuleRevisionService {
 		if (moduleType.equals(Constant.ModuleType.AUTOCOMPLETE.getModuleType())) {
 			typeAheadService.saveAutocompleteDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
 		} else if (moduleType.equals(Constant.ModuleType.DYNAMICFORM.getModuleType())) {
-			dynamicFormCrudService.saveDynamicFormDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
+			DynamicForm dynamicform = dynamicFormCrudService.saveDynamicFormDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
+			dynamicFormCrudService.saveDynamicFormDetails2(multivalueMap, dynamicform, Constant.REVISION_SOURCE_VERSION_TYPE);
 		} else {
 			dynamicFormService.saveDynamicForm(multivalueMap);
 			if (moduleType.equals(Constant.ModuleType.DYNAREST.getModuleType())) {
-				dynarestCrudService.deleteDAOQueries(multivalueMap);
-				dynarestCrudService.saveDAOQueries(multivalueMap);
-			}
+				dynarestCrudService.deleteDAOQueries(multivalueMap,Constant.REVISION_SOURCE_VERSION_TYPE);
+				dynarestCrudService.saveDAOQueries(multivalueMap,Constant.REVISION_SOURCE_VERSION_TYPE);
+			} 
 			saveModuleVersioning(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
 		}
 	}

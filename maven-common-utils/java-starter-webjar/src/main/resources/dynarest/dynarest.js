@@ -181,7 +181,7 @@ class DynamicRest {
 			});
 			/**Ends Here */
 			context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
+				typeOfActionWithIsEdit('dynamic-rest-form', $("#savedAction").find("button"), $('#isEdit').val(), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
 			});
 			context.serviceLogicContent.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.serviceLogicContent, "htmlContainer", "htmlEditor");
@@ -283,14 +283,14 @@ class DynamicRest {
 			if (datasourceId != undefined) {
 				$("#datasourcecontainer_" + index).val(datasourceId);
 			}
-
+			
 			if (queryType != undefined) {
 				$("#selectcontainer_" + index).val(queryType);
 				if (queryType == 4) {
 					$("#datasourcecontainer_" + index).closest('div').hide();
 				}
 			}
-
+			
 			let saveUpdateEditor = monaco.editor.create(document.getElementById("saveSqlEditor_" + index), {
 				value: saveQueryContent,
 				language: "sql",
@@ -356,7 +356,7 @@ class DynamicRest {
 			}
 			$("#removeTemplate_0").remove();
 			saveUpdateEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('dynamic-rest-form', $("#savedAction").find("button"), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
+				typeOfActionWithIsEdit('dynamic-rest-form', $("#savedAction").find("button"), $('#isEdit').val(), dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);
 			});
 			saveUpdateEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(saveUpdateEditor, "saveSqlContainer_" + index, "saveSqlEditor_" + index);
@@ -388,6 +388,9 @@ class DynamicRest {
 	saveDynarest = function() {
 		let isDataSaved = false;
 		let context = this;
+		let scriptLibInsertArr = new Array();
+		let scriptLibDeleteArr = new Array();
+		let scriptLibRevisionArr = new Array();
 		let validData = context.validateDyanrestFields();
 		if (validData === false) {
 			return false;
@@ -410,10 +413,26 @@ class DynamicRest {
 				showMessage("Produce type for email/xml should be application/json", "warn");
 				return false;
 			}
-		}
+		}	
+		let form = $("#dynamicRestForm");
+		form.append('<input name="scriptLibInsert" id="scriptLibInsert" type="hidden" />');
+		form.append('<input name="scriptLibDelete" id="scriptLibDelete" type="hidden" />');
+		form.append('<input name="scriptLibId" id="scriptLibId" type="hidden" />');
 
+		let scriptLibInsert = $('#inputscriptInsert_').val();
+		let scriptLibDelete = $('#inputscriptdelete_').val();
+		let scriptLibRevision = $('#inputscriptrevision_').val();
+		
+		scriptLibInsertArr.push(scriptLibInsert);
+		scriptLibDeleteArr.push(scriptLibDelete);
+		scriptLibRevisionArr.push(scriptLibRevision);
+		
+		$("#scriptLibInsert").val(JSON.stringify(scriptLibInsertArr));
+		$("#scriptLibDelete").val(JSON.stringify(scriptLibDeleteArr));
+		$("#scriptLibId").val(JSON.stringify(scriptLibRevisionArr));
+		
 		let headerJson = JSON.stringify(contextHeaderJson);
-		let formData = $("#dynamicRestForm").serialize() + "&headerJson=" + headerJson + "&formId=" + context.formId;
+		let formData = $("#dynamicRestForm").serialize() + "&headerJson=" + headerJson + "&formId=" + context.formId ;
 		$.ajax({
 			type: "POST",
 			url: contextPath + "/cf/sdf",
@@ -503,8 +522,6 @@ class DynamicRest {
 		let queryTypeArray = new Array();
 		let datasourceArray = new Array();
 		let daoQueryArray = new Array();
-
-
 		let dashletDetails = new Object();
 
 		let form = $('<form id="saveUpdateQueryForm"></form>');
@@ -559,8 +576,23 @@ class DynamicRest {
 				if (data !== "") {
 					isDataSaved = true;
 					$("#dynarestId").val(data);
-					let versioningData = $("#dynamicRestForm, #saveUpdateQueryForm").serialize();
-					enableVersioning(versioningData);
+					var filters = {
+					    "scriptLibDelete": true,
+					    "scriptLibInsert": true,
+					    "baseUrl"		 : true,
+					    "countdown"		 : true,
+					    "createdDate"    : true,
+					    "daoDetailsIds"  : true,
+					    "dataSourceId"   : true,
+					    "allowFiles"     : true,
+					    "allowFilesCheckbox"   : true,
+					};
+					let versioningData = [$("#dynamicRestForm")
+					    .find(":input")
+					    .filter(function (i, item) {
+					        return !filters[item.name];
+					    }).serialize() + "&" + $("#saveUpdateQueryForm").serialize()];
+					enableVersioning(versioningData[0]);
 					saveEntityRoleAssociation(data);
 					showMessage("Information saved successfully", "success");
 				}
@@ -611,7 +643,6 @@ class DynamicRest {
 				error: function(xhr, error) {
 					showMessage("Error occurred while fetching template content", "error");
 				},
-
 			});
 		}
 	}
@@ -637,7 +668,6 @@ class DynamicRest {
 				error: function(xhr, error) {
 					showMessage("Error occurred while fetching template content", "error");
 				},
-
 			});
 		} else {
 			context.saveUpdateEditors[editorIndex].editor.setValue("");
@@ -709,11 +739,8 @@ let saveEntityRoleAssociation = function(dynaRestId) {
 	entityRoles.entityId = dynaRestId;
 	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key, val) {
 		roleIds.push(val.id);
-
 	});
-
 	entityRoles.roleIds = roleIds;
-
 	$.ajax({
 		async: false,
 		type: "POST",
@@ -724,6 +751,7 @@ let saveEntityRoleAssociation = function(dynaRestId) {
 		}
 	});
 }
+
 let getEntityRoles = function() {
 	$.ajax({
 		async: false,
@@ -753,4 +781,5 @@ var removeByAttribute = function(arr, attr, value) {
 	}
 	return arr;
 }
-
+var querytype = null;
+var querytypename = null;

@@ -38,11 +38,14 @@ import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
+import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
+import com.trigyn.jws.webstarter.utils.Constant.MasterModuleType;
+import com.trigyn.jws.webstarter.utils.Constant.ModuleType;
 
 @RestController
 @RequestMapping("/cf")
@@ -65,6 +68,9 @@ public class ImportExportController {
 
 	@Autowired
 	private PropertyMasterService	propertyMasterService	= null;
+	
+	@Autowired
+	private JwsMasterModulesRepository					jwsmasterModuleRepository		= null;
 
 	@GetMapping(value = "/vexp", produces = MediaType.TEXT_HTML_VALUE)
 	public String viewExport(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -294,7 +300,11 @@ public class ImportExportController {
 	@GetMapping(value = "/permissions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<JwsEntityRoleAssociationVO> getEntityRole(@RequestParam("entityId") String entityId,
 			@RequestParam(value="moduleId") String moduleId) throws Exception {
-
+		  if(null != moduleId && moduleId.equalsIgnoreCase(MasterModuleType.DASHLET.getModuleType()))
+		  {
+			  JwsMasterModules mastermodule=jwsmasterModuleRepository.findBymoduleName(ModuleType.DASHLET.toString());
+			  moduleId=mastermodule.getModuleId();
+		  }
 		return exportService.getEntityPermissions(entityId, moduleId);
 	}
 

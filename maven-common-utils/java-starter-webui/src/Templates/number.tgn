@@ -1,5 +1,27 @@
 <script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
-	<input type="number" min="0" id="${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" class="form-control"/>
+	<input type="number" min="0" id="num_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" class="form-control"/>
 </div>
+<script>
+function validateNumber(){
+    var numInput = $('#num_${innerTemplateObj.propertyId!''}').val();
+    var numberPattern = ${innerTemplateObj.validation!''};
+    if (!(numberPattern instanceof RegExp)) {
+        showMessage("NumberPattern is not a valid regular expression.","warn");
+        return false;
+    }
+   if (!numberPattern.test(numInput)) {
+        $('#num_${innerTemplateObj.propertyId}').effect("highlight", {}, 3000);
+		$('#num_${innerTemplateObj.propertyId!''}').focus();
+        showMessage("Please enter a valid number.","warn");
+        return false;
+    } else if(numInput.length > 10) {
+        $('#num_${innerTemplateObj.propertyId}').effect("highlight", {}, 3000);
+		$('#num_${innerTemplateObj.propertyId!''}').focus();
+        showMessage("Input number must not be greater than 10 character length","warn");
+        return false;
+    }
+    return true;
+}
+</script>

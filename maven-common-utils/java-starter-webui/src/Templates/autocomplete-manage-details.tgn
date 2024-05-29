@@ -171,13 +171,13 @@
 				<div class="float-right">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
-		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('autocomplete-manage-details', this, isEdit, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
-		                    	<li id="saveAndCreateNew" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                        <li id="saveAndEdit" onclick="typeOfAction('autocomplete-manage-details', this, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('autocomplete-manage-details', this, isEdit, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('autocomplete-manage-details', this, isEdit, addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		                    </ul>
 	                    </div> 
 	                </div>
@@ -186,7 +186,7 @@
 					</span> 
 				</div>
 			</div>
-          
+
 	</div>
  	
 <textarea id="sqlContentDiv" style="display: none">
@@ -201,6 +201,10 @@
     var suggestionArray = JSON.parse(monacoSugg);
     <#outputformat "HTML">
     const acId = "${(autocompleteVO.autocompleteId)!''}";
+    let isEdit = 0;
+    if(acId!="") {
+      isEdit=1;  
+    }
 	let addEditAutocomplete;
 	let tableAutocomplete;
 	let oldAutocompleteId;
@@ -214,7 +218,8 @@
 			getSavedEntity();
 		}
 	    
-	    savedAction("autocomplete-manage-details", acId);
+	    //savedAction("autocomplete-manage-details", acId);
+        savedAction("autocomplete-manage-details", isEdit);
 	    hideShowActionButtons();
 	    
 	    if(acId==""){

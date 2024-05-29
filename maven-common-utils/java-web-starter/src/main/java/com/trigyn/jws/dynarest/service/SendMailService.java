@@ -187,6 +187,7 @@ public class SendMailService {
 		Boolean				isReplyToDifferentMail	= mail.getIsReplyToDifferentMail() == null
 				? (Boolean) mailMap.get("isReplyToDifferentMail")
 				: mail.getIsReplyToDifferentMail();
+
 		/** Added for ReplyTo tag */
 		String				replyTo					= (mail.getReplyToaddress() != null
 				&& mail.getReplyToaddress().length > 0 && mail.getReplyToaddress()[0].getAddress() != null)
@@ -304,6 +305,7 @@ public class SendMailService {
 				String	fileUploadId	= fu.getFileUploadId();
 				Integer	isAllowed		= storageService.hasPermission(null, null, fileUploadId,
 						Constants.VIEW_FILE_VALIDATOR, new HashMap<>());
+
 				if (isAllowed > 0) {
 					Map<String, Object> fileInfo = storageService.load(fileUploadId);
 					if (fileInfo != null) {
@@ -599,7 +601,9 @@ public class SendMailService {
 		} else {
 			bccList = mail.getInternetAddressBCCArray();
 		}
+
 		/* Added for Mail Footer String */
+
 		String mailFooterString = (mailMap.get("mailFooter") != null && !mailMap.get("mailFooter").isEmpty())
 				? mailMap.get("mailFooter")
 				: mail.getMailFooter();
@@ -608,6 +612,7 @@ public class SendMailService {
 			mail.setMailFooter(mailFooterString);
 		}
 		/** Ends Here */
+
 		try {
 
 			if (fromMailId != null && fromMailId != "" && isValidEmailAddressFromStringValidation(fromMailId)) {
@@ -617,6 +622,7 @@ public class SendMailService {
 			}
 
 			/** Added for replyTo */
+
 			if (replyTo != null && replyTo != "" && isValidEmailAddressFromStringValidation(replyTo)) {
 				message.setReplyTo(InternetAddress.parse(replyTo));
 				InternetAddress replyToIA = InternetAddress.parse(replyTo)[0];
@@ -625,6 +631,7 @@ public class SendMailService {
 				message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
 			} else {
 				throw new Exception("Invalid/No Reply to  Emailid entered " + replyToDifferentEmailId);
+
 			}
 			/** Ends Here */
 
@@ -707,6 +714,7 @@ public class SendMailService {
 					} else {
 						throw new Exception("Could not read the file with name - " + fu.getOriginalFileName()
 								+ " : fileBinId : " + fu.getFileBinId() + " : fileUploadId : " + fu.getFileUploadId());
+
 					}
 				}
 			}

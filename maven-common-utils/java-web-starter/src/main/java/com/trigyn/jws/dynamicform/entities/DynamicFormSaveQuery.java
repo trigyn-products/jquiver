@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +54,10 @@ public class DynamicFormSaveQuery implements Serializable {
 
 	@Column(name = "datasource_id  ")
 	private String				datasourceId		= null;
-
+	
+	@Transient
+	private String				scriptLibraryId		= null;
+	
 	public DynamicFormSaveQuery() {
 	}
 
@@ -115,6 +119,7 @@ public class DynamicFormSaveQuery implements Serializable {
 		obj.setDaoQueryType(daoQueryType);
 		obj.setDatasourceId(datasourceId != null ? datasourceId.trim() : datasourceId);
 		obj.setResultVariableName(resultVariableName != null ? resultVariableName.trim() : resultVariableName);
+		obj.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : scriptLibraryId);
 
 		return obj;
 	}
@@ -149,6 +154,14 @@ public class DynamicFormSaveQuery implements Serializable {
 
 	public void setDatasourceId(String datasourceId) {
 		this.datasourceId = datasourceId;
+	}
+
+	public String getScriptLibraryId() {
+		return scriptLibraryId;
+	}
+
+	public void setScriptLibraryId(String scriptLibraryId) {
+		this.scriptLibraryId = scriptLibraryId;
 	}
 
 }

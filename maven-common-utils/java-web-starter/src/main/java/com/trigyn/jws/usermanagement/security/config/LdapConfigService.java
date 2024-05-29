@@ -10,7 +10,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.core.support.DefaultTlsDirContextAuthenticationStrategy;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.core.support.SimpleDirContextAuthenticationStrategy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticator;
@@ -25,6 +28,7 @@ import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.utils.LdapConfigHelper;
+import com.trigyn.jws.usermanagement.utils.SSLLdapContextSource;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 
@@ -116,19 +120,70 @@ public class LdapConfigService extends LdapConfigHelper {
 
 		boolean isConnected = true;
 		try {
-
+			LdapContextSource	sourceLdapCtx		= new LdapContextSource();
 			String	loginAttribute		= (String) formLdapData.getFirst("loginAttribute");
 			String	baseDN				= (String) formLdapData.getFirst("basedn");
 			String	binUserDN			= (String) formLdapData.getFirst("userdn");
 			String	adminUserName		= (String) formLdapData.getFirst("adminUserName");
 			String	adminPassword		= (String) formLdapData.getFirst("adminPassword");
 			String	securityPrincipal	= (String) formLdapData.getFirst("securityPrincipal");
+			String sourceHost 			= (String) formLdapData.getFirst("ldapAddress");
+			String sourcePort 			= (String) formLdapData.getFirst("ldapPort");
+			String ldapSecurityType 	= (String) formLdapData.getFirst("ldapSecurityType");
 			if (loginAttribute.equalsIgnoreCase("mail")) {
 				securityPrincipal = adminUserName;
 			} else {
 				securityPrincipal = loginAttribute + "=" + adminUserName + "," + binUserDN + "," + baseDN;
 			}
-			LdapContextSource	sourceLdapCtx		= getLdapContextSource(formLdapData);
+			try {
+				
+
+				logger.info("Connecting to LDAP ..." + sourceHost + ":" + sourcePort + "...");
+
+				if (loginAttribute!=null && loginAttribute.equalsIgnoreCase("mail")) {
+					securityPrincipal = adminUserName;
+				} else {
+					securityPrincipal = loginAttribute + "=" + adminUserName + "," + binUserDN + "," + baseDN;
+				}
+				sourceLdapCtx.setUserDn(securityPrincipal);
+				// sourceLdapCtx.setBase(baseDN);
+				sourceLdapCtx.setPassword(adminPassword);
+				sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
+				String url = "";
+				switch (ldapSecurityType) {
+					case "0":
+						sourceLdapCtx.setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy());
+						url = "ldap://" + sourceHost + ":" + sourcePort + "/";
+						break;
+					case "1":
+						sourceLdapCtx.setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy());
+						url = "ldaps://" + sourceHost + ":" + sourcePort + "/";
+						sourceLdapCtx = new SSLLdapContextSource();
+						// indicate a secure connection
+						break;
+					case "2":
+						url = "ldaps://" + sourceHost + ":" + sourcePort + "/";
+						// shutdown gracefully
+						final DefaultTlsDirContextAuthenticationStrategy authenticationStrategy = new DefaultTlsDirContextAuthenticationStrategy();
+						sourceLdapCtx = new SSLLdapContextSource();
+						authenticationStrategy.setShutdownTlsGracefully(true);
+						sourceLdapCtx.setAuthenticationStrategy(authenticationStrategy);
+						break;
+				}
+				sourceLdapCtx.setUrl(url);
+				sourceLdapCtx.setBase(baseDN);
+				sourceLdapCtx.setUserDn(securityPrincipal);
+				sourceLdapCtx.setDirObjectFactory(DefaultDirObjectFactory.class);
+				sourceLdapCtx.setPassword(adminPassword);
+				sourceLdapCtx.setAnonymousReadOnly(false);
+				sourceLdapCtx.setPooled(false);
+				Map<String, Object>	baseEnvironment		= new HashMap<>();
+				sourceLdapCtx.setBaseEnvironmentProperties(baseEnvironment);
+				sourceLdapCtx.afterPropertiesSet();
+			} catch (Exception exec) {
+				logger.error("Failed : Connecting to LDAP " + sourceHost + ":" + sourcePort + "...");
+			}
+			
 			LdapTemplate		sourceLdapTemplate	= new LdapTemplate(sourceLdapCtx);
 			sourceLdapTemplate.getContextSource().getContext(securityPrincipal, adminPassword);
 

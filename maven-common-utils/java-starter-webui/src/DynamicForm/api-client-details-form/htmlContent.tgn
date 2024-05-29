@@ -1,11 +1,11 @@
 <head>
-	<link rel="stylesheet" href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-	<link rel="stylesheet" href="/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-	<link rel="stylesheet" href="/webjars/1.0/css/starter.style.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 	<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
@@ -23,7 +23,7 @@
 
 		<div class="row">
 			<input type="hidden" data-type="varchar" id="clientid" name="clientid"  value="${(resultSetObject.client_id)!""}" >
-			<div class="col-6">
+			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
 					<label for="clientname" style="white-space:nowrap"><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.clientname')}
@@ -31,14 +31,49 @@
 					<input type="text" data-type="varchar" id="clientname" name="clientname"  value="${(resultSetObject.client_name)!""}" maxlength="100" placeholder="Client Name" class="form-control">
 					</div>
 				</div>
-				<div class="col-6">
+				<div class="col-2">
 					<div class="col-inner-form full-form-fields">
 						<label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
                             ${messageSource.getMessage('jws.encryptionalgorithm')}</label>
 						<div class="search-cover">
-							<select class="form-control" id="algoAutocomplete" name="algoAutocomplete" onchange="changeEncAlgorithm()">
+							<select class="form-control" id="algoAutocomplete" name="algoAutocomplete">
+							<option value="-1">Select</option>
 							</select>
 						</div>
+					</div>
+				</div>
+                <div class="col-2">
+					<div class="col-inner-form full-form-fields">
+						<label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                            ${messageSource.getMessage('jws.encalgmode')}</label>
+						<div class="search-cover">
+							<select class="form-control" id="algoAutoModes" name="algoAutoModes">      
+							<option value="-1">Select</option> 
+														
+							</select>
+						</div>
+					</div>
+				</div>
+                <div class="col-2">
+					<div class="col-inner-form full-form-fields">
+						<label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                           ${messageSource.getMessage('jws.encalgpadding')}</label>
+						<div class="search-cover">
+							<select class="form-control" id="algoPadding" name="algoPadding">     
+                                  <option value="-1">Select</option>                               
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="col-2">
+					<div class="col-inner-form full-form-fields">
+							<label for="outputText" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						      	${messageSource.getMessage('jws.enckeylength')}
+						    </label>							
+							<select class="form-control" id="keyLength" name="keyLength">      
+							<option value="-1">Select</option> 
+														
+							</select>
 					</div>
 				</div>
 				<div class="col-12">
@@ -78,15 +113,7 @@
                         </div>
 								</div>
 							</div>
-							<!--div class="col-6">
-					<div class="col-inner-form full-form-fields">
-						    <label id="lblInclusionUrlPattern" for="inclusionUrlPattern" style="white-space:nowrap"><span id="astr_3" class="asteriskmark">*</span>
-						      	${messageSource.getMessage('jws.inclusionpattern')}
-						    </label>  
-                        <textarea rows="3" data-type="varchar" id="inclusionUrlPattern" name="inclusionUrlPattern" maxlength="1000" placeholder="Inclusion Pattern" class="form-control">${(resultSetObject.inclusion_url_pattern)!""}</textarea>
-					            
-                    </div>
-				</div-->
+							
 							<div class="col-6">
 								<div class="col-inner-form full-form-fields">
 									<label for="inputText" style="white-space:nowrap">
@@ -125,14 +152,14 @@
 						<input id="keyPairGeneratorBtn" style="margin-right:2.5px;" onclick="generateKeyPair();" class="btn btn-primary" name="keyPairGeneratorBtn" value="Generate Key Pair" type="button">
                     </div>
 						<div id="savedAction">
-							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 						</div>
 						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 						<div class="dropdown-menu action-cls" id="actionDiv">
 							<ul class="dropdownmenu">
-								<li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">
+								<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">
 									${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-								<li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">
+								<li id="saveAndEdit" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">
 									${messageSource.getMessage("jws.saveAndEdit")}</li>
 							</ul>
 						</div>
@@ -145,28 +172,35 @@
 		</div>
 	</div>
 	<script>
-		document.title = "Manage API Client Details";
+	document.title = "Manage API Client Details";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
-	 let isEdit = 0;
-    let autocomplete;
-    let selectedAlgo;
+	let isEdit = 0;
+	let autocomplete;
+	let selectedAlgo;
+	let keyLength = 0;
+	let encLookup ;
 
   $(function(){
       let obj;
+	  encLookup = new Array();
     // setting value on edit.
       <#if (resultSet)??>
       	<#list resultSet as resultSetList>
           obj = new Object();
           obj["encryptionAlgoName"] = '${resultSetList?api.get("encryptionAlgoName")!""}';
           obj["encryptionAlgoId"] = '${resultSetList?api.get("encryptionAlgoId")!""}';
+		  obj["modeId"] = '${resultSetList?api.get("modeId")!""}';
+		  obj["paddingId"] = '${resultSetList?api.get("paddingId")!""}';
+		  obj["keyLength"] = '${resultSetList?api.get("keyLengthId")!""}';
+		  selectedAlgo = obj["encryptionAlgoId"];
+		  obj["clientId"] = '${resultSetList?api.get("clientId")!""}';		  
       	</#list>
       </#if>
     
       <#if (resultSet)?? && resultSet?has_content>
-      	isEdit = 1;
-      </#if>
-
+      	isEdit = 1;			
+      </#if>	
       if(obj != null && obj["encryptionAlgoName"] == "RSA") {
         $("#publicKeyDiv").show();
         $("#lblClientSecret").html("<span class='asteriskmark'>*</span> Private Key");
@@ -175,15 +209,14 @@
       }
 
       if(isEdit == 0) {
-          const clientid = uuidv4();
+        const clientid = uuidv4();
 		$("#clientid").val(clientid);
 		$("#primaryKey").val(clientid);
-          const clientkey = uuidv4();
+        const clientkey = uuidv4();
 		$("#clientkey").val(clientkey);
-
         obj = new Object();
-          obj["encryptionAlgoName"] = 'NA';
-          obj["encryptionAlgoId"] = '0';
+        obj["encryptionAlgoName"] = 'NA';
+        obj["encryptionAlgoId"] = '0';
       }
 
 	if(obj != null && obj["encryptionAlgoName"] == "NA") {
@@ -192,14 +225,21 @@
 	    handleNonNAElements();
 	}
     
-    getAlgoAutocomplete();
-	toggleTextField(obj["encryptionAlgoName"]);
-	$('#algoAutocomplete option[value="'+obj["encryptionAlgoId"]+'"]').attr("selected", "selected");
-	savedAction(formId, isEdit);
+    getAlgoAutocomplete(obj["encryptionAlgoId"]);
+	toggleTextField(obj["encryptionAlgoName"]);	
+	savedAction(formId, isEdit);	
+	getAlgoModes(obj["encryptionAlgoId"], obj["modeId"], obj["paddingId"], obj["keyLength"]);		
 	hideShowActionButtons();
+	
+	
   });
 
-  function generateKeyPair() {
+	$('#algoAutocomplete').on('change', function(){
+		changeEncAlgorithm();
+	});
+	
+	
+	function generateKeyPair() {
       
 		$.ajax({
 		  type : "GET",
@@ -213,10 +253,11 @@
 			showMessage("Error occurred while saving", "error");
 	      },
 		});
-  }
+	}
 
-  function encrypt() {
+	function encrypt() {
       if(validateTestEncDec($("#clientsecret").val())) {
+		var secretKey = $("#clientsecret").val();
         $.ajax({
             type : "GET",
             async: false,
@@ -224,17 +265,21 @@
             data: {
                 inputData: $("#inputText").val(),
                 algo: $("#algoAutocomplete").find('option:selected').text(),
-                pk: $("#clientsecret").val()
+				mode: $("#algoAutoModes").find('option:selected').text(),
+				padding: $("#algoPadding").find('option:selected').text(),
+                pk: secretKey,
+				keyLength: $("#keyLength").find('option:selected').text()				
             },
             success : function(data) {
                 $("#outputText").val(data);         
             },
-            error : function(xhr, error){
-                showMessage("Invalid secret key", "error");
+            error : function(xhr, error){	
+                showMessage(xhr.responseText, "error");
             },
 		});
       }
   }
+
 
   function decrypt() {
       let secretKey;
@@ -252,7 +297,10 @@
             data: {
                 inputData: $("#inputText").val(),
                 algo: selectedAlgText,
+				mode: $("#algoAutoModes").find('option:selected').text(),
+				padding: $("#algoPadding").find('option:selected').text(),
                 pk: secretKey,
+				keyLength: $("#keyLength").find('option:selected').text()
             },
             success : function(data) {
                 $("#outputText").val(data);          
@@ -265,11 +313,19 @@
   }
 
   function validateTestEncDec(secretKey) {
-      let selectedAlgText = $("#algoAutocomplete").find('option:selected').text();
-       if(selectedAlgText == "NA") {
+      let selectedAlgText = $("#algoAutocomplete").find('option:selected').val();
+	  let algMode = $("#algoAutoModes").find('option:selected').val();
+	  let algPadding = $("#algoPadding").find('option:selected').val();	  	
+	  if(selectedAlgText == "-1") {
             showMessage("No algorithm is selected", "error");
             return false;   
-      } else if($("#inputText").val() == null || $("#inputText").val() == undefined || $("#inputText").val() == "") {
+      } else if(algPadding == "-1") {
+            showMessage("No padding is selected", "error");
+            return false;   
+      } else if(algMode == "-1") {
+            showMessage("No mode is selected", "error");
+            return false;   
+      }  else if($("#inputText").val() == null || $("#inputText").val() == undefined || $("#inputText").val() == "") {
             showMessage("Test input is empty.", "error");
             return false;
       } else if(secretKey == null || secretKey == undefined || secretKey == "") {
@@ -278,6 +334,11 @@
       } else if(selectedAlgText == "DES" && secretKey.length <= 25) {
           	showMessage("Client secret key should be more than 25 characters for DES", "error");
             return false;
+      }
+	  let keyLength = $("#keyLength").val();
+	  if(keyLength <= 0) {
+            showMessage("Key Lenght must be greater than zero", "error");
+            return false;   
       }
       return true;
   }
@@ -301,26 +362,26 @@
           } 
       }
   }
-
-  function handleNAElements() {
+	
+	function handleNAElements() {
       $("#astr_1").hide();
       $("#astr_2").hide();
       $("#astr_3").hide();
-  }
+	}
   
-  function handleNonNAElements() {
-      $("#astr_1").show();
-      $("#astr_2").show();
-      $("#astr_3").show();
-  }
+	function handleNonNAElements() {
+	  $("#astr_1").show();
+	  $("#astr_2").show();
+	  $("#astr_3").show();
+	}
   
-  function copyToClipboard(textName, btnName) {
-  var copyText = document.getElementById(textName);
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); /* For mobile devices */
-  document.execCommand("copy"); 
-  showMessage("Data copied", "success");
-}
+	function copyToClipboard(textName, btnName) {
+	  var copyText = document.getElementById(textName);
+	  copyText.select();
+	  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+	  document.execCommand("copy"); 
+	  showMessage("Data copied", "success");
+	}
 	//Add logic to save form data
 	function saveData(){
 		let isDataSaved = false;
@@ -337,18 +398,15 @@
 			$("#errorMessage").show();
 			return false;
 		}
-
-        
+		let algLookupValue = getAlgLookupValue();        
 		$("#errorMessage").hide();
 		formData.push({"name": "formId", "value": formId, "valueType": "varchar"});
-		formData.push({"name": "isEdit", "value": (isEdit + ""), "valueType": "int"});
-		
+		formData.push({"name": "isEdit", "value": (isEdit + ""), "valueType": "int"});		
         let formIdObj = new Object();
 		formIdObj["name"] = "encryptionalgoid";
-		formIdObj["value"] = selectedAlgValue+"";
+		formIdObj["value"] = algLookupValue+"";
 		formIdObj["valueType"] = "int";
-        formData.push(formIdObj);
-		
+        formData.push(formIdObj);	
 		$.ajax({
 		  type : "POST",
 		  async: false,
@@ -396,14 +454,18 @@
 			location.href = contextPath+"/cf/acd";
 	}
 	
-	function getAlgoAutocomplete(){       
+	function getAlgoAutocomplete(selectedAlgorithmId){       
 		$.ajax({
 			type : "GET",
 			url : contextPath+"/api/jq_encryption_algorithms_lookup",
 			success : function(data) {				
 				for (let property in data) {					
 					if(data[property].encryptionAlgoName != undefined){
-						$("#algoAutocomplete").append("<option value="+data[property].encryptionAlgoId+">"+data[property].encryptionAlgoName+"</option>");
+						if(data[property].encryptionAlgoId == selectedAlgorithmId){
+							$("#algoAutocomplete").append("<option value="+data[property].encryptionAlgoId+"  selected>"+data[property].encryptionAlgoName+"</option>");
+						}else {
+							$("#algoAutocomplete").append("<option value="+data[property].encryptionAlgoId+">"+data[property].encryptionAlgoName+"</option>");
+						}
 					}                	    				
 				}
 				
@@ -411,12 +473,127 @@
 			error : function(xhr, error){
 				showMessage("Error occurred while fetching encryption algorithms", "error");
 			},
-		});
+		});		
     }
     
-    function changeEncAlgorithm(){
+    function changeEncAlgorithm(){		
 		var item = $("#algoAutocomplete").find('option:selected').text();
-		toggleTextField(item)
+		var algId = $("#algoAutocomplete").find('option:selected').val();
+		toggleTextField(item);
+		getAlgoModes(algId, "-1", "-1", "-1");		
+	}
+	
+	function getAlgoModes(algId, modId, paddingId, keyLength){   
+			
+		var hasEntry = checkEncLookupDetails(encLookup, algId);
+		if (hasEntry == false) {
+			$.ajax({
+				type : "GET",
+				async: false,
+				url : contextPath+"/api/jq_enc_alg_mode",
+				data: {
+					algorithmId: algId
+				},
+				success : function(data) {					
+					appendEncLookupDetails(data, algId);					
+				},
+				error : function(xhr, error){				
+					showMessage("Error occurred while fetching algorithm modes", "error");
+				},
+			});
+		}
+		populateEncLookupDetails(encLookup, algId, modId, paddingId, keyLength);
+	}
+	
+	function getAlgLookupValue(){
+		let algLookupId;
+		let algorithm = $("#algoAutocomplete").val();
+		let mode = $("#algoAutoModes").val();
+		let padding = $("#algoPadding").val();
+		let keyLength = $("#keyLength").val();
+		$.ajax({
+		  type : "GET",
+		  async: false,
+		  url : contextPath+"/api/enc_alg_lookup_value",
+		  data : {
+			algorithmId: algorithm,
+		  	mode: mode,
+		  	padding: padding,
+			keyLength: keyLength
+		  },
+          success : function(data) {			
+			algLookupId = data[0].encLookupId;			
+		  },
+	      error : function(xhr, error){
+			showMessage("Error while saving", "error");
+	      },
+		});
+		return algLookupId;
+	}
+	
+	function checkEncLookupDetails(options, algorithmId) {
+		var hasEntry = false;
+		for (let optionCounter = 0; optionCounter < options.length; optionCounter++) {
+			if (options != undefined && options != null && options[optionCounter].algorithmId == algorithmId ){	
+				hasEntry = true;
+				break;
+			}
+		}		
+		return hasEntry;
+	}
+	
+	function  appendEncLookupDetails(options, algorithmId) {
+		if (encLookup != undefined && encLookup != null) {	
+			for (let property in options) {
+				encLookup.push( { "algorithmId": algorithmId, "modeId": options[property].modeId, "modeName": options[property].modeName, "paddingId": options[property].paddingId, "paddingName": options[property].paddingName , "keyLengthId": options[property].keyLengthId, "keyLength": options[property].keyLength });
+			}			
+		}
+	}
+	
+	function populateEncLookupDetails(options, algorithmId, modeId, paddingId, keyLength) {	
+		var addModes = [];
+		var addPaddings = [];
+		var addKeyLengths = [];
+		$("#keyLength option").remove();
+		$("#algoAutoModes option").remove();
+		$("#algoPadding option").remove();
+		$("#keyLength").append('<option value="-1" >Select</option>');
+		$("#algoAutoModes").append('<option value="-1" >Select</option>');
+		$("#algoPadding").append('<option value="-1" >Select</option>');
+		for (let property in options) {
+			if(options[property].algorithmId != undefined  && options[property].algorithmId == algorithmId){
+				var modesArry = jQuery.inArray(options[property].modeId, addModes);			
+				if(options[property].modeId != undefined && modesArry == -1){
+					addModes.push(options[property].modeId);
+					if(options[property].modeId == modeId){
+						$("#algoAutoModes").append("<option value="+options[property].modeId+" selected>"+options[property].modeName+"</option>");
+					} else {
+						$("#algoAutoModes").append("<option value="+options[property].modeId+">"+options[property].modeName+"</option>");
+					}
+																		
+				} 
+				var paddArry = jQuery.inArray(options[property].paddingId, addPaddings);
+				if(options[property].paddingId != undefined && paddArry == -1){	
+					addPaddings.push(options[property].paddingId);
+					if(options[property].paddingId == paddingId){
+						$("#algoPadding").append("<option value="+options[property].paddingId+" selected>"+options[property].paddingName+"</option>");
+					} else {
+						$("#algoPadding").append("<option value="+options[property].paddingId+">"+options[property].paddingName+"</option>");
+					}
+									
+				}
+				var keyLengthArry = jQuery.inArray(options[property].keyLength, addKeyLengths);
+				if(options[property].keyLength != undefined && keyLengthArry == -1){
+					addKeyLengths.push(options[property].keyLength);
+					if(options[property].keyLengthId == keyLength){
+						$("#keyLength").append("<option value="+options[property].keyLengthId+" selected>"+options[property].keyLength+"</option>");
+					} else {
+						$("#keyLength").append("<option value="+options[property].keyLengthId+">"+options[property].keyLength+"</option>");
+					}
+										
+				}
+			}
+		}
 	}
 	
 	</script>

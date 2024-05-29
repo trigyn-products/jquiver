@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +49,22 @@ public class ModuleVersionController {
 		logger.debug("Inside ModuleVersionController.saveModuleVersioning(formData: {})", formData);
 		try {
 			revisionService.saveModuleVersioning(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
+			return true;
+		} catch (Exception exception) {
+			logger.error("Error occurred while saving versioning information", exception);
+		}
+		return false;
+	}
+	
+	@PostMapping(value = "/ssmv")
+	public Boolean saveScriptModuleVersion(HttpServletRequest a_httpServletRequest) throws Exception {
+		logger.debug("Inside ModuleVersionController.saveModuleVersioning(formData: {})");
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			Object entityData = mapper.readValue(a_httpServletRequest.getParameter("scriptDataArr"), Object.class);
+			String entityName = a_httpServletRequest.getParameter("entityName");
+			Object entityIdObj = a_httpServletRequest.getParameter("entityIdObj");
+			moduleVersionService.saveModuleVersion(entityData, null, entityIdObj, entityName ,Constant.MASTER_SOURCE_VERSION_TYPE);
 			return true;
 		} catch (Exception exception) {
 			logger.error("Error occurred while saving versioning information", exception);

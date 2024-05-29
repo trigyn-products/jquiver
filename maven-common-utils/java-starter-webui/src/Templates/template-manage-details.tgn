@@ -92,13 +92,13 @@
 				<div class="float-right">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
-		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('template-manage-details', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('template-manage-details', this, isEdit, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
-		                    	<li id="saveAndCreateNew" onclick="typeOfAction('template-manage-details', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                        <li id="saveAndEdit" onclick="typeOfAction('template-manage-details', this, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('template-manage-details', this, isEdit, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('template-manage-details', this, isEdit,templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		                    </ul>
 	                    </div> 
 	                </div>
@@ -117,7 +117,11 @@
     let monacoSugg;
     let suggestionArray;
 	const ftlTemplateId = "${(templateDetails.templateId)!0}";
-    const isEdit = "${(templateDetails.templateId)!''}";
+    const templateId = "${(templateDetails.templateId)!''}";
+    let isEdit=0;
+    if(templateId!="") {
+        isEdit=1;
+    }
     let templateMaster;
 	let defaultTemplates = new Array();
      /*Written for Updating Monaco Suggestions*/

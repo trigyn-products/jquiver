@@ -29,7 +29,7 @@ AddEditDashboard.prototype.fn = {
 					"autoIndent": true
 	        	});
 	        	dashboardHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-			    	typeOfAction('dashboard-manage-details',  $("#savedAction").find("button"), 
+			    	typeOfActionWithIsEdit('dashboard-manage-details',  $("#savedAction").find("button"), isEdit, 
 			    		addEditDashboardFn.saveDashboard.bind(addEditDashboardFn),addEditDashboardFn.backToDashboardListingPage);
 				});
 	        	dashboardHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M,function() {

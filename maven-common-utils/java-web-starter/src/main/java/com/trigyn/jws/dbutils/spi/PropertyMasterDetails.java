@@ -74,7 +74,7 @@ public class PropertyMasterDetails {
 			for (Map<String, Object> details : propertyMasterDetails) {
 				PropertyMasterKeyVO	propertyMasterKey	= new PropertyMasterKeyVO(details.get("ownerId").toString(),
 						details.get("ownerType").toString(), details.get("propertyName").toString());
-				String				propertyValue		= details.get("propertyValue").toString();
+				String				propertyValue		= details.get("propertyValue").toString().trim();
 				this.propertyMasterDetails.put(propertyMasterKey, propertyValue);
 
 			}

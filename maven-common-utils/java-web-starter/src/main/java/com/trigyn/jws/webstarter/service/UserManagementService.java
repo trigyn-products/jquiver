@@ -44,8 +44,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.repository.PropertyMasterRepository;
@@ -87,11 +89,10 @@ import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
 import com.trigyn.jws.usermanagement.security.config.UserInformation;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.AdditionalDetails;
+import com.trigyn.jws.usermanagement.utils.Constants.AuthTypeByName;
 import com.trigyn.jws.usermanagement.vo.AuthProperty;
 import com.trigyn.jws.usermanagement.vo.AuthenticationDetails;
 import com.trigyn.jws.usermanagement.vo.ConnectionDetailsJSONSpecification;
-import com.trigyn.jws.usermanagement.vo.DropDownData;
 import com.trigyn.jws.usermanagement.vo.JwsAuthAdditionalProperty;
 import com.trigyn.jws.usermanagement.vo.JwsAuthConfiguration;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationTypeVO;
@@ -180,23 +181,20 @@ public class UserManagementService {
 
 	@Autowired
 	private ActivityLog									activitylog						= null;
-	
+
 	@Autowired
 	private JwsConfirmationTokenRepository				confirmationTokenRepository		= null;
-	
+
 	@Autowired
 	protected SessionFactory							sessionFactory					= null;
-	
-	@Autowired
-	private UserManagementService						userManagementService			= null;
 
 	private ObjectMapper								mapper							= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	public String addEditRole(String roleId) throws Exception, CustomStopException {
 
-		Map<String, Object> templateMap = new HashMap<>();
-		JwsRole jwsRole = new JwsRole();
+		Map<String, Object>	templateMap	= new HashMap<>();
+		JwsRole				jwsRole		= new JwsRole();
 		try {
 			if (StringUtils.isNotEmpty(roleId)) {
 
@@ -213,17 +211,18 @@ public class UserManagementService {
 	}
 
 	public JwsRole saveRoleData(JwsRoleVO roleData) {
-		JwsRole jwsRole = roleData.convertVOToEntity(roleData);
-		JwsRole newRole = jwsRoleRepository.save(jwsRole);
-		return newRole;		
+		JwsRole	jwsRole	= roleData.convertVOToEntity(roleData);
+		JwsRole	newRole	= jwsRoleRepository.save(jwsRole);
+		return newRole;
 	}
-	
+
 	public void updateEntityRole(JwsRoleVO roleData, JwsRole newRole) {
 		// add role to entity table
-		
+
 		if (Boolean.TRUE.equals(StringUtils.isEmpty(roleData.getRoleId()))) {
 			// new role created
-			jwsEntityRoleAssociationDAO.createPermission(newRole.getRoleId(), roleData.getIsActive(), userDetailsService.getUserDetails().getUserId());
+			jwsEntityRoleAssociationDAO.createPermission(newRole.getRoleId(), roleData.getIsActive(),
+					userDetailsService.getUserDetails().getUserId());
 		} else {
 			// update entry
 			List<JwsEntityRoleAssociation> entityRolesAssociations = entityRoleAssociationRepository
@@ -248,13 +247,13 @@ public class UserManagementService {
 
 	public String manageRoleModules() throws Exception, CustomStopException {
 		try {
-			Map<String, Object> mapDetails = new HashMap<>();
+			Map<String, Object>	mapDetails	= new HashMap<>();
 
-			List<JwsRole> roles = new ArrayList<>();
+			List<JwsRole>		roles		= new ArrayList<>();
 			roles = jwsRoleRepository.findAllRoles();
 
-			List<JwsMasterModulesVO> masterModulesVO = new ArrayList<>();
-			List<JwsMasterModules> masterModules = new ArrayList<>();
+			List<JwsMasterModulesVO>	masterModulesVO	= new ArrayList<>();
+			List<JwsMasterModules>		masterModules	= new ArrayList<>();
 			masterModules = jwsmasterModuleRepository.findAllModulesForPermission(1);
 
 			for (JwsMasterModules jwsMasterModule : masterModules) {
@@ -313,16 +312,16 @@ public class UserManagementService {
 
 	public Boolean saveRoleModules(JwsRoleMasterModulesAssociationVO roleModule) throws Exception {
 
-		JwsRoleMasterModulesAssociation masterModuleAssociation = roleModule.convertVOToEntity(roleModule);
+		JwsRoleMasterModulesAssociation	masterModuleAssociation	= roleModule.convertVOToEntity(roleModule);
 
-		//roleModuleRepository.save(masterModuleAssociation);
+		// roleModuleRepository.save(masterModuleAssociation);
 
-		JwsMasterModules	jwsMasterModule	= jwsmasterModuleRepository.findById(masterModuleAssociation.getModuleId())
-				.get();
+		JwsMasterModules				jwsMasterModule			= jwsmasterModuleRepository
+				.findById(masterModuleAssociation.getModuleId()).get();
 		masterModuleAssociation.setRoleTypeId(2);
 		roleModuleRepository.updateJwsRoleMasterModulesAssociation(jwsMasterModule.getModuleId(),
 				masterModuleAssociation.getRoleId(), masterModuleAssociation.getIsActive());
-		JwsRole				jwsRole			= new JwsRole();
+		JwsRole jwsRole = new JwsRole();
 		/* Method called for implementing Activity Log */
 		logActivity(jwsRole.getRoleName() + "-" + (jwsMasterModule.getModuleName()), roleModule.getIsActive(),
 				Constants.MANAGEROLEMODULES);
@@ -561,16 +560,16 @@ public class UserManagementService {
 
 	public String loadUserManagement() throws Exception, CustomStopException {
 		try {
-			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
-			List<JwsAuthenticationTypeVO> authenticationTypes = new ArrayList<JwsAuthenticationTypeVO>();
-			List<JwsAuthenticationTypeVO> activAuthDetails = new ArrayList<JwsAuthenticationTypeVO>();
+			Map<String, Object>				authenticationDetails	= applicationSecurityDetails
+					.getAuthenticationDetails();
+			List<JwsAuthenticationTypeVO>	authenticationTypes		= new ArrayList<JwsAuthenticationTypeVO>();
+			List<JwsAuthenticationTypeVO>	activAuthDetails		= new ArrayList<JwsAuthenticationTypeVO>();
 			for (JwsAuthenticationType authenticationType : authenticationTypeRepository.getAuthenticationTypes()) {
 				JwsAuthenticationTypeVO authenticationTypeVO = new JwsAuthenticationTypeVO()
 						.convertEntityToVO(authenticationType);
 				authenticationTypes.add(authenticationTypeVO);
 			}
 
-			@SuppressWarnings("unchecked")
 			List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
 					.get("authenticationDetails");
 			for (MultiAuthSecurityDetailsVO sauthScurityDetails : multiAuthSecurityDetails) {
@@ -578,25 +577,8 @@ public class UserManagementService {
 				if (connectionDetails != null && connectionDetails.getAuthenticationType() != null
 						&& connectionDetails.getAuthenticationType().getValue().equalsIgnoreCase("true")) {
 					JwsAuthenticationTypeVO authenticationTypeVO = sauthScurityDetails.getAuthenticationTypeVO();
-					AuthenticationDetails authDetails = connectionDetails.getAuthenticationDetails();
-					if (connectionDetails.getAuthenticationType().getConfigurationType()
-							.equalsIgnoreCase(Constants.MULTI_AUTH_TYPE)) {
-						for (List<JwsAuthConfiguration> configurationDetails : authDetails.getConfigurations()) {
-							for (JwsAuthConfiguration configuration : configurationDetails) {
-								List<DropDownData> dropDownDatas = configuration.getDropDownData();
-								for (DropDownData dropDownData : dropDownDatas) {
-									if (dropDownData.getSelected()) {
-										activAuthDetails.add(authenticationTypeVO);
-									}
-								}
-							}
-						}
-					} else {
-						activAuthDetails.add(authenticationTypeVO);
-					}
-
+					activAuthDetails.add(authenticationTypeVO);
 				}
-
 			}
 			authenticationDetails.put("activAuthDetails", activAuthDetails);
 			authenticationDetails.put("authenticationDetails", multiAuthSecurityDetails);
@@ -616,6 +598,7 @@ public class UserManagementService {
 			mailDetails.put("password", password);
 			mailDetails.put("forcePasswordChange", forcePasswordChange);
 			mailDetails.put("userId", userId);
+
 			if (userId != null && userId.isEmpty() == false) {
 				JwsUser jwsUser = jwsUserRepository.findByUserId(userId);
 				mailDetails.put("firstName", jwsUser.getFirstName() + " " + jwsUser.getLastName());
@@ -626,13 +609,13 @@ public class UserManagementService {
 			/* For inserting notification in case of mail failure only on access of Admin */
 			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("force-password-mail-subject");
-			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+			TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("force-password-mail-subject");
+			String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
 					subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
 
-			TemplateVO templateVO = templatingService.getTemplateByName("force-password-mail");
-			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+			TemplateVO	templateVO	= templatingService.getTemplateByName("force-password-mail");
+			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
 			// System.out.println(mailBody);
@@ -649,7 +632,6 @@ public class UserManagementService {
 			Map<String, Object> mailDetails = new HashMap<>();
 			mailDetails.put("forcePasswordChange", 0);
 			mailDetails.put("userId", userId);
-
 			String baseURL = getBaseURL(propertyMasterService, servletContext);
 
 			mailDetails.put("baseURL", baseURL);
@@ -657,13 +639,13 @@ public class UserManagementService {
 			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
 			email.setInternetAddressToArray(InternetAddress.parse(emailId));
-			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("user-updated-mail-subject");
-			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+			TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("user-updated-mail-subject");
+			String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
 					subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
 
-			TemplateVO templateVO = templatingService.getTemplateByName("user-updated-mail");
-			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+			TemplateVO	templateVO	= templatingService.getTemplateByName("user-updated-mail");
+			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
 			// System.out.println(mailBody);
@@ -677,29 +659,30 @@ public class UserManagementService {
 	public void sendMailForTotpAuthentication(JwsUser jwsUser, Email email)
 			throws FileNotFoundException, AddressException, Exception, CustomStopException {
 		try {
-			TwoFactorGoogleUtil twoFactorGoogleUtil = new TwoFactorGoogleUtil();
-			int width = 300;
-			int height = 300;
-			String filePath = System.getProperty("java.io.tmpdir") + File.separator + jwsUser.getUserId() + ".png";
-			File file = new File(filePath);
-			FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-			String barcodeData = twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver",
-					jwsUser.getSecretKey());
+			TwoFactorGoogleUtil	twoFactorGoogleUtil	= new TwoFactorGoogleUtil();
+			int					width				= 300;
+			int					height				= 300;
+			String				filePath			= System.getProperty("java.io.tmpdir") + File.separator
+					+ jwsUser.getUserId() + ".png";
+			File				file				= new File(filePath);
+			FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
+			String				barcodeData			= twoFactorGoogleUtil
+					.getGoogleAuthenticatorBarCode(jwsUser.getEmail(), "Jquiver", jwsUser.getSecretKey());
 			twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
 
 			email.setInternetAddressToArray(InternetAddress.parse(jwsUser.getEmail()));
 			/* For inserting notification in case of mail failure only on access of Admin */
 			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-			Map<String, Object> mailDetails = new HashMap<>();
-			String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system",
-					"adminEmailId");
-			String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io"
+			Map<String, Object>	mailDetails				= new HashMap<>();
+			String				propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system",
+					"system", "adminEmailId");
+			String				adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
 					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
 
-			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("totp-subject");
-			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-					subjectTemplateVO.getTemplateName(), mailDetails);
+			TemplateVO			subjectTemplateVO		= templatingService.getTemplateByName("totp-subject");
+			String				subject					= templatingUtils.processTemplateContents(
+					subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
 			// email.setMailFrom("admin@jquiver.com");
 			if (jwsUser != null) {
@@ -708,21 +691,21 @@ public class UserManagementService {
 			mailDetails.put("adminEmailAddress", adminEmail);
 			String baseURL = getBaseURL(propertyMasterService, servletContext);
 			mailDetails.put("baseURL", baseURL);
-			TemplateVO templateVO = templatingService.getTemplateByName("totp-qr-mail");
-			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+			TemplateVO	templateVO	= templatingService.getTemplateByName("totp-qr-mail");
+			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
 			// System.out.println(mailBody);
-			List<EmailAttachedFile> attachedFiles = new ArrayList<>();
-			EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
+			List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
+			EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
 			emailAttachedFile.setFile(file);
 			attachedFiles.add(emailAttachedFile);
+			EmailAttachedFile qrCodeAttachment = new EmailAttachedFile();
+			qrCodeAttachment.setFile(file);
+			qrCodeAttachment.setIsEmbeddedImage(true);
+			qrCodeAttachment.setEmbeddedImageValue("qrcode");
+			attachedFiles.add(qrCodeAttachment);
 			email.setAttachementsArray(attachedFiles);
-			EmailAttachedFile qrCOdeAttachment = new EmailAttachedFile();
-			qrCOdeAttachment.setFile(file);
-			qrCOdeAttachment.setIsEmbeddedImage(true);
-			qrCOdeAttachment.setEmbeddedImageValue("qrcode");
-			attachedFiles.add(qrCOdeAttachment);
 			CompletableFuture<Boolean> mailSuccess = sendMailService.sendTestMail(email);
 			if (mailSuccess.isDone()) {
 				email.getAttachementsArray().stream().forEach(f -> f.getFile().delete());
@@ -739,7 +722,6 @@ public class UserManagementService {
 			Map<String, Object> mailDetails = new HashMap<>();
 			mailDetails.put("userId", userId);
 			mailDetails.put("o365-type", o365Type);
-
 			String baseURL = getBaseURL(propertyMasterService, servletContext);
 			mailDetails.put("baseURL", baseURL);
 
@@ -747,13 +729,13 @@ public class UserManagementService {
 			/* For inserting notification in case of mail failure only on access of Admin */
 			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
 			email.setLoggedInUserRole(userDetailsService.getUserDetails().getRoleIdList());
-			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("o365-mail-subject");
-			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+			TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("o365-mail-subject");
+			String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
 					subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
 
-			TemplateVO templateVO = templatingService.getTemplateByName("o365-mail");
-			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+			TemplateVO	templateVO	= templatingService.getTemplateByName("o365-mail");
+			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
 			// System.out.println(mailBody);
@@ -766,42 +748,44 @@ public class UserManagementService {
 
 	public String manageEntityRoles() throws Exception, CustomStopException {
 		try {
-		Map<String, Object>	mapDetails	= new HashMap<>();
-		List<JwsRole>		roles		= new ArrayList<>();
-		roles = jwsRoleRepository.findAllRoles();
-		mapDetails.put("roles", roles);
+			Map<String, Object>	mapDetails	= new HashMap<>();
+			List<JwsRole>		roles		= new ArrayList<>();
+			roles = jwsRoleRepository.findAllRoles();
+			mapDetails.put("roles", roles);
 
-		TemplateVO templateVO = templatingService.getTemplateByName("manageEntityRoles");
-		return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
-				mapDetails);
-	} catch (CustomStopException custStopException) {
-		logger.error("Error occured in manageEntityRoles.", custStopException);
-		throw custStopException;
-	}
+			TemplateVO templateVO = templatingService.getTemplateByName("manageEntityRoles");
+			return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
+					mapDetails);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in manageEntityRoles.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	public void saveUpdateEntityRole(List<JwsEntityRoleAssociationVO> entityRoleAssociations) {
 
-		if(userDetailsService == null || userDetailsService.getUserDetails() == null) {
+		if (userDetailsService == null || userDetailsService.getUserDetails() == null) {
 			logger.error("Updation of permission is not allowed while authentication is disabled.", "error");
 			return;
 		}
-		
+
 		for (JwsEntityRoleAssociationVO jwsEntityRoleAssociationVO : entityRoleAssociations) {
-			JwsEntityRoleAssociation jwsEntityRoleAssociationData = entityRoleAssociationRepository.getJwsEntityRoleAssociation(jwsEntityRoleAssociationVO.getEntityRoleId());
-			JwsEntityRoleAssociation jwsEntityRoleAssociation = jwsEntityRoleAssociationVO
+			JwsEntityRoleAssociation	jwsEntityRoleAssociationData	= entityRoleAssociationRepository
+					.getJwsEntityRoleAssociation(jwsEntityRoleAssociationVO.getEntityRoleId());
+			JwsEntityRoleAssociation	jwsEntityRoleAssociation		= jwsEntityRoleAssociationVO
 					.convertVOtoEntity(jwsEntityRoleAssociationData, jwsEntityRoleAssociationVO);
 			// logActivity(jwsEntityRoleAssociation.getJwsRole().getRoleName()+'-'+jwsEntityRoleAssociation.getEntityName(),jwsEntityRoleAssociation.getIsActive(),Constants.MANAGEENTITYROLES);
-			String updatedBy = null;
-			if(userDetailsService != null && userDetailsService.getUserDetails() != null && userDetailsService.getUserDetails().getUserId() != null) {
+			String						updatedBy						= null;
+			if (userDetailsService != null && userDetailsService.getUserDetails() != null
+					&& userDetailsService.getUserDetails().getUserId() != null) {
 				updatedBy = userDetailsService.getUserDetails().getUserId();
 			}
-			
-			if(updatedBy == null) {
+
+			if (updatedBy == null) {
 				logger.error("Updation of permission is not allowed for invalid user.", "error");
 				return;
 			}
-			
+
 			jwsEntityRoleAssociation.setLastUpdatedBy(updatedBy);
 			jwsEntityRoleAssociation.setEntityRoleId(jwsEntityRoleAssociationVO.getEntityRoleId());
 			jwsEntityRoleAssociation.setRoleTypeId(jwsEntityRoleAssociationVO.getRoleTypeId());
@@ -821,13 +805,14 @@ public class UserManagementService {
 
 		return masterModulesVO;
 	}
-	/** 
+
+	/**
 	 * Added for getting the TypeSelect whether Custom or System of all Modules.
 	 * 
-	 * @author Bibhusrita.Nayak
+	 * @author             Bibhusrita.Nayak
 	 * 
-	 * @param entityRoles is the list of entity role object.
-	 * @return integer value to get roleTypeId
+	 * @param  entityRoles is the list of entity role object.
+	 * @return             integer value to get roleTypeId
 	 * 
 	 */
 	public Integer getRoleTypeID(JwsEntityRoleVO entityRoles) {
@@ -885,11 +870,11 @@ public class UserManagementService {
 		} else if (entityRoles.getModuleId().equals("7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8")) {
 
 			query = "SELECT 1";
-			
+
 		} else if (entityRoles.getModuleId().equals("fcd0df1f-783f-11eb-94ed-f48e38ab8cd7")) {
 
 			query = "SELECT isSystemManual FROM ManualType WHERE manualId = '" + entityRoles.getEntityId() + "'";
-			
+
 		} else if (entityRoles.getModuleId().equals("19aa8996-80a2-11eb-971b-f48e38ab8cd7")) {
 
 			query = "SELECT dashletTypeId FROM Dashlet WHERE dashletId = '" + entityRoles.getEntityId() + "'";
@@ -904,8 +889,8 @@ public class UserManagementService {
 			entityRoles.getRoleIds().add(Constants.ADMIN_ROLE_ID);
 			entityRoles.setRoleIds(entityRoles.getRoleIds());
 		}
-		Integer roleTypeId = getRoleTypeID(entityRoles);
-		
+		Integer							roleTypeId				= getRoleTypeID(entityRoles);
+
 		List<String>					newRoleIds				= new ArrayList<>(entityRoles.getRoleIds());
 		List<JwsEntityRoleAssociation>	entityRoleAssociations	= entityRoleAssociationRepository
 				.getEntityRoles(entityRoles.getEntityId(), entityRoles.getModuleId());
@@ -931,18 +916,23 @@ public class UserManagementService {
 		}
 
 		for (String roleId : newRoleIds) {
-			JwsEntityRoleAssociation entityRoleAssociation = new JwsEntityRoleAssociation();
-			entityRoleAssociation.setRoleId(roleId);
-			entityRoleAssociation.setEntityId(entityRoles.getEntityId());
-			entityRoleAssociation.setEntityName(entityRoles.getEntityName());
-			entityRoleAssociation.setModuleId(entityRoles.getModuleId());
-			entityRoleAssociation.setIsActive(Constants.ISACTIVE);
-			entityRoleAssociation.setModuleTypeId(Constants.DEFAULT_MODULE_TYPE_ID);
-			entityRoleAssociation.setLastUpdatedDate(new Date());
-			entityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
-			entityRoleAssociation.setRoleTypeId(roleTypeId);
-			entityRoleAssociationRepository.save(entityRoleAssociation);
-
+			JwsEntityRoleAssociation entityRoleAssociation = null;
+			 entityRoleAssociation = entityRoleAssociationRepository.findByCompositeKeys(entityRoles.getEntityId(), roleId , entityRoles.getModuleId()).orElse(null);
+			if(entityRoleAssociation != null) {
+				 entityRoleAssociation.setIsActive(Constants.ISACTIVE);
+			}else {
+				entityRoleAssociation = new JwsEntityRoleAssociation();			
+				entityRoleAssociation.setRoleId(roleId);
+				entityRoleAssociation.setEntityId(entityRoles.getEntityId());
+				entityRoleAssociation.setEntityName(entityRoles.getEntityName());
+				entityRoleAssociation.setModuleId(entityRoles.getModuleId());
+				entityRoleAssociation.setIsActive(Constants.ISACTIVE);
+				entityRoleAssociation.setModuleTypeId(Constants.DEFAULT_MODULE_TYPE_ID);
+				entityRoleAssociation.setLastUpdatedDate(new Date());
+				entityRoleAssociation.setLastUpdatedBy(userDetailsService.getUserDetails().getUserId());
+				entityRoleAssociation.setRoleTypeId(roleTypeId);
+			}
+				entityRoleAssociationRepository.save(entityRoleAssociation);
 		}
 
 	}
@@ -977,16 +967,15 @@ public class UserManagementService {
 									if (daoAuthAttributes != null && daoAuthAttributes.containsKey("regexPattern")) {
 										String regexPattern = (String) daoAuthAttributes.get("regexPattern");
 										if (regexPattern != null && regexPattern.isEmpty() == false) {
-											//JSONObject	jsonObjectRegex	= new JSONObject(regexPattern);
-											String unescapePattern = StringEscapeUtils.unescapeJson(regexPattern);
-											Pattern		pattern			= Pattern
-													.compile(unescapePattern);
-											Matcher		isMatches		= pattern.matcher(password);
+											//String	unescapePattern	= StringEscapeUtils.escapeJava(regexPattern.replaceAll("/",""));
+											String	escapePattern	= StringEscapeUtils.unescapeJava(regexPattern.toString());
+											Pattern	pattern			= Pattern.compile(escapePattern);
+											Matcher	isMatches		= pattern.matcher(password);
 											isValid = Boolean.TRUE;
 											return isMatches.matches();
 										}
 									}
-								}else {
+								} else {
 									isValid = Boolean.TRUE;
 								}
 							}
@@ -1147,9 +1136,11 @@ public class UserManagementService {
 	}
 
 	public void forceChangePassword() throws Exception {
-		List<JwsUser> jwsUsers = jwsUserRepository.findAll();
-		String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system", "adminEmailId");
-		String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io" : propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+		List<JwsUser>	jwsUsers				= jwsUserRepository.findAll();
+		String			propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+				"adminEmailId");
+		String			adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
 		for (JwsUser jwsUser : jwsUsers) {
 			if (jwsUser.getEmail().equalsIgnoreCase(adminEmail) == false
 					&& jwsUser.getEmail().equalsIgnoreCase(adminEmail) == false) {
@@ -1164,97 +1155,86 @@ public class UserManagementService {
 		}
 	}
 
+	private Map<Integer, String> getDefaultProperties() throws JsonMappingException, JsonProcessingException {
+		Map<Integer, String>		resetMap			= new HashMap<>();
+		List<JwsAuthenticationType>	currentAuthTypes	= authenticationTypeRepository.getAuthenticationTypes();
+		for (JwsAuthenticationType jwsAuthenticationType : currentAuthTypes) {
+
+			mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			JwsAuthenticationTypeVO				currentAuthTypeVO		= new JwsAuthenticationTypeVO()
+					.convertEntityToVO(jwsAuthenticationType);
+			String								currentAuthProperties	= currentAuthTypeVO
+					.getDefaultAuthProperties();
+			ConnectionDetailsJSONSpecification	defaultAuthType			= mapper.readValue(currentAuthProperties,
+					new TypeReference<ConnectionDetailsJSONSpecification>() {
+																				});
+			
+			mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			String propertyJson = mapper.writeValueAsString(defaultAuthType);
+			resetMap.put(currentAuthTypeVO.getId(), propertyJson);
+		}
+		return resetMap;
+
+	}
+
 	public boolean updateAuthProperties(UserManagementVo userManagementData) {
-		String propertyJson = null;
+
 		boolean isAuthenticated = userManagementData.isAuthenticationEnabled();
 		try {
-			List<JwsAuthenticationType>	authenticationTypes		= authenticationTypeRepository.getAuthenticationTypes();
-			boolean						triggerPasswordReset	= false;
-			for (JwsAuthenticationType authenticationType : authenticationTypes) {	
-				boolean authExist = false;
-				boolean oAuthExist = false;
-				mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
-				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-				JwsAuthenticationTypeVO				authenticationTypeVO		= new JwsAuthenticationTypeVO()
-						.convertEntityToVO(authenticationType);
-				String								authenticationProperties	= authenticationTypeVO
-						.getAuthenticationProperties();
-				ConnectionDetailsJSONSpecification	mappedAuthType				= mapper
-						.readValue(authenticationProperties, new TypeReference<ConnectionDetailsJSONSpecification>() {
-																						});
-				if (mappedAuthType != null && mappedAuthType.getAuthenticationDetails() != null
-						&& mappedAuthType.getAuthenticationType() != null) {
-
-					ConnectionDetailsJSONSpecification	resetAuthType	= resetAuthenticationProperties(mappedAuthType);
-					List<AuthProperty>					authProperties	= userManagementData.getAuthProperties();
-					if (authProperties != null) {
-						for (AuthProperty authProperty : authProperties) {
-							for (ConnectionDetailsJSONSpecification connectionSpec : authProperty.getAuthTypes()) {
-								mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
-								mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-								if (connectionSpec!=null && connectionSpec.getAuthenticationType()!=null && connectionSpec.getAuthenticationType().getName()
-										.equalsIgnoreCase(resetAuthType.getAuthenticationType().getName())) {
-									if (authenticationTypeVO.getId() == Constants.AuthType.DAO.getAuthType()
-											&& connectionSpec.getAuthenticationType().getName()
-													.equalsIgnoreCase("enableDatabaseAuthentication")) {
-										Map<String, Object> authenticationDetails = new HashMap<>();
-										userConfigService.getConfigurableDetails(authenticationDetails);
-										triggerPasswordReset = checkTotpPwdChange(connectionSpec,
-												authenticationDetails);
-										escapeRegexProperties(connectionSpec);
-										connectionSpec.getAuthenticationType().setValue(Constants.TRUE);
-										
-										propertyJson = mapper.writeValueAsString(connectionSpec);
-									}
-									
-									if (oAuthExist == false && authenticationTypeVO.getId() == Constants.AuthType.OAUTH.getAuthType() && connectionSpec.getAuthenticationType().getName()
-											.equalsIgnoreCase("oauth-clients")) {
-										resetAuthType.getAuthenticationType().setValue(Constants.TRUE);
-										ConnectionDetailsJSONSpecification  oAuthSpec = updateOAuthProperties(resetAuthType, authProperties);
-										propertyJson = mapper.writeValueAsString(oAuthSpec);
-										
-									}
-									
-									if (authenticationTypeVO.getId() == Constants.AuthType.LDAP.getAuthType() && connectionSpec.getAuthenticationType().getName()
-											.equalsIgnoreCase("enableLdapAuthentication")) {
-										connectionSpec.getAuthenticationType().setValue(Constants.TRUE);
-										ConnectionDetailsJSONSpecification  ldapAuthSpec = updateLdapAuthProperties(connectionSpec);
-										propertyJson = mapper.writeValueAsString(ldapAuthSpec);
-									}									
-																		
-									authExist = true;
-								}
-
-							}
-
-						}
-					}
-
-					if (!authExist && resetAuthType.getAuthenticationDetails() != null
-							&& resetAuthType.getAuthenticationType() != null) {
-						mapper			= new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+			Map<Integer, String>	defaultAuthTypes		= getDefaultProperties();
+			if(isAuthenticated) {
+				boolean					triggerPasswordReset	= false;
+				Map<Integer, String>	modifiedAuthTypes		= getModifiedProperties(userManagementData);
+				for (Map.Entry<Integer, String> defaultAuthType : defaultAuthTypes.entrySet()) {
+					Integer defAuthId = defaultAuthType.getKey();
+					if (modifiedAuthTypes.containsKey(defAuthId) == false) {
+						String propertyJson = defaultAuthType.getValue();
+						//System.out.println("JSON : " + propertyJson);
+						authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
+					} else if (modifiedAuthTypes.containsKey(defAuthId)) {
+						mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
 						mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-						propertyJson	= mapper.writeValueAsString(resetAuthType);
+						ConnectionDetailsJSONSpecification	modConnSpec		= mapper.readValue(
+								modifiedAuthTypes.get(defAuthId), new TypeReference<ConnectionDetailsJSONSpecification>() {
+																					});
+						
+						//System.out.println("M-JSON : " + propertyJson);
+						if (defAuthId.equals(Constants.AuthType.DAO.getAuthType())) {
+							Map<String, Object> authenticationDetails = new HashMap<>();
+							userConfigService.getConfigurableDetails(authenticationDetails);
+							triggerPasswordReset = checkTotpPwdChange(modConnSpec, authenticationDetails);
+							modConnSpec = escapeRegexProperties(modConnSpec);
+						}
+						String								propertyJson	= mapper.writeValueAsString(modConnSpec);
+						//System.out.println("JSON : " + propertyJson);
+						authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
 					}
-					
-					authenticationTypeRepository.updatePropertyById(authenticationTypeVO.getId(), propertyJson);
 				}
 
+				if (triggerPasswordReset) {
+					resetPwdSendMailForVerificationChange();
+				}
+				
+			} else {
+				for (Map.Entry<Integer, String> defaultAuthType : defaultAuthTypes.entrySet()) {
+					Integer defAuthId = defaultAuthType.getKey();
+					String propertyJson = defaultAuthType.getValue();
+					//System.out.println("JSON : " + propertyJson);
+					authenticationTypeRepository.updatePropertyById(defAuthId, propertyJson);
+				}
+				
 			}
-			if (triggerPasswordReset) {
-				resetPwdSendMailForVerificationChange();
-			}
-			//System.out.println("JSON : " + propertyJson.toString());
-			updateDatabaseAuthPropertyMasterValues(userManagementData);
-			
 			List<String> secureEntityIDs = xmlExtractor();
-			
-			entityRoleAssociationRepository.toggleAnonymousUserAccess(isAuthenticated? 0 : 1, secureEntityIDs);
-			
+
+			entityRoleAssociationRepository.toggleAnonymousUserAccess(isAuthenticated ? 0 : 1, secureEntityIDs);
+
 			List<String> secureMasterModuleIDs = xmlExtractorForMasterModule();
-			
-			roleModuleRepository.toggleAnonymousUserAccessInMasterModule(isAuthenticated? 0 : 1, secureMasterModuleIDs);
-			
+
+			roleModuleRepository.toggleAnonymousUserAccessInMasterModule(isAuthenticated ? 0 : 1,
+					secureMasterModuleIDs);
+			updateDatabaseAuthPropertyMasterValues(userManagementData);
 		} catch (Exception a_exception) {
 			logger.error("Error occured in updateAuthProperties.", a_exception);
 			return false;
@@ -1262,8 +1242,35 @@ public class UserManagementService {
 		return true;
 	}
 
+
+	private Map<Integer, String> getModifiedProperties(UserManagementVo userManagementData)
+			throws JsonProcessingException {
+		List<AuthProperty>		authProperties	= userManagementData.getAuthProperties();
+		Map<Integer, String>	modAuthMap		= new HashMap<>();
+		for (AuthProperty modAuthProperty : authProperties) {
+			List<ConnectionDetailsJSONSpecification> modAuthTypes = modAuthProperty.getAuthTypes();
+			for (ConnectionDetailsJSONSpecification jsonSpec : modAuthTypes) {
+				mapper = new ObjectMapper().setSerializationInclusion(Include.NON_NULL);
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+				AuthTypeByName	authTypeByName	= AuthTypeByName
+						.valueOfAt((jsonSpec.getAuthenticationType().getName()));
+				Integer			modAuthId		= authTypeByName.getAuthTypeById();
+				String			propertyJson	= mapper.writeValueAsString(jsonSpec);
+				modAuthMap.put(modAuthId, propertyJson);
+			}
+
+		}
+		return modAuthMap;
+	}
+
+	private void updateJsonSpec(ConnectionDetailsJSONSpecification modConnSpec) {
+		modConnSpec.getAuthenticationType().setValue(Constants.TRUE);
+	}
+
 	/**
-	 * Extracts all the IDs for secure entities taken from XML file into a List of String
+	 * Extracts all the IDs for secure entities taken from XML file into a List of
+	 * String
+	 * 
 	 * @author Anomitro.Mukherjee
 	 * 
 	 * @return
@@ -1275,49 +1282,51 @@ public class UserManagementService {
 			 * SAXParserFactory is a factory API that enables applications to configure and
 			 * obtain a SAX based parser to parse XML documents.
 			 */
-			SAXParserFactory	factory		= SAXParserFactory.newInstance();
+			SAXParserFactory	factory					= SAXParserFactory.newInstance();
 
 			// Creating a new instance of a SAXParser using
 			// the currently configured factory parameters.
-			SAXParser			saxParser	= factory.newSAXParser();
+			SAXParser			saxParser				= factory.newSAXParser();
 
 			// DefaultHandler is Default base class for SAX2
 			// event handlers.
-			DefaultHandler	l_handler					= new DefaultHandler() {
-														boolean l_entityID = false;
+			DefaultHandler		l_handler				= new DefaultHandler() {
+															boolean l_entityID = false;
 
-														// Receive notification of the start of an
-														// element. parser starts parsing a element
-														// inside the document
-														public void startElement(String uri, String localName,
-																String qName, Attributes attributes)
-																throws SAXException {
+															// Receive notification of the start of an
+															// element. parser starts parsing a element
+															// inside the document
+															public void startElement(String uri, String localName,
+																	String qName, Attributes attributes)
+																	throws SAXException {
 
-															if (qName.equalsIgnoreCase("entityID")) {
-																l_entityID = true;
+																if (qName.equalsIgnoreCase("entityID")) {
+																	l_entityID = true;
+																}
+
 															}
 
-														}
+															// Receive notification of character data
+															// inside an element, reads the text value of
+															// the currently parsed element
+															public void characters(char a_ch[], int a_start,
+																	int a_length) throws SAXException {
 
-														// Receive notification of character data
-														// inside an element, reads the text value of
-														// the currently parsed element
-														public void characters(char a_ch[], int a_start, int a_length)
-																throws SAXException {
+																if (l_entityID) {
+																	l_secureEntityIDs
+																			.add(new String(a_ch, a_start, a_length));
+																	l_entityID = false;
+																}
 
-															if (l_entityID) {
-																l_secureEntityIDs.add(new String(a_ch, a_start, a_length));
-																l_entityID = false;
 															}
-
-														}
-													};
+														};
 
 			/*
 			 * Parse the content described by the giving Uniform Resource Identifier (URI)
 			 * as XML using the specified DefaultHandler.
 			 */
-			InputStream		l_secureEntitiesStream	= new ClassPathResource("secureEntitiesXML.xml").getInputStream();
+			InputStream			l_secureEntitiesStream	= new ClassPathResource("secureEntitiesXML.xml")
+					.getInputStream();
 			saxParser.parse(l_secureEntitiesStream, l_handler);
 
 		} catch (Exception exception) {
@@ -1326,11 +1335,13 @@ public class UserManagementService {
 
 		return l_secureEntityIDs;
 	}
-	
+
 	/**
-	 * Extracts all the IDs for secure entities taken from XML file into a List of String for 
-	 * Master Module as role association with master module exists in a separate table
-	 * and we need to secure anonymous access for them after extracting the module ids
+	 * Extracts all the IDs for secure entities taken from XML file into a List of
+	 * String for Master Module as role association with master module exists in a
+	 * separate table and we need to secure anonymous access for them after
+	 * extracting the module ids
+	 * 
 	 * @author Anomitro.Mukherjee
 	 * 
 	 * @return
@@ -1342,49 +1353,51 @@ public class UserManagementService {
 			 * SAXParserFactory is a factory API that enables applications to configure and
 			 * obtain a SAX based parser to parse XML documents.
 			 */
-			SAXParserFactory	factory		= SAXParserFactory.newInstance();
+			SAXParserFactory	factory					= SAXParserFactory.newInstance();
 
 			// Creating a new instance of a SAXParser using
 			// the currently configured factory parameters.
-			SAXParser			saxParser	= factory.newSAXParser();
+			SAXParser			saxParser				= factory.newSAXParser();
 
 			// DefaultHandler is Default base class for SAX2
 			// event handlers.
-			DefaultHandler	l_handler					= new DefaultHandler() {
-														boolean l_entityID = false;
+			DefaultHandler		l_handler				= new DefaultHandler() {
+															boolean l_entityID = false;
 
-														// Receive notification of the start of an
-														// element. parser starts parsing a element
-														// inside the document
-														public void startElement(String uri, String localName,
-																String qName, Attributes attributes)
-																throws SAXException {
+															// Receive notification of the start of an
+															// element. parser starts parsing a element
+															// inside the document
+															public void startElement(String uri, String localName,
+																	String qName, Attributes attributes)
+																	throws SAXException {
 
-															if (qName.equalsIgnoreCase("entityID")) {
-																l_entityID = true;
+																if (qName.equalsIgnoreCase("entityID")) {
+																	l_entityID = true;
+																}
+
 															}
 
-														}
+															// Receive notification of character data
+															// inside an element, reads the text value of
+															// the currently parsed element
+															public void characters(char a_ch[], int a_start,
+																	int a_length) throws SAXException {
 
-														// Receive notification of character data
-														// inside an element, reads the text value of
-														// the currently parsed element
-														public void characters(char a_ch[], int a_start, int a_length)
-																throws SAXException {
+																if (l_entityID) {
+																	l_secureEntityIDs
+																			.add(new String(a_ch, a_start, a_length));
+																	l_entityID = false;
+																}
 
-															if (l_entityID) {
-																l_secureEntityIDs.add(new String(a_ch, a_start, a_length));
-																l_entityID = false;
 															}
-
-														}
-													};
+														};
 
 			/*
 			 * Parse the content described by the giving Uniform Resource Identifier (URI)
 			 * as XML using the specified DefaultHandler.
 			 */
-			InputStream		l_secureEntitiesStream	= new ClassPathResource("secureMasterModulesXML.xml").getInputStream();
+			InputStream			l_secureEntitiesStream	= new ClassPathResource("secureMasterModulesXML.xml")
+					.getInputStream();
 			saxParser.parse(l_secureEntitiesStream, l_handler);
 
 		} catch (Exception exception) {
@@ -1393,7 +1406,6 @@ public class UserManagementService {
 
 		return l_secureEntityIDs;
 	}
-
 
 	private boolean checkVerificationStep(List<JwsUserLoginVO> multiAuthLoginVOs) {
 		try {
@@ -1419,48 +1431,6 @@ public class UserManagementService {
 		return false;
 	}
 
-	private ConnectionDetailsJSONSpecification resetAuthenticationProperties(ConnectionDetailsJSONSpecification authType) {
-		authType.getAuthenticationType().setValue(Constants.FALSE);
-		List<List<JwsAuthConfiguration>> authConfigurations = authType.getAuthenticationDetails().getConfigurations();
-		if (authConfigurations != null) {
-			for (List<JwsAuthConfiguration> configurations : authConfigurations) {
-				if(configurations!=null) {
-					for (JwsAuthConfiguration configuration : configurations) {
-						if(configuration!=null) {
-							if(configuration.getValue()!=null && configuration.getValue().equalsIgnoreCase("true")) {
-								configuration.setValue("false");
-							}
-							if(configuration.getDropDownData()!=null) {
-								List<DropDownData> dropDownDatas = configuration.getDropDownData();
-								resetDropDownData(dropDownDatas);
-								configuration.setDropDownData(dropDownDatas);
-							}
-							AdditionalDetails additionalDetails = configuration.getAdditionalDetails();
-							if(additionalDetails!=null && additionalDetails.getAdditionalProperties()!=null) {
-								for (List<JwsAuthAdditionalProperty> addProperties : additionalDetails.getAdditionalProperties()) {
-									if(addProperties!=null) {
-										for (JwsAuthAdditionalProperty additionalProperty : addProperties) {
-											if(configuration.getValue()!=null && additionalProperty.getValue().equalsIgnoreCase("true")) {
-												configuration.setValue("false");
-											}
-											if(additionalProperty.getDropDownData()!=null) {
-												List<DropDownData> dropDownDatas = additionalProperty.getDropDownData();
-												resetDropDownData(dropDownDatas);
-												additionalProperty.setDropDownData(dropDownDatas);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return authType;
-	}
-
 	private void resetPwdSendMailForVerificationChange() {
 		// when authentication before and after is database and verification type is
 		// reset from TOTP to password or password/captcha
@@ -1470,14 +1440,15 @@ public class UserManagementService {
 					&& jwsUser.getRegisteredBy() == Constants.AuthType.DAO.getAuthType()
 					&& !(jwsUser.getUserId().equals(Constants.ADMIN_USER_ID))) {
 				try {
-					Email	email		= new Email();
-					String	password	= UUID.randomUUID().toString();
+					String password = UUID.randomUUID().toString();
 					jwsUser.setPassword(passwordEncoder.encode(password));
 					jwsUser.setForcePasswordChange(Constants.ISACTIVE);
 					jwsUser.setIsActive(Constants.INACTIVE);
 					jwsUserRepository.save(jwsUser);
-//					sendMailForForcePassword(jwsUser.getUserId(), jwsUser.getForcePasswordChange(), jwsUser.getEmail(),
-//							email, password);
+					Email email = new Email();
+					sendMailForForcePassword(jwsUser.getUserId(),
+					jwsUser.getForcePasswordChange(), jwsUser.getEmail(),
+					email, password);
 				} catch (Exception exception) {
 					logger.error("Error occured in resetPwdSendMailForVerificationChange().", exception);
 				}
@@ -1490,7 +1461,7 @@ public class UserManagementService {
 		propertyMasterRepository.updatePropertyValueByName(String.valueOf(userManagementData.isAuthenticationEnabled()),
 				"enable-user-management");
 	}
-	
+
 	private ConnectionDetailsJSONSpecification escapeRegexProperties(
 			ConnectionDetailsJSONSpecification connectionSpec) {
 		List<List<JwsAuthConfiguration>> jwsAuthConfigurations = connectionSpec.getAuthenticationDetails()
@@ -1498,18 +1469,18 @@ public class UserManagementService {
 		for (List<JwsAuthConfiguration> configurations : jwsAuthConfigurations) {
 			if (configurations != null) {
 				for (JwsAuthConfiguration configuration : configurations) {
-					if (configuration != null && configuration
-							.getAdditionalDetails()!=null && configuration
-									.getAdditionalDetails().getAdditionalProperties()!=null) {
-						List<List<JwsAuthAdditionalProperty>> authAdditionalProperties = configuration
+					if (configuration != null && configuration.getAdditionalDetails() != null
+							&& configuration.getAdditionalDetails().getAdditionalProperties() != null) {
+						List<JwsAuthAdditionalProperty> authAdditionalProperties = configuration
 								.getAdditionalDetails().getAdditionalProperties();
 						if (authAdditionalProperties != null) {
-							for (List<JwsAuthAdditionalProperty> additionalProperties : authAdditionalProperties) {
-								for (JwsAuthAdditionalProperty additionalProperty : additionalProperties) {
-									if (additionalProperty.getName().equalsIgnoreCase("regexPattern"))
-										additionalProperty
-												.setValue(StringEscapeUtils.escapeJson(additionalProperty.getValue()));
+							for (JwsAuthAdditionalProperty additionalProperty : authAdditionalProperties) {
+								if (additionalProperty.getName().equalsIgnoreCase("regexPattern")) {
+									String regexPattern = StringEscapeUtils.escapeJava(additionalProperty.getValue());
+									additionalProperty
+									.setValue(regexPattern);
 								}
+									
 							}
 						}
 					}
@@ -1518,29 +1489,27 @@ public class UserManagementService {
 		}
 		return connectionSpec;
 	}
-	
+
 	private boolean checkTotpPwdChange(ConnectionDetailsJSONSpecification connectionSpec,
 			Map<String, Object> authenticationDetails) {
 		boolean	triggerPasswordReset	= false;
 		String	existVerificationType	= (String) authenticationDetails.get("verificationType");
-		if (Constants.VerificationType.TOTP.getVerificationType() == existVerificationType) {
+		if (Constants.VerificationType.TOTP.getVerificationType().equals(existVerificationType)) {
 			AuthenticationDetails				authentications			= connectionSpec.getAuthenticationDetails();
 			List<List<JwsAuthConfiguration>>	configurationDetails	= authentications.getConfigurations();
 			for (List<JwsAuthConfiguration> jwsAuthConfigurations : configurationDetails) {
 				JwsAuthConfiguration configuration = jwsAuthConfigurations.stream()
 						.filter(config -> config.getName().equals("enableVerificationStep")).findAny().orElse(null);
 				if (configuration != null && configuration.getValue().equalsIgnoreCase("true")) {
-					List<List<JwsAuthAdditionalProperty>> authAdditionalProperties = configuration
+					List<JwsAuthAdditionalProperty> authAdditionalProperties = configuration
 							.getAdditionalDetails().getAdditionalProperties();
 					if (authAdditionalProperties != null) {
-						for (List<JwsAuthAdditionalProperty> additionalProperties : authAdditionalProperties) {
-							JwsAuthAdditionalProperty	additionalProperty	= additionalProperties.stream()
-									.filter(property -> property.getName().equals("verificationType")).findAny()
-									.orElse(null);
-							String						newVerificationType	= additionalProperty.getValue();
-							if (Constants.VerificationType.PASSWORD.getVerificationType() == newVerificationType)
-								triggerPasswordReset = true;
-						}
+						JwsAuthAdditionalProperty	additionalProperty	= authAdditionalProperties.stream()
+								.filter(property -> property.getName().equals("verificationType")).findAny()
+								.orElse(null);
+						String						newVerificationType	= additionalProperty.getValue();
+						if (Constants.VerificationType.PASSWORD.getVerificationType().equals(newVerificationType))
+							triggerPasswordReset = true;
 					}
 
 				}
@@ -1549,112 +1518,7 @@ public class UserManagementService {
 		}
 		return triggerPasswordReset;
 	}
-	
-	private void resetDropDownData(List<DropDownData> dropDownDatas) {
-		
-		if(dropDownDatas!=null) {
-			for (DropDownData dropDownData : dropDownDatas) {
-				if(dropDownData!=null && dropDownData.getSelected()!=null && dropDownData.getSelected()) {
-					dropDownData.setSelected(false);
-				}
-				if(dropDownData!=null && dropDownData.getDefaultValue()!=null) {
-					dropDownData.setValue(Integer.valueOf(dropDownData.getDefaultValue()));
-				}
-			}
-		}
-	}
-	
-	private ConnectionDetailsJSONSpecification updateOAuthProperties(ConnectionDetailsJSONSpecification resetAuthType, List<AuthProperty> connectionSpec) {
-		List<List<JwsAuthConfiguration>> resetconfis = resetAuthType.getAuthenticationDetails().getConfigurations();
-		
-		for (AuthProperty authProperty : connectionSpec) {
-			List<ConnectionDetailsJSONSpecification> specifications = authProperty.getAuthTypes();
-			for (ConnectionDetailsJSONSpecification specification : specifications) {
-				if(specification.getAuthenticationType().getName().equalsIgnoreCase("oauth-clients")) {
-					List<List<JwsAuthConfiguration>> authConfigurations = specification.getAuthenticationDetails().getConfigurations();
-					for (List<JwsAuthConfiguration> configurations : authConfigurations) {
-						for (JwsAuthConfiguration configuration : configurations) {
-							if(configuration.getName().equals("oauth-client")) {
-								List<DropDownData> modDropDatas = configuration.getDropDownData();
-								for (DropDownData modropDownData : modDropDatas) {
-									if(modropDownData.getSelected()) {
-										if(resetconfis!=null) {
-											for (List<JwsAuthConfiguration> resetConfigurations : resetconfis) {
-												if(resetConfigurations!=null) {
-													for (JwsAuthConfiguration resetConfiguration : resetConfigurations) {
-														if(resetConfiguration.getDropDownData()!=null) {
-															List<DropDownData> resetDropDownDatas = resetConfiguration.getDropDownData();
-															for (DropDownData resetDropDownData : resetDropDownDatas) {
-																if(modropDownData.getName().equalsIgnoreCase(resetDropDownData.getName())) {
-																	resetDropDownData.setSelected(true);
-																	AdditionalDetails resetAdditionalDetails	= new AdditionalDetails();
-																	AdditionalDetails modAdditionalDetails	= modropDownData.getAdditionalDetails();
-																	List<List<JwsAuthAdditionalProperty>> modAdditionalProps = modAdditionalDetails.getAdditionalProperties();
-																	List<List<JwsAuthAdditionalProperty>> resAddProperties = new ArrayList<>();
-																	if(modAdditionalProps!=null) {
-																		for (List<JwsAuthAdditionalProperty> oAuthAddProps : modAdditionalProps) {
-																			for (JwsAuthAdditionalProperty oAuthAddProp : oAuthAddProps) {
-																				if(oAuthAddProp.getName().equalsIgnoreCase("displayName") && oAuthAddProp.getValue()!=null) {
-																					resAddProperties.add(oAuthAddProps);
-																				}
-																			}
-																		}
-																		
-																	}
-																	resetAdditionalDetails.setAdditionalProperties(resAddProperties);
-																	resetDropDownData.setAdditionalDetails(resetAdditionalDetails);
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-					
-				}
-				
-			}
-		}
-		
-		return resetAuthType;
-	}
-	
-	private ConnectionDetailsJSONSpecification updateLdapAuthProperties(ConnectionDetailsJSONSpecification connectionSpec) {
-		ConnectionDetailsJSONSpecification modLdapAuthSpec = new ConnectionDetailsJSONSpecification();
-		if(connectionSpec!=null) {
-			AuthenticationDetails authenticationDetails = connectionSpec.getAuthenticationDetails();
-			AuthenticationDetails modAuthenticationDetails = new AuthenticationDetails();
-			if(authenticationDetails!=null) {
-				
-				List<List<JwsAuthConfiguration>> authConfigurations = authenticationDetails.getConfigurations();
-				List<List<JwsAuthConfiguration>> modConfigurations = new ArrayList<>();
-				if(authConfigurations!=null) {
-					for (List<JwsAuthConfiguration> configurations : authConfigurations) {
-						if(configurations!=null) {
-							for (JwsAuthConfiguration configuration : configurations) {
-								if(configuration!=null && configuration.getName()!=null) {
-									if(configuration.getName().equalsIgnoreCase("displayName") && configuration.getValue()!=null) {
-										modConfigurations.add(configurations);
-									}
-								}
-							}
-						}
-					}
-				}
-				
-				modAuthenticationDetails.setConfigurations(modConfigurations);	
-				modLdapAuthSpec.setAuthenticationDetails(modAuthenticationDetails);
-				modLdapAuthSpec.setAuthenticationType(connectionSpec.getAuthenticationType());
-			}
-		}
-		return modLdapAuthSpec;
-	}
-	
+
 	public void createUserForOtpAuth(JwsUserVO user) throws AddressException, Exception {
 		user.setPassword(null);
 		user.setIsActive(Constants.ISACTIVE);
@@ -1663,31 +1527,30 @@ public class UserManagementService {
 		userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
 		userEntityFromVo.setSecretKey(null);
 		jwsUserRepository.save(userEntityFromVo);
-		
+
 		// adding role to the user
 		JwsUserRoleAssociation userRoleAssociation = new JwsUserRoleAssociation();
 		userRoleAssociation.setRoleId(Constants.AUTHENTICATED_ROLE_ID);
 		userRoleAssociation.setUserId(userEntityFromVo.getUserId());
 		userRoleAssociation.setUpdatedDate(new Date());
 		userRoleRepository.save(userRoleAssociation);
-		
-		/*
-		 * Email email = new Email();
-		 * email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
-		 * 
-		 * Map<String, Object> mailDetails = new HashMap<>(); TemplateVO
-		 * subjectTemplateVO =
-		 * templatingService.getTemplateByName("otp-user-register-mail-subject"); String
-		 * subject =
-		 * templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-		 * subjectTemplateVO.getTemplateName(), mailDetails); email.setSubject(subject);
-		 * TemplateVO templateVO =
-		 * templatingService.getTemplateByName("otp-user-register-confirmation-mail");
-		 * String mailBody =
-		 * templatingUtils.processTemplateContents(templateVO.getTemplate(),
-		 * templateVO.getTemplateName(), mailDetails); email.setBody(mailBody);
-		 * System.out.println(mailBody); sendMailService.sendTestMail(email);
-		 */
+
+		Email email = new Email();
+		email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
+
+		Map<String, Object> mailDetails = new HashMap<>();
+		mailDetails.put("emailId", user.getEmail());
+		TemplateVO	subjectTemplateVO	= templatingService.getTemplateByName("otp-user-register-mail-subject");
+		String		subject				= templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
+				subjectTemplateVO.getTemplateName(), mailDetails);
+		email.setSubject(subject);
+		TemplateVO	templateVO	= templatingService.getTemplateByName("otp-user-register-confirmation-mail");
+		String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
+				templateVO.getTemplateName(), mailDetails);
+		email.setBody(mailBody);
+		//System.out.println(mailBody);
+		sendMailService.sendTestMail(email);
+
 	}
 
 	public void createUserForTotpAuth(JwsUserVO user) throws FileNotFoundException, AddressException, Exception {
@@ -1712,25 +1575,30 @@ public class UserManagementService {
 				+ userEntityFromVo.getUserId() + ".png";
 		File				file				= new File(filePath);
 		FileOutputStream	fileOutputStream	= new FileOutputStream(filePath);
-		String				barcodeData			= twoFactorGoogleUtil.getGoogleAuthenticatorBarCode(userEntityFromVo.getEmail(),
-				"Jquiver", userEntityFromVo.getSecretKey());
+		String				barcodeData			= twoFactorGoogleUtil
+				.getGoogleAuthenticatorBarCode(userEntityFromVo.getEmail(), "Jquiver", userEntityFromVo.getSecretKey());
 		twoFactorGoogleUtil.createQRCode(barcodeData, fileOutputStream, height, width);
 
 		Email email = new Email();
 		email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
 		email.setSubject("TOTP Login");
-		String propertyAdminEmailId = propertyMasterService.findPropertyMasterValue("system", "system", "adminEmailId");
-		String adminEmail = propertyAdminEmailId == null ? "admin@jquiver.io" : propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
+		String	propertyAdminEmailId	= propertyMasterService.findPropertyMasterValue("system", "system",
+				"adminEmailId");
+		String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
+				: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
 		email.setMailFrom(InternetAddress.parse(adminEmail));
+		String fullUrl = getBaseURL(propertyMasterService, servletContext);
 		Map<String, Object>	mailDetails	= new HashMap<>();
+		mailDetails.put("firstName", user.getFirstName());
+		mailDetails.put("baseURL", fullUrl.toString());
 		TemplateVO			templateVO	= templatingService.getTemplateByName("totp-qr-mail");
 		String				mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 				templateVO.getTemplateName(), mailDetails);
 		email.setBody(mailBody);
-		//System.out.println(mailBody);
+		// System.out.println(mailBody);
 
-		List<EmailAttachedFile> attachedFiles = new ArrayList<>();
-		EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
+		List<EmailAttachedFile>	attachedFiles		= new ArrayList<>();
+		EmailAttachedFile		emailAttachedFile	= new EmailAttachedFile();
 		emailAttachedFile.setFile(file);
 		attachedFiles.add(emailAttachedFile);
 
@@ -1749,7 +1617,6 @@ public class UserManagementService {
 			userEntityFromVo.setForcePasswordChange(Constants.INACTIVE);
 			userEntityFromVo.setSecretKey(new TwoFactorGoogleUtil().generateSecretKey());
 			jwsUserRepository.save(userEntityFromVo);
-
 			JwsConfirmationToken confirmationToken = new JwsConfirmationToken(userEntityFromVo);
 			confirmationTokenRepository.save(confirmationToken);
 
@@ -1757,10 +1624,11 @@ public class UserManagementService {
 			email.setInternetAddressToArray(InternetAddress.parse(user.getEmail()));
 			// email.setMailFrom("admin@jquiver.com");
 
-			Map<String, Object> mailDetails = new HashMap<>();
-			TemplateVO subjectTemplateVO = templatingService.getTemplateByName("confirm-account-mail-subject");
-			String subject = templatingUtils.processTemplateContents(subjectTemplateVO.getTemplate(),
-					subjectTemplateVO.getTemplateName(), mailDetails);
+			Map<String, Object>	mailDetails			= new HashMap<>();
+			TemplateVO			subjectTemplateVO	= templatingService
+					.getTemplateByName("confirm-account-mail-subject");
+			String				subject				= templatingUtils.processTemplateContents(
+					subjectTemplateVO.getTemplate(), subjectTemplateVO.getTemplateName(), mailDetails);
 			email.setSubject(subject);
 			/* For inserting notification in case of mail failure only on access of Admin */
 			email.setIsAuthenticationEnabled(applicationSecurityDetails.getIsAuthenticationEnabled());
@@ -1769,8 +1637,8 @@ public class UserManagementService {
 			mailDetails.put("baseURL", baseURL);
 			mailDetails.put("firstName", userEntityFromVo.getFirstName() + " " + userEntityFromVo.getLastName());
 			mailDetails.put("tokenId", confirmationToken.getConfirmationToken());
-			TemplateVO templateVO = templatingService.getTemplateByName("confirm-account-mail");
-			String mailBody = templatingUtils.processTemplateContents(templateVO.getTemplate(),
+			TemplateVO	templateVO	= templatingService.getTemplateByName("confirm-account-mail");
+			String		mailBody	= templatingUtils.processTemplateContents(templateVO.getTemplate(),
 					templateVO.getTemplateName(), mailDetails);
 			email.setBody(mailBody);
 			// System.out.println(mailBody);
@@ -1781,37 +1649,40 @@ public class UserManagementService {
 		}
 	}
 
-	public boolean validateUserRegistration(HttpServletRequest request, JwsUserVO user, Map<String, Object> mapDetails) throws JSONException, Exception {
+	public boolean validateUserRegistration(HttpServletRequest request, JwsUserVO user, Map<String, Object> mapDetails)
+			throws JSONException, Exception {
 		Map<String, Object> authDetails = new HashMap<>();
 		userConfigService.getConfigurableDetails(authDetails);
-		List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) authDetails
+		List<JwsUserLoginVO>	multiAuthLoginVOs	= (List<JwsUserLoginVO>) authDetails
 				.get("activeAutenticationDetails");
-		JwsUserLoginVO		daoAuthDetails	= multiAuthLoginVOs.stream()
+		JwsUserLoginVO			daoAuthDetails		= multiAuthLoginVOs.stream()
 				.filter(loginVO -> loginVO.getAuthenticationType().equals(Constants.AuthType.DAO.getAuthType()))
 				.findAny().orElse(null);
-		
-		if(daoAuthDetails == null) {
+
+		if (daoAuthDetails == null) {
 			mapDetails.put("error", "Authentication not supported.");
 			mapDetails.put("errorCode", HttpStatus.NOT_IMPLEMENTED);
 			return true;
 		}
-		
-		if(user !=null && (user.getEmail()==null || user.getEmail().isEmpty())) {
+
+		if (user != null && (user.getEmail() == null || user.getEmail().isEmpty())) {
 			mapDetails.put("error", "Email is requred ");
 			mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
 			return true;
 		}
-		if(mapDetails!=null && mapDetails.containsKey("error") == false && user !=null && (user.getFirstName() == null || user.getFirstName().isEmpty())) {
+		if (mapDetails != null && mapDetails.containsKey("error") == false && user != null
+				&& (user.getFirstName() == null || user.getFirstName().isEmpty())) {
 			mapDetails.put("error", "First name is required ");
 			mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
 			return true;
 		}
-		if(mapDetails!=null && mapDetails.containsKey("error") == false && user !=null && (user.getLastName()==null || user.getLastName().isEmpty())) {
+		if (mapDetails != null && mapDetails.containsKey("error") == false && user != null
+				&& (user.getLastName() == null || user.getLastName().isEmpty())) {
 			mapDetails.put("error", "Last name is required ");
 			mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
 			return true;
 		}
-		JwsUser				existingUser	= jwsUserRepository.findByEmailIgnoreCase(user.getEmail());
+		JwsUser existingUser = jwsUserRepository.findByEmailIgnoreCase(user.getEmail());
 		if (existingUser != null) {
 			mapDetails.put("error", "This email already exists!");
 			mapDetails.put("errorCode", HttpStatus.CONFLICT);
@@ -1819,37 +1690,38 @@ public class UserManagementService {
 			mapDetails.put("lastName", user.getLastName().trim());
 			return true;
 		}
-		
+
 		HttpSession session = request.getSession();
-		if (mapDetails!=null && mapDetails.get("enableCaptcha")!=null && mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")){
-			if(user.getCaptcha()==null) {
-					mapDetails.put("error", "Invalid Captcha!");
-					mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
-					mapDetails.put("firstName", user.getFirstName().trim());
-					mapDetails.put("lastName", user.getLastName().trim());
-					return true;
+		if (mapDetails != null && mapDetails.get("enableCaptcha") != null
+				&& mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
+			if (user.getCaptcha() == null) {
+				mapDetails.put("error", "Invalid Captcha!");
+				mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
+				mapDetails.put("firstName", user.getFirstName().trim());
+				mapDetails.put("lastName", user.getLastName().trim());
+				return true;
 			}
-			if(session.getAttribute("registerCaptcha") == null) {
+			if (session.getAttribute("registerCaptcha") == null) {
 				mapDetails.put("error", "Captcha is required!");
 				mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
 				mapDetails.put("firstName", user.getFirstName().trim());
 				mapDetails.put("lastName", user.getLastName().trim());
 				return true;
 			}
-			
+
 			if (!(user.getCaptcha().equals(session.getAttribute("registerCaptcha").toString()))) {
 				mapDetails.put("error", "Please verify captcha!");
 				mapDetails.put("firstName", user.getFirstName().trim());
 				mapDetails.put("lastName", user.getLastName().trim());
 				return true;
 			}
-			
+
 		}
-		if(mapDetails!=null && mapDetails.containsKey("error")) {
+		if (mapDetails != null && mapDetails.containsKey("error")) {
 			return true;
 		}
 		return false;
-		
+
 	}
 
 }

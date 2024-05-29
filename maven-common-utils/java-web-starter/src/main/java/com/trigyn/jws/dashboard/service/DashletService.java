@@ -1,11 +1,15 @@
 package com.trigyn.jws.dashboard.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -26,10 +30,12 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.Dashlet;
@@ -90,7 +96,7 @@ public class DashletService {
 	
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
-
+	
 	public Dashlet getDashletById(String id) throws Exception {
 		return dashletDAO.findById(id);
 	}
@@ -155,7 +161,7 @@ public class DashletService {
 	}
 
 	public String getDashletUIString(Dashlet a_dashlet, String userId, boolean isContentOnly, String dashboardId,
-			String[] params, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+			String[] params, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String properties)
 			throws Exception, CustomStopException {
 
 		String selectCriteria = null;
@@ -253,7 +259,7 @@ public class DashletService {
 					httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(), ExceptionUtils.getStackTrace(a_thr));
 				}
 			}
-
+		
 		} catch (Exception a_ex) {
 			isErrorOccured = Boolean.TRUE;
 			logger.error(a_ex);
@@ -309,7 +315,7 @@ public class DashletService {
 			}
 			mapOfVariables.put("DashletDetails", listDashletVO);
 		}
-		if (hasAccess == Boolean.FALSE) {
+		if (hasAccess == Boolean.FALSE && isContentOnly == Boolean.TRUE) {
 			htmlBody = "Access denied";
 			Map<String, Object> errorMap = new HashMap<>();
 			String errorDiv = templatingService.getTemplateByName("error-page").getTemplate();
@@ -327,19 +333,34 @@ public class DashletService {
 			}
 			mapOfVariables.put("content", templateHtml);
 		}
-		String commonDashletDiv = templatingService.getTemplateByName("dashlet-common-div").getTemplate();
-		
-		finalTemplate = templateEngine.processTemplateContents(commonDashletDiv, a_dashlet.getDashletName(),
-				mapOfVariables);
+		String commonDashletDiv = null;
+
+		TemplateVO template = templatingService.getTemplateByName("dashlet-common-div");
+
+		if (template != null) {
+			Map<String, Object> templateDetails = getDashletConfigDetails(userId, dashboardId,
+					a_dashlet.getDashletId());
+			TemplateVO filterTemplate = templatingService.getTemplateByName("dashlet-configuration");
+			if(filterTemplate != null) {
+				templateEngine.processTemplateContents(filterTemplate.getTemplate(), filterTemplate.getTemplateName(),
+						templateDetails);
+			}else {
+				return null;
+			}
+		    commonDashletDiv = template.getTemplate();
+		    finalTemplate = templateEngine.processTemplateContents(commonDashletDiv, a_dashlet.getDashletName(),
+					mapOfVariables);
+		} 
 		return finalTemplate;
 	}
+
 
 	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		return sra.getRequest();
 	}
 
-	private boolean hasAccessToEntity(Dashlet dashlet) {
+	boolean hasAccessToEntity(Dashlet dashlet) {
 
 		List<String> roleNames = new ArrayList<>();
 		Authentication authentication = null;
@@ -384,10 +405,107 @@ public class DashletService {
 	}
 	
 	public String refreshDashletContent(String userId, String dashletId, String[] paramArray, String dashboardId,
-			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String properties)
+			throws Exception {
 		Dashlet dashlet = dashletDAO.findById(dashletId);
+		if (null != properties) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			Map<String, Object> map = objectMapper.readValue(properties, Map.class);
+			MultiValueMap<String, String> propertyMap = new LinkedMultiValueMap<String, String>();
+
+			for (DashletProperties property : dashlet.getProperties()) {
+				for (Entry<String, Object> entry : map.entrySet()) {
+					String type = property.getType().toString();
+					switch (type) {
+					case Constants.NUMBER:
+						if (property.getPlaceholderName().equalsIgnoreCase(entry.getKey().toString())) {
+							validateNumberValues(property, map, propertyMap,httpServletResponse);
+							break;
+						}
+					case Constants.DECIMAL:
+						if (property.getPlaceholderName().equalsIgnoreCase(entry.getKey().toString())) {
+							validateDecimalValues(property, map, propertyMap,httpServletResponse);
+							break;
+						}
+					case Constants.RANGESLIDER:
+						if (property.getPlaceholderName().equalsIgnoreCase(entry.getKey().toString())) {
+							validateRangeSliderValues(property, map, propertyMap,httpServletResponse);
+							break;
+						}
+					case Constants.TEXT:
+						if (property.getPlaceholderName().equalsIgnoreCase(entry.getKey().toString())) {
+							validateTextValues(property, map, propertyMap,httpServletResponse);
+							break;
+						}
+					default:
+						break;
+					}
+				}
+			}
+									
+			saveConfiguration(propertyMap, userId, dashboardId);
+		}
 		return getDashletUIString(dashlet, userId, Boolean.TRUE, dashboardId, paramArray, httpServletRequest,
-				httpServletResponse);
+				httpServletResponse, properties);
+	}
+	
+	private void validateNumberValues(DashletProperties property, Map<String, Object> map,
+	        MultiValueMap<String, String> propertyMap,HttpServletResponse httpServletResponse) throws IOException {
+	    Pattern numberPattern = Pattern.compile("^[0-9]+$");
+
+	    for (Entry<String, Object> entry : map.entrySet()) {
+	        if (numberPattern.matcher(entry.getValue().toString()).matches()) {
+	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
+	        } else {
+	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						"Invalid input for  " + " Number " + " : " + entry.getValue());
+	            logger.error("Invalid value for property type" + "Number" + " : " + entry.getValue());
+	        }
+	    }
+	}
+
+	private void validateDecimalValues(DashletProperties property, Map<String, Object> map,
+	        MultiValueMap<String, String> propertyMap,HttpServletResponse httpServletResponse) throws IOException {
+	    Pattern decimalPattern = Pattern.compile("^(0|\\d+)\\.?\\d{0,2}$");
+
+	    for (Entry<String, Object> entry : map.entrySet()) {
+	        if (decimalPattern.matcher(entry.getValue().toString()).matches()) {
+	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
+	        } else {
+	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						"Invalid input for  " + " Decimal " + " : " + entry.getValue());
+	            logger.error("Invalid value for property type" + "Decimal" + " : " + entry.getValue());
+	        }
+	    }
+	}
+	
+	private void validateRangeSliderValues(DashletProperties property, Map<String, Object> map,
+	        MultiValueMap<String, String> propertyMap,HttpServletResponse httpServletResponse) throws IOException {
+	    Pattern numberPattern = Pattern.compile("^\\d+$");
+	    for (Entry<String, Object> entry : map.entrySet()) {
+	        if (numberPattern.matcher(entry.getValue().toString()).matches()) {
+	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
+	        } else {
+	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						"Invalid input for  " + " Rangeslider " + " : " + entry.getValue());
+	            logger.error("Invalid value for property type" + "Rangeslider" + " : " + entry.getValue());
+	        }
+	    }
+	}
+	
+	private void validateTextValues(DashletProperties property, Map<String, Object> map,
+	        MultiValueMap<String, String> propertyMap,HttpServletResponse httpServletResponse) throws IOException {
+	    String regexPattern = "^[a-zA-Z\\s]*$"; 
+	    for (Entry<String, Object> entry : map.entrySet()) {
+	        String textValue = entry.getValue().toString();
+	        if (textValue.matches(regexPattern)) {
+	            propertyMap.add(property.getPropertyId(), textValue);
+	        } else {
+	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						"Invalid input for " + " Text " + " : " + entry.getValue());
+	            logger.error("Invalid text format for property type" + "Text" + " : " + textValue);
+	        }
+	    }
 	}
 
 	@Transactional(readOnly = true)
@@ -442,6 +560,18 @@ public class DashletService {
 					dashboardLookupCategoryVO.getLookupDescription());
 		}
 		return componentTypes;
+
+	}
+	
+	public Map<String, String> findComponentValidation(String type) throws Exception {
+		Map<String, String> validation = new HashMap<String, String>();
+		List<DashboardLookupCategoryVO> dashboardLookupCategoryVOList = iDashboardLookupCategoryRepository
+				.findDashboardLookupCategoryByType(type);
+		for (DashboardLookupCategoryVO dashboardLookupCategoryVO : dashboardLookupCategoryVOList) {
+			validation.put(dashboardLookupCategoryVO.getLookupCategoryId(),
+					dashboardLookupCategoryVO.getValidation());
+		}
+		return validation;
 
 	}
 

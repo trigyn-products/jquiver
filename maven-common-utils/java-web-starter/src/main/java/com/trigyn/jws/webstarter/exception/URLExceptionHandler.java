@@ -20,6 +20,7 @@ import org.springframework.web.util.NestedServletException;
 
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -53,6 +54,7 @@ public class URLExceptionHandler implements ErrorController {
 	@RequestMapping("/error")
 	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		Object				status			= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+		String				errorMessage1	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 		Exception			exception		= (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
 		boolean isCustomException = false;
 		int customErrorCode = Integer.MIN_VALUE;
@@ -84,6 +86,7 @@ public class URLExceptionHandler implements ErrorController {
 				return new ResponseEntity<String>("", HttpStatus.OK);
 			}
 			if (url.contains("/japi/") || url.contains("/api/")) {
+				isCustomException = true;
 				// mobile
 				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 				String		errorStatusCode	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE).toString();

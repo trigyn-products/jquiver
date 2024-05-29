@@ -24,6 +24,8 @@ public class Modules {
 
 	private List<FileUploadExportVO>				fileUploadList;
 	
+	private ScriptLibraryDetailsExportVO			scriptLibraryExportVo;
+	
 
 	public String getModuleID() {
 		return moduleID;
@@ -105,6 +107,12 @@ public class Modules {
 		this.fileUploadList = fileUploadList;
 	}
 
-	
+	public ScriptLibraryDetailsExportVO getScriptLibraryExportVo() {
+		return scriptLibraryExportVo;
+	}
+
+	public void setScriptLibraryExportVo(ScriptLibraryDetailsExportVO scriptLibraryExportVo) {
+		this.scriptLibraryExportVo = scriptLibraryExportVo;
+	}
 
 }

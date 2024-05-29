@@ -90,13 +90,13 @@
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
 			      <div id="savedAction">
-		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		     	   </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		           	<div class="dropdown-menu action-cls"  id="actionDiv">
 		               	<ul class="dropdownmenu">
-		                  	<li id="saveAndCreateNew" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		    	            <li id="saveAndEdit" onclick="typeOfAction('property-master-form', this);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                  	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		    	            <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 			            </ul>
 		            </div> 
 	            </div>
@@ -116,7 +116,7 @@
 	document.title = "Manage Application Configuration Module";
 	contextPath = "${contextPath}";
 	let formId = "${formId}";
-	let edit = 0;
+	let isEdit = 0;
 	
 	function saveData (){
 	    if(validateFields() == false){
@@ -213,7 +213,7 @@
 	    <#if (resultSet)?? && resultSet?has_content>
         	<#list resultSet as resultSetList>
              <#outputformat "HTML">
-				edit = 1;
+				isEdit = 1;
 				$("#propertyMasterId").val('${resultSetList?api.get("property_master_id")}');
 				$("#primaryKey").val('${resultSetList?api.get("property_master_id")}');
                 $("#ownerId").val($('<div></div>').html('${resultSetList?api.get("owner_id")}').text());
@@ -247,7 +247,7 @@
 			$("#primaryKey").val(generatedPrimaryKey);
    
         </#if>
-		savedAction("property-master-form", edit);
+		savedAction("property-master-form", isEdit);
         hideShowActionButtons();
 	});
 

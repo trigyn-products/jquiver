@@ -2,17 +2,21 @@ package com.trigyn.jws.dbutils.cipher.utils;
 
 public class CipherUtilFactory {
 
-	public static ICipherUtil getCipherUtil(String encryptionType) {
-		if("AES/ECB".equalsIgnoreCase(encryptionType)) {
-			return new AESCipherUtil();
-		} else if("AES/CBC".equalsIgnoreCase(encryptionType)) {
-			return new AesCbcCipherUtil();
-		} else if("DES".equalsIgnoreCase(encryptionType)) {
-			return new DESCipherUtil();
-		} else if("RSA".equalsIgnoreCase(encryptionType)) {
-			return new RSACipherUtil();
-		} else {
-			return null;
+	public static ICipherUtil getCipherUtil(String algorithm, String mode, String padding, Integer keyLength)
+			throws Exception {
+
+		if (algorithm != null && algorithm.isEmpty() == false) {
+			switch (algorithm) {
+				case "AES":
+					return AESCipherUtilFactory.getCipherMode(algorithm, mode, padding, keyLength);
+				case "DES":
+					return DESCipherUtilFactory.getCipherMode(algorithm, mode, padding, keyLength);
+				case "RSA":
+					return RSACipherUtilFactory.getCipherMode(algorithm, mode, padding, keyLength);
+				default:
+					throw new Exception("Algorithm Not Supported");
+			}
 		}
+		return null;
 	}
 }

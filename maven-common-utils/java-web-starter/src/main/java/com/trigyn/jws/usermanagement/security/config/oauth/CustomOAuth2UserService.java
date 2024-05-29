@@ -70,13 +70,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		JwsUser user = jwsUserRepository.findByEmailIgnoreCase(oAuth2UserInfo.getEmail());
 		if (user != null) {
-			// if(!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId())))
-			// {
-			// throw new OAuth2AuthenticationProcessingException("Looks like you're signed
-			// up with " +
-			// user.getProvider() + " account. Please use your " + user.getProvider() +
-			// " account to login.");
-			// }
 			if (user.getIsActive() == Constants.INACTIVE) {
 				throw new OAuth2AuthenticationProcessingException("Access Denied Please contact admin");
 			}
@@ -94,8 +87,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		// user.setProvider(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId()));
 		// user.setProviderId(oAuth2UserInfo.getId());
-		user.setFirstName(oAuth2UserInfo.getName().split(" ")[0]);
-		user.setLastName(oAuth2UserInfo.getName().split(" ")[1]);
+		user.setFirstName(oAuth2UserInfo.getName() != null ? oAuth2UserInfo.getName().split(" ")[0] : oAuth2UserInfo.getEmail());
+		user.setLastName(oAuth2UserInfo.getName() != null ? oAuth2UserInfo.getName().split(" ")[1] : oAuth2UserInfo.getEmail());
 		user.setEmail(oAuth2UserInfo.getEmail());
 		user.setIsActive(Constants.ISACTIVE);
 		user.setPassword(passwordEncoder.encode(oAuth2UserInfo.getEmail()));
@@ -109,8 +102,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	}
 
 	private JwsUser updateExistingUser(JwsUser existingUser, OAuth2UserInfo oAuth2UserInfo) {
-		existingUser.setFirstName(oAuth2UserInfo.getName().split(" ")[0]);
-		existingUser.setLastName(oAuth2UserInfo.getName().split(" ")[1]);
+		existingUser.setFirstName(oAuth2UserInfo.getName() != null ? oAuth2UserInfo.getName().split(" ")[0] : oAuth2UserInfo.getEmail());
+		existingUser.setLastName(oAuth2UserInfo.getName() != null ? oAuth2UserInfo.getName().split(" ")[1] : oAuth2UserInfo.getEmail());
 		// existingUser.setImageUrl(oAuth2UserInfo.getImageUrl());
 		return userManagementDAO.saveUserData(existingUser);
 	}

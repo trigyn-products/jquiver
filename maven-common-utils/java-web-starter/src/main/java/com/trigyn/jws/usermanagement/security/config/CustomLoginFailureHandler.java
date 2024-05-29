@@ -5,7 +5,6 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.io.IOException;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,9 +30,6 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 	@Autowired
 	private UserManagementDAO		userManagementDAO		= null;
 
-	@Autowired
-	private ServletContext			servletContext			= null;
-
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
@@ -52,24 +48,23 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 						}
 						userManagementDAO.updateUserData(user);
 						if (user.getFailedAttempt() == maxFailedCount) {
-							exception = new InvalidLoginException("Account Locked. Please contact Admin.");
+							exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
 						} else {
 							String msg = exception.getMessage();
 							if (msg.startsWith("?")) {
 								msg = "Login failed. Bad credentials.";
 							}
-							exception = new InvalidLoginException(msg);
+							exception = new InvalidLoginException(msg, emailID);
 						}
 					} else {
-						exception = new InvalidLoginException("Account Locked. Please contact Admin.");
+						exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
 					}
 				} else {
-					exception = new InvalidLoginException("Account Locked. Please contact Admin.");
+					exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
 				}
 			} else {
-				exception = new InvalidLoginException("User does not exist.");
+				exception = new InvalidLoginException("User does not exist.", emailID);
 			}
-
 			super.setDefaultFailureUrl("/cf/login");
 			super.onAuthenticationFailure(request, response, exception);
 		} catch (Exception e) {

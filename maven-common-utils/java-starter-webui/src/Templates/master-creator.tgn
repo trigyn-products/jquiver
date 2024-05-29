@@ -1,8 +1,30 @@
 <head>
 <script src="${(contextPath)!''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/fileupload/fileBinMaster.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 
 <style>
+
+
+  .hm-fieldset {
+    margin-top: 12px;
+    margin-bottom:20px;
+    border: 1px groove #ddd !important;
+    padding: 0 10px 10px 10px !important;
+  }
+
+  .hm-legend {
+    font-size: 15px;
+    font-weight: normal;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #555;
+    border-bottom: none;
+    padding: 0 10px;
+    width: auto;
+  }
+
 .tableoverflow{
     width:100%;
     overflow:auto;
@@ -216,7 +238,84 @@
 												       onchange="toggleCaptchaVal()">
 													<span class="slider round"/>
 												</label>
-									</div>                
+									</div>    
+                                          <div class="col-12"> 
+        <fieldset class="hm-fieldset" style="position:relative;">
+         <legend class="hm-legend" style="display:flex;align-items: center;width: 75px;">File Bin
+            <!-- <span> ${messageSource.getMessage('jws.fileBin')} </span> -->
+             <label class="switch" style="margin-left:85px;margin-right:15px;    position: absolute; margin-top:15px;"> 
+
+                         <div class="onoffswitch">
+                             <input type="hidden"
+											       id="toggleFileBin"
+											       name="toggleFileBin"
+											       value="0">
+                                <input class="onoffswitch-checkbox" type="checkbox" name="toggleFileBinChkBox" id="toggleFileBinChkBox" onclick="fileBinChecked($(this));">
+                                <label class="onoffswitch-label" for="toggleFileBinChkBox">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+                            </div>
+        
+     </label></legend>
+      
+<div class="row">
+			<div class="col-3">
+				<div class="col-inner-form full-form-fields">
+					<label for="fileBinId"  style="white-space:nowrap"><span class="asteriskmark">*</span>
+		              ${messageSource.getMessage('jws.filebinid')}
+		            </label>
+					<input type="text" id="fileBinId" name="fileBinId"   value="" maxlength="500" class="form-control RemoveData">
+			</div>
+				</div>
+				<div class="col-3">
+					<div class="col-inner-form full-form-fields">
+						<label for="fileTypeSupported" style="white-space:nowrap">
+		            <span class="asteriskmark">*</span>
+		              ${messageSource.getMessage('jws.filetypesupported')}<i class="fa fa-info-circle" aria-hidden="true" title="Valid format is '.' followed by supported file extension or '.*'" style="margin-left: 2px;"> </i>
+		            </label>
+						<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif, .* value="" class="form-control RemoveData">
+			</div>
+					</div>
+					<div class="col-6">
+						<div class="col-inner-form full-form-fields">
+							<span class="asteriskmark">*</span>
+							<label for="maxFileSize">${messageSource.getMessage('jws.maxfilesize')}</label>
+							<div class="row">
+								<div class="col-8">
+									<input type="number" id="maxFileSizeUi" name="maxFileSizeUi" value="" onkeyup="fileBinMaster.saveCurrentFileSize(event)" onkeydown="fileBinMaster.validateMaxFileSize(event)" maxlength="10" class="form-control RemoveData">
+									<input type="hidden" id="maxFileSize" name="maxFileSize" value="" maxlength="10" class="form-control ">
+                    </div>
+									<div class="col-4">
+										<span >
+                            <select id="size" onChange="fileBinMaster.updateFileSize();" class="form-control RemoveData">
+                                <option value="1">${messageSource.getMessage('jws.byte')}</option>
+                                <option value="2">${messageSource.getMessage('jws.kilobyte')}</option>
+                                <option value="3">${messageSource.getMessage('jws.megabyte')}</option>
+                            </select>
+                        </span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-3">
+							<div class="col-inner-form full-form-fields">
+								<label for="noOfFiles" style="white-space:nowrap">
+                    <span class="asteriskmark">*</span>${messageSource.getMessage('jws.noOfFilesbet1and50')}
+                </label>
+								<input type="hidden" id="noOfFiles" name="noOfFiles">
+								<p class="file-slider-span-cls"   >
+									<span id="fileSliderSpan" class="no-of-files-counter"  style="z-index: 999;"></span></p>
+								<div class="file-slider-div-cls" id="fileSliderDiv"></div>
+							</div>
+						</div>
+					</div>
+
+	                <input type="hidden" id="previousFileSizeScale" value="1">
+					<input type="hidden" id="initialFileSizeScale" value="1">
+					<input type="hidden" id="previousFileSize" value="">
+      </fieldset>
+      </div>            
         </div>
         </div>
         
@@ -269,6 +368,8 @@
 	$("#showInMenu").trigger("change");
 	let tableAutocomplete;
 	let resourceKeyMap = new Map();
+    let  fileBinMaster;
+    var fileBinDisplayTexts = null;
 	<#list systemProperties as key, value>    
         <#if key.propertyName == "base-url">
             baseUrl = "${value}";
@@ -281,6 +382,7 @@
     }  
 	
 	$(function() {
+        fileBinMaster = new FileBinMaster();   
 		getAllDatasource(0);
 		tableAutocomplete = $("#tableAutocomplete").autocomplete({
 	        autocompleteId: "table-autocomplete",
@@ -315,18 +417,32 @@
 	    
 	    let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
         multiselect.setSelectedObject(defaultAdminRole);
+        $(".RemoveData").attr("placeholder", ""); 
+        $(".RemoveData").val("");    
+        $(".RemoveData").attr("disabled", "disabled");
+         
+       // let context = this;
+        initializeFileSlider();
+        $('#fileSliderDiv').slider("disable");
 	});
 	
 	$(document).ready(function(){
 		$("#moduleName").keyup(function(){
+            let toogleFileBin= $("#toggleFileBin").val();
             $("#menuDisplayName").val(this.value);
             $("#moduleURL").val(this.value);
             if($("#moduleName").val() === ""){
 				$("#formDisplayName").val("");
 	            $("#formModuleURL").val("");
+                if(toogleFileBin==1){
+                     $("#fileBinId").val("");
+                }
 			} else {
             $("#formDisplayName").val(this.value+ '-form');
             $("#formModuleURL").val(this.value+ '-f');
+            if(toogleFileBin==1){
+                     $("#fileBinId").val(this.value+ '_fb');
+                }
             }
 		});
 		
@@ -370,4 +486,39 @@
             updateFormDetails(a_element);
         });
     }
+
+    function fileBinChecked(t){  
+       
+        let isChecked = $('#toggleFileBinChkBox').is(':checked')? 1 : 0;		
+        $("#toggleFileBin").val(isChecked); 
+        if (t.is(":checked")) {
+            $(".RemoveData").removeAttr("disabled", "disabled"); 
+            $('#fileSliderDiv').slider("enable");
+            $("#fileTypeSupported").attr("placeholder", ".png, .jpg, .gif, .*");
+            document.getElementById('size').value = '1';
+            $("#maxFileSize").focus();
+             $("#fileBinId").val($("#moduleName").val().replaceAll("_", "-")+"_fb");
+        } else {
+            $(".RemoveData").attr("placeholder", ""); 
+            $(".RemoveData").val("");    
+            $(".RemoveData").attr("disabled", "disabled");   
+            $('#fileSliderDiv').slider("disable"); 
+        }
+    }
+  	 function initializeFileSlider() {
+		//let context = this;
+		$("#fileSliderDiv").slider({
+			orientation: "horizontal",
+			min: 1,
+			max: 50,
+			value: $("#noOfFiles").val() == "" ? 15 : $("#noOfFiles").val(),
+			slide: function(event, ui) {
+				$("#fileSliderSpan").text(ui.value);
+				$("#noOfFiles").val(ui.value);
+			}
+		});
+		let fileCount = $("#fileSliderDiv").slider("value");
+		$("#fileSliderSpan").text(fileCount);
+		$("#noOfFiles").val(fileCount);
+	}
 </script>

@@ -103,13 +103,18 @@ public class DynaRestModule implements DownloadUploadModule<DynaRest> {
 			if (isCheckSumChanged) {
 				jwsDynarestDAO.saveJwsDynamicRestDetail(dynaRest);
 			}
-			
+			List<String> scriptLibIdList = jwsDynarestDAO.getscriptLibId(dynaRest.getJwsDynamicRestId());
+			List<String>					scriptLibId		= new ArrayList<>();
+			for(int iScriptUploadCounter = 0 ; iScriptUploadCounter<scriptLibIdList.size(); iScriptUploadCounter++) {
+				scriptLibId.add("\"" +scriptLibIdList.get(iScriptUploadCounter)+ "\"");
+				dynaRest.setScriptLibraryId(scriptLibId.toString());
+			}
 			DynaRestExportVO	dynamicRestExportVO	= new DynaRestExportVO(dynaRest.getJwsDynamicRestId(), dynaRest.getJwsDynamicRestUrl(), 
 					dynaRest.getJwsMethodDescription(), dynaRest.getJwsMethodName(), dynaRest.getJwsPlatformId(), dynaRest.getJwsRbacId(), 
 					serviceLogic + ftlCustomExtension, dynaRest.getJwsRequestTypeId(), dynaRest.getJwsResponseProducerTypeId(), 
 					dynaRest.getJwsAllowFiles(), dynaRest.getJwsDynamicRestTypeId(), dynaRest.getJwsHeaderJson(), daoDetailsFileNameMap, 
 					daoDetailsVariableNameMap, daoDetailsQueryTypeMap, daoDetailsDatasourceIdMap, dynaRest.getLastUpdatedTs(),dynaRest.getHidedaoquery()
-					,dynaRest.getIsSecured(), dynaRest.getIsCustomUpdated());
+					,dynaRest.getIsSecured(), dynaRest.getIsCustomUpdated(),dynaRest.getScriptLibraryId());
 
 			Map<String, Object>	map					= new HashMap<>();
 			map.put("moduleName", formName);
@@ -185,7 +190,7 @@ public class DynaRestModule implements DownloadUploadModule<DynaRest> {
 				dynaRest.setHidedaoquery(dynaRestExportVO.getHideDaoQuery());//Added for New Column for hiding DAO Query Editor
 				dynaRest.setIsCustomUpdated(dynaRestExportVO.getIsCustomUpdated());
 				dynaRest.setIsSecured(dynaRestExportVO.getIsSecured());
-				
+				dynaRest.setScriptLibraryId(dynaRestExportVO.getScriptLibraryId());
 				File[]	directoryFiles	= currentDirectory.listFiles(textFilter);
 				Integer	filesPresent	= directoryFiles.length;
 				if (filesPresent >= 2) {
@@ -202,7 +207,7 @@ public class DynaRestModule implements DownloadUploadModule<DynaRest> {
 						dynaRest.setJwsServiceLogic(fileUtilities.readContentsOfFile(serviceLogicFile.getAbsolutePath()));
 						dynaRest.setServiceLogicChecksum(selectCheckSum);
 
-
+				
 						List<JwsDynamicRestDaoDetail> jwsDynamicRestDaoDetails = new ArrayList<>();
 
 						if (daoDetailsFileNameMap != null && !daoDetailsFileNameMap.isEmpty()) {

@@ -3,7 +3,7 @@ SET FOREIGN_KEY_CHECKS=0;
 replace into jq_manual_type (manual_id, name, is_system_manual) VALUES ('07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver Manual', 2);
 
 /*************************************************JQuiver - start****************************************************************/
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('57bdec61-325a-4487-9ba6-de218207f8c0', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'JQuiver', '# Purpose 
 Trigyn has been working with number of Web Application project, which consists of components like Grids, Forms, Templating. In-order to speed up the initial project setup and components configuration there was a need to develop a reusable component. 
 
@@ -36,7 +36,7 @@ Maven Group-id :- com.trigyn
 /****************************************************JQuiver - End****************************************************************/
 
 /*************************************************DB Utils - Start****************************************************************/
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('67b91245-e86c-4b9b-9aa9-7f373916d1c5', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'DB Utils', '# DB Utils
 
 Configuring datasource in application using application.yml : 
@@ -115,7 +115,7 @@ DB Utils also contains a table **property_master**, which is used as a configura
 
 /*********************************************Application Configurations - Start***************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('918676c8-b653-43ee-964a-d4faaeb13787', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Application Configurations', '# Property Master Details
 
 Jquiver provides with a database level implementation of application configurations, wherein you can manage all you environment and system related properties.
@@ -250,7 +250,7 @@ Application configuration also provides you with enabling Google Analytics, Crea
  
 /****************************************************User Management - Start*****************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('e03447c8-eaa0-4119-b97e-b802bd8f4ff1', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'User Management', '# User Management 
 User management utils provides  user authentication through various authentication types.It also provides ACL. In order to  use these, you need to include the usermanagement jar in your pom.xml.
 
@@ -438,7 +438,7 @@ Add following lines of code to get logged-in user details in any template or dyn
 
 /****************************************************Master Generator - Start***********************************************************/
 
-replace into jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+replace into jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('61fb4be9-a197-4759-9a4c-b885ce973f46', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Master Generator', '# Master Generator
 
 Master Generator plays a pivotal role while creating an application by using JQuiver framework.
@@ -521,7 +521,7 @@ Taking an example of above scenario,
 
 /****************************************************Site Layout - Start*********************************************************/
 
-REPLACE INTO jq_manual_entry(manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+REPLACE INTO jq_manual_entry(manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('68613ad7-8596-4c48-94e6-f752ab53eb4e', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Site Layout', '# Site Layout
 
 You just need to add DBUtils as a dependecy in your application to enable site layout.
@@ -726,7 +726,7 @@ Example:
 
 /****************************************************Grid Utils - Start**********************************************************/
 
-REPLACE INTO jq_manual_entry(manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+REPLACE INTO jq_manual_entry(manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('7428a452-da97-4ef0-b6d7-acf4921beb82', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Grid Utils', '# Grid Utils
 
 ```
@@ -797,7 +797,7 @@ Here createdBy will be the column name, at rest should be kept as it is and the 
 
 /****************************************************Templating - Start**********************************************************/
 
-REPLACE INTO jq_manual_entry(manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry(manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('17feffba-99f4-4591-9cb5-0fef46ee0b77', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Templating', '# Templating 
 
 In order to import the templating jar, add following dependency in your pom.xml.
@@ -901,7 +901,7 @@ References for Freemaker :- https://freemarker.apache.org/ ', 7, NOW(), 'admin@j
 
 /****************************************************Dynamic Form - Start********************************************************/
 
-REPLACE INTO jq_manual_entry(manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry(manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('6938f0ac-00fe-4b94-95e7-02ef72016fe4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Form Builder', '# FormBuilder 
 
 In order to import this jar, add following dependency in your pom.xml
@@ -1054,7 +1054,7 @@ This will display your message.
 
 /****************************************************Multilingual - Start********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('9c25fb63-8336-4f22-bb97-a5042159d5c4', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Multilingual', '# Multilingual
 If you are finding ways to spread your market reach and attain global presence, localization of application software is of vital importance. Besides, the very nature of any software application liberalizes the user to have it accessed, bought and downloaded from any geographical location. To enable multilingual for your application just import the resourcebundle jar by adding following dependency in your pom.xml.
  
@@ -1143,7 +1143,7 @@ String message = iResourceBundleRepository.findByKeyAndLanguageCode(resourceBund
 
 /****************************************************REST API - Start************************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('81c506ff-dab5-43de-a790-58af356de3e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Rest API', '# Rest API 
 
 Rest API lets you write API''s in below languages :
@@ -1446,7 +1446,7 @@ This will display your message.
 
 /****************************************************Autocomplete - Start********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('5e46df00-e07a-4b73-889f-2894adfd3df8', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'AutoComplete', '# AutoComplete
 
  In order to import the autocomplete jar, add following dependency in your pom.xml.
@@ -1897,7 +1897,7 @@ multiselect.resetMultiselect();
 
 /****************************************************File Bin - Start************************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('8b425d39-72f0-4c6f-b71c-4ef247979538', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'File Bin', '# File Bin
 File Bins play a pivotal role in managing the files using JQuiver application. We as a JQuiver application helps you to manage your files between different users and roles as per your requirement.
 
@@ -2031,7 +2031,7 @@ Function available for all file bin components:
 
 /****************************************************Dashboard - Start***********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) VALUES
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) VALUES
 ('3f0f6b4e-9a00-4b89-9a64-415a1f8256d2', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Dashboard', '# Dashboard
 
 In order to import the dashboard jar, add following dependency in your pom.xml.
@@ -2088,7 +2088,7 @@ User can also add provide additional configurable properties to a dashlet like n
 
 /****************************************************Versioning - Start**********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('1d5577fa-a7e3-4bdf-85ed-b84ac81fbb0b', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Versioning', '# Versioning
 
 Versioning plays pivotal role when developing an application which require frequent changes and keeping track of previous version is very important. You just need to add DBUtils as a dependecy in your application to enbale versioning for your application. Modify **max-version-count** from **Application Configuration** module if you want to change default max no of versionig that should be saved in database.
@@ -2163,7 +2163,7 @@ function submitRevisionForm(sourceElement) {
 
 /************************************************Import Configuration - Start***************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('be37c240-2607-4d79-9ef1-136dbd7c524b', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Import Configuration', '# Import Configuration
 
 Importing the configuration plays pivotal role when you want to migrate some configuration or data from an existing database to another database. 
@@ -2249,7 +2249,7 @@ Once the server side code change is done, make appropriate changes in import.js.
 
 /************************************************Export Configuration - Start***************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by)
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by)
 VALUES('dd97c23d-feef-4cea-afcf-3cece7819159', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Export Configuration', '# Export Configuration
 
 Exporting the configuration plays pivotal role when you want to migrate some configuration or data from an existing database to another database. 
@@ -2330,7 +2330,7 @@ Currently we have handled only grid listing in export configuration page.',
 
 /************************************************Dev Environment - Start********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('935b9394-c33d-4113-a248-27c46c45e7e9', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Dev Environment', '# Dev Environment:
 
 You can modify the following modules in your favourite editor just by changing the value of **Profile** property to **dev** from application configuration:
@@ -2412,7 +2412,7 @@ Like dynamic forms, each dashlet details will be stored in seperate folder and a
 
 
 /*************************************************Others - Start****************************************************************/
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('50f92287-c438-4ee2-bdfa-b4e710d2e64b', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Others', '# Others
 There are few other features, which we support in JQuiver. Below we have listed them in detail.
 
@@ -2552,7 +2552,7 @@ Above shortcuts are available in following modules:
 
 /*************************************************Help Manual - Start***********************************************************/
 
-REPLACE INTO jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_content, sort_index, last_modified_on, last_updated_by) 
+REPLACE INTO jq_manual_entry (manual_entry_id, manual_id, entry_name, entry_content, sort_index, last_updated_ts, last_updated_by) 
 VALUES('4dddd5a0-d69f-4e6c-bd91-0fa10e8adbfb', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Help Manual', '# Help Manual
 
 Help Manual module helps us to understand the application. In this module we can store all the documentation related to the application, as per users need.

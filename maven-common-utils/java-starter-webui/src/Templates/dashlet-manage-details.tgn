@@ -35,6 +35,7 @@
 			<div class="col-inner-form full-form-fields">
 				<label for="dashletName" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashletName")}</label>									 
 				<input type="hidden" id="dashletId" name="dashletId" value="${(dashletVO.dashletId)!''}"/>
+				<input type="hidden" id="dashletTypeId" name="dashletTypeId" value="${dashletVO.dashletTypeId}"/>
 				<input type="text" id="dashletName" name="dashletName" value="${(dashletVO.dashletName)!''}" maxlength="100" placeholder="Enter Dashlet name" class="form-control"/>									
 			</div>
 		</div>
@@ -128,6 +129,7 @@
 									<th>${messageSource.getMessage("jws.displayName")}</th>
 									<th>${messageSource.getMessage("jws.type")}</th>
 									<th>${messageSource.getMessage("jws.value")}</th>
+									<th>${messageSource.getMessage("jws.validation")}</th>
 									<th>${messageSource.getMessage("jws.defaultValue")}</th>
 									<th>${messageSource.getMessage("jws.show")}</th>
 					        		<th width="100">${messageSource.getMessage("jws.action")}</th>
@@ -136,6 +138,7 @@
 							<tbody>
     							<#if (dashletVO?api.getDashletPropertVOList())??>
 									<#list dashletVO?api.getDashletPropertVOList() as dashletProperty>
+                                     <#outputformat "HTML">
 										<tr class="dashlet_property">
 											<td id="propertyDetails">
 							  					<input type="hidden" name="propertyId" id="${(dashletProperty.propertyId)!''}"  value="${(dashletProperty.propertyId)!''}"/>
@@ -146,7 +149,7 @@
 							          		</td>
           
 											<td>
-									        	<input type="text" name="displayName" id="displayName_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.displayName)!''}"/>
+									        	<input type="text" name="displayName" id="displayName_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.displayName)!''}" maxlength="50"/>
 											</td>
           
         									<td>
@@ -165,9 +168,11 @@
                                                 
          										<input type="text" name="value" id="value_${(dashletProperty.sequence)!''}" class="form-control" value='${(dashletProperty.value)!''}'/>
 											</td>
-          
+											  <td>  
+         										<input type="text" name="validation" id="validation_${(dashletProperty.sequence)!''}" class="form-control" value='${(dashletProperty.validation)!''}'/>
+											</td>	
 											<td>
-												<input type="text" name="defaultValue" id="defaultValue_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.defaultValue)!''}"/>
+												<input type="text" name="defaultValue" id="defaultValue_${(dashletProperty.sequence)!''}" class="form-control" value="${(dashletProperty.defaultValue)!''}" maxlength="50"/>
 				   							</td>
           
           									<td>
@@ -186,9 +191,11 @@
 											</td>
 			
 										</tr>
+                                          </#outputformat>
 									</#list>
-								</#if>
+								</#if>          
 							</tbody>
+                          
 						</table>
 					</div>
 				</div>
@@ -243,13 +250,13 @@
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
 		            <div id="savedAction">
-	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dashlet-manage-details', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		            </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            <div class="dropdown-menu action-cls"  id="actionDiv">
 		               	<ul class="dropdownmenu">
-		                   	<li id="saveAndCreateNew" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                    <li id="saveAndEdit" onclick="typeOfAction('dashlet-manage-details', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                   	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dashlet-manage-details', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                    <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('dashlet-manage-details', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		            	</ul>
 	                </div> 
 				</div>
@@ -278,6 +285,7 @@
 	var dashletHTMLEditor;
 	let componentArray = new Array();
 	const dashletId = "${(dashletVO.dashletId)!''}"; 
+    let isEdit=0;
   	<#list componentMap as categoyId, categoryDescription>
     	<#if categoyId??>
         var componentObj = new Object();
@@ -309,9 +317,10 @@
         }else{
             addEditDashletFn.getEntityRoles();
             getAllDatasource(1);
+            isEdit=1;
         }
         
-		savedAction("dashlet-manage-details", dashletId);
+		savedAction("dashlet-manage-details", isEdit);
 		hideShowActionButtons();
 	});
 

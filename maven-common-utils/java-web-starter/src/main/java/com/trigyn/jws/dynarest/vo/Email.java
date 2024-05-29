@@ -33,8 +33,6 @@ public class Email implements Serializable {
 
 	private InternetAddress[] internetAddressBCCArray;
 
-	private Boolean isMailFooterEnabled;
-
 	private String mailFooter;
 
 	private List<EmailAttachedFile> attachementsArray;
@@ -160,14 +158,6 @@ public class Email implements Serializable {
 		this.internetAddressBCCArray = internetAddressBCCArray;
 	}
 
-	public Boolean getIsMailFooterEnabled() {
-		return isMailFooterEnabled;
-	}
-
-	public void setIsMailFooterEnabled(Boolean isMailFooterEnabled) {
-		this.isMailFooterEnabled = isMailFooterEnabled;
-	}
-
 	public String getMailFooter() {
 		return mailFooter;
 	}
@@ -199,7 +189,7 @@ public class Email implements Serializable {
 	public void setFailedrecipient(InternetAddress[] internetAddresses) {
 		this.failedrecipient = internetAddresses;
 	}
-
+	/**Added for replyTo*/
 	public InternetAddress[] getReplyToaddress() {
 		return replyToaddress;
 	}
@@ -215,5 +205,4 @@ public class Email implements Serializable {
 	public void setHeaderArray(EmailHeaderPropertyXMLVO headerArray) {
 		this.headerArray = headerArray;
 	}
-	
 }

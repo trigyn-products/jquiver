@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -131,10 +132,18 @@ public class DynamicFormCrudController {
 		String formId = httpServletRequest.getParameter("formId");
 		return dynamicFormCrudService.getAllFormQueriesById(formId);
 	}
+	
+	@PostMapping(value = "/gsld")
+	public List<Map<String, Object>> getScriptLibDetails(HttpServletRequest httpServletRequest) throws Exception {
+		String formQueryId = httpServletRequest.getParameter("formQueryId");
+		List<Map<String, Object>> scriptLibList = dynamicFormCrudService.getScriptLibDetatils(formQueryId);
+		return scriptLibList;
+	}
 
 	@PostMapping(value = "/sdfd", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public String saveDynamicFormDetails(@RequestBody MultiValueMap<String, String> formData) throws Exception {
-		return dynamicFormCrudService.saveDynamicFormDetails(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
+		 DynamicForm dynamicform = dynamicFormCrudService.saveDynamicFormDetails(formData, Constant.MASTER_SOURCE_VERSION_TYPE);
+		 return dynamicFormCrudService.saveDynamicFormDetails2(formData,dynamicform, Constant.MASTER_SOURCE_VERSION_TYPE);
 	}
 
 	@GetMapping(value = "/dfl", produces = MediaType.TEXT_HTML_VALUE)
@@ -162,12 +171,13 @@ public class DynamicFormCrudController {
 	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
 		String tableName = httpServletRequest.getParameter("tableName");
 		Boolean toggleCaptcha = false;
+		Boolean toggleFileBin = false;
 		String additionalDataSourceId = httpServletRequest.getParameter("dbProductID");
 		String dbProductName = httpServletRequest.getParameter("dbProductName");
 		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName,
 				additionalDataSourceId);
 		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId,
-				dbProductName, toggleCaptcha);
+				dbProductName, toggleCaptcha,toggleFileBin,null,null);
 	}
 
 	@GetMapping(value = "/cdd")

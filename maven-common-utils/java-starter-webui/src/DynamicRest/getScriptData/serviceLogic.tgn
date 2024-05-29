@@ -1,0 +1,26 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+var ArrayList = Java.type("java.util.ArrayList");
+
+function getScriptDetails(){
+  var map = new HashMap();
+  var scriptArrGlo = new Array();
+  var formQueryResult = "";
+  var formQueryIndex = "";
+  formQueryResult = requestDetails.formQueryId;
+
+  map.put('entityid', formQueryResult); 
+  var scriptConnData = jq_getDBResult("SELECT * FROM jq_script_lib_connect where entity_id =  :entityid", null, map).data_list;
+      if(scriptConnData !=undefined &&  scriptConnData.length !=0){
+        if(scriptConnData[0].script_lib_id != "" ){
+          for(var iCounter=0;iCounter<scriptConnData.length;iCounter++){
+            var scriptMultiSetData = jq_getDBResult("SELECT script_lib_id AS scriptId, library_name AS libraryName FROM jq_script_lib_details WHERE script_lib_id = '"+scriptConnData[iCounter].script_lib_id+"'", null, null).data_list;
+            var scriptMultiData = {"scriptId": scriptMultiSetData[0].scriptId+"","libraryName": scriptMultiSetData[0].libraryName+""};         
+            
+            scriptArrGlo.push(scriptMultiData);                         
+          }           
+        }
+      }
+      return JSON.stringify(scriptArrGlo);
+}
+getScriptDetails();

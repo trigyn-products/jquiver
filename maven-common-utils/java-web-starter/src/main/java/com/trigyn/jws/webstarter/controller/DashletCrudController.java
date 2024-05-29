@@ -99,7 +99,9 @@ public class DashletCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("dashlet-manage-details", templateMap);
 		} catch (CustomStopException custStopException) {
+
 			logger.error("Error occured while loading Dashlet Listing page.", custStopException);
+
 			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Dashlet : DashletId : "+ dashletId, a_exception);

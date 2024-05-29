@@ -50,7 +50,7 @@ public final class Constants {
 	public final static String	ANONYMOUS_USER_NAME		= "ANONYMOUS";
 	
 	public final static Integer	CLUSTER_ACTIVE_TIME		= 1;
-
+	
 	public enum AuthType {
 		@Deprecated
 		INMEMORY("inmemore", 1), 
@@ -80,6 +80,41 @@ public final class Constants {
 		}
 		
 		public static AuthType valueOfAt(String at) {
+	        return authTypeMap.get(at);
+	    }
+	}
+	
+	public enum AuthTypeByName {
+		@Deprecated
+		INMEMORY("inmemore", 1), 
+		DAO("enableDatabaseAuthentication", 2), 
+		LDAP("enableLdapAuthentication", 3), 
+		OAUTH("enableOAuthentication", 4);
+		//TODO : SAML will be uncommented once its implemented.
+		//,SAML("", 5);
+		final String authTypeByName;
+		final Integer authTypeById;
+		private static Map<String, AuthTypeByName> authTypeMap = new HashMap<>();
+		static {
+	        for (AuthTypeByName value : values()) {
+	            authTypeMap.put(value.authTypeByName, value);
+	        }
+	    }
+
+		AuthTypeByName(String authTypeByName, Integer authTypeById) {
+			this.authTypeByName = authTypeByName;
+			this.authTypeById = authTypeById;
+		}
+		
+		public String getAuthTypeByName() {
+			return authTypeByName;
+		}
+		
+		public Integer getAuthTypeById() {
+			return authTypeById;
+		}
+		
+		public static AuthTypeByName valueOfAt(String at) {
 	        return authTypeMap.get(at);
 	    }
 	}

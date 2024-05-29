@@ -2,6 +2,8 @@ package com.trigyn.jws.dynarest.service;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -21,15 +23,19 @@ import java.util.stream.Collectors;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -46,8 +52,11 @@ import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigRepository;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.FileUploadTemp;
@@ -93,6 +102,9 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	@Autowired
 	private ActivityLog activitylog = null;
+	
+	@Autowired
+	private JwsDynarestDAO					dynarestDAO						= null;
 
 	@Override
 	public void init() {
@@ -480,6 +492,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	private Map<String, Object> validateDMLQueries(String fileBinId, Map<String, String> fileValidatorQueries)
 			throws Exception, CustomStopException {
+		try {
+
 		logger.debug("Inside FilesStorageServiceImpl.validateDMLQueries(fileBinId: {}, fileValidatorQueries: {})",
 				fileBinId, fileValidatorQueries);
 
@@ -529,11 +543,16 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			} // End of forEach
 		}
 		return invalidQueryMap;
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in validateDMLQueries.", custStopException);
+			throw custStopException;
+		}
 	}
 
 	@Override
 	public List<Map<String, Object>> validateFilePermission(String fileBinId, String fileAssociationId,
 			String fileUploadId, Map<String, Object> parameterMap) throws Exception, CustomStopException {
+
 		logger.debug(
 				"Inside FilesStorageServiceImpl.validateFilePermission(fileBinId: {}, fileAssociationId: {}, fileUploadId: {}, parameterMap: {})",
 				fileBinId, fileAssociationId, fileUploadId, parameterMap);
@@ -552,6 +571,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 					fileAssociationId = a_fileUpload.get(iCounter).getFileAssociationId();
 					fileUploadId = a_fileUpload.get(iCounter).getFileUploadId();
 				}
+
 			}
 			if (fileUpload != null && StringUtils.isBlank(fileBinId) == true) {
 				fileBinId = fileUpload.getFileBinId();
@@ -608,43 +628,27 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (null != queryContent || queryContent.isBlank() == false || queryContent.isEmpty() == false) {
 				queryContent = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
 			}
-
+			
 			List<Map<String, Object>> resultSet = new ArrayList<>();
-			if ((StringUtils.isBlank(queryContent) == false && a_queryTypeValidator == 1)) {
-				String query = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
-				resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
-			} else if ((StringUtils.isBlank(queryContent) == false && a_queryTypeValidator == 4)) {
-				TemplateVO templateVO = templatingService.getTemplateByName("script-util");
-				StringBuilder resultStringBuilder = new StringBuilder();
-				resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-				ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-				ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
-
-				scriptEngine.put("requestDetails", parameterMap);
-
-				HttpServletRequest requestObject = getRequest();
-
-				if (requestObject != null) {
-					Map<String, String> headerMap = new HashMap<>();
-					Enumeration<String> headerNames = requestObject.getHeaderNames();
-					if (headerNames != null) {
-						while (headerNames.hasMoreElements()) {
-							String header = headerNames.nextElement();
-							headerMap.put(header, requestObject.getHeader(header));
-						}
-					}
-					scriptEngine.put("httpRequestObject", requestObject);
-					scriptEngine.put("requestHeaders", headerMap);
-					scriptEngine.put("session", requestObject.getSession());
-				}
-
-				resultStringBuilder.append(queryContent.toString());
-				Object result = scriptEngine.eval(resultStringBuilder.toString());
-				Map<String, Object> resultSetMap = new HashMap<>();
-				resultSetMap.put("isAllowed", result);
-				if (resultSetMap.size() > 0) {
-					resultSet = new ArrayList<>();
-					resultSet.add(resultSetMap);
+			
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+			ScriptEngine scriptEngine = null;
+			scriptEngine = scriptEngineManager.getEngineByName(Constants.FileQueryType.getqueryTypeID(a_queryTypeValidator).getQueryTypeName());
+			if ((StringUtils.isBlank(queryContent) == false)) {
+				switch(a_queryTypeValidator) {
+				case Constants.SELECT:
+					String query = templatingUtils.processTemplateContents(queryContent, templateName, parameterMap);
+					resultSet = fileUploadConfigDAO.executeQueries(null, query, parameterMap);
+					break;
+				case Constants.JS:
+					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
+					break;
+				case Constants.PY:
+					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
+					break;
+				case Constants.FilePHP:
+					resultSet = scriptEngineExecution(parameterMap,fileBinId,queryType,queryContent,resultSet,scriptEngine);
+					break;
 				}
 			}
 			return resultSet;
@@ -653,6 +657,83 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			throw custStopException;
 		}
 	}
+	
+	public List<Map<String, Object>> scriptEngineExecution(Map<String, Object> parameterMap, String fileBinId, Integer queryType,String queryContent,List<Map<String, Object>> resultSet,ScriptEngine scriptEngine)
+			throws Exception, CustomStopException {
+		
+		try {
+			StringBuilder	resultStringBuilder	= new StringBuilder();
+			
+			if(scriptEngine.getClass().getName().toString().equalsIgnoreCase("jdk.nashorn.api.scripting.NashornScriptEngine")) {
+				
+				TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
+				resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+			}
+
+			scriptEngine.put("requestDetails", parameterMap);
+
+			HttpServletRequest requestObject = getRequest();
+
+			if (requestObject != null) {
+				Map<String, String> headerMap = new HashMap<>();
+				Enumeration<String> headerNames = requestObject.getHeaderNames();
+				if (headerNames != null) {
+					while (headerNames.hasMoreElements()) {
+						String header = headerNames.nextElement();
+						headerMap.put(header, requestObject.getHeader(header));
+					}
+				}
+				scriptEngine.put("httpRequestObject", requestObject);
+				scriptEngine.put("requestHeaders", headerMap);
+				scriptEngine.put("session", requestObject.getSession());
+			}
+			if (queryType.equals(Constants.UPLOAD_FILE_VALIDATOR)) {
+				fileBinId = "upload_" +fileBinId;
+			}else if(queryType.equals(Constants.VIEW_FILE_VALIDATOR)) {
+				fileBinId = "view_" +fileBinId;
+			}else {
+				fileBinId = "delete_" +fileBinId;
+			}
+			List<Object> objScriptLib = fileUploadConfigDAO.scriptLibExecution(fileBinId);
+			for(int iCounter = 0; iCounter<objScriptLib.size(); iCounter++) {
+				resultStringBuilder.append(objScriptLib.get(iCounter)).append("\n");
+			}
+			resultStringBuilder.append(queryContent.toString());
+			Map<String, Object> resultSetMap = new HashMap<>();
+			try {
+			    StringWriter stringWriter = new StringWriter();
+			    scriptEngine.getContext().setWriter(new PrintWriter(stringWriter));
+		        Object scriptResult = scriptEngine.eval(resultStringBuilder.toString());
+		        if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("python")) {
+		        	// If the method has a return statement
+		        	if(scriptEngine.get("result") != null) {
+		        		Object result = scriptEngine.get("result");
+		        		resultSetMap.put("isAllowed", result);
+		        	}else {
+		        		String result = stringWriter.toString();
+		        		resultSetMap.put("isAllowed", result);
+		        	}
+		        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
+		        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+			        String result = stringWriter.toString();
+			        resultSetMap.put("isAllowed", result);
+				} else {
+		        	resultSetMap.put("isAllowed", scriptResult);
+				}
+		    
+		    } catch (ScriptException e) {
+		        logger.error("Error occured in saveDynamicFormV2.", e);
+		    }
+			if (resultSetMap.size() > 0) {
+				resultSet = new ArrayList<>();
+				resultSet.add(resultSetMap);
+			}
+		return resultSet;
+	} catch (CustomStopException custStopException) {
+		logger.error("Error occured in validateFilePermission.", custStopException);
+		throw custStopException;
+	}
+}
 
 	private HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

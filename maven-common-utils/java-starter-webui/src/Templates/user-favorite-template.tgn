@@ -34,9 +34,9 @@
             <div class="selectblock"> 
                  ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="1" >${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>
-                <option value="3">${messageSource.getMessage('jws.favourite')}</option>                 
+                <option value="3" selected>${messageSource.getMessage('jws.favourite')}</option>                 
             </select>
          </div>
 
@@ -88,7 +88,16 @@ let autocompleteQJ;
                 
             });
     });
-    
+
+    $(document).ready(function() {
+        setTimeout(function() {
+            if ($("#typeSelect").val() == '3') {
+                autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
+                autocompleteQJ.resetAutocomplete();
+            }
+        }, 100); 
+    });
+
     function getSavedEntity(){
      
         let entityIdVar = "${innerTemplateObj.entityId}";
@@ -112,7 +121,7 @@ let autocompleteQJ;
 	    }); 
     }
     
-    function changeType() {
+    function changeType() {    
 	var type_id = $("#typeSelect").val();
 	if (type_id == '3') {
 		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";

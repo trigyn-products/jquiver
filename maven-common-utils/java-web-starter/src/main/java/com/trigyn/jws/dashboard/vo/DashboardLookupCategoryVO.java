@@ -12,6 +12,8 @@ public class DashboardLookupCategoryVO implements Serializable {
 	private String				lookupCategory		= null;
 
 	private String				lookupDescription	= null;
+	
+	private String				validation			= null;
 
 	public DashboardLookupCategoryVO() {
 
@@ -26,6 +28,14 @@ public class DashboardLookupCategoryVO implements Serializable {
 	public DashboardLookupCategoryVO(String lookupCategoryId, String lookupDescription) {
 		this.lookupCategoryId	= lookupCategoryId;
 		this.lookupDescription	= lookupDescription;
+	}
+
+	public DashboardLookupCategoryVO(String lookupCategoryId, String lookupCategory, String lookupDescription,
+			String validation) {
+		this.lookupCategoryId = lookupCategoryId;
+		this.lookupCategory = lookupCategory;
+		this.lookupDescription = lookupDescription;
+		this.validation = validation;
 	}
 
 	public String getLookupCategoryId() {
@@ -52,6 +62,14 @@ public class DashboardLookupCategoryVO implements Serializable {
 		this.lookupDescription = lookupDescription;
 	}
 
+	public String getValidation() {
+		return validation;
+	}
+
+	public void setValidation(String validation) {
+		this.validation = validation;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(lookupCategory, lookupCategoryId, lookupDescription);
@@ -76,7 +94,7 @@ public class DashboardLookupCategoryVO implements Serializable {
 	@Override
 	public String toString() {
 		return "DashboardLookupCategoryVO [lookupCategoryId=" + lookupCategoryId + ", lookupCategory=" + lookupCategory
-				+ ", lookupDescription=" + lookupDescription + "]";
+				+ ", lookupDescription=" + lookupDescription + " , validation=" + validation + "]";
 	}
 
 }

@@ -139,6 +139,7 @@ public class TemplatingUtils {
 				locale = localeResolver.resolveLocale(requestObject);
 				modelMap.put("httpRequestObject", requestObject);
 			}
+			modelMap.put("locale", locale);
 			modelMap.put("contextPath", contextPath);
 			modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
 			modelMap.put("dynamicTemplate", dynamicTemplate);

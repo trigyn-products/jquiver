@@ -4,9 +4,29 @@
 <div class="col-12 margin-b-10">
  <div class="control--checkbox">
   <label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
-  <input type="checkbox" class="roles" name="${innerTemplateObj.propertyId!''}" value="true" />
+  <input type="checkbox" id ="che_${innerTemplateObj.propertyId!''}" class="roles" name="${innerTemplateObj.propertyId!''}" value="true" />
   <label for="checkbox1"><span></span>${messageSource.getMessage('jws.true')}</label>
-  <input type="checkbox" class="roles" name="${innerTemplateObj.propertyId!''}" value="false"/>
+  <input type="checkbox" class="roles" id ="che_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="false"/>
   <label for="checkbox1"><span></span>${messageSource.getMessage('jws.false')}</label>
  </div>
 </div>
+<script>
+function validateCheckbox() {
+    var isChecked = false;
+    var checkboxes = document.querySelectorAll('.roles');
+    for(var iCounter = 0; iCounter < checkboxes.length; iCounter++){
+        if(checkboxes[iCounter].checked) {
+            isChecked = true;       
+            break; 
+        }
+    }
+    if (!isChecked) {
+        showMessage("Please check at least one option.", "warn");
+        return false; 
+    } 
+        return true;
+}
+
+
+
+    </script>

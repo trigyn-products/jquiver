@@ -165,6 +165,10 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 		}
 		for (LoginSuccessEventListener logInSuccessEventListner : loginListener) {
 			logInSuccessEventListner.onLogin(userInformation);
+			HttpSession					session		= request.getSession();
+			if(session.getAttribute("loginCaptcha")!=null) {
+				session.removeAttribute("loginCaptcha");
+			}
 		}
 		response.sendRedirect(redirectUrl);
 	}

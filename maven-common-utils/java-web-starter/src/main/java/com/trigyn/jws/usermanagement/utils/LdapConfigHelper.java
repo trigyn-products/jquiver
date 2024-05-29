@@ -3,6 +3,7 @@ package com.trigyn.jws.usermanagement.utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,8 +28,8 @@ public class LdapConfigHelper {
 
 	/**
 	 * @param  ldapAuthSecurityDetails is the security details object
-	 * @param  ldapServerDisplayId is the ldap server display id
-	 * @return LdapContextSource or null
+	 * @param  ldapServerDisplayId     is the ldap server display id
+	 * @return                         LdapContextSource or null
 	 */
 	public LdapContextSource getLdapContextSource(final MultiAuthSecurityDetailsVO ldapAuthSecurityDetails,
 			String ldapServerDisplayId) {
@@ -40,8 +41,9 @@ public class LdapConfigHelper {
 
 			LdapContextSource		ldapContextSource	= new LdapContextSource();
 			JwsAuthConfiguration	ldapDisplayName		= configurationDetails.stream()
-					.filter(config -> config.getName().equals("displayName")).findAny().orElse(null);
-			
+					.filter(config -> config.getName() != null).filter(config -> config.getName().equals("displayName"))
+					.findAny().orElse(null);
+
 			if (StringUtils.isNotEmpty(ldapDisplayName.getValue())
 					&& ldapDisplayName.getValue().equals(ldapServerDisplayId)) {
 				MultiValueMap<String, Object> formLdapData = getLdapContextParameters(configurationDetails);
@@ -58,14 +60,16 @@ public class LdapConfigHelper {
 		AuthenticationDetails ldapConfigurations = multiAuthLogin.getConnectionDetailsVO().getAuthenticationDetails();
 		for (List<JwsAuthConfiguration> configurationDetails : ldapConfigurations.getConfigurations()) {
 			JwsAuthConfiguration ldapDisplayName = configurationDetails.stream()
-					.filter(config -> config.getName().equals("displayName")).findAny().orElse(null);
-			if (StringUtils.isNotEmpty(ldapDisplayName.getValue())
+					.filter(config -> config.getName() != null).filter(config -> config.getName().equals("displayName"))
+					.findAny().orElse(null);
+			if (ldapDisplayName != null && StringUtils.isNotEmpty(ldapDisplayName.getValue())
 					&& ldapDisplayName.getValue().equals(ldapServerDisplayId)) {
 
 				FilterBasedLdapUserSearch	userSearch		= new FilterBasedLdapUserSearch("",
 						"(&(|(samAccountName={0})(userPrincipalName={0})(cn={0}))(objectClass=user))",
 						getLdapContextSource(multiAuthLogin, ldapServerDisplayId));
 				JwsAuthConfiguration		ldapSearchScope	= configurationDetails.stream()
+						.filter(config -> config.getName() != null)
 						.filter(config -> config.getName().equals("ldapSearchScope")).findAny().orElse(null);
 				if (ldapSearchScope != null && ldapSearchScope.getValue().equals("2")) {
 					userSearch.setSearchSubtree(true);
@@ -81,32 +85,70 @@ public class LdapConfigHelper {
 	public MultiValueMap<String, Object> getLdapContextParameters(List<JwsAuthConfiguration> configurationDetails) {
 		MultiValueMap<String, Object> formLdapData = new LinkedMultiValueMap<>();
 		for (JwsAuthConfiguration jwsAuthConfiguration : configurationDetails) {
-			formLdapData.add(jwsAuthConfiguration.getName(), jwsAuthConfiguration.getValue());
+			formLdapData.add(jwsAuthConfiguration.getName(), jwsAuthConfiguration);
 		}
 		return formLdapData;
 	}
 
 	/**
 	 * @param  formLdapData hold the ldap details data
-	 * @return LdapContextSource or null
+	 * @return              LdapContextSource or null
 	 */
 	public LdapContextSource getLdapContextSource(MultiValueMap<String, Object> formLdapData) {
 		LdapContextSource	sourceLdapCtx		= new LdapContextSource();
-		Map<String, Object>	baseEnvironment			= new HashMap<>();
-		String				sourceHost			= (String) formLdapData.getFirst("ldapAddress");
-		String				sourcePort			= (String) formLdapData.getFirst("ldapPort");
-		String				baseDN				= (String) formLdapData.getFirst("basedn");
-		String				binUserDN			= (String) formLdapData.getFirst("userdn");
-		String				adminPassword		= (String) formLdapData.getFirst("adminPassword");
-		String				adminUserName		= (String) formLdapData.getFirst("adminUserName");
-		String				ldapSecurityType	= (String) formLdapData.getFirst("ldapSecurityType");
-		String				loginAttribute		= (String) formLdapData.getFirst("loginAttribute");
+		Map<String, Object>	baseEnvironment		= new HashMap<>();
+		String				sourceHost			= "";
+		String				sourcePort			= "";
+		String				baseDN				= "";
+		String				binUserDN			= "";
+		String				adminPassword		= "";
+		String				adminUserName		= "";
+		String				ldapSecurityType	= "";
+		String				loginAttribute		= "";
 		String				securityPrincipal	= "";
 		try {
+			for (Entry<String, List<Object>> entry : formLdapData.entrySet()) {
+				String			key	= entry.getKey();
 
-			logger.info("Connecting to LDAP " + sourceHost + ":" + sourcePort + "...");
+				List<Object>	val	= entry.getValue();
+				for (Object object : val) {
+					String condition = ((JwsAuthConfiguration) object).getCondition();
+					if (condition != null && condition.equalsIgnoreCase("row-added")) {
+						String addParams = ((JwsAuthConfiguration) object).getValue();
+						baseEnvironment.put(key, addParams);
+					} else if(key != null){
+						if (key.equalsIgnoreCase("ldapAddress")) {
+							sourceHost = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("ldapPort")) {
+							sourcePort = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("basedn")) {
+							baseDN = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("userdn")) {
+							binUserDN = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("adminPassword")) {
+							adminPassword = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("adminUserName")) {
+							adminUserName = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("ldapSecurityType")) {
+							ldapSecurityType = ((JwsAuthConfiguration) object).getValue();
+						}
+						if (key.equalsIgnoreCase("loginAttribute")) {
+							loginAttribute = ((JwsAuthConfiguration) object).getValue();
+						}
+					}
 
-			if (loginAttribute.equalsIgnoreCase("mail")) {
+				}
+			}
+
+			logger.info("Connecting to LDAP ..." + sourceHost + ":" + sourcePort + "...");
+
+			if (loginAttribute!=null && loginAttribute.equalsIgnoreCase("mail")) {
 				securityPrincipal = adminUserName;
 			} else {
 				securityPrincipal = loginAttribute + "=" + adminUserName + "," + binUserDN + "," + baseDN;
@@ -157,7 +199,7 @@ public class LdapConfigHelper {
 		ldapTemplate.setIgnorePartialResultException(true);
 		return ldapTemplate;
 	}
-	
+
 	public InetOrgPersonContextMapper inetOrgPersonContextMapper() {
 		InetOrgPersonContextMapper contextMapper = new InetOrgPersonContextMapper();
 		return contextMapper;

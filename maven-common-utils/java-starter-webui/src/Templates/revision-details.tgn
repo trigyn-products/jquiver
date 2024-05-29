@@ -557,7 +557,9 @@ function saveUpdatedJson(){
 			    		idList.push(moduleType.toLowerCase()+entityId);
 				}
 				localStorage.setItem("importedIdList", JSON.stringify(idList));
+                
 			}
+         //   saveScriptLibDetails(formId,contentJson);
 			showMessage("Information saved successfully", "success");
 		},
 				
@@ -567,6 +569,26 @@ function saveUpdatedJson(){
 	        	
 	});
 
+}
+
+function saveScriptLibDetails(formId,contentJson){
+     $.ajax({
+       async: false,
+        type: "POST",
+        url: contextPath + "/api/saveScript", 
+        data:{
+            formId: formId,
+            scriptIdArray : contentJson.scriptLibId,
+            formQueryId : contentJson.formQueryId,
+            isEdit : 1,
+        },
+        success: function(data) {               
+        },
+        error: function(xhr, error) {
+            showMessage("Error while loading", "error");
+             
+        },
+    });//end of ajax
 }
 
 function backToPreviousPage(){

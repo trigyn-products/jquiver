@@ -45,8 +45,6 @@ public class CustomOidcUserService extends OidcUserService {
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-		// TODO Auto-generated method stub
-
 		OidcUser oidcUser = super.loadUser(userRequest);
 		try {
 			return processOAuth2User(userRequest, oidcUser);
@@ -55,8 +53,6 @@ public class CustomOidcUserService extends OidcUserService {
 			throw a_authExc;
 		} catch (Exception a_excep) {
 			logger.error("Error ocurred.", a_excep);
-			// Throwing an instance of AuthenticationException will trigger the
-			// OAuth2AuthenticationFailureHandler
 			throw new InternalAuthenticationServiceException(a_excep.getMessage(), a_excep.getCause());
 		}
 	}
@@ -72,13 +68,6 @@ public class CustomOidcUserService extends OidcUserService {
 
 		JwsUser user = jwsUserRepository.findByEmailIgnoreCase(oAuth2UserInfo.getEmail());
 		if (user != null) {
-			// if(!user.getProvider().equals(AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId())))
-			// {
-			// throw new OAuth2AuthenticationProcessingException("Looks like you're signed
-			// up with " +
-			// user.getProvider() + " account. Please use your " + user.getProvider() +
-			// " account to login.");
-			// }
 			if (user.getIsActive() == Constants.INACTIVE) {
 				throw new OAuth2AuthenticationProcessingException("Access Denied Please contact admin");
 			}

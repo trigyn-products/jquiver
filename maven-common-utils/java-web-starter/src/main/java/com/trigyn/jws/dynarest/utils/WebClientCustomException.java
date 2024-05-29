@@ -17,6 +17,7 @@ public class WebClientCustomException extends Exception {
 	private final HttpStatus	statusCode;
 
 	private final String		statusText;
+	
 
 	public WebClientCustomException(String a_message, HttpStatus a_statusCode, String a_statusText) {
 

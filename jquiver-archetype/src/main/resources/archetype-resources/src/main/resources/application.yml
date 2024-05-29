@@ -3,6 +3,8 @@ server:
   shutdown: graceful
 spring:
   profiles: ${profileName}
+  resources:
+    static-locations: classpath:/
   flyway:
     cleanDisabled: true
     enabled: true
@@ -14,6 +16,7 @@ spring:
     #comment url, username & password and uncomment below property if you want to use JDNI instead of direct connection
     #jndi-name: java:comp/env/jdbc/yourJNDI
 logging:
+  config: classpath:log4j2.xml
   level:
     root: info
     org:

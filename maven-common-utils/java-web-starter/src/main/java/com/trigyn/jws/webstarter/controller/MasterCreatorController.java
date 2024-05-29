@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -85,10 +84,13 @@ public class MasterCreatorController {
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Master Genertor page.", custStopException);
 			throw custStopException;
-		} catch (Exception a_exception) {
-			logger.error("Error occured while saving Master Module (formData: {})"+formData, a_exception);
-			if (httpServletResponse.getStatus() != HttpStatus.FORBIDDEN.value()) {
-				httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+		} catch (Exception exception) {
+			logger.error("Error occured while saving Master Module (formData: {})"+formData, exception);
+			if(null!=exception.getMessage() && exception.getMessage().equalsIgnoreCase(HttpStatus.PRECONDITION_FAILED.toString())){
+				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "File Bin already exist");
+			}
+			else if (httpServletResponse.getStatus() != HttpStatus.FORBIDDEN.value()) {
+				httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			}
 		}
 	}

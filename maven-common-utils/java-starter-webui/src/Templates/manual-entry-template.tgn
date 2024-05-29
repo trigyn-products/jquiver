@@ -34,6 +34,10 @@
             <span onclick="backToWelcomePage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
             </span> 
+             <form id="editManualForm" action="${(contextPath)!''}/cf/hmem" method="get" target="_blank" class="margin-r-5 pull-left">
+  				<input id="manualTypeView" name="mt" type="hidden" value="${mt}">
+  				<button type="submit" class="btn btn-primary"> Edit Manual </button>
+			</form>
         </div>
         
         <div class="clearfix"></div>        
@@ -70,13 +74,13 @@
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
             { title: "Last updated by", width: 130, dataIndx: "last_updated_by", align: "left", align: "left", halign: "center",
                 filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
-            { title: "Last Updated Timestamp", width: 130, dataIndx: "last_modified_on", align: "left", align: "left", halign: "center" , render: lastUpdatedDate },
+            { title: "Last Updated Timestamp", width: 130, dataIndx: "last_updated_ts", align: "left", align: "left", halign: "center" , render: lastUpdatedDate },
             { title: "Action", width: 50, minWidth: 115, dataIndx: "action", align: "center", halign: "center", render: manageRecord, sortable: false}
         ];
     	
     	let dataModel = {
         	url: contextPath+"/cf/pq-grid-data",
-        	sortIndx: "last_modified_on",
+        	sortIndx: "last_updated_ts",
             sortDir: "down"
     	};
     	
@@ -85,7 +89,7 @@
           gridId: "manual-entryGrid",
           colModel: colM,
           dataModel: dataModel,
-          additionalParameters: {"cr_manual_type" : "str_"+manualType},
+          additionalParameters: {"cr_manual_Id" : "str_"+manualType},
           loadCallback: function(event, ui) {
               $("#sequence").val(nextEntrySequence);
           }
@@ -101,7 +105,7 @@
     }
     
     function lastUpdatedDate(uiObject) {
-        let lastModifiedDate = new Date(uiObject.rowData.last_modified_on);
+        let lastModifiedDate = new Date(uiObject.rowData.last_updated_ts);
         let lastModifiedDatea = Calendar.printDate(lastModifiedDate,"%d-%m-%Y %H:%M:%S %p");
         return lastModifiedDatea;
     }
@@ -137,7 +141,7 @@
     function deleteEntry(element) {
         let rowData = $( "#manual-entryGrid" ).pqGrid("getRowData", {rowIndx: element.id});
         let manualEntryId = rowData.manual_entry_id;
-        let manualTypeId  = rowData.manual_type;
+        let manualTypeId  = rowData.manual_Id;
         let sortIndex = rowData.sort_index;
         let entryName = rowData.entry_name;
 		$("#deleteEntry").html("Are you sure you want to delete " + entryName + "?");
@@ -189,4 +193,8 @@
             },
 	    });
     }
+    
+     function goToEditView() {
+        location.href = contextPath+"/cf/hmvm";
+	}
 </script>

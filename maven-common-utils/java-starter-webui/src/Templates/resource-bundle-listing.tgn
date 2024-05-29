@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
 
 <style>
 
@@ -87,7 +88,7 @@ margin:15px 0;
                             <option value="2">${messageSource.getMessage('jws.system')}</option>                 
                         </select>
        
-                    <select id="languageOptions" class="spacingclss typeSelectDropDown"  onchange="changeLanguage()">
+                    <select id="languageOptions" class="spacingclss typeSelectDropDown languageOptionsClass"  onchange="changeLanguageRB()">
                     <#list languageVOList as languageVO>
                         <#if languageVO??>
                         <#if (languageVO?api.getLanguageId())?? && languageVO?api.getLanguageId() == 1>
@@ -330,7 +331,8 @@ margin:15px 0;
                 } 
                 else 
                 {
-                      importResourceBundle();  
+                    $.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });      
+                    importResourceBundle();  
                 	$(this).dialog('close');
            
                }
@@ -354,6 +356,22 @@ margin:15px 0;
    		}	
        });
 	
+    }
+    const changeLanguageRB = function() {
+    var langSelected= $(".languageOptionsClass").val();
+	var localeId = $(".languageOptionsClass").find(":selected").val();
+
+        $.ajax({
+            async: false,
+            type: "GET",
+            cache: false,
+            url: contextPath + "/cf/cl?lang=" + localeId,
+            success: function(data) {
+
+                setCookie("locale", localeId, 1);
+                location.reload();
+            }
+        });
     }
      function importResourceBundle() {        
         var formData = new FormData();
@@ -392,11 +410,13 @@ margin:15px 0;
                           });
     				} else {
                       showMessage("Data imported successfully", "success");
-                      changeType();
+                      changeType();                      
     				}
+    				$.unblockUI();
     			},    		        
     		    error : function(xhr, error){
                     	showMessage("Error occurred while importing", "error");
+                    	$.unblockUI();
     		    },
     		        	
     		});

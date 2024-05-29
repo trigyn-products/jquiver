@@ -16,14 +16,22 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<jws.version>1.5.1</jws.version>
-		<log4j2.version>2.17.0</log4j2.version>
+		<jws.version>1.5.3</jws.version>
+		<log4j2.version>2.17.1</log4j2.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<!-- comment below section if you want spring boot logger to be used 
+				 and configured log4j2.xml file not to be used -->
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 <!-- uncomment below section if you want to run within a container and comment out above dependency -->
@@ -73,11 +81,11 @@
 			<version>${jws.version}</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 		    <groupId>net.bull.javamelody</groupId>
 		    <artifactId>javamelody-spring-boot-starter</artifactId>
 		    <version>1.91.0</version>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

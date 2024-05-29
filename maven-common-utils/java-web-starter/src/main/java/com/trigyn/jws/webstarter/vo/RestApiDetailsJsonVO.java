@@ -1,6 +1,7 @@
 package com.trigyn.jws.webstarter.vo;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class RestApiDetailsJsonVO implements Serializable {
 
@@ -51,7 +52,9 @@ public class RestApiDetailsJsonVO implements Serializable {
 	
 	private Integer 			dynarestSecured 			= null;
 	
-	private String				datasourceDetails				= null;
+	private String				datasourceDetails			= null;
+	
+	private	String				scriptLibId					= null;
 
 	public String getAllowFiles() {
 		return allowFiles;
@@ -229,6 +232,14 @@ public class RestApiDetailsJsonVO implements Serializable {
 
 	public void setDatasourceDetails(String datasourceDetails) {
 		this.datasourceDetails = datasourceDetails;
+	}
+
+	public String getScriptLibId() {
+		return scriptLibId;
+	}
+
+	public void setScriptLibId(String string) {
+		this.scriptLibId = string;
 	}
 
 	

@@ -23,6 +23,7 @@ import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
 import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
+import com.trigyn.jws.dbutils.vo.xml.ScriptLibraryDetailsExportVO;
 import com.trigyn.jws.dbutils.vo.xml.Settings;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
@@ -70,10 +71,12 @@ public class XMLUtil {
 					module.setFileBin((FileUploadConfigExportVO) map.get("moduleObject"));
 				} else if (map.get("moduleObject") instanceof DynaRestExportVO) {
 					module.setDynaRestExportVO((DynaRestExportVO) map.get("moduleObject"));
+				} else if (map.get("moduleObject") instanceof ScriptLibraryDetailsExportVO) { 
+			//		module.setScriptLibraryExportVo(ScriptLibraryDetailsExportVO) map.get("moduleObject");
 				}else if (map.get("moduleObject") instanceof List) {
 					module.setFileUploadList((List<FileUploadExportVO>) map.get("moduleObject"));
-				}
-
+				} 
+ 
 				exportModuleList.add(module);
 			}
 			exportModule.setModule(exportModuleList);

@@ -1,2 +1,1 @@
-SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName, grid_column_names AS gridColumnName, custom_filter_criteria AS customFilterCriteria
-, query_type AS queryType, datasource_id AS datasourceId FROM jq_grid_details <#if primaryId??> WHERE grid_id = :primaryId </#if>
+SELECT grid_id AS gridId, grid_name AS gridName, grid_description AS gridDescription, grid_table_name AS gridTableName, grid_column_names AS gridColumnName, custom_filter_criteria AS customFilterCriteria, query_type AS queryType, datasource_id AS datasourceId FROM jq_grid_details WHERE grid_id = <#if primaryId??> :primaryId </#if>

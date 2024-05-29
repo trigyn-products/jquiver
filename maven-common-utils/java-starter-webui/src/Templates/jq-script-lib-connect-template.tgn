@@ -1,0 +1,124 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">jq-script-lib-connect</h2> 
+        <div class="float-right">
+             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> Create New </button>
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+    <div class="table_responsive">
+         <div class="cursor show"></div>  
+            <div id="jq-script-lib-connectGrid" class="tablescrollcls"></div>
+    </div>
+
+    <div id="snackbar"></div>
+</div>
+
+<script>
+    contextPath = "${(contextPath)!''}";
+    let primaryKeyDetails = {"scriptlibconnid":""};
+     let listingData  = [];
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "Script Lib Conn Id", hidden : true, width: 130, dataIndx: "script_lib_conn_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Script Lib Id", hidden : false, width: 130, dataIndx: "script_lib_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Module Type Id", hidden : true, width: 130, dataIndx: "module_type_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Entity Id", hidden : false, width: 130, dataIndx: "entity_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Created By", hidden : false, width: 130, dataIndx: "created_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Updated By", hidden : false, width: 130, dataIndx: "updated_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Updated Date", hidden : false, width: 130, dataIndx: "updated_date", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Is Custom Updated", hidden : false, width: 130, dataIndx: "is_custom_updated", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#jq-script-lib-connectGrid").grid({
+          gridId: "jq-script-lib-connectGrid",
+          colModel: colM,
+          dataModel: dataModel
+        });
+    
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }*/
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    /*
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "☑" : "☐") + "</span>";
+       
+    }
+    */
+
+    
+
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+        listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;
+        return '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+    }
+
+    function upsert(a_rowID){
+    	let redirectURL = contextPath+"/view/jq-script-lib-connect-f";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    			redirectURL += '?scriptlibconnid=' + listingData[a_rowID]["script_lib_conn_id"];
+    	}
+    	location.href = redirectURL;
+    }
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;
+        
+    }
+</script>

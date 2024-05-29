@@ -85,7 +85,7 @@ class TemplateEngine {
 			});
 			context.setTemplateValue();
 			context.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('template-manage-details', $("#savedAction").find("button"),
+				typeOfActionWithIsEdit('template-manage-details', $("#savedAction").find("button"), isEdit,
 					templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);
 			});
 			context.editor.onDidChangeModelContent(function() {

@@ -42,6 +42,17 @@ public final class Constants {
 	public static final Integer			IS_SECURED								= 1;
 	public static final Integer			IS_NOT_SECURED							= 0;
 	public static final Integer		    ALL_REQ_TYPE_ID					        = 9;
+	public static final String			DYNAMIC_REST_MOD_ID						= "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
+	public static final String			FILE_BIN_MOD_ID							= "248ffd91-7760-11eb-94ed-f48e38ab8cd7";
+	public static final int		    	JAVA					        		= 1;
+	public static final int		    	FTL					        			= 2;
+	public static final int		    	JAVASCRIPT					        	= 3;
+	public static final int		    	PYTHON					        		= 4;
+	public static final int		    	PHP					        			= 5;
+	public static final int		    	SELECT					        		= 1;
+	public static final int		    	JS					        			= 4;
+	public static final int		    	PY					        			= 2;
+	public static final int		    	FilePHP					        		= 3;
 
 	private static Map<String, String>	SELECT_REQUIRED_COLUMN_MAP				= new HashMap<String, String>();
 
@@ -73,16 +84,33 @@ public final class Constants {
 	}
 
 	public enum Platforms {
-		JAVA(1), FTL(2), JAVASCRIPT(3);
+		JAVA(1, "java"), FTL(2, "ftl"), JAVASCRIPT(3, "nashorn") , PYTHON(4, "python") ,PHP(5, "php");
 
 		final int platform;
+		private String platformName = null;
 
-		Platforms(int platformId) {
+		Platforms(int platformId, String a_platformName) {
 			platform = platformId;
+			platformName = a_platformName;
 		}
 
 		public int getPlatform() {
 			return platform;
+		}
+		
+		public String getPlatformName() {
+			return platformName;
+		}
+		
+		public static Platforms getPlatformByID(int a_platformId) {
+			
+			for(Platforms p : Platforms.values()) {
+				if(p.getPlatform() == a_platformId) {
+					return p;
+				}
+			}
+			
+			return null;
 		}
 	}
 
@@ -153,6 +181,38 @@ public final class Constants {
 
 		public String getModuleName() {
 			return moduleName;
+		}
+	}
+	
+	public enum FileQueryType {
+		SELECT(1, "SELECT"), PY(2, "python"), PHP(3,"php"), JS(4,"nashorn");
+
+		final int queryType;
+		private String queryTypeName = null;
+
+
+		FileQueryType(int queryType, String a_queryTypeName) {
+			this.queryType = queryType;
+			queryTypeName = a_queryTypeName;
+		}
+
+		public int getQueryType() {
+			return queryType;
+		}
+		
+		public String getQueryTypeName() {
+			return queryTypeName;
+		}
+		
+		public static FileQueryType getqueryTypeID(int a_queryType) {
+			
+			for(FileQueryType p : FileQueryType.values()) {
+				if(p.getQueryType() == a_queryType) {
+					return p;
+				}
+			}
+			
+			return null;
 		}
 	}
 }

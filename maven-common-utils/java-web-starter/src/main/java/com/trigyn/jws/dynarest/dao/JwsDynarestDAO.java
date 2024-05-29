@@ -1,5 +1,6 @@
 package com.trigyn.jws.dynarest.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
+import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.entities.JqSchedulerLog;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import com.trigyn.jws.dynarest.utils.Constants;
 
 @Repository
 public class JwsDynarestDAO extends DBConnection {
@@ -28,6 +31,15 @@ public class JwsDynarestDAO extends DBConnection {
 		JwsDynamicRestDetail jwsDynamicRestDetail =  hibernateTemplate.get(JwsDynamicRestDetail.class, dynarestDetailsId);
 		if(jwsDynamicRestDetail != null) getCurrentSession().evict(jwsDynamicRestDetail);
 		return jwsDynamicRestDetail;
+	}
+	
+	@Transactional
+	public JwsDynamicRestDetail findDynamicRestByUrl(String jwsDynamicRestUrl) {
+		Query query = getCurrentSession().createQuery(" FROM JwsDynamicRestDetail  WHERE lower(jwsDynamicRestUrl) = lower(:jwsDynamicRestUrl)");
+		query.setParameter("jwsDynamicRestUrl", jwsDynamicRestUrl);
+		JwsDynamicRestDetail data = (JwsDynamicRestDetail) query.uniqueResult();
+		if(data != null) getCurrentSession().evict(data);
+		return data;
 	}
 
 	public List<Map<String, Object>> executeQueries(String dataSourceId, String query, Map<String, Object> parameterMap) {
@@ -113,6 +125,51 @@ public class JwsDynarestDAO extends DBConnection {
 	@Transactional
 	public void saveJqSchedulerLog(JqSchedulerLog jqSchedulerLog) {
 		getCurrentSession().save(jqSchedulerLog);
+	}
+	
+	public final List<Object> scriptLibExecution(String dynarestId) {
+		Query scriptLibQuery = getCurrentSession().createSQLQuery(" SELECT jqsl.template_id "
+				+ "	FROM jq_script_lib_connect jqs LEFT JOIN jq_dynamic_rest_details jqd "
+				+ "	ON jqd.jws_dynamic_rest_id = jqs.entity_id "
+				+ "	LEFT JOIN jq_script_lib_details jqsl "
+				+ "	ON jqs.script_lib_id = jqsl.script_lib_id "
+				+ "	WHERE jqs.module_type_id = :moduleId AND jqd.jws_dynamic_rest_id = :dynarestId");
+		
+		scriptLibQuery.setParameter("moduleId", Constants.DYNAMIC_REST_MOD_ID);
+		scriptLibQuery.setParameter("dynarestId", dynarestId);
+		
+		List<Object[]> scriptLibList = scriptLibQuery.list();
+		List<Object>		resultMap	= new ArrayList<>();
+		
+		for(int iCounter=0;iCounter<scriptLibList.size();iCounter++){
+			Query roleQuery = getCurrentSession().createSQLQuery("SELECT COUNT(*) FROM `jq_entity_role_association` WHERE `role_id` = :roleId AND `is_active` = :isActive AND entity_id = :entityId ");
+			roleQuery.setParameter("roleId",   Constant.ANONYMOUS_ROLE_ID);
+			roleQuery.setParameter("isActive", Constant.IS_ACTIVE);
+			roleQuery.setParameter("entityId", scriptLibList.get(iCounter));
+			List<Object[]> roleCount = roleQuery.list();
+			if(roleQuery.list().get(0).toString().equalsIgnoreCase("0")) {
+				Query templateQuery = getCurrentSession().createSQLQuery("SELECT template FROM jq_template_master WHERE template_id = :templateId ");
+				templateQuery.setParameter("templateId", scriptLibList.get(iCounter));
+				List<Object[]> listTemplate = templateQuery.list();
+				resultMap.add(listTemplate.get(0));
+			}
+		}
+		 
+		return resultMap;
+	}
+	
+	public List<String> getscriptLibId(String entityId) {
+		Query querySQL = getCurrentSession().createSQLQuery("SELECT script_lib_id FROM jq_script_lib_connect WHERE entity_id = :entityId");
+		querySQL.setParameter("entityId", entityId);
+		List<String> scriptLibIdList = querySQL.list();
+		return scriptLibIdList;
+	}
+
+	public void scriptLibDeleteById(String entityid) {
+		Query deleteScriptLibQuery = null;
+		deleteScriptLibQuery = getCurrentSession().createSQLQuery("delete from jq_script_lib_connect where entity_id=:entityid");
+		deleteScriptLibQuery.setParameter("entityid", entityid);
+		int resultSetDelete = deleteScriptLibQuery.executeUpdate();
 	}
 
 }

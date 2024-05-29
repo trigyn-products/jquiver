@@ -43,6 +43,10 @@ public class JwsAuthConfiguration {
 
 	@JsonProperty("additionalDetails")
 	private AdditionalDetails				additionalDetails		= null;
+	
+	@JsonIgnore
+	@JsonProperty("condition")
+	private String				condition							= null;
 
 	@JsonProperty("name")
 	public String getName() {
@@ -142,6 +146,16 @@ public class JwsAuthConfiguration {
 	@JsonProperty("additionalDetails")
 	public void setAdditionalDetails(AdditionalDetails additionalDetails) {
 		this.additionalDetails = additionalDetails;
+	}
+	
+	@JsonProperty("condition")
+	public String getCondition() {
+		return condition;
+	}
+
+	@JsonProperty("condition")
+	public void setCondition(String condition) {
+		this.condition = condition;
 	}
 
 }

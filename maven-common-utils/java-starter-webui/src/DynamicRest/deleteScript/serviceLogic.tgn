@@ -1,0 +1,16 @@
+var HashMap=Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+function delScript()
+{
+    var map=new HashMap();
+    map.put("scriptID",requestDetails["scriptID"]);
+    
+    jq_updateDBQuery("delete from jq_script_lib_details where script_lib_id=:scriptID", null, map);    
+   
+}
+if(requestDetails["loggedInUserRoleList"].indexOf("ADMIN") > -1) {
+    delScript();
+    200;
+} else {
+    403;
+}

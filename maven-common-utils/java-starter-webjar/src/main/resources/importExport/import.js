@@ -163,6 +163,12 @@ function submitRevisionForm(moduleType, entityId) {
 		formId = jsonObject["formId"];
 		moduleName = jsonObject["gridName"];
 		moduleTypeStr = "grid";
+		
+	} else if (moduleType == "ScriptLibrary") {
+		cmvEntityName = "jq_script_lib_details";
+		formId = jsonObject["formId"];
+		moduleName = jsonObject["libraryName"];
+		moduleTypeStr = "scriptlibrary";
 
 	} else if (moduleType == "Templates") {
 		cmvEntityName = "jq_template_master";

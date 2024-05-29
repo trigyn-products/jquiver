@@ -11,10 +11,12 @@
 		<p class="divdeform">
 			<label for="username" class="formlablename">
 			<@resourceBundleWithDefault "jws.email" "Email"/></label> <span class="formicosn">
-			<i class="fa fa-user" aria-hidden="true"></i></span> <input type="email"
-				id="email" name="email" class="form-control"
-				placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>"
-			required autofocus>
+			<i class="fa fa-user" aria-hidden="true"></i></span> 
+			<#if innerTemplateObj.previousMail?? && innerTemplateObj.previousMail?has_content>
+         		<input type="email" id="email" value="${innerTemplateObj.previousMail}" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email" />" required autofocus> 
+			<#else>
+				<input type="email" id="email"  name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email" />" required autofocus> 
+			</#if>
 		</p>
 		<#if innerTemplateObj.verificationType?? && innerTemplateObj.verificationType=="0">
 		<p class="divdeform">

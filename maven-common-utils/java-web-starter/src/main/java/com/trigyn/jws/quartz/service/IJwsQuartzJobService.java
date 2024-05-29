@@ -19,7 +19,7 @@ public interface IJwsQuartzJobService {
 
 	boolean updateOneTimeJob(String jobName, Date date);
 
-	boolean updateCronJob(String jobName, Date date, String cronExpression);
+	boolean updateCronJob(String jobName, String jobGroup, Date date, String cronExpression);
 
 	boolean unScheduleJob(String jobName);
 

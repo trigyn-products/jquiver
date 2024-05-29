@@ -70,6 +70,9 @@ public class DashboardCrudService {
 
 	@Autowired
 	private IDashletRepository						iDashletRepository				= null;
+	
+	@Autowired
+	private DashletDAO                              dashletDAO=null;
 
 	@Autowired
 	private JwsRoleRepository						userRoleRepository				= null;
@@ -88,10 +91,6 @@ public class DashboardCrudService {
 
 	@Autowired
 	private ActivityLog								activitylog						= null;
-	
-	@Autowired
-	private DashletDAO							    dashletDAO						= null;
-	
 	
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
 		return iDashboardRepository.findById(dashboardId).orElse(null);
@@ -145,8 +144,6 @@ public class DashboardCrudService {
 		Dashboard							dashboardEntity		= convertDashboarVOToEntity(dashboardVO, userId);
 		List<DashboardRoleAssociation>		roleAssociations	= new ArrayList<>();
 		List<DashboardDashletAssociation>	dashletAssociations	= new ArrayList<>();
-		Map<String, String>					requestParams		= new HashMap<>();
-		UserDetailsVO						detailsVO			= userDetailsService.getUserDetails();
 		String								action				= "";
 		String								masterModuleType	= Constants.Modules.DASHBOARD.getModuleName();
 		if (dashboardEntity.getDashboardId() != null) {
@@ -313,15 +310,11 @@ public class DashboardCrudService {
 			dashboardCrudDAO.deleteAllDashletRoles(dashletId);
 		}
 	}
-
 	@Transactional(readOnly = false)
 	public String saveDashlet(DashletVO dashletVO, Integer sourceTypeId) throws Exception {
 
 		Dashlet dashlet = convertDashletVOToEntity(dashletVO);
-		if(dashlet.getDashletId()!=null) {
-			dashboardCrudDAO.updateDashlet(dashlet);}			
-		else {
-			dashlet = iDashletRepository.save(dashlet);}
+		dashboardCrudDAO.saveDashlet(dashlet);
 		String	action				= "";
 		String	masterModuleType	= Constants.Modules.DASHLETS.getModuleName();
 		if (dashletVO.getDashletId().isEmpty() == false) {
@@ -340,8 +333,8 @@ public class DashboardCrudService {
 				for (DashletPropertyVO dashletPropertyVO : dashletVO.getDashletPropertVOList()) {
 					DashletProperties dashletProperties = convertDashletPropertyVOtoEntity(dashlet.getDashletId(),
 							dashletPropertyVO);
-					// dashboardCrudDAO.saveDashletProperties(dashletProperties);
-					iDashletPropertiesRepository.saveAndFlush(dashletProperties);
+				    //dashboardCrudDAO.saveDashletProperties(dashletProperties);
+					iDashletPropertiesRepository.save(dashletProperties);
 					properties.add(dashletProperties);
 				}
 			}
@@ -395,6 +388,7 @@ public class DashboardCrudService {
 			dashlet.setDaoQueryType(dashletVO.getDaoQueryType());
 			dashlet.setResultVariableName(dashletVO.getResultVariableName());
 			dashlet.setDatasourceId(dashletVO.getDataSourceId());
+			dashlet.setDashletTypeId(dashletVO.getDashletTypeId());
 		} catch (Exception a_excep) {
 			logger.error("Error ocurred.", a_excep);
 
@@ -416,6 +410,7 @@ public class DashboardCrudService {
 			dashletProperties.setDisplayName(dashletPropertyVO.getDisplayName());
 			dashletProperties.setType(dashletPropertyVO.getType());
 			dashletProperties.setValue(dashletPropertyVO.getValue());
+			dashletProperties.setValidation(dashletPropertyVO.getValidation());
 			dashletProperties.setDefaultValue(dashletPropertyVO.getDefaultValue());
 			dashletProperties.setConfigurationScript(dashletPropertyVO.getConfigurationScript());
 			dashletProperties.setToDisplay(dashletPropertyVO.getToDisplay());

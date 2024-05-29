@@ -277,13 +277,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				<div class="float-right">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
-		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit(''dashboard-manage-details'', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
-		                    	<li id="saveAndCreateNew" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                        <li id="saveAndEdit" onclick="typeOfAction(''dashboard-manage-details'', this, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit(''dashboard-manage-details'', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                        <li id="saveAndEdit" onclick="typeOfActionWithIsEdit(''dashboard-manage-details'', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		                    </ul>
 	                    </div> 
 	                </div>
@@ -762,13 +762,13 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
 		            <div id="savedAction">
-	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit(''dashlet-manage-details'', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		            </div>
 		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            <div class="dropdown-menu action-cls"  id="actionDiv">
 		               	<ul class="dropdownmenu">
-		                   	<li id="saveAndCreateNew" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-		                    <li id="saveAndEdit" onclick="typeOfAction(''dashlet-manage-details'', this, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+		                   	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit(''dashlet-manage-details'', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+		                    <li id="saveAndEdit" onclick="typeOfActionWithIsEdit(''dashlet-manage-details'', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
 		            	</ul>
 	                </div> 
 				</div>

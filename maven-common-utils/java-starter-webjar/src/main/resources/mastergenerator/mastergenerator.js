@@ -5,6 +5,7 @@ function backToPreviousPage() {
 }
 let  primaryKey = '';
 let  primaryKeyCounter = 0;
+var fileBinDisplayTexts = null;
 function populateFields(tableName, dbProductID){
 	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
     let selectedTable = tableName;
@@ -16,7 +17,6 @@ function populateFields(tableName, dbProductID){
         	dbProductID : dbProductID
         },
         success : function(data) {
-        	    
         	$("#moduleName").prop("readonly", false);
         	$("#menuDisplayName").prop("readonly", false);  
         	$("#moduleURL").prop("readonly", false); 
@@ -27,6 +27,7 @@ function populateFields(tableName, dbProductID){
             $("#moduleName").val(selectedTable.replaceAll("_", "-"));
             $("#formDisplayName").val(selectedTable.replaceAll("_", "-")+"-form");
             $("#formModuleURL").val(selectedTable.replaceAll("_", "-")+"-f");
+           
              primaryKey = data.filter(element => element.columnKey == "PK").map(element => element["tableColumnName"]).toString();
              primaryKeyCounter = data.filter(element => {
             	 if(element.columnKey == "PK"){
@@ -294,6 +295,9 @@ function updateOtherElements(resourceKey){
 }
 
 function getMultilingualData(elementId, resourceTxt){
+	if(fileBinDisplayTexts == null){
+				 fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist");
+			}
 	const displayId = elementId.substring(0, elementId.lastIndexOf("_"));
 	const resourceKey = $("#"+elementId).val().trim();
 	const previousKey = $("#"+elementId).data("previous-key");
@@ -335,7 +339,12 @@ function getMultilingualData(elementId, resourceTxt){
 					updateResourceKeyMap(data, elementId, displayId, resourceKey);
 		        },
 				error : function(xhr, error){
-					showMessage("Error occurred while fetching internationalized text", "error");
+				if(xhr.status == 412) {
+				   showMessage(fileBinDisplayTexts["jws.fileBinAlreadyExist"], "error");
+			      }
+				else {
+				   showMessage("Error occurred while fetching internationalized text", "error");
+	               }
 			   	},
 						
 		    });
@@ -374,6 +383,9 @@ function updateResourceKeyMap(data, elementId, displayId, resourceKey){
 }
 
 function createMaster() {
+	if(fileBinDisplayTexts == null){
+				 fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank,jws.allowedCharactersForFileBin,jws.supportedFileType,jws.invalidFileSize");
+			}
 	let isValidData = validateForm();
 	if(isValidData === false){
 		return false;
@@ -389,7 +401,7 @@ function createMaster() {
 	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key,val){
 		roleIds.push(val.id);
     });
-	
+    
     let formData = $("#createMasterForm").serialize();
     $.ajax({
         url: contextPath+ "/cf/cm",
@@ -416,6 +428,8 @@ function createMaster() {
 				showMessage("Database reference has unsupported datatype, recheck!", "warn");			
 			else if(xhr.status == 409)
 				showMessage("Modules with given data already exists! Re enter form", "warn");
+			else if(xhr.status == 412)
+				   showMessage(fileBinDisplayTexts["jws.fileBinAlreadyExist"], "error");
 			else
 				showMessage("Error occurred while creating master", "error");
 	   	},
@@ -468,9 +482,51 @@ function validateForm(){
 		showMessage("Please mark at least one column as visible in form", "warn");
 		return false;
 	}
-	
-	
-	
+	let fileBinMaster = new FileBinMaster();
+	let toogleFileBin= $("#toggleFileBin").val();
+	if(toogleFileBin==1){
+	fileBinMaster.updateFileSize();
+	fileBinMaster.prepareValidatorContent();
+	let fileBinId = $("#fileBinId").val().trim();
+	let maxFileSize = $("#maxFileSize").val().trim();
+	let fileTypeSupported = $("#fileTypeSupported").val().trim();
+	if (maxFileSize != "" || parseFloat(maxFileSize) > 1) {
+		let scale = $("#initialFileSizeScale").val();
+		let fileSize = $("#previousFileSize").val();
+		if (scale > 1) {
+			fileSize = fileSize * Math.pow(1024, scale - 1);
+			$("#maxFileSize").val(fileSize);
+		}
+	}
+//	if (fileBinId !== "" && maxFileSize !== "" && maxFileSize >= 1) {
+//		return true;
+//	}
+	if (fileBinId === "") {
+	   $("#fileBinId").focus();
+	   showMessage(fileBinDisplayTexts["jws.fileBinCannotBeBlank"], "warn");
+	   return false;
+	}
+	if (fileBinId!="") {
+	   $("#fileBinId").focus();
+		let key = $("#fileBinId").val().trim();
+        const re = /^[A-Za-z]+[\w]*$/
+        if (!re.test(key)) {
+            showMessage(fileBinDisplayTexts["jws.allowedCharactersForFileBin"], "warn");
+            return false;
+        }
+    }
+	if (fileTypeSupported === "") {
+		$("#fileTypeSupported").focus();
+		showMessage(fileBinDisplayTexts["jws.supportedFileType"], "warn");
+		return false;
+	}
+
+	if (maxFileSize === "" || parseFloat(maxFileSize) < 1) {
+		$("#maxFileSizeUi").focus();
+		showMessage(fileBinDisplayTexts["jws.invalidFileSize"], "warn");
+		return false;
+	}
+	}
 	let isValid = true;
 	$.each(gridDetails, function(iCounter, gridElement){
 		if(gridElement.hidden === false && gridElement.displayName.trim() === ""){
@@ -480,12 +536,20 @@ function validateForm(){
 	});
 	
 	if(isValid === true){
+		let flag=false;
 		$.each(formDetails, function(iCounter, formElement){
 			if(formElement.hidden === false && formElement.displayName.trim() === ""){
 				$('#errorMessage').html("Please enter valid display name", "error");
 				isValid = false;
 			}
+			if(formElement.column.trim() == primaryKey.trim()){
+				flag=true;
+			}
 		});
+		if(!flag){
+		showMessage("Please select primary key for Form Details.", "error");
+		isValid = false;
+		}
 	}
 	return isValid;
 }

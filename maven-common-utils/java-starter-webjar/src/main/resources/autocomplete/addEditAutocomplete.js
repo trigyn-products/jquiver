@@ -80,7 +80,7 @@ class AddEditAutocomplete {
 
 			});
 			context.sqlQuery.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('autocomplete-manage-details', $("#savedAction").find("button"),
+				typeOfActionWithIsEdit('autocomplete-manage-details', $("#savedAction").find("button"), isEdit,
 					addEditAutocomplete.saveAutocompleteDetail.bind(addEditAutocomplete), addEditAutocomplete.backToListingPage);
 			});
 			context.sqlQuery.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {

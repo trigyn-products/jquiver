@@ -19,6 +19,7 @@ public class CustomStopException extends RuntimeException {
 		super(a_message);
 		statusCode = Integer.parseInt(a_message.split("_")[0]);
 		message = a_message.split("_")[1];
+
 	}
 
 	public int getStatusCode() {

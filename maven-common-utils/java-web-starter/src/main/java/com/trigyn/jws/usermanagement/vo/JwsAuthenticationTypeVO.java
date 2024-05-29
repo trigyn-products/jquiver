@@ -9,6 +9,8 @@ public class JwsAuthenticationTypeVO {
 	private String	authenticationName			= null;
 
 	private String	authenticationProperties	= null;
+	
+	private String	defaultAuthProperties		= null;
 
 	public Integer getId() {
 		return id;
@@ -39,10 +41,19 @@ public class JwsAuthenticationTypeVO {
 			this.id							= authenticationType.getAuthenticationId();
 			this.authenticationName			= authenticationType.getAuthenticationName();
 			this.authenticationProperties	= authenticationType.getAuthenticationProperties();
+			this.defaultAuthProperties 		= authenticationType.getDefaultAuthProperties();
 			return this;
 		}
 		return null;
 		
+	}
+
+	public String getDefaultAuthProperties() {
+		return defaultAuthProperties;
+	}
+
+	public void setDefaultAuthProperties(String defaultAuthProperties) {
+		this.defaultAuthProperties = defaultAuthProperties;
 	}
 
 }

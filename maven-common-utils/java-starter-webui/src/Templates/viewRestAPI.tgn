@@ -9,7 +9,6 @@
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 </head>
 
-<form id="dynaForm"></form>
 <div class="container"> 
  <div class="row topband" style="display:flex;justify-content: space-between;"> 
   <div class="col-8">
@@ -48,13 +47,12 @@
      <div id="viewRestAPI" class="getapidetailsblock">
     </div>   
 </div>
-</div>
 <script>
 document.title="View REST API";
 contextPath = "${(contextPath)!''}";
 $(function() {
     loadRestAPI(0);   
-   
+
 });
 /**For loading the Rest API Contents on load on calling the getRestAPI*/
 function loadRestAPI(a_offset) {
@@ -67,6 +65,7 @@ function loadRestAPI(a_offset) {
     if(a_offset == 0) {
         $("#viewRestAPI").html("");
     }
+
     $("#viewRestAPI").find("button").remove();
    
     $.ajax({
@@ -170,8 +169,6 @@ $(document).on('click', function (a_element) {
 });
 /**Ends Here*/
 
-/**For sorting the Rest API Contents based on Asc and Desc Order
- * and also based on Method Type , Method Name and Rest URL*/
 let l_columnName;
 let a_sortOrder;
 let btn_offset;
@@ -341,7 +338,7 @@ $(document).ready(function () {
 });
 /**Ends Here*/
    
-/** For Toggling or Expanding/Collapsing individual dic on click of the respective div*/    
+/** For Toggling or Expanding/Collapsing individual div on click of the respective div*/    
 function bindAccordian(a_element) {
     $(a_element).toggleClass('colpasecls');
     $(a_element).closest(".methodnameblock").find('.restapiotherblock').slideToggle(1000);
@@ -374,4 +371,35 @@ for(iCounter = 0;iCounter<restDivlen;iCounter++)
 function backToDynarestListingPage() {
     location.href = contextPath+"/cf/dynl";
 }
+
+function CheckedAll() {   
+    $('#selectAll').prop('checked', ($(".apiChk").length == $(".apiChk:checked").length));
+}
+
+function getExport() {
+var select_All = "";
+if (document.getElementById('selectAll').checked) {
+    select_All = "true";
+    getDynaExport(select_All, '');
+} else {
+    var exportIdList = [];
+    $.each($(".apiChk:checked"), function () {
+        exportIdList.push($(this).val());
+    });
+select_All = "false";
+getDynaExport(select_All, exportIdList);
+}
+}
+
+$('#selectAll').change(function () {
+    $('.apiChk').prop('checked', this.checked);  
+});
+
+$(document).ready(function () {
+    $('#expand').on('click', function () {
+        $('.methodblocktwo ').toggleClass('colpasecls');
+        $('.restapiotherblock').slideToggle(1000);
+    });
+});
+
 </script>

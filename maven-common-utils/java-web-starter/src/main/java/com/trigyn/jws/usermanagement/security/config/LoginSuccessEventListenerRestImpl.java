@@ -96,7 +96,7 @@ public class LoginSuccessEventListenerRestImpl implements LoginSuccessEventListe
 			MultiValueMap<String, String>	multipvalueMap	= new LinkedMultiValueMap<String, String>();
 			WebClient						webClient		= builder.build();
 			Mono<ResponseEntity<String>>	responseContent	= webClient.method(HttpMethod.resolve("POST"))
-					.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build()).accept(MediaType.APPLICATION_JSON)
+					.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build())
 					.retrieve().onStatus(HttpStatus::is4xxClientError, response -> {
 						return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 							return Mono.error(new CustomRuntimeException(error));
@@ -107,9 +107,7 @@ public class LoginSuccessEventListenerRestImpl implements LoginSuccessEventListe
 							return Mono.error(new CustomRuntimeException(error));
 						});
 					}).toEntity(String.class);
-			ResponseEntity<String>			responseString	= responseContent.block();
-		
-			
+			//ResponseEntity<String>			responseString	= responseContent.block();
 			
 		} catch (Exception exec) {
 			exec.printStackTrace();

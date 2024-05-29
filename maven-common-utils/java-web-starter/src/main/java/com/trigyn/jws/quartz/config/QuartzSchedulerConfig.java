@@ -30,6 +30,9 @@ public class QuartzSchedulerConfig {
 
 	/**
 	 * create scheduler
+	 * 
+	 * @throws IOException is thrown
+	 * @return the scheduler bean
 	 */
 	@Bean
 	public SchedulerFactoryBean schedulerFactoryBean() throws IOException {
@@ -51,6 +54,9 @@ public class QuartzSchedulerConfig {
 
 	/**
 	 * Configure quartz using properties file
+	 * 
+	 * @throws IOException is thrown
+	 * @return quartz properties
 	 */
 	@Bean
 	public Properties quartzProperties() throws IOException {

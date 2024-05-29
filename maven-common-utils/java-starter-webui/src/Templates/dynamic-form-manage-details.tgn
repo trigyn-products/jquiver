@@ -8,6 +8,23 @@
 	<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+    <style>
+        .addscrippop {
+            width:600px !important;
+           
+        }
+
+       .addscrippop .addEditDialogclass {
+           min-height:380px !important;
+           overflow:hidden; 
+            
+        }
+
+        .addscrippop .ml-selected-items-div{
+            max-height: 130px !important;
+        }
+    </style>
+ 
 </head>
 
 <div class="container">
@@ -36,14 +53,16 @@
                               
     <form id="dynamicform" method="post" >
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-		<div class="row">
+		<div class="row multidivheight">
             
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
 					<span class="asteriskmark">*</span>
 					<label for="formName" >${messageSource.getMessage('jws.formname')} </label>
 					<input type="hidden" id="formId" name="formId" value="${(dynamicForm?api.getFormId())!""}"/>
+                    <input type="hidden" id="dynamicformId" name="formId" value=""/>
 					<input type="text" id="formName" name="formName"  placeholder="Enter Form name" onkeyup="addEdit.hideErrorMessage();" class="form-control" value="${(dynamicForm?api.getFormName())!""}" />
+                    <input type="hidden" id="isEdit" name="isEdit"/>
 				</div>
 			</div>
                                                                                                                         
@@ -59,6 +78,8 @@
 	        		<select id="selectQueryType" name="selectQueryType" class="form-control" onchange="updateSelectDataSource(this)">
 	        			<option id="selectQueryType" value="1" selected>${messageSource.getMessage('jws.selectquery')}</option>
 	        			<option id="jsQueryType" value="2">${messageSource.getMessage('jws.javaScriptContent')}</option>
+                        <option id="pyQueryType" value="3">${messageSource.getMessage('jws.python')}</option>
+                        <option id="phpQueryType" value="4">${messageSource.getMessage('jws.php')}</option>
 	        		</select>
            			</div>
 			</div>
@@ -87,6 +108,20 @@
 				
 
 		</div>
+
+        <div id="deleteHeader"></div>		
+			<div id="methodSignatureDiv" class="col-12 method-sign-info-div" style="margin-bottom:15px;">
+				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
+					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
+				</a>
+            <div class="collapse" id="tipscolpasemethod">
+                <div class="tipscontent">
+                    <pre style="font-weight:normal">
+                        <span id="methodSignature"><span>          
+                    </pre>
+                </div>
+            </div>            
+			</div>	
         
    <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
 				
@@ -102,8 +137,6 @@
                         <span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
                     </div>
                 </div>        
-         
-         
          </div>	
                
         <div class="row margin-t-b">  
@@ -122,6 +155,7 @@
                               
         <div class="row margin-t-b">
 			<div class="col-12">
+
 				<h3 class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.htmlScript')}</h3>
 				<div class="html_script">
 					<div class="grp_lblinp">
@@ -137,6 +171,9 @@
              
         <div class="row margin-t-b">  
 			<div class="col-12">
+                   <div style = "position:relative;float:right;">
+            
+				 </div>
 				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.save/update')}</h3>
 				<div id = "saveScriptContainer"></div>
 			</div>
@@ -154,13 +191,13 @@
 				<div class="float-right">
 					<div class="btn-group dropup custom-grp-btn">
 						<div id="savedAction">
-							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
+							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
 						</div>
 						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 						<div class="dropdown-menu action-cls"  id="actionDiv">
 							<ul class="dropdownmenu">
-								<li id="saveAndCreateNew" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-								<li id="saveAndEdit" onclick="typeOfAction('dynamic-form-manage-details', this, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+								<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+								<li id="saveAndEdit" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndEdit")}</li>
 							</ul>
 						</div> 
 					</div>
@@ -168,10 +205,13 @@
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
 				</div>
-                
+        <div id="dialogTitle" style="display:none;"></div>
+        <div id="btnDelete" style="display:none;"></div>
+        <div id="btnCancel" style="display:none;"></div>
+        <div id="scriptDetails" style="display:none;"></div>
+	    <div id="addEditDialog" class="addEditDialogclass"></div>
 			</div>
 		</div>
-
             <input type="hidden" name="formSelectQuery" id="formSelectQuery">
             <input type="hidden" name="formBody" id="formBody">
             <input type="hidden" name="formSaveQueryId" id="formSaveQueryId">
@@ -189,7 +229,11 @@
 	</textarea>
 <script>
 	document.title = "Manage Dynamic Form Details";
-  
+    var scriptIdArray = [];
+    var scriptIdUpdateArr = [];
+    var scriptDelArray = [];
+    var jsonObj ="";
+    var deleteIdArray = new Array();
 	contextPath = "${(contextPath)!''}";
 	let dashletSQLEditor;
 	let dashletHTMLEditor;
@@ -203,7 +247,8 @@
     let jsSuggestionArray;
     let jsSugg;
     let selectQueryType;
-	
+	let isEdit = 0;
+
 	const addEdit = new AddEditDynamicForm();
     /*For Updating Monaco Suggestions*/
     selectQueryType = document.getElementById("selectQueryType").value;
@@ -214,26 +259,30 @@
     <#outputformat "HTML">
     let formName = "${(dynamicForm?api.getFormName())!''}";
 	let formId = "${(dynamicForm?api.getFormId())!''}";
-    
+    if(formId!="") {
+        isEdit=1;
+    }
     formName = $.trim(formName);
      </#outputformat>
   	$(function () {
-         
+      
   		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
-  		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2") {
+  		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2" || "${(dynamicForm?api.getSelectQueryType())!''}" == "3" || "${(dynamicForm?api.getSelectQueryType())!''}" == "4") {
   		 	$("#dataSource").val(null);
 			$("#dataSource").closest('div').hide();
   		 }
+        showMethodSignature($("#selectQueryType").val());
 	    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
 		}
 		
-		savedAction("dynamic-form-manage-details", formId);
+		savedAction("dynamic-form-manage-details",isEdit);
 	    hideShowActionButtons();
 	    
 	     <#if !(dynamicForm.formId)?? && !(dynamicForm.formId)?has_content>
 	    	getAllDatasource(0);
+            showMethodSignature($("#selectQueryType").val());
 	    	let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
 	        multiselect.setSelectedObject(defaultAdminRole);
 	    	tableAutocomplete = $("#tableAutocomplete").autocomplete({
@@ -263,17 +312,20 @@
 		            loadTableTemplate(item.tableName, dbProductID, dbProductName);
 		        },     
 		    });
+             $("#isEdit").val(0);
+             isEdit=0;
 		<#else>
+            $("#isEdit").val(1);
+            isEdit=1;
 			getAllDatasource(1);
 			$("#formName").prop("disabled", true);
-            
 	    </#if>
         
   	});
 
 	function updateSelectDataSource(element) {
 		let selectedOptionVal = $(element).val();
-		if(selectedOptionVal === "2"){
+		if(selectedOptionVal === "2" || selectedOptionVal === "3" || selectedOptionVal === "4"){
 			$("#dataSource").val(null);
 			$("#divDatasourceId").hide();
 			$("#selectTable").val(null);
@@ -295,7 +347,8 @@
         }else  if(selectedOptionVal == "2" ){
             jsSugg = '${(JSsuggestions)!""}';
             jsSuggestionArray = JSON.parse(jsSugg);
-        }      
+        } 
+        showMethodSignature(selectedOptionVal);    
     }
 
 	function loadTableTemplate(tableName, dbProductID, dbProductName){
@@ -314,6 +367,153 @@
           	}
         });
 	}
-   
+
+  
+  function addNewScript(element,jsonArray) {
+        var jsonObj = "";
+        var index = (element.id).split('_')[1];
+        for(var icount = 0; icount < jsonArray.length; icount++){
+            if(icount == index){
+                jsonObj = jsonArray[icount];
+            }
+        }
+        
+        $("#scriptDetails").html("Add Script")
+        openFormDialog('addEditDialog', "<center><img src='"+contextPath+"/webjars/1.0/images/loading.gif' /><center>", $("#scriptDetails").html());
+
+        $.ajax({
+            type: "GET",
+            async: true,
+            url: contextPath + "/view/scrlib",
+            data:{     
+                jsonObj : JSON.stringify(jsonObj), 
+                index   : index,
+                entity  : "DynamicForm",
+                scriptType: querytype,     
+            },
+            success: function(data) {
+                $("#addEditDialog").html(data);   
+                                
+            },
+            error: function(xhr, error) {
+                showMessage("Error occured while loading", "error");
+                $("#scriptDetails").html("Error occured while loading");     
+            },
+        });//end of ajax
+        }
+
+        function openFormDialog(dialogDiv, data, title) {
+            $("#" + dialogDiv).html("");
+            $("#" + dialogDiv).html(data);
+            $("#" + dialogDiv).dialog({
+            bgiframe: true,
+            autoOpen: true,
+            modal: true,
+            width: 800,
+            height: 300,
+            dialogClass: "addscrippop",
+            closeOnEscape: true,
+            draggable: true,
+            resizable: true,
+
+            title: title,
+            close: function(event, ui) {
+                $("#" + dialogDiv).html("");
+                 
+            },
+            open: function(event, ui) {
+                $('.ui-dialog-titlebar').find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close').prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+            }
+        });
+        $("#" + dialogDiv).dialog("open");
+    }
+
+    function showMethodSignature(value){
+     if(value == "2") { 
+        $("#methodSignatureDiv").show();
+        $("#methodSignatureHeading").text(`Example JavaScript Code`); 
+        $("#methodSignature").html(`
+           var System = Java.type("java.lang.System");
+           var HashMap = Java.type("java.util.HashMap");
+
+            function log2Console(a_strMessage){
+                var isToPrint = true;
+                if(isToPrint == false){
+                    return;
+                }
+                System.out.println(a_strMessage);
+            }
+
+            function doSomething(){
+                var returnObject = new HashMap();
+                returnObject.put("property_01", "property_01_value");
+                returnObject.put("property_02", "property_02_value");
+                returnObject.put("property_03", "property_03_value");  
+                return returnObject;
+            }
+            doSomething();
+        `)
+         } else if(value == "3"){
+        $("#methodSignatureDiv").show();
+        $("#methodSignatureHeading").text(`Example Python Code`);
+        
+        $("#methodSignature").html(`
+         # Code for returning an object/number/value
+         # Here the return object's value will be stored
+         # in the result variable.
+         # Make sure to follow the syntax
+
+            def my_function():
+                person = {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "age": 50,
+                    "eyeColor": "blue"
+                }
+                return person
+
+            result = my_function() 
+
+         # Code for returning any number or value
+
+            def my_function():
+                return 1
     
+            result = my_function()
+        `)
+    } else if(value == "4") {
+        $("#methodSignatureDiv").show();
+        $("#methodSignatureHeading").text(`Example PHP Code`);
+        $("#methodSignature").html(`
+        # Code for returning an object
+
+            &lt?php
+            function my_function() {
+                $person = [
+                    "firstName" => "John",
+                    "lastName" => "Doe",
+                    "age" => 50,
+                    "eyeColor" => "blue"
+                ];
+                return $person;
+            }
+            $result = my_function();
+            echo json_encode($result);
+            ?>
+            
+            # Code for returning any number or value
+            &lt?php
+            function my_function() {
+                return 1;
+            }
+            echo my_function(); 
+            ?>
+        `)  
+	} else {
+		$("#methodSignatureHeading").text(`Method Signature with Example`);
+		$("#methodSignatureDiv").hide();
+		}
+    }
+    
+   
 </script>

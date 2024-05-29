@@ -45,6 +45,13 @@ public final class Constants {
 	public static final String	TEMPORARY_STORAGE_PATH					= "template-storage-path";
 
 	public static final Integer	UPLOAD_SOURCE_VERSION_TYPE				= 4;
+	
+	public static final String	NUMBER									= "36874643-1e8b-11e8-8d69-000d3a173cc5";
+	public static final String	DECIMAL									= "36874738-1e8b-11e8-8d69-000d3a173cc5";
+	public static final String	TEXT									= "3687356c-1e8b-11e8-8d69-000d3a173cc5";
+	public static final String	RANGESLIDER								= "368741f2-1e8b-11e8-8d69-000d3a173cc5";
+	public static final String	SELECT									= "368732c8-1e8b-11e8-8d69-000d3a173cc5";
+	public static final String	CHECKBOX								= "36874811-1e8b-11e8-8d69-000d3a173cc5";
 
 	public enum RecordStatus {
 		DELETED(1), INSERTED(0), UPDATED(0);

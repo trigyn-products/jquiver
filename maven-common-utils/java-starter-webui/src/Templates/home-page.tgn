@@ -1,3 +1,4 @@
+<html lang="${(locale)}">
 <head>
 <link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -15,7 +16,7 @@
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/cookie.style.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/notification/notification.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- 
+<meta http-equiv="Content-Language" content="${(locale)}" />
  <!-- 
     below two lines are for custom implementation. The CSS & JS can be modified from 
     template management module.
@@ -40,8 +41,7 @@
 	 			<img src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png">
 	 		</#if> 		
  		</a> 
-
-         <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
+        <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
          <div class="hamburgermenu" onclick="homePageFn.toggleNavigation()">
            <div class="icon"></div>
         </div>
@@ -59,9 +59,6 @@
                             </span>
 						</li>
 
-                        
-
-
             			<li class="notificationblock">                          
 
             				<a class="notificationiconscls"  onclick="loadNotificationView()"> 
@@ -77,7 +74,7 @@
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
                         	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
-                            	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
+                            	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" onclick="clearCookie();" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>
                             	</a>
                             </li>
@@ -387,17 +384,18 @@ function onDarkMode(){
 	$("body").toggleClass("darktheme");
 	$("#darkmodebtn").toggleClass("darkonoff");
 }
-    
 
-    
-	const contextPathHome = "${contextPath}";
+  	const contextPathHome = "${contextPath}";
 	contextPath = "${contextPath}";
 	let homePageFn;
 	let jqJSDateFormat;
-	
- 
-
+  
 	$(function() {
+        let entityName = "${entityName}";
+        if(entityName == "help-manual-entry-template"){
+          $("body").addClass("Helpmanualblock");
+        }
+
  	     if(getCookie("theme").trim().length > 0){			
 			 themColor(getCookie("theme"));
 		 }  else{
@@ -408,12 +406,11 @@ function onDarkMode(){
 		$("body").addClass("darktheme");
 		$("#darkmodebtn").addClass("darkonoff");
 	  }
-	  	    
+     
       let selectedLanguageId = getCookie("locale");
       if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
         setCookie("locale", "en_US", 1);
         location.reload();
-
       }
 		  
 	  const homePage = new HomePage();
@@ -433,7 +430,7 @@ function onDarkMode(){
       </#if>
       
       getLanguageOption(); 
-      
+    
       	$("#bodyDiv").click(function(){
       		if($(".hamburgermenu").hasClass("open")){
       			homePageFn.toggleNavigation();
@@ -497,3 +494,4 @@ function onDarkMode(){
 "entityName": entityName
 }>
 <@templateWithParams "google-analytics-template" gaAttributes />
+<html>

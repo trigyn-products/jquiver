@@ -1,0 +1,25 @@
+var System = Java.type("java.lang.System");
+var HashMap =  Java.type("java.util.HashMap");
+function scriptDetails(){
+    var queryResult = {};
+    var params = new HashMap();
+    queryResult.canEdit=1;  
+    queryResult.scriptData = jq_getDBResult("SELECT * FROM jq_script_lib_details WHERE script_lib_id = '${scriptlibid! 'null' }'", null, null).data_list;
+    if(queryResult.scriptData !=undefined &&  queryResult.scriptData.length == 0 && '${scriptlibid!""}' !=''){
+        queryResult.canEdit=0;
+    }else if(queryResult.scriptData !=undefined  &&  queryResult.scriptData.length == 0 && '${scriptlibid!""}' == ''){
+        queryResult.canEdit=1;  
+    }
+    queryResult.scriptData = queryResult.scriptData;
+
+    if(queryResult.scriptData !=undefined &&  queryResult.scriptData.length >0) {
+        queryResult.tempAutocomplete = jq_getDBResult("SELECT template_id AS targetTypeId, template_name AS targetTypeName FROM jq_template_master WHERE template_id = '"+queryResult.scriptData[0].template_id+"'", null, null);
+        
+        var tempAutocomplete = {"targetTypeId": queryResult.tempAutocomplete.data_list[0].targetTypeId, "targetTypeName": queryResult.tempAutocomplete.data_list[0].targetTypeName};
+
+        queryResult.tempAutocomplete = JSON.stringify(tempAutocomplete);      
+    }
+
+    return queryResult;
+}
+scriptDetails();

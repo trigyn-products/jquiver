@@ -3044,10 +3044,10 @@ let savedRequestParamJson = "";
         });
     
     autocomplete.setSelectedObject(obj);
-createHeaderResponseTable();
-createRequestParamTable();
-               savedAction(formId, isEdit);
-               hideShowActionButtons();
+    createHeaderResponseTable();
+    createRequestParamTable();
+    savedAction(formId, isEdit);
+    hideShowActionButtons();
   });
   
   function updateReceipents(){
@@ -3564,7 +3564,7 @@ function submitAction(formId, thisObj){
     if(isToEnable==true){
     var returnval = validateMultipleEmails($('#txtRecipients').val());
     if (returnval){
-    typeOfAction(formId, thisObj);
+    typeOfActionWithIsEdit(formId, thisObj, isEdit);
     }else{
       showMessage("Please enter valid mail id", "error");
        $('#txtRecipients').closest("div").parent().effect("highlight", {}, 3000);
@@ -3572,7 +3572,7 @@ function submitAction(formId, thisObj){
     }
     }
     else{
-        typeOfAction(formId, thisObj);
+        typeOfActionWithIsEdit(formId, thisObj, isEdit);
     }
 }
 </script>

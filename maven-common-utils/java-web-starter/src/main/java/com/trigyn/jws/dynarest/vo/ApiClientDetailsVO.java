@@ -13,19 +13,22 @@ public class ApiClientDetailsVO {
 	private Integer	encryptionAlgoId		= null;
 
 	private String	encryptionAlgorithmName	= null;
+	
+	private Integer encLookupId				= null;
 
 
 	public ApiClientDetailsVO() {
 	}
 
 	public ApiClientDetailsVO(String clientId, String clientName, String clientKey, String clientSecret,
-			Integer encryptionAlgoId, String encryptionAlgorithmName) {
+			Integer encryptionAlgoId, String encryptionAlgorithmName, Integer encLookupId) {
 		this.clientId					= clientId;
 		this.clientName					= clientName;
 		this.clientKey					= clientKey;
 		this.clientSecret				= clientSecret;
 		this.encryptionAlgoId			= encryptionAlgoId;
 		this.encryptionAlgorithmName	= encryptionAlgorithmName;
+		this.encLookupId 				= encLookupId;
 		//this.inclusionURLPattern		= inclusionURLPattern;
 	}
 
@@ -75,6 +78,14 @@ public class ApiClientDetailsVO {
 
 	public void setEncryptionAlgorithmName(String encryptionAlgorithmName) {
 		this.encryptionAlgorithmName = encryptionAlgorithmName;
+	}
+
+	public Integer getEncLookupId() {
+		return encLookupId;
+	}
+
+	public void setEncLookupId(Integer encLookupId) {
+		this.encLookupId = encLookupId;
 	}
 
 

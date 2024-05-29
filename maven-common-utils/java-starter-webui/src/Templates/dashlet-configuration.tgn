@@ -12,7 +12,8 @@
 	              	    "propertyId": dashletPropertyVO.getPropertyId(),
 	              	    "displayName": dashletPropertyVO.getDisplayName(),
 	              	    "propertyValue": dashletPropertyVO.getValue(),
-	               		"defaultValue": dashletPropertyVO.getDefaultValue()
+	               		"defaultValue": dashletPropertyVO.getDefaultValue(),
+                        "validation": dashletPropertyVO.getValidation()
 	           		}>
 	                <@templateWithParams templateName templateParam/>
 	            <#else>
@@ -20,7 +21,8 @@
 	               	    "propertyId": dashletPropertyVO.getPropertyId(),
 	               	    "displayName": dashletPropertyVO.getDisplayName(),
 	               	    "propertyValue": dashletPropertyVO.getValue(),
-	               		"defaultValue": ""
+	               		"defaultValue": "",
+                        "validation": dashletPropertyVO.getValidation()
 	           		}>
 	                <@templateWithParams templateName templateParam/>
 	            </#if>

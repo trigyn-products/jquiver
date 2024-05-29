@@ -40,6 +40,10 @@ public class JwsAuthAdditionalProperty {
 	@JsonIgnore
 	@JsonProperty("dropDownData")
 	private List<DropDownData>	dropDownData	= null;
+	
+	@JsonIgnore
+	@JsonProperty("condition")
+	private String				condition;
 
 	@JsonProperty("name")
 	public String getName() {
@@ -129,5 +133,16 @@ public class JwsAuthAdditionalProperty {
 	@JsonProperty("dropDownData")
 	public void setDropDownData(List<DropDownData> dropDownData) {
 		this.dropDownData = dropDownData;
+	}
+	
+
+	@JsonProperty("condition")
+	public String getCondition() {
+		return condition;
+	}
+
+	@JsonProperty("condition")
+	public void setCondition(String condition) {
+		this.condition = condition;
 	}
 }

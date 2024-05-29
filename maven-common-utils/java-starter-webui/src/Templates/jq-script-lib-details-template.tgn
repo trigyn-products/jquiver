@@ -1,0 +1,247 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/localize/pq-localize-de.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/localize/pq-localize-en.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" /> 
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.scriptlibrary')}</h2> 
+        <div class="float-right">
+             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.addscript')} </button>
+            <span onclick="backToWelcomePage();">
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+            </span> 
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        <input type="hidden" name="formId" value="229c8556-2a52-4765-95ab-d1254020e1f0"/>
+        <input type="hidden" id="formName" name="formName" value="jq-script-lib-details-form">
+	    <input type="hidden" name="primaryId" id="primaryId" value=""/>
+    <div class="table_responsive">
+         <div class="cursor show"></div>  
+            <div id="jq-script-lib-detailsGrid" class="tablescrollcls"></div>
+    </div>
+<div id="deleteHeader"></div>
+    <div id="snackbar"></div>
+</div>
+<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+	<input type="hidden" id="cmvEntityName" name="cmvEntityName" value="jq_script_lib_details">
+    <input type="hidden" id="entityId" name="entityId">
+	<input type="hidden" id="moduleName" name="moduleName">
+	<input type="hidden" id="moduleType" name="moduleType" value="scriptlibrary">
+    <input type="hidden" id="formId" name="formId" value="229c8556-2a52-4765-95ab-d1254020e1f0">
+    <input type="hidden" id="formName" name="formName" value="jq-script-lib-details-form">
+	
+</form>
+
+<script>
+    contextPath = "${(contextPath)!''}";
+    let primaryKeyDetails = {"scriptlibid":""};
+    let listingData  = [];
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "Script Lib Id", hidden : true, width: 130, dataIndx: "script_lib_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.libname')}", hidden : false, width: 130, dataIndx: "library_name", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+                { title: "${messageSource.getMessage('jws.templatename')}", hidden : false, width: 130, dataIndx: "template_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Description", hidden : true, width: 130, dataIndx: "description", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.scriptype')}", hidden : false, width: 130, dataIndx: "script_type", align: "left", halign: "center", render: scriptType, 
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Created By", hidden : true, width: 130, dataIndx: "created_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.updatedBy')}", hidden : false, width: 130, dataIndx: "updated_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "${messageSource.getMessage('jws.updatedDate')}", hidden : false, width: 130, dataIndx: "updated_date", align: "left", halign: "center",render: formatUpdatedDate,  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Checksum", hidden : true, width: 130, dataIndx: "checksum", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Is Custom Updated", hidden : true, width: 130, dataIndx: "is_custom_updated", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#jq-script-lib-detailsGrid").grid({
+          gridId: "jq-script-lib-detailsGrid",
+          colModel: colM,
+          dataModel: dataModel
+        });
+    
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }*/
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    /*
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "☑" : "☐") + "</span>";
+       
+    }
+    */
+
+    function formatUpdatedDate(uiObject){
+        const updatedDate = uiObject.rowData.updated_date;
+        return formatDate(updatedDate);
+    }
+
+    function scriptType(uiObject){
+        const scriptType = uiObject.rowData.script_type;
+        if(scriptType == 1){
+            return "${messageSource.getMessage('jws.javaScriptContent')}";
+        } else if(scriptType == 2){
+            return "${messageSource.getMessage('jws.python')}";
+        } else if(scriptType == 3){
+            return "${messageSource.getMessage('jws.php')}";
+        }      
+    }
+
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+        listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;
+        const scriptId = uiObject.rowData.script_lib_id;
+        const scriptName = uiObject.rowData.library_name;
+        const revisionCount = uiObject.rowData.revisionCount;
+      
+        str = '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+
+        if(revisionCount > 1){
+            str += '<span id="'+scriptId+'_entity" name="'+escape(scriptName)+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+        }else{
+            str += '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+        }
+        
+        <#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
+        	<#list loggedInUserRoleList as loggedInUserRole>
+            	<#if (loggedInUserRole == "ADMIN")> 
+	        			str += '<span onclick=\'openDeletConfirmation("'+scriptId+'")\' class= "grid_action_icons" title="<@resourceBundle'jws.deleteBtnText'/>"><i class="fa fa-trash "></i></span>'.toString();
+	        			
+        		</#if>
+        	</#list>
+        </#if>
+        return str;
+    }
+
+    function upsert(a_rowID){
+    	let redirectURL = contextPath+"/view/jq-script-lib-details-f";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    			redirectURL += '?scriptlibid=' + listingData[a_rowID]["script_lib_id"];
+    	}
+    	location.href = redirectURL;
+    }
+
+    function openDeletConfirmation(scriptID){
+		$("#deleteHeader").html("${messageSource.getMessage('jws.deleteMessage')}");
+		$("#deleteHeader").dialog({
+		bgiframe	: true,
+		autoOpen	: true, 
+		modal		: true,
+		closeOnEscape : true,
+		draggable	: true,
+		resizable	: false,
+		title		: "${messageSource.getMessage('jws.deleteBtnText')}",
+		position: {
+			my: "center", at: "center"
+		},
+		buttons : [
+			{
+				text   : "${messageSource.getMessage('jws.deleteBtnText')}",
+                "class": 'btn btn-primary',
+				click  : function(){
+					$(this).dialog('close');
+					deleteScript(scriptID);
+				}
+           	},
+           	{
+				text	:"${messageSource.getMessage('jws.cancel')}",
+                "class" : 'btn btn-secondary',
+				click	: function() { 
+					$(this).dialog('close');
+				},
+			}
+       ],	
+	   open: function( event, ui ) {
+			 $('.ui-dialog-titlebar')
+		   	    .find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close')
+		       .prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+       		}	
+	   });
+		
+	}
+    
+    function deleteScript(scriptID) {
+    	$.ajax({
+             url : "${contextPath}/api/deleteScript",
+            async:false,
+            type:"POST",
+            data : {
+                scriptID : scriptID
+            },
+            success: function(data){
+                if(data == 200) {
+                    $( "#jq-script-lib-detailsGrid").pqGrid( "refreshDataAndView" ); 
+                    showMessage("${messageSource.getMessage('jws.entitydeleted')}", "info");
+                } else if(data == 403) {
+                    showMessage("${messageSource.getMessage('jws.enoughaccessdelete')}", "error");
+                }
+            },
+            error: function(jqXHR, exception){
+                showMessage("${messageSource.getMessage('jws.erroroccurscript')}", "error");
+            }   
+        });
+    }
+
+    function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+		$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+		$("#revisionForm").submit();
+	}
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;
+        
+    }
+</script>

@@ -14,7 +14,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -27,12 +29,33 @@ public final class CaptchaUtil {
 	private static final List<Color[]>	ColourSet	= new ArrayList<Color[]>();
 	static String						path		= "D:/Captcha";
 
+	enum MathOperator {
+		Addition("+"), Subtraction("-");
+
+		private String displaySign = null;
+
+		private MathOperator(String a_displaySign) {
+			displaySign = a_displaySign;
+		}
+
+		public String getDisplaySign() {
+			return displaySign;
+		}
+	}
+
 	static {
 		ColourSet.add(new Color[] { new Color(0, 161, 143), new Color(255, 255, 255) });
 		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(255, 255, 255) });
 		ColourSet.add(new Color[] { new Color(255, 255, 255), new Color(0, 0, 0) });
 		ColourSet.add(new Color[] { new Color(11, 97, 254), new Color(255, 255, 255) });
-		ColourSet.add(new Color[] { new Color(254, 125, 11), new Color(255, 255, 255) });
+		ColourSet.add(new Color[] { new Color(254, 125, 11), new Color(0, 0, 0) });
+		ColourSet.add(new Color[] { new Color(174, 214, 215), new Color(25, 40, 124) });
+		ColourSet.add(new Color[] { new Color(115, 240, 128), new Color(13, 45, 35) });
+		ColourSet.add(new Color[] { new Color(242, 238, 15), new Color(33, 12, 2) });
+		ColourSet.add(new Color[] { new Color(9, 7, 61), new Color(226, 240, 11) });
+		ColourSet.add(new Color[] { new Color(216, 246, 97), new Color(138, 26, 66) });
+		ColourSet.add(new Color[] { new Color(94, 14, 103), new Color(236, 232, 116) });
+		ColourSet.add(new Color[] { new Color(97, 221, 246), new Color(96, 13, 21) });
 	}
 
 	private CaptchaUtil() {
@@ -59,7 +82,7 @@ public final class CaptchaUtil {
 	// }
 	// }
 
-	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream) throws Throwable {
+	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream, int captchaType) throws Throwable {
 		int				width			= size.width;
 		int				height			= size.height;
 		Color[]			colours			= getColours();
@@ -68,7 +91,8 @@ public final class CaptchaUtil {
 		Color			foregroundColor	= colours[1];
 
 		Font			font			= new Font("Comic Sans Serif", Font.BOLD, 20);
-
+		Font			opnFont			= new Font("Comic Sans Serif", Font.BOLD, 29);
+		
 		BufferedImage	cpimg			= new BufferedImage(width, height, BufferedImage.OPAQUE);
 		Graphics		graphics		= cpimg.createGraphics();
 		graphics.setFont(font);
@@ -79,16 +103,23 @@ public final class CaptchaUtil {
 		AffineTransform	orig	= null;
 		int				xPos	= 10;
 		boolean			isEven	= true;
+		int				charCounter	= 0;
 		for (char c : captchaStr.toCharArray()) {
 			// System.out.println(gRPNV(15, -15));
 			orig = ((Graphics2D) graphics).getTransform();
 			orig.rotate(Math.toRadians(gRPNV(20, -20)), 0, 0);
 			Font rotatedFont = font.deriveFont(orig);
+
+			if (captchaType == 1 && (charCounter == 2 || charCounter == 5)) {
+				rotatedFont = opnFont.deriveFont(orig);
+			}
+
 			((Graphics2D) graphics).setFont(rotatedFont);
 			((Graphics2D) graphics).drawString(c + "", xPos, 35);
 
 			xPos	+= 20;
 			isEven	= !isEven;
+			charCounter++;
 		}
 
 		// ((Graphics2D) graphics).dispose();
@@ -228,4 +259,36 @@ public final class CaptchaUtil {
 		}
 		return captchaStringBuffer.toString().toUpperCase();
 	}
+
+	public static Map<String, String> getMathCaptcha() {
+		System.out.println("MathCaptcha.main()");
+
+		Map<String, String>	captchaMap		= new HashMap<>();
+		int					firstPart		= getRandomNumber(1, 20);
+
+		int					secondPart		= getRandomNumber(1, 20);
+
+		int					operation		= getRandomNumber(0, 2);
+		
+		String				captchaString	= firstPart + MathOperator.values()[operation].getDisplaySign() + secondPart
+				+ "= ";
+
+		captchaMap.put("cs", captchaString);
+
+		String captchaValue = "";
+
+		switch (MathOperator.values()[operation]) {
+			case Addition:
+				captchaValue = firstPart + secondPart + "";
+				break;
+			case Subtraction:
+				captchaValue = firstPart - secondPart + "";
+				break;
+		}
+
+		captchaMap.put("cv", captchaValue);
+
+		return captchaMap;
+	}
+
 }

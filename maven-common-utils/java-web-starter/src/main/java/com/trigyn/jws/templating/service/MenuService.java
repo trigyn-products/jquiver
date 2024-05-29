@@ -159,6 +159,7 @@ public class MenuService {
 		if (suffix == null)
 			suffix = "";
 		
+		
 		if (templatingService.getTemplateByNameWithoutAuthorization("error-page") != null) {
 			templateInnerVO = templatingService.getTemplateByName("error-page" + suffix);
 			;
@@ -172,7 +173,7 @@ public class MenuService {
 			if(template != null) {
 				childTemplateDetails.put("template-body", template);
 			} else {
-				childTemplateDetails.put("template-body", templateInnerVO.getTemplate());
+				childTemplateDetails.put("template-body", "");
 			}
 		if (templateParamMap.get("entityType") == null) {
 			Map<String, Object> entityDetails = new HashMap<String, Object>();

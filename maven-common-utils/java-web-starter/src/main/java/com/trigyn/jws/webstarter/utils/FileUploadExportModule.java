@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
+import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.repository.FileUploadRepository;
@@ -32,6 +34,9 @@ public class FileUploadExportModule {
 
 	@Autowired
 	private FileUploadRepository				fileUploadRepository	= null;
+	
+	@Autowired
+	private FileUploadConfigDAO fileUploadConfigDAO = null;
 
 	public void exportData(Object object, String folderLocation) throws Exception {
 		FileUploadConfig fileUploadConfig = (FileUploadConfig) object;
@@ -76,7 +81,24 @@ public class FileUploadExportModule {
 			Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
 			Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
 		}
-
+		List<String> uploadScriptLibIdList = fileUploadConfigDAO.getFileBinScriptLibId("upload_"+fileUploadConfig.getFileBinId());
+		List<String> viewScriptLibIdList   = fileUploadConfigDAO.getFileBinScriptLibId("view_"+fileUploadConfig.getFileBinId());
+		List<String> deleteScriptLibIdList = fileUploadConfigDAO.getFileBinScriptLibId("delete_"+fileUploadConfig.getFileBinId());
+		List<String>					scriptLibUploadId	= new ArrayList<>();
+		List<String>					scriptLibViewId		= new ArrayList<>();
+		List<String>					scriptLibDeleteId	= new ArrayList<>();
+		for(int iScriptUploadCounter = 0 ; iScriptUploadCounter<uploadScriptLibIdList.size(); iScriptUploadCounter++) {
+			scriptLibUploadId.add("\"" +uploadScriptLibIdList.get(iScriptUploadCounter)+ "\"");
+			fileUploadConfig.setUploadScriptLibraryId(scriptLibUploadId.toString());
+		}
+		for(int iScriptViewCounter = 0 ; iScriptViewCounter<viewScriptLibIdList.size(); iScriptViewCounter++) {
+			scriptLibViewId.add("\"" +viewScriptLibIdList.get(iScriptViewCounter)+ "\"");
+			fileUploadConfig.setViewScriptLibraryId(scriptLibViewId.toString());
+		}
+		for(int iScriptDeleteCounter = 0 ; iScriptDeleteCounter<deleteScriptLibIdList.size(); iScriptDeleteCounter++) {
+			scriptLibDeleteId.add("\"" +deleteScriptLibIdList.get(iScriptDeleteCounter)+ "\"");
+			fileUploadConfig.setDeleteScriptLibraryId(scriptLibDeleteId.toString());
+		}
 		FileUploadConfigExportVO	fileUploadConfigExportVO	= new FileUploadConfigExportVO(
 				fileUploadConfig.getFileBinId(), fileUploadConfig.getFileTypSupported(),
 				fileUploadConfig.getMaxFileSize(), fileUploadConfig.getNoOfFiles(),
@@ -86,7 +108,8 @@ public class FileUploadExportModule {
 				fileUploadConfig.getDatasourceId(),fileUploadConfig.getIsDeleted(),fileUploadConfig.getCreatedBy(),fileUploadConfig.getCreatedDate(),
 				fileUploadConfig.getLastUpdatedBy(),fileUploadConfig.getLastUpdatedTs(),fileUploadConfig.getUploadQueryType()
 				,fileUploadConfig.getDeleteQueryType(),fileUploadConfig.getViewQueryType(),fileUploadConfig.getDatasourceUploadValidator()
-				,fileUploadConfig.getDatasourceDeleteValidator(),fileUploadConfig.getDatasourceViewValidator(),fileUploadConfig.getIsCustomUpdated()
+				,fileUploadConfig.getDatasourceDeleteValidator(),fileUploadConfig.getDatasourceViewValidator(),fileUploadConfig.getIsCustomUpdated(),
+				fileUploadConfig.getUploadScriptLibraryId(),fileUploadConfig.getViewScriptLibraryId(),fileUploadConfig.getDeleteScriptLibraryId()
 				);
 
 		Map<String, Object>			map							= new HashMap<>();
@@ -110,7 +133,7 @@ public class FileUploadExportModule {
 				fileUploadConfigVO.getCreatedDate(), fileUploadConfigVO.getUpdatedBy(),fileUploadConfigVO.getUpdatedDate(),
 				fileUploadConfigVO.getUploadQueryType(),fileUploadConfigVO.getViewQueryType(),fileUploadConfigVO.getDeleteQueryType(),
 				fileUploadConfigVO.getDatasourceViewValidator(),fileUploadConfigVO.getDatasourceUploadValidator(),
-				fileUploadConfigVO.getDatasourceDeleteValidator(),fileUploadConfigVO.getIsCustomUpdated());
+				fileUploadConfigVO.getDatasourceDeleteValidator(),fileUploadConfigVO.getIsCustomUpdated(),fileUploadConfigVO.getUploadScriptLibraryId(),fileUploadConfigVO.getViewScriptLibraryId(),fileUploadConfigVO.getDeleteScriptLibraryId());
 
 		List<FileUpload>				fileUploads						= new ArrayList<>();
 

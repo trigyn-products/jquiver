@@ -37,7 +37,8 @@ public final class Constant {
 	public static final String	PROPERTY_MASTER_OWNER_ID			= "system";
 	public static final String	JWS_DATE_FORMAT_PROPERTY_NAME		= "jws-date-format";
 	public static final String	JWS_JAVA_DATE_FORMAT_PROPERTY_NAME	= "java";
-	public static final String	MESSAGE_TEXT	= "Notification is valid for 1 month";
+	public static final String	MESSAGE_TEXT						= "Notification is valid for 1 month";
+	public static final Integer MASTER_SOURCE_VERSION_TYPE 			= 1;
 
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);

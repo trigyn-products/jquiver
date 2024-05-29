@@ -1,0 +1,1 @@
+REPLACE  INTO `jq_master_modules` (`module_id`, `module_name`, `sequence`, `is_system_module`, `auxiliary_data`, `module_type_id`, `grid_details_id`, `module_type`, `is_entity_perm_supported`, `is_imp_exp_supported`, `is_perm_supported`) values('70bd445b-ae33-45dd-98f9-0a0c49463315','Script Library','50','1',NULL,'19','jq-script-lib-detailsGrid','ScriptLibrary','1','1','1');

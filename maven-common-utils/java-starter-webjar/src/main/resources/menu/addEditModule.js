@@ -445,7 +445,7 @@ class AddEditModule {
 			} else if (key == "Powered-By") {
 				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="hidden">' + value;
 			} else {
-				row += '<input class="key" type="hidden">' + key + '</td><td><input class="value" type="text">';
+				row += '<input class="key" type="text">' + key + '</td><td><input class="value" type="text">';
 			}
 		} else {
 			row += '<input class="key" type="text"></td><td><input class="value" type="text" >';

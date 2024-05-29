@@ -1,5 +1,23 @@
 <script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
-	<input type="number" min="0" id="${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" step=".01" class="form-control"/>
+	<input type="number" min="0" id="dec_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" step=".01" class="form-control"/>
 </div>
+
+<script>
+function validateDecimal(){
+   var decInput = $('#dec_${innerTemplateObj.propertyId!''}').val();
+   var decimalPattern = ${innerTemplateObj.validation!''};  
+   if (!(decimalPattern instanceof RegExp)) {
+        showMessage("DecimalPattern is not a valid regular expression.","warn");
+        return false;
+    }
+   if (!decimalPattern.test(decInput)) {
+        $('#dec_${innerTemplateObj.propertyId}').effect("highlight", {}, 3000);
+		$('#dec_${innerTemplateObj.propertyId!''}').focus();
+        showMessage("Invalid Input.","warn");
+        return false;
+    } 
+    return true; 
+}
+    </script>

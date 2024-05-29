@@ -25,7 +25,7 @@ public class DashletVO implements Serializable {
 
 	private Integer					width					= null;
 
-	private Integer					height					= null;
+	private Integer					height					= null;	
 
 	private String					dataSourceId			= null;
 
@@ -39,7 +39,9 @@ public class DashletVO implements Serializable {
 
 	private Integer					daoQueryType			= null;
 
-	private List<DashletPropertyVO>	dashletPropertVOList	= new ArrayList<>();
+	private List<DashletPropertyVO>	dashletPropertVOList	= new ArrayList<>();	
+
+	private Integer					dashletTypeId			= 1;
 
 	public DashletVO() {
 
@@ -48,7 +50,7 @@ public class DashletVO implements Serializable {
 	public DashletVO(String dashletId, String dashletTitle, String dashletName, String dashletBody, String dashletQuery,
 			Integer xCoordinate, Integer yCoordinate, Integer width, Integer height, 
 			String dataSourceId, String resultVariableName, Integer daoQueryType, Integer showHeader,
-			Integer isActive) {
+			Integer isActive,Integer dashletTypeId) {
 		this.dashletId			= dashletId;
 		this.dashletTitle		= dashletTitle;
 		this.dashletName		= dashletName;
@@ -63,6 +65,7 @@ public class DashletVO implements Serializable {
 		this.daoQueryType		= daoQueryType;
 		this.showHeader			= showHeader;
 		this.isActive			= isActive;
+		this.dashletTypeId		= dashletTypeId;
 	}
 	
 	
@@ -199,11 +202,21 @@ public class DashletVO implements Serializable {
 	public void setDaoQueryType(Integer daoQueryType) {
 		this.daoQueryType = daoQueryType;
 	}
+	
+	
+
+	public Integer getDashletTypeId() {
+		return dashletTypeId;
+	}
+
+	public void setDashletTypeId(Integer dashletTypeId) {
+		this.dashletTypeId = dashletTypeId;
+	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(dashletBody, dashletId, dashletName, dashletPropertVOList, dashletQuery,
-				dashletTitle, dataSourceId, height, isActive, roleIdList, showHeader, width, xCoordinate, yCoordinate);
+				dashletTitle, dataSourceId, height, isActive, roleIdList, showHeader, width, xCoordinate, yCoordinate,dashletTypeId);
 	}
 
 	@Override
@@ -225,7 +238,8 @@ public class DashletVO implements Serializable {
 				&& Objects.equals(dataSourceId, other.dataSourceId) && Objects.equals(height, other.height)
 				&& Objects.equals(isActive, other.isActive) && Objects.equals(roleIdList, other.roleIdList)
 				&& Objects.equals(showHeader, other.showHeader) && Objects.equals(width, other.width)
-				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate);
+				&& Objects.equals(xCoordinate, other.xCoordinate) && Objects.equals(yCoordinate, other.yCoordinate)
+				&& Objects.equals(dashletTypeId, other.dashletTypeId);
 	}
 
 	@Override
@@ -236,6 +250,7 @@ public class DashletVO implements Serializable {
 				.append(", dashletQuery=").append(dashletQuery).append(", xCoordinate=").append(xCoordinate)
 				.append(", yCoordinate=").append(yCoordinate).append(", width=").append(width).append(", height=")
 				.append(height).append(", dataSourceId=").append(dataSourceId)
+				.append(", dashletTypeId=").append(dashletTypeId)
 				.append(", showHeader=").append(showHeader).append(", isActive=").append(isActive)
 				.append(", roleIdList=").append(roleIdList).append(", dashletPropertVOList=")
 				.append(dashletPropertVOList).append("]");

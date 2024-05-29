@@ -1,1 +1,1 @@
-select * from jq_manual_entry where manual_type = :manualType and sort_index = :sortIndex
+select * from jq_manual_entry where manual_Id = :manualType and sort_index = :sortIndex

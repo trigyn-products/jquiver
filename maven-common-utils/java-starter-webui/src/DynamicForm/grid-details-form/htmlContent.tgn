@@ -222,13 +222,13 @@
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
-                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('grid-details-form', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
                     <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="typeOfAction('grid-details-form', this, saveData,backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="typeOfAction('grid-details-form', this, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData,backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndEdit")}</li>
                         </ul>
                     </div> 
                 </div>
@@ -246,6 +246,7 @@
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
 	let oldGridId = "yourGridId";
+    
 	$(function() {
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];

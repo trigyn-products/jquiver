@@ -13,7 +13,11 @@
         </#if>
 	</#list>
 </#if>
-
+<#if (toggleFileBin)?? && (toggleFileBin) == true>
+<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/fileupload/fileupload.js"></script>
+</#if>
 <style>
     .displayflex{
         display:flex;
@@ -141,20 +145,23 @@
                        
 				</div>
             <#elseif (columnDetailsList.autoIncrement) == true>
-
+             <#if (columnDetailsList.columnType) != "hidden">
                 <div class="col-lg-3 col-12" title="Auto Increment">
 					<div class="col-inner-form full-form-fields">
                         <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 						<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
 					</div>
 				</div>
+			  <#else>
+                  <input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" readonly = "readonly" class="form-control  ${optionalClass!''}"placeholder="Auto Increment">
+              </#if>
             <#elseif (columnDetailsList.autoIncrement) == false>
 				<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" > 
 			</#if>
     	</#list>
     	</div>
     </#if>
-     <#if (toggleCaptcha)?? && (toggleCaptcha) == true>
+    <#if (toggleCaptcha)?? && (toggleCaptcha) == true>
      <div class="row">
 		<div class="col-lg-5 col-12" title="Reload Captcha">
 			 <div class="col-inner-form full-form-fields">
@@ -164,7 +171,7 @@
 					<input type="text" id="formCaptcha" name="formCaptcha" class="form-control" placeholder="Type your captcha here"  >
                  </div>
                  <div clas="captachimblock">
-                    <img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''}/cf/captcha/${formId ! ''}_captcha">
+                    <img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''}/cf/captcha/<#noparse>${formId}</#noparse>_captcha">
 					<i id="reloadCaptcha" class="fa fa-refresh" aria-hidden="true" ></i>
                     </div>
                     </div>
@@ -174,6 +181,16 @@
 			</div>
 		 </div>
     </div>
+     </#if>
+     
+     <#if (toggleFileBin)?? && (toggleFileBin) == true >     
+        <#noparse> <#if (resultSetObject.</#noparse>${editCondition}<#noparse>)?? ></#noparse>
+      <div class="row">
+         <div class="col-6">
+            <div id="fileUploadMaster" class="col-12 fileupload dropzone"></div>
+         </div>
+      </div>
+      <#noparse> </#if>  </#noparse>
      </#if>
   </form>
    <#noparse>
@@ -266,7 +283,9 @@
 	
       </#if>
     </#noparse>
-    
+    <#if (toggleFileBin)?? && (toggleFileBin) == true>
+      ${(fileBinId)}dropZone.getSelectedFiles();
+    </#if>
 	changeDefaultAction()
 	hideShowActionButtons();
   });
@@ -337,5 +356,41 @@
 			location.href = contextPath+"/cf/home";
 		</#if>
 	}
-	
+	<#if (toggleFileBin)?? && (toggleFileBin) == true>
+    let ${(fileBinId)}dropZone = $(".fileupload").fileUpload({
+        fileBinId : "${(fileBinId)}",
+        fileAssociationId: "${(fileAssociationId)}",
+        createFileBin : true,
+        renderer: fileConfigRenderer,
+    });
+
+   
+     function fileConfigRenderer(fileObj) {
+        let fileUploadId = fileObj["id"];
+        let fileName = fileObj["name"];
+        let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+        let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span>" +
+        "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span>"+ 
+        "<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFile('"+fileUploadId+"')\"></i></span></div>";        
+        return actionElem;
+  
+	}
+    
+    function fileName(a_fileName){
+        showMessage("File Name: " + a_fileName, "success");
+    }
+
+     function copyFilePath(a_fileUploadId){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val(window.location.origin + contextPath+"/cf/files/" + a_fileUploadId).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("File Path Copied Successfully", "success");
+    }
+    
+      function deleteFile(fileUploadId){
+        ${(fileBinId)}dropZone.deleteFileById(fileUploadId);
+    }
+	</#if>
 </script>

@@ -101,6 +101,7 @@ public class MasterModuleController {
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
+
 			logger.error("Error occured in loadModuleContent.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {

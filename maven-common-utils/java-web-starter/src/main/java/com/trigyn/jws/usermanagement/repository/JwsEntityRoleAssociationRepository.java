@@ -1,13 +1,13 @@
 package com.trigyn.jws.usermanagement.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.SiteLayoutVO;
@@ -18,7 +18,7 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 	@Query(" SELECT entityRoleId FROM JwsEntityRoleAssociation WHERE entityId=:entityId AND roleId=:roleId ")
 	String getEntityRoleIdByEntityAndRoleId(String entityId, String roleId);
 
-	@Query(" FROM JwsEntityRoleAssociation WHERE entityId=:entityId AND moduleId=:moduleId ")
+	@Query(" FROM JwsEntityRoleAssociation WHERE entityId=:entityId AND moduleId=:moduleId and isActive=1")
 	List<JwsEntityRoleAssociation> getEntityRoles(String entityId, String moduleId);
 
 	@Query(" SELECT new com.trigyn.jws.usermanagement.vo.JwsRoleVO( r.roleId,r.roleName) FROM JwsEntityRoleAssociation AS jera INNER JOIN jera.role  AS r WHERE jera.entityId=:entityId AND jera.moduleId=:moduleId  AND jera.isActive=:isActive")
@@ -66,5 +66,8 @@ public interface JwsEntityRoleAssociationRepository extends JpaRepository<JwsEnt
 
 	@Query(" FROM JwsEntityRoleAssociation WHERE roleId=:roleId ")
 	List<JwsEntityRoleAssociation> getEntityRolesByRoleId(@Param("roleId")String roleId);
+
+	@Query(" FROM JwsEntityRoleAssociation WHERE entityId=:entityId AND moduleId=:moduleId AND roleId=:roleId")
+	Optional<JwsEntityRoleAssociation> findByCompositeKeys(String entityId, String roleId, String moduleId);
 
 }

@@ -1,14 +1,12 @@
 package com.trigyn.jws.usermanagement.security.config;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -18,29 +16,20 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
+import com.trigyn.jws.usermanagement.security.config.oauth.CustomOAuth2UserService;
+import com.trigyn.jws.usermanagement.security.config.oauth.CustomOidcUserService;
+import com.trigyn.jws.usermanagement.security.config.oauth.OAuth2HelperService;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.usermanagement.vo.AuthenticationDetails;
-import com.trigyn.jws.usermanagement.vo.ConnectionDetailsJSONSpecification;
-import com.trigyn.jws.usermanagement.vo.DropDownData;
-import com.trigyn.jws.usermanagement.vo.JwsAuthAdditionalProperty;
 import com.trigyn.jws.usermanagement.vo.JwsAuthConfiguration;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationType;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
@@ -63,30 +52,36 @@ public class MultiHttpSecurityConfig {
 
 	@Autowired
 	private DataSource						dataSource						= null;
-
-	private static List<String>				clients							= new ArrayList<>();
-	// Arrays.asList("google", "facebook");
-
+	
 	@Autowired
-	private ServletContext					servletContext					= null;
-
+	private OAuth2HelperService				oAuth2HelperService				= null;
+	
 	@Autowired
-	private CustomAuthenticationProvider	customAuthenticationProvider	= null;
-
-	@Bean
-	public UserDetailsService userDetailsService(JwsUserRepository userRepository,
-			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
-		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository, userConfigService);
-	}
+	private CustomOidcUserService			customOidcUserService			= null;
+	
+	@Autowired
+	private CustomOAuth2UserService			customOAuth2UserService			= null;
 	
 	@Bean
-	public AuthenticationSuccessHandler customAuthSuccessHandler() {
+	@ConditionalOnMissingBean
+	CustomAuthenticationProvider customAuthenticationProvider() {
+		return new CustomAuthenticationProvider();
+	}
+
+    @Bean
+    UserDetailsService userDetailsService(JwsUserRepository userRepository,
+                                       JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
+		return new DefaultUserDetailsServiceImpl(userRepository, userRoleAssociationRepository, userConfigService);
+	}
+
+    @Bean
+    AuthenticationSuccessHandler customAuthSuccessHandler() {
 		return new CustomAuthSuccessHandler();
 	}
 
 
-	@Bean
-	public CustomLoginFailureHandler loginFailureHandler() {
+    @Bean
+    CustomLoginFailureHandler loginFailureHandler() {
 		return new CustomLoginFailureHandler();
 	}
 
@@ -116,10 +111,9 @@ public class MultiHttpSecurityConfig {
 								// another switch case
 								auth.inMemoryAuthentication().withUser("root@trigyn.com")
 										.password(passwordEncoder.encode("root")).roles("ADMIN");
-							} else if (Constants.AuthType.DAO.getAuthType() == authType
-									|| Constants.AuthType.LDAP.getAuthType() == authType) {
-								auth.userDetailsService(userDetailsService);
-								auth.authenticationProvider(customAuthenticationProvider);
+							} else if ((Constants.AuthType.DAO.getAuthType() == authType
+									|| Constants.AuthType.LDAP.getAuthType() == authType)) {
+								auth.authenticationProvider(customAuthenticationProvider());
 							}
 						}
 					}
@@ -199,34 +193,32 @@ public class MultiHttpSecurityConfig {
 										List<List<JwsAuthConfiguration>>	configurations			= multiAuthLogin
 												.getConnectionDetailsVO().getAuthenticationDetails()
 												.getConfigurations();
-										List<DropDownData>					selectedDropDownData	= null;
-										for (List<JwsAuthConfiguration> multiAuthSecConfigurations : configurations) {
-											selectedDropDownData = multiAuthSecConfigurations.stream()
-													.filter(configuration -> configuration.getDropDownData() != null)
-													.flatMap(dropDownDatas -> dropDownDatas.getDropDownData().stream())
-													.filter(dropDownData -> dropDownData.getSelected() != null
-															&& dropDownData.getSelected())
-													.collect(Collectors.toList());
-										}
-
-										if (selectedDropDownData != null && selectedDropDownData.size() > 0) {
-											http.cors(Customizer.withDefaults()).authorizeRequests().antMatchers("/cf/confirm-account").denyAll()
+											
+											
+											http.authorizeRequests().antMatchers("/cf/confirm-account").denyAll()
 													.antMatchers("/webjars/**").permitAll()
 													.antMatchers("/login/**", "/logout/**").permitAll()
-													.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf","/cf/getResourceBundleData")
-													.permitAll()
-													// below line will enable redirection to authentication page, if
-													// user
-													// has not logged in. Example, clicking directly to survey link.
-													.antMatchers("/cf/**").authenticated().and().oauth2Login()
-													.clientRegistrationRepository(clientRegistrationRepository())
-													.loginPage("/cf/login").permitAll()
-													.failureHandler(loginFailureHandler())
-													.successHandler(customAuthSuccessHandler())
-													.and().logout()
-													.addLogoutHandler(customLogoutSuccessHandler).and().csrf()
+													.antMatchers("/cf/files/**", "/view/**", "/cf/gl", "/cf/psdf",
+															"/cf/getResourceBundleData")
+													.permitAll().antMatchers("/cf/**").authenticated().and()
+													.oauth2Login(oauth2 -> oauth2
+															.clientRegistrationRepository(
+																	oAuth2HelperService.clientRegistrationRepository())
+															.loginPage("/cf/login").permitAll()
+															.failureHandler(loginFailureHandler())
+															.successHandler(customAuthSuccessHandler())
+															.authorizationEndpoint().and()
+															// Below Changes of for Linkedin
+															.tokenEndpoint(token -> token
+																	.accessTokenResponseClient(oAuth2HelperService
+																			.authorizationCodeTokenResponseClient()))
+															// Below Changes of for OIDC
+															.userInfoEndpoint(userInfo -> userInfo
+																	// .userAuthoritiesMapper(this.userAuthoritiesMapper())
+																	.userService(customOAuth2UserService)
+																	.oidcUserService(customOidcUserService)))
+													.logout().addLogoutHandler(customLogoutSuccessHandler).and().csrf()
 													.disable();
-										}
 									}
 								}
 							}
@@ -272,139 +264,5 @@ public class MultiHttpSecurityConfig {
 		return jdbcTokenRepositoryImpl;
 	}
 
-	private ClientRegistrationRepository clientRegistrationRepository() {
-		List<ClientRegistration>	registrations			= new ArrayList<ClientRegistration>();
-		Map<String, Object>			authenticationDetails	= applicationSecurityDetails.getAuthenticationDetails();
-		if (authenticationDetails != null) {
-			@SuppressWarnings("unchecked")
-			List<MultiAuthSecurityDetailsVO> multiAuthSecurityDetails = (List<MultiAuthSecurityDetailsVO>) authenticationDetails
-					.get("authenticationDetails");
-			if (multiAuthSecurityDetails != null) {
-				for (MultiAuthSecurityDetailsVO authSecurityDetail : multiAuthSecurityDetails) {
-					Integer authType = authSecurityDetail.getAuthenticationTypeVO().getId();
-					if (authType != null && Constants.AuthType.OAUTH.getAuthType() == authType) {
-						ConnectionDetailsJSONSpecification oAuthType = authSecurityDetail.getConnectionDetailsVO();
-						if (oAuthType.getAuthenticationType() != null && oAuthType.getAuthenticationDetails() != null) {
-							AuthenticationDetails authenticationDetail = oAuthType.getAuthenticationDetails();
-							for (List<JwsAuthConfiguration> oAuthConfigurationDetails : authenticationDetail
-									.getConfigurations()) {
-								for (JwsAuthConfiguration authConfiguration : oAuthConfigurationDetails) {
-									List<DropDownData> dropDownDatas = authConfiguration.getDropDownData();
-									for (DropDownData dropDownData : dropDownDatas) {
-										if (!clients.contains(dropDownData.getName())) {
-											clients.add(dropDownData.getName());
-											ClientRegistration client = getRegistration(dropDownData);
-											if (client != null)
-												registrations.add(client);
-										}
-
-									}
-								}
-
-							}
-						}
-					}
-				}
-			}
-		}
-		return new InMemoryClientRegistrationRepository(registrations);
-	}
-
-	private ClientRegistration getRegistration(DropDownData dropDownData) {
-		if (dropDownData == null) {
-			return null;
-		}
-		String									clientName				= dropDownData.getName();
-		String									clientId				= null;
-		String									clientSecret			= null;
-		String									clientType				= dropDownData.getName();
-
-		List<List<JwsAuthAdditionalProperty>>	additionalProperties	= dropDownData.getAdditionalDetails()
-				.getAdditionalProperties();
-		if (additionalProperties == null) {
-			return null;
-		}
-		for (List<JwsAuthAdditionalProperty> additionalProps : additionalProperties) {
-
-			JwsAuthAdditionalProperty	oAuthClientId		= additionalProps.stream()
-					.filter(additionalProperty -> additionalProperty != null
-							&& additionalProperty.getName().equalsIgnoreCase("client-id"))
-					.findAny().orElse(null);
-			JwsAuthAdditionalProperty	oAuthClientSecret	= additionalProps.stream()
-					.filter(additionalProperty -> additionalProperty != null
-							&& additionalProperty.getName().equalsIgnoreCase("client-secret"))
-					.findAny().orElse(null);
-
-			if (oAuthClientId != null)
-				clientId = oAuthClientId.getValue();
-
-			if (oAuthClientSecret != null)
-				clientSecret = oAuthClientSecret.getValue();
-
-			if (clientId == null || clientSecret == null) {
-				return null;
-			}
-
-			if (clientType.equals("google")) {
-				return CommonOAuth2Provider.GOOGLE.getBuilder(clientName).clientId(clientId).clientSecret(clientSecret)
-						.build();
-			}
-			if (clientType.equals("facebook")) {
-				return CommonOAuth2Provider.FACEBOOK.getBuilder(clientName).clientId(clientId)
-						.clientSecret(clientSecret).build();
-			}
-			if (clientType.equals("github")) {
-				return CommonOAuth2Provider.GITHUB.getBuilder(clientName).clientId(clientId).clientSecret(clientSecret)
-						.build();
-			}
-			if (clientType.equals("office-365")) {
-				JwsAuthAdditionalProperty registrationId = additionalProps.stream()
-						.filter(additionalProperty -> additionalProperty != null
-								&& additionalProperty.getName().equalsIgnoreCase("registration-id"))
-						.findAny().orElse(null);
-				
-				JwsAuthAdditionalProperty authorizationUri = additionalProps.stream()
-						.filter(additionalProperty -> additionalProperty != null
-								&& additionalProperty.getName().equalsIgnoreCase("authorizationUri"))
-						.findAny().orElse(null);
-				
-				JwsAuthAdditionalProperty tokenUri = additionalProps.stream()
-						.filter(additionalProperty -> additionalProperty != null
-								&& additionalProperty.getName().equalsIgnoreCase("tokenUri"))
-						.findAny().orElse(null);
-				
-				JwsAuthAdditionalProperty jwkSetUri = additionalProps.stream()
-						.filter(additionalProperty -> additionalProperty != null
-								&& additionalProperty.getName().equalsIgnoreCase("jwkSetUri"))
-						.findAny().orElse(null);
-				
-				if (registrationId != null) {
-					String redirectUri = String.format("%s%s/login/oauth2/code/" + registrationId.getValue(),
-							applicationSecurityDetails.getBaseUrl(), servletContext.getContextPath());
-					return ClientRegistration.withRegistrationId(registrationId.getValue()).clientId(clientId)
-							.clientSecret(clientSecret)
-							.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).scope("openid")
-							.redirectUriTemplate(redirectUri)
-
-							.authorizationUri(authorizationUri.getValue())
-							.tokenUri(tokenUri.getValue())
-							.jwkSetUri(jwkSetUri.getValue()).build();
-				}
-
-			}
-		}
-		return null;
-	}
 	
-	@Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(List.of("*")); 
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
 }

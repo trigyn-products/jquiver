@@ -1,0 +1,4 @@
+function getAlgLookupValue() {
+    return daoResults["encAlgLookupResultSet"];
+}
+getAlgLookupValue();

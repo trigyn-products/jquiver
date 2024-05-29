@@ -59,49 +59,49 @@ public class HelpManualImportExportModule {
 		}
 
 		List<ManualEntryDetailsExportVO> manualEntryDetailsVOList = new ArrayList<>();
+		List<FileUpload>			fileUploads				= fileUploadRepository
+				.findAllByFileAssociationId(a_manualType.getManualId());
+		List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
+		for (FileUpload fu : fileUploads) {
+			fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
+					fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
+					fu.getFileBinId(), fu.getFileAssociationId()));
 
+			if (!new File(folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator
+					+ a_manualType.getName()).exists()) {
+				File fileDirectory = new File(folderLocation + File.separator
+						+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
+				fileDirectory.mkdirs();
+			}
+
+			Path		downloadPath	= Paths.get(folderLocation + File.separator
+					+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
+
+			Path		fileRoot		= Paths.get(fu.getFilePath());
+			Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
+			Resource	resource		= new UrlResource(filePath.toUri());
+			InputStream	in;
+			if (resource.exists() || resource.isReadable()) {
+				File newFile = resource.getFile();
+				in = new FileInputStream(newFile);
+			} else {
+				String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
+				in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
+				if (in == null) {
+					throw new RuntimeException("Could not read the file!");
+				}
+			}
+			Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
+			Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
+		}
 		if (manualEntries != null) {
 			for (ManualEntryDetails med : manualEntries) {
-				List<FileUpload>			fileUploads				= fileUploadRepository
-						.findAllByFileAssociationId(med.getManualEntryId());
-				List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
-				for (FileUpload fu : fileUploads) {
-					fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
-							fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
-							fu.getFileBinId(), fu.getFileAssociationId()));
+			
 
-					if (!new File(folderLocation + File.separator + Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator
-							+ a_manualType.getName()).exists()) {
-						File fileDirectory = new File(folderLocation + File.separator
-								+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
-						fileDirectory.mkdirs();
-					}
-
-					Path		downloadPath	= Paths.get(folderLocation + File.separator
-							+ Constant.HELP_MANUAL_DIRECTORY_NAME + File.separator + a_manualType.getName());
-
-					Path		fileRoot		= Paths.get(fu.getFilePath());
-					Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
-					Resource	resource		= new UrlResource(filePath.toUri());
-					InputStream	in;
-					if (resource.exists() || resource.isReadable()) {
-						File newFile = resource.getFile();
-						in = new FileInputStream(newFile);
-					} else {
-						String filePathStr = fu.getFilePath() + "/" + fu.getPhysicalFileName();
-						in = FilesStorageServiceImpl.class.getResourceAsStream(filePathStr);
-						if (in == null) {
-							throw new RuntimeException("Could not read the file!");
-						}
-					}
-					Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
-					Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
-				}
-
-				manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualType(),
+				manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualId(),
 						med.getEntryName(),
 						StringEscapeUtils.unescapeXml("<![CDATA[" + med.getEntryContent().trim() + "]]>"),
-						med.getSortIndex(), med.getLastUpdatedBy(), med.getLastModifiedOn(), fileUploadExportVOList));
+						med.getSortIndex(), med.getLastUpdatedBy(), med.getLastModifiedOn(), med.getCreatedBy(),med.getCreatedDate(),med.getParentId()));
 
 				if (fileUploads != null && fileUploads.isEmpty() == false)
 					fileUploadConfigId = fileUploads.get(0).getFileBinId();
@@ -124,8 +124,8 @@ public class HelpManualImportExportModule {
 		}
 
 		HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(),
-				a_manualType.getName(), a_manualType.getIsSystemManual(), manualEntryDetailsVOList,
-				fileUploadConfigExportVO);
+				a_manualType.getName(), a_manualType.getIsSystemManual(),manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
+				fileUploadConfigExportVO,fileUploadExportVOList);
 
 		Map<String, Object>		map					= new HashMap<>();
 		map.put("moduleName", a_manualType.getName());
@@ -141,10 +141,11 @@ public class HelpManualImportExportModule {
 		String								manualId				= helpManualTypeExportVO.getManualId();
 		String								name					= helpManualTypeExportVO.getName();
 		Integer								isSystemManual			= helpManualTypeExportVO.getIsSystemManual();
+				
 		List<ManualEntryDetailsExportVO>	manualEntriesVO			= helpManualTypeExportVO.getManualEntries();
 		FileUploadConfigExportVO			fileUploadConfigVO		= helpManualTypeExportVO.getFileUploadConfig();
 
-		ManualType							manualType				= new ManualType(manualId, name, isSystemManual);
+		ManualType							manualType				= new ManualType(manualId, name, isSystemManual,helpManualTypeExportVO.getCreatedBy(),helpManualTypeExportVO.getCreatedDate(),helpManualTypeExportVO.getLastUpdatedBy(),helpManualTypeExportVO.getLastUpdatedTs());
 
 		FileUploadConfig					fileUploadConfig		= null;
 		if (fileUploadConfigVO != null) {
@@ -162,18 +163,19 @@ public class HelpManualImportExportModule {
 
 		if (manualEntriesVO != null) {
 			for (ManualEntryDetailsExportVO medVO : manualEntriesVO) {
-				ManualEntryDetails med = new ManualEntryDetails(medVO.getManualEntryId(), medVO.getManualType(),
+				ManualEntryDetails med = new ManualEntryDetails(medVO.getManualEntryId(), medVO.getManualId(),
 						medVO.getEntryName(), medVO.getEntryContent(), medVO.getSortIndex(), medVO.getLastUpdatedBy(),
-						medVO.getLastModifiedOn());
+						medVO.getLastModifiedOn(),medVO.getCreatedBy(),medVO.getCreatedDate(),medVO.getParentId());
 				manualEntryDetails.add(med);
 
-				for (FileUploadExportVO fueVO : medVO.getFileUploadList()) {
-					FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
-							fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(),
-							fueVO.getFileBinId(), fueVO.getFileAssociationId());
-					fileUploads.add(fu);
-				}
+				
 			}
+		}
+		for (FileUploadExportVO fueVO : helpManualTypeExportVO.getFileUploadList()) {
+			FileUpload fu = new FileUpload(fueVO.getFileUploadId(), fueVO.getPhysicalFileName(),
+					fueVO.getOriginalFileName(), fueVO.getFilePath(), fueVO.getUpdatedBy(),
+					fueVO.getFileBinId(), fueVO.getFileAssociationId());
+			fileUploads.add(fu);
 		}
 		helpManual = new HelpManual(manualType, manualEntryDetails, fileUploads, fileUploadConfig);
 

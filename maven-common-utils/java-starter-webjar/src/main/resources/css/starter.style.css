@@ -261,9 +261,115 @@ body.darktheme {
 
 .darktheme .form-control, .darktheme select{
 	background: var(--darkblack-500);
-	border-color:var(--darkblack-700);
+	border-color:var(--darkblack-800) !important;
 	color:var(--white);
 }
+
+.darktheme .form-control, .darktheme select option{
+	background: var(--darkblack-500) !important;
+	border-color:var(--darkblack-800) !important;
+	color:var(--white);
+}
+
+.darktheme .iconscover{
+	border-color:var(--darkblack-800) !important;
+}
+
+.darktheme  .LDAPeAuth{
+	background-color: var(--darkblack);	
+}
+
+.darktheme .dropzone-container{
+	background: var(--darkblack-800) !important;
+}
+
+.darktheme .copyblock, .darktheme .pg-form-dropzone .dropzone .dz-preview, .darktheme .filepreviewcontainer{
+	background: var(--darkblack-800) !important;
+	color:var(--white);
+}
+
+.darktheme .pg-form-dropzone .dropzone .dz-preview .dz-details .dz-filename:not(:hover) span{
+	color:var(--white);
+}
+
+.darktheme .pg-form-dropzone .dropzone .dz-preview .dz-details .dz-filename span, .darktheme .pg-form-dropzone .dropzone .dz-preview .dz-details .dz-size span{
+	color:var(--white);
+}
+
+ 
+
+.darktheme  .pg-form-dropzone .dropzone .dropzone-container .dropzone-title{
+	color:var(--white);
+}
+
+.darktheme .pg-form-dropzone .dropzone, .darktheme .pg-form-dropzone .cm-dropzone-wrap{
+	background: var(--darkblack-500) !important;
+}
+
+.darktheme .iconscover.spacingclss:hover{
+	background: var(--darkblack-800);
+	border-color:var(--darkblack-800) !important;
+	color:var(--white);
+}
+
+.darktheme .btn-secondary{
+	    background: var(--darkblack-300) !important;
+    color: var(--white) !important;
+    border: 1px solid var(--darkblack-800) !important;
+}
+
+.darktheme .iconscover .addonicons {
+	background-color: var(--white) !important;
+}
+
+.darktheme .multiselectcount {
+	color: var(--white) !important;
+	background: none !important;
+}
+
+
+.darktheme .btn-secondary:hover{
+	    background: var(--darkblack-800) !important;
+    color: var(--white) !important;
+    border: 1px solid var(--darkblack-800) !important;
+}
+
+.darktheme .clearall-cls{
+	 color: var(--white) !important;
+}
+
+.darktheme .newswitch .slider{
+	  border: 1px solid var(--darkblack-800) !important;
+}
+
+.darktheme .newswitch input:checked+.slider{
+	    background-color: var(--darkblack-300) !important;
+}
+
+
+.darktheme .onoffswitch-inner:before{
+	 background-color: var(--darkblack-300) !important;
+}
+
+.darktheme .onoffswitch-label{
+	  border: 1px solid var(--darkblack-800) !important;
+}
+
+.darktheme  .onoffswitch-switch{
+	  border: 1px solid var(--darkblack-800) !important;
+}
+
+.darktheme .actionimgbtn{
+	background-color: var(--white) !important;
+}
+
+.darktheme .newswitch .slider:before{
+	  border: 1px solid var(--darkblack-800) !important;
+}
+
+
+.darktheme .multiselectcount:after{ border-top:6px solid var(--white) !important;}
+
 
 .darktheme .list-group-item, .darktheme .list-group-item-action, .darktheme .text-muted, .darktheme .cm-iconboxwrap {
 	background-color: var(--darkblack-500);
@@ -278,6 +384,8 @@ body.darktheme {
  	 background-color: var(--darkblack);
  	 border-color: var(--darkblack-700);
 }
+
+ 
 
 .darktheme .cm-card {
     background-color: var(--darkblack);
@@ -311,8 +419,8 @@ body.darktheme {
 }
 
 .darktheme .ui-widget-header{
-	background-color: var(--darkblack-500);
-	border-color: var(--darkblack-700);
+	background-color: var(--darkblack-500) !important;
+	border-color: var(--darkblack-700) !important;
 }
 
 .darktheme .pq-grid-header-table  .pq-grid-title-row th{
@@ -320,6 +428,15 @@ body.darktheme {
  	 border-color: var(--darkblack-700);
 }
 
+
+.darktheme .ui-tabs .ui-tabs-panel{
+	 background-color: var(--darkblack) !important;
+	 color:var(--white) !important;
+}
+
+.darktheme .hljs-attribute, .darktheme  .hljs-name, .hljs-tag{
+	 color:var(--white) !important;
+}
 
 .darktheme .pq-grid-footer .ui-icon-seek-next:after{
 	border-left-color: var(--darkblack-300);
@@ -460,8 +577,14 @@ background: var(--darkblack-500);
 /************* dark theme CSS END***************************/ 
 
 /************* Body ***************************/
-body, html {
+
+html {
+	height: 100%;
+}
+
+body{
 	min-height: 100%;
+	height: 100%;
 	font-size: 14px !important;
 	font-family: 'Roboto', sans-serif !important;
 	background: #fafafa !important;
@@ -613,6 +736,17 @@ box-shadow: 0px 0px 5px 0px rgba(230,230,230,0.2); */
 div.pq-grid-center {
 	overflow: hidden;
 }
+
+ 
+
+
+@media screen and (max-width: 995px), 
+       screen and (min-height: 900px) {
+   .loginbody {
+  	margin-top:150px
+  }
+}
+
 
 @media screen and (max-width: 992px) {
 	.container {
@@ -822,7 +956,15 @@ div.pq-grid-center {
 	}
 	
 	
+	.loginbody{
+		    margin-top: 0;
+	}
 	
+	.mediablock{
+		display: none;;
+	}
+	
+	 
 	
 	
 .socialloginblock{
@@ -1525,7 +1667,7 @@ div.pq-grid * {
 .home_list_icon {
 	width: 50px;
 	display: block;
-	margin: 15px auto 0;
+	margin: 5px auto 0;
 	height: 50px;
 }
 
@@ -2688,9 +2830,9 @@ padding: 8px 20px;
 }
 
 .form-signin-heading {
-	margin-bottom: 25px;
+	margin-bottom: 5px;
 	color: var(--bluebgcolor);
-	margin-top: 40px;
+	margin-top: 0px;
 }
 
 p.divdeform {
@@ -2925,7 +3067,7 @@ p.divdeform {
 	width: 25%;
 	display: flex;
 	text-align: center;
-	min-height: 270px;
+	min-height: 290px;
 	position: relative;
 	margin-bottom: 26px;
 	float: left;
@@ -3564,7 +3706,7 @@ to {
 }
 
 .cm-boxright.cm-boxright-export {
-	width: 74.4%;
+	width: 74.2%;
 }
 
 .pg-export-config .topband {
@@ -4591,6 +4733,37 @@ caret-color: transparent;
 
 .pg-form-dropzone .dropzone .dz-preview.dz-file-preview .dz-image {
 	height: 30px;
+	    display: none;
+}
+
+.testLdapAuth{
+    margin-bottom: 0px;
+    position: absolute;
+    right: 3px;
+    top: -1px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    padding: 5px 15px;
+    line-height: inherit;
+}
+
+.no-paddingcls{
+	padding: 0px;
+}
+
+.nopadding{
+	padding:0px;
+}
+
+.testLdapAuthselectdivc{
+     position: absolute;
+    right: 50px;
+    top: 3px;
+}
+
+.testLdapAuthselectdivc .blockdivcls  {
+	margin:0px !important;
 }
 
 .pg-form-dropzone .cm-dropzone-wrap {
@@ -4752,15 +4925,15 @@ caret-color: transparent;
  }
 
 .block-wrap {
-	display: flex;
-	-webkit-box-pack: center;
-	justify-content: center;
-	-webkit-box-align: center;
-	align-items: center;
-	flex-wrap: wrap;
-	height: auto;
-	width: 100%;
-	margin: 0px 3px;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    flex-wrap: wrap;
+    height: auto;
+    margin: 0px 3px 12px;
+    flex: 1;
 }
 
 .logintabsblock{
@@ -4827,7 +5000,7 @@ caret-color: transparent;
 	-webkit-box-align: center;
 	align-items: center;
 	width: 100%;
-	height: 50px;
+	height: 40px;
 }
 
 .captchablock {
@@ -4961,6 +5134,8 @@ caret-color: transparent;
 		max-width: 100% !important;
 		overflow-x: scroll;
 	}
+	
+	
 }
 
 .cm-card select:focus {
@@ -6628,8 +6803,14 @@ div.pq-loading-mask>div {
 	position: absolute;
 	height: calc(97vh - 180px);
 	width: 40px;
-	left: 16.8%;
+	left:169px;
 	top: 0px;
+}
+
+ 
+
+.leftcontenctcls{
+	width: 190px;
 }
 
 .helpmanual_right {
@@ -6834,6 +7015,7 @@ div.pq-loading-mask>div {
     justify-content: space-around;
     width: 100%;
     margin: 0px auto;
+        flex-wrap: wrap;
     background: #ebebeb;
     padding: 7px;
     border: 1px solid #ccc;
@@ -6871,7 +7053,7 @@ div.pq-loading-mask>div {
     background: #fff;
     color: var(--bluebgcolor);
     width: 150px;
-    margin: 25px auto 10px;
+    margin: 15px auto 10px;
     position: relative;
     font-weight: 400;
     font-size: 16px;
@@ -7062,16 +7244,17 @@ div.pq-loading-mask>div {
 }
 
 .enableVerificationStep {
-	
+	    margin-top: 20px;
 }
 
 .LDAPeAuth {
 	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
+	position: relative;
 }
 
-.OutheAuth {
+.OAuth {
 	
 }
 
@@ -7079,7 +7262,7 @@ div.pq-loading-mask>div {
 	width: 100% !important;
 }
 
-.OutheAuth .blockdivcls.row {
+.OAuth .blockdivcls.row {
 	float: left;
 	margin-top: 20px;
 	margin-right: 20px;
@@ -7090,10 +7273,16 @@ div.pq-loading-mask>div {
 width: 100%;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid #6666;
-    padding: 10px;
+    
     margin-top: 20px;
  }
+ 
+ 
+ .blockdivcls.removeouthbtn{
+    position: absolute;
+    right: 19px;
+    top: -18px;
+}
 
 .oauthClientGroup .removeiconclsc{
 	    height: 35px;
@@ -7107,10 +7296,7 @@ width: 100%;
     margin-left: 0px;
 }
 
-.LDAPeAuth .blockdivcls {
-	display: flex;
-	margin: 0 25px 15px 0;
-}
+
 
 .dividesection {
 	border: 1px solid #ccc;
@@ -7155,14 +7341,12 @@ width: 100%;
 .LDAPeAuth {
     width: 100%;
     display: flex;
-    flex-wrap: wrap;
-    border: 1px solid #6666;
-    padding: 10px;
+    flex-wrap: wrap;  
     margin-top: 20px;
     background: #fdfdfd;
 }
 
-.OutheAuth {
+.OAuth {
 	
 }
 
@@ -7174,31 +7358,47 @@ width: 100%;
 	width:100%;
 }
 
-.LDAPeAuth .blockdivcls {
-	display: flex;
-	margin: 0 25px 15px 0;
+.testLdapAuth .blockdivcls {
+	margin:0px !important;
 }
 
 
  
 
-.addldapbtn{
+.OAuth .addSection{
 	    position: absolute;
-    top: -31px;
+    top: -34px;
     right: 45px;
 }
 
-.testLdapAuth, .removeLdapAuth, .testLdapAuthselectdivc, .removeLdapAuthselectdivc     {
-	display: flex;
-}
-
-.testLdapAuth .blockdivcls, .removeLdapAuth .blockdivcls, .testLdapAuthselectdivc .blockdivcls, .removeLdapAuthselectdivc .blockdivcls {
-	    margin: 0px 20px 0 0;
-    align-items: center;
+.addSection{
+	    position: absolute;
+    top: -34px;
+    right: 45px;
 }
 
 
+.OAuth label{
+	width: 100%;
+	    margin-top: 20px;
+    font-weight: bold;
+}
 
+.LDAPeAuth .blockdivcls.removeouthbtn{
+    top: 4px !important;
+    right: 9px;
+}
+
+.LDAPeAuth .blockdivcls.removeouthbtn .btn{
+	padding: 8px 10px !important;
+}
+
+
+.LDAPeAuth .removeLdapAuthselectdivc .blockdivcls.removeouthbtn{
+	    top: 5px !important;
+    right: 10px;
+}
+ 
 
 .ldapSearchScope > label, .ldapSecurityType > label, .ldapSearchScopeselectdivc > label, .ldapSecurityTypeselectdivc > label  {
 	font-weight:bold;
@@ -7235,8 +7435,9 @@ width: 100%;
 
 .removebtncls {
 	position: absolute;
-	top: 20px;
+	top: 17px;
 	right: 30px;
+	padding: 8px 10px !important;
 }
 
 
@@ -8032,6 +8233,18 @@ box-shadow: 0px 4px 3px 0px rgba(0,0,0,0.3);
   -webkit-mask: url(../images/viewapi.svg) no-repeat center / contain;
 }
 
+.scriptlibraryicon{
+	 background-color: var(--bluebgcolor);
+  	mask: url(../images/scriptlibraryicon.svg) no-repeat center / contain;
+  -webkit-mask: url(../images/scriptlibraryicon.svg) no-repeat center / contain;
+}
+
+.iconscover:hover .scriptlibraryicon{
+	 background-color: var(--white);
+  	mask: url(../images/scriptlibraryicon.svg) no-repeat center / contain;
+  -webkit-mask: url(../images/scriptlibraryicon.svg) no-repeat center / contain;
+}
+
 
 .pq-grid-bottom .pq-grid-footer .ui-icon-refresh {
 		 background-color: var(--bluebgcolor) !important;
@@ -8567,14 +8780,20 @@ div.pq-grid tr:hover{
 
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle{
 	    background-color: var(--bluebgcolor) !important;
-    border-color: var(--bluebgcolor) !important;.pq-grid.ui-widget.ui-widget-content
+    border-color: var(--bluebgcolor) !important;
 }
+
+.ui-draggable .ui-dialog-titlebar{
+	 background-color: var(--bluebgcolor) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
 
 .noborder{
     border: none !important;
     padding: 0px !important;
 }
-
+ 
 .col-inner-form.full-form-fields .search-cover{
 	width: 100% !important;
 }
@@ -8841,4 +9060,202 @@ pre code{
 .ui-widget-overlay{
 	    opacity: 0.5 !important;
 	        cursor: no-drop;
+}
+
+.addSectionDiv{
+	position: relative;
+	margin-top:30px;
+}
+
+.removdiv.testLdapAuth {
+    right: 100px;
+    top: 3px;
+}
+
+ .testLdapAuth{width:auto !important;}
+
+.removdiv.removeLdapAuth .btn.btn-primary{
+    color: var(--bluebgcolor) !important;
+    background: var(--white) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
+.removdiv.removeLdapAuth .btn.btn-primary:hover {
+    color: var(--white) !important;
+    background: var(--bluebgcolor) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
+
+.removdiv.remove-oauth-section .btn.btn-primary{
+    color: var(--bluebgcolor) !important;
+    background: var(--white) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
+.removdiv.remove-oauth-section .btn.btn-primary:hover {
+    color: var(--white) !important;
+    background: var(--bluebgcolor) !important;
+    border-color: var(--bluebgcolor) !important;
+}
+
+.testLdapAuthselectdivc .removdiv.testLdapAuth {
+       right: 50px;
+    top: 0px;
+}
+
+.dashletarrowdrop:hover .fa{
+    background:#fff !important;
+    color: var(--bluebgcolor) !important;
+}
+
+.removdiv.testLdapAuth .btn{ width: 130px;}
+
+.removdiv{
+    position: absolute;
+    right: -6px;
+    top: -1px;
+}
+
+
+.removeLdapAuth, .remove-oauth-section{
+    height: 33px;
+    display: flex;
+    text-align: center;
+    line-height: inherit;
+    padding: 4px 15px;
+}
+
+
+
+.removbtntestLdapAuth{
+    color: #fff;
+    background: var(--bluebgcolor);
+    border:1px solid var(--bluebgcolor);
+    position: relative;
+    overflow: hidden;
+	    padding: 5px 10px !important;
+    line-height: inherit !important;
+    font-size: 14px !important;
+    border-radius: 4px !important;
+}
+
+ 
+
+ 
+
+.removbtnremoveLdapAuth, .removbtnremove-oauth-section {
+    color: var(--bluebgcolor) !important;
+    background: var(--white) !important;
+    border:1px solid var(--bluebgcolor) !important;
+	 position: relative;
+    overflow: hidden;
+	    padding: 5px 10px !important;
+    line-height: inherit !important;
+    font-size: 14px !important;
+    border-radius: 4px !important;
+}
+
+ 
+
+.removbtnremoveLdapAuth:hover, .removbtnremove-oauth-section:hover {
+    color: var(--white) !important;
+    background: var(--bluebgcolor) !important;
+    border:1px solid var(--bluebgcolor) !important;
+}
+
+#methodSignatureContainer {
+	text-align: left;
+	 
+}
+
+#methodSignature {		
+	text-align: left;
+    display: inline-block;
+    margin: auto;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 2px;
+    white-space: break-spaces; 
+    padding: 15px 0 10px;
+    word-wrap: break-word;
+	}
+	
+.panel-body.overflowbodyscroll::-webkit-scrollbar-track {
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+	background-color: #fff;
+}
+
+.panel-body.overflowbodyscroll::-webkit-scrollbar {
+	width: 6px;
+	background-color: #fff;
+}
+
+.panel-body.overflowbodyscroll::-webkit-scrollbar-thumb {
+	background-color: rgb(123, 123, 123);
+}	
+
+.leftcontenctcls::-webkit-scrollbar-track {
+	-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+	background-color: rgb(239, 239, 239);
+}
+
+.leftcontenctcls::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+	background-color: #fff;
+}
+
+.leftcontenctcls::-webkit-scrollbar-thumb {
+	background-color: #ccc;
+}	
+
+
+.Helpmanualblock .navbar, .Helpmanualblock .themecolorpalette{
+	display: none;
+}
+
+.Helpmanualblock .container{
+    width: 100%;
+    max-width: 100%;
+    border:0px;
+    padding: 3px;
+}
+
+.Helpmanualblock .main-container {
+padding: 1px;
+}
+
+.Helpmanualblock .helpmanual_right{
+	width: 90%;
+}
+
+.Helpmanualblock .leftcontenctcls{
+	    height: calc(100vh - 50px);
+}
+
+.Helpmanualblock  .leftcontenctcls{
+	    width: 260px;
+}
+
+.Helpmanualblock .spiralbinding{
+	left: 219px;
+	height: calc(97vh - 40px) !Important;
+}
+
+.Helpmanualblock .helpmanual_right{
+	    height: calc(100vh - 50px);
+}
+
+.Helpmanualblock .topband{
+	display: none;
+}
+
+.Helpmanualblock .topactionbutton {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+.topactionbutton{
+	
 }

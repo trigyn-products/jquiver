@@ -8,7 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -22,14 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.UUID;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.net.ssl.SSLException;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,6 +58,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +83,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
@@ -98,17 +98,8 @@ import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.utils.Constants;
+import com.trigyn.jws.dynarest.utils.Constants.Platforms;
 import com.trigyn.jws.dynarest.utils.WebClientCustomException;
-import com.trigyn.jws.dynarest.vo.AttachmentXMLVO;
-import com.trigyn.jws.dynarest.vo.Email;
-import com.trigyn.jws.dynarest.vo.EmailAttachedFile;
-import com.trigyn.jws.dynarest.vo.EmailBodyXMLVO;
-import com.trigyn.jws.dynarest.vo.EmailListXMLVO;
-import com.trigyn.jws.dynarest.vo.EmailXMLVO;
-import com.trigyn.jws.dynarest.vo.FailedRecipientXMLVO;
-import com.trigyn.jws.dynarest.vo.FailedRecipientsXMLVO;
-import com.trigyn.jws.dynarest.vo.RecepientXMLVO;
-import com.trigyn.jws.dynarest.vo.RecepientsXMLVO;
 import com.trigyn.jws.dynarest.vo.RestApiDaoQueries;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.dynarest.vo.WebClientAttacmentVO;
@@ -132,7 +123,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
-
 @Service
 @Transactional
 @Lazy
@@ -210,30 +200,43 @@ public class JwsDynamicRestDetailService {
 
 	@Autowired
 	private JwsQuartzJobService				jobService						= null;
+	
+	protected NamedParameterJdbcTemplate	namedParameterJdbcTemplate		= null;
 
 	private String	METHOD_SIGNATURE_MESSAGE;
 
 	private String	FILE_METHOD_SIGNATURE_MESSAGE;
-
+	
 	public Object createSourceCodeAndInvokeServiceLogic(Map<String, FileInfo> files,
-			HttpServletRequest httpServletRequest, Map<String, Object> requestParameterMap,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Map<String, Object> requestParameterMap,
 			Map<String, Object> daoResultSets, RestApiDetails restApiDetails) throws Exception, CustomStopException {
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			Map<String, Object> apiDetails = objectMapper.convertValue(restApiDetails, Map.class);
 			requestParameterMap.putAll(apiDetails);
-
-			if (restApiDetails.getPlatformId().equals(Constants.Platforms.JAVA.getPlatform())) {
-				return invokeAndExecuteOnFileJava(files, httpServletRequest, daoResultSets, restApiDetails);
-			} else if (restApiDetails.getPlatformId().equals(Constants.Platforms.FTL.getPlatform())) {
+			
+			ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+			ScriptEngine scriptEngine = null;
+			scriptEngine = scriptEngineManager.getEngineByName(Constants.Platforms.getPlatformByID(restApiDetails.getPlatformId()).getPlatformName());
+			switch(restApiDetails.getPlatformId()) {
+			case Constants.JAVA:
+				return invokeAndExecuteOnFileJava(files, httpServletRequest, requestParameterMap, restApiDetails);
+			case Constants.FTL:
 				return invokeAndExecuteFTL(files, httpServletRequest, requestParameterMap, daoResultSets,
 						restApiDetails);
-			} else if (restApiDetails.getPlatformId().equals(Constants.Platforms.JAVASCRIPT.getPlatform())) {
-				return invokeAndExecuteFileOnJavascript(files, httpServletRequest, requestParameterMap, daoResultSets,
-						restApiDetails);
-			} else {
-				return null;
+			case Constants.JAVASCRIPT:
+				return invokeAndExecuteFileOnJavascript(files, httpServletRequest, httpServletResponse, requestParameterMap, daoResultSets,
+						restApiDetails,scriptEngine);
+			case Constants.PYTHON:
+				return invokeAndExecuteFileOnPython(files, httpServletRequest, httpServletResponse, requestParameterMap, daoResultSets,
+						restApiDetails,scriptEngine);
+			case Constants.PHP:
+				return invokeAndExecuteFileOnPHP(files, httpServletRequest, httpServletResponse, requestParameterMap, daoResultSets,
+						restApiDetails,scriptEngine);
+			 default:
+				 return null;
 			}
+
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in createSourceCodeAndInvokeServiceLogic for Stop Exception.",
 					custStopException);
@@ -308,16 +311,66 @@ public class JwsDynamicRestDetailService {
 		return serviceLogicMethod.invoke(classInstance, httpServletRequest, files, daoResultSets,
 				detailsService.getUserDetails());
 	}
-
-	public Object invokeAndExecuteFileOnJavascript(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,
-			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails)
+	
+	public Object invokeAndExecuteFileOnJavascript(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
+			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails,ScriptEngine scriptEngine)
 			throws Exception, CustomStopException {
-		TemplateVO templateVO = templatingService.getTemplateByName("script-util");
+		
+		if (scriptEngine == null) {
+			logger.error("Nashorn Script Engine not found.");
+			httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+					"Nashorn Script Engine not found.");
+			return null;
+        }
+		try {
+			return scriptEngineExecution(files,httpServletRequest,requestParameterMap,daoResultSets,restApiDetails,scriptEngine);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in invokeAndExecuteFileOnJavascript for Stop Exception.", custStopException);
+			throw custStopException;
+		}
+	}
+	
+	public Object invokeAndExecuteFileOnPython(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
+			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails,ScriptEngine scriptEngine)
+			throws Exception, CustomStopException {
+		
+		if (scriptEngine == null) {
+			logger.error("Python Script Engine not found.");
+			httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+					"Python Script Engine not found.");
+			return null;
+        }
+		try {
+			return scriptEngineExecution(files,httpServletRequest,requestParameterMap,daoResultSets,restApiDetails,scriptEngine);
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in invokeAndExecuteFileOnPython for Stop Exception.", custStopException);
+			throw custStopException;
+		}
+	}
+	
+	public Object invokeAndExecuteFileOnPHP(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
+			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails,ScriptEngine scriptEngine)
+			throws Exception, CustomStopException {
+		try {
+	        if (scriptEngine == null) {
+	        	logger.error("PHP Script Engine not found.");
+	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						"PHP Script Engine not found.");
+				return null;
+	        }
+	        return scriptEngineExecution(files,httpServletRequest,requestParameterMap,daoResultSets,restApiDetails,scriptEngine);
+	        
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in invokeAndExecuteFileOnPHP for Stop Exception.", custStopException);
+			throw custStopException;
+		}
+	}
+	
+	public Object scriptEngineExecution(Map<String, FileInfo> files, HttpServletRequest httpServletRequest,
+			Map<String, Object> requestParameterMap, Map<String, Object> daoResultSets, RestApiDetails restApiDetails,ScriptEngine scriptEngine)
+			throws Exception, CustomStopException {
+		
 		StringBuilder resultStringBuilder = new StringBuilder();
-		resultStringBuilder.append(templateVO.getTemplate()).append("\n");
-
-		ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-		ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
 		scriptEngine.put("requestDetails", requestParameterMap);
 		scriptEngine.put("daoResults", daoResultSets);
 		try {
@@ -330,34 +383,58 @@ public class JwsDynamicRestDetailService {
 				}
 			}
 		} catch (CustomStopException custStopException) {
-			logger.error("Error occured in invokeAndExecuteFileOnJavascript for Stop Exception.", custStopException);
+			logger.error("Error occured in scriptEngineExecution for Stop Exception.", custStopException);
 			throw custStopException;
 		} catch (Exception excp) {
 			logger.error("Error occured while invoking the method in" + restApiDetails.getDynamicRestUrl(), excp);
 		}
-
 		Map<String, String> headerMap = new HashMap<>();
 		Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-		try {
-			if (headerNames != null) {
-				while (headerNames.hasMoreElements()) {
-					String header = headerNames.nextElement();
-					headerMap.put(header, httpServletRequest.getHeader(header));
-				}
+			
+		if (headerNames != null) {
+			while (headerNames.hasMoreElements()) {
+				String header = headerNames.nextElement();
+				headerMap.put(header, httpServletRequest.getHeader(header));
 			}
-			scriptEngine.put("httpRequestObject", httpServletRequest);
-			scriptEngine.put("requestHeaders", headerMap);
-			scriptEngine.put("session", httpServletRequest.getSession());
-
-			if (files != null && files.size() > 0) {
-				scriptEngine.put("files", files);
-			}
-			resultStringBuilder.append(restApiDetails.getServiceLogic());
-			return scriptEngine.eval(resultStringBuilder.toString());
-		} catch (CustomStopException custStopException) {
-			logger.error("Error occured in invokeAndExecuteFileOnJavascript for Stop Exception.", custStopException);
-			throw custStopException;
 		}
+		if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("ECMAScript")) {
+			TemplateVO		templateVO			= templatingService.getTemplateByName("script-util");
+			resultStringBuilder.append(templateVO.getTemplate()).append("\n");
+		}
+		
+		scriptEngine.put("httpRequestObject", httpServletRequest);
+		scriptEngine.put("requestHeaders", headerMap);
+		scriptEngine.put("session", httpServletRequest.getSession());
+
+		if (files != null && files.size() > 0) {
+			scriptEngine.put("files", files);
+		}
+		List<Object> objScriptLib = dynarestDAO.scriptLibExecution(restApiDetails.getDynamicId());
+		for(int iCounter = 0; iCounter<objScriptLib.size(); iCounter++) {
+			resultStringBuilder.append(objScriptLib.get(iCounter)).append("\n");
+		}
+		resultStringBuilder.append(restApiDetails.getServiceLogic()).append("\n");
+		try {
+		    StringWriter stringWriter = new StringWriter();
+		    scriptEngine.getContext().setWriter(new PrintWriter(stringWriter));
+	        Object scriptResult = scriptEngine.eval(resultStringBuilder.toString());
+	        if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("python")) {
+	        	// If the method has a return statement
+	        	if(scriptEngine.get("result") != null) {
+	        		Object result = scriptEngine.get("result");
+	        		return result;
+	        	}
+	        }else if(scriptEngine.getFactory().getLanguageName().equalsIgnoreCase("php")) {
+	        	System.out.println("Sys Out is necessary for PHP"+scriptResult);
+		        String result = stringWriter.toString();
+		        return result;
+	        } else {
+	        	return scriptResult;
+			}
+	    } catch (ScriptException scrExc) {
+	        logger.error("Error occured in scriptEngineExecution.", scrExc);
+	    }
+		return null;
 	}
 
 	public RestApiDetails getRestApiDetails(String requestUri) {
@@ -470,14 +547,19 @@ public class JwsDynamicRestDetailService {
 			throws CustomStopException {
 		String		emailXMLContent	= (String) emailXMLObj;
 		JsonArray	jsonArray		= new JsonArray();
+		String mailSenderGroupId = null;
 		try {
-			String mailSenderGroupId = UUID.randomUUID().toString();
+			if(null == requestParams.get("mailSenderGroupId")) {
+				mailSenderGroupId = UUID.randomUUID().toString();
+			}else {
+				mailSenderGroupId = (String) requestParams.get("mailSenderGroupId");
+			}
 			sendMailService.saveMailHistory(emailXMLContent, mailSenderGroupId);
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put("dynamicRestUrl", requestParams.get("dynamicRestUrl"));
 			jobDataMap.put("mailSenderGroupId", mailSenderGroupId);
-			// String propertyJson = mapper.writeValueAsString(requestParams);
-			jobDataMap.put("requestParams", requestParams);
+			//String paramJson = mapper.writeValueAsString(requestParams);
+			//jobDataMap.put("requestParams", paramJson);
 			String jobGroup = mailSenderGroupId;
 			boolean status = jobService.scheduleOneTimeJob("sendMail", jobGroup, JwsMailScheduleJob.class,
 					DateBuilder.evenMinuteDateAfterNow(), jobDataMap);
@@ -510,7 +592,7 @@ public class JwsDynamicRestDetailService {
 
 			WebClientXMLVO	webClientXMLVO	= (WebClientXMLVO) unmarshaller.unmarshal(reader);
 
-			/** URL is mandatory. It can'be null oe empty */
+			/** URL is mandatory. It can'be null or empty */
 			if (webClientXMLVO.getWebClientURL().isEmpty() == true
 					|| webClientXMLVO.getWebClientURL().equalsIgnoreCase("about:blank") == true) {
 				// Handled null pointer exception
@@ -638,7 +720,7 @@ public class JwsDynamicRestDetailService {
 				Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
 						requestParams, fileMap);
 
-				response = jwsService.createSourceCodeAndInvokeServiceLogic(fileMap, httpServletRequest, requestParams,
+				response = jwsService.createSourceCodeAndInvokeServiceLogic(fileMap, httpServletRequest, httpServletResponse, requestParams,
 						queriesResponse, restApiDetails);
 				String responseType = restApiDetails.getReponseType();
 				if (StringUtils.isBlank(responseType) == false && responseType.equals("email/xml")) {
@@ -909,7 +991,7 @@ public class JwsDynamicRestDetailService {
 			if (CollectionUtils.isEmpty(webClientRequestVO.getHeaderParamVOList()) == false) {
 				for (WebClientParamVO paramVO : webClientRequestVO.getHeaderParamVOList()) {
 					if ((paramVO.getParameterName() == null || paramVO.getParameterName().isEmpty() == true)
-							|| (paramVO.getParameterValue() == null || paramVO.getParameterValue().isEmpty() == true)) {
+							|| (paramVO.getParameterValue() == null )) {
 						// Handled null pointer exception
 						throw new WebClientCustomException("Parameter name or value can't be null",
 								HttpStatus.PRECONDITION_FAILED, "Parameter name or value can't be null");
@@ -951,8 +1033,7 @@ public class JwsDynamicRestDetailService {
 			if (CollectionUtils.isEmpty(webClientParamList) == false) {
 				for (WebClientParamVO headerParam : webClientParamList) {
 					if ((headerParam.getParameterName() == null || headerParam.getParameterName().isEmpty() == true)
-							|| (headerParam.getParameterValue() == null
-									|| headerParam.getParameterValue().isEmpty() == true)) {
+							|| (headerParam.getParameterValue() == null)) {
 						// Handled null pointer exception
 						throw new WebClientCustomException("Parameter name or value can't be null",
 								HttpStatus.PRECONDITION_FAILED, "Parameter name or value can't be null");
@@ -1028,8 +1109,7 @@ public class JwsDynamicRestDetailService {
 							/** In Body the parameter name or parameter value can't be null or empty */
 							if ((webClientParamVO.getParameterName() == null
 									|| webClientParamVO.getParameterName().isEmpty() == true)
-									|| (webClientParamVO.getParameterValue() == null
-											|| webClientParamVO.getParameterValue().isEmpty() == true)) {
+									|| (webClientParamVO.getParameterValue() == null)) {
 								// Handled null pointer exception
 								throw new WebClientCustomException("Parameter name or value can't be null",
 										HttpStatus.PRECONDITION_FAILED, "Parameter name or value can't be null");
@@ -1060,8 +1140,7 @@ public class JwsDynamicRestDetailService {
 					 */
 					if ((webClientParamVO.getParameterName() == null
 							|| webClientParamVO.getParameterName().isEmpty() == true)
-							|| (webClientParamVO.getParameterValue() == null
-									|| webClientParamVO.getParameterValue().isEmpty() == true)) {
+							|| (webClientParamVO.getParameterValue() == null)) {
 						// Handled null pointer exception
 						throw new WebClientCustomException("Parameter name or value can't be null",
 								HttpStatus.PRECONDITION_FAILED, "Parameter name or value can't be null");

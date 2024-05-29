@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -32,6 +31,7 @@ import org.springframework.web.reactive.function.client.WebClient.Builder;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
+import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.CustomResponseEntity;
 import com.trigyn.jws.dbutils.utils.CustomRuntimeException;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
@@ -41,6 +41,7 @@ import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.repository.JqschedulerRepository;
 import com.trigyn.jws.dynarest.service.SendMailService;
 import com.trigyn.jws.dynarest.vo.Email;
+import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
@@ -48,25 +49,22 @@ import reactor.core.publisher.Mono;
 
 public class JwsSchedulerJob implements Job {
 
+
 	private static Logger				logger						= LogManager.getLogger(JwsSchedulerJob.class);
 
-	@Autowired
-	private IUserDetailsService			detailsService				= null;
+	private IUserDetailsService			detailsService				= ApplicationContextUtils.getApplicationContext().getBean(IUserDetailsService.class);
 
-	@Autowired
-	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
+	private ApplicationSecurityDetails	applicationSecurityDetails	= ApplicationContextUtils.getApplicationContext().getBean(ApplicationSecurityDetails.class);
 
-	@Autowired
-	JwsDynarestDAO						jwsDynarestDAO				= null;
+	JwsDynarestDAO						jwsDynarestDAO				= ApplicationContextUtils.getApplicationContext().getBean(JwsDynarestDAO.class);
 
-	@Autowired
-	private SendMailService				sendMailService				= null;
+	private SendMailService				sendMailService				= ApplicationContextUtils.getApplicationContext().getBean(SendMailService.class);
 
-	@Autowired
-	private ActivityLog					activityLog					= null;
+	private ActivityLog					activityLog					= ApplicationContextUtils.getApplicationContext().getBean(ActivityLog.class);
 	
-	@Autowired
-	private JqschedulerRepository jqschedulerRepository 			= null;
+	private JqschedulerRepository jqschedulerRepository 			= ApplicationContextUtils.getApplicationContext().getBean(JqschedulerRepository.class);
+	
+	private JwsQuartzJobService			jobService					= ApplicationContextUtils.getApplicationContext().getBean(JwsQuartzJobService.class);
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -97,6 +95,8 @@ public class JwsSchedulerJob implements Job {
 				
 				Map<String, String>		headerMap				= g.fromJson(jqScheduler.getHeaderJson().toString(),
 						Map.class);
+				
+				baseURL	= jobService.getBaseUrl();
 				StringBuilder			fullRestApiUrl			= new StringBuilder().append(baseURL);
 				 
 				JwsDynamicRestDetail	jwsDynamicRestDetail	= jwsDynarestDAO
@@ -180,7 +180,7 @@ public class JwsSchedulerJob implements Job {
 					log.setRequestTime(requestTime);
 					jwsDynarestDAO.saveJqSchedulerLog(log);
 				}
-				logger.log(Level.INFO, "JwsScheduler completed susccesfully. Scheduler ID: " + schedulerId);
+				logger.log(Level.DEBUG, "JwsScheduler completed susccesfully. Scheduler ID: " + schedulerId);
 			} catch (CustomRuntimeException crte) {
 				crte.printStackTrace();
 				JqSchedulerLog	log			= new JqSchedulerLog();

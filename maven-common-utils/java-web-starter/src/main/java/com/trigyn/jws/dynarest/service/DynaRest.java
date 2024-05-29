@@ -7,8 +7,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
@@ -22,8 +20,6 @@ import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 import com.trigyn.jws.templating.service.MenuService;
 
 public class DynaRest {
-
-	private final static Logger			logger						= LogManager.getLogger(DynaRest.class);
 
 	@Autowired
 	private PropertyMasterDetails		propertyMasterDetails		= null;
@@ -41,6 +37,10 @@ public class DynaRest {
 	 * 
 	 * Method to get dynamic rest details
 	 * 
+	 * @param a_httpServletRequest request object
+	 * @param files holds FileInfo map
+	 * @param dAOparameters dAOparameters
+	 * @param userDetails session use details
 	 * @return map return dynarest details
 	 *
 	 */
@@ -57,6 +57,10 @@ public class DynaRest {
 	 * 
 	 * Method to get default template listing
 	 * 
+	 * @param a_httpServletRequest request object
+	 * @param files holds FileInfo map
+	 * @param dAOparameters dAOparameters
+	 * @param userDetails session use details
 	 * @return map return response map
 	 *
 	 */
@@ -70,6 +74,10 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get value from property master
+	 * @param a_httpServletRequest request object
+	 * @param files holds FileInfo map
+	 * @param daoResultSets daoResultSets
+	 * @param userDetails session use details
 	 * @return map return property string
 	 *
 	 */
@@ -85,6 +93,11 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get translation from resource bundle
+	 * 
+	 * @param a_httpServletRequest request object
+	 * @param files holds FileInfo map
+	 * @param daoResultSets daoResultSets
+	 * @param userDetails session use details
 	 * @return map return map of translation
 	 *
 	 */
@@ -104,6 +117,13 @@ public class DynaRest {
 	/**
 	 * 
 	 * Method to get template content by name and process template content
+	 * 
+	 * @param a_httpServletRequest request object
+	 * @param files holds FileInfo map
+	 * @param daoResultSets daoResultSets
+	 * @param userDetails session use details
+	 * 
+	 * @throws Exception is thrown
 	 * @return map return template
 	 *
 	 */

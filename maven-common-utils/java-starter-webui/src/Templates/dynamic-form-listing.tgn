@@ -25,12 +25,15 @@
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
             </select>
             
-                        
                 <span class="iconscover spacingclss">
                  <button type='button' onclick="location.href='${(contextPath)!''}/cf/ad'" class="addonicons addresourceicon" title="Additional Datasource">
                     </button>
                 </span>
-             
+                
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${contextPath}/view/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="${messageSource.getMessage('jws.addscriptlibrary')}">
+                    </button>
+                </span>   
 				
 			<#if environment == "dev">
 

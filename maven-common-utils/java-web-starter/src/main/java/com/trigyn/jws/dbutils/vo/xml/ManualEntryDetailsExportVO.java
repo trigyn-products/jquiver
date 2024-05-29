@@ -4,37 +4,50 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
+
 public class ManualEntryDetailsExportVO {
 
-	private String	manualEntryId	= null;
+	private String manualEntryId = null;
 
-	private String	manualType		= null;
+	private String manualId = null;
 
-	private String	entryName		= null;
+	private String entryName = null;
 
-	private String	entryContent	= null;
+	private String entryContent = null;	
 
-	private Integer	sortIndex		= null;
-
-	private String	lastUpdatedBy	= null;
-
-	private Date	lastModifiedOn	= null;
+	private Integer sortIndex = null;
 	
-	private List<FileUploadExportVO> fileUploadList = new ArrayList<>();
+	private String createdBy = null;
 
-	public ManualEntryDetailsExportVO() {}
-	
-	public ManualEntryDetailsExportVO(String manualEntryId, String manualType, String entryName, String entryContent,
-			Integer sortIndex, String lastUpdatedBy, Date lastModifiedOn, List<FileUploadExportVO> fileUploadList) {
+	private Date createdDate = null;
+
+	private String lastUpdatedBy = null;
+
+	private Date lastModifiedOn = null;	
+
+	private String parentId = null;
+
+	//private List<FileUploadExportVO> fileUploadList = new ArrayList<>();
+
+	public ManualEntryDetailsExportVO() {
+	}
+
+	public ManualEntryDetailsExportVO(String manualEntryId, String manualId, String entryName, String entryContent,
+			Integer sortIndex, String lastUpdatedBy, Date lastModifiedOn, /*List<FileUploadExportVO> fileUploadList,*/
+			String createdBy, Date createdDate, String parentId) {
 		super();
-		this.manualEntryId	= manualEntryId;
-		this.manualType		= manualType;
-		this.entryName		= entryName;
-		this.entryContent	= entryContent;
-		this.sortIndex		= sortIndex;
-		this.lastUpdatedBy	= lastUpdatedBy;
-		this.lastModifiedOn	= lastModifiedOn;
-		this.fileUploadList	= fileUploadList;
+		this.manualEntryId = manualEntryId;
+		this.manualId = manualId;
+		this.entryName = entryName;
+		this.entryContent = entryContent;
+		this.sortIndex = sortIndex;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.lastModifiedOn = lastModifiedOn;
+		//this.fileUploadList = fileUploadList;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.parentId = parentId;
 	}
 
 	public String getManualEntryId() {
@@ -45,12 +58,12 @@ public class ManualEntryDetailsExportVO {
 		this.manualEntryId = manualEntryId;
 	}
 
-	public String getManualType() {
-		return manualType;
+	public String getManualId() {
+		return manualId;
 	}
 
-	public void setManualType(String manualType) {
-		this.manualType = manualType;
+	public void setManualId(String manualId) {
+		this.manualId = manualId;
 	}
 
 	public String getEntryName() {
@@ -93,11 +106,36 @@ public class ManualEntryDetailsExportVO {
 		this.lastModifiedOn = lastModifiedOn;
 	}
 
-	public List<FileUploadExportVO> getFileUploadList() {
-		return fileUploadList;
+//	public List<FileUploadExportVO> getFileUploadList() {
+//		return fileUploadList;
+//	}
+//
+//	public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
+//		this.fileUploadList = fileUploadList;
+//	}
+
+	public String getCreatedBy() {
+		return createdBy;
 	}
 
-	public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
-		this.fileUploadList = fileUploadList;
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
 }

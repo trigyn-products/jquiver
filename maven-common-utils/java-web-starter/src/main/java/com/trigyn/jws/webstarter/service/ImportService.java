@@ -64,6 +64,7 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.AdditionalDatasourceVO;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
+import com.trigyn.jws.dbutils.vo.ScriptLibraryVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynaRestExportVO;
@@ -83,10 +84,11 @@ import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.entities.ManualEntryDetails;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
+import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
-import com.trigyn.jws.dynarest.entities.ApiClientDetails;
+import com.trigyn.jws.dynarest.entities.JqApiClientDetails;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
@@ -108,6 +110,8 @@ import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.utils.ResourceBundleUtils;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.ModuleService;
@@ -153,6 +157,7 @@ import com.trigyn.jws.webstarter.xml.PropertyMasterXMLVO;
 import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
 import com.trigyn.jws.webstarter.xml.RoleXMLVO;
 import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
+import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
 
@@ -284,7 +289,10 @@ public class ImportService {
 	private FileUploadRepository					fileUploadRepository				= null;
 	
 	@Autowired
-	private DashletService			dashletServive			= null;
+	private DashletService							dashletServive						= null;
+	
+	@Autowired
+	private DynamicFormService						dynamicFormService					= null;
 
 
 	public Map<String, Object> importConfig(Part file, boolean isImportfromLocal,String filePath) throws Exception {
@@ -414,6 +422,9 @@ public class ImportService {
 				} else if (fileName.toLowerCase()
 						.startsWith(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())) {
 					outputMap = getScheduler(outputMap, file);
+				} else if (fileName.toLowerCase()
+						.startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
+					outputMap = getScriptLibrary(outputMap, file);
 				}
 			} else if (Constant.FOLDER_EXPORT_TYPE.equals(moduleType)) {
 				if (Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleName)) {
@@ -626,7 +637,7 @@ public class ImportService {
 		ApiClientDetailsXMLVO xmlVO = (ApiClientDetailsXMLVO) XMLUtil.unMarshaling(ApiClientDetailsXMLVO.class,
 				file.getAbsolutePath());
 
-		for (ApiClientDetails apiClientDetails : xmlVO.getApiClientDetails()) {
+		for (JqApiClientDetails apiClientDetails : xmlVO.getApiClientDetails()) {
 			ApiClientDetailsVO vo = apiClientDetails.convertEntityToVO(apiClientDetails);
 			updateOutputMap(outputMap, apiClientDetails.getClientId(), vo, apiClientDetails,
 					Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase());
@@ -653,6 +664,17 @@ public class ImportService {
 			SchedulerVO schedulerVO = convertSchedulerEntityToVO(scheduler);
 			updateOutputMap(outputMap, scheduler.getSchedulerId(), schedulerVO, scheduler,
 					Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase());
+		}
+		return outputMap;
+	}
+	
+	private Map<String, Object> getScriptLibrary(Map<String, Object> outputMap, File file) throws Exception {
+		ScriptLibraryXMLVO xmlVO = (ScriptLibraryXMLVO) XMLUtil.unMarshaling(ScriptLibraryXMLVO.class, file.getAbsolutePath());
+
+		for (ScriptLibraryDetails scriptLib : xmlVO.getScriptLibraryDetails()) {
+			ScriptLibraryVO scriptLibraryVO = convertScriptLibEntityToVO(scriptLib);
+			updateOutputMap(outputMap, scriptLib.getScriptLibId(), scriptLibraryVO, scriptLib,
+					Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -987,7 +1009,7 @@ public class ImportService {
 					}
 				} else if (moduleType
 						.equalsIgnoreCase(Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().toLowerCase())) {
-					ApiClientDetails acd = apiClientDetailsRepository.findById(entityID).orElse(null);
+					JqApiClientDetails acd = apiClientDetailsRepository.findById(entityID).orElse(null);
 					if (acd == null) {
 						version = "NE";
 					}
@@ -1335,10 +1357,18 @@ public class ImportService {
 					
 					List<JwsDynamicRestDaoDetail>	jwsDynamicRestDaoDetails	= dynarest.getJwsDynamicRestDaoDetails();
 					dynarest.setJwsDynamicRestDaoDetails(null);
-	
+					
 					jwsDynarestDAO.saveDynaRestDetail(dynarest, jwsDynamicRestDaoDetails);
-	
+					
+					if(null != dynarest.getScriptLibraryId() && dynarest.getScriptLibraryId().isEmpty() == false) {
+						List<String>  scriptLibIdList = objectMapper.readValue(dynarest.getScriptLibraryId(), List.class);
+						List<String> entityIdList = new ArrayList<>();
+						entityIdList.add(dynarest.getJwsDynamicRestId().toString());
+						List<ScriptLibrary>	scriptLibInsert	= new ArrayList<>();
+						fileUploadConfigDAO.scriptLibSave(entityIdList,scriptLibIdList,scriptLibInsert,Constant.DYNA_REST_MOD_ID,Constant.IMPORT_SOURCE_VERSION_TYPE);
+					}
 					dynarest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetails);
+				
 					RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynarest);
 					moduleVersionService.saveModuleVersion(vo, null, dynarest.getJwsDynamicRestId(), tableName,
 						Constant.IMPORT_SOURCE_VERSION_TYPE);
@@ -1347,6 +1377,7 @@ public class ImportService {
 				FileUploadConfigImportEntity	fileConfigImportEntity	= g.fromJson(entityString,
 						FileUploadConfigImportEntity.class);
 				FileUploadConfig				fileConfig				= fileConfigImportEntity.getFileUploadConfig();
+			
 				FileUploadConfig existingObject = fileUploadConfigDAO.getFileUploadConfig(fileConfig.getFileBinId());
 				if(isOnLoad == false || existingObject == null
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
@@ -1357,7 +1388,9 @@ public class ImportService {
 					if (fileConfig != null) {
 						fileUploadConfigDAO.saveFileUploadConfig(fileConfig);
 					}
-	
+					if(null != fileConfig || null != fileConfig.getDeleteScriptLibraryId()  || null != fileConfig.getUploadScriptLibraryId() || null != fileConfig.getDeleteScriptLibraryId()) {
+						fileUploadConfigService.scriptLibSave(fileConfig);
+					}
 					saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME,
 						fileConfig.getFileBinId());
 				}
@@ -1457,10 +1490,31 @@ public class ImportService {
 					dynamicFormCrudDAO.saveDynamicForm(dynamicForm);
 	
 					dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
+					
+					List<ScriptLibrary>	scriptLibInsert	= new ArrayList<>();
+					List<String>  formSaveQueryIdList = new ArrayList<>();
+					List<String>  scriptLibraryIdList = new ArrayList<>();
+					for(int iscrLibCounter = 0; iscrLibCounter<dynamicFormSaveQueries.size(); iscrLibCounter++) {
+					
+						String formQueryId = dynamicFormSaveQueries.get(iscrLibCounter).getDynamicFormQueryId();
+						formSaveQueryIdList.add(formQueryId);
+						if(null != dynamicFormSaveQueries.get(iscrLibCounter).getScriptLibraryId()) {
+							String scriptLibId = dynamicFormSaveQueries.get(iscrLibCounter).getScriptLibraryId();
+							scriptLibraryIdList.add(scriptLibId);
+						}
+					}
+					if(null != scriptLibraryIdList && scriptLibraryIdList.size() != 0) {
+						dynamicFormCrudDAO.scriptLibSave(formSaveQueryIdList,scriptLibraryIdList,scriptLibInsert,Constant.DYNAFORM_MOD_ID,Constant.IMPORT_SOURCE_VERSION_TYPE);
+					}
+					
 					DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
 					moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), tableName,
 							Constant.IMPORT_SOURCE_VERSION_TYPE);
 				}
+			} else if (Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().equalsIgnoreCase(moduleType)) {
+					ScriptLibraryDetails	scriptLibDetails	= g.fromJson(entityString, ScriptLibraryDetails.class);
+					dynamicFormService.saveScriptLibDetails(scriptLibDetails,Constant.IMPORT_SOURCE_VERSION_TYPE,tableName);
+						
 			} else if (Constant.MasterModuleType.HELPMANUAL.getModuleType().equalsIgnoreCase(moduleType)) {
 				HelpManual helpManual = g.fromJson(entityString, HelpManual.class);
 
@@ -1484,8 +1538,8 @@ public class ImportService {
 					additionalDatasourceDAO.saveAdditionalDatasource(additionalDatasource);
 				}
 			} else if (Constant.MasterModuleType.APICLIENTDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
-				ApiClientDetails apiClientDetails = g.fromJson(entityString, ApiClientDetails.class);
-				ApiClientDetails existingObject = apiClientDetailsDAO.findApiClientDetailsById(apiClientDetails.getClientId());
+				JqApiClientDetails apiClientDetails = g.fromJson(entityString, JqApiClientDetails.class);
+				JqApiClientDetails existingObject = apiClientDetailsDAO.findApiClientDetailsById(apiClientDetails.getClientId());
 				if(isOnLoad == false || existingObject == null   
 						|| (isOnLoad && existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 					if(isOnLoad == true) apiClientDetails.setIsCustomUpdated(0);
@@ -1601,7 +1655,7 @@ public class ImportService {
 		vo.setHeaderJson(dynaRest.getJwsHeaderJson());
 		vo.setHidedaoquery(dynaRest.getHidedaoquery());
 		vo.setDynarestSecured(dynaRest.getIsSecured());
-
+		vo.setScriptLibId(dynaRest.getScriptLibraryId());
 		return vo;
 	}
 
@@ -1622,6 +1676,24 @@ public class ImportService {
 		return vo;
 	}
 
+	private ScriptLibraryVO convertScriptLibEntityToVO(ScriptLibraryDetails scriptLibrary) {
+		ScriptLibraryVO vo = new ScriptLibraryVO();
+		vo.setEntityName("jq_script_lib_details");
+		vo.setFormId("229c8556-2a52-4765-95ab-d1254020e1f0");
+		vo.setPrimaryKey(scriptLibrary.getScriptLibId());
+		vo.setScriptlibId(scriptLibrary.getScriptLibId());
+		vo.setLibraryName(scriptLibrary.getLibraryName());
+		vo.setTemplateId(scriptLibrary.getTemplateId());
+		vo.setScriptType(scriptLibrary.getScriptType());
+		vo.setDescription(scriptLibrary.getDescription());
+		vo.setCreatedBy(scriptLibrary.getCreatedBy());
+		vo.setUpdatedBy(scriptLibrary.getUpdatedBy());
+		vo.setUpdatedDate(scriptLibrary.getUpdatedDate());
+		vo.setIscustomUpdated(scriptLibrary.getIsCustomUpdated());
+		vo.setIsEdit(scriptLibrary.getScriptLibId() != null ? 1 : 0 );
+
+		return vo;
+	}
 	private SchedulerVO convertSchedulerEntityToVO(JqScheduler scheduler) {
 		SchedulerVO vo = new SchedulerVO();
 
@@ -1694,7 +1766,7 @@ public class ImportService {
 	}
 
 	public String getApiClientDetailseJson(String entityId) throws Exception {
-		ApiClientDetails	acd			= apiClientDetailsRepository.findById(entityId).orElse(null);
+		JqApiClientDetails	acd			= apiClientDetailsRepository.findById(entityId).orElse(null);
 		String				jsonString	= "";
 		if (acd != null) {
 			acd = acd.getObject();

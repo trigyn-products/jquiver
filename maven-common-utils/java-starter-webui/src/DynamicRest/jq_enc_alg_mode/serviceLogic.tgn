@@ -1,0 +1,4 @@
+function getEncAlgModes() {
+    return daoResults["encModesResultSet"];
+}
+getEncAlgModes();

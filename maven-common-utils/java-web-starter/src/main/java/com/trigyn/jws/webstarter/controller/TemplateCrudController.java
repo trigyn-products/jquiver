@@ -33,6 +33,7 @@ import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
+import com.trigyn.jws.dbutils.utils.JwsCustomException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -69,13 +70,17 @@ public class TemplateCrudController {
 	private PropertyMasterService propertyMasterService = null;
 
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
-	public String templatePage(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException {
+	public String templatePage(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 
 			Map<String, Object> modelMap = new HashMap<>();
 			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			modelMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("template-listing", modelMap);
+			
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured while loading Template Listing page.", custStopException);
+			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Template Listing page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {

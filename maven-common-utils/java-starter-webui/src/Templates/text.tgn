@@ -1,5 +1,22 @@
 <script type="text/javascript"></script>
 <div class="col-12 margin-b-10">
 	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
-	<input type="text" id="${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" class="form-control"/>
+	<input type="text" id="txt_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}" onchange="" class="form-control"/>
 </div>
+<script>
+function validateText() {
+    var textInput = $('#txt_${innerTemplateObj.propertyId!''}').val(); 
+    var textPattern = ${innerTemplateObj.validation!''}; 
+    if (!(textPattern instanceof RegExp)) {
+        showMessage("TextPattern is not a valid regular expression.","warn");
+        return false;
+    }
+    if (!textPattern.test(textInput)) {
+        $('#txt_${innerTemplateObj.propertyId}').effect("highlight", {}, 3000);
+		$('#txt_${innerTemplateObj.propertyId!''}').focus();
+        showMessage("Invalid input.", "warn");
+        return false; 
+    } 
+    return true; 
+}
+    </script>

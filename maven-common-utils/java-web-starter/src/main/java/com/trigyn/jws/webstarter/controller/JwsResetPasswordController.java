@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -89,6 +91,7 @@ public class JwsResetPasswordController {
 	private ServletContext					servletContext					= null;
 	
 	@Autowired
+
    	private IUserDetailsService				userDetailsService				= null;
 	
 	@Autowired
@@ -101,6 +104,7 @@ public class JwsResetPasswordController {
 	@ResponseBody
 	public String displayResetPasswordPage(ModelAndView modelAndView, HttpServletResponse response)
 			throws Exception, CustomStopException {
+
 		Map<String, Object> mapDetails = new HashMap<>();
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
@@ -120,6 +124,7 @@ public class JwsResetPasswordController {
 
 	@PostMapping(value = "/sendResetPasswordMail")
 	@ResponseBody
+
 	public String sendResetPasswordMail(HttpServletRequest request, HttpSession session, HttpServletResponse response)
 			throws Exception, CustomStopException {
 
@@ -136,6 +141,7 @@ public class JwsResetPasswordController {
 							&& session.getAttribute("resetCaptcha") != null && !(request.getParameter("captcha")
 									.toString().equals(session.getAttribute("resetCaptcha").toString()))) {
 						mapDetails.put("invalidCaptcha", "Please verify captcha!");
+						mapDetails.put("previousMail", existingUser.getEmail());
 						viewName = "jws-password-reset-mail";
 						TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 						return templatingUtils.processTemplateContents(templateVO.getTemplate(),
@@ -266,7 +272,6 @@ public class JwsResetPasswordController {
 			throws Exception, CustomStopException {
 		Map<String, Object> mapDetails = new HashMap<>();
 		String viewName = null;
-
 		String password = request.getParameter("password");
 		String confirmpassword = request.getParameter("confirmpassword");
 		String resetEmailId = request.getParameter("resetEmailId");
@@ -414,14 +419,12 @@ public class JwsResetPasswordController {
 									jwsUser.setForcePasswordChange(Constants.INACTIVE);
 									jwsUser.setLastPasswordUpdatedDate(new Date());
 									userRepository.save(jwsUser);
-
 									/*
 									 * if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 									 * mapDetails.put("authenticationType",
 									 * applicationSecurityDetails.getAuthenticationType()); }
 									 */
 									userConfigService.getConfigurableDetails(mapDetails);
-
 									mapDetails.put("resetPasswordSuccess",
 											"Congratulations.You have successfully updated your password.");
 									viewName = "jws-login";
@@ -443,7 +446,6 @@ public class JwsResetPasswordController {
 					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these page");
 					return null;
 				}
-
 				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
@@ -493,9 +495,8 @@ public class JwsResetPasswordController {
 				if (existingUser != null) {
 					Email email = new Email();
 					userManagementService.sendMailForTotpAuthentication(existingUser, email);
-
 					mapDetails.put("successResetPasswordMsg",
-							"Check your email for a instructions to login through Google AUtheticator. If it doesn’t appear within a few minutes, check your spam folder.");
+							"Check your email for instructions to login through Google Authenticator. If it doesn’t appear within a few minutes, check your spam folder.");
 					viewName = "jws-password-reset-mail-success";
 				} else {
 					mapDetails.put("nonRegisteredUser", "Could not send email to entered mail id");

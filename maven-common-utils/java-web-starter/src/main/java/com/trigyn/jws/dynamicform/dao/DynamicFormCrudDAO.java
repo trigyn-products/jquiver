@@ -3,7 +3,10 @@ package com.trigyn.jws.dynamicform.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,15 +19,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dbutils.service.DataSourceFactory;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.DBExtractor;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
+import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
 
 @Repository
 public class DynamicFormCrudDAO extends DBConnection {
@@ -37,6 +46,12 @@ public class DynamicFormCrudDAO extends DBConnection {
 
 	@Autowired
 	private AdditionalDatasourceRepository	additionalDatasourceRepository	= null;
+	
+	@Autowired
+	private IUserDetailsService		detailsService							= null;
+	
+	@Autowired
+	private JwsDynarestDAO					dynarestDAO						= null;
 
 	@Autowired
 	public DynamicFormCrudDAO(DataSource dataSource) {
@@ -82,7 +97,8 @@ public class DynamicFormCrudDAO extends DBConnection {
 		getCurrentSession().saveOrUpdate(dynamicForm);
 	}
 
-	@Transactional(readOnly = false)
+	//@Transactional(readOnly = false)
+	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveDynamicForm(DynamicForm dynamicForm) {
 		List<DynamicFormSaveQuery> dynamicFormSaveQueries = dynamicForm.getDynamicFormSaveQueries();
 		dynamicForm.setDynamicFormSaveQueries(null);
@@ -99,7 +115,7 @@ public class DynamicFormCrudDAO extends DBConnection {
 			}
 		}
 	}
-
+	
 	public List<DynamicFormSaveQuery> findDynamicFormQueriesById(String formId) {
 		Query query = getCurrentSession().createQuery(
 				"FROM DynamicFormSaveQuery AS dfs WHERE dfs.dynamicFormId = :formId ORDER BY dfs.sequence ASC ");
@@ -217,4 +233,109 @@ public class DynamicFormCrudDAO extends DBConnection {
 		query.setParameter("formId", formId);
 		return (Long) query.uniqueResult();
 	}
+	
+	public final List<Object> scriptLibExecution(String formQueryId) {
+		Query scriptLibQuery = getCurrentSession().createSQLQuery("SELECT jqsl.`template_id` "
+				+ "FROM `jq_script_lib_connect` jqs LEFT JOIN `jq_dynamic_form_save_queries` jqf "
+				+ "ON jqf.`dynamic_form_query_id` = jqs.`entity_id` "
+				+ "LEFT JOIN `jq_script_lib_details` jqsl "
+				+ "ON jqs.`script_lib_id` = jqsl.`script_lib_id` "
+				+ "LEFT JOIN `jq_dynamic_form` jqd "
+				+ "ON jqf.`dynamic_form_id` = jqd.`form_id`  "
+				+ "WHERE jqs.`module_type_id` = :moduleId AND jqf.`dynamic_form_query_id` = :formQueryId ");
+		
+		scriptLibQuery.setParameter("moduleId", Constant.DYNAFORM_MOD_ID);
+		scriptLibQuery.setParameter("formQueryId", formQueryId);
+		
+		List<Object[]> scriptLibList = scriptLibQuery.list();
+		List<Object>		resultMap	= new ArrayList<>();
+		
+		for(int iCounter=0;iCounter<scriptLibList.size();iCounter++){
+			Query roleQuery = getCurrentSession().createSQLQuery("SELECT COUNT(*) FROM `jq_entity_role_association` WHERE `role_id` = :roleId AND `is_active` = :isActive AND entity_id = :entityId ");
+			roleQuery.setParameter("roleId",   Constant.ANONYMOUS_ROLE_ID);
+			roleQuery.setParameter("isActive", Constant.IS_ACTIVE);
+			roleQuery.setParameter("entityId", scriptLibList.get(iCounter));
+			List<Object[]> roleCount = roleQuery.list();
+			if(roleQuery.list().get(0).toString().equalsIgnoreCase("0")) {
+				Query templateQuery = getCurrentSession().createSQLQuery("SELECT template FROM jq_template_master WHERE template_id = :templateId ");
+				templateQuery.setParameter("templateId", scriptLibList.get(iCounter));
+				List<Object[]> listTemplate = templateQuery.list();
+				resultMap.add(listTemplate.get(0));
+			}
+		}
+		 
+		return resultMap;
+	}
+	
+	public void scriptLibSave(List<String> formSaveQueryIdList,List<String> scriptLibInsertList,List<ScriptLibrary>	scriptLibInsert,String moduleId,Integer sourceTypeId) { 
+		UserDetailsVO detailsVO = detailsService.getUserDetails();
+		if(null != scriptLibInsertList && scriptLibInsertList.size() != 0 && scriptLibInsertList.isEmpty() == false) {
+			for(int iScrInsertCounter=0; iScrInsertCounter<scriptLibInsertList.size(); iScrInsertCounter++) {
+				String[] scriptLibId = scriptLibInsertList.get(iScrInsertCounter).split(",");
+				if(null != scriptLibId && scriptLibId.length != 0) {
+					for(int iscrLibIdCount = 0;iscrLibIdCount<scriptLibId.length;iscrLibIdCount++) {
+						ScriptLibrary scriptlibrary = new ScriptLibrary();
+						String scriptLibID = scriptLibId[iscrLibIdCount];
+						if(sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE || sourceTypeId == Constant.IMPORT_SOURCE_VERSION_TYPE) {
+							dynarestDAO.scriptLibDeleteById(formSaveQueryIdList.get(iScrInsertCounter));
+						}
+						if(scriptLibID.isEmpty() == false) {
+							scriptlibrary.setScriptLibId(scriptLibID.trim());
+							scriptlibrary.setModuletypeId(moduleId);
+							scriptlibrary.setEntityId(formSaveQueryIdList.get(iScrInsertCounter));
+							scriptlibrary.setCreatedBy(detailsVO.getUserName());
+							scriptlibrary.setUpdatedBy(detailsVO.getUserName());
+							scriptlibrary.setUpdatedDate(new Date());
+							scriptlibrary.setIsCustomUpdated(1);
+							scriptLibInsert.add(scriptlibrary);
+							getCurrentSession().save(scriptlibrary);
+						}
+					}
+				}
+			}
+		}
+	}
+		
+	public void scriptLibDelete(List<String> formSaveQueryIdList,List<String> scriptLibDeleteList,String moduleId) { 
+		Query deleteScriptLibQuery = null;
+		
+		if(null != scriptLibDeleteList && scriptLibDeleteList.size() != 0 && scriptLibDeleteList.isEmpty() == false) {
+			for(int iScrDeleteCounter=0; iScrDeleteCounter<scriptLibDeleteList.size(); iScrDeleteCounter++) {
+				String[] scriptLibId = scriptLibDeleteList.get(iScrDeleteCounter).split(",");
+				
+				if(null != scriptLibId && scriptLibId.length != 0) {
+					for(int iscrLibIdCount = 0;iscrLibIdCount<scriptLibId.length;iscrLibIdCount++) {
+						String scriptLibID = scriptLibId[iscrLibIdCount];
+						if(scriptLibID.isEmpty() == false) {
+							deleteScriptLibQuery = getCurrentSession().createSQLQuery("delete from jq_script_lib_connect where entity_id=:entityid and script_lib_id =  :scriptlibid ");
+							deleteScriptLibQuery.setParameter("scriptlibid", scriptLibID);
+							deleteScriptLibQuery.setParameter("entityid", formSaveQueryIdList.get(iScrDeleteCounter));
+							int resultSetDelete = deleteScriptLibQuery.executeUpdate();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public List<Map<String, Object>> getScriptLibDetatils(String formQueryId) throws Exception {
+		Query selectScriptConnQuery = null;
+		Query selectScriptLibQuery = null;
+		List<Map<String, Object>> scriptLibList = new ArrayList<>();
+		selectScriptConnQuery =  getCurrentSession().createSQLQuery("SELECT script_lib_id AS scriptId FROM jq_script_lib_connect WHERE entity_id = :entityid ");
+		selectScriptConnQuery.setParameter("entityid", formQueryId);
+		List<Object[]> scriptLibConnList = selectScriptConnQuery.list();
+		for(int iCounter=0; iCounter<scriptLibConnList.size();iCounter++) {
+			Map<String, Object> scriptLibMap = new LinkedHashMap<>();
+			selectScriptLibQuery =  getCurrentSession().createSQLQuery("SELECT script_lib_id AS scriptId, library_name AS libraryName FROM jq_script_lib_details WHERE script_lib_id = :scriptlibid ");
+			selectScriptLibQuery.setParameter("scriptlibid", scriptLibConnList.get(iCounter));
+			List<Object[]> scriptLibDetList = selectScriptLibQuery.list();
+			scriptLibMap.put("scriptId", scriptLibDetList.get(0)[0].toString()+"");
+			scriptLibMap.put("libraryName", scriptLibDetList.get(0)[1].toString()+"");	
+			scriptLibList.add(scriptLibMap);
+		}
+	
+		return scriptLibList;
+	}
+	
 }

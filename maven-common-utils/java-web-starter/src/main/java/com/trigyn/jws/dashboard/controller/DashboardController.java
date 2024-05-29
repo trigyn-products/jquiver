@@ -1,6 +1,7 @@
 package com.trigyn.jws.dashboard.controller;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.service.DashboardService;
 import com.trigyn.jws.dashboard.service.DashletService;
+import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashboardDashletVO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -51,7 +54,10 @@ public class DashboardController {
 	@Autowired
 	private IUserDetailsService	userDetails				= null;
 	
-	private final static Logger				logger					= LogManager.getLogger(DashboardController.class);
+	@Autowired
+	private DashletDAO 			dashletDAO 				= null;
+	
+	private final static Logger	logger					= LogManager.getLogger(DashboardController.class);
 
 	@GetMapping(value = "/gdbc", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<DashboardDashletVO> getDashletByContextId(@RequestHeader(value = "dashboardId", required = false) String dashboardId) throws NumberFormatException, Exception {
@@ -81,17 +87,32 @@ public class DashboardController {
 		}
 		dashletService.saveDashletConfiguration(userId, dashlets, dashboardId);
 	}
-
+	
 	@PostMapping(value = "/rdc")
 	public String refreshDashletContent(@RequestHeader(value = "user-id", required = false) String userId,
 		@RequestParam(value = "dashletId") String dashletId, @RequestParam(value = "paramArray[]") String[] paramArray,
 		@RequestParam(value = "dashboardId") String dashboardId, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+		String properties = httpServletRequest.getParameter("properties");
 		if (userId == null) {
 			UserDetailsVO detailsVO = userDetails.getUserDetails();
 			userId = detailsVO.getUserId();
 		}
-		return dashletService.refreshDashletContent(userId, dashletId, paramArray, dashboardId, httpServletRequest, httpServletResponse);
+		return dashletService.refreshDashletContent(userId, dashletId, paramArray, dashboardId, httpServletRequest, httpServletResponse, properties);
 	}
+	
+	@PostMapping(value = "/fvd")
+	public Object fetchValidationData(HttpServletRequest httpServletRequest) throws Exception {
+		logger.debug("Inside DashboardController.fetchValidationData");
+		try {
+			String type = httpServletRequest.getParameter("type");
+				return dashletService.findComponentValidation(type);
+		} catch (Exception exception) {
+			logger.error("Error occured while fetching Validation Data", exception);
+			return null;
+		}
+	}
+
+
 
 	@PostMapping(value = "/oc")
 	public String openDashletConfig(@RequestHeader(value = "user-id", required = false) String userId,
@@ -104,11 +125,12 @@ public class DashboardController {
 			}
 			Map<String, Object> templateDetails = dashletService.getDashletConfigDetails(userId, dashboardId,
 					dashletId);
+			
 			TemplateVO configTemplateVO = templatingService.getTemplateByName("dashlet-configuration");
 			return templateEngine.processTemplateContents(configTemplateVO.getTemplate(),
 					configTemplateVO.getTemplateName(), templateDetails);
 		} catch (CustomStopException custStopException) {
-			logger.error("Error occured in loadDynamicForm.", custStopException);
+			logger.error("Error occured in openDashletConfig.", custStopException);
 			throw custStopException;
 		}
 	}
@@ -122,4 +144,5 @@ public class DashboardController {
 		formData.remove("dashboardId");
 		dashletService.saveConfiguration(formData, userId, dashboardId);
 	}
+	
 }

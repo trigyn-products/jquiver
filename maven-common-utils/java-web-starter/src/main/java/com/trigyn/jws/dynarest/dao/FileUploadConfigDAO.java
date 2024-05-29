@@ -3,6 +3,8 @@ package com.trigyn.jws.dynarest.dao;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,20 +13,33 @@ import java.util.TreeMap;
 import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.utils.Constants;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
 
 @Repository
 public class FileUploadConfigDAO extends DBConnection {
+	
+	@Autowired
+	private IUserDetailsService		detailsService			= null;
 
+	@Autowired
+	private  JwsDynarestDAO 	dynarestDAO 				= null;
+	
 	public FileUploadConfigDAO(DataSource dataSource) {
 		super(dataSource);
 	}
@@ -191,5 +206,70 @@ public class FileUploadConfigDAO extends DBConnection {
 		query.executeUpdate();
 
 	}
-
+	
+	public final List<Object> scriptLibExecution(String fileBinId) {
+		Query	scriptLibQuery	= getCurrentSession().createSQLQuery("SELECT jqsl.`template_id` "
+				+ "FROM `jq_script_lib_connect` jqs LEFT JOIN `jq_file_upload_config` jqf "
+				+ "ON jqf.`file_bin_id` = SUBSTRING_INDEX(jqs.entity_id , '_',-1) "
+				+ "LEFT JOIN `jq_script_lib_details` jqsl "
+				+ "ON jqs.`script_lib_id` = jqsl.`script_lib_id` "
+				+ "WHERE jqs.`module_type_id` = :moduleId AND jqs.entity_id = :fileBinId");
+		
+		scriptLibQuery.setParameter("moduleId", Constants.FILE_BIN_MOD_ID);
+		scriptLibQuery.setParameter("fileBinId", fileBinId);
+		
+		List<Object[]> scriptLibList = scriptLibQuery.list();
+		List<Object>		resultMap	= new ArrayList<>();
+		
+		for(int iCounter=0;iCounter<scriptLibList.size();iCounter++){
+			Query roleQuery = getCurrentSession().createSQLQuery("SELECT COUNT(*) FROM `jq_entity_role_association` WHERE `role_id` = :roleId AND `is_active` = :isActive AND entity_id = :entityId");
+			roleQuery.setParameter("roleId",   Constant.ANONYMOUS_ROLE_ID);
+			roleQuery.setParameter("isActive", Constant.IS_ACTIVE);
+			roleQuery.setParameter("entityId", scriptLibList.get(iCounter));
+			List<Object[]> roleCount = roleQuery.list();
+			if(roleQuery.list().get(0).toString().equalsIgnoreCase("0")) {
+				Query templateQuery = getCurrentSession().createSQLQuery("SELECT template FROM jq_template_master WHERE template_id = :templateId ");
+				templateQuery.setParameter("templateId", scriptLibList.get(iCounter));
+				List<Object[]> listTemplate = templateQuery.list();
+				resultMap.add(listTemplate.get(0));
+			}
+		}
+		return resultMap;
+	}
+	
+	public List<String> getFileBinScriptLibId(String entityId) {
+		Query querySQL = getCurrentSession().createSQLQuery("SELECT script_lib_id FROM jq_script_lib_connect WHERE entity_id = :entityId");
+		querySQL.setParameter("entityId", entityId);
+		List<String> scriptLibIdList = querySQL.list();
+		return scriptLibIdList;
+	}
+	
+	public void scriptLibSave(List<String> formSaveQueryIdList,List<String> scriptLibInsertList,List<ScriptLibrary>	scriptLibInsert,String moduleId,Integer sourceTypeId) { 
+		UserDetailsVO detailsVO = detailsService.getUserDetails();
+		if(null != scriptLibInsertList && scriptLibInsertList.size() != 0 && scriptLibInsertList.isEmpty() == false) {
+			for(int iScrInsertCounter=0; iScrInsertCounter<scriptLibInsertList.size(); iScrInsertCounter++) {
+				String[] scriptLibId = scriptLibInsertList.get(iScrInsertCounter).split(",");
+				if(null != scriptLibId && scriptLibId.length != 0) {
+					for(int iscrLibIdCount = 0;iscrLibIdCount<scriptLibId.length;iscrLibIdCount++) {
+						ScriptLibrary scriptlibrary = new ScriptLibrary();
+						String scriptLibID = scriptLibId[iscrLibIdCount];
+						if(sourceTypeId == Constant.IMPORT_SOURCE_VERSION_TYPE) {
+							dynarestDAO.scriptLibDeleteById(formSaveQueryIdList.get(0));
+						}
+						if(scriptLibID.isEmpty() == false) {
+							scriptlibrary.setScriptLibId(scriptLibID);
+							scriptlibrary.setModuletypeId(moduleId);
+							scriptlibrary.setEntityId(formSaveQueryIdList.get(0));
+							scriptlibrary.setCreatedBy(detailsVO.getUserName());
+							scriptlibrary.setUpdatedBy(detailsVO.getUserName());
+							scriptlibrary.setUpdatedDate(new Date());
+							scriptlibrary.setIsCustomUpdated(1);
+							scriptLibInsert.add(scriptlibrary);
+							getCurrentSession().save(scriptlibrary);
+						}
+					}
+				}
+			}
+		}
+	}
 }

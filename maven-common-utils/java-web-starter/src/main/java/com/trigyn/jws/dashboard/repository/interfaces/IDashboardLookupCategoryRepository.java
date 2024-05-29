@@ -18,4 +18,7 @@ public interface IDashboardLookupCategoryRepository extends JpaRepository<Dashbo
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_ID)
 	List<DashboardLookupCategoryVO> findDashboardLookupCategoryById(List<String> lookupCategoryId);
+	
+	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_TYPE)
+	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByType(String type);
 }

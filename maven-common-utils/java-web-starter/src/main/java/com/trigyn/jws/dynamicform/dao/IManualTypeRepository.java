@@ -8,4 +8,6 @@ import com.trigyn.jws.dynamicform.entities.ManualType;
 @Repository
 public interface IManualTypeRepository extends JpaRepository<ManualType, String> {
 
+	boolean existsByName(String name);
+
 }

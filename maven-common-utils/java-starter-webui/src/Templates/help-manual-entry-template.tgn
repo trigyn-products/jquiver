@@ -1,0 +1,367 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/jstree/dist/themes/default/style.min.css"/>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/jstree/dist/jstree.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.css">
+<script src="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
+<style>
+    .leftrideblock{
+        display:flex;
+        width:100%;
+        position:relative;
+    }
+
+    .leftcontenctcls {
+           border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    height: calc(100vh - 173px);
+     overflow: auto;
+    }
+
+
+     
+ 
+    </style>
+</head>
+
+<div class="container">
+    <div class="topband">
+      <!--  <h2 class="title-cls-name float-left"></h2> -->
+         <h2 id="title" class="title-cls-name float-left help-manual-title"> </h2>
+        <div class="float-right">
+             <div class="addonbtnblock">
+                  <!--<input id="search-input" class="search-input" />-->
+                  <div class="cm-searchwithicon">
+                       <!-- <div class="form-group has-search clearfix searchblockcyst"> <span class="fa fa-search form-control-feedback"></span>
+                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
+                               <span id="manualSearchClear" onclick="clearManualSearch()" class="manual-clear-txt">
+                    			<i class="fa fa-times" aria-hidden="true"></i>
+                			</span>  
+                        </div>-->
+                         <div class="backclsmanual"> <span onclick="back();">
+                       		 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button" style="display:none">
+                    			</span> 
+                   			 </div>
+                    
+            </div>
+                  <a href="#prev" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.previous')} </a>
+                 <a href="#next" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.next')} </a>
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+        </div>
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+   
+   <div class="leftrideblock">
+       <span class="spiralbinding"> </span>
+    <div class="leftcontenctcls" id="tree_container"></div>
+   <!-- <div id="divider">----------------------------------------</div>
+    <div id="treeListAjax-container"></div>-->
+     <div id="contentDiv" class="cm-right-wrapper helpmanual_right">
+                         <div class="topactionbutton">
+                     <a href="#prev" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.previous')} </a>
+                 <a href="#next" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.next')} </a>
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+                </div>
+       <div id="previews" class="previews  cm-scrollbar" ></div>
+    </div>
+    <div class="rightcontecntcls" id="previewDiv" style="border: 1px solid red " class="cm-right-wrapper helpmanual_right"> 
+           
+          <textarea id="previewContent" style="display:none;"></textarea>
+     </div>
+     
+   </div>
+
+</div>     
+
+<script>
+	document.title = "JQuvier Help Manual";
+    contextPath = "${(contextPath)!''}";
+    let manual = new HelpManual();
+    let manualTypes = manual.getManualDetails();
+    $("#title").html(manualTypes.find(manual => {
+        return manual["manual_id"] == "${mt!''}"
+    })["name"]); 
+    const treeViewMap = new Map();  
+    let isEdit;
+    var i = 1;
+    let simplemde = new SimpleMDE({
+                                    renderingConfig: {
+                                    codeSyntaxHighlighting: true,
+                                    }
+                                  });
+    $(function () {
+        //Lazy Loading- Initally Parents will be loaded later child node loading on click
+         var result;
+        $("#tree_container").jstree({
+            "core": {                  
+                                              
+                       "data": {                          
+                            'url' : contextPath+"/cf/hmfn", 
+                            'data' : function (node) { 
+                                
+
+                                    return { 'id' : node.id,'mt' : '${mt}' }; 
+                                   },
+                            'dataFilter' : function (treeData) {         
+                                        $.each(JSON.parse(treeData), function(i, data) {
+											treeViewMap.set(data.id, data.entryContent);
+                                        });
+                                       if (document.readyState === 'complete') {
+                                            // The page is fully loaded
+                                        var content;
+                                        var selected_node = $('#tree_container').jstree('get_selected', false);
+                                        if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
+                                               content=treeViewMap.get(selected_node[0]);
+                                            }
+                                        else{
+                                               const [firstValue] = treeViewMap.values();
+                                               content=firstValue;
+                                            }
+                                            if(content!=null){
+                                               const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
+                                            
+                                              /* let simplemde = new SimpleMDE({
+                                                    initialValue: finalcontent,
+                                                    renderingConfig: {
+                                                    codeSyntaxHighlighting: true,
+                                                    }
+                                                });*/
+                                                $("#previewDiv").css('display', 'none');
+                                                    $('#previews').html("");
+                                                   // $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                                                    $('#previews').wrapInner(simplemde.options.previewRender(finalcontent));
+                                                    $("#previews").scrollTop(0);
+                                            }
+                                       }
+                                         return  treeData;
+                                        }
+                                 }
+                       
+                    },
+                        'types' : { 
+                                   'folder': {
+                                        'icon' : "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                        },
+                                    'default': {
+                                       'icon': 'jstree-icon jstree-file'
+                                               },
+                                    'open': {
+                                       'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
+                                            },
+                                    'closed': {
+                                        'icon': "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                            }
+                                  },
+                                   "search": {
+                    "show_only_matches": true,
+                    "ajax": function (dataObject, callback) {
+                        $.ajax({
+                            "type": "POST", 
+                            "url": contextPath+"/cf/search",
+                            "dataType": "json",
+                            "contentType": "application/json;",
+                            "data": dataObject
+                        })
+                            .done(function (resultData) {
+                                const ids = [];
+                                $.each(resultData, function(i, data) {
+                                                ids.push(data.ids);
+                                            });
+                                 
+                               // callback(ids);
+                               return ids;
+                            });
+                    }
+                                   },
+					    'plugins' : ['themes','types','states','search']
+        }).bind("loaded.jstree", function (event, data) {
+                      data.instance.select_node('ul > li:first');
+                      data.instance.open_node('ul > li:first');
+         }).on('open_node.jstree', function (event, data) {
+      data.instance.set_type(data.node, 'open');
+   }).on('close_node.jstree', function (event, data) {
+      data.instance.set_type(data.node, 'closed');
+   });
+
+        /*$(".search-input").keyup(function () {
+                var searchString = $(this).val();
+                $('#tree_container').jstree('search', searchString);
+        });*/
+
+        var to = false;
+        $(".search-input").keyup(function () {
+            if (to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                 var searchString =  $(".search-input").val();
+                 var dataObject = JSON.stringify({
+                    //"finalManualDataList": treeViewMap,
+                    "searchText": searchString,
+                    "manualId":"${mt}"
+                });
+
+                $.jstree.reference("tree_container").search(dataObject);
+            }, 250);
+        });
+
+        $('#tree_container').on("changed.jstree", function (e, data) {
+                    var id=data.selected;
+                    if(id.length===0)
+                    {return false;}
+                    const flag=treeViewMap.has(id[0]);  
+                    if(flag){
+                        const content=treeViewMap.get(id[0]);
+                        if(content!=null) {
+                        const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                        
+                      /*  let simplemde = new SimpleMDE({
+                            initialValue: finalcontent,
+                            renderingConfig: {
+                            codeSyntaxHighlighting: true,
+                            }
+                        });*/
+                         simplemde.value(finalcontent);
+                        }
+                           $("#previewDiv").css('display', 'none');
+                            $('#previews').html("");
+                            $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                            $("#previews").scrollTop(0);
+                    }
+                    else{
+                        $.ajax({
+                                async: true,
+                                type: "Get",
+                                url: contextPath+"/cf/hmfc",
+                                data:{"id":id[0]},
+                                success: function (data) {
+                                   treeViewMap.set(id[0], data); 
+                                }
+                        });
+                    }
+        }); 
+    });
+$("[href='#prev']").click(function () {
+    var tree = $('#tree_container').jstree(true),
+        curr = tree.get_selected(false);
+    tree.deselect_all();
+     tree.open_all (); 
+    var p = tree.get_prev_dom(curr);
+     if(p==false)
+      {
+         showMessage("${messageSource.getMessage('jws.firstTopic')}", "info");
+         //tree.select_node(curr); 
+         $('#tree_container').jstree('select_node', 'ul > li:first');   
+      }
+    else
+      {
+        if(tree.is_parent (p))
+            {
+                tree.open_all ();               
+            }
+          tree.select_node(p);
+      }
+});
+$("[href='#next']").click(function () {
+    var tree = $('#tree_container').jstree(true),
+      curr = tree.get_selected (false);
+     
+    tree.deselect_all ();  
+    tree.open_all ();
+    var n = tree.get_next_dom (curr);
+     if(n.length==0)
+      {
+          showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
+         // tree.select_node (curr);
+          $('#tree_container').jstree('select_node', 'ul > li:last');   
+      }
+      else {
+            if(tree.is_parent (n))
+            {
+                $('#tree_container').jstree("open_node", n);
+            }
+            tree.select_node (n);
+      }
+    
+  
+});
+    //Code go back to previous page
+function backToWelcomePage() {
+        location.href = contextPath+"/cf/help";
+}
+
+function search(event, value) {
+    let searchText = value.toLowerCase();
+       /* let noOfManualVisible = 0;
+        let firstManual;
+        $.each( manual.helpManualDetails, function(index, manual){
+            let divContent = manual.divContent.toLowerCase();
+            if(divContent.indexOf(searchText) !== -1){
+                if(firstManual === undefined){
+                    firstManual = index;
+                }
+                $("#"+manual.manual_entry_id).show();
+                noOfManualVisible++;
+            }else{
+                $("#"+manual.manual_entry_id).hide();
+            }
+        });*/
+         var dataObject = JSON.stringify({
+                    //"finalManualDataList": treeViewMap,
+                    "searchText": searchText,
+                    "manualId":"${mt}"
+                });
+
+                    $.ajax({                               
+                                type: "POST",                                   
+                                async: false,
+                                contentType: "application/json",
+                                url: contextPath+"/cf/search",
+                                data:dataObject,
+                                success: function (result) {
+                                   //treeViewMap.set(id[0], data); 
+                                    $("#tree_container").jstree('destroy');
+                                   $("#tree_container").jstree({
+            "core": {                       
+                        "data" : {
+                                   
+                                     'dataFilter' : function (result) {
+                                                    $.each(JSON.parse(result), function(i, data) {
+                                                            treeViewMap.set(data.id, data.entryContent);
+                                                           
+                                                    });
+                                                    return JSON.stringify(JSON.parse(data));
+                                                    
+                                    }
+                           }
+                       
+                    }
+        });
+                                                
+                                }
+                        });      
+      
+}
+function clearManualSearch(){
+	 $('#tree_container').jstree(true).refresh(true);
+}
+</script>

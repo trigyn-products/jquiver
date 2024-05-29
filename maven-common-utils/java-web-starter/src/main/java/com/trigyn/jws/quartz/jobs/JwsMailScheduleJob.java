@@ -58,55 +58,55 @@ import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 
 public class JwsMailScheduleJob extends QuartzJobBean {
 
-	private static Logger				logger						= LogManager.getLogger(JwsMailScheduleJob.class);
+	private static Logger logger = LogManager.getLogger(JwsMailScheduleJob.class);
 
 	@Autowired
-	MailScheduleRepository				mScheduleRepository			= null;
+	MailScheduleRepository mScheduleRepository = null;
 
 	@Autowired
-	private TemplatingUtils				templatingUtils				= null;
+	private TemplatingUtils templatingUtils = null;
 
 	@Autowired
-	private IUserDetailsService			detailsService				= null;
+	private IUserDetailsService detailsService = null;
 
 	@Autowired
 	@Lazy
-	private SendMailService				sendMailService				= null;
+	private SendMailService sendMailService = null;
 
 	@Autowired
 	@Qualifier("file-system-storage")
-	private FilesStorageService			storageService				= null;
+	private FilesStorageService storageService = null;
 
 	@Autowired
-	private DBTemplatingService			templatingService			= null;
-
-	@Autowired
-	@Lazy
-	private JwtUtil						jwtUtil						= null;
+	private DBTemplatingService templatingService = null;
 
 	@Autowired
 	@Lazy
-	private JwsUserDetailsService		jwsUserDetailsService		= null;
+	private JwtUtil jwtUtil = null;
 
 	@Autowired
 	@Lazy
-	private UserDetailsService			userDetailsService			= null;
+	private JwsUserDetailsService jwsUserDetailsService = null;
 
 	@Autowired
-	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
+	@Lazy
+	private UserDetailsService userDetailsService = null;
 
 	@Autowired
-	ServletContext						servletContext				= null;
+	private ApplicationSecurityDetails applicationSecurityDetails = null;
 
 	@Autowired
-	private MailScheduleDao				mailScheduleDao				= null;
+	ServletContext servletContext = null;
+
+	@Autowired
+	private MailScheduleDao mailScheduleDao = null;
 
 	@Override
 	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 
-		JobDataMap			jobDataMap		= context.getMergedJobDataMap();
-		String				dynamicRestUrl	= (String) jobDataMap.get("dynamicRestUrl");
-		Map<String, Object>	requestParams	= (Map<String, Object>) jobDataMap.get("requestParams");
+		JobDataMap jobDataMap = context.getMergedJobDataMap();
+		String dynamicRestUrl = (String) jobDataMap.get("dynamicRestUrl");
+		Map<String, Object> requestParams = (Map<String, Object>) jobDataMap.get("requestParams");
 		try {
 			String groupId = (String) jobDataMap.get("mailSenderGroupId");
 			if (groupId.isEmpty() == false && groupId.isBlank() == false && null != groupId) {
@@ -141,14 +141,13 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 	private void sendMail(EmailSchedulerRequestVo emailVo)
 			throws JAXBException, Exception, FileNotFoundException, IOException, AddressException {
 
-		EmailXMLVO					emailObj					= JobUtil
-				.unMarshalEmailXMLVO(emailVo.getMailSchedule().getEmailXml());
-		List<EmailAttachedFile>		attachedFileList			= new ArrayList<>();
-		RecepientsXMLVO				recepientsXMLVO				= emailObj.getRecepientsXMLVO();
-		List<RecepientXMLVO>		recepientXMLVOList			= recepientsXMLVO.getRecepientXMLVO();
+		EmailXMLVO emailObj = JobUtil.unMarshalEmailXMLVO(emailVo.getMailSchedule().getEmailXml());
+		List<EmailAttachedFile> attachedFileList = new ArrayList<>();
+		RecepientsXMLVO recepientsXMLVO = emailObj.getRecepientsXMLVO();
+		List<RecepientXMLVO> recepientXMLVOList = recepientsXMLVO.getRecepientXMLVO();
 		/* Written for Failure Mail Notification */
-		FailedRecipientsXMLVO		failedrecepientsXMLVO		= emailObj.getFailedrecepientsXMLVO();
-		List<FailedRecipientXMLVO>	failedRecipientXMLVOList	= new ArrayList<>();
+		FailedRecipientsXMLVO failedrecepientsXMLVO = emailObj.getFailedrecepientsXMLVO();
+		List<FailedRecipientXMLVO> failedRecipientXMLVOList = new ArrayList<>();
 
 		if (failedrecepientsXMLVO != null) {
 			failedRecipientXMLVOList = failedrecepientsXMLVO.getFailedrecipientXMLVO();
@@ -156,81 +155,91 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 		List<AttachmentXMLVO> attachmentXMLVOList = emailObj.getAttachmentXMLVO();
 		if (CollectionUtils.isEmpty(attachmentXMLVOList) == false) {
 			for (AttachmentXMLVO attachmentXMLVO : attachmentXMLVOList) {
-				EmailAttachedFile	emailAttachedFile	= new EmailAttachedFile();
-				File				attachedFile		= null;
-				if (attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_FILEBIN)) {
-					String	fileUploadId	= attachmentXMLVO.getFilePath();
-					Integer	isAllowed		= storageService.hasPermission(null, null, fileUploadId,
-							Constants.VIEW_FILE_VALIDATOR, new HashMap<>());
-					if (isAllowed > 0) {
-						Map<String, Object> fileInfo = storageService.load(fileUploadId);
-						if (fileInfo != null) {
-							byte[] fileByte = (byte[]) fileInfo.get("file");
+				EmailAttachedFile emailAttachedFile = new EmailAttachedFile();
+				File attachedFile = null;
+				if (attachmentXMLVO != null && attachmentXMLVO.getType() != null) {
+					if (attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_FILEBIN)) {
+						String fileUploadId = attachmentXMLVO.getFilePath();
+						Integer isAllowed = storageService.hasPermission(null, null, fileUploadId,
+								Constants.VIEW_FILE_VALIDATOR, new HashMap<>());
+						if (isAllowed > 0) {
+							Map<String, Object> fileInfo = storageService.load(fileUploadId);
+							if (fileInfo != null) {
+								byte[] fileByte = (byte[]) fileInfo.get("file");
+								attachedFile = new File(attachmentXMLVO.getFileName());
+								try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
+									fos.write(fileByte);
+								} catch (Exception exception) {
+									logger.error("Error occurred while accessing file in " + "Rest API" + " : "
+											+ emailVo.getDynamicRestUrl(), exception);
+								}
+							} else {
+								logger.error("Error occurred while accessing file in " + "Rest API" + " : "
+										+ emailVo.getDynamicRestUrl());
+							}
+						}
+
+					} else if (attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_FILESYSTEM)
+							|| attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_UPLOADEDFILE)) {
+						File aFile = new File(attachmentXMLVO.getFilePath());
+						if (aFile != null && aFile.exists()) {
 							attachedFile = new File(attachmentXMLVO.getFileName());
+							InputStream in = new FileInputStream(attachmentXMLVO.getFilePath());
+							byte[] byteArray = ByteStreams.toByteArray(in);
+							in.close();
 							try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
-								fos.write(fileByte);
+								fos.write(byteArray);
 							} catch (Exception exception) {
 								logger.error("Error occurred while accessing file in " + "Rest API" + " : "
 										+ emailVo.getDynamicRestUrl(), exception);
 							}
-						} else {
-							logger.error("Error occurred while accessing file in " + "Rest API" + " : "
-									+ emailVo.getDynamicRestUrl());
 						}
 					}
-
-				} else if (attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_FILESYSTEM)
-						|| attachmentXMLVO.getType().equals(Constants.FILE_ATTACHMENT_UPLOADEDFILE)) {
-					File aFile = new File(attachmentXMLVO.getFilePath());
-					if (aFile != null && aFile.exists()) {
-						attachedFile = new File(attachmentXMLVO.getFileName());
-						InputStream	in			= new FileInputStream(attachmentXMLVO.getFilePath());
-						byte[]		byteArray	= ByteStreams.toByteArray(in);
-						in.close();
-						try (FileOutputStream fos = new FileOutputStream(attachedFile)) {
-							fos.write(byteArray);
-						} catch (Exception exception) {
-							logger.error("Error occurred while accessing file in " + "Rest API" + " : "
-									+ emailVo.getDynamicRestUrl(), exception);
+					if (attachedFile != null) {
+						emailAttachedFile.setFile(attachedFile);
+						if (attachmentXMLVO.getHasEmbeddedImage() != null
+								&& attachmentXMLVO.getHasEmbeddedImage() != "") {
+							emailAttachedFile.setIsEmbeddedImage(true);
+							emailAttachedFile.setEmbeddedImageValue(attachmentXMLVO.getHasEmbeddedImage());
 						}
+						attachedFileList.add(emailAttachedFile);
 					}
-				}
-				if (attachedFile != null) {
-					emailAttachedFile.setFile(attachedFile);
-					if (attachmentXMLVO.getHasEmbeddedImage() != null && attachmentXMLVO.getHasEmbeddedImage() != "") {
-						emailAttachedFile.setIsEmbeddedImage(true);
-						emailAttachedFile.setEmbeddedImageValue(attachmentXMLVO.getHasEmbeddedImage());
-					}
-					attachedFileList.add(emailAttachedFile);
+				} else {
+					logger.error("Attachment Type is mandatory");
 				}
 			}
 		}
-		List<String>	toEmailIdList		= new ArrayList<>();
-		List<String>	ccEmailIdList		= new ArrayList<>();
-		List<String>	bccEmailIdList		= new ArrayList<>();
-		List<String>	frEmailIdList		= new ArrayList<>();		// Created for Failure Mail
-																		// notification
-		StringJoiner	toEmailIdStrJoiner	= new StringJoiner(", ");
-		StringJoiner	ccEmailIdStrJoiner	= new StringJoiner(", ");
-		StringJoiner	bccEmailIdStrJoiner	= new StringJoiner(", ");
-		StringJoiner	frEmailIdStrJoiner	= new StringJoiner(", ");	// Created for Failure Mail
-																		// notification
-
+		List<String> toEmailIdList = new ArrayList<>();
+		List<String> ccEmailIdList = new ArrayList<>();
+		List<String> bccEmailIdList = new ArrayList<>();
+		List<String> frEmailIdList = new ArrayList<>(); // Created for Failure Mail
+														// notification
+		StringJoiner toEmailIdStrJoiner = new StringJoiner(", ");
+		StringJoiner ccEmailIdStrJoiner = new StringJoiner(", ");
+		StringJoiner bccEmailIdStrJoiner = new StringJoiner(", ");
+		StringJoiner frEmailIdStrJoiner = new StringJoiner(", "); // Created for Failure Mail
 		for (RecepientXMLVO recepientXMLVO : recepientXMLVOList) {
-			if (recepientXMLVO.getRecepientType().equals("to") == true
-					&& toEmailIdList.contains(recepientXMLVO.getMailId()) == false) {
-				toEmailIdStrJoiner.add(recepientXMLVO.getMailId());
-				toEmailIdList.add(recepientXMLVO.getMailId());
-			}
-			if (recepientXMLVO.getRecepientType().equals("cc") == true
-					&& ccEmailIdList.contains(recepientXMLVO.getMailId()) == false) {
-				ccEmailIdStrJoiner.add(recepientXMLVO.getMailId());
-				ccEmailIdList.add(recepientXMLVO.getMailId());
-			}
-			if (recepientXMLVO.getRecepientType().equals("bcc") == true
-					&& bccEmailIdList.contains(recepientXMLVO.getMailId()) == false) {
-				bccEmailIdStrJoiner.add(recepientXMLVO.getMailId());
-				bccEmailIdList.add(recepientXMLVO.getMailId());
+			if (null != recepientXMLVO.getRecepientType()) {
+				if (recepientXMLVO.getRecepientType().equals("to") == true
+						&& toEmailIdList.contains(recepientXMLVO.getMailId()) == false
+						&& null != recepientXMLVO.getMailId()) {
+					toEmailIdStrJoiner.add(recepientXMLVO.getMailId());
+					toEmailIdList.add(recepientXMLVO.getMailId());
+				}
+				if (recepientXMLVO.getRecepientType().equals("cc") == true
+						&& ccEmailIdList.contains(recepientXMLVO.getMailId()) == false
+						&& null != recepientXMLVO.getMailId()) {
+					ccEmailIdStrJoiner.add(recepientXMLVO.getMailId());
+					ccEmailIdList.add(recepientXMLVO.getMailId());
+				}
+				if (recepientXMLVO.getRecepientType().equals("bcc") == true
+						&& bccEmailIdList.contains(recepientXMLVO.getMailId()) == false
+						&& null != recepientXMLVO.getMailId()) {
+					bccEmailIdStrJoiner.add(recepientXMLVO.getMailId());
+					bccEmailIdList.add(recepientXMLVO.getMailId());
+				}
+			} else {
+				logger.error("Recepient Type should not be null.");
 			}
 		}
 		Email email = new Email();
@@ -251,7 +260,8 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 		if (emailObj.getSenderXMLVO() != null) {
 			email.setMailFrom(InternetAddress.parse(emailObj.getSenderXMLVO().getMailId()));
 			email.setMailFromName(emailObj.getSenderXMLVO().getName());
-			if (emailObj.getSenderXMLVO().getReplyTo() != null) {
+			if (emailObj.getSenderXMLVO().getReplyTo() != null
+					&& emailObj.getSenderXMLVO().getReplyTo().isBlank() == false) {
 				email.setReplyToaddress(
 						InternetAddress.parse(emailObj.getSenderXMLVO().getReplyTo())); /** Added for ReplyTo */
 			}
@@ -283,4 +293,5 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 			mailScheduleDao.deleteMailScheduleId(emailVo.getMailScheduleId());
 		}
 	}
+
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -20,8 +21,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.repository.JwsUserRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.service.UserConfigService;
@@ -44,6 +48,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Autowired(required = false)
 	private HttpServletRequest						request						= null;
 
+	@Autowired
 	private JwsUserRepository						userRepository				= null;
 
 	private Map<String, LdapAuthenticationProvider>	ldapAuthenticationProviders	= new HashMap<>();
@@ -64,6 +69,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 	@Autowired
 	LdapUserService									ldapUserService				= null;
+	
+	public CustomAuthenticationProvider() {
+		// TODO Auto-generated constructor stub
+	}
 
 	public CustomAuthenticationProvider(JwsUserRepository userRepository,
 			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
@@ -132,6 +141,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 					authType = Constants.OAUTH_ID;
 				}
 			}
+			if(authType != null || authType == Constants.DAO_ID) {
+				validateAuthentication();
+			}
 			if(authType == null && authTypeHeader==null) {
 				throw new IllegalArgumentException("Authentication is required.");
 			}
@@ -149,6 +161,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 							String.format("Failed : Error while creating the user '%s'.", username));
 				}
 			}
+			
 			switch (authType) {
 				case Constants.DAO_ID:
 					return this.daoAuthenticationProvider.authenticate(authentication);
@@ -163,8 +176,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			}
 		} catch (Exception exec) {
 			logger.error("Failed : Error while authenticating " + exec.getMessage());
+			throw new InvalidLoginException(exec.getMessage());
 		}
-		return authResponse;
 
 	}
 
@@ -178,6 +191,40 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+	
+	private Boolean validateAuthentication() {
+
+		Map<String, Object>			mapDetails	= new HashMap<>();
+		try {
+			userConfigService.getConfigurableDetails(mapDetails);
+		} catch (Exception a_excep) {
+			logger.error("Error ocurred.", a_excep);
+		}
+		if (mapDetails.get("activeAutenticationDetails") instanceof List) {
+			List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) mapDetails.get("activeAutenticationDetails");
+			JwsUserLoginVO  jwsUserLoginVO = multiAuthLoginVOs.stream().	filter(multiAuthLogin -> Constants.AuthType.DAO.getAuthType() == multiAuthLogin.getAuthenticationType()).
+			findAny().orElse(null);
+			if (jwsUserLoginVO != null && jwsUserLoginVO.getLoginAttributes().isEmpty() == false) {
+				Map<String, Object> loginAttributes = jwsUserLoginVO.getLoginAttributes();
+				ServletRequestAttributes	sra			= (ServletRequestAttributes) RequestContextHolder
+						.getRequestAttributes();
+				HttpServletRequest			request		= sra.getRequest();
+				HttpSession					session		= request.getSession();
+				if (loginAttributes.containsKey("enableCaptcha")) {
+					String captcaValue = (String) loginAttributes.get("enableCaptcha");
+					if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
+						if ((session.getAttribute("loginCaptcha")!=null && (request.getParameter("captcha")!=null && request.getParameter("captcha")
+								.equals(session.getAttribute("loginCaptcha").toString())== false))) {
+							session.removeAttribute("loginCaptcha");
+							throw new InvalidLoginException("Please verify captcha!");
+						}
+					}
+				}
+			}
+		}
+	
+		return Boolean.TRUE;
 	}
 
 }

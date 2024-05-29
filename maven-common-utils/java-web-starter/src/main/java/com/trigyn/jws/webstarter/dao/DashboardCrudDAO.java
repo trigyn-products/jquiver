@@ -114,7 +114,7 @@ public class DashboardCrudDAO extends DBConnection {
 		if(dashlet.getDashletId() == null || findDashletByDashletId(dashlet.getDashletId()) == null) {
 			getCurrentSession().save(dashlet);			
 		}else {
-			getCurrentSession().saveOrUpdate(dashlet);
+			getCurrentSession().merge(dashlet);
 		}
 	}
 	
@@ -125,6 +125,7 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 
 	public void updateDashlet(Dashlet dashlet) {
+		getCurrentSession().flush();
 		getCurrentSession().merge(dashlet);
 		
 	}

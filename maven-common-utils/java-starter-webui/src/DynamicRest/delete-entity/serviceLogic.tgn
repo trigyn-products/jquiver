@@ -39,10 +39,15 @@ function  deleteEntityData(requestDetails, daoResults){
         jq_updateDBQuery("delete from jq_module_version where entity_id=:entityId", null, params);
         jq_updateDBQuery("delete from jq_user_favorite_entity where entity_id=:entityId AND entity_type='Form Builder'", null, params);
         jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='30a0ff61-0ecf-11eb-94b2-f48e38ab9348'", null, params);    
+        var dynamicQueryId =  jq_getDBResult("SELECT dynamic_form_query_id FROM jq_dynamic_form_save_queries where dynamic_form_id=:entityId", null, params).data_list;
+        for(var iCount =0; iCount<dynamicQueryId.length; iCount++){
+            jq_updateDBQuery("delete from jq_script_lib_connect where entity_id='"+dynamicQueryId[iCount].dynamic_form_query_id+"'", null, params);
+        }
         jq_updateDBQuery("delete from jq_dynamic_form_save_queries where dynamic_form_id=:entityId", null, params);
         activityLog("Dynamic Form",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
 
         jq_updateDBQuery("delete from jq_dynamic_form where form_id=:entityId", null, params);
+       
 
     } else if(requestDetails["moduleType"] == "47030ee1-0ecf-11eb-94b2-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");
@@ -54,6 +59,8 @@ function  deleteEntityData(requestDetails, daoResults){
         jq_updateDBQuery("delete from jq_dynamic_rest_dao_details where jws_dynamic_rest_details_id=:entityId", null, params);
         activityLog("REST API",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]); 
         jq_updateDBQuery("delete from jq_dynamic_rest_details where jws_dynamic_rest_id=:entityId", null, params);
+         jq_updateDBQuery("delete from jq_script_lib_connect where entity_id=:entityId", null, params);
+
 
     } else if(requestDetails["moduleType"] == "c6cc466a-0ed3-11eb-94b2-f48e38ab9348") {
         var HashMap = Java.type("java.util.HashMap");

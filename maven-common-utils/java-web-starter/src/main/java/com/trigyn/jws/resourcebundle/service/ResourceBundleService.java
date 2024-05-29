@@ -293,8 +293,8 @@ public class ResourceBundleService {
 
 		for (ResourceBundlePQGrid rb : resourceBundleList) {
 			List<ResourceBundlePQGrid> langList = new ArrayList<>();
-			if (rbList.containsKey(rb.getResourceKey())) {
-				langList = rbList.get(rb.getResourceKey());
+			if (rbList.containsKey(rb.getResourceKey().trim())) {
+				langList = rbList.get(rb.getResourceKey().trim());
 				for (ResourceBundlePQGrid rbLan : langList) {
 					if (rbLan.getLanguageId().equals(rb.getLanguageId())) {
 						langList.remove(rbLan);
@@ -302,28 +302,41 @@ public class ResourceBundleService {
 					}
 
 				}
+				if(rb.getLanguageId().equals(Constant.DEFAULT_LANGUAGE_ID))
+				{
+					StringBuilder text=new StringBuilder("<![CDATA["+rb.getResourceBundleText()+"]]>");
+					rb.setResourceBundleText(text.toString());
+				}
 				langList.add(rb);
 				Collections.sort(langList);
-				rbList.put(rb.getResourceKey(), langList);
+				rbList.put(rb.getResourceKey().trim(), langList);
 			} else {
+				if(rb.getLanguageId().equals(Constant.DEFAULT_LANGUAGE_ID))
+				{
+					StringBuilder text=new StringBuilder("<![CDATA["+rb.getResourceBundleText()+"]]>");
+					rb.setResourceBundleText(text.toString());
+				}
 				langList.add(rb);
 
 				for (LanguageVO lang : languageVOList) {
 					if (!lang.getLanguageId().equals(rb.getLanguageId())) {
 						ResourceBundlePQGrid newObj = new ResourceBundlePQGrid();
 						newObj.setLanguageId(lang.getLanguageId());
-						newObj.setResourceKey(rb.getResourceKey());
+						newObj.setResourceKey(rb.getResourceKey().trim());
 						newObj.setResourceBundleText("");
 						langList.add(newObj);
 					}
 				}
 				Collections.sort(langList);
-				rbList.put(rb.getResourceKey(), langList);
+				rbList.put(rb.getResourceKey().trim(), langList);
 			}
 
 		}
 
 		templateMap.put("resourceBundlelist", rbList);
+		if(rbList.isEmpty()){
+			return null;	
+		}
 		return evalTemplateByName("export-resourcebundle", templateMap);
 
 	}
@@ -345,9 +358,9 @@ public class ResourceBundleService {
 	/**
 	 * This Method create and applies filter,sorting on the fetched data.
 	 * 
-	 * @param request
+	 * @param request httprequest object
 	 * @return result
-	 * @throws Exception
+	 * @throws Exception is thrown
 	 */
 	public String exportResourceBundleData(HttpServletRequest request) throws Exception {
 		String tempDownloadPath = FileUtil.generateTemporaryFilePath("exportTempPath", UUID.randomUUID().toString());
@@ -421,6 +434,10 @@ public class ResourceBundleService {
 
 			String gridId = request.getParameter("gridId");
 			String excelString = fetchGridData(saveStatus, gridId, new JSONObject(pqFilter));
+			if(null==excelString)
+			{
+			   return FAIL + "No Data to Export.";
+			}
 			String fileName = "LanguagePack";
 			String filePath = tempDownloadPath + File.separator + fileName + ".xml";
 			FileWriter fr = new FileWriter(new File(filePath));
@@ -452,11 +469,12 @@ public class ResourceBundleService {
 	/**
 	 * Parse file using DOM parser
 	 * 
-	 * @param request
-	 * @param response
-	 * @param filePart
-	 * @return result
-	 * @throws Exception
+	 * @param request httprequest object
+	 * @param response httpresponse object
+	 * @param filePart multipart file object
+	 * @param sourceTypeId sourceTypeId
+	 * @return result importable json string
+	 * @throws Exception object
 	 */
 
 	public String importData(HttpServletRequest request, HttpServletResponse response, Part filePart,
@@ -544,23 +562,32 @@ public class ResourceBundleService {
 					Node tempNode = nodeList.item(nodeCounter);
 					NodeList childNodeList = tempNode.getChildNodes();
 					Node keytempNode = childNodeList.item(1);
-					for (int chileNodeCounter = 3; chileNodeCounter < childNodeList.getLength(); chileNodeCounter++) {
-						Node childtempNode = childNodeList.item(chileNodeCounter);
-						if (childtempNode.getNodeName().equals("Cell") && !childtempNode.getTextContent().equals("")) {
-							ResourceBundleVO resourceBundleObj = new ResourceBundleVO();
-							resourceBundleObj.setResourceKey(keytempNode.getTextContent());
-							resourceBundleObj.setText(childtempNode.getTextContent());
-							resourceBundleObj.setLanguageId(langMap.get(headerList.get(chileNodeCounter - 1)));
+						for (int chileNodeCounter = 3; chileNodeCounter < childNodeList
+								.getLength(); chileNodeCounter++) {
+							Node childtempNode = childNodeList.item(chileNodeCounter);
+							if (childtempNode.getNodeName().equals("Cell")
+									&& !childtempNode.getTextContent().equals("")) {
+								ResourceBundleVO resourceBundleObj = new ResourceBundleVO();
+								resourceBundleObj.setResourceKey(keytempNode.getTextContent().trim());
+								resourceBundleObj.setText(childtempNode.getTextContent());
+								resourceBundleObj.setLanguageId(langMap.get(headerList.get(chileNodeCounter - 1)));
 
-							if (!Pattern.matches("^[A-Za-z]+[\\w\\-\\:\\.]*$", resourceBundleObj.getResourceKey())) {
-								rejectRBVOList.add(resourceBundleObj);
-								if (!rejectkeys.contains(resourceBundleObj.getResourceKey()))
-									rejectkeys.add(resourceBundleObj.getResourceKey());
-							} else
-								rbvoList.add(resourceBundleObj);
+								if (!Pattern.matches("^[A-Za-z]+[\\w\\-\\:\\.]*$",
+										resourceBundleObj.getResourceKey())) {
+									rejectRBVOList.add(resourceBundleObj);
+									String resourceKey=resourceBundleObj.getResourceKey();
+									if(null==resourceBundleObj.getResourceKey()||resourceBundleObj.getResourceKey().isEmpty())
+									{   int counter=nodeCounter;
+										resourceKey=" Resource key is Mandatory for line no "+counter++;	
+									}
+									if (!rejectkeys.contains(resourceKey))
+										rejectkeys.add(resourceKey);
+								} else
+									rbvoList.add(resourceBundleObj);
+							}
+
 						}
-
-					}
+					
 
 				}
 

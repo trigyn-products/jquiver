@@ -126,7 +126,7 @@ class AddEditDynamicForm {
 			});
 
 			dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+				typeOfActionWithIsEdit('dynamic-form-manage-details', $("#savedAction").find("button"), isEdit,
 					addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
 			});
 			dashletSQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
@@ -214,7 +214,7 @@ class AddEditDynamicForm {
 			});
 
 			dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+				typeOfActionWithIsEdit('dynamic-form-manage-details', $("#savedAction").find("button"), isEdit,
 					addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
 			});
 			dashletHTMLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
@@ -240,7 +240,6 @@ class AddEditDynamicForm {
 		});
 
 		let formId = $("#formId").val();
-
 		if (formId != "") {
 			$.ajax({
 				type: "POST",
@@ -249,8 +248,10 @@ class AddEditDynamicForm {
 				success: function(data) {
 					for (let counter = 0; counter < data.length; ++counter) {
 						context.addSaveQueryEditor(null, data[counter].variableName, data[counter].formSaveQuery,
-							data[counter].queryType, data[counter].datasourceId);
+							data[counter].queryType, data[counter].datasourceId,data[counter].formQueryId);
+						context.getScriptLib(data[counter].formQueryId);
 					}
+					
 					getEntityRoles();
 				}
 			});
@@ -264,11 +265,10 @@ class AddEditDynamicForm {
 		window.location.href = contextPath + "/cf/dfl"
 	}
 
-	addSaveQueryEditor(element, variableName, saveQueryContent, queryType, datasourceId) {
+	addSaveQueryEditor(element, variableName, saveQueryContent, queryType, datasourceId, formQueryId) {
 		let context = this;
-		let formQueryId;
 		let formSaveQuery;
-
+		let formId = $("#formId").val();
 		if (saveQueryContent != undefined) {
 			formSaveQuery = saveQueryContent.trim();
 		}
@@ -282,10 +282,13 @@ class AddEditDynamicForm {
 			if (element != null) {
 				parentElement = $(element).parent().parent().parent().parent();
 			}
-			
+			let inputFormQIdElement = "<div class='col-3'><label for='inputformIdcontainer_" + index + "' style='white-space:nowrap'></label><input id='inputformIdcontainer_" + index + "' type ='hidden' class='form-control' /></div>";
 			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + (index + 1) + "' class='form-control' /></div>";
-			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option></select></div>";
+			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this,jsonArray);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option><option value='5'>Python</option><option value='6'>PHP</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
+			let inputscriptInsertEle = "<div class='col-3'><label for='inputscriptInsert_" + index + "' style='white-space:nowrap'></label><input id='inputscriptInsert_" + index + "' type ='hidden' class='form-control' /></div>";
+			let inputscriptDeleteEle = "<div class='col-3'><label for='inputscriptdelete_" + index + "' style='white-space:nowrap'></label><input id='inputscriptdelete_" + index + "' type ='hidden' class='form-control' /></div>";
+			let inputscriptRevisionEle = "<div class='col-3'><label for='inputscriptrevision_" + index + "' style='white-space:nowrap'></label><input id='inputscriptrevision_" + index + "' type ='hidden' class='form-control' /></div>";
 
 			if(index > 0){
 				$("#datasourcecontainer_0 > option").each(function(a_innerIndex, element){
@@ -305,8 +308,8 @@ class AddEditDynamicForm {
 			
 			datasourceEditor += '</select></div></div>'
 			let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_" + index + "' value='Add' class='margin-r-3 btn btn-primary' onclick='addEdit.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_" + index + "' value='Remove' style='margin-left:4px;' class='btn btn-secondary' onclick='addEdit.removeSaveQueryEditor(this);'></div>";
-
-			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>" + inputElement + "" + selectElement + "" + datasourceEditor + "<div class='col-3 margin-t-25 float-right'>" + buttonElement + "</div></div></div>");
+			let buttonScrElement = "<div class='btn-icons float-right' style='margin-right:10px'><input type='button' id='addScript_" + index + "' value='Script Library' class='margin-r-3 btn btn-primary' onclick='addEdit.validateScriptLib(this,jsonArray);'></div>";
+			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>"+ inputElement + "" + selectElement + "" + datasourceEditor +  "<div class='col-3 margin-t-25 float-right'>" + "" + buttonElement + "" + buttonScrElement + "" + inputFormQIdElement + "" + inputscriptInsertEle + "" + inputscriptDeleteEle + "" + inputscriptRevisionEle +"</div></div></div>");
 			daoContainer.append("<div id='container_" + index + "' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_" + index + "' class='ace-editor-container'><div id='saveSqlEditor_" + index + "' class='ace-editor'></div></div></div></div></div>");
 
 			var newSuggestionsArray = [];
@@ -365,22 +368,30 @@ class AddEditDynamicForm {
 			} else {
 				$("#saveScriptContainer").append(daoContainer);
 			}
-
+			if(index > 0 && formQueryId == undefined){
+				formQueryId = uuidv4();
+			 	$("#inputformIdcontainer_" + index).val(formQueryId);
+			}
+			else if (formQueryId != undefined && index == 0) {
+				$("#inputformIdcontainer_" + index).val(formQueryId);
+			} else{
+				$("#inputformIdcontainer_" + index).val(formQueryId);
+			}
 			if (variableName) {
 				$("#inputcontainer_" + index).val(variableName);
 			}
-
 			if (datasourceId != undefined) {
 				$("#datasourcecontainer_" + index).val(datasourceId);
 			}
-
 			if (queryType != undefined) {
 				$("#selectcontainer_" + index).val(queryType);
-				if (queryType == 4) {
+				if (queryType == 4 || queryType == 5 || queryType == 6) {
 					$("#datasourcecontainer_" + index).closest('div').hide();
 				}
 			}
-
+			querytype = $("#selectcontainer_" + index).val();
+			querytypename = $("#selectcontainer_" + index).find('option:selected').text();
+                     
 			dashletSAVESQLEditor = monaco.editor.create(document.getElementById("saveSqlEditor_" + index), {
 				value: formSaveQuery,
 				language: "sql",
@@ -468,7 +479,7 @@ class AddEditDynamicForm {
 			});
 
 		dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-			typeOfAction('dynamic-form-manage-details', $("#savedAction").find("button"),
+			typeOfActionWithIsEdit('dynamic-form-manage-details', $("#savedAction").find("button"), isEdit,
 				addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing);
 		});
 		dashletSAVESQLEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
@@ -546,7 +557,11 @@ getFormData() {
 	let queryTypeArray = new Array();
 	let datasourceArray = new Array();
 	let daoQueryArray = new Array();
-	let dashletDetails = new Object();
+	let formQueryIdArray = new Array();
+	let scriptLibInsertArr = new Array();
+	let scriptLibDeleteArr = new Array();
+	let scriptLibRevisionArr = new Array();
+	let formQueryId = "";
 
 	let form = $("#dynamicform");
 	form.append('<input name="daoDetailsIds" id="daoDetailsIds" type="hidden" />');
@@ -554,6 +569,9 @@ getFormData() {
 	form.append('<input name="queryType" id="queryType" type="hidden" />');
 	form.append('<input name="daoQueryDetails" id="daoQueryDetails" type="hidden" />');
 	form.append('<input name="datasourceDetails" id="datasourceDetails" type="hidden" />');
+	form.append('<input name="scriptLibInsert" id="scriptLibInsert" type="hidden" />');
+	form.append('<input name="scriptLibDelete" id="scriptLibDelete" type="hidden" />');
+	form.append('<input name="scriptLibId" id="scriptLibId" type="hidden" />');
 
 	let saveEditorLength = $("[id^=daoContainerDiv_]").length;
 	for (let iCounter = 0; iCounter < saveEditorLength; ++iCounter) {
@@ -563,6 +581,17 @@ getFormData() {
 		let queryType = $('#selectcontainer_' + index).val();
 		let datasourceId = $('#datasourcecontainer_' + index).val();
 		let daoQuery = (editorObject["editor"].getValue().toString().trim());
+		let formSaveQueryId = $('#inputformIdcontainer_' + index).val();
+		let scriptLibInsert = $('#inputscriptInsert_' + index).val();
+		let scriptLibDelete = $('#inputscriptdelete_' + index).val();
+		let scriptLibRevision = $('#inputscriptrevision_' + index).val();
+		
+		if(formId == ""){
+			 formQueryId = uuidv4();
+		}else{
+			formQueryId = $('#inputformIdcontainer_' + index).val();
+		}
+		formQueryIdArray.push(formQueryId);
 		variableNameArray.push(variableName);
 		queryTypeArray.push(queryType);
 		daoQueryArray.push(daoQuery);
@@ -570,17 +599,25 @@ getFormData() {
 			datasourceId = null;
 		}
 		datasourceArray.push(datasourceId);
+		scriptLibInsertArr.push(scriptLibInsert);
+		scriptLibDeleteArr.push(scriptLibDelete);
+		scriptLibRevisionArr.push(scriptLibRevision);
+		
 	}
-
+	$("#formSaveQueryId").val(JSON.stringify(formQueryIdArray));
 	$("#variableName").val(JSON.stringify(variableNameArray));
 	$("#queryType").val(JSON.stringify(queryTypeArray));
 	$("#daoQueryDetails").val(JSON.stringify(daoQueryArray));
 	$("#datasourceDetails").val(JSON.stringify(datasourceArray));
-
+	$("#scriptLibInsert").val(JSON.stringify(scriptLibInsertArr));
+	$("#scriptLibDelete").val(JSON.stringify(scriptLibDeleteArr));
+	$("#scriptLibId").val(JSON.stringify(scriptLibRevisionArr));
+	
 	return $("#dynamicform").serialize();
 }
 
 saveFormData(formData) {
+	
 	const context = this;
 	let isDataSaved = false;
 	$.ajax({
@@ -592,7 +629,8 @@ saveFormData(formData) {
 			isDataSaved = true;
 			$("#formId").val(data);
 			saveEntityRoleAssociation(data);
-			showMessage("Information saved successfully", "success");
+			showMessage("Information saved successfully.", "success");
+			
 		},
 		error: function(xhr, error) {
 			showMessage("Error occurred while saving", "error");
@@ -602,20 +640,70 @@ saveFormData(formData) {
 	return isDataSaved;
 }
 
-updateDatasourceState = function(selectedElem) {
-
+   getScriptLib(formQueryId) {
+	var newScriptArray = new Array();
+        $.ajax({
+            type: "POST",
+            url: contextPath + "/cf/gsld", 
+            data:{
+                formQueryId: formQueryId,
+            },
+            success: function(data) {  
+               newScriptArray.push(data);  
+            },
+            error: function(xhr, error) {
+                showMessage("Error while loading.", "error");
+            },
+        });//end of ajax
+        jsonArray.push(newScriptArray);
+     }
+     
+	validateScriptLib = function(selectedElem,jsonArray) {
+	let index = $(selectedElem).attr("id").split("_")[1];
+	querytypename = $("#selectcontainer_" + index).find('option:selected').text();
+	if((selectedElem && $("#selectcontainer_" + index).val() != '4') && (selectedElem && $("#selectcontainer_" + index).val() != '5') && (selectedElem && $("#selectcontainer_" + index).val() != '6')){
+		if(jsonArray.length == 0){
+			showMessage("Script Library can't be added.", "warn");
+			return false;
+		}else{
+				if(jsonArray[index] == undefined || jsonArray[index][0].length == 0){
+					showMessage("Script Library can't be added.", "warn");
+					return false;
+				}else{
+					addNewScript(selectedElem,jsonArray);
+					$("#datasourcecontainer_" + index).closest('div').show();
+				}
+		}
+	}else{
+		addNewScript(selectedElem,jsonArray);
+	}
+}
+updateDatasourceState = function(selectedElem,jsonArray) {
 	let context = this;
 	let selectedOptionVal = $(selectedElem).find(":selected").val();
 	let editorIndex = $(selectedElem).attr("id").split("_")[1];
 	let editorObject = dashletSQLEditors.find(editors => editors["index"] == editorIndex);
-	(editorObject["editor"]).setValue("");
-	if (selectedOptionVal === "4") {
+	if (selectedOptionVal === "4" || selectedOptionVal === "5" || selectedOptionVal === "6") {
+		if(jsonArray[editorIndex] != undefined && jsonArray[editorIndex][0].length != 0){
+				showMessage("Please remove the script libraries and save the changes.", "warn");
+				$("#selectcontainer_" + editorIndex).val(querytype);
+				return false;
+		}
+		querytypename = $(selectedElem).find(":selected").text();
 		$("#datasourcecontainer_" + editorIndex).val(null);
 		$("#datasourcecontainer_" + editorIndex).closest('div').hide();
+		(editorObject["editor"]).setValue("");
 	} else {
-		$("#datasourcecontainer_" + editorIndex).closest('div').show();
+			if(jsonArray[editorIndex] != undefined && jsonArray[editorIndex][0].length != 0){
+				showMessage("Please remove the script libraries and save the changes.", "warn");
+				$("#selectcontainer_" + editorIndex).val(querytype);
+				return false;
+			}else{
+				(editorObject["editor"]).setValue("");
+				$("#datasourcecontainer_" + editorIndex).closest('div').show();
+			}
+		}
 	}
-}
 
 validateDynamicForm = function() {
 	let formName = $("#formName").val().trim();
@@ -694,6 +782,7 @@ let saveEntityRoleAssociation = function(savedFormId) {
 	entityRoles.entityName = $("#formName").val();
 	entityRoles.moduleId = $("#moduleId").val();
 	entityRoles.entityId = savedFormId;
+	
 	$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key, val) {
 		roleIds.push(val.id);
 	});
@@ -710,6 +799,7 @@ let saveEntityRoleAssociation = function(savedFormId) {
 		}
 	});
 }
+
 let getEntityRoles = function() {
 	$.ajax({
 		async: false,
@@ -751,7 +841,6 @@ var isInAction = false;
 
 
 function onSaveButtonClick(a_actionType, isEdit) {
-	
 	if(dynamicFormTexts == null){
 	 	dynamicFormTexts = resourceBundleData("jws.allFieldsMandatory,jws.excpOccured,jws.multiplesave,jws.excpValidatingForm,jws.informationSavedSuccessfully,jws.excOccurSuccess,jws.errSaving,jws.exceGettingError,jws.invalidCaptcha,jws.backToPrevious,jws.excepOnSuccess");
 	}
@@ -773,7 +862,7 @@ function onSaveButtonClick(a_actionType, isEdit) {
 			try {
 				$.unblockUI();
 			} catch (excp) {
-				showMessage(dynamicFormTexts["jws.jws.excpOccured"], "error");
+				showMessage(dynamicFormTexts["jws.excpOccured"], "error");
 			}
 		}
 
@@ -878,7 +967,6 @@ function onSaveButtonClick(a_actionType, isEdit) {
 			showMessage(dynamicFormTexts["jws.excpOccured"], "error");
 		}
 	}
-
 	if (formData != null) {
 		$.ajax({
 			type: "POST",
@@ -939,15 +1027,17 @@ function onSaveButtonClick(a_actionType, isEdit) {
 				// captcha error handling	
 				if (xhr.status == 412) {
 					showMessage(dynamicFormTexts["jws.invalidCaptcha"], "error");
-					$("#reloadCaptcha").trigger("click");
+					
 				}else {
 					if(errorMsg != null && errorMsg != undefined){
 						showMessage(errorMsg, "error");
+						
 					}
 					
 					if (typeof onError == "function") {
 						onError(xhr, error);
 					}
+					
 				}
 
 				if (typeof $.unblockUI == "function") {
@@ -956,8 +1046,9 @@ function onSaveButtonClick(a_actionType, isEdit) {
 					} catch (excp) {
 						showMessage(dynamicFormTexts["jws.excpOccured"], "error");
 					}
+					
 				}
-
+                     $("#reloadCaptcha").trigger("click");
 			},
 		});
 	}
@@ -1078,7 +1169,6 @@ function validateData() {
 		}
 	}
 
-
 	if (fileBins) {
 		for (let fileBinCounter = 0; fileBinCounter < fileBins.length; fileBinCounter++) {
 			serializedForm.push(fileBins[fileBinCounter]);
@@ -1107,10 +1197,12 @@ function pushToSerializedData(a_serializedFormData, a_name, a_value, a_valueType
     return a_serializedFormData;
 }
 
-
 //Support for FileBin starts here
 var fileBins = new Array();
 var fileBinDisplayTexts = null;
 var dynamicFormTexts = null;
+var jsonArray = new Array();
+var querytype = null;
+var querytypename = null;
 //end of FileBin
 

@@ -59,8 +59,6 @@ public class DashboardService {
 	@Autowired
 	private DashletService dashletService = null;
 	
-	
-
 	public void saveDashboardRoleAssociation(DashboardRoleAssociation dashboardRoleAssociation) throws Exception {
 		dashboardDao.saveDashboardRoleAssociation(dashboardRoleAssociation);
 	}
@@ -93,14 +91,17 @@ public class DashboardService {
 		try {
 			List<String> dashletUIs = new ArrayList<String>();
 			Map<String, Object> mapOfVariables = new HashMap<String, Object>();
-
+			
 			Dashboard dashboard = dashboardDAO.findDashboardByDashboardId(dashboardId);
 			List<Dashlet> dashlets = dashletService.getDashlets(roleIdList, dashboardId,httpServletRequest, httpServletResponse);
 			for (Dashlet l_dashlet : dashlets) {
-				String dashletUI = dashletService.getDashletUIString(l_dashlet, a_userId, a_isContentOnly, dashboardId, null,
-						httpServletRequest, httpServletResponse);
-				if(null !=dashletUI) {
-					dashletUIs.add(dashletUI);
+				boolean hasAccess = dashletService.hasAccessToEntity(l_dashlet);
+				if (hasAccess == Boolean.TRUE) {
+					String dashletUI = dashletService.getDashletUIString(l_dashlet, a_userId, a_isContentOnly, dashboardId, null,
+							httpServletRequest, httpServletResponse,null);
+					if(null !=dashletUI) {
+						dashletUIs.add(dashletUI);
+					}
 				}
 			}
 			if(dashletUIs.isEmpty()==false) {

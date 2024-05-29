@@ -16,12 +16,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+
 
 @Entity
 @Table(name = "jq_dynamic_rest_details")
@@ -114,7 +116,10 @@ public class JwsDynamicRestDetail implements Serializable {
 	
 	@Column(name = "is_secured")	
 	private Integer								isSecured						= 0;
-
+	
+	@Transient
+	private String			scriptLibraryId				= null;
+	
 	public JwsDynamicRestDetail() {
 
 	}
@@ -139,8 +144,8 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.createdDate				= createdDate;
 		this.lastUpdatedBy				= lastUpdatedBy;
 		this.lastUpdatedTs				= lastUpdatedTs;
-		this.jwsHeaderJson = headerJson;
-		this.hideDaoQuery	= hideDaoQuery; //Added new column for hiding DAO Query Container
+		this.jwsHeaderJson 				= headerJson;
+		this.hideDaoQuery				= hideDaoQuery; //Added new column for hiding DAO Query Container
 
 	}
 
@@ -432,6 +437,14 @@ public class JwsDynamicRestDetail implements Serializable {
 		this.isSecured = isSecured;
 	}
 
+	public String getScriptLibraryId() {
+		return scriptLibraryId;
+	}
+
+	public void setScriptLibraryId(String scriptLibraryId) {
+		this.scriptLibraryId = scriptLibraryId;
+	}
+
 	public JwsDynamicRestDetail getObject() {
 		JwsDynamicRestDetail dynaRest = new JwsDynamicRestDetail();
 		dynaRest.setJwsDynamicRestId(jwsDynamicRestId != null ? jwsDynamicRestId.trim() : jwsDynamicRestId);
@@ -449,6 +462,7 @@ public class JwsDynamicRestDetail implements Serializable {
 		dynaRest.setIsSecured(isSecured);
 		dynaRest.setJwsHeaderJson(jwsHeaderJson);
 		dynaRest.setIsCustomUpdated(isCustomUpdated);
+		dynaRest.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : "");
 		try {
 			if (jwsServiceLogic != null) {
 				dynaRest.setJwsServiceLogic(jwsServiceLogic.trim());
@@ -497,5 +511,5 @@ public class JwsDynamicRestDetail implements Serializable {
 
 		return dynaRest;
 	}
-
+	
 }

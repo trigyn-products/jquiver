@@ -1,0 +1,26 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+function saveScriptLibrary(){
+  
+    var map = new HashMap();
+    map.put('scriptlibid', requestDetails.scriptlibId);
+    map.put('libraryname', requestDetails.libraryName);
+    map.put('templateid', requestDetails.templateId);
+    map.put('scripttype', requestDetails.scriptType);
+    map.put('description', requestDetails.description);
+    map.put('createdby', requestDetails["loggedInUserId"]);
+    map.put('updatedby', requestDetails["loggedInUserId"]);
+     
+    if(undefined == requestDetails.isEdit[0]){
+       map.put('isEdit', requestDetails.isEdit);
+    }else{
+       map.put('isEdit', requestDetails.isEdit[0]);
+    }
+       if(map.get("isEdit") == 1){   
+         jq_updateDBQuery('UPDATE jq_script_lib_details SET template_id = :templateid,library_name = :libraryname,description = :description,script_type = :scripttype,created_by = :createdby,updated_by = :updatedby,updated_date = NOW(),is_custom_updated = 1 WHERE script_lib_id = :scriptlibid',null, map);
+      }else{
+         jq_updateDBQuery('INSERT INTO jq_script_lib_details (script_lib_id,template_id,library_name,description,script_type,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),:templateid,:libraryname,:description,:scripttype,:createdby,:updatedby,NOW(),1)', null, map);
+      }
+}
+saveScriptLibrary();

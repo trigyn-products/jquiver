@@ -109,6 +109,9 @@ public class JwsUserRegistrationController {
 					Exception excep = (Exception) session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
 					if (excep.getCause() instanceof InvalidLoginException) {
 						mapDetails.put("exceptionMessage", excep.getMessage());
+						if(((InvalidLoginException)excep).getPreviousEmail() != null) {
+							mapDetails.put("previousMail", ((InvalidLoginException)excep).getPreviousEmail());
+						}
 					}
 				}
 			} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
@@ -116,6 +119,9 @@ public class JwsUserRegistrationController {
 				if (exc != null && !exc.getMessage().isBlank()) {
 					mapDetails.put("queryString", "error");
 					mapDetails.put("exceptionMessage", exc.getMessage());
+					if(((InvalidLoginException)exc).getPreviousEmail() != null) {
+						mapDetails.put("previousMail", ((InvalidLoginException)exc).getPreviousEmail());
+					}
 				}
 				session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
 			}
@@ -148,7 +154,6 @@ public class JwsUserRegistrationController {
 			logger.error("Error occured in userRegistrationPage.", custStopException);
 			throw custStopException;
 		}
-
 	}
 
 	@PostMapping(value = "/register")
@@ -166,6 +171,7 @@ public class JwsUserRegistrationController {
 				return null;
 			}
 			boolean isInValid = userManagementService.validateUserRegistration(request, user, mapDetails);
+
 			if (isInValid) {
 				viewName = "jws-register";
 				TemplateVO templateVO = templatingService.getTemplateByName(viewName);
@@ -207,7 +213,6 @@ public class JwsUserRegistrationController {
 		String viewName = null;
 		try {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
-
 				JwsConfirmationToken token = confirmationTokenRepository.findByConfirmationToken(confirmationToken);
 
 				if (token != null) {
@@ -246,14 +251,29 @@ public class JwsUserRegistrationController {
 	@GetMapping(value = "/captcha/{flagCaptcha}")
 	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
-		String captchaStr = CaptchaUtil.getCaptchaString();
+		String				captchaStr	= "";
+		String				captchaVal	= "";
+		int					captchaType	= 0;
+		
+		if (CaptchaUtil.getRandomNumber(10, 100) % 2 == 0) {
+			captchaStr	= CaptchaUtil.getCaptchaString();
+			captchaVal	= captchaStr;
+			captchaType	= 0;
+		} else {
+			Map<String, String> captchaMap = CaptchaUtil.getMathCaptcha();
+			captchaStr	= captchaMap.get("cs");
+			captchaVal	= captchaMap.get("cv");
+			captchaType	= 1;
+		}
+
+		
 		int			width	= 130;
 		int			height	= 59;
 		HttpSession	session	= request.getSession();
-		session.setAttribute(flagCaptcha, captchaStr);
+		session.setAttribute(flagCaptcha, captchaVal);
 
 		OutputStream outputStream = response.getOutputStream();
-		CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream);
+		CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream, captchaType);
 		outputStream.close();
 		return captchaStr;
 	}

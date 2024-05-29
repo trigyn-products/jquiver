@@ -156,5 +156,4 @@ public class ModuleVersionService {
 	public String getLastUpdatedJsonData(String entityId, String entityName) throws Exception {
 		return moduleVersionDAO.getLastUpdatedJsonData(entityId, entityName);
 	}
-
 }

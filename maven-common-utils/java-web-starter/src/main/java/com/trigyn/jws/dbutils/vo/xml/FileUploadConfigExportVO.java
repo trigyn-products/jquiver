@@ -2,6 +2,7 @@ package com.trigyn.jws.dbutils.vo.xml;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 public class FileUploadConfigExportVO {
 	private String						fileBinId			= null;
@@ -42,7 +43,13 @@ public class FileUploadConfigExportVO {
 
 	private String						datasourceDeleteValidator = null;
 
-	private Integer						isCustomUpdated		= null;
+	private Integer						isCustomUpdated			  = null;
+	
+	private String				        uploadScriptLibraryId	  = null;
+	
+	private String						viewScriptLibraryId		  = null;
+	
+	private String						deleteScriptLibraryId	  = null;
 
 
 	public FileUploadConfigExportVO() {
@@ -89,6 +96,38 @@ public class FileUploadConfigExportVO {
 		this.datasourceUploadValidator = datasourceUploadValidator;
 		this.datasourceDeleteValidator = datasourceDeleteValidator;
 		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public FileUploadConfigExportVO(String fileBinId, String fileTypSupported, BigDecimal maxFileSize,
+			Integer noOfFiles, String uploadQueryContent, String viewQueryContent, String deleteQueryContent,
+			String dataSourceId, Integer isDeleted, String createdBy, Date createdDate, String updatedBy,
+			Date updatedDate, Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType,
+			String datasourceViewValidator, String datasourceUploadValidator, String datasourceDeleteValidator,
+			Integer isCustomUpdated, String uploadScriptLibraryId, String viewScriptLibraryId,
+			String deleteScriptLibraryId) {
+		this.fileBinId = fileBinId;
+		this.fileTypSupported = fileTypSupported;
+		this.maxFileSize = maxFileSize;
+		this.noOfFiles = noOfFiles;
+		this.uploadQueryContent = uploadQueryContent;
+		this.viewQueryContent = viewQueryContent;
+		this.deleteQueryContent = deleteQueryContent;
+		this.dataSourceId = dataSourceId;
+		this.isDeleted = isDeleted;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.updatedBy = updatedBy;
+		this.updatedDate = updatedDate;
+		this.uploadQueryType = uploadQueryType;
+		this.viewQueryType = viewQueryType;
+		this.deleteQueryType = deleteQueryType;
+		this.datasourceViewValidator = datasourceViewValidator;
+		this.datasourceUploadValidator = datasourceUploadValidator;
+		this.datasourceDeleteValidator = datasourceDeleteValidator;
+		this.isCustomUpdated = isCustomUpdated;
+		this.uploadScriptLibraryId = uploadScriptLibraryId;
+		this.viewScriptLibraryId = viewScriptLibraryId;
+		this.deleteScriptLibraryId = deleteScriptLibraryId;
 	}
 
 	public String getFileBinId() {
@@ -249,6 +288,30 @@ public class FileUploadConfigExportVO {
 
 	public void setIsCustomUpdated(Integer isCustomUpdated) {
 		this.isCustomUpdated = isCustomUpdated;
+	}
+
+	public String getUploadScriptLibraryId() {
+		return uploadScriptLibraryId;
+	}
+
+	public void setUploadScriptLibraryId(String uploadScriptLibraryId) {
+		this.uploadScriptLibraryId = uploadScriptLibraryId;
+	}
+
+	public String getViewScriptLibraryId() {
+		return viewScriptLibraryId;
+	}
+
+	public void setViewScriptLibraryId(String viewScriptLibraryId) {
+		this.viewScriptLibraryId = viewScriptLibraryId;
+	}
+
+	public String getDeleteScriptLibraryId() {
+		return deleteScriptLibraryId;
+	}
+
+	public void setDeleteScriptLibraryId(String deleteScriptLibraryId) {
+		this.deleteScriptLibraryId = deleteScriptLibraryId;
 	}
 
 }

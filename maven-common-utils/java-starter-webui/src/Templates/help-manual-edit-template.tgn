@@ -1,0 +1,575 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
+<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
+<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/jstree/dist/themes/default/style.min.css"/>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/jstree/dist/jstree.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.css">
+<script src="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
+<!--<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>-->
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
+<link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
+<style>
+    .leftrideblock{
+        display:flex;
+        width:100%;
+        position:relative;
+    }
+
+    .leftcontenctcls {
+           border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    }
+
+    .ui-dialog-buttonset button:first-child{
+    color: #fff;
+    background: var(--bluebgcolor);
+    border-color: var(--bluebgcolor);
+    position: relative;
+    overflow: hidden;
+    }
+
+
+    .ui-dialog{
+        width:450px !important;
+    }
+
+    .ui-dialog-buttonset button:last-child{
+        color: var(--bluebgcolor) !important;
+        background: var(--white) !important;
+        border-color: var(--bluebgcolor) !important;
+    }
+
+    .ui-dialog-buttonset button:last-child:hover {
+        color: var(--white) !important;
+        background: var(--bluebgcolor) !important;
+
+    }
+
+    .CodeMirror-scroll{
+        height:calc(100vh - 103px);
+            min-height: inherit;
+    }
+
+    #rejectedDiv{
+      margin:15px 0;
+    }
+    
+    #rejectedDiv input{
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width:100%;
+    }
+
+    </style>
+</head>
+
+<div class="container">
+    <div class="topband">
+      <!--  <h2 class="title-cls-name float-left"></h2> -->
+         <h2 id="title" class="title-cls-name float-left help-manual-title"> </h2>
+        <div class="float-right">
+             <div class="addonbtnblock">
+              <button type='button'id="create_btn" class="spacingclss btn btn-secondary">
+                  ${messageSource.getMessage('jws.createTopic')}</button>  
+             <button type='button' onclick="backToPreviousPage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                </button>
+
+        </div>
+        </div>
+        
+        <div class="clearfix"></div>        
+    </div>
+        
+   <form method="post" name="addEditForm" id="addEditForm">
+        <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+ 
+       <div class="leftrideblock ">
+      <!-- <span class="spiralbinding"> </span>  -->
+      <input type="hidden" id="manualentryid" name="manualentryid"  value="" maxlength="50" class="form-control">
+            <input type="hidden" id="manualtype" name="mt"  value="${mt}" maxlength="50" class="form-control">
+            <input type="hidden" id="manualname" name="manualname"  value="JQuiver+Manual" maxlength="50" class="form-control">
+            <div class="leftcontenctcls cm-scrollbar" id="tree_container" style="height:600px;width: 370px;"> </div>
+            <div  class="col-10 rightcontecntcls heightclscls cm-right-wrapper ">
+                <textarea class="form-control" rows="15" cols="90" title="Entry content" id="entrycontent"  placeholder="Entry content" name="entrycontent" style="height:80px"></textarea>
+            </div>
+                  
+       </div>
+        <div class="rightcontecntcls" style="margin:10px 0;">
+            <div id="fileUploadMaster" class="col-12 fileupload dropzone"></div>
+            </div> 
+   </form>
+     <div class="row">
+        <div class="col-12">
+            <div class="float-right">
+                <div class="btn-group dropup custom-grp-btn">
+                    <div id="savedAction">
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('782a16eb-2dd7-49bf-ad4f-e31bcb983f68', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </div>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <div class="dropdown-menu action-cls" id="actionDiv">
+                        <ul class="dropdownmenu">
+                            <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('782a16eb-2dd7-49bf-ad4f-e31bcb983f68', this, isEdit);">
+                                ${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>
+                </div>
+                <span onclick="backToPreviousPage();">
+                    <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+                </span>
+            </div>
+        </div>
+    </div>
+</div> 
+<div id="deleteEntityConfirm"></div> 
+<div id="exceedDiv" style="display:none"><span>Exceed more than 10 .Please save and then Proceed!</span></div>  
+<div id="rejectedDiv" style="display:none"><span>Content for below Nodes are required.</span></div> 
+<div id="deleteDiv" style="display:none"></div>   
+  <form id="viewManualEntry" action="/demo/cf/ehme" method="post">
+    	<input type="hidden" name="mt" id="manualTypeListing" value="${mt}"/>
+        <input type="hidden" name="sortIndex" id="sortIndex" value="${sortIndex}"/>
+		<input type="hidden" name="mn" id="manualNameListing" value="JQuiver Manual">
+    </form>
+<script>
+	document.title = "JQuvier Help Manual";
+    contextPath = "${(contextPath)!''}";
+    var fileBins = new Array();
+    var fileBinDisplayTexts = null;
+    let manual = new HelpManual();
+    let manualTypes = manual.getManualDetails();
+    let isEdit=1;
+    $("#title").html(manualTypes.find(manual => {
+        return manual["manual_id"] == "${mt!''}"
+    })["name"]); 
+    const treeViewMap = new Map();
+    const changedTreeViewMap = new Map(); 
+    const newAndModifiedMap=new Map();
+    const deletedManualDataList=[];
+    const renameManualDataList=[];
+    var deletedNodeList=new Array();
+     dropzone = $(".fileupload").fileUpload({
+            fileBinId : "helpManual",
+            fileAssociationId:"${mt}",
+            createFileBin : true,
+            renderer: fileConfigRenderer,
+            successcallback: showFileDataInEntryContent.bind(this),
+            deletecallback: deleteFileDataInEntryContent.bind(this)
+        });
+     
+    let simplemde = new SimpleMDE({
+                                    renderingConfig: {
+                                    codeSyntaxHighlighting: true,
+                                    }
+                                  });
+    $(function () {
+        //Lazy Loading- Initally Parents will be loaded later child node loading on click
+         var result;
+        $("#tree_container").jstree({
+            "core": {'strings' : {
+                            'New node' : 'New topic'
+                        } ,         
+                       "check_callback" : true, 
+                       "force_text"  :true,                       
+                       "data": {                          
+                            'url' : contextPath+"/cf/hmfn", 
+                            'data' : function (node) { 
+                                       return { 'id' : node.id ,'mt' : '${mt}' }; 
+                                     },
+                            'dataFilter' :  function (treeData) {   
+                                                $.each(JSON.parse(treeData), function(i, data) {
+                                                treeViewMap.set(data.id, data.entryContent);
+                                                changedTreeViewMap.set(data.id, data.entryContent);
+                                            });
+                                            if (document.readyState === 'complete') {
+                                                // The page is fully loaded
+                                                var content;
+                                                var selected_node = $('#tree_container').jstree('get_selected', false);
+                                                if( typeof selected_node != "undefined" && selected_node != null &&   selected_node.length != null && selected_node.length > 0) {
+                                                    content=changedTreeViewMap.get(selected_node[0]);
+                                                    }
+                                                else{
+                                                    const [firstValue] = changedTreeViewMap.values();
+                                                    content=firstValue; 
+                                                    }
+                                                    if(content!=null){
+                                                       // const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
+                                                        //simplemde.value(finalcontent);
+                                                        simplemde.value(content);
+                                                        }
+                                                    else{
+                                                        //simplemde.value(content);
+                                                        simplemde.value("");
+                                                    }
+                                                
+                                                }
+                                            return  treeData;
+                                        
+                                       }
+                                 }
+                       
+                    },
+                        'types' :{ 
+                                   'folder': {
+                                        'icon' : "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                        },
+                                    'default': {
+                                       'icon': 'jstree-icon jstree-file'
+                                               },
+                                    'open': {
+                                       'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
+                                            },
+                                    'closed': {
+                                        'icon': "${(contextPath)!''}/webjars/1.0/images/book.png"
+                                            }
+                                  },
+                        'contextmenu' : {
+						'items' : function(node) {
+							var items = $.jstree.defaults.contextmenu.items();
+                            items.ccp=false;
+							items.create = {// The "create" menu item
+                                           "label" : "Create",
+                                            action: function (data) {
+                                                var inst = $.jstree.reference(data.reference),
+                                                    obj = inst.get_node(data.reference);
+                                                    inst.create_node(obj, {}, "last", function (new_node) {
+                                                    new_node.data = {file: true};
+                                                    setTimeout(function () { inst.edit(new_node);
+                                                    simplemde.value("");
+                                                     var tree = $('#tree_container').jstree(true);
+                                                     tree.deselect_all();
+                                                     tree.select_node(new_node); 
+                                                    changedTreeViewMap.set(new_node.id, null); 
+                                                    newAndModifiedMap.set(new_node.id, null); 
+                                                    },0);
+                                                    localStorage.setItem('selectedNodeId', new_node.id);
+                                                });
+                                            }
+                                        
+						
+						           },
+                             items.remove ={
+                                    "separator_before" : false,
+                                    "icon" : false,
+                                    "separator_after" : false,
+                                    "_disabled" : false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+                                    "label" : "Delete",
+                                    "action" : function (data) {
+                                        var inst = $.jstree.reference(data.reference),
+                                            obj = inst.get_node(data.reference);   
+                                                    $("#deleteDiv").html("Are you sure you want to delete <span style='font-weight: bold;'> \"" + obj.text + "\"<\span>?");
+                                                                $("#deleteDiv").dialog({
+                                                                    bgiframe		 : true,
+		                                                            autoOpen		 : true, 
+		                                                            modal		 : true,
+                                                                    title:"Delete",
+                                                                    buttons		 : [{
+                                                                    text	:"Cancel",
+                                                                    class   :"btn btn-secondary",
+                                                                    click	: function() { 
+                                                                        $(this).dialog('close');                    
+                                                                        return false;
+                                                                    },
+                                                                },
+                                                                {
+                                                                    text    : "Delete",
+                                                                    class   :"btn btn-primary",
+                                                                    click	: function(){
+                                                                          if(inst.is_selected(obj)) {
+                                                        
+                                                                            let manualData = new Object();
+                                                                            manualData["manualEntryId"] = obj.id;             
+                                                                            manualData["manualId"] = $('#manualtype').val();   
+                                                                            manualData["action"]="delete";  
+                                                                            if(!obj.id.startsWith("j1_")) {      
+                                                                            deletedManualDataList.push(manualData);
+                                                                            }
+                                                                        
+                                                                            inst.delete_node(inst.get_selected());
+                                                                        }
+                                                                        else {
+                                                                            inst.delete_node(obj);
+                                                                        }
+
+                                                                        $(this).dialog('close');
+                                                                        
+                                                                        
+                                                                    }
+                                                                },
+                                                        ]
+                                                     });
+                                            
+                                        
+                                    }
+                                    }
+							return items;
+						}
+					},
+					    'plugins' : ['themes','types','contextmenu']
+        }).bind("loaded.jstree", function (event, data) {
+                        data.instance.select_node('ul > li:first');                       
+                    }).on('open_node.jstree', function (event, data) {
+      data.instance.set_type(data.node, 'open');
+   }).on('close_node.jstree', function (event, data) {
+      data.instance.set_type(data.node, 'closed');
+   });
+             
+
+      var id=$('#tree_container').jstree('get_selected');
+      hideShowActionButtons();
+     
+});
+ 
+
+     $("#create_btn").click(function(){ 
+       var ref = $("#tree_container").jstree('create_node', '#',  { text : "New topic", type : "root" } ); 
+      
+       $('#tree_container').jstree('edit', ref);
+       
+       simplemde.value("");
+       var tree = $('#tree_container').jstree(true);
+      //  curr = tree.get_selected(false);
+       tree.deselect_all();
+      //var p = $('#tree').jstree('get_selected').attr('id')
+    //var p = tree.get_next_dom(curr);
+       tree.select_node(ref); 
+       newAndModifiedMap.set(ref, null);
+       changedTreeViewMap.set(ref, null);
+	   localStorage.setItem('selectedNodeId', ref);						
+    });
+
+    $('#tree_container').on("changed.jstree", function (e, data) {
+            let id=data.selected;
+            localStorage.setItem('selectedNodeId',id);
+            if(id[0]!=null && id[0]!= "undefined") {
+                const id_flag=id[0].startsWith("j1_");                   
+                const flag=changedTreeViewMap.has(id[0]);  
+                if(flag){
+                    const content=changedTreeViewMap.get(id[0]);
+                    if(content!=null) {
+                       // const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                        simplemde.value(content);
+                    }
+                    else{
+                        simplemde.value("");
+                    }
+                }
+                if(!flag && id_flag) {
+                    simplemde.value("");
+                }
+            
+            }
+    });     
+    //document.getElementById("entrycontent").addEventListener("click", myFunction);
+    // document.getElementByTagName("textarea").addEventListener("change", contentChange);
+     // document.getElementByTagName("textarea").addEventListener("keyup", contentChange);
+    $('textarea').on('propertychange input select change paste keyup blur',function(event) {
+    
+        entryContentChange();
+      
+    });
+	function entryContentChange()
+    {
+        var previousNodeId = localStorage.getItem('selectedNodeId');   
+        if(changedTreeViewMap.get(previousNodeId)!=simplemde.value())
+        {
+            changedTreeViewMap.set(previousNodeId, simplemde.value()); 
+            newAndModifiedMap.set(previousNodeId, simplemde.value()); 
+        }
+    }
+  
+     $('#tree_container').on("rename_node.jstree", function (e, data) {
+            
+             var new_Name = data.node.text;
+            if(new_Name.length>100)
+            {
+                showMessage("${messageSource.getMessage('jws.topicNameLenghtValidation')}","error")
+                 var tree = $("#tree_container").jstree(true);
+                      $("#tree_container").jstree("refresh");
+         
+                return false;
+            }
+            //$('.jstree-rename-input').attr('maxLength', 6);
+            const isFound = changedTreeViewMap.has(data.node.id);
+            if(isFound) {
+              newAndModifiedMap.set(data.node.id, changedTreeViewMap.get(data.node.id));  
+            }
+      });   
+
+    //Add logic to save form data
+    function saveData(){
+        let isDataSaved = false;         
+        const errorList =[];        
+        const finalManualDataList =[]; 
+        $("#errorMessage").hide();        
+        var flat_tree_data = $('#tree_container').jstree(true).get_json(null, { "flat" : true });
+        if(flat_tree_data.length===0 && fileBins.length>0)
+        {
+            showMessage("${messageSource.getMessage('jws.createTopicValidation')}", "error");
+            return false;
+        }
+        let sortId=${sortIndex};
+        for (let [key, value] of newAndModifiedMap) {
+            const index=flat_tree_data.map(object => object.id).indexOf(key);
+            var node=flat_tree_data[index];
+            let manualData = new Object(); 
+            
+            if(index!==-1){ 
+                if(value!=null && value!=""){  
+                    
+                        manualData["entryContent"] = value;
+                        manualData["parentId"]=node.parent;
+                        manualData["entryName"] = node.text;
+                        manualData["manualId"] = $('#manualtype').val(); 
+                        manualData["manualEntryId"] = node.id;
+                        if(!node.id.startsWith("j1_")) {                    
+                           // manualData["manualEntryId"] = node.id;
+                            manualData["action"]="update";
+                         }else{   
+                             sortId = sortId + 1;
+                            manualData["sortIndex"] = sortId;      
+                            manualData["action"]="add";
+                         }
+                    finalManualDataList.push(manualData);
+                }
+                else{
+                    errorList.push(node.text);
+                    finalManualDataList.length=0;
+                }
+            }
+                         
+        }
+        if(errorList.length>0)
+        {            
+            $("#rejectedDiv").html("<textarea  readonly rows = '3' id='rejectedArea' style='width:100%;font-weight: bold;border: white;overflow: auto;outline: none;resize:none'></textarea>");
+                     
+            const node =  document.createTextNode("Content for below Nodes are required."+"\n");
+            const rejectedArea=document.getElementById("rejectedArea");
+            rejectedArea.append(node);
+            for(var i = 0; i < errorList.length; i++) {
+            rejectedArea.append(i+1+") "+errorList[i].trim() +" \n");
+             } 
+            $("#rejectedDiv").dialog({
+                            title:"Content for below Node are required!",
+                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" );errorList.length=0; } } ]
+            });
+             return false;
+        }
+            
+        if(deletedManualDataList.length>0)
+        {
+            for(let obj of  deletedManualDataList){
+                finalManualDataList.push(obj);
+            }
+        }
+        if (finalManualDataList.length === 0 && fileBins.length===0) {
+                          showMessage("${messageSource.getMessage('jws.saveHelpManualValidation')}", "warn");
+                          return false;
+        
+        }
+        if(finalManualDataList.length>10)
+        {
+           
+            $("#exceedDiv").dialog({
+                            title:"Save and Proceed",
+                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
+                          });
+                          return false;
+        }
+     //var dataObject =   JSON.stringify(finalManualDataList); 
+     if(fileBins.length===0){
+      var dataObject = JSON.stringify({
+                    "finalManualDataList": finalManualDataList
+                });
+
+     }else {
+       var dataObject = JSON.stringify({
+                    "finalManualDataList": finalManualDataList,
+                    "formData": fileBins
+                });
+
+     }
+        $.ajax({
+                type : "POST",             
+                url : contextPath+"/cf/shmd",   
+                async: false,
+                contentType: "application/json",
+                data :dataObject,
+                success : function(data) {
+                    isDataSaved = true;
+                    dropzone.enableDropZone(data);
+                    $("#manualentryid").val(data);
+                    showMessage("${messageSource.getMessage('jws.informationSavedSuccessfully')}", "success");
+                    finalManualDataList.length = 0;
+                    newAndModifiedMap.clear();
+                    deletedManualDataList.lenght=0;
+                    $('#tree_container').jstree(true).refresh(true);
+                  
+                },
+                error : function(xhr, error){
+                    showMessage("${messageSource.getMessage('jws.errSaving')}", "error");
+                },
+        });
+        return isDataSaved;
+    }
+    $('#tree_container').on("refresh.jstree", function(e) {
+  $('#tree_container').jstree('select_node', 'ul > li:first');
+});
+
+        function fileConfigRenderer(fileObj) {
+        let fileUploadId = fileObj["id"];
+        let fileName = fileObj["name"];
+        let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
+        let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span>" +
+        	"<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span>"+ 
+        	"<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFile('"+fileUploadId+"')\"></i></span></div>";
+        return actionElem;
+	}
+    
+    function deleteFile(fileUploadId){
+        dropzone.deleteFileById(fileUploadId);
+    }
+
+    function copyFilePath(fileUploadId){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val(window.location.origin + contextPath + "/cf/files/" + fileUploadId).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("${messageSource.getMessage('jws.filepathcopiedsuccessfully')}", "success");
+    }
+
+    function showFileDataInEntryContent(fileId) {
+        let content = simplemde.value();
+        content = content + " ![](/cf/files/"+fileId+")";
+        simplemde.value(content);
+        entryContentChange();
+    }
+
+    function deleteFileDataInEntryContent(fileId) {
+        let content = $("#entrycontent").val();
+        content = content.replaceAll(" ![](/cf/files"+fileId+")");
+        simplemde.value(content);
+        entryContentChange();
+    }
+    function fileName(fileName){
+        showMessage("${messageSource.getMessage('jws.fileName')}: " + fileName, "success");
+    }
+    //Code go back to previous page
+    function backToPreviousPage() {
+        location.href = contextPath + "/cf/help";
+    }
+</script>

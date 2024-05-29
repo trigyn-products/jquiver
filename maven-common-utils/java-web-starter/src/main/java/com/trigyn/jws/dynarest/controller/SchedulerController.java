@@ -136,7 +136,7 @@ public class SchedulerController {
 			CronExpression	cronExp			= new CronExpression(cronExpression);
 			if (jwsScheduler.getIsActive().equals(Constants.ISACTIVE)) {
 				String		schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url");
-				String		baseURL					= propertyMasterService.findPropertyMasterValue("base-url");
+				String		baseURL					= jobService.getBaseUrl();
 				JobDataMap	map						= new JobDataMap();
 				map.put("baseURL", baseURL);
 				map.put("schedulerId", schedulerId);

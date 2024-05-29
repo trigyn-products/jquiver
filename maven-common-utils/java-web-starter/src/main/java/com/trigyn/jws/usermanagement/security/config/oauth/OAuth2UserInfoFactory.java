@@ -2,8 +2,6 @@ package com.trigyn.jws.usermanagement.security.config.oauth;
 
 import java.util.Map;
 
-import com.trigyn.jws.usermanagement.exception.OAuth2AuthenticationProcessingException;
-
 public class OAuth2UserInfoFactory {
 
 	public static OAuth2UserInfo getOAuth2UserInfo(String registrationId, Map<String, Object> attributes) {
@@ -16,7 +14,7 @@ public class OAuth2UserInfoFactory {
 		} else if (registrationId.equalsIgnoreCase("office365")) {
 			return new Office365OAuth2UserInfo(attributes);
 		} else {
-			throw new OAuth2AuthenticationProcessingException("Sorry! Login with " + registrationId + " is not supported yet.");
+			return new CustomOAuth2UserInfo(attributes);
 		}
 	}
 }

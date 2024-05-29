@@ -27,11 +27,11 @@ public final class QueryStore {
 			+ " , dl.xCoordinate AS xCoordinate, dl.yCoordinate AS yCoordinate"
 			+ " , dl.width AS width, dl.height AS height,dl.datasourceId AS dataSourceId "
 			+ " , dl.resultVariableName, dl.daoQueryType "
-			+ " , dl.showHeader AS showHeader, dl.isActive AS isActive) " + " FROM Dashlet AS dl WHERE dl.dashletId = :dashletId ";
+			+ " , dl.showHeader AS showHeader, dl.isActive AS isActive,dl.dashletTypeId As dashletTypeId) " + " FROM Dashlet AS dl WHERE dl.dashletId = :dashletId ";
 
 	public static final String		JPQ_QUERY_TO_GET_DAHSLET_PROPERTIES_BY_ID			= "SELECT new com.trigyn.jws.dashboard.vo.DashletPropertyVO "
 			+ " (dp.propertyId AS dashletPropertyId, dp.placeholderName AS placeholderName, dp.displayName AS displayName "
-			+ " , dp.type AS type, dp.value AS value, dp.defaultValue AS defaultValue, dp.configurationScript AS configurationScript "
+			+ " , dp.type AS type, dp.value AS value, dp.validation AS validation, dp.defaultValue AS defaultValue, dp.configurationScript AS configurationScript "
 			+ " , dp.toDisplay AS toDisplay, dp.sequence AS sequence , dp.isDeleted AS isDeleted) " + " FROM DashletProperties AS dp "
 			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.id.sequence ASC";
 
@@ -49,10 +49,14 @@ public final class QueryStore {
 	public static final String		JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_ID		= "SELECT new com.trigyn.jws.dashboard.vo.DashboardLookupCategoryVO "
 			+ " (dlc.lookupCategoryId AS lookupCategoryId, dlc.lookupDescription AS lookupDescription) "
 			+ " FROM DashboardLookupCategory AS dlc WHERE dlc.lookupCategoryId IN (:lookupCategoryId) ";
+	
+	public static final String		JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_TYPE		= "SELECT new com.trigyn.jws.dashboard.vo.DashboardLookupCategoryVO "
+			+ " (dlc.lookupCategoryId AS lookupCategoryId, dlc.lookupCategory AS lookupCategory, dlc.lookupDescription AS lookupDescription,dlc.validation AS validation) "
+			+ " FROM DashboardLookupCategory AS dlc WHERE dlc.lookupDescription = :type ";
 
 	public static final String		JPQ_QUERY_TO_GET_DAHSLET_PROPERTIES_DETAILS_BY_ID	= "SELECT new com.trigyn.jws.dashboard.vo.DashletPropertyVO "
 			+ " (dp.propertyId AS dashletPropertyId, dp.displayName AS displayName "
-			+ " , dlc.lookupDescription AS type, dp.value AS value, COALESCE(dpc.propertyValue, dp.defaultValue) AS defaultValue) "
+			+ " , dlc.lookupDescription AS type, dp.value AS value, dp.validation AS validation, COALESCE(dpc.propertyValue, dp.defaultValue) AS defaultValue) "
 			+ " FROM DashletProperties AS dp " + " LEFT OUTER JOIN dp.dashletPropertyConfigurations AS dpc ON dpc.id.userId = :userId "
 			+ " LEFT OUTER JOIN dp.dashboardLookupCategory AS dlc "
 			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.id.sequence ASC";

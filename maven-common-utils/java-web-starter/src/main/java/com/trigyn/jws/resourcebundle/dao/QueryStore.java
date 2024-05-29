@@ -28,7 +28,7 @@ public final class QueryStore {
 			+ " LEFT OUTER JOIN lg.resourceBundles AS rb ON rb.id.resourceKey = :resourceBundleKey "
 			+ " WHERE lg.languageId = :languageId AND lg.isDeleted = :isDeleted ";
 
-	public static final String	SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE					= " INSERT IGNORE INTO jq_resource_bundle VALUES "
+	public static final String	SQL_QUERY_TO_INSERT_RESOURCE_BUNDLE					= " INSERT IGNORE INTO jq_resource_bundle (resource_key,language_id ,TEXT,is_custom_updated) VALUES "
 			+ "(:resourceBundleKey, :languageId, :text, :isCustomUpdated)";
 	
 	public static final String	JPA_QUERY_TO_CHECK_LANGUAGES						= " SELECT count(*) from  Language AS lg WHERE lg.languageCode in (:langcodes) and isDeleted=0";

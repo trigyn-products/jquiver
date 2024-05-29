@@ -10,15 +10,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AdditionalDetails {
 
 	@JsonProperty("additionalProperties")
-	private List<List<JwsAuthAdditionalProperty>> additionalProperties = null;
+	private List<JwsAuthAdditionalProperty> additionalProperties = null;
 
 	@JsonProperty("additionalProperties")
-	public List<List<JwsAuthAdditionalProperty>> getAdditionalProperties() {
+	public List<JwsAuthAdditionalProperty> getAdditionalProperties() {
 		return additionalProperties;
 	}
 
 	@JsonProperty("additionalProperties")
-	public void setAdditionalProperties(List<List<JwsAuthAdditionalProperty>> additionalProperties) {
+	public void setAdditionalProperties(List<JwsAuthAdditionalProperty> additionalProperties) {
 		this.additionalProperties = additionalProperties;
 	}
 

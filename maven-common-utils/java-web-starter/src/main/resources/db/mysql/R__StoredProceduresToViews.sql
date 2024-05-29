@@ -398,3 +398,67 @@ WHERE `jpm`.`is_deleted` = 0
     AND `jpm`.`property_name` NOT IN('acl-jws','jws-date-format')
 GROUP BY `jpm`.`property_master_id`
 ORDER BY `jpm`.`last_modified_date` DESC;
+
+CREATE  OR REPLACE VIEW `jq_scriptlib_view` AS
+SELECT `sl`.`script_lib_id`
+       AS `script_lib_id`,
+       `tm`.`template_name`
+       AS `template_id`,
+       `sl`.`library_name`
+       AS `library_name`,
+       `sl`.`description`
+       AS `description`,
+       `sl`.`script_type`
+       AS `script_type`,
+       `sl`.`created_by`
+       AS
+`created_by`,
+COALESCE(CONCAT(`jus`.`first_name`, ' ', `jus`.`last_name`), `sl`.`updated_by`, `sl`.`created_by`) AS `updated_by`,
+`sl`.`updated_date`
+       AS `updated_date`,
+COUNT(`jmv`.`version_id`)
+       AS `revisionCount`,
+ MAX(`jmv`.`version_id`)                                  AS
+       `max_version_id`,
+CAST(`sl`.`updated_date` AS DATE) AS `isAfterDate`
+FROM   (((`jq_script_lib_details` `sl`
+          JOIN `jq_template_master` `tm`
+            ON( `sl`.`template_id` = `tm`.`template_id` ))
+         LEFT JOIN `jq_module_version` `jmv`
+                ON( `jmv`.`entity_id` = `sl`.`script_lib_id`
+                    AND `jmv`.`entity_name` = 'jq_script_lib_details' ))
+        LEFT JOIN `jq_user` `jus`
+               ON( `jus`.`user_id` =
+                   COALESCE(`sl`.`updated_by`, `sl`.`created_by`) ))
+GROUP  BY `sl`.`script_lib_id`
+ORDER  BY `sl`.`updated_date` DESC; 
+
+CREATE  OR REPLACE VIEW `jq_help_manual_view` AS
+SELECT `jmt`.`manual_id` AS `manual_id`,
+`jmt`.`name` AS `name`,
+`jmt`.`is_system_manual` AS `is_system_manual`,
+`jmt`.`created_by` AS `created_by`,
+`jmt`.`created_date` AS `created_date`,
+`jmt`.`last_updated_ts` AS `last_updated_ts` ,
+COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`jmt`.`last_updated_by`,`jmt`.`created_by`)) AS `last_updated_by`,
+COUNT(`jme`.`manual_id`) AS totalCount
+FROM (`jq_manual_type` `jmt` 
+LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`jmt`.`last_updated_by`,`jmt`.`created_by`))
+LEFT JOIN `jq_manual_entry` `jme` ON(`jme`.`manual_id` = `jmt`.`manual_id` ))
+GROUP BY jmt.manual_id;
+
+
+CREATE  OR REPLACE VIEW `jq_help_manual_view` AS
+SELECT `jmt`.`manual_id` AS `manual_id`,
+`jmt`.`name` AS `name`,
+`jmt`.`is_system_manual` AS `is_system_manual`,
+`jmt`.`created_by` AS `created_by`,
+`jmt`.`created_date` AS `created_date`,
+`jmt`.`last_updated_ts` AS `last_updated_ts` ,
+COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),COALESCE(`jmt`.`last_updated_by`,`jmt`.`created_by`)) AS `last_updated_by`,
+COUNT(`jme`.`manual_id`) AS totalCount
+FROM (`jq_manual_type` `jmt` 
+LEFT JOIN `jq_user` `jus` ON(`jus`.`email` = COALESCE(`jmt`.`last_updated_by`,`jmt`.`created_by`))
+LEFT JOIN `jq_manual_entry` `jme` ON(`jme`.`manual_id` = `jmt`.`manual_id` ))
+GROUP BY jmt.manual_id
+ORDER BY last_updated_ts DESC ;

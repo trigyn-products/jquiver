@@ -28,6 +28,9 @@ public class DashboardLookupCategory implements Serializable {
 
 	@Column(name = "lookup_description", nullable = false)
 	private String					lookupDescription	= null;
+	
+	@Column(name = "validation", nullable = false)
+	private String					validation	= null;
 
 	@Column(name = "updated_by", nullable = false)
 	private String					updatedBy			= null;
@@ -49,6 +52,16 @@ public class DashboardLookupCategory implements Serializable {
 		this.lookupDescription	= lookupDescription;
 		this.updatedBy			= updatedBy;
 		this.updatedDate		= updatedDate;
+	}
+	
+	public DashboardLookupCategory(String lookupCategoryId, String lookupCategory, String lookupDescription,
+			String validation, String updatedBy, Date updatedDate) {
+		this.lookupCategoryId = lookupCategoryId;
+		this.lookupCategory = lookupCategory;
+		this.lookupDescription = lookupDescription;
+		this.validation = validation;
+		this.updatedBy = updatedBy;
+		this.updatedDate = updatedDate;
 	}
 
 	public String getLookupCategoryId() {
@@ -89,6 +102,14 @@ public class DashboardLookupCategory implements Serializable {
 
 	public void setUpdatedDate(Date updatedDate) {
 		this.updatedDate = updatedDate;
+	}
+
+	public String getValidation() {
+		return validation;
+	}
+
+	public void setValidation(String validation) {
+		this.validation = validation;
 	}
 
 	@Override

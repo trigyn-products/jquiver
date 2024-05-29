@@ -7,12 +7,22 @@
 	<script src="${(contextPath)!''}/webjars/1.0/fileupload/fileBinMaster.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+
+    <style>
+        .addscrippop {
+            width:600px !important;
+        }
+    </style>
+
+    <#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>
+	    <#assign fileBinData=resultSetObject.fileBinData[0]>
+    </#if>
 </head>
 
 <div class="container">
 	<div class="row topband">
 		<div class="col-4">
-			<#if (resultSet)?? && (resultSet)?has_content>
+			<#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>
 				<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editfilebin')}</h2>
 				<#else>
 					<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addFileConfiguration')}</h2>
@@ -20,7 +30,7 @@
 		</div>
 
 		<div class="col-8">
-			<#if (resultSet)?? && (resultSet)?has_content>
+			<#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>
 				<#assign ufAttributes={ "entityType" : "File Bin" , "entityId" : "fileBinId" , "entityName"
 					: "fileBinId" }>
 					<@templateWithParams "user-favorite-template" ufAttributes />
@@ -32,7 +42,8 @@
 
 	<form method="post" name="addEditForm" id="addEditForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
-		<div class="row">
+        <input type="hidden" id="isEdit" name="isEdit"/>
+        <div class="row">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
 					<label for="fileBinId" style="white-space:nowrap"><span class="asteriskmark">*</span>
@@ -47,7 +58,7 @@
 		            <span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filetypesupported')}<i class="fa fa-info-circle" aria-hidden="true" title="Valid format is '.' followed by supported file extension or '.*'" style="margin-left: 2px;"> </i>
 		            </label>
-						<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif" value="" class="form-control">
+						<input type="text" id="fileTypeSupported" name="fileTypeSupported" placeholder=".png, .jpg, .gif, .*" value="" class="form-control">
 			</div>
 					</div>
 					<div class="col-6">
@@ -55,12 +66,12 @@
 							<span class="asteriskmark">*</span>
 							<label for="maxFileSize">${messageSource.getMessage('jws.maxfilesize')}</label>
 							<div class="row">
-								<div class="col-9">
+								<div class="col-8">
 									<input type="number" id="maxFileSizeUi" name="maxFileSizeUi" value="" onkeyup="fileBinMaster.saveCurrentFileSize(event)" onkeydown="fileBinMaster.validateMaxFileSize(event)" maxlength="10" class="form-control">
 									<input type="hidden" id="maxFileSize" name="maxFileSize" value="" maxlength="10" class="form-control">
                     </div>
-									<div class="col-3">
-										<span class="float-right">
+									<div class="col-4">
+										<span >
                             <select id="size" onChange="fileBinMaster.updateFileSize();" class="form-control">
                                 <option value="1">${messageSource.getMessage('jws.byte')}</option>
                                 <option value="2">${messageSource.getMessage('jws.kilobyte')}</option>
@@ -78,7 +89,7 @@
                 </label>
 								<input type="hidden" id="noOfFiles" name="noOfFiles">
 								<p class="file-slider-span-cls">
-									<span id="fileSliderSpan" class="no-of-files-counter"></span></p>
+									<span id="fileSliderSpan" class="no-of-files-counter" style="z-index: 999;"></span></p>
 								<div class="file-slider-div-cls" id="fileSliderDiv"></div>
 							</div>
 						</div>
@@ -107,39 +118,48 @@
 
 					<div class="row margin-t-b">
 						<div class="col-12">
+                        <div style = "position:relative;float:right;">
+                                                     
+                            </div>
 							<h3 class="titlename">
 								<span class="file-validator-title" data-query-name="uploadValidator_span">${messageSource.getMessage("jws.uploadFileSQL")}</span>
 								<div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
-									<input  class="onoffswitch-checkbox" type="checkbox" name="uploadValidator_chkbox" id="uploadValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('uploadValidator');">
+									<input  class="onoffswitch-checkbox" type="checkbox" name="uploadValidator_chkbox" id="uploadValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('uploadValidator',jsonObjUpload);">
 									<label class="onoffswitch-label" for="uploadValidator_chkbox">
                                         <span class="onoffswitch-inner"></span>
                                         <span class="onoffswitch-switch"></span>
                                     </label>
 								</div>
-
-
-
 							</h3>
-							<div class="row">
-								<div class="col-3">
+							<div class="row">                       
+								<div class="col-3">                                  
 									<label for="queryType_uploadValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
-									<select id="queryType_uploadValidator" name="queryType_uploadValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
-					 <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
-					 <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>					 
-				  </select>
+									<select id="queryType_uploadValidator" name="queryType_uploadValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'uploadValidator',jsonObjUpload);">
+                                        <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
+                                        <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>	
+                                        <option value="2">${messageSource.getMessage('jws.python')}</option>
+                                        <option value="3">${messageSource.getMessage('jws.php')}</option>				 
+                                    </select>
 								</div>
-								<div class="col-3" id="dt-uploadValidator">
-									<div>
+								<div class="col-3" >
+									<div id="dt-uploadValidator">
 										<label for="datasource_uploadValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_uploadValidator" name="datasource_uploadValidator" class="form-control" onchange="updateDataSource()">
-							<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
-						 </select>
-									</div>
-								</div>
+                                            <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
+                                        </select>
+									</div>                          
+								</div>   
+                                 <div class="col-6" style="margin-top:28px; text-align:right">                          
+                                <button type="button" id="script_uploadValidator" class="btn btn-primary spacingclss" onclick="validateScriptLib('uploadValidator','${(fileBinData.file_bin_id)!''}',jsonObjUpload,'upload',$('#isEdit').val());">
+                                   ${messageSource.getMessage('jws.scriptlibrary')}
+                                </button>
+                                <input type="hidden" id="inputscriptInsert_upload" />
+                                <input type="hidden" id="inputscriptdelete_upload"/>
+                                </div>                       
 							</div>
 						</div>
 					</div>
-					<div class="row margin-t-b">
+					<div class="row margin-t-b">                         
 						<div class="col-12">
 							<div id="uploadValidator_div" class="sql_script" style="opacity: 0.4;">
 								<div class="grp_lblinp">
@@ -147,7 +167,7 @@
 										<div id="uploadValidator" class="ace-editor"></div>
 									</div>
 								</div>
-							</div>
+							</div>         
 						</div>
 					</div>
 
@@ -157,37 +177,44 @@
 								<span class="file-validator-title" data-query-name="viewValidator_span">${messageSource.getMessage("jws.viewFileSQL")}</span>
 
 								<div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
-									<input  class="onoffswitch-checkbox" type="checkbox" name="viewValidator_chkbox" id="viewValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('viewValidator');">
+									<input  class="onoffswitch-checkbox" type="checkbox" name="viewValidator_chkbox" id="viewValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('viewValidator',jsonObjView);">
 									<label class="onoffswitch-label" for="viewValidator_chkbox">
                                         <span class="onoffswitch-inner"></span>
                                         <span class="onoffswitch-switch"></span>
                                     </label>
 								</div>
 
-
 							</h3>
 							<div class="row">
 								<div class="col-3">
 									<label for="queryType_viewValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
-									<select id="queryType_viewValidator" name="queryType_viewValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
-					 <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
-					 <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
-				  </select>
+									<select id="queryType_viewValidator" name="queryType_viewValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'viewValidator',jsonObjView);">
+                                        <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
+                                        <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
+                                        <option value="2">${messageSource.getMessage('jws.python')}</option>
+                                        <option value="3">${messageSource.getMessage('jws.php')}</option>	
+                                    </select>
 								</div>
-								<div class="col-3" id="dt-viewValidator">
-									<div>
+								<div class="col-3">
+									<div id="dt-viewValidator">
 										<label for="datasource_viewValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_viewValidator" name="datasource_viewValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
-						<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
-					 </select>
+                                            <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
+                                        </select>
 									</div>
-								</div>
+								</div>                                                                                         
+                                <div class="col-6" style="margin-top:28px; text-align:right">        
+                                    <button type="button" id="script_viewValidator" class="margin-r-4 btn btn-primary" onclick="validateScriptLib('viewValidator','${(fileBinData.file_bin_id)!''}',jsonObjView,'view',$('#isEdit').val());">
+                                        ${messageSource.getMessage('jws.scriptlibrary')}
+                                    </button>                                   
+                                <input type="hidden" id="inputscriptInsert_view" />
+                                <input type="hidden" id="inputscriptdelete_view"/>
+                                </div>
 							</div>
 						</div>
 					</div>
 					<div class="row margin-t-b">
 						<div class="col-12">
-
 							<div id="viewValidator_div" class="sql_script" style="opacity: 0.4;">
 								<div class="grp_lblinp">
 									<div id="viewValidator_container" class="ace-editor-container">
@@ -195,44 +222,50 @@
 									</div>
 								</div>
 							</div>
-						</div>
+						</div>        
 					</div>
-
 					<div class="row margin-t-b">
 						<div class="col-12">
 							<h3 class="titlename">
 								<span class="file-validator-title" data-query-name="deleteValidator_span">${messageSource.getMessage("jws.deleteFileSQL")}</span>
-
 								<div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
-									<input  class="onoffswitch-checkbox" type="checkbox" name="deleteValidator_chkbox" id="deleteValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('deleteValidator');">
+									<input  class="onoffswitch-checkbox" type="checkbox" name="deleteValidator_chkbox" id="deleteValidator_chkbox" onclick="fileBinMaster.enableDisableValidator('deleteValidator',jsonObjDelete);">
 									<label class="onoffswitch-label" for="deleteValidator_chkbox">
                                         <span class="onoffswitch-inner"></span>
                                         <span class="onoffswitch-switch"></span>
                                     </label>
 								</div>
-
 							</h3>
 							<div class="row">
 								<div class="col-3">
 									<label for="queryType_deleteValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
-									<select id="queryType_deleteValidator" name="queryType_deleteValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
-					 <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
-					 <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
-				  </select>
+									<select id="queryType_deleteValidator" name="queryType_deleteValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'deleteValidator',jsonObjDelete);">
+                                        <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
+                                        <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
+                                        <option value="2">${messageSource.getMessage('jws.python')}</option>
+                                        <option value="3">${messageSource.getMessage('jws.php')}</option>	
+                                    </select>
 								</div>
-								<div class="col-3" id="dt-deleteValidator">
-									<div>
+								<div class="col-3">
+									<div id="dt-deleteValidator">
 										<label for="datasource_deleteValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_deleteValidator" name="datasource_deleteValidator" class="form-control" onchange="enableDiableDataSource()">
-						<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
-					 </select>
+                                            <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
+                                        </select>
 									</div>
 								</div>
+                                <div class="col-6" style="margin-top:28px; text-align:right">                                                        
+                                    <button type="button" id="script_deleteValidator" class="btn btn-primary spacingclss" onclick="validateScriptLib('deleteValidator','${(fileBinData.file_bin_id)!''}',jsonObjDelete,'delete',$('#isEdit').val());">
+                                        ${messageSource.getMessage('jws.scriptlibrary')}
+                                    </button>
+                                <input type="hidden" id="inputscriptInsert_delete" />
+                                <input type="hidden" id="inputscriptdelete_delete"/>
+                                </div>     
 							</div>
 						</div>
 					</div>
-					<div class="row margin-t-b">
-						<div class="col-12">
+					<div class="row margin-t-b">                
+						<div class="col-12">                   
 							<div id="deleteValidator_div" class="sql_script" style="opacity: 0.4;">
 								<div class="grp_lblinp">
 									<div id="deleteValidator_container" class="ace-editor-container">
@@ -243,24 +276,22 @@
 						</div>
 					</div>
 
-						<#if (resultSet)?? && resultSet?size !=0>
-							<#list resultSet as resultSetList>
-								<textarea name="uploadValidator_query" id="uploadValidator_query" style="display: none">
-				${resultSetList?api.get("uploadQueryContent")!''}
-			</textarea>
-								<textarea name="viewValidator_query" id="viewValidator_query" style="display: none">
-				${resultSetList?api.get("viewQueryContent")!''}
-			</textarea>
-								<textarea name="deleteValidator_query" id="deleteValidator_query" style="display: none">
-				${resultSetList?api.get("deleteQueryContent")!''}
-			</textarea>
-								<#break>
-							</#list>
-							<#else>
-								<textarea id="uploadValidator_query" name="uploadValidator_query" style="display: none"></textarea>
-								<textarea id="viewValidator_query" name="viewValidator_query" style="display: none"></textarea>
-								<textarea id="deleteValidator_query" name="deleteValidator_query" style="display: none"></textarea>
-						</#if>
+			    <#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>			
+					<textarea name="uploadValidator_query" id="uploadValidator_query" style="display: none">
+				        ${(fileBinData.upload_query_content)!''}
+			        </textarea>
+					<textarea name="viewValidator_query" id="viewValidator_query" style="display: none">
+				        ${(fileBinData.view_query_content)!''}
+			        </textarea>
+					<textarea name="deleteValidator_query" id="deleteValidator_query" style="display: none">
+				        ${(fileBinData.delete_query_content)!''}
+			        </textarea>
+                
+                <#else>
+                    <textarea id="uploadValidator_query" name="uploadValidator_query" style="display: none"></textarea>
+                    <textarea id="viewValidator_query" name="viewValidator_query" style="display: none"></textarea>
+                    <textarea id="deleteValidator_query" name="deleteValidator_query" style="display: none"></textarea>
+                </#if>
 	</form>
 
 	<div id="tabs">
@@ -273,7 +304,7 @@
 			<div class="cm-main-wrapper preview cm-scrollbar clearfix">
 				<div id="contentDiv">
 					<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
-           			Copy HTML 				 
+           			${messageSource.getMessage("jws.copyhtml")} 				 
  					<i class="fa fa-clipboard" aria-hidden="true"></i>
 					</span>
 					<div id="htmlPreview" class="default-previews cm-scrollbar"></div>
@@ -284,7 +315,7 @@
 			<div class="cm-main-wrapper preview cm-scrollbar clearfix">
 				<div id="contentDiv">
 					<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
-           			Copy Javascript 				 
+           			${messageSource.getMessage("jws.copyjavascript")} 				 
  					<i class="fa fa-clipboard" aria-hidden="true"></i>
 					</span>
 					<div id="jsPreview" class="default-previews cm-scrollbar"></div>
@@ -316,16 +347,16 @@
 			<div class="float-right">
 				<div class="btn-group dropup custom-grp-btn">
 					<div id="savedAction">
-						<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('file-upload-config', this, fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+						<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('file-upload-config', this, $('#isEdit').val(),fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 					</div>
 					<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 					<div class="dropdown-menu action-cls" id="actionDiv">
 						<ul class="dropdownmenu">
 							<li id="saveAndCreateNew"
-								onclick="typeOfAction('file-upload-config', this, fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">
+								onclick="typeOfActionWithIsEdit('file-upload-config', this, $('#isEdit').val(), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">
 								${messageSource.getMessage("jws.saveAndCreateNew")}</li>
 							<li id="saveAndEdit"
-								onclick="typeOfAction('file-upload-config', this, fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">
+								onclick="typeOfActionWithIsEdit('file-upload-config', this, $('#isEdit').val(),fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">
 								${messageSource.getMessage("jws.saveAndEdit")}</li>
 						</ul>
 					</div>
@@ -335,6 +366,12 @@
 				</span>
 			</div>
 		</div>
+         <div id="dialogTitle" style="display:none;"></div>
+        <div id="btnDelete" style="display:none;"></div>
+        <div id="btnCancel" style="display:none;"></div>
+        <div id="scriptDetails" style="display:none;"></div>
+	    <div id="addEditDialog" class="addEditDialogclass"></div>
+    </div> 
 	</div>
 
 
@@ -343,13 +380,30 @@
 	document.title = "Manage File Bin Configuration";
 	let formId = "${formId}";
 	contextPath = "${contextPath}";
+    var fileBinDisplayTexts = null;
 	let edit = 0;
 	let fileBinMaster;
-	 /*Written for Updating Monaco Suggestions*/
+   	 /*Written for Updating Monaco Suggestions*/
 	let monacoSugg;
     let suggestionArray;
     let jsSuggestionArray;
     let jsSugg;
+    var scriptIdArray = [];
+    var scriptDelArray = [];
+    var deleteIdArray = new Array();
+    var scriptMultiselect;
+    var jsonObjUpload;
+    var jsonObjView;
+    var jsonObjDelete;
+    <#if resultSetObject.scriptMultiDataUpload?has_content >
+        jsonObjUpload = JSON.stringify(${(resultSetObject.scriptMultiDataUpload)});
+   </#if>
+    <#if resultSetObject.scriptMultiDataView?has_content >
+        jsonObjView = JSON.stringify(${(resultSetObject.scriptMultiDataView)});
+   </#if>
+    <#if resultSetObject.scriptMultiDataDelete?has_content >
+        jsonObjDelete = JSON.stringify(${(resultSetObject.scriptMultiDataDelete)});
+   </#if>
     monacoSugg = '${(suggestions)!""}';
     suggestionArray = JSON.parse(monacoSugg);
     jsSugg = '${(JSfilesuggestions)!""}';
@@ -358,59 +412,86 @@
 	$(function(){
 	  fileBinMaster = new FileBinMaster();
 	  $("#tabs").tabs();
-	  <#if (resultSet)??>
-		<#list resultSet as resultSetList>
+	 <#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>
 			$("#fileBinId").prop("readonly", true);
-			$("#fileBinId").val('${resultSetList?api.get("fileBinId")}');
-			$("#fileTypeSupported").val('${resultSetList?api.get("fileTypeSupported")}');
-			$("#maxFileSize").val('${resultSetList?api.get("maxFileSize")}');
-			$("#maxFileSizeUi").val('${resultSetList?api.get("maxFileSize")}');
-			$("#previousFileSize").val('${resultSetList?api.get("maxFileSize")}');
-			$("#fileSliderSpan").html('${resultSetList?api.get("noOfFiles")}');
-			$("#noOfFiles").val('${resultSetList?api.get("noOfFiles")}');
+			$("#fileBinId").val('${(resultSetObject.fileBinData[0].file_bin_id)!''}');
+			$("#fileTypeSupported").val('${(resultSetObject.fileBinData[0].file_type_supported)!''}');
+			$("#maxFileSize").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
+			$("#maxFileSizeUi").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
+			$("#previousFileSize").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
+			$("#fileSliderSpan").html('${(resultSetObject.fileBinData[0].no_of_files)!''}');
+			$("#noOfFiles").val('${(resultSetObject.fileBinData[0].no_of_files)!''}');
 			
-			<#if (resultSetList?api.get("uploadQueryType"))?has_content>
-				$("#queryType_uploadValidator").val('${resultSetList?api.get("uploadQueryType")}');	
-				<#if (resultSetList?api.get("uploadQueryType"))?has_content && resultSetList?api.get("uploadQueryType") == 4>
-					$("#dt-uploadValidator").closest('div').hide();				
+			<#if (resultSetObject.fileBinData[0].upload_query_type)?has_content>
+				$("#queryType_uploadValidator").val('${(resultSetObject.fileBinData[0].upload_query_type)!''}');	
+                queryTypeUploadval = $("#queryType_uploadValidator").val();
+				<#if (resultSetObject.fileBinData[0].upload_query_type)?has_content>
+                    <#if (resultSetObject.fileBinData[0].upload_query_type == 4) || (resultSetObject.fileBinData[0].upload_query_type == 2) || (resultSetObject.fileBinData[0].upload_query_type == 3)>
+					    $("#dt-uploadValidator").closest('div').hide();	
+                    <#else>
+                        $("#dt-uploadValidator").closest('div').show();
+                    </#if>	
 				</#if>
+            <#else>
+                $("#queryType_uploadValidator").prop("disabled", true);
+                $("#datasource_uploadValidator").prop("disabled", true);
+                $("#script_uploadValidator").prop("disabled", true);
+            </#if>
+            <#if (resultSetObject.fileBinData[0].view_query_type)?has_content>
+				$("#queryType_viewValidator").val('${(resultSetObject.fileBinData[0].view_query_type)!''}');
+                queryTypeViewval = $("#queryType_viewValidator").val();
+                <#if (resultSetObject.fileBinData[0].view_query_type)?has_content>
+					<#if (resultSetObject.fileBinData[0].view_query_type == 4) || (resultSetObject.fileBinData[0].view_query_type == 2) || (resultSetObject.fileBinData[0].view_query_type == 3)>
+                        $("#dt-viewValidator").closest('div').hide();	
+                    <#else>
+                        $("#dt-viewValidator").closest('div').show();
+                    </#if>	
+				</#if>          
+            <#else>
+                $("#queryType_viewValidator").prop("disabled", true);
+                $("#datasource_viewValidator").prop("disabled", true);
+                $("#script_viewValidator").prop("disabled", true);
 			</#if>
-			<#if (resultSetList?api.get("viewQueryType"))?has_content>
-				$("#queryType_viewValidator").val('${resultSetList?api.get("viewQueryType")}');
-				<#if (resultSetList?api.get("viewQueryType"))?has_content && resultSetList?api.get("viewQueryType") == 4>
-					$("#dt-viewValidator").closest('div').hide();				
-				</#if>
-			</#if>
-			<#if (resultSetList?api.get("deleteQueryType"))?has_content>
-				$("#queryType_deleteValidator").val('${resultSetList?api.get("deleteQueryType")}');
-				<#if (resultSetList?api.get("deleteQueryType"))?has_content && resultSetList?api.get("deleteQueryType") == 4>
-					$("#dt-deleteValidator").closest('div').hide();				
-				</#if>
+            <#if (resultSetObject.fileBinData[0].delete_query_type)?has_content>
+				$("#queryType_deleteValidator").val('${(resultSetObject.fileBinData[0].delete_query_type)!''}');
+                queryTypeDeleteval = $("#queryType_deleteValidator").val();
+                <#if (resultSetObject.fileBinData[0].delete_query_type)?has_content>
+				    <#if (resultSetObject.fileBinData[0].delete_query_type == 4) || (resultSetObject.fileBinData[0].delete_query_type == 2) || (resultSetObject.fileBinData[0].delete_query_type == 3)>	
+                        $("#dt-deleteValidator").closest('div').hide();	
+                    <#else>
+                        $("#dt-deleteValidator").closest('div').show();
+                    </#if>			
+				</#if>            
+            <#else>
+                $("#queryType_deleteValidator").prop("disabled", true);
+                $("#datasource_deleteValidator").prop("disabled", true);
+                $("#script_deleteValidator").prop("disabled", true);
 			</#if>
 			
-			
-			<#if (resultSetList?api.get("datasourceUploadValidator"))?has_content>
-				$("#datasource_uploadValidator").val('${resultSetList?api.get("datasourceUploadValidator")}');
+			<#if (resultSetObject.fileBinData[0].datasource_upload_validator)?has_content>
+				$("#datasource_uploadValidator").val('${(resultSetObject.fileBinData[0].datasource_upload_validator)!''}');
 			</#if>
-			<#if (resultSetList?api.get("datasourceViewValidator"))?has_content>
-				$("#datasource_viewValidator").val('${resultSetList?api.get("datasourceViewValidator")}');
+			<#if (resultSetObject.fileBinData[0].datasource_view_validator)?has_content>
+				$("#datasource_viewValidator").val('${(resultSetObject.fileBinData[0].datasource_view_validator)!''}');
 			</#if>
-			<#if (resultSetList?api.get("datasourceDeleteValidator"))?has_content>
-				$("#datasource_deleteValidator").val('${resultSetList?api.get("datasourceDeleteValidator")}');
-			</#if>			
-		</#list>
+			<#if (resultSetObject.fileBinData[0].datasource_delete_validator)?has_content>
+				$("#datasource_deleteValidator").val('${(resultSetObject.fileBinData[0].datasource_delete_validator)!''}');
+			</#if>	
+            
+            $("#isEdit").val(1);		
+		
+        <#else>
+            $("#isEdit").val(0);
 	  </#if>
 
-		<#if (requestDetails?api.get("fileBinId")) != "">
+        <#if (resultSetObject.fileBinData[0].file_bin_id)?has_content>
 			edit = 1;
 		</#if>
 
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
 			getSavedEntity();
-		} 
-			
-		getAllDatasourceForContainer(edit, "datasource_uploadValidator");		
-		
+		} 		
+		getAllDatasourceForContainer(edit, "datasource_uploadValidator");			
         $("#datasource_uploadValidator > option").each(function(index, element){
             if(index == 0){
                 return;
@@ -425,4 +506,86 @@
 		fileBinMaster.loadFinBinDetails();
 		$("a[href='#htmlContent']").click();		
 	}); 
+    function addNewScript(fileBinId,jsonObj,editorName,scriptEdit) {
+        $("#scriptDetails").html("Add Script")
+        openFormDialog('addEditDialog', "<center><img src='"+contextPath+"/webjars/1.0/images/loading.gif' /><center>", $("#scriptDetails").html());
+
+        $.ajax({
+            type: "GET",
+            async: true,
+            url: contextPath + "/view/scrlib",
+            data:{
+                fileBinId: fileBinId,
+                jsonObj : jsonObj,
+                editorName : editorName,   
+            },
+            success: function(data) {
+                $("#addEditDialog").html(data);                              
+            },
+            error: function(xhr, error) {
+                showMessage("${messageSource.getMessage('loading.erroroccured')  !''}", "error");
+                $("#scriptDetails").html("${messageSource.getMessage('loading.erroroccured')  !''}");     
+            },
+        });//end of ajax
+        }
+
+        function openFormDialog(dialogDiv, data, title) {
+       
+            $("#" + dialogDiv).html("");
+            $("#" + dialogDiv).html(data);
+            $("#" + dialogDiv).dialog({
+            bgiframe: true,
+            autoOpen: true,
+            modal: true,
+            width: 800,
+            height: 300,
+            dialogClass: "addscrippop",
+            closeOnEscape: true,
+            draggable: true,
+            resizable: true,
+            title: title,
+            close: function(event, ui) {
+                $("#" + dialogDiv).html("");           
+            },
+            open: function(event, ui) {
+                $('.ui-dialog-titlebar').find('button').removeClass('ui-dialog-titlebar-close').addClass('ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close').prepend('<span class="ui-button-icon ui-icon ui-icon-closethick"></span>').append('<span class="ui-button-icon-space"></span>');
+            }
+        });
+        $("#" + dialogDiv).dialog("open");
+    }   
+     function validateScriptLib(editor,fileBinId,jsonObj,editorName,scriptEdit){
+         querytypename = $("#queryType_" + editor).find('option:selected').text();
+        if($("#queryType_"+editor).val() == 1 ){
+            if(jsonObj == undefined || jsonObj == '[]'){
+                showMessage("Script Library can't be added.", "warn");
+                return false;
+            }else{
+             addNewScript(fileBinId,jsonObj,editorName,scriptEdit); 
+            }
+        }else{
+            addNewScript(fileBinId,jsonObj,editorName,scriptEdit);
+        }        
+    }
+     function valScriptLibOnchangeQueryType(value,editor,jsonObj){
+         var queryTypeval;
+         querytypename = $("#queryType_" + editor).find('option:selected').text();
+         if(editor == "uploadValidator"){
+             queryTypeval = queryTypeUploadval;
+         }else if(editor == "viewValidator"){
+             queryTypeval = queryTypeViewval;
+         } else{
+             queryTypeval = queryTypeDeleteval;
+         }
+         if($("#queryType_"+editor).val()){
+            if((jsonObj == undefined) == false && jsonObj != "[]"){
+                showMessage("Please remove the Script Library and save the changes.", "warn");
+                $("#queryType_"+editor).val(queryTypeval);
+                return false;
+            }else if(jsonObj == "[]"){
+                fileBinMaster.refreshEditorContent(value,'','');
+            }
+        }
+        fileBinMaster.refreshEditorContent(value,'','');
+    }
+   
 </script>

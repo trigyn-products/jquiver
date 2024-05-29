@@ -3,7 +3,7 @@ let defaultQueries = new Object();
 class FileBinMaster {
 
 	constructor() {
-		this.uploadValidator;
+		this.uploadValidato;
 		this.viewValidator;
 		this.deleteValidator;
 		this.fileConfigObj;
@@ -11,6 +11,9 @@ class FileBinMaster {
 
 	loadFinBinDetails = function() {
 		let context = this;
+		if(fileBinDisplayTexts == null){
+				 fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank");
+			}
 		loadDefaultTab("filebin-default-template", context.updateFileBinTemplate);
 		context.initializeFileSlider();
 		if (edit == 1) {
@@ -19,7 +22,6 @@ class FileBinMaster {
 			let defaultAdminRole = { "roleId": "ae6465b3-097f-11eb-9a16-f48e38ab9348", "roleName": "ADMIN" };
 			multiselect.setSelectedObject(defaultAdminRole);
 		}
-
 		require.config({ paths: { "vs": "../webjars/1.0/monaco/min/vs" }, waitSeconds: 120 });
 		require(["vs/editor/editor.main"], function() {
 			context.uploadValidator = monaco.editor.create(document.getElementById("uploadValidator"), {
@@ -149,7 +151,7 @@ class FileBinMaster {
 				}
 			});
 			context.uploadValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
+				typeOfActionWithIsEdit('file-upload-config', $("#savedAction").find("button"), $('#isEdit').val(), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 			});
 			context.uploadValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.uploadValidator, "uploadValidator_container", "uploadValidator");
@@ -236,7 +238,7 @@ class FileBinMaster {
 				}
 			});
 			context.viewValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
+				typeOfActionWithIsEdit('file-upload-config', $("#savedAction").find("button"), $('#isEdit').val(), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 			});
 			context.viewValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.viewValidator, "viewValidator_container", "viewValidator");
@@ -323,7 +325,7 @@ class FileBinMaster {
 				}
 			});
 			context.deleteValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, function() {
-				typeOfAction('file-upload-config', $("#savedAction").find("button"), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
+				typeOfActionWithIsEdit('file-upload-config', $("#savedAction").find("button"), $('#isEdit').val(), fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);
 			});
 			context.deleteValidator.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_M, function() {
 				resizeMonacoEditor(context.editor, "deleteValidator_container", "deleteValidator");
@@ -410,7 +412,7 @@ class FileBinMaster {
 		});
 	}
 
-	enableDisableValidator = function(editorVariableName) {
+	enableDisableValidator = function(editorVariableName,jsonObj) {
 		let context = this;
 		let editor = context[editorVariableName];
 		if ($("#" + editorVariableName + "_chkbox").prop("checked")) {
@@ -418,15 +420,30 @@ class FileBinMaster {
 			$("#" + editorVariableName + "_container").show();
 			editor.setValue($("#" + editorVariableName + "_query").text());
 			editor.updateOptions({ readOnly: false });
-			$("#queryType_" + editorVariableName).prop("disabled", false);
+			$("#queryType_" + editorVariableName).prop("disabled", false); 
 			$("#datasource_" + editorVariableName).prop("disabled", false);
+			$("#script_" + editorVariableName).prop("disabled", false);
+			
 		} else {
-			$("#" + editorVariableName + "_div").css("opacity", "0.4");
-			$("#" + editorVariableName + "_query").text(editor.getValue().toString());
-			editor.setValue("");
-			editor.updateOptions({ readOnly: true });
-			$("#queryType_" + editorVariableName).prop("disabled", true);
-			$("#datasource_" + editorVariableName).prop("disabled", true);
+			 if((jsonObj == undefined) == false && jsonObj != "[]"){
+                showMessage("Please remove the Script Library and save the changes.", "warn");
+                $("#" + editorVariableName + "_chkbox").prop('checked', true);
+                $("#script_" + editorVariableName).prop("disabled", false);
+				$("#" + editorVariableName + "_div").css("opacity", "0.4");
+				$("#" + editorVariableName + "_query").text(editor.getValue().toString());
+				editor.setValue("");
+				editor.updateOptions({ readOnly: false });
+				$("#queryType_" + editorVariableName).prop("disabled", false); 
+				$("#datasource_" + editorVariableName).prop("disabled", false);
+                return false;
+                }
+              	$("#" + editorVariableName + "_div").css("opacity", "0.4");
+				$("#" + editorVariableName + "_query").text(editor.getValue().toString());
+				editor.setValue("");
+				editor.updateOptions({ readOnly: true });
+             	$("#queryType_" + editorVariableName).prop("disabled", true);
+				$("#datasource_" + editorVariableName).prop("disabled", true);
+				$("#script_" + editorVariableName).prop("disabled", true);
 		}
 	}
 
@@ -464,7 +481,12 @@ class FileBinMaster {
 	saveData = function() {
 		let context = this;
 		let isDataSaved = false;
-
+		let scriptLibInsertUploadArr = new Array();
+		let scriptLibInsertViewArr = new Array();
+		let scriptLibInsertDeleteArr = new Array();
+		let scriptLibDeleteUploadArr = new Array();
+		let scriptLibDeleteViewArr = new Array();
+		let scriptLibDeleteArr = new Array();
 		context.updateFileSize();
 		context.prepareValidatorContent();
 		let isValidForm = context.validateForm();
@@ -479,9 +501,41 @@ class FileBinMaster {
 		$("#uploadValidator_query").val($("#uploadValidator_query").val());
 		$("#viewValidator_query").val($("#viewValidator_query").val());
 		$("#deleteValidator_query").val($("#deleteValidator_query").val());
-
+		
+		let form = $("#addEditForm");
+		
+		form.append('<input name="uploadScriptLibraryId" id="uploadScriptLibraryId" type="hidden" />');
+		form.append('<input name="viewScriptLibraryId" id="viewScriptLibraryId" type="hidden" />');
+		form.append('<input name="deleteScriptLibraryId" id="deleteScriptLibraryId" type="hidden" />');
+		form.append('<input name="scriptLibDeleteUpload" id="scriptLibDeleteUpload" type="hidden" />');
+		form.append('<input name="scriptLibDeleteView" id="scriptLibDeleteView" type="hidden" />');
+		form.append('<input name="scriptLibDelete" id="scriptLibDelete" type="hidden" />');
+		
+		let scriptLibInsertUpload = $('#inputscriptInsert_upload').val();
+		let scriptLibDeleteUpload = $('#inputscriptdelete_upload').val();
+		let scriptLibInsertView = $('#inputscriptInsert_view').val();
+		let scriptLibDeleteView = $('#inputscriptdelete_view').val();
+		let scriptLibInsertDelete = $('#inputscriptInsert_delete').val();
+		let scriptLibDelete = $('#inputscriptdelete_delete').val();
+		
+		scriptLibInsertUploadArr.push(scriptLibInsertUpload);
+		scriptLibInsertViewArr.push(scriptLibInsertView);
+		scriptLibInsertDeleteArr.push(scriptLibInsertDelete);
+		scriptLibDeleteUploadArr.push(scriptLibDeleteUpload);
+		scriptLibDeleteViewArr.push(scriptLibDeleteView);
+		scriptLibDeleteArr.push(scriptLibDelete);
+		
+		$("#uploadScriptLibraryId").val(JSON.stringify(scriptLibInsertUploadArr));
+		$("#viewScriptLibraryId").val(JSON.stringify(scriptLibInsertViewArr));
+		$("#deleteScriptLibraryId").val(JSON.stringify(scriptLibInsertDeleteArr));
+		$("#scriptLibDeleteUpload").val(JSON.stringify(scriptLibDeleteUploadArr));
+		$("#scriptLibDeleteView").val(JSON.stringify(scriptLibDeleteViewArr));
+		$("#scriptLibDelete").val(JSON.stringify(scriptLibDeleteArr));
+		
+	
 		if (isValidForm === true) {
-			let formData = $("#addEditForm").serialize() + "&formId=" + formId;
+		
+			let formData = $("#addEditForm").serialize() + "&formId=" + formId ;
 			if (edit === 1) {
 				formData = formData + "&edit=" + edit;
 			}
@@ -497,7 +551,12 @@ class FileBinMaster {
 					showMessage("Information saved successfully", "success");
 				},
 				error: function(xhr, error) {
-					showMessage("Error occurred while saving", "error");
+					if(xhr.status == 412){
+				       showMessage(fileBinDisplayTexts["jws.fileBinAlreadyExist"], "error");
+			        }
+				    else {
+					   showMessage("Error occurred while saving", "error");
+					}
 				},
 			});
 		}
@@ -509,7 +568,7 @@ class FileBinMaster {
 		let fileBinId = $("#fileBinId").val().trim();
 		let maxFileSize = $("#maxFileSize").val().trim();
 		let fileTypeSupported = $("#fileTypeSupported").val().trim();
-		if (fileBinId !== "" && maxFileSize !== "" && maxFileSize >= 1) {
+		if (fileBinId !== "" && fileTypeSupported !== "" && maxFileSize !== "" && maxFileSize >= 1) {
 			return true;
 		}
 		if (fileBinId === "") {
@@ -616,11 +675,20 @@ class FileBinMaster {
 			$("#dt-" + editorIndex).hide();
 			if(defaultQueries[editorIndex + "_script"]){
 				editor.setValue(defaultQueries[editorIndex + "_script"]);
-			}
-		} else {
+		} 
+		} else if(selectedOptionQueryType === "2"){
+			$("#dt-" + editorIndex).hide();
+			if(defaultQueries[editorIndex + "_python"]){
+				editor.setValue(defaultQueries[editorIndex + "_python"]);
+			} 
+		} else if(selectedOptionQueryType === "3"){
+			$("#dt-" + editorIndex).hide();
+			if(defaultQueries[editorIndex + "_php"]){
+				editor.setValue(defaultQueries[editorIndex + "_php"]);
+			} 
+		} else{
 			$("#dt-" + editorIndex).show();
 			editor.setValue(defaultQueries[editorIndex + "_query"]);
-			
 		}
 	}
 
@@ -633,5 +701,8 @@ class FileBinMaster {
 		}
 	}
 }
-
-
+var fileBinDisplayTexts = null;
+var querytypename = null;
+var queryTypeUploadval = null;
+var queryTypeViewval = null;
+var queryTypeDeleteval = null;

@@ -12,6 +12,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -27,6 +29,8 @@ import com.trigyn.jws.dynarest.vo.EmailXMLVO;
 import com.trigyn.jws.quartz.config.PersistableCronTriggerFactoryBean;
 
 public class JobUtil {
+	
+	private static Logger		LOGGER					= LogManager.getLogger(JobUtil.class);
 
 	/**
 	 * Create Quartz Job.
@@ -37,6 +41,7 @@ public class JobUtil {
 	 * @param  context   Spring application context.
 	 * @param  jobName   Job name.
 	 * @param  jobGroup  Job group.
+	 * @param  jobDataMap  Job Data Map.
 	 * 
 	 * @return           JobDetail object
 	 */
@@ -65,17 +70,18 @@ public class JobUtil {
 	 * 
 	 * @return                    Trigger
 	 */
-	public static Trigger createCronTrigger(String triggerName, Date startTime, String cronExpression,
+	public static Trigger createCronTrigger(String triggerName, String jobGroup, Date startTime, String cronExpression,
 			int misFireInstruction) {
 		PersistableCronTriggerFactoryBean factoryBean = new PersistableCronTriggerFactoryBean();
 		factoryBean.setName(triggerName);
+		factoryBean.setGroup(jobGroup);
 		factoryBean.setStartTime(startTime);
 		factoryBean.setCronExpression(cronExpression);
 		factoryBean.setMisfireInstruction(misFireInstruction);
 		try {
 			factoryBean.afterPropertiesSet();
-		} catch (ParseException e) {
-			e.printStackTrace();
+		} catch (ParseException pe) {
+			LOGGER.error("Error occured in executeSendMail.", pe.getCause());
 		}
 		return factoryBean.getObject();
 	}
@@ -90,10 +96,11 @@ public class JobUtil {
 	 * 
 	 * @return                    Trigger
 	 */
-	public static Trigger createSingleTrigger(String triggerName, Date startTime, int misFireInstruction) {
+	public static Trigger createSingleTrigger(String jobName, String triggerName, Date startTime, int misFireInstruction) {
 		SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-		factoryBean.setName(triggerName);
+		factoryBean.setName(jobName);
 		factoryBean.setStartTime(startTime);
+		factoryBean.setGroup(triggerName);
 		factoryBean.setMisfireInstruction(misFireInstruction);
 		factoryBean.setRepeatCount(0);
 		factoryBean.afterPropertiesSet();

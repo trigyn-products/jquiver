@@ -157,53 +157,69 @@ const showMessage = function(a_messageText, a_messageType) {
 const typeOfAction = function(formId, selectedButton, saveFunction, backFunction) {
 	let selectedButtonId = $(selectedButton).prop("id");
 	localStorage.setItem("jwsModuleAction", selectedButtonId);
-
+	let isEdit = 0;
+	if (selectedButtonId === "saveAndEdit") {
+	isEdit = 1
+}
 	if (saveFunction !== undefined || backFunction !== undefined) {
-		executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction);
+		executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction, isEdit);
 	} else {
-		executeCommonFunc(formId, selectedButtonId);
+		executeCommonFunc(formId, selectedButtonId, isEdit);
 	}
 }
 
-const executeDefinedFunc = function(formId, selectedButtonId, saveFunction, backFunction) {
+const typeOfActionWithIsEdit = function(formId, selectedButton, isEdit, saveFunction, backFunction) {
+	let selectedButtonId = $(selectedButton).prop("id");
+	localStorage.setItem("jwsModuleAction", selectedButtonId);
+
+	if (saveFunction !== undefined || backFunction !== undefined) {
+		_executeDefinedFunc(formId, selectedButtonId,saveFunction, backFunction, isEdit);
+	} else {
+		_executeCommonFunc(formId, selectedButtonId, isEdit);
+	}
+}
+
+const _executeDefinedFunc = function(formId, selectedButtonId, saveFunction, backFunction,isEdit) {
 	let isDataSaved;
 	if (selectedButtonId === "saveAndReturn") {
 		isDataSaved = saveFunction();
 		if (isDataSaved) {
 			backFunction();
 		} else {
-			savedAction(formId, 0);
+			savedAction(formId, isEdit);
 		}
 	} else if (selectedButtonId === "saveAndEdit") {
 		saveFunction();
-		savedAction(formId, 1);
+		savedAction(formId, isEdit);
 	} else if (selectedButtonId === "saveAndCreateNew") {
 		isDataSaved = saveFunction();
 		if (isDataSaved) {
 			resetForm(formId);
 		}
-		savedAction(formId, 0);
+		savedAction(formId, isEdit);
 	}
 }
 
-const executeCommonFunc = function(formId, selectedButtonId) {
+const _executeCommonFunc = function(formId, selectedButtonId,isEdit) {
 	let isDataSaved;
 	if (selectedButtonId === "saveAndReturn") {
 		isDataSaved = saveData();
 		if (isDataSaved) {
 			backToPreviousPage();
-		} else {
-			savedAction(formId, 0);
+		} else 
+		{
+				savedAction(formId, isEdit);
+					
 		}
 	} else if (selectedButtonId === "saveAndEdit") {
 		saveData();
-		savedAction(formId, 1);
-	} else if (selectedButtonId === "saveAndCreateNew") {
+		savedAction(formId, isEdit);
+	}else if (selectedButtonId === "saveAndCreateNew") {
 		isDataSaved = saveData();
 		if (isDataSaved) {
 			resetForm(formId);
 		}
-		savedAction(formId, 0);
+		savedAction(formId, isEdit);
 	}
 }
 
@@ -476,14 +492,12 @@ const getCookie = function(cname) {
 
 const changeLanguage = function() {
 	var localeId = $("#languageOptions").find(":selected").val();
-
 	$.ajax({
 		async: false,
 		type: "GET",
 		cache: false,
 		url: contextPath + "/cf/cl?lang=" + localeId,
 		success: function(data) {
-
 			setCookie("locale", localeId, 1);
 			location.reload();
 		}
@@ -517,7 +531,7 @@ const getLanguageOption = function() {
 			showMessage("Error occurred while getting language list", "error");
 		},
 	});
-
+  	
 }
 
 const copyGenericContent = function(contentComponentId) {
@@ -610,6 +624,10 @@ function changeType() {
 
 function deleteCookie(name) {
 	document.cookie = name + '=; Max-Age=-99999999;; path=/';
+}
+
+function clearCookie() {
+    document.cookie = "locale=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
 $(function () {

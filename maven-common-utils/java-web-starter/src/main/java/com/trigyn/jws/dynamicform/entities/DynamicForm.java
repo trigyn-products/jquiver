@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -72,6 +73,9 @@ public class DynamicForm {
 
 	@Column(name = "is_custom_updated")
 	private Integer						isCustomUpdated			= 1;
+	
+	@Transient
+	private String						scriptLibraryId			= null;
 
 	public DynamicForm() {
 
@@ -96,6 +100,30 @@ public class DynamicForm {
 		this.lastUpdatedTs			= lastUpdatedTs;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 		this.selectQueryType		= selectQueryType;
+	}
+
+	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
+			Integer formTypeId, String createdBy, Date createdDate, String datasourceId, String formSelectChecksum,
+			String formBodyChecksum, String lastUpdatedBy, Date lastUpdatedTs,
+			List<DynamicFormSaveQuery> dynamicFormSaveQueries, Integer selectQueryType, Integer isCustomUpdated,
+			String scriptLibraryId) {
+		this.formId = formId;
+		this.formName = formName;
+		this.formDescription = formDescription;
+		this.formSelectQuery = formSelectQuery;
+		this.formBody = formBody;
+		this.formTypeId = formTypeId;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.datasourceId = datasourceId;
+		this.formSelectChecksum = formSelectChecksum;
+		this.formBodyChecksum = formBodyChecksum;
+		this.lastUpdatedBy = lastUpdatedBy;
+		this.lastUpdatedTs = lastUpdatedTs;
+		this.dynamicFormSaveQueries = dynamicFormSaveQueries;
+		this.selectQueryType = selectQueryType;
+		this.isCustomUpdated = isCustomUpdated;
+		this.scriptLibraryId = scriptLibraryId;
 	}
 
 	public String getFormId() {
@@ -226,6 +254,14 @@ public class DynamicForm {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
+	public String getScriptLibraryId() {
+		return scriptLibraryId;
+	}
+
+	public void setScriptLibraryId(String scriptLibraryId) {
+		this.scriptLibraryId = scriptLibraryId;
+	}
+
 	public DynamicForm getObject(Boolean isImport) {
 		DynamicForm obj = new DynamicForm();
 		obj.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
@@ -242,6 +278,7 @@ public class DynamicForm {
 		obj.setLastUpdatedBy(lastUpdatedBy != null ? lastUpdatedBy.trim() : lastUpdatedBy);
 		obj.setLastUpdatedTs(lastUpdatedTs);
 		obj.setSelectQueryType(selectQueryType);
+		obj.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : scriptLibraryId);
 
 		List<DynamicFormSaveQuery> dfsOtr = new ArrayList<>();
 		if (dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {

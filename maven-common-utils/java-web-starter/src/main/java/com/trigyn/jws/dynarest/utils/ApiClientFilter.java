@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,19 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dynarest.cipher.utils.HttpServletRequestWritableWrapper;
+import com.trigyn.jws.dynarest.cipher.utils.HttpServletResponseReadableWrapper;
+import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
+import com.trigyn.jws.dynarest.entities.JqEncAlgModPadKeyLookup;
+import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
+import com.trigyn.jws.dynarest.repository.JqEncAlgLookupRepository;
+import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
+import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
+import com.trigyn.jws.dynarest.vo.RestApiDetails;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.IOUtils;
@@ -22,16 +36,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-
-import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
-import com.trigyn.jws.dbutils.service.PropertyMasterService;
-import com.trigyn.jws.dynarest.cipher.utils.HttpServletRequestWritableWrapper;
-import com.trigyn.jws.dynarest.cipher.utils.HttpServletResponseReadableWrapper;
-import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
-import com.trigyn.jws.dynarest.repository.IApiClientDetailsRepository;
-import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
-import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
-import com.trigyn.jws.dynarest.vo.RestApiDetails;
 
 @Component
 public class ApiClientFilter extends OncePerRequestFilter {
@@ -46,6 +50,9 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwsDynamicRestDetailService	jwsService					= null;
+	
+	@Autowired
+	private JqEncAlgLookupRepository	algLookupRepository			= null;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -173,21 +180,23 @@ public class ApiClientFilter extends OncePerRequestFilter {
 				}
 
 				String				decryptedRequestBody	= null;
+				
+				Optional<JqEncAlgModPadKeyLookup> algLookupData = algLookupRepository.findById(apiClientDetailsVO.getEncLookupId());
 
 				String				requestBody;
 				if ("GET".equalsIgnoreCase(httpServletRequest.getMethod()) == false) {
 					Map<String, String[]> extraParams = new TreeMap<String, String[]>();
-					HttpServletRequest wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
 					ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(httpServletRequest);
 					requestBody = wrappedRequest.getReader().lines()
 							.collect(Collectors.joining(System.lineSeparator()));
 
 					if (requestBody != null) {
 						if (requestBody.equals("") == false && apiClientDetailsVO != null) {
-							// System.out.println(requestBody);
+							//System.out.println("Request Body = "+requestBody);
+							JqEncAlgModPadKeyLookup algLookup = algLookupData.get();
 							decryptedRequestBody = CipherUtilFactory
-									.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-									.decrypt(requestBody, apiClientDetailsVO.getClientSecret());
+									.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+									.decrypt(requestBody, apiClientDetailsVO.getClientSecret(), algLookupData.get().getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName());
 						} else {
 							decryptedRequestBody = requestBody;
 						}
@@ -257,13 +266,15 @@ public class ApiClientFilter extends OncePerRequestFilter {
 								header.put(a_name, a_value);
 							}
 						};
+						HttpServletRequest wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
 						if (httpServletRequest.getParameterMap() != null) {
 							for (String requestParamKey : httpServletRequest.getParameterMap().keySet()) {
 								String[] value = new String[1];
+								JqEncAlgModPadKeyLookup algLookup = algLookupData.get();
 								value[0] = CipherUtilFactory
-										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
+										.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
 										.decrypt(httpServletRequest.getParameter(requestParamKey),
-												apiClientDetailsVO.getClientSecret());
+												apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 								
 								extraParams.put(requestParamKey, value);
 								wrappedParamRequest = new ParameterWrappedRequest(httpServletRequest, extraParams);
@@ -275,28 +286,29 @@ public class ApiClientFilter extends OncePerRequestFilter {
 
 						String encryptedResponseBody = "";
 						if(apiClientDetailsVO!=null) {
-							if (responseWrapper.getStatus() != 200) {
+							JqEncAlgModPadKeyLookup algLookup = algLookupData.get();
+							if (responseWrapper.getStatus() != 200 && algLookup != null) {
 								if (responseWrapper.getStatus() == 500) {
 									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-500", apiClientDetailsVO.getClientSecret());
+											.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+											.encrypt("JQ-500", apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 								} else if (responseWrapper.getStatus() == 403) {
 									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-403", apiClientDetailsVO.getClientSecret());
+											.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+											.encrypt("JQ-403", apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 								} else if (responseWrapper.getStatus() == 500) {
 									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-404", apiClientDetailsVO.getClientSecret());
+											.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+											.encrypt("JQ-404", apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 								}else if (responseWrapper.getStatus() == 302) {
 									encryptedResponseBody = CipherUtilFactory
-											.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-											.encrypt("JQ-302", apiClientDetailsVO.getClientSecret());
+											.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+											.encrypt("JQ-302", apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 								}
 							} else {
 								encryptedResponseBody = CipherUtilFactory
-										.getCipherUtil(apiClientDetailsVO.getEncryptionAlgorithmName())
-										.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret());
+										.getCipherUtil(algLookup.getJqEncryptionAlgorithmsLookup().getEncryptionAlgoName(), algLookup.getJqEncModeLookup().getModeName(), algLookup.getJqEncPaddLookup().getPaddingName(), algLookup.getJqEncKeyLengthLookup().getKeyLength())
+										.encrypt(responseWrapper.getResponseBody(), apiClientDetailsVO.getClientSecret(), apiClientDetailsVO.getEncryptionAlgorithmName());
 							}
 						}
 						
@@ -312,6 +324,9 @@ public class ApiClientFilter extends OncePerRequestFilter {
 				logger.debug("This should not have happened ==> ApiClientFilter.doFilterInternal() " + requestURL);
 				chain.doFilter(httpServletRequest, httpServletResponse);
 			}
+		} catch (CustomStopException custStopException) {
+			logger.error("Error occured in evalTemplateByContent for Stop Exception.", custStopException);
+	//		throw custStopException;
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 			logger.error("Inside ApiClientFilter - Error occurred while processing the request (Request URI: {}})",

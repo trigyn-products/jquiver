@@ -12,21 +12,9 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.Dashlet;
-import com.trigyn.jws.dashboard.entities.DashletProperties;
 import com.trigyn.jws.dashboard.service.DashletModule;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
@@ -41,15 +29,16 @@ import com.trigyn.jws.dbutils.vo.xml.XMLVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.service.DynamicFormModule;
-import com.trigyn.jws.dynarest.entities.ApiClientDetails;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.entities.JqApiClientDetails;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.repository.FileUploadRepository;
 import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.TemplateModule;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -81,8 +70,20 @@ import com.trigyn.jws.webstarter.xml.PropertyMasterXMLVO;
 import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
 import com.trigyn.jws.webstarter.xml.RoleXMLVO;
 import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
+import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional(readOnly = false)
@@ -293,6 +294,10 @@ public class ExportService {
 			return retrieveGridExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.GRID.getModuleType().toUpperCase()),
 					xmlVOMap.get(Constant.MasterModuleType.GRID.getModuleType().toLowerCase() + ".xml"));
+		} else if (moduleType.equals(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType())) {
+			return retrieveScriptLibraryExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
+					exportTableMap.get(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toUpperCase()),
+					xmlVOMap.get(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase() + ".xml"));
 		} else if (moduleType.equals(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType())) {
 			return retrieveRBExportData(systemConfigIncludeList, customConfigExcludeList, moduleType,
 					exportTableMap.get(Constant.MasterModuleType.RESOURCEBUNDLE.getModuleType().toUpperCase()),
@@ -599,6 +604,50 @@ public class ExportService {
 		return genericUserNotificationXMLVO;
 	}
 
+	private XMLVO retrieveScriptLibraryExportData(List<String> systemConfigIncludeList,
+			List<String> customConfigExcludeList, String moduleType,
+			List<String> exportedList, XMLVO xmlVO) throws Exception {
+		List<Object> exportableList = importExportCrudDAO.getAllExportableData(
+				CrudQueryStore.HQL_QUERY_TO_FETCH_SCRIPT_LIBRARY_DATA_FOR_EXPORT, null, null, customConfigExcludeList,
+				null);
+
+		validate(exportableList, exportedList, "ScriptLibrary");
+
+		ScriptLibraryXMLVO scriptLibraryXMLVO = (xmlVO == null) ? null
+				: (ScriptLibraryXMLVO) xmlVO;
+
+		if (exportableList != null && !exportableList.isEmpty()) {
+			scriptLibraryXMLVO = (scriptLibraryXMLVO == null) ? new ScriptLibraryXMLVO()
+					: scriptLibraryXMLVO;
+			for (Object obj : exportableList) {
+				if (!exportedList.contains(((ScriptLibraryDetails) obj).getScriptLibId())) {
+					throw new Exception("Data mismatch while exporting Script Library.");
+				}
+				
+				Map<String, Integer> positionMap = new HashMap<>();
+				if (scriptLibraryXMLVO != null
+						&& scriptLibraryXMLVO.getScriptLibraryDetails().isEmpty() == false) {
+					int counter = 0;
+					for (ScriptLibraryDetails scrlib : scriptLibraryXMLVO.getScriptLibraryDetails()) {
+						positionMap.put(scrlib.getScriptLibId(), counter);
+						counter = counter + 1;
+					}
+				}
+				ScriptLibraryDetails scrlib = ((ScriptLibraryDetails) obj).getObject();
+				if (positionMap.containsKey(scrlib.getScriptLibId())) {
+					List<ScriptLibraryDetails> moduleList = scriptLibraryXMLVO.getScriptLibraryDetails();
+							
+					int o = positionMap.get(scrlib.getScriptLibId());
+					moduleList.remove(o);
+					scriptLibraryXMLVO.setScriptLibraryDetails(moduleList);
+				}
+				scriptLibraryXMLVO.getScriptLibraryDetails().add(scrlib);
+			}
+			moduleListMap.put(moduleType, Constant.XML_EXPORT_TYPE);
+		}
+		return scriptLibraryXMLVO;
+	}
+	
 	private XMLVO retrieveFileManagerExportData(List<String> systemConfigIncludeList,
 			List<String> customConfigExcludeList, String downloadFolderLocation, String moduleType,
 			List<String> exportedList, XMLVO xmlVO) throws Exception {
@@ -646,6 +695,7 @@ public class ExportService {
 		return null;
 
 	}
+
 
 	private XMLVO downloadDynaRestExportData(List<String> systemConfigIncludeList, List<String> customConfigExcludeList,
 			String downloadFolderLocation, String moduleType, List<String> exportedList, XMLVO xmlVO) throws Exception {
@@ -1187,22 +1237,22 @@ public class ExportService {
 			apiClientDetailsXMLVO = (apiClientDetailsXMLVO == null) ? new ApiClientDetailsXMLVO()
 					: apiClientDetailsXMLVO;
 			for (Object obj : exportableList) {
-				if (!exportedList.contains(((ApiClientDetails) obj).getClientId())) {
+				if (!exportedList.contains(((JqApiClientDetails) obj).getClientId())) {
 					throw new Exception("Data mismatch while exporting Api Clients.");
 				}
 				
 				Map<String, Integer> positionMap = new HashMap<>();
 				if (apiClientDetailsXMLVO != null && apiClientDetailsXMLVO.getApiClientDetails().isEmpty() == false) {
 					int counter = 0;
-					for (ApiClientDetails apiClientDetails : apiClientDetailsXMLVO.getApiClientDetails()) {
+					for (JqApiClientDetails apiClientDetails : apiClientDetailsXMLVO.getApiClientDetails()) {
 						positionMap.put(apiClientDetails.getClientId(), counter);
 						counter = counter + 1;
 					}
 				}
 				
-				ApiClientDetails apiClientDetails = ((ApiClientDetails) obj).getObject();
+				JqApiClientDetails apiClientDetails = ((JqApiClientDetails) obj).getObject();
 				if (positionMap.containsKey(apiClientDetails.getClientId())) {
-					List<ApiClientDetails> moduleList = apiClientDetailsXMLVO.getApiClientDetails();
+					List<JqApiClientDetails> moduleList = apiClientDetailsXMLVO.getApiClientDetails();
 					int o = positionMap.get(apiClientDetails.getClientId());
 					moduleList.remove(o);
 					apiClientDetailsXMLVO.setApiClientDetails(moduleList);
@@ -1319,8 +1369,9 @@ public class ExportService {
 	/**
 	 * This Method gets entity permission by entityId and entityName.
 	 * 
-	 * @param request
-	 * @return List<JwsEntityRoleAssociation>
+	 * @param entityId entityId
+	 * @param moduleId moduleId
+	 * @return list of JwsEntityRoleAssociationVO
 	 */
 	public List<JwsEntityRoleAssociationVO> getEntityPermissions(String entityId, String moduleId) {
 		List<JwsEntityRoleAssociation> entityRoleAssociations = entityRoleAssociationRepository.getEntityRoles(entityId,

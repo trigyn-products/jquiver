@@ -87,6 +87,7 @@ public class FileController {
 		FileUploadConfigVO	fileUploadConfigVO	= objectMapper.readValue(modifiedContent, FileUploadConfigVO.class);
 		FileUploadConfig	fileUploadConfig	= fileUploadConfigService.convertFileUploadVOToEntity(fileUploadConfigVO);
 		fileUploadConfigService.saveFileUploadConfig(fileUploadConfig);
+		fileUploadConfigService.scriptLibSave(fileUploadConfig);
 	}
 
 	@PostMapping(value = "/gqc")

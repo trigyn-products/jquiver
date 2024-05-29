@@ -76,7 +76,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " SELECT tm.template_id as id, tm.template_name as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'Templates' as enityType"
 				+ " FROM jq_template_master tm LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = tm.template_id WHERE tm.template_type_id = 1 GROUP BY tm.template_id"
 				+ " UNION "
-				+ " SELECT rb.resource_key as id, rb.`text` as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'ResourceBundle' as enityType"
+				+ " SELECT rb.resource_key as id, replace(replace(rb.`text`, char(13),' '),char(10),' ')as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'ResourceBundle' as enityType"
 				+ " FROM jq_resource_bundle rb LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = rb.resource_key "
 				+ " WHERE rb.resource_key NOT LIKE 'jws.%' GROUP BY rb.resource_key" + " UNION "
 				+ " SELECT au.ac_id as id, au.ac_description as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'Autocomplete' as enityType"
@@ -117,7 +117,10 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " FROM jq_scheduler_view js WHERE js.schedulerTypeId = 1 GROUP BY js.scheduler_id"
 				+ " UNION "
 				+ " SELECT fu.file_upload_id as id, fu.original_file_name as name, '1.0' as versionID, 'Files' as enityType"
-				+ " FROM jq_file_upload fu "				
+				+ " FROM jq_file_upload fu "	
+				+ " UNION "
+				+ " SELECT jqsd.script_lib_id as id, jqsd.library_name as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'ScriptLibrary' as enityType"
+				+ " FROM jq_script_lib_details jqsd LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = jqsd.script_lib_id GROUP BY jqsd.script_lib_id"
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
@@ -147,6 +150,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view js WHERE js.schedulerTypeId = 1"
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
+				+ " UNION " + " SELECT COUNT(*) AS count, 'ScriptLibrary' AS enityType FROM jq_script_lib_details jqsl"
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);
@@ -166,10 +170,10 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " SELECT count(*) as totalCount, 'Permission' as enityType" + " FROM (SELECT jera.entity_role_id AS entityRoleId "
 				+ " FROM jq_entity_role_association AS jera LEFT OUTER JOIN jq_role AS jr ON jr.role_id = jera.role_id AND jr.is_active = 1 "
 				+ " LEFT OUTER JOIN jq_master_modules jmm ON jmm.module_id = jera.module_id "
-				+ " WHERE jera.is_active = 1 AND jera.module_type_id = 0) tableName " + " UNION "
+				+ " WHERE jera.is_active = 1 ) tableName " + " UNION "
 				+ " SELECT count(*) as totalCount, 'SiteLayout' as enityType" + " FROM jq_module_listing ml" + " UNION "
 				+ " SELECT count(*) as totalCount, 'ApplicationConfiguration' as enityType"
-				+ " FROM jq_property_master" + " UNION " + " SELECT count(*) as totalCount, 'ManageUsers' as enityType"
+				+ " FROM jq_property_master_listing_view" + " UNION " + " SELECT count(*) as totalCount, 'ManageUsers' as enityType"
 				+ " FROM jq_user" + " UNION " + " SELECT count(*) as totalCount, 'ManageRoles' as enityType"
 				+ " FROM jq_role" 
 				+ " UNION " + " SELECT count(*) as count, 'HelpManual' as enityType FROM jq_manual_type" 
@@ -177,6 +181,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view "
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'ScriptLibrary' AS enityType FROM jq_script_lib_details"
 				+ "";
 
 		return getJdbcTemplate().queryForList(querySQL);

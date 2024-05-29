@@ -61,6 +61,8 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
+import freemarker.core.StopException;
+
 @Component
 public class ScriptUtil {
 
@@ -916,7 +918,7 @@ public class ScriptUtil {
 		}
 	}
 
-	public final Object sendMail(String a_strMailXML) {
+	public final Object sendMail(String a_strMailXML) throws CustomStopException {
 		return sendMail(a_strMailXML, new HashMap<>());
 	}
 
@@ -934,11 +936,15 @@ public class ScriptUtil {
 		}
 	}
 
-	public final void logActivity(Map<String, String> requestParams) throws Exception {
+	public final void logActivity(Map<String, String> requestParams) throws Exception,CustomStopException {
 		if (null == requestParams) {
 			throw new RuntimeException("Parameters have not been provided");
 		}
-		activitylog.activitylog(requestParams);
+		try {
+			activitylog.activitylog(requestParams);
+		} catch (StopException stopException) {
+			throw new CustomStopException(stopException.getMessageWithoutStackTop());
+		}
 	}
 	
 	public final Map<String, String> sendError(Integer a_statuscode, String message) throws CustomStopException {
@@ -953,6 +959,7 @@ public class ScriptUtil {
 	}
 
 	public final String evalTemplateByName(String a_strTemplateName, Map<String, Object> a_requestParams) throws CustomStopException{
+
 		try {
 			TemplateVO templateVO = templatingService.getTemplateByName(a_strTemplateName);
 			
@@ -969,6 +976,7 @@ public class ScriptUtil {
 
 	public final String evalTemplateByContent(String a_strTemplateContent, Map<String, Object> a_requestParams) throws CustomStopException{
 		try {
+
 			return templatingUtils.processTemplateContents(a_strTemplateContent, "", ((null == a_requestParams) ? new HashMap<String, Object>() : a_requestParams));
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in evalTemplateByContent for Stop Exception.", custStopException);
@@ -981,7 +989,7 @@ public class ScriptUtil {
 	}
 
 	public final Map<String, String> convertToPDFFromTemplate(String a_strTemplateName,
-			Map<String, Object> a_contextValues, String a_strImageFolder) {
+			Map<String, Object> a_contextValues, String a_strImageFolder) throws CustomStopException {
 
 		return convertToPDFFromString(evalTemplateByName(a_strTemplateName, a_contextValues), a_strImageFolder);
 	}

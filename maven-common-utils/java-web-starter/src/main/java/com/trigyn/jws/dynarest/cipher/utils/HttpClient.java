@@ -8,9 +8,20 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.trigyn.jws.dbutils.cipher.utils.AESCipherUtil;
+import com.trigyn.jws.dbutils.cipher.utils.AESCipherUtilFactory;
+import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
+import com.trigyn.jws.dbutils.service.ApplicationContextProvider;
+import com.trigyn.jws.usermanagement.security.config.JwtUtil;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 public class HttpClient {
+	
+	
+	private static JwtUtil					jwtUtil					= ApplicationContextProvider.getBean(JwtUtil.class);
+
+	private static UserDetailsService		userDetailsService		= ApplicationContextProvider
+			.getBean(UserDetailsService.class);
 
 	public static void main(String[] args) {
 		try {
@@ -21,8 +32,8 @@ public class HttpClient {
 //			AESCipherUtil			cu					= new AESCipherUtil();
 //			String encryptedQS = cu.encrypt(null, "secret");
 //			requestURL = requestURL.concat(encryptedQS);
-			
-			executeRequest(null, requestURL);
+			//testSecurity();
+			//executeRequest(null, requestURL);
 		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -30,7 +41,9 @@ public class HttpClient {
 	}
 
 	public static final String executeRequest(String a_requestString, String requestURL) throws Throwable {
-		AESCipherUtil		cu					= new AESCipherUtil();
+		AESCipherUtilFactory		aesCu					= new AESCipherUtilFactory();
+		
+		String 				algorithm			= "AES/ECB/PKCS5Padding";
 
 		URL					url					= new URL(requestURL);
 
@@ -48,7 +61,8 @@ public class HttpClient {
 		OutputStream os = httpUrlConnection.getOutputStream();
 
 		if (a_requestString != null) {
-			String encryptedData = cu.encrypt(a_requestString, "secret");
+			//String encryptedData = cu.encrypt(a_requestString, "secret");
+			String encryptedData = CipherUtilFactory.getCipherUtil("AES", "ECB", "PKCS5Padding", 128).decrypt(a_requestString, "secret", algorithm);
 			os.write(encryptedData.getBytes());
 		}
 		os.flush();
@@ -67,5 +81,5 @@ public class HttpClient {
 		System.out.println(sb.toString());
 		return sb.toString();
 	}
-
+	
 }

@@ -1,1 +1,1 @@
-SELECT * FROM jq_property_master <#if propertyMasterId??> WHERE property_master_id = :propertyMasterId </#if>
+SELECT * FROM jq_property_master WHERE property_master_id = <#if propertyMasterId??> :propertyMasterId </#if>

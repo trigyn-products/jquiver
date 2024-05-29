@@ -427,7 +427,7 @@ public class JwsUserManagementController {
 			logger.error("Error occured while loading Manage Permission page.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {
-			logger.error("Error occured while loading manage-permission page.", a_exception);
+			logger.error("Error occured while loading Manage Permission page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}

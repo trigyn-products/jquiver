@@ -1,5 +1,6 @@
 package com.trigyn.jws.webstarter.service;
 
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,8 @@ import com.trigyn.jws.dynamicform.dao.IDynamicFormQueriesRepository;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.gridutils.dao.GridUtilsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.gridutils.utility.Constants;
@@ -58,62 +62,68 @@ import com.trigyn.jws.usermanagement.vo.JwsEntityRoleVO;
 public class MasterCreatorService {
 
 	@Autowired
-	private DynamicFormCrudDAO				dynamicFormDAO					= null;
+	private DynamicFormCrudDAO dynamicFormDAO = null;
 
 	@Autowired
-	private MenuService						menuService						= null;
+	private MenuService menuService = null;
 
 	@Autowired
-	private GridUtilsDAO					gridUtilsDAO					= null;
+	private GridUtilsDAO gridUtilsDAO = null;
 
 	@Autowired
-	private DynamicFormService				dynamicFormService				= null;
+	private DynamicFormService dynamicFormService = null;
 
 	@Autowired
-	private IDynamicFormQueriesRepository	dynamicFormQueriesRepository	= null;
+	private IDynamicFormQueriesRepository dynamicFormQueriesRepository = null;
 
 	@Autowired
-	private DBTemplatingService				dbTemplatingService				= null;
+	private DBTemplatingService dbTemplatingService = null;
 
 	@Autowired
-	private TemplatingUtils					templatingUtils					= null;
+	private TemplatingUtils templatingUtils = null;
 
 	@Autowired
-	private ModuleService					moduleService					= null;
+	private ModuleService moduleService = null;
 
 	@Autowired
-	private ResourceBundleService			resourceBundleService			= null;
+	private ResourceBundleService resourceBundleService = null;
 
 	@Autowired
-	private JwsMasterModulesRepository		jwsMasterModulesRepository		= null;
+	private JwsMasterModulesRepository jwsMasterModulesRepository = null;
 
 	@Autowired
-	private UserManagementService			userManagementService			= null;
+	private UserManagementService userManagementService = null;
 
 	@Autowired
-	private TemplateCrudService				templateCrudService				= null;
+	private TemplateCrudService templateCrudService = null;
 
 	@Autowired
-	private PropertyMasterService			propertyMasterService			= null;
+	private PropertyMasterService propertyMasterService = null;
 
 	@Autowired
-	private DynamicFormCrudService			dynamicFormCrudService			= null;
+	private DynamicFormCrudService dynamicFormCrudService = null;
 
 	@Autowired
-	private ResourceBundleDAO				resourceBundleDAO				= null;
+	private ResourceBundleDAO resourceBundleDAO = null;
 
 	@Autowired
-	private PropertyMasterDetails			propertyMasterDetails			= null;
+	private PropertyMasterDetails propertyMasterDetails = null;
 
 	@Autowired
-	private IUserDetailsService				detailsService					= null;
+	private IUserDetailsService detailsService = null;
 
 	@Autowired
-	private ActivityLog						activitylog						= null;
-	
-	private static final String				PRIMARY_KEY				= "PK";
-	
-	private final static Logger				logger					= LogManager.getLogger(MasterCreatorService.class);
+	private ActivityLog activitylog = null;
+
+	@Autowired
+	private FileUploadConfigService fileUploadConfigService = null;
+
+	private static final String PRIMARY_KEY = "PK";
+
+	private final static Logger logger = LogManager.getLogger(MasterCreatorService.class);
+
+	private static final String FILE_BIN_ID = "fileBinId";
+	private static final String TOGGLE_FILEBIN = "toggleFileBin";
 
 	public String getModuleDetails(HttpServletRequest httpServletRequest) throws Exception, CustomStopException {
 		try {
@@ -151,13 +161,12 @@ public class MasterCreatorService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Map<String, Object> initMasterCreationScript(MultiValueMap<String, String> inputDetails) throws Exception {
-		String				environment				= propertyMasterService.findPropertyMasterValue("system", "system",
-				"profile");
-		Map<String, Object>	createdMasterDetails	= new HashMap<>();
-		Map<String, Object>	formData				= processFormData(inputDetails.getFirst("formData"));
-		Integer				insideMenu				= formData.get("isMenuAddActive") == null ? 0
+		String environment = propertyMasterService.findPropertyMasterValue("system", "system", "profile");
+		Map<String, Object> createdMasterDetails = new HashMap<>();
+		Map<String, Object> formData = processFormData(inputDetails.getFirst("formData"));
+		Integer insideMenu = formData.get("isMenuAddActive") == null ? 0
 				: Integer.parseInt((String) formData.get("isMenuAddActive"));
-		ModuleDetailsVO		menuData				= new ModuleDetailsVO();
+		ModuleDetailsVO menuData = new ModuleDetailsVO();
 		if (insideMenu.equals(Constant.IS_INSIDE_MENU)) {
 			menuData = processMenu(inputDetails.getFirst("menuDetails"));
 		}
@@ -165,10 +174,10 @@ public class MasterCreatorService {
 		dynamicFormModuleDetails = processMenu(inputDetails.getFirst("dynamicFormModuleDetails"));
 		dynamicFormModuleDetails.setIsInsideMenu(Constant.IS_NOT_INSIDE_MENU);
 
-		DynamicForm			dynamicForm		= createDynamicFormDetails(inputDetails, formData, menuData.getModuleUrl(),
+		DynamicForm dynamicForm = createDynamicFormDetails(inputDetails, formData, menuData.getModuleUrl(),
 				inputDetails.get("dbProductName").toString());
 
-		Map<String, String>	requestParams	= logActivity();
+		Map<String, String> requestParams = logActivity();
 		requestParams.put("entityName", dynamicForm.getFormName());
 		requestParams.put("masterModuleType", Constants.Modules.DYNAMICFORM.getModuleName());
 		activitylog.activitylog(requestParams);
@@ -194,19 +203,54 @@ public class MasterCreatorService {
 		requestParams.put("entityName", dynamicFormModuleDetails.getModuleName());
 		requestParams.put("masterModuleType", Constants.Modules.MASTERGENERATOR.getModuleName());
 		activitylog.activitylog(requestParams);
+
+		// Saving File Bin if file Bin is selected
+		if (null!=formData.get(TOGGLE_FILEBIN).toString() && "1".equalsIgnoreCase(formData.get(TOGGLE_FILEBIN).toString())) {
+			String fileBinId = formData.get(FILE_BIN_ID).toString();
+			FileUploadConfig existingfileUploadConfig = fileUploadConfigService.getFileUploadConfigByBinId(fileBinId);
+			if (existingfileUploadConfig == null) {
+				FileUploadConfig fileUploadConfig = saveFileUploadConfigDetails(formData);
+				createdMasterDetails.put("fileUploadConfig", fileUploadConfig);
+				activitylog.activitylog(requestParams);
+			} else {
+				logger.error("Error in master.", fileBinId);
+				throw new RuntimeException(HttpStatus.PRECONDITION_FAILED.toString());
+			}
+
+		}
 		createdMasterDetails.put("dynamicForm", dynamicForm);
 		createdMasterDetails.put("gridDetails", gridDetails);
 		createdMasterDetails.put("templateMaster", templateMaster);
 		createdMasterDetails.put("menuData", menuData);
 		createdMasterDetails.put("dynamicFormModuleDetails", dynamicFormModuleDetails);
-		
 		return createdMasterDetails;
 	}
-	
-		public void downloadFiles(TemplateMaster templateMaster, DynamicForm dynamicForm) throws Exception {
-			templateCrudService.downloadTemplates(templateMaster.getTemplateId());
-			dynamicFormCrudService.downloadDynamicFormsTemplate(dynamicForm.getFormId());
+
+	private FileUploadConfig saveFileUploadConfigDetails(Map<String, Object> formData) throws Exception {
+		FileUploadConfig fileUploadConfig = new FileUploadConfig();
+		fileUploadConfig.setFileBinId(formData.get(FILE_BIN_ID).toString());
+		fileUploadConfig.setFileTypSupported(formData.get("fileTypeSupported").toString());
+		fileUploadConfig.setMaxFileSize(new BigDecimal(formData.get("maxFileSize").toString()));
+		fileUploadConfig.setNoOfFiles(Integer.parseInt(formData.get("noOfFiles").toString()));
+		fileUploadConfig.setIsDeleted(0);
+		fileUploadConfig.setLastUpdatedTs(new Date());
+		if (detailsService.getUserDetails().getFullName() != null) {
+			fileUploadConfig.setCreatedBy(detailsService.getUserDetails().getUserName());
+			fileUploadConfig.setLastUpdatedBy(detailsService.getUserDetails().getUserName());
+		} else {
+			logger.error("Error in user details, user details user name cannot be null",
+					detailsService.getUserDetails().getUserName());
+			throw new RuntimeException("Invalid user, can't create File Bin");
 		}
+		fileUploadConfig.setIsCustomUpdated(1);
+		fileUploadConfigService.saveFileUploadConfig(fileUploadConfig);
+		return fileUploadConfig;
+	}
+
+	public void downloadFiles(TemplateMaster templateMaster, DynamicForm dynamicForm) throws Exception {
+		templateCrudService.downloadTemplates(templateMaster.getTemplateId());
+		dynamicFormCrudService.downloadDynamicFormsTemplate(dynamicForm.getFormId());
+	}
 
 	/**
 	 * Purpose of this method is to log activities</br>
@@ -216,9 +260,9 @@ public class MasterCreatorService {
 	 * 
 	 */
 	private Map<String, String> logActivity() {
-		Map<String, String>	requestParams		= new HashMap<>();
-		UserDetailsVO		detailsVO			= detailsService.getUserDetails();
-		Date				activityTimestamp	= new Date();
+		Map<String, String> requestParams = new HashMap<>();
+		UserDetailsVO detailsVO = detailsService.getUserDetails();
+		Date activityTimestamp = new Date();
 		requestParams.put("action", Constants.Action.ADD.getAction());
 		requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 		requestParams.put("userName", detailsVO.getUserName());
@@ -254,13 +298,13 @@ public class MasterCreatorService {
 
 	@Transactional(readOnly = false)
 	public void saveEntityRolesForMasterGenerator(Map<String, Object> createdObjDetails, List<String> roleIds) {
-		DynamicForm		dynamicForm					= (DynamicForm) createdObjDetails.get("dynamicForm");
-		GridDetails		gridDetails					= (GridDetails) createdObjDetails.get("gridDetails");
-		TemplateMaster	templateMaster				= (TemplateMaster) createdObjDetails.get("templateMaster");
-		ModuleDetailsVO	menuData					= (ModuleDetailsVO) createdObjDetails.get("menuData");
-		ModuleDetailsVO	dynamicFormModuleDetails	= (ModuleDetailsVO) createdObjDetails
-				.get("dynamicFormModuleDetails");
-		JwsEntityRoleVO	jwsDynamicEntity			= new JwsEntityRoleVO();
+		DynamicForm dynamicForm = (DynamicForm) createdObjDetails.get("dynamicForm");
+		GridDetails gridDetails = (GridDetails) createdObjDetails.get("gridDetails");
+		TemplateMaster templateMaster = (TemplateMaster) createdObjDetails.get("templateMaster");
+		ModuleDetailsVO menuData = (ModuleDetailsVO) createdObjDetails.get("menuData");
+		ModuleDetailsVO dynamicFormModuleDetails = (ModuleDetailsVO) createdObjDetails.get("dynamicFormModuleDetails");
+		FileUploadConfig fileUploadConfig = (FileUploadConfig) createdObjDetails.get("fileUploadConfig");
+		JwsEntityRoleVO jwsDynamicEntity = new JwsEntityRoleVO();
 		jwsDynamicEntity.setEntityId(dynamicForm.getFormId());
 		jwsDynamicEntity.setEntityName(dynamicForm.getFormName());
 		jwsDynamicEntity.setRoleIds(roleIds);
@@ -313,15 +357,29 @@ public class MasterCreatorService {
 			jwsMenuEntity.setModuleId(menuModuleId);
 			userManagementService.deleteAndSaveEntityRole(jwsMenuEntity);
 		}
+		if (null != fileUploadConfig) {
+			if (StringUtils.isNotBlank(fileUploadConfig.getFileBinId())) {
+				JwsEntityRoleVO jwsFileBinEntity = new JwsEntityRoleVO();
+				jwsFileBinEntity.setEntityId(fileUploadConfig.getFileBinId());
+				jwsFileBinEntity.setEntityName(fileUploadConfig.getFileBinId());
+				jwsFileBinEntity.setRoleIds(roleIds);
+				String fileBinModuleId = jwsMasterModulesRepository
+						.findBymoduleName(com.trigyn.jws.usermanagement.utils.Constants.Modules.FILEBIN.getModuleName())
+						.getModuleId();
+				jwsFileBinEntity.setModuleId(fileBinModuleId);
+				userManagementService.deleteAndSaveEntityRole(jwsFileBinEntity);
+
+			}
+		}
 	}
 
 	private ModuleDetailsVO processMenu(String menuDetails) {
 
-		Gson			gson			= new Gson();
-		JsonParser		parser			= new JsonParser();
-		JsonObject		object			= (JsonObject) parser.parse(menuDetails);		// response will be the json
+		Gson gson = new Gson();
+		JsonParser parser = new JsonParser();
+		JsonObject object = (JsonObject) parser.parse(menuDetails); // response will be the json
 		// String
-		ModuleDetailsVO	moduleDetailsVO	= gson.fromJson(object, ModuleDetailsVO.class);
+		ModuleDetailsVO moduleDetailsVO = gson.fromJson(object, ModuleDetailsVO.class);
 		moduleDetailsVO.setIsInsideMenu(Constant.IS_INSIDE_MENU);
 		moduleDetailsVO.setIncludeLayout(Constant.INCLUDE_LAYOUT);
 
@@ -329,8 +387,8 @@ public class MasterCreatorService {
 	}
 
 	private Map<String, Object> processFormData(String formData) {
-		List<String>		masterDetails		= Lists.newArrayList(formData.split("&"));
-		Map<String, Object>	masterDetailsMap	= new HashMap<String, Object>();
+		List<String> masterDetails = Lists.newArrayList(formData.split("&"));
+		Map<String, Object> masterDetailsMap = new HashMap<String, Object>();
 		for (String details : masterDetails) {
 			String[] fieldDetails = details.split("=");
 			if (fieldDetails.length == 2) {
@@ -342,46 +400,53 @@ public class MasterCreatorService {
 
 	private DynamicForm createDynamicFormDetails(MultiValueMap<String, String> inputDetails,
 			Map<String, Object> formData, String moduleURL, String dbProductName) throws Exception {
-		String	tableName		= formData.get("selectTable").toString();
-		String	dataSourceId	= null;
+		String tableName = formData.get("selectTable").toString();
+		String dataSourceId = null;
 		if (formData.get("dataSourceId") != null) {
 			dataSourceId = formData.get("dataSourceId").toString();
 		}
 		String primaryKey = null;
-		if(formData.get("primaryKey").toString() != null) {
-			primaryKey			= formData.get("primaryKey").toString();
+		if (formData.get("primaryKey").toString() != null) {
+			primaryKey = formData.get("primaryKey").toString();
 		}
 		Boolean toggleCaptcha = false;
-		if(formData.get("toggleCaptcha").toString().equalsIgnoreCase("1")) {
+		String fileBinId = null;
+		String fileAssociationId = null;
+		Boolean toggleFileBin = false;
+		if (formData.get("toggleCaptcha").toString().equalsIgnoreCase("1")) {
 			toggleCaptcha = true;
 		}
-		String						moduleName			= formData.get("moduleName") + "-form";
-		String						description			= formData.get("moduleName") + " Form";
-		List<String>				formDetailsString	= new ObjectMapper()
-				.convertValue(inputDetails.get("formDetails"), List.class);
+		if (formData.get(TOGGLE_FILEBIN).toString().equalsIgnoreCase("1")) {
+			toggleFileBin = true;
+			fileBinId = formData.get(FILE_BIN_ID).toString();
+			fileAssociationId = primaryKey;
+		}
+		String moduleName = formData.get("moduleName") + "-form";
+		String description = formData.get("moduleName") + " Form";
+		List<String> formDetailsString = new ObjectMapper().convertValue(inputDetails.get("formDetails"), List.class);
 
-		String						jsonString			= formDetailsString.get(0).toString();
-		List<Map<String, Object>>	formDetails			= new ObjectMapper().readValue(jsonString, List.class);
+		String jsonString = formDetailsString.get(0).toString();
+		List<Map<String, Object>> formDetails = new ObjectMapper().readValue(jsonString, List.class);
 		for (Map<String, Object> map : formDetails) {
 			saveResourseKey(map);
 
 		}
-		String				selectQuery			= generateSelectQueryForForm(tableName, formDetails, primaryKey, dataSourceId);
-		Map<String, String>	dynamicFormDetails	= generateHtmlTemplate(dataSourceId, dbProductName, tableName,
-				formDetails, moduleURL, toggleCaptcha);
-		String				saveQuery			= dynamicFormDetails.get("save-template");
-		String				htmlTemplate		= dynamicFormDetails.get("form-template");
-		DynamicForm			dynamicForm			= new DynamicForm();
+		String selectQuery = generateSelectQueryForForm(tableName, formDetails, primaryKey, dataSourceId);
+		Map<String, String> dynamicFormDetails = generateHtmlTemplate(dataSourceId, dbProductName, tableName,
+				formDetails, moduleURL, toggleCaptcha, toggleFileBin, fileBinId, fileAssociationId);
+		String saveQuery = dynamicFormDetails.get("save-template");
+		String htmlTemplate = dynamicFormDetails.get("form-template");
+		DynamicForm dynamicForm = new DynamicForm();
 
-		if(detailsService.getUserDetails().getFullName()!= null) {
+		if (detailsService.getUserDetails().getFullName() != null) {
 			dynamicForm.setLastUpdatedBy(detailsService.getUserDetails().getUserName());
 			dynamicForm.setCreatedBy(detailsService.getUserDetails().getUserName());
-		}
-		else {
-			logger.error("Error in user details, user details user name cannot be null", detailsService.getUserDetails().getUserName());
+		} else {
+			logger.error("Error in user details, user details user name cannot be null",
+					detailsService.getUserDetails().getUserName());
 			throw new RuntimeException("Invalid user, can't create form");
 		}
-		
+
 		dynamicForm.setFormDescription(description);
 		dynamicForm.setFormSelectQuery(selectQuery);
 		dynamicForm.setFormBody(htmlTemplate);
@@ -402,8 +467,8 @@ public class MasterCreatorService {
 	}
 
 	private void saveResourseKey(Map<String, Object> map) throws Exception {
-		String	i18nResourceKey	= map.get("i18nResourceKey").toString();
-		String	displayName		= map.get("displayName").toString();
+		String i18nResourceKey = map.get("i18nResourceKey").toString();
+		String displayName = map.get("displayName").toString();
 		if (i18nResourceKey.isBlank() == false) {
 			Boolean keyAlreadyExist = resourceBundleService.checkResourceKeyExist(i18nResourceKey);
 			resourceBundleDAO.addResourceBundle(i18nResourceKey, Constant.DEFAULT_LANGUAGE_ID, displayName);
@@ -411,24 +476,24 @@ public class MasterCreatorService {
 	}
 
 	private Map<String, String> generateHtmlTemplate(String dataSourceId, String dbProductName, String tableName,
-			List<Map<String, Object>> formDetails, String moduleURL, Boolean toggleCaptcha) throws Exception {
-		List<Map<String, Object>>	tableDetails	= dynamicFormDAO.getTableDetailsByTableName(dataSourceId,
-				tableName);
+			List<Map<String, Object>> formDetails, String moduleURL, Boolean toggleCaptcha, Boolean toggleFileBin,
+			String fileBinId, String fileAssociationId) throws Exception {
+		List<Map<String, Object>> tableDetails = dynamicFormDAO.getTableDetailsByTableName(dataSourceId, tableName);
 
-		Iterator					itr				= tableDetails.iterator();
-		Set<String>					matchedColumns	= formDetails.stream()
-				.map(column -> column.get("column").toString()).collect(Collectors.toSet());
+		Iterator itr = tableDetails.iterator();
+		Set<String> matchedColumns = formDetails.stream().map(column -> column.get("column").toString())
+				.collect(Collectors.toSet());
 		// TODO :: Its a dead code need to check with adc/mini
 		while (itr.hasNext()) {
-			Map<String, Object>	columnDetails	= (Map<String, Object>) itr.next();
-			String				columnName		= columnDetails.get("tableColumnName").toString();
+			Map<String, Object> columnDetails = (Map<String, Object>) itr.next();
+			String columnName = columnDetails.get("tableColumnName").toString();
 			if (Boolean.FALSE.equals(matchedColumns.contains(columnName))) {
 				itr.remove();
 			} else {
 				for (Map<String, Object> formDetailsMap : formDetails) {
-					String	colName			= (String) formDetailsMap.get("column");
-					String	i18nResourceKey	= (String) formDetailsMap.get("i18nResourceKey");
-					String	displayName		= (String) formDetailsMap.get("displayName");
+					String colName = (String) formDetailsMap.get("column");
+					String i18nResourceKey = (String) formDetailsMap.get("i18nResourceKey");
+					String displayName = (String) formDetailsMap.get("displayName");
 					if (StringUtils.isNotBlank(colName) && colName.equals(columnName)) {
 						Boolean hiddenValue = (Boolean) formDetailsMap.get("hidden");
 						if (hiddenValue != null && hiddenValue.equals(true)) {
@@ -446,34 +511,33 @@ public class MasterCreatorService {
 			}
 		}
 		Map<String, String> templateDetails = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails,
-				moduleURL, dataSourceId, dbProductName, toggleCaptcha);
+				moduleURL, dataSourceId, dbProductName, toggleCaptcha, toggleFileBin, fileBinId, fileAssociationId);
 		return templateDetails;
 	}
 
 	private String generateSelectQueryForForm(String tableName, List<Map<String, Object>> formDetails,
 			String primaryKey, String dataSourceId) throws Exception {
-		StringBuilder	selectQuery	= new StringBuilder("SELECT ");
-		StringJoiner	columns		= new StringJoiner(",");
+		StringBuilder selectQuery = new StringBuilder("SELECT ");
+		StringJoiner columns = new StringJoiner(",");
 		for (Map<String, Object> details : formDetails) {
 			columns.add(details.get("column").toString());
 		}
-		selectQuery.append(columns.toString()).append(" FROM ").append(tableName);
-		StringJoiner	whereClause	= new StringJoiner(" AND ");
-		List<String>	primaryKeys	= Lists.newArrayList(primaryKey.split(","));
+		selectQuery.append(columns.toString()).append(" FROM ").append(tableName).append(" WHERE ");
+		StringJoiner whereClause = new StringJoiner(" AND ");
+		List<String> primaryKeys = Lists.newArrayList(primaryKey.split(","));
 		String value = null;
-		
-		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName,
-				dataSourceId);
+
+		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName, dataSourceId);
 		boolean isStringID = false;
 		for (Map<String, Object> info : tableDetails) {
-			if(info.get("columnType") == null) {
-				
+			if (info.get("columnType") == null) {
+
 				continue;
 			}
-			String	dataType	= info.get("dataType").toString();
-			String	columnKey	= info.get("columnKey").toString();
+			String dataType = info.get("dataType").toString();
+			String columnKey = info.get("columnKey").toString();
 			if (columnKey != null && columnKey.equals(PRIMARY_KEY)) {
-				if(dataType.equalsIgnoreCase("text")) {
+				if (dataType.equalsIgnoreCase("text")) {
 					isStringID = true;
 				}
 			}
@@ -481,12 +545,11 @@ public class MasterCreatorService {
 		String ifCond = null;
 		for (String key : primaryKeys) {
 			String coloumnName = key;
-			value = coloumnName + " = :" +  key.replaceAll("_", "");
-			ifCond = " <#if " + coloumnName + "??>";
-			selectQuery.append(ifCond).append(" WHERE ");
-			whereClause.add(value.replace("\\", "") + " </#if>");
+			ifCond = " <#if " + key.replaceAll("_", "") + "??>";
+			value = coloumnName + " = " + ifCond + " :" + key.replaceAll("_", "");
+			whereClause.add(value.replace("\\", "") + " <#else> 'null' </#if>");
 		}
-		
+
 		selectQuery.append(whereClause.toString());
 
 		return selectQuery.toString();
@@ -494,20 +557,19 @@ public class MasterCreatorService {
 
 	private GridDetails createGridDetailsInfo(Map<String, Object> formData) throws Exception {
 
-		UserDetailsVO	detailsVO				= detailsService.getUserDetails();
-		String			moduleName				= formData.get("moduleName") + "Grid".replaceAll("-", "");
-		String			description				= formData.get("moduleName") + " Listing";
-		String			tableName				= formData.get("selectTable").toString();
-		String			columns					= formData.get("columns").toString();
-		Date			date					= new Date();
-		String			dataSourceId			= formData.get("dataSourceId") == null ? null
-				: formData.get("dataSourceId").toString();
-		String			customFilterCriteria	= formData.get("customFilterCriteria") == null ? null
+		UserDetailsVO detailsVO = detailsService.getUserDetails();
+		String moduleName = formData.get("moduleName") + "Grid".replaceAll("-", "");
+		String description = formData.get("moduleName") + " Listing";
+		String tableName = formData.get("selectTable").toString();
+		String columns = formData.get("columns").toString();
+		Date date = new Date();
+		String dataSourceId = formData.get("dataSourceId") == null ? null : formData.get("dataSourceId").toString();
+		String customFilterCriteria = formData.get("customFilterCriteria") == null ? null
 				: formData.get("customFilterCriteria").toString();
 
-		GridDetails		details					= new GridDetails(moduleName, moduleName, description, tableName,
-				columns, Constants.queryImplementationType.VIEW.getType(), Constants.CUSTOM_GRID,
-				detailsVO.getUserName(), date, dataSourceId, customFilterCriteria, null, date);
+		GridDetails details = new GridDetails(moduleName, moduleName, description, tableName, columns,
+				Constants.queryImplementationType.VIEW.getType(), Constants.CUSTOM_GRID, detailsVO.getUserName(), date,
+				dataSourceId, customFilterCriteria, null, date);
 		return gridUtilsDAO.saveGridDetails(details);
 	}
 
@@ -572,9 +634,9 @@ public class MasterCreatorService {
 			throws Exception {
 		return dynamicFormDAO.getTableDetailsByTableName(additionalDataSourceId, tableName);
 	}
-	
+
 	public String getServerBaseURL(HttpServletRequest a_httpServletRequest) throws Exception {
-		String	baseURL	= propertyMasterDetails.getPropertyValueFromPropertyMaster("system", "system", "base-url");
+		String baseURL = propertyMasterDetails.getPropertyValueFromPropertyMaster("system", "system", "base-url");
 		if (StringUtils.isBlank(baseURL) == false && a_httpServletRequest.getContextPath().isBlank() == false) {
 			baseURL = baseURL + a_httpServletRequest.getContextPath();
 		}

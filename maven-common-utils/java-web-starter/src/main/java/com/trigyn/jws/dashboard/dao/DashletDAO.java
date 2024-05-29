@@ -18,7 +18,6 @@ import com.trigyn.jws.dashboard.entities.DashletPropertyConfiguration;
 import com.trigyn.jws.dashboard.entities.DashletRoleAssociation;
 import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dbutils.repository.DBConnection;
-import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 
 @Repository
 public class DashletDAO extends DBConnection {
@@ -87,7 +86,7 @@ public class DashletDAO extends DBConnection {
 
 	@SuppressWarnings({ "unchecked" })
 	public List<Object[]> getUserPreferences(String userId, String dashletId, String dashboardId) throws Exception {
-		String	sql		= "SELECT dp.id.propertyId AS property, COALESCE(dpc.propertyValue, dp.defaultValue) AS value "
+		String	sql		= "SELECT dp.id.propertyId AS property, COALESCE(dpc.propertyValue, dp.defaultValue) AS value, dp.validation AS validation "
 				+ " FROM DashletProperties dp LEFT OUTER JOIN DashletPropertyConfiguration dpc ON dp.id.propertyId = dpc.id.propertyId "
 				+ "AND dpc.id.userId=:userId  WHERE dp.isDeleted = 0 AND dp.dashletId = :dashletId AND dpc.id.dashboardId =:dashboardId ";
 
@@ -97,7 +96,7 @@ public class DashletDAO extends DBConnection {
 		query.setParameter("dashboardId", dashboardId);
 		return query.getResultList();
 	}
-
+	
 	@SuppressWarnings({ "unchecked" })
 	public List<Object[]> getUserDashletCoordinates(String userId, String dashletId, String dashboardId) throws Exception {
 		String	sql		= "SELECT COALESCE(dc.xCoordinate,dsh.xCoordinate) AS xCoordinate,COALESCE(dc.yCoordinate,dsh.yCoordinate) AS yCoordinate "

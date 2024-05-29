@@ -1,26 +1,36 @@
 package com.trigyn.jws.webstarter.service;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
-import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
+import com.trigyn.jws.usermanagement.security.config.JwtUtil;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 
 @Service
 @Transactional
@@ -42,10 +52,11 @@ public class DynarestCrudService {
 	private JwsDynarestDAO					dynarestDAO						= null;
 
 	@Autowired
-	private JwsDynamicRestDetailService		dynamicRestDetailService		= null;
-
+	private UserDetailsService				userDetailsService 				= null;
+	
 	@Autowired
-	private ModuleVersionService			moduleVersionService			= null;
+	private JwtUtil							jwtUtil 						= null;
+
 
 	public String getContentForDevEnvironment(String formName, String fileName) throws Exception {
 
@@ -68,7 +79,8 @@ public class DynarestCrudService {
 	}
 
 	@Transactional(readOnly = false)
-	public String saveDAOQueries(MultiValueMap<String, String> formData) throws Exception {
+	public String saveDAOQueries(MultiValueMap<String, String> formData,Integer sourceTypeId) throws Exception {
+		
 		String							dynarestUrl			= formData.getFirst("dynarestUrl");
 		String							dynarestMethodName	= formData.getFirst("dynarestMethodName");
 		String							daoDetailsIds		= formData.getFirst("daoDetailsIds");
@@ -76,7 +88,8 @@ public class DynarestCrudService {
 		String							queryType			= formData.getFirst("queryType");
 		String							daoQueryDetails		= formData.getFirst("daoQueryDetails");
 		String							datasourceDetails   = formData.getFirst("datasourceDetails");
-
+			
+		String 							entityid			= formData.getFirst("dynarestId");
 		String							dynamicRestId		= dynamicRestDetailsRepository
 				.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 
@@ -89,6 +102,7 @@ public class DynarestCrudService {
 		List<Integer>					queryTypeList		= objectMapper.readValue(queryType, listOfInteger);
 		List<String>					daoQueryDetailsList	= objectMapper.readValue(daoQueryDetails, List.class);
 		List<String>					datasourceDetailsList	= objectMapper.readValue(datasourceDetails, List.class);
+		
 		if (!StringUtils.isBlank(daoDetailsIds)) {
 			daoDetailsIdList = new ObjectMapper().readValue(daoDetailsIds, listOfInteger);
 		}
@@ -108,17 +122,14 @@ public class DynarestCrudService {
 				dynamicRestDaoDetail.setDatasourceId(datasourceDetailsList.get(counter));
 				dynamicRestDaoDetail.setJwsQuerySequence(counter + 1);
 				dynamicRestDaoDetailsList.add(dynamicRestDaoDetail);
-
 			}
 			dynamicRestDAORepository.saveAll(dynamicRestDaoDetailsList);
 		}
-
 		return dynamicRestId;
-
 	}
 
 	@Transactional(readOnly = false)
-	public void deleteDAOQueries(MultiValueMap<String, String> formData) throws Exception {
+	public void deleteDAOQueries(MultiValueMap<String, String> formData,Integer sourceTypeId) throws Exception {
 		String							dynarestUrl			= formData.getFirst("dynarestUrl");
 		String							dynarestMethodName	= formData.getFirst("dynarestMethodName");
 		String							daoDetailsIds		= formData.getFirst("daoDetailsIds");
@@ -129,9 +140,9 @@ public class DynarestCrudService {
 		if (!StringUtils.isBlank(daoDetailsIds)) {
 			daoDetailsIdList = objectMapper.readValue(daoDetailsIds, listOfInteger);
 		}
-
 		String dynamicRestId = dynamicRestDetailsRepository.findByJwsDynamicRestId(dynarestUrl, dynarestMethodName);
 		dynarestDAO.deleteDAOQueriesById(dynamicRestId, daoDetailsIdList);
 	}
-
+	
+	
 }

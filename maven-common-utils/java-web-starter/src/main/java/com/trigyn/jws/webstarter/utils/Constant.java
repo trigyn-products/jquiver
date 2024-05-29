@@ -36,7 +36,7 @@ public final class Constant {
 
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
-		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm");
+		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm"),SCRIPTLIBRARY("scriptlibrary");
 
 		final String moduleType;
 
@@ -55,7 +55,7 @@ public final class Constant {
 		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
-		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files");
+		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("ScriptLibrary");
 
 		final String moduleType;
 
@@ -74,7 +74,7 @@ public final class Constant {
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
 		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
 		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),
-		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files");
+		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details");
 
 		final String tableName;
 
@@ -99,4 +99,6 @@ public final class Constant {
 
 	public static final Integer	INCLUDE_LAYOUT						= 1;
 	public static final Integer	EXCLUDE_LAYOUT						= 0;
+	public static final String	DYNA_REST_MOD_ID					= "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
+	public static final String	DYNAFORM_MOD_ID						= "30a0ff61-0ecf-11eb-94b2-f48e38ab9348";
 }

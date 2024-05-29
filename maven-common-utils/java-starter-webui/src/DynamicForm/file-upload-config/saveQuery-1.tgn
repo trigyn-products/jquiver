@@ -1,40 +1,105 @@
-<#if (formData?api.getFirst("edit"))?has_content>
-    UPDATE jq_file_upload_config SET 
-    file_type_supported = :fileTypeSupported
-    ,max_file_size = :maxFileSize
-    ,no_of_files = :noOfFiles
-    ,upload_query_content = <#if formData?api.getFirst("uploadValidator_query")?? && formData?api.getFirst("uploadValidator_query")?has_content>:uploadValidator_query<#else>NULL</#if>
-    ,view_query_content = <#if formData?api.getFirst("viewValidator_query")?? && formData?api.getFirst("viewValidator_query")?has_content>:viewValidator_query<#else>NULL</#if>
-    ,delete_query_content = <#if formData?api.getFirst("deleteValidator_query")?? && formData?api.getFirst("deleteValidator_query")?has_content>:deleteValidator_query<#else>NULL</#if>
-    ,last_updated_by = :loggedInUserName
-    ,last_updated_ts = NOW() 
-    ,is_deleted = 0
-   ,is_custom_updated = 1
-	,upload_query_type = <#if formData?api.getFirst("queryType_uploadValidator")?? && formData?api.getFirst("queryType_uploadValidator")?has_content>:queryType_uploadValidator<#else>NULL</#if>
-	,view_query_type = <#if formData?api.getFirst("queryType_viewValidator")?? && formData?api.getFirst("queryType_viewValidator")?has_content>:queryType_viewValidator<#else>NULL</#if>
-	,delete_query_type = <#if formData?api.getFirst("queryType_deleteValidator")?? && formData?api.getFirst("queryType_deleteValidator")?has_content>:queryType_deleteValidator<#else>NULL</#if>
-	,datasource_upload_validator = <#if formData?api.getFirst("datasource_uploadValidator")?? && formData?api.getFirst("datasource_uploadValidator")?has_content>:datasource_uploadValidator<#else>NULL</#if>
-	,datasource_view_validator = <#if formData?api.getFirst("datasource_viewValidator")?? && formData?api.getFirst("datasource_viewValidator")?has_content>:datasource_viewValidator<#else>NULL</#if>
-	,datasource_delete_validator = <#if formData?api.getFirst("datasource_deleteValidator")?? && formData?api.getFirst("datasource_deleteValidator")?has_content>:datasource_deleteValidator<#else>NULL</#if>
+var System      = Java.type("java.lang.System");
+var HashMap     = Java.type("java.util.HashMap");
 
-	
-    WHERE file_bin_id = :fileBinId
-<#else>
-    INSERT INTO jq_file_upload_config (file_bin_id, file_type_supported, max_file_size, no_of_files, upload_query_content, view_query_content, delete_query_content, is_deleted, created_by, created_date, last_updated_ts, upload_query_type, view_query_type, delete_query_type, datasource_upload_validator, datasource_view_validator, datasource_delete_validator,is_custom_updated) 
-    VALUES (:fileBinId,:fileTypeSupported
-    , :maxFileSize,:noOfFiles
-    , <#if formData?api.getFirst("uploadValidator_query")?? && formData?api.getFirst("uploadValidator_query")?has_content>:uploadValidator_query<#else>NULL</#if>
-    , <#if formData?api.getFirst("viewValidator_query")?? && formData?api.getFirst("viewValidator_query")?has_content>:viewValidator_query<#else>NULL</#if>
-    , <#if formData?api.getFirst("deleteValidator_query")?? && formData?api.getFirst("deleteValidator_query")?has_content>:deleteValidator_query<#else>NULL</#if>
-    ,0,:loggedInUserName,NOW(),NOW()
-	
-	, <#if formData?api.getFirst("queryType_uploadValidator")?? && formData?api.getFirst("queryType_uploadValidator")?has_content>:queryType_uploadValidator<#else>NULL</#if>
-	, <#if formData?api.getFirst("queryType_viewValidator")?? && formData?api.getFirst("queryType_viewValidator")?has_content>:queryType_viewValidator<#else>NULL</#if>
-	, <#if formData?api.getFirst("queryType_deleteValidator")?? && formData?api.getFirst("queryType_deleteValidator")?has_content>:queryType_deleteValidator<#else>NULL</#if>
-	
-	, <#if formData?api.getFirst("datasource_uploadValidator")?? && formData?api.getFirst("datasource_uploadValidator")?has_content>:datasource_uploadValidator<#else>NULL</#if>
-	, <#if formData?api.getFirst("datasource_viewValidator")?? && formData?api.getFirst("datasource_viewValidator")?has_content>:datasource_viewValidator<#else>NULL</#if>
-	, <#if formData?api.getFirst("datasource_deleteValidator")?? && formData?api.getFirst("datasource_deleteValidator")?has_content>:datasource_deleteValidator<#else>NULL</#if>
-	, 1
-	)
-</#if>
+function saveFileDetails(){
+    var map         = new HashMap();
+    var script      = "";
+    var entityId    = "";
+    var scriptId    = "";
+    map.put('fileBinId', requestDetails.fileBinId);
+    map.put('fileTypeSupported', requestDetails.fileTypeSupported);
+    map.put('maxFileSize', requestDetails.maxFileSize);
+    map.put('noOfFiles', requestDetails.noOfFiles);
+
+    if(requestDetails.uploadValidator_query[0] != '' && requestDetails.uploadValidator_query[0] != 'null'){
+         map.put('queryType_uploadValidator', requestDetails.queryType_uploadValidator);
+         map.put('uploadValidator_query', requestDetails.uploadValidator_query);
+       
+    } else{
+        map.put('queryType_uploadValidator', null);
+        map.put('uploadValidator_query', null);
+    }  
+    if(requestDetails.viewValidator_query[0] != ''  && requestDetails.viewValidator_query[0] != 'null' ){
+        map.put('queryType_viewValidator', requestDetails.queryType_viewValidator);      
+        map.put('viewValidator_query', requestDetails.viewValidator_query);
+    } else{
+        map.put('queryType_viewValidator', null);
+        map.put('viewValidator_query', null);
+    }
+    if(requestDetails.deleteValidator_query[0] != '' && requestDetails.deleteValidator_query[0] != 'null'){
+        map.put('queryType_deleteValidator', requestDetails.queryType_deleteValidator);
+        map.put('deleteValidator_query', requestDetails.deleteValidator_query);
+        map.put('scriptlibid', "delete_"+requestDetails.scriptlibid); 
+    } else{
+        map.put('queryType_deleteValidator', null);
+        map.put('deleteValidator_query', null);
+    }
+    if(requestDetails.datasource_uploadValidator != '' && requestDetails.datasource_uploadValidator != null && requestDetails.datasource_uploadValidator != undefined){
+        map.put('datasource_uploadValidator', requestDetails.datasource_uploadValidator);
+    } else{
+        map.put('datasource_uploadValidator', null);
+    }
+
+    if(null != requestDetails.datasource_viewValidator && "" != requestDetails.datasource_viewValidator && undefined != requestDetails.datasource_viewValidator[0]){
+        map.put('datasource_viewValidator', requestDetails.datasource_viewValidator);
+    } else{
+        map.put('datasource_viewValidator', null);     
+    }
+    if(null != requestDetails.datasource_deleteValidator && "" != requestDetails.datasource_deleteValidator && undefined != requestDetails.datasource_deleteValidator){
+        map.put('datasource_deleteValidator', requestDetails.datasource_deleteValidator);
+    } else{
+        map.put('datasource_deleteValidator', null);
+    }
+    
+    map.put('createdby', requestDetails["loggedInUserName"]);  
+    map.put('last_updated_by', requestDetails["loggedInUserName"]);
+    map.put('updatedby', requestDetails["loggedInUserName"]);
+   
+     
+if(requestDetails.isEdit != "" && requestDetails.isEdit[0] == 1){   
+    jq_updateDBQuery('UPDATE jq_file_upload_config SET file_type_supported = :fileTypeSupported,max_file_size = :maxFileSize,no_of_files = :noOfFiles,upload_query_content = :uploadValidator_query,view_query_content = :viewValidator_query,delete_query_content = :deleteValidator_query,last_updated_by = :updatedby,last_updated_ts = NOW() ,is_deleted = 0,is_custom_updated = 1,upload_query_type = :queryType_uploadValidator,view_query_type = :queryType_viewValidator,delete_query_type = :queryType_deleteValidator,datasource_upload_validator = :datasource_uploadValidator,datasource_view_validator = :datasource_viewValidator,datasource_delete_validator = :datasource_deleteValidator WHERE file_bin_id = :fileBinId',null, map); 
+} else{
+    jq_updateDBQuery('INSERT INTO jq_file_upload_config (file_bin_id, file_type_supported, max_file_size, no_of_files, upload_query_content, view_query_content, delete_query_content, is_deleted, created_by, created_date, last_updated_ts, upload_query_type, view_query_type, delete_query_type, datasource_upload_validator, datasource_view_validator, datasource_delete_validator,is_custom_updated) VALUES (:fileBinId,:fileTypeSupported, :maxFileSize,:noOfFiles, :uploadValidator_query, :viewValidator_query, :deleteValidator_query,0,:createdby,NOW(),NOW(), :queryType_uploadValidator, :queryType_viewValidator, :queryType_deleteValidator, :datasource_uploadValidator, :datasource_viewValidator, :datasource_deleteValidator, 1)', null, map);
+        
+    }
+     if(null != requestDetails.uploadScriptLibraryId && "" != requestDetails.uploadScriptLibraryId && undefined != requestDetails.uploadScriptLibraryId[0] && '[""]' != requestDetails.uploadScriptLibraryId[0]){
+        saveDeleteScriptLibDetails(requestDetails.uploadScriptLibraryId[0],"upload_"+requestDetails.fileBinId[0],"save");
+    }
+     if(null != requestDetails.viewScriptLibraryId && "" != requestDetails.viewScriptLibraryId && undefined != requestDetails.viewScriptLibraryId[0] && '[""]' != requestDetails.viewScriptLibraryId[0]){
+         saveDeleteScriptLibDetails(requestDetails.viewScriptLibraryId[0],"view_"+requestDetails.fileBinId[0],"save");
+    }
+    if(null != requestDetails.deleteScriptLibraryId && "" != requestDetails.deleteScriptLibraryId && undefined != requestDetails.deleteScriptLibraryId[0] && '[""]' != requestDetails.deleteScriptLibraryId[0]){
+         saveDeleteScriptLibDetails(requestDetails.deleteScriptLibraryId[0],"delete_"+requestDetails.fileBinId[0],"save");
+    }
+     if(null != requestDetails.scriptLibDeleteUpload && "" != requestDetails.scriptLibDeleteUpload && undefined != requestDetails.scriptLibDeleteUpload[0] && '[""]' != requestDetails.scriptLibDeleteUpload[0]){
+         saveDeleteScriptLibDetails(requestDetails.scriptLibDeleteUpload[0],"upload_"+requestDetails.fileBinId[0],"delete");
+    }
+     if(null != requestDetails.scriptLibDeleteView && "" != requestDetails.scriptLibDeleteView && undefined != requestDetails.scriptLibDeleteView[0] && '[""]' != requestDetails.scriptLibDeleteView[0]){
+         saveDeleteScriptLibDetails(requestDetails.scriptLibDeleteView[0],"view_"+requestDetails.fileBinId[0],"delete");
+    }
+     if(null != requestDetails.scriptLibDelete && "" != requestDetails.scriptLibDelete && undefined != requestDetails.scriptLibDelete[0] && '[""]' != requestDetails.scriptLibDelete[0]){
+         saveDeleteScriptLibDetails(requestDetails.scriptLibDelete[0],"delete_"+requestDetails.fileBinId[0],"delete");
+    }
+}
+function saveDeleteScriptLibDetails(scriptLibId,entityId,type){
+  
+    if(scriptLibId != '[""]'){
+        var scriptlibID = JSON.parse(scriptLibId);     
+        for(var iScrLibIdCounter = 0; iScrLibIdCounter<scriptlibID.length; iScrLibIdCounter++){
+            var scriptLibID = scriptlibID[iScrLibIdCounter].split(',');       
+            for(var iScrlibIdCounter = 0; iScrlibIdCounter < scriptLibID.length; iScrlibIdCounter++){
+                var scriptId = scriptLibID[iScrlibIdCounter].split(',');
+                if(type == "save"){
+                    var map = new HashMap();
+                    map.put('createdby', requestDetails["loggedInUserName"]);  
+                    map.put('updatedby', requestDetails["loggedInUserName"]);
+                    map.put('moduletypeid', '248ffd91-7760-11eb-94ed-f48e38ab8cd7');  
+                    jq_updateDBQuery('INSERT INTO jq_script_lib_connect (script_lib_conn_id,script_lib_id,module_type_id,entity_id,created_by,updated_by,updated_date,is_custom_updated) VALUES (UUID(),"'+scriptId+'",:moduletypeid,"'+entityId+'",:createdby,:updatedby,NOW(),1)', null, map);
+                } else{
+                        jq_updateDBQuery("delete from jq_script_lib_connect where entity_id='"+entityId+"' and script_lib_id =  '"+scriptId+"'", null, null);
+                }
+            }
+        }
+    }
+}
+saveFileDetails();

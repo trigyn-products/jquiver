@@ -345,7 +345,8 @@ public class ModuleDetailsVO implements Serializable {
 	public void setMenuStyle(String menuStyle) {
 		this.menuStyle = menuStyle;
 	}
-	/** Added for isHomePage*/
+	
+	// Added for isHomePage
 	public Integer getIsHomePage() {
 		return isHomePage;
 	}
@@ -353,5 +354,5 @@ public class ModuleDetailsVO implements Serializable {
 	public void setIsHomePage(Integer isHomePage) {
 		this.isHomePage = isHomePage;
 	}
-	/**Ends Here*/
+	// Ends Here
 }

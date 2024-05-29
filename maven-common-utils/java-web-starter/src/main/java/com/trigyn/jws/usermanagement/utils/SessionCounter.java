@@ -19,7 +19,7 @@ public final class SessionCounter implements HttpSessionListener {
 	public static final String		COUNTER				= "session-counter";
 
 	public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-		logger.info("SessionCounter.sessionCreated");
+		logger.debug("SessionCounter.sessionCreated");
 		String		jqUserId	= UUID.randomUUID().toString();
 		HttpSession	httpSession	= httpSessionEvent.getSession();
 		httpSession.getServletContext().setAttribute("jqUserId", jqUserId);
@@ -27,17 +27,17 @@ public final class SessionCounter implements HttpSessionListener {
 		synchronized (httpSessionVector) {
 			httpSessionVector.add(jqUserId);
 		}
-		logger.info("After session created. jqUserId{}:- httpSessionVectorSize:{}- ", jqUserId, httpSessionVector.size());
+		logger.debug("After session created. jqUserId{}:- httpSessionVectorSize:{}- ", jqUserId, httpSessionVector.size());
 	}
 
 	public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-		logger.info("SessionCounter.sessionDestroyed");
+		logger.debug("SessionCounter.sessionDestroyed");
 		HttpSession	httpSession	= httpSessionEvent.getSession();
 		String		jqUserId	= (String) httpSession.getServletContext().getAttribute("jqUserId");
 		synchronized (httpSessionVector) {
 			httpSessionVector.remove(jqUserId);
 		}
-		logger.info("After session destroyed. jqUserId{}:- httpSessionVectorSize:{}- ", jqUserId, httpSessionVector.size());
+		logger.debug("After session destroyed. jqUserId{}:- httpSessionVectorSize:{}- ", jqUserId, httpSessionVector.size());
 	}
 
 	public int getActiveSessionCount() {

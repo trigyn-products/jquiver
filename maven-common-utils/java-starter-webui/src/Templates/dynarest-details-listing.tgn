@@ -53,6 +53,13 @@
                     </button>
                 </span>    		     
 
+                
+                <span class="iconscover spacingclss">
+                 <button type='button' onclick="location.href='${contextPath}/view/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="Add Script Library">
+                    </button>
+                </span>   
+                
+                
                  <button type="submit" class="btn btn-primary spacingclss">
                         ${messageSource.getMessage('jws.addrestapi')}
                 </button>
@@ -87,7 +94,7 @@
 document.title = "Dynamic REST API Module List";
 contextPath = "${(contextPath)!''}";
 let requestType = [{"": "All"}];
-let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}, {"3": "Javascript"}];
+let platformValues = [{"": "All"}, {"1": "Java"}, {"2": "FTL"}, {"3": "Javascript"}, {"4": "Python"}, {"5": "PHP"}];
 $(function () {
 		$("#typeSelect").each(function () {
 	        $(this).val($(this).find("option[selected]").val());

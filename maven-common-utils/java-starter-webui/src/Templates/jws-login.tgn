@@ -126,9 +126,6 @@ $(document).ready(function(){
 						</#list>
 						</div>					
 					</div>
-					<#if ((oAuthExist)?? && oAuthExist) && ((daoAuth)?? && daoAuth) || ((oAuth)?? && oAuth)>
-						<div class="orsing">Or sign up with</div> 
-					</#if>				
 					<#list activeAutenticationDetails as authType> 
 							<#if (authType)?? && authType?has_content> 
 								<#assign loginAttributes=authType?api.getLoginAttributes()> 

@@ -1,5 +1,5 @@
 <#if isEdit == 1>
-    UPDATE jq_api_client_details SET client_name = :clientname,client_key = :clientkey,client_secret = :clientsecret,encryption_algo_id = :encryptionalgoid,updated_by = :loggedInUserName,created_by = :loggedInUserName,updated_date = NOW(), client_public_key=:publicKey, is_custom_updated=1 WHERE client_id = :clientid
-    <#else>
+	UPDATE jq_api_client_details SET client_name = :clientname,client_key = :clientkey,client_secret = :clientsecret,encryption_algo_id = :encryptionalgoid,updated_by = :loggedInUserName,created_by = :loggedInUserName,updated_date = NOW(), client_public_key=:publicKey, is_custom_updated=1 WHERE client_id = :clientid
+<#else>
     INSERT INTO jq_api_client_details (client_id,client_name,client_key,client_secret,encryption_algo_id,updated_by,created_by,updated_date,client_public_key, is_custom_updated) VALUES (UUID(),:clientname,:clientkey,:clientsecret,:encryptionalgoid,:loggedInUserName,:loggedInUserName,NOW(),:publicKey, 1)
-    </#if>
+</#if>

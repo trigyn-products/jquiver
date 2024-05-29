@@ -79,15 +79,19 @@
 
 
      
-<form id="viewManualForm" action="${(contextPath)!''}/cf/manual" method="get" target="_blank">
+<form id="viewManualForm" action="${(contextPath)!''}/cf/hmvm" method="get" target="_blank">
   <input id="manualType" name="mt" type="hidden">
 </form>
 
 
-    <form id="viewManualEntry" action="${(contextPath)!''}/cf/ehme" method="post">
+   <!-- <form id="viewManualEntry" action="${(contextPath)!''}/cf/ehme" method="post">
     	<input type="hidden" name="mt" id="manualTypeListing" />
 		<input type="hidden" name="mn" id="manualNameListing" />
-    </form>
+    </form>-->
+    <form id="viewManualEntry" action="${(contextPath)!''}/cf/hmem" method="get" target="_blank" class="margin-r-5 pull-left">
+  		<input type="hidden" name="mt" id="manualTypeListing" />
+		<input type="hidden" name="mn" id="manualNameListing" />
+  </form>
 
 <script>
 	document.title = "Manual Type Module List";
@@ -141,14 +145,28 @@
     
     function manageRecord(uiObject) {
         let rowIndx = uiObject.rowIndx;
+        const id = Number.parseInt(rowIndx);
+        let rowData = $( "#manual-typeGrid" ).pqGrid("getRowData", {rowIndx: id});
+        const tcount=Number.parseInt(rowData.totalCount);
     	<#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>
-        	<#list loggedInUserRoleList as loggedInUserRole>
-            	<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>    
-        			return '<span id="'+rowIndx+'" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span><span id="'+rowIndx+'" onclick="editEntityManual(this)" class= "grid_action_icons"><i class="fa fa-edit"></i></span><span id="'+rowIndx+'" onclick="viewManual(this)" class= "grid_action_icons"><i class="fa fa-eye"></i></span>'.toString();
+        	<#list loggedInUserRoleList as loggedInUserRole> 
+            	<#if (loggedInUserRole == "ADMIN" || loggedInUserRole == "AUTHENTICATED")>
+                  let res = '<span id="'+rowIndx+'" onclick="createNew(this)" class= "grid_action_icons"><i class="fa fa-pencil"></i></span>';
+                  res += '<span id="'+rowIndx+'" onclick="editEntityManual(this)" class= "grid_action_icons"><i class="fa fa-edit"></i></span>';
+
+                  if(tcount > 0) {
+                      res += '<span id="'+rowIndx+'" onclick="viewManual(this)" class= "grid_action_icons"><i class="fa fa-eye"></i></span>';
+                  }
+
+                  return res.toString();                    
         		<#break>
         		<#else>
+                if(tcount > 0) {
         			return '<span id="'+rowIndx+'" onclick="viewManual(this)" class= "grid_action_icons"><i class="fa fa-eye"></i></span>'.toString();
+                   }
+                         
         		</#if>
+             
         	</#list>
         </#if>
     }
@@ -208,6 +226,11 @@
                 name: $("#manualName").val(),
             },
             success: function(data) {
+                 if(data=="exist")
+                {
+                    showMessage("Manual Type Already exist", "error");
+                    return false;
+                }
             	$("#manualId").val(data);
                 saveEntityRoleAssociation();
                 $.modal.close();

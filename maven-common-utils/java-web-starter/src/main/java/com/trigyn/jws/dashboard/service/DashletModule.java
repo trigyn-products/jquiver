@@ -445,6 +445,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 		dashletVO.setIsActive(dashlet.getIsActive());
 		dashletVO.setDaoQueryType(dashlet.getDaoQueryType());
 		dashletVO.setResultVariableName(dashlet.getResultVariableName());
+		dashletVO.setDashletTypeId(dashlet.getDashletTypeId());
 		List<DashletPropertyVO> dpOtr = new ArrayList<>();
 		if (dashlet.getProperties() != null && !dashlet.getProperties().isEmpty()) {
 			for (DashletProperties obj : dashlet.getProperties()) {

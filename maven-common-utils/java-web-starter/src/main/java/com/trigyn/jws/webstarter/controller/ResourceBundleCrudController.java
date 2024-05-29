@@ -106,6 +106,7 @@ public class ResourceBundleCrudController {
 			logger.error("Error occured while loading Resource Bundle Listing page.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {
+			logger.error("Error occured while loading Resource Bundle page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
@@ -204,7 +205,7 @@ public class ResourceBundleCrudController {
 	 * @param request  - HttpServletRequest
 	 * @param response - HttpServletResponse
 	 * @return String result success/fail.
-	 * @throws Exception
+	 * @throws Exception is thrown
 	 */
 	@RequestMapping(value = "/erb")
 	@ResponseBody
@@ -218,7 +219,7 @@ public class ResourceBundleCrudController {
 	 * 
 	 * @param request - HttpServletRequest
 	 * @param response  - HttpServletResponse
-	 * @throws Exception
+	 * @throws Exception is thrown
 	 */
 	@RequestMapping(value = "/dExport", method = RequestMethod.POST)
 	@ResponseBody
@@ -232,10 +233,10 @@ public class ResourceBundleCrudController {
 	 * 
 	 * Import resource bundle data in to the database by importing  excel-xml file.
 	 * 
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
+	 * @param request httprequest object
+	 * @param response httpresponse object
+	 * @return json string
+	 * @throws Exception is thrown
 	 */
 	@RequestMapping(value = "/irb")
 	@ResponseBody

@@ -70,14 +70,14 @@
             <div class="float-right">
                 <div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
-                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
                     <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls" id="actionDiv">
                         <ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="typeOfAction('${formId}', this);">
+                            <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">
                                 ${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="typeOfAction('${formId}', this);">
+                            <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">
                                 ${messageSource.getMessage("jws.saveAndEdit")}</li>
                         </ul>
                     </div>

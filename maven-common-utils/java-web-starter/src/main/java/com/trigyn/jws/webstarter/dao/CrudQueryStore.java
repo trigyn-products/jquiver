@@ -16,7 +16,8 @@ public final class CrudQueryStore {
 
 	protected static final String	HQL_QUERY_TO_DELETE_ALL_DASHLET_ROLES				= "DELETE FROM DashletRoleAssociation AS dra WHERE dra.id.dashletId = :dashletId";
 
-	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_EXPORT				= "FROM GridDetails AS gd WHERE (gd.gridId NOT IN :excludeCustomConfigList AND gd.gridTypeId = :customConfigType) OR (gd.gridId IN :includeSystemConfigList AND gd.gridTypeId = :systemConfigType)";
+	public static final String		HQL_QUERY_TO_FETCH_GRID_DATA_FOR_EXPORT				= "FROM GridDetails AS gd "
+			+ "WHERE (gd.gridId NOT IN :excludeCustomConfigList AND gd.gridTypeId = :customConfigType) OR (gd.gridId IN :includeSystemConfigList AND gd.gridTypeId = :systemConfigType)";
 
 	public static final String		HQL_QUERY_TO_FETCH_AUTOCOMPLETE_DATA_FOR_EXPORT		= "FROM Autocomplete AS au WHERE "
 			+ "(au.autocompleteId NOT IN :excludeCustomConfigList AND au.acTypeId = :customConfigType) OR "
@@ -72,7 +73,7 @@ public final class CrudQueryStore {
 			+ "(mt.manualId NOT IN :excludeCustomConfigList AND mt.isSystemManual = :customConfigType) OR "
 			+ "(mt.manualId IN :includeSystemConfigList AND mt.isSystemManual = :systemConfigType)";
 
-	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_EXPORT	= "FROM ApiClientDetails AS acd WHERE "
+	public static final String		HQL_QUERY_TO_FETCH_API_CLIENT_DETAILS_FOR_EXPORT	= "FROM JqApiClientDetails AS acd WHERE "
 			+ "acd.clientId NOT IN :excludeCustomConfigList";
 
 	public static final String		HQL_QUERY_TO_FETCH_ADDITIONAL_DATASOURCE_FOR_EXPORT	= "FROM AdditionalDatasource AS ads WHERE "
@@ -84,5 +85,8 @@ public final class CrudQueryStore {
 
 	public static final String		HQL_QUERY_TO_FETCH_FILES_DATA_FOR_EXPORT			= "FROM FileUpload AS fu WHERE "
 			+ "fu.fileUploadId IN :includeSystemConfigList";
+	
+	public static final String		HQL_QUERY_TO_FETCH_SCRIPT_LIBRARY_DATA_FOR_EXPORT		= "FROM ScriptLibraryDetails AS sl WHERE "
+			+ "sl.scriptLibId NOT IN :excludeCustomConfigList";
 	
 }

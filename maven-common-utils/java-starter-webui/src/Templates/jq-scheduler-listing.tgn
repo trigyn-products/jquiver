@@ -210,7 +210,7 @@ function formatName(uiObject){
             async:true,
             success: function(data){
                $( "#jq-schedulerGrid" ).pqGrid().pqGrid( "refreshDataAndView" ); 
-				if(data == true) {                    
+				if(data == "true") {                    
 					showMessage("Scheduler is executed", "info");
 				} else{
 					showMessage("Scheduler failed executed", "error");

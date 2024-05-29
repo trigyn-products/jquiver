@@ -178,7 +178,8 @@
       		actionElement = actionElement + "<span id='"+dashletId+"' class= 'grid_action_icons' onclick='dashletListing.downloadDashletById(this)'><i class='fa fa-download'></i></span>";
           	actionElement = actionElement + "<span id='"+dashletId+"_upload' name='"+dashletName+"' class= 'grid_action_icons' onclick='dashletListing.uploadDashletById(this)'><i class='fa fa-upload'></i></span>";
 		<#else>
-			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'  onclick='dashletListing.submitForm(this)' title='${messageSource.getMessage("jws.editDashlet")}'><i class='fa fa-pencil'></i></span>";	
+			actionElement = "<span id='"+dashletId+"' class= 'grid_action_icons'  onclick='dashletListing.submitForm(this)' title='${messageSource.getMessage("jws.editDashlet")}'><i class='fa fa-pencil'></i></span>";
+            actionElement += '<span onclick=\'copyId("'+dashletId+'")\' class= "grid_action_icons" title="Copy Id"><i class="fa fa-copy "></i></span>'.toString();	
 			if(revisionCount > 1){
 				actionElement = actionElement + '<span id="'+dashletId+'_entity" name="'+dashletName+'" onclick="dashletListing.submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
 			}else{
@@ -188,6 +189,14 @@
 			
 		</#if>
 		return actionElement;
+	}
+    function copyId(id){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val(id).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Id copied successfully", "success");
 	}
 </script>
 <script src="${(contextPath)!''}/webjars/1.0/dashlet/dashletListing.js"></script>

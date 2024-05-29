@@ -1,7 +1,40 @@
+<style>
+	#custom-handle {
+		width: 3em;
+		height: 1.6em;
+		top: 50%;
+		margin-top: -.8em;
+		text-align: center;
+		line-height: 1.6em;
+	}
+	</style>
 <div class="col-12 margin-b-10">
-<div class="range-slider">
-	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
-	<input type="range" id="" class="range-slider__range" name="${innerTemplateObj.propertyId!''}" value="" min="0" max="${innerTemplateObj.defaultValue!'0'}" step="1"/>
-	<span id="slider-value_" class="range-slider__value"></span>
+    <label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+    <div id="slider_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}"> 
+	<div id="custom-handle" class="ui-slider-handle"></div>
 </div>
 </div>
+<script>
+    $(function() {
+        var handle = $("#custom-handle");
+        $("#slider_${innerTemplateObj.propertyId!''}").slider({
+            create: function() {
+                handle.text($(this).slider("value"));
+            },
+            slide: function(event, ui) {
+                handle.text(ui.value);
+            },
+        });
+    });
+
+     function validateRangeSlider() {
+        var sliderValue = $("#slider_${innerTemplateObj.propertyId!''}").slider("value");
+        var maxValue = ${innerTemplateObj.defaultValue!''};
+        if (sliderValue >= 0 && sliderValue <= maxValue) {
+            return true;
+        } else {     
+            showMessage("Invalid input: Value must be between 0 and " +maxValue, "warn");
+            return false; 
+        }
+    }
+</script>

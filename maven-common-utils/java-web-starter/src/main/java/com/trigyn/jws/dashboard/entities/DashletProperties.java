@@ -47,6 +47,9 @@ public class DashletProperties implements Serializable {
 
 	@Column(name = "value")
 	private String								value							= null;
+	
+	@Column(name = "validation")
+	private String								validation							= null;
 
 	@Column(name = "default_value")
 	private String								defaultValue					= null;
@@ -79,13 +82,14 @@ public class DashletProperties implements Serializable {
 	}
 
 	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName, String type, String value,
-			String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence) {
+			String validation, String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence) {
 		this.propertyId				= propertyId;
 		this.dashletId				= dashletId;
 		this.placeholderName		= placeholderName;
 		this.displayName			= displayName;
 		this.type					= type;
 		this.value					= value;
+		this.validation 			= validation;
 		this.defaultValue			= defaultValue;
 		this.configurationScript	= configurationScript;
 		this.isDeleted				= isDeleted;
@@ -94,13 +98,14 @@ public class DashletProperties implements Serializable {
 	}
 
 	public DashletProperties(String propertyId, String dashletId, String placeholderName, String displayName, String type, String value,
-			String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence, Dashlet dashlet) {
+			String validation, String defaultValue, String configurationScript, Integer isDeleted, Integer toDisplay, Integer sequence, Dashlet dashlet) {
 		this.propertyId				= propertyId;
 		this.dashletId				= dashletId;
 		this.placeholderName		= placeholderName;
 		this.displayName			= displayName;
 		this.type					= type;
 		this.value					= value;
+		this.validation 			= validation;
 		this.defaultValue			= defaultValue;
 		this.configurationScript	= configurationScript;
 		this.isDeleted				= isDeleted;
@@ -108,7 +113,7 @@ public class DashletProperties implements Serializable {
 		this.sequence				= sequence;
 		this.dashlet				= dashlet;
 	}
-
+	
 	public String getPropertyId() {
 		return propertyId;
 	}
@@ -205,10 +210,18 @@ public class DashletProperties implements Serializable {
 		this.dashlet = dashlet;
 	}
 
+	public String getValidation() {
+		return validation;
+	}
+
+	public void setValidation(String validation) {
+		this.validation = validation;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(configurationScript, dashlet, dashletId, defaultValue, displayName, isDeleted, placeholderName, propertyId,
-				sequence, toDisplay, type, value);
+				sequence, toDisplay, type, value, validation);
 	}
 
 	@Override
@@ -228,15 +241,16 @@ public class DashletProperties implements Serializable {
 				&& Objects.equals(displayName, other.displayName) && Objects.equals(isDeleted, other.isDeleted)
 				&& Objects.equals(placeholderName, other.placeholderName) && Objects.equals(propertyId, other.propertyId)
 				&& Objects.equals(sequence, other.sequence) && Objects.equals(toDisplay, other.toDisplay)
-				&& Objects.equals(type, other.type) && Objects.equals(value, other.value);
+				&& Objects.equals(type, other.type) && Objects.equals(value, other.value)
+				&& Objects.equals(validation, other.validation);
 	}
 
 	@Override
 	public String toString() {
 		return "DashletProperties [propertyId=" + propertyId + ", dashletId=" + dashletId + ", placeholderName=" + placeholderName
-				+ ", displayName=" + displayName + ", type=" + type + ", value=" + value + ", defaultValue=" + defaultValue
+				+ ", displayName=" + displayName + ", type=" + type + ", value=" + value + ", , validation=" + validation + " , defaultValue=" + defaultValue
 				+ ", configurationScript=" + configurationScript + ", isDeleted=" + isDeleted + ", toDisplay=" + toDisplay + ", sequence="
-				+ sequence + ", dashlet=" + dashlet + "]";
+				+ sequence + ", dashlet=" + dashlet + " ]";
 	}
 	
 	public DashletProperties getObj() {
@@ -253,6 +267,7 @@ public class DashletProperties implements Serializable {
 		obj.setToDisplay(toDisplay);
 		obj.setType(type != null ? type.trim() : type);
 		obj.setValue(value != null ? value.trim() : value);
+		obj.setValidation(validation != null ? validation.trim() : validation);
 
 		return obj;
 	}
@@ -272,6 +287,7 @@ public class DashletProperties implements Serializable {
 		obj.setToDisplay(toDisplay);
 		obj.setType(type != null ? type.trim() : type);
 		obj.setValue(value != null ? value.trim() : value);
+		obj.setValidation(validation != null ? validation.trim() : validation);
 
 		return obj;
 	}

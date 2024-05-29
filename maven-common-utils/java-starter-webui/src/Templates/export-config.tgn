@@ -70,23 +70,23 @@
                          style="float:left;">
                     <label for="dashletChkBx">${messageSource.getMessage('jws.dashlet')}</label>
                  </div> 
-                  <input id="nextBtn" class="btn btn-primary spacingclss" style="float:right;padding: 6px 12px;    margin: 0 6px;" name="nextBtn" value="Next" type="button" onclick="gotoNextPage()">
+                  <input id="nextBtn" class="btn btn-primary spacingclss" style="float:right;padding: 6px 12px;    margin: 0 6px;" name="nextBtn" value="${messageSource.getMessage('jws.next')}" type="button" onclick="gotoNextPage()">
 		    </div>
             
             <div id="nextTabBtn" style="display: none;">
                 <button id="download" class="btn btn-primary spacingclss" style="float: right; margin: 0 9px;" name="downloadBtn"
-                    type="button" onclick="exportToLocal()">Export to Folder <i class="fa fa-download" aria-hidden="true"></i></button>
+                    type="button" onclick="exportToLocal()">${messageSource.getMessage('jws.exportToFolder')} <i class="fa fa-download" aria-hidden="true"></i></button>
             
                 <button id="exportBtn" class="btn btn-primary spacingclss" style="float: right;    margin: 0 0 0 9px;" name="exportBtn"
                     type="button" onclick="exportData()">
-                    Export Zip
+                    ${messageSource.getMessage('jws.exportZip')}
                 </button>
                 <input id="prevBtn" class="btn btn-primary spacingclss" style="float: right;" name="prevBtn"
-                    value="Previous" type="button" onclick="gotoPrevPage()">
+                    value="${messageSource.getMessage('jws.previous')}" type="button" onclick="gotoPrevPage()">
             </div>
 
             <span onclick="backToPreviousPage();" >
-                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="Back" type="button">
+                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span>	
 
         </div>
@@ -143,7 +143,7 @@
                         </#if>
                     </#list>
 		        </#if>
-        
+       
     </div>
     </div>
 
@@ -167,7 +167,6 @@
 			</table>
 		</div>
 	</div>
-
     </div>
 
      
@@ -195,7 +194,7 @@ function selectAsperDate() {
             selectedDate = $("#modifiedAfter").val();
             changeType();
         }
-        
+       deselectAll(); 
     } else {
         isSelectAsPerDate = false;
         selectedDate = "";
@@ -237,7 +236,6 @@ $(function () {
 
 	    localStorage.removeItem("imporatableData");
 	    localStorage.removeItem("importedIdList");
-
 
 	    <#if (customEntityCount)??> 
 	    	<#list customEntityCount as entity> 

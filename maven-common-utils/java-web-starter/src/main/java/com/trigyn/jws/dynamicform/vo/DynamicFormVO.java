@@ -23,6 +23,8 @@ public class DynamicFormVO implements Serializable {
 	private String							queryType				= null;
 	private String 							daoDetailsId 			= null;
 	private String 							queryDetails 			= null;
+	private String 							formQueryId 			= null;
+	private String 							scriptLibId 			= null;
 
 	public DynamicFormVO() {
 
@@ -40,6 +42,30 @@ public class DynamicFormVO implements Serializable {
 		this.createdBy				= createdBy;
 		this.createdDate			= createdDate;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
+	}
+
+	public DynamicFormVO(String formId, String formName, String formDescription, String formSelectQuery,
+			String formBody, Integer formTypeId, String createdBy, Date createdDate,
+			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries, Integer selectQueryType, String variableName,
+			String datasourceDetails, String queryType, String daoDetailsId, String queryDetails, String formQueryId,
+			String scriptLibId) {
+		this.formId = formId;
+		this.formName = formName;
+		this.formDescription = formDescription;
+		this.formSelectQuery = formSelectQuery;
+		this.formBody = formBody;
+		this.formTypeId = formTypeId;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.dynamicFormSaveQueries = dynamicFormSaveQueries;
+		this.selectQueryType = selectQueryType;
+		this.variableName = variableName;
+		this.datasourceDetails = datasourceDetails;
+		this.queryType = queryType;
+		this.daoDetailsId = daoDetailsId;
+		this.queryDetails = queryDetails;
+		this.formQueryId = formQueryId;
+		this.scriptLibId = scriptLibId;
 	}
 
 	/**
@@ -248,6 +274,22 @@ public class DynamicFormVO implements Serializable {
 
 	public void setQueryDetails(String queryDetails) {
 		this.queryDetails = queryDetails;
+	}
+
+	public String getFormQueryId() {
+		return formQueryId;
+	}
+
+	public void setFormQueryId(String formQueryId) {
+		this.formQueryId = formQueryId;
+	}
+
+	public String getScriptLibId() {
+		return scriptLibId;
+	}
+
+	public void setScriptLibId(String scriptLibId) {
+		this.scriptLibId = scriptLibId;
 	}
 
 }

@@ -1,1 +1,1 @@
-select * from jq_manual_entry where manual_type = :manualType and entry_name = :entryName
+select * from jq_manual_entry where manual_Id = :manualType and entry_name = :entryName

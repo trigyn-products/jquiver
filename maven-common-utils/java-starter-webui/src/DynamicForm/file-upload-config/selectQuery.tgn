@@ -1,15 +1,44 @@
-SELECT fuc.file_bin_id AS fileBinId, fuc.file_type_supported AS fileTypeSupported
-, fuc.max_file_size AS maxFileSize, fuc.no_of_files AS noOfFiles
-, fuc.upload_query_content AS uploadQueryContent
-, fuc.view_query_content AS viewQueryContent
-, fuc.delete_query_content AS deleteQueryContent
-, fuc.last_updated_by AS updatedBy
-, fuc.last_updated_ts AS updatedDate,fuc.is_deleted AS isDeleted
-, fuc.upload_query_type AS uploadQueryType
-, fuc.view_query_type AS viewQueryType
-, fuc.delete_query_type AS deleteQueryType
-, fuc.datasource_upload_validator AS datasourceUploadValidator
-, fuc.datasource_view_validator AS datasourceViewValidator
-, fuc.datasource_delete_validator AS datasourceDeleteValidator
-FROM jq_file_upload_config AS fuc <#if fileBinId??>
-WHERE fuc.file_bin_id = :fileBinId </#if> AND is_deleted = 0;
+var System = Java.type("java.lang.System");
+var HashMap =  Java.type("java.util.HashMap");
+var ArrayList = Java.type("java.util.ArrayList");
+function loadFileDetails(){
+    var queryResult = {};
+    var scriptArrUpload = new Array();
+    var scriptArrView = new Array();
+    var scriptArrDelete = new Array();
+   
+    queryResult.fileBinData = jq_getDBResult("SELECT * FROM jq_file_upload_config WHERE file_bin_id = '${fileBinId! 'null' }' AND is_deleted = 0", null, null).data_list;
+
+    if(queryResult.fileBinData !=undefined &&  queryResult.fileBinData.length != 0 ){
+        var uploadEntityId = "upload_"+queryResult.fileBinData[0].file_bin_id;
+        var viewEntityId = "view_"+queryResult.fileBinData[0].file_bin_id;
+        var deleteEntityId = "delete_"+queryResult.fileBinData[0].file_bin_id;
+
+        queryResult.scriptConnData = jq_getDBResult("SELECT * FROM jq_script_lib_connect where entity_id IN ('"+uploadEntityId+"','"+viewEntityId+"','"+deleteEntityId+"')", null, null).data_list;
+       
+         if(queryResult.scriptConnData !=undefined &&  queryResult.scriptConnData.length !=0){
+            if(queryResult.scriptConnData[0].script_lib_id != "" ){
+                for(var iCounter=0;iCounter<queryResult.scriptConnData.length;iCounter++){
+                    var scriptID = queryResult.scriptConnData[iCounter].script_lib_id;
+                    var editorName = queryResult.scriptConnData[iCounter].entity_id.split("_")[0];
+                    queryResult.scriptMultiData = jq_getDBResult("SELECT script_lib_id AS scriptId, library_name AS libraryName FROM jq_script_lib_details WHERE script_lib_id = '"+scriptID+"' ORDER BY library_name ASC", null, null);
+                    if(editorName == "upload"){
+                        var scriptMultiDataUpload = {"scriptId": queryResult.scriptMultiData.data_list[0].scriptId+"","libraryName": queryResult.scriptMultiData.data_list[0].libraryName+""};    
+                        scriptArrUpload.push(scriptMultiDataUpload);
+                    } else if(editorName == "view"){
+                        var scriptMultiDataView = {"scriptId": queryResult.scriptMultiData.data_list[0].scriptId+"","libraryName": queryResult.scriptMultiData.data_list[0].libraryName+""};     
+                        scriptArrView.push(scriptMultiDataView);
+                    } else if(editorName == "delete"){
+                        var scriptMultiDataDelete = {"scriptId": queryResult.scriptMultiData.data_list[0].scriptId+"","libraryName": queryResult.scriptMultiData.data_list[0].libraryName+""};      
+                            scriptArrDelete.push(scriptMultiDataDelete);
+                    }
+                } 
+                    queryResult.scriptMultiDataUpload = JSON.stringify(scriptArrUpload);  
+                    queryResult.scriptMultiDataView = JSON.stringify(scriptArrView); 
+                    queryResult.scriptMultiDataDelete = JSON.stringify(scriptArrDelete);         
+            }     
+        }    
+    }    
+    return queryResult;
+}
+loadFileDetails();

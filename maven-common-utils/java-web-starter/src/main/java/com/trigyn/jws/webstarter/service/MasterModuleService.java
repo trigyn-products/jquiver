@@ -182,7 +182,7 @@ public class MasterModuleService {
 						Map<String, Object> queriesResponse = jwsService
 								.executeDAOQueries(restApiDetails.getDynamicId(), requestParams, null);
 						String response = (String) jwsService.createSourceCodeAndInvokeServiceLogic(null,
-								httpServletRequest, requestParams, queriesResponse, restApiDetails);
+								httpServletRequest, httpServletResponse, requestParams, queriesResponse, restApiDetails);
 						if (includeLayout.equals(Constant.INCLUDE_LAYOUT)) {
 							requestParams.put("entityType", Constant.MasterModuleType.DYNAREST);
 							requestParams.put("entityName", restApiDetails.getDynamicRestUrl());
@@ -198,7 +198,6 @@ public class MasterModuleService {
 					}
 				}
 			}
-
 			httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
 			return null;
 		} catch (CustomStopException custStopException) {

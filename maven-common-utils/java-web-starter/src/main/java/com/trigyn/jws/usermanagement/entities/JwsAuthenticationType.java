@@ -18,6 +18,9 @@ public class JwsAuthenticationType {
 
 	@Column(name = "authentication_properties")
 	private String	authenticationProperties	= null;
+	
+	@Column(name = "default_auth_properties")
+	private String	defaultAuthProperties		= null;
 
 	public Integer getAuthenticationId() {
 		return authenticationId;
@@ -41,6 +44,14 @@ public class JwsAuthenticationType {
 
 	public void setAuthenticationProperties(String authenticationProperties) {
 		this.authenticationProperties = authenticationProperties;
+	}
+
+	public String getDefaultAuthProperties() {
+		return defaultAuthProperties;
+	}
+
+	public void setDefaultAuthProperties(String defaultAuthProperties) {
+		this.defaultAuthProperties = defaultAuthProperties;
 	}
 
 }
