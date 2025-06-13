@@ -9,12 +9,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
 import org.apache.commons.lang3.StringUtils;
+
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 public class HttpServletRequestWritableWrapper extends HttpServletRequestWrapper {
 

@@ -4,27 +4,25 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
-
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 import com.trigyn.jws.dbutils.vo.DatasourceLookUpVO;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_datasource_lookup")
 @NamedQuery(name = "DatasourceLookUp.findAll", query = "SELECT j FROM DatasourceLookUp j")
 public class DatasourceLookUp implements Serializable {
 	private static final long			serialVersionUID		= 1L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "datasource_lookup_id")
 	private String						datasourceLookupId		= null;
 

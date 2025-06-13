@@ -7,11 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
@@ -22,33 +19,49 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.controller.DynamicFormController;
 import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 import com.trigyn.jws.webstarter.utils.Constant;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping(value = "/view/**")
+//@RequestMapping("/view/**")
 public class MasterModuleController {
 
-	private final static Logger		logger					= LogManager.getLogger(MasterCreatorController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(MasterCreatorController.class);
 
 	@Autowired
 	private MasterModuleService		masterModuleService		= null;
 
 	@Autowired
 	private DynamicFormController	dynamicFormController	= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
-	@RequestMapping()
-	@Authorized(moduleName = Constants.SITELAYOUT)
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
+	
+	public String handleDynamicRequests() {
+        return "Dynamic Request Path: " + jQuiverPropeties.getViewPath();
+    }
+	
+	//@RequestMapping("/view1/**")
+	@Authorized(moduleName = Constants.ROUTER)
 	public Object loadModuleContent(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws IOException, CustomStopException {
 		try {
 			String moduleUrl = httpServletRequest.getRequestURI()
 					.substring(httpServletRequest.getContextPath().length());
-			moduleUrl = moduleUrl.replaceFirst("/view/", "");
+			moduleUrl = moduleUrl.replaceFirst(jQuiverPropeties.getViewPath()+"/", "");
 			if (moduleUrl.indexOf("/") != -1) {
 				moduleUrl = moduleUrl.substring(0, moduleUrl.indexOf("/"));
 			}
@@ -88,16 +101,15 @@ public class MasterModuleController {
 						pathVariableList.remove(0);
 					}
 					parameterMap.put("pathVariableList", pathVariableList);
-
 					return dynamicFormController.saveDynamicFormV2(wrappedRequest, httpServletResponse, parameterMap);
 				} else if ("GET".equals(httpServletRequest.getMethod())) {
 					return masterModuleService.loadTemplate(httpServletRequest, moduleUrl, httpServletResponse);
 				} else {
-					httpServletResponse.sendError(HttpStatus.METHOD_NOT_ALLOWED.value(), "Request not supported");
+					fileUtilities.customSendError(httpServletResponse,HttpStatus.METHOD_NOT_ALLOWED.value(), "Request not supported");
 					return null;
 				}
 			} else {
-				httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/");
+				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value());
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -109,7 +121,7 @@ public class MasterModuleController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
 		return null;
 	}

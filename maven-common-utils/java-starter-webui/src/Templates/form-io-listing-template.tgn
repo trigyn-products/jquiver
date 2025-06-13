@@ -1,0 +1,210 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+</head>
+
+<div class="container">
+      <div class="topband">
+        <h2 class="title-cls-name">${messageSource.getMessage('jws.formiolabel')}</h2> 
+        <div class="topactionbuttons">
+            <div class="addonbtnblock">
+                <div class="showblock">
+                 <span>${messageSource.getMessage('jws.show')}</span>
+                <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                  </select>       
+                </div>            
+             <button type="submit" class="btn btn-primary" onclick="upsert(null)">${messageSource.getMessage('jws.createnew')}</button>          
+            
+             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+</button>    
+            </div>
+        </div>
+             
+    </div>
+        
+    <div class="table_responsive">
+         <div class="cursor show"></div>  
+            <div id="form-io-listing-grid" class="tablescrollcls"></div>
+    </div>
+    
+	<div id="deleteHeader"></div>
+	<form action="${(viewPath)!''}+"/form-io-details" method="GET" id="formIORedirect">
+        <input type="hidden" data-type="text" id="formioid" name="formioid"> 
+    </form>
+	<form action="${(contextPath)!''}/cf/cmv" method="POST" id="revisionForm">
+		<input type="hidden" id="cmvEntityName" name="cmvEntityName" value="FormIO">
+		<input type="hidden" id="entityId" name="entityId">
+		<input type="hidden" id="moduleName" name="moduleName">
+		<input type="hidden" id="moduleType" name="moduleType" value="FormIO">
+		<input type="hidden" id="saveUrl" name="saveUrl" value="/cf/sfiov">
+		<input type="hidden" id="previousPageUrl" name="previousPageUrl" value="/cf/fiol">
+	</form>
+
+    <div id="snackbar"></div>
+</div>
+
+<script>
+    //contextPath = "${(contextPath)!''}";
+    //viewPath = "${(viewPath)!''}";
+    let primaryKeyDetails = {"formioid":""};
+     let listingData  = [];
+    $(function () {
+    //Add all columns that needs to be displayed in the grid
+        $("#typeSelect").each(function () {
+	        $(this).val($(this).find("option[selected]").val());
+	    });
+        let colM = [
+            	{ title: "Form Io Id", hidden : true, width: 130, dataIndx: "form_io_id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Form Name", hidden : false, width: 130, dataIndx: "form_name", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Form Description", hidden : false, width: 130, dataIndx: "form_description", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Form Io Json", hidden : true, width: 130, dataIndx: "form_io_json", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Form Io Checksum", hidden : true, width: 130, dataIndx: "form_io_checksum", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Form Io Type", hidden : true, width: 130, dataIndx: "form_io_type", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Is Custom Updated", hidden : true, width: 130, dataIndx: "is_custom_updated", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Created By", hidden : true, width: 130, dataIndx: "created_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Created Date", hidden : true, width: 130, dataIndx: "created_date", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Last Updated By", hidden : false, width: 130, dataIndx: "last_updated_by", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Last Updated Ts", hidden : false, width: 130, dataIndx: "last_updated_ts", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]},render: dateFormatter  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#form-io-listing-grid").grid({
+          gridId: "form-io-listing-grid",
+          colModel: colM,
+          dataModel: dataModel
+        });
+    
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    /*
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "☑" : "☐") + "</span>";
+       
+    }
+    */
+
+    
+
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+		
+		let formIoId = uiObject.rowData.form_io_id;
+        listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;
+		let formName = uiObject.rowData.form_name;
+		const revisionCount = uiObject.rowData.revisionCount;
+		const updatedDate = uiObject.rowData.last_updated_ts;
+		let actionElement;
+        actionElement = '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+		actionElement += '<span onclick=\'copyId("'+formIoId+'")\' class= "grid_action_icons" title="Copy Id"><i class="fa fa-copy "></i></span>'.toString();
+		if(revisionCount > 1){
+				actionElement = actionElement + '<span id="'+formIoId+'_entity" name="'+formName+'" onclick="submitRevisionForm(this)" class= "grid_action_icons"><i class="fa fa-history"></i></span>'.toString();
+		}else{
+			actionElement = actionElement + '<span class= "grid_action_icons disable_cls"><i class="fa fa-history"></i></span>'.toString();
+		}
+		
+		if(uiObject.rowData.form_io_type == 1) {			
+			<#if loggedInUserRoleList?? && loggedInUserRoleList?size gt 0>				
+				<#list loggedInUserRoleList as loggedInUserRole>
+					<#if (loggedInUserRole == "ADMIN")> 						
+						actionElement += '<span onclick=\'openDeletConfirmation("form-io-listing-grid","'+formIoId+'","1faee99c-021c-11ef-a019-7c8ae1bb24d8","'+formName+'","'+updatedDate+'")\' class= "grid_action_icons" title="Delete"><i class="fa fa-trash "></i></span>'.toString();
+						<#break>
+					</#if>
+				</#list>
+			</#if>
+		}
+		return actionElement;
+	}
+
+    function upsert(a_rowID){
+    	let redirectURL = contextPath+viewPath+"/form-io-details";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    			redirectURL += '?formioid=' + listingData[a_rowID]["form_io_id"];
+    	}
+    	location.href = redirectURL;
+    }
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;
+        
+    }
+
+    function changeType() {
+		var type = $("#typeSelect").val();   
+		let postData;
+		if(type == 0) {
+			postData = {gridId:"form-io-listing-grid"}
+		} else {
+			let typeCondition = "str_"+type; 
+			postData = {gridId:"form-io-listing-grid"
+				,"cr_form_io_type":typeCondition
+			}
+		}
+	
+		let gridNew = $( "#form-io-listing-grid" ).pqGrid();
+		gridNew.pqGrid( "option", "dataModel.postData", postData);
+		gridNew.pqGrid( "refreshDataAndView" );  
+	}
+	
+	function submitRevisionForm(sourceElement) {
+		let selectedId = sourceElement.id.split("_")[0];
+		let moduleName = $("#"+sourceElement.id).attr("name")
+		$("#entityId").val(selectedId);
+		$("#moduleName").val(moduleName);
+		$("#revisionForm").submit();
+	}
+	
+	function copyId(id){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val(id).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Id copied successfully", "success");
+	}
+</script>

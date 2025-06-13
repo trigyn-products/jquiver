@@ -7,12 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,9 +29,11 @@ import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.vo.DashboardVO;
 import com.trigyn.jws.dashboard.vo.DashletVO;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
@@ -42,16 +41,19 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Dashboard')")
-@Api(tags = "Perform all dashboard related operation")
+@Tag(name = "Perform all dashboard related operation")
 public class DashboardCrudController {
 
-	private final static Logger		logger					= LogManager.getLogger(DashboardCrudController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(DashboardCrudController.class);
 
 	@Autowired
 	private DashboardCrudService	dashboardCrudService	= null;
@@ -64,9 +66,15 @@ public class DashboardCrudController {
 
 	@Autowired
 	private ActivityLog				activitylog				= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
+	
+	@Autowired
+	private PropertyMasterDAO 		propertyMasterDAO 	  	= null;
 
 	@GetMapping(value = "/dbm", produces = MediaType.TEXT_HTML_VALUE)
-	@ApiOperation(value = "Dashboard Listing")
+	@Operation(summary = "Dashboard Listing")
 	public String dashboardMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("dashboard-listing", new HashMap<>());
@@ -78,19 +86,20 @@ public class DashboardCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/aedb", produces = { MediaType.TEXT_HTML_VALUE })
-	@ApiOperation(value = "Add edit Dashboard")
+	@Operation(summary = "Add edit Dashboard")
 	public String addEditDashboardDetails(@RequestParam(value = "dashboard-id") String dashboardId,
 			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	templateMap	= new HashMap<>();
 			Dashboard			dashboard	= new Dashboard();
 			List<JwsRole>	userRoleVOs	= dashboardCrudService.getAllUserRoles();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			if (!StringUtils.isBlank(dashboardId)) {
 				dashboard = dashboardCrudService.findDashboardByDashboardId(dashboardId);
 				List<DashboardRoleAssociation> dashletRoleAssociation = dashboardCrudService
@@ -105,6 +114,7 @@ public class DashboardCrudController {
 			}
 			templateMap.put("userRoleVOs", userRoleVOs);
 			templateMap.put("dashboard", dashboard);
+			templateMap.put("environment", environment);
 			return menuService.getTemplateWithSiteLayout("dashboard-manage-details", templateMap);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Dashboard Listing page.", custStopException);
@@ -114,7 +124,7 @@ public class DashboardCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

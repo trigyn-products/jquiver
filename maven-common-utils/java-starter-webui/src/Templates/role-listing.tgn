@@ -1,20 +1,13 @@
 <head>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 	<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.roleMaster')}</h2> 
-		<div class="float-right">
+		<h2 class="title-cls-name ">${messageSource.getMessage('jws.roleMaster')}</h2> 
+		<div class="topactionbuttons">
 			<form id="addEditRole" action="${(contextPath)!''}/cf/aedr" method="post" class="margin-r-5 pull-left">
                 <input type="hidden" name="roleId" id="roleId" value=""/>
                 <button type="submit" class="btn btn-primary">
@@ -24,10 +17,8 @@
     		<span onclick="backToWelcomePage();">
     	  		<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
     	 	</span>	
-		</div>
-		
-		<div class="clearfix"></div>		
-	</div>
+		</div> 
+ 	</div>
 		
 	<div id="divRoleMasterGrid"></div>
 
@@ -35,7 +26,7 @@
 </div>
 <script>
 document.title = "Role Master Module List";
-contextPath = "${contextPath}";
+//contextPath = "${contextPath}";
 var rolesArray = ["2ace542e-0c63-11eb-9cf5-f48e38ab9348","ae6465b3-097f-11eb-9a16-f48e38ab9348","b4a0dda1-097f-11eb-9a16-f48e38ab9348"];
 $(function () {
 	let formElement = $("#addEditRole")[0].outerHTML;

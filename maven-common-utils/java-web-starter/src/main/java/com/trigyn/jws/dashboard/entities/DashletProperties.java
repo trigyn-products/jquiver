@@ -5,22 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Where;
 
 import com.trigyn.jws.dashboard.vo.DashletPropertyVO;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_dashlet_properties")
 @Where(clause = "is_deleted = 0")
 public class DashletProperties implements Serializable {
@@ -29,8 +30,6 @@ public class DashletProperties implements Serializable {
 
 	@Id
 	@Column(name = "property_id", nullable = false)
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	private String								propertyId						= null;
 
 	@Column(name = "dashlet_id")

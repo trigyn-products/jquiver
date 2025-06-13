@@ -1,11 +1,4 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 </head>
 		
 		<div id="errorMessageUser" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -41,7 +34,7 @@
         <#list roles as role>
            	<div class="col-3">
          			<div class="col-inner-form full-form-fields">
-         		            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
+         		            <label for="${role?api.getRoleId()}" >
          		              ${role?api.getRoleName()}
          		            </label>
          		           <div class="onoffswitch">

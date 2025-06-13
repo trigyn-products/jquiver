@@ -8,7 +8,7 @@
 <!-- Start - Autocomplete HTML Body -->
 <div class="col-6">
     <div class="col-inner-form full-form-fields">
-        <label for="flammableState" style="white-space:nowrap"><@resourceBundleWithDefault "jws.autocomplete" "Autocomplete"/></label>
+        <label for="flammableState" ><@resourceBundleWithDefault "jws.autocomplete" "Autocomplete"/></label>
         <div class="search-cover">
             <input class="form-control" id="autocompleteId" type="text">
             <i class="fa fa-search" aria-hidden="true"></i>
@@ -20,7 +20,7 @@
 <!-- Start - Multiselect HTML Body -->
 <div class="col-6">
     <div class="col-inner-form full-form-fields">
-        <label for="flammableState" style="white-space:nowrap"><@resourceBundleWithDefault "jws.multiselect" "Multiselect"/></label>
+        <label for="flammableState" ><@resourceBundleWithDefault "jws.multiselect" "Multiselect"/></label>
         <div class="search-cover">                
             <input class="form-control" id="bsMultiselect" type="text">
             <i class="fa fa-search" aria-hidden="true"></i>

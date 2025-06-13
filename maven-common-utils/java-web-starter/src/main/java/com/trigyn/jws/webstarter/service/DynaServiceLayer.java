@@ -2,15 +2,14 @@ package com.trigyn.jws.webstarter.service;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class DynaServiceLayer {

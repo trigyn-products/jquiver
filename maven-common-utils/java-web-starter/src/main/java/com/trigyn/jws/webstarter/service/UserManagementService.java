@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -18,18 +19,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +70,7 @@ import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.entities.JwsRoleMasterModulesAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
+import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsAuthenticationTypeRepository;
 import com.trigyn.jws.usermanagement.repository.JwsConfirmationTokenRepository;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
@@ -105,12 +102,19 @@ import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 import com.trigyn.jws.usermanagement.vo.UserManagementVo;
+import com.trigyn.jws.webstarter.dao.ICaptchRepository;
+import com.trigyn.jws.webstarter.vo.CaptchaDetails;
+
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional
 public class UserManagementService {
 
-	private static final Logger							logger							= LogManager
+	private static final Logger							logger							= LoggerFactory
 			.getLogger(UserManagementService.class);
 
 	@Autowired
@@ -187,6 +191,12 @@ public class UserManagementService {
 
 	@Autowired
 	protected SessionFactory							sessionFactory					= null;
+	
+	@Autowired
+	private ICaptchRepository iCaptchRepository 				= null;
+	
+	@Autowired
+	private CaptchaService 						captchaService 					= null;
 
 	private ObjectMapper								mapper							= new ObjectMapper()
 			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -809,7 +819,6 @@ public class UserManagementService {
 	/**
 	 * Added for getting the TypeSelect whether Custom or System of all Modules.
 	 * 
-	 * @author             Bibhusrita.Nayak
 	 * 
 	 * @param  entityRoles is the list of entity role object.
 	 * @return             integer value to get roleTypeId
@@ -878,6 +887,10 @@ public class UserManagementService {
 		} else if (entityRoles.getModuleId().equals("19aa8996-80a2-11eb-971b-f48e38ab8cd7")) {
 
 			query = "SELECT dashletTypeId FROM Dashlet WHERE dashletId = '" + entityRoles.getEntityId() + "'";
+			
+		} else if (entityRoles.getModuleId().equals("1faee99c-021c-11ef-a019-7c8ae1bb24d8")) {
+
+			query = "SELECT 1 FROM FormIO";
 		}
 
 		return userManagementDAO.getEntityRoleTypeID(query);
@@ -1691,7 +1704,25 @@ public class UserManagementService {
 			return true;
 		}
 
-		HttpSession session = request.getSession();
+		String						generatedCaptcha	= null;
+		String captchaRequest_Id=request.getHeader("r");
+		//fetch captcha for database
+		captchaService.deleteExpiredCaptcha();
+		CaptchaDetails captchaDetails = null;
+		if (mapDetails != null && mapDetails.get("enableCaptcha") != null
+				&& mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true") && StringUtils.isBlank(captchaRequest_Id) == false) {
+			captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);
+			if (null != captchaDetails)
+			{
+			 generatedCaptcha=captchaDetails.getCaptcha();
+			}
+			else {
+				mapDetails.put("error", "Captcha has Expired!");
+				mapDetails.put("firstName", user.getFirstName().trim());
+				mapDetails.put("lastName", user.getLastName().trim());
+				return true;
+			}
+		}
 		if (mapDetails != null && mapDetails.get("enableCaptcha") != null
 				&& mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
 			if (user.getCaptcha() == null) {
@@ -1701,7 +1732,7 @@ public class UserManagementService {
 				mapDetails.put("lastName", user.getLastName().trim());
 				return true;
 			}
-			if (session.getAttribute("registerCaptcha") == null) {
+			if (generatedCaptcha == null) {
 				mapDetails.put("error", "Captcha is required!");
 				mapDetails.put("errorCode", HttpStatus.BAD_REQUEST);
 				mapDetails.put("firstName", user.getFirstName().trim());
@@ -1709,7 +1740,7 @@ public class UserManagementService {
 				return true;
 			}
 
-			if (!(user.getCaptcha().equals(session.getAttribute("registerCaptcha").toString()))) {
+			if (!(user.getCaptcha().equals(generatedCaptcha.toString()))) {
 				mapDetails.put("error", "Please verify captcha!");
 				mapDetails.put("firstName", user.getFirstName().trim());
 				mapDetails.put("lastName", user.getLastName().trim());

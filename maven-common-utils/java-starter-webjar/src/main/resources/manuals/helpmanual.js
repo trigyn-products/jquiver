@@ -10,7 +10,7 @@ class HelpManual {
             $.ajax({
                 type : "GET",
                 async: false,
-                url : contextPath+"/api/get-manual-details",
+                url : contextPath+apiPath+"/get-manual-details",
                 data : {
                     manualId: manualId
                 },
@@ -58,7 +58,7 @@ class HelpManual {
     	$.ajax({
 		  type : "GET",
 		  async: false,
-		  url : contextPath+"/api/manual-type",
+		  url : contextPath+apiPath+"/manual-type",
           success : function(data) {
 			manualDetails = data;
 		  },

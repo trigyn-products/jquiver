@@ -2,7 +2,7 @@ function getAllDatasource(isEdit){
     $.ajax({
 	    type : "POST",
         async: false,
-	    url : contextPath+"/api/jq-all-datasource",
+	    url : contextPath+apiPath+"/jq-all-datasource",
         success : function(data) {
           	data.forEach(function(dataSourceObj) {
 	          	if(dataSourceObj.selectedDataSource !== null && isEdit === 0){
@@ -26,7 +26,7 @@ function retrieveDatasource() {
 	$.ajax({
 	    type : "POST",
         async: false,
-	    url : contextPath+"/api/jq-all-datasource",
+	    url : contextPath+apiPath+"/jq-all-datasource",
         success : function(data) {
         	datasource = data;
 	    },
@@ -48,8 +48,10 @@ function showHideTableAutocomplete(){
 
 function updateDataSource(){
 
-	tableAutocomplete.resetAutocomplete();
-	tableAutocomplete.options.requestParameters.dbProductName = $("#dataSource").find(":selected").data("product-name");
+	if(tableAutocomplete != null) {
+		tableAutocomplete.resetAutocomplete();
+		tableAutocomplete.options.requestParameters.dbProductName = $("#dataSource").find(":selected").data("product-name");
+	}
 	$.ajax({
 	    type : "POST",
         async: false,
@@ -167,7 +169,7 @@ function deleteEntity(gridId, entityId, moduleType,templateName,updatedDate) {
 //	entityName = entityName.replace(new RegExp('<', 'g'), "&lt;");
 //	entityName = entityName.replace(new RegExp('>', 'g'), "&gt;");
 	$.ajax({
-        url: contextPath + "/api/delete-entity",
+        url: contextPath+apiPath+"/delete-entity",
         type: "POST",
         data:{
         	entityId	: entityId,
@@ -197,7 +199,7 @@ function getAllDatasourceForContainer(isEdit, selectedId){
     $.ajax({
 	    type : "POST",
         async: false,
-	    url : contextPath+"/api/jq-all-datasource",
+	    url : contextPath+apiPath+"/jq-all-datasource",
         success : function(data) {
           	data.forEach(function(dataSourceObj) {
 	          	if(dataSourceObj.selectedDataSource !== null && isEdit === 0){

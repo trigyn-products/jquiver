@@ -15,6 +15,7 @@
         <include>**/*.yml</include>
         <include>**/*.sql</include>
         <include>**/*.xml</include>
+        <include>**/*.yaml</include>
       </includes>
     </fileSet>
     <fileSet filtered="true" packaged="true" encoding="UTF-8">
@@ -55,6 +56,9 @@
         <include>.gitignore</include>
         <include>mvnw</include>
         <include>mvnw.cmd</include>
+        <include>docker-compose.yml</include>
+        <include>Dockerfile</include>
+        <include>readme.txt</include>
       </includes>
     </fileSet>
   </fileSets>

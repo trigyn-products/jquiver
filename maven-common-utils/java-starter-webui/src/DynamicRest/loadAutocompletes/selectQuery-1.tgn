@@ -1,0 +1,1 @@
+SELECT `ac_id` AS `value`, `ac_description` AS `label` FROM `jq_autocomplete_details`

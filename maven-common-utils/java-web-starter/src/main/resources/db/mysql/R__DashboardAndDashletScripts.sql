@@ -1,13 +1,6 @@
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('365e2aa5-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-listing', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
@@ -168,14 +161,6 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('410deeb3-09ac-11eb-a027-f48e38ab8cd7', 'dashboard-manage-details', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
 
 </head> 
 
@@ -323,14 +308,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES 
 ('448f4ab0-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-listing', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <script type="text/javascript" src="${contextPath!''''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
@@ -495,13 +473,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 REPLACE INTO jq_template_master (template_id, template_name, template, updated_by, created_by, updated_date, template_type_id) VALUES
 ('49f6cfd9-09ac-11eb-a027-f48e38ab8cd7', 'dashlet-manage-details', '<head>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/bootstrap/css/bootstrap.css" />
-<script src="${(contextPath)!''''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<script src="${(contextPath)!''''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.12.1/jquery-ui.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/css/starter.style.css" />
+<link rel="stylesheet" href="${(contextPath)!''''}/webjars/jquery-ui/1.14.1/jquery-ui.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''''}/webjars/1.0/dashboard/dashboard.css" />
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''''}/webjars/1.0/monaco/min/vs/loader.js"></script>

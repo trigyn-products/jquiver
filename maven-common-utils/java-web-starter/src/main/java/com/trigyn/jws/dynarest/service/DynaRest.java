@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
@@ -18,6 +15,10 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.resourcebundle.repository.interfaces.IResourceBundleRepository;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class DynaRest {
 
@@ -32,6 +33,9 @@ public class DynaRest {
 	
 	@Autowired
 	ServletContext					servletContext					= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	/**
 	 * 
@@ -144,7 +148,7 @@ public class DynaRest {
 		try {
 			url = getServerBaseURL(a_httpServletRequest);
 			url = url.replace(uri, "");
-			urlPrefix.append(url).append("/api/");
+			urlPrefix.append(url).append(jQuiverPropeties.getApiPath()+"/");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -156,6 +160,7 @@ public class DynaRest {
 		this.menuService				= applicationContext.getBean(MenuService.class);
 		this.propertyMasterDetails		= applicationContext.getBean(PropertyMasterDetails.class);
 		this.iResourceBundleRepository	= applicationContext.getBean(IResourceBundleRepository.class);
+		this.jQuiverPropeties	= applicationContext.getBean(JQuiverProperties.class);
 	}
 	
 	public String getServerBaseURL(HttpServletRequest a_httpServletRequest) throws Exception {

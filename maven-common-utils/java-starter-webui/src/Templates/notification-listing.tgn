@@ -1,15 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
@@ -17,8 +9,8 @@
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.notificationlisting')}</h2> 
-        <div class="float-right">
+        <h2 class="title-cls-name">${messageSource.getMessage('jws.notificationlisting')}</h2> 
+        <div class="topactionbuttons">
            <div class="addonbtnblock">
               <!-- <a href="${(contextPath)!''}/cf/ad"> 
 					<input id="additionalDataSource" class="btn btn-primary" value="${messageSource.getMessage('jws.additionaldatasource')}" type="button">
@@ -41,8 +33,7 @@
             </div>
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
    
     <div id="deleteHeader"></div>
@@ -52,7 +43,8 @@
 
 <script>
 	document.title = "Notification Module List";
-    contextPath = "${(contextPath)!''}";
+    //contextPath = "${(contextPath)!''}";
+    //viewPath = "${(viewPath)!''}";
     let primaryKeyDetails = {"notificationid":""};
      let listingData  = [];
      var displayOnceOption = [{"": "All"}, {"0": "Inactive"}, {"1": "Active"}];
@@ -118,7 +110,7 @@ return actionElement;
         return statusElement;
     }
     function upsert(a_rowID){
-    	let redirectURL = contextPath+"/view/jq-generic-user-notification-f1";
+    	let redirectURL = contextPath+viewPath+"/jq-generic-user-notification-f1";
         if(a_rowID != null && a_rowID >= 0){
     			redirectURL += '?notificationid=' + listingData[a_rowID]["notificationId"];
     	}

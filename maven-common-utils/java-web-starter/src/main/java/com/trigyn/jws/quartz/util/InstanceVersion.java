@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.SchedulerException;
 import org.quartz.spi.InstanceIdGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author aNIRUDDHA
@@ -23,7 +23,7 @@ import org.quartz.spi.InstanceIdGenerator;
 
 public class InstanceVersion implements InstanceIdGenerator {
 
-	private final static Logger LOGGER = LogManager.getLogger(InstanceVersion.class);
+	private final static Logger logger = LoggerFactory.getLogger(InstanceVersion.class);
 
 	@Override
 	public String generateInstanceId() throws SchedulerException {
@@ -37,7 +37,7 @@ public class InstanceVersion implements InstanceIdGenerator {
 			if (instanceIdFile.exists() == false || instanceIdFile.length() == 0) {
 
 				if (instanceIdFile.createNewFile() == false) {
-					LOGGER.info("can't create instance id file. Exit application");
+					logger.info("can't create instance id file. Exit application");
 					System.exit(-2);
 				}
 				// System.out.println("Instance file created");
@@ -55,9 +55,9 @@ public class InstanceVersion implements InstanceIdGenerator {
 			}
 			// System.out.println("Instance ID : " + instanceId);
 		} catch (IOException exec) {
-			LOGGER.error("Error while updating cluster state : " + ExceptionUtils.getStackTrace(exec.getCause()));
+			logger.error("Error while updating cluster state : " + ExceptionUtils.getStackTrace(exec.getCause()));
 		} catch (ClassNotFoundException clsExec) {
-			LOGGER.error("Error while reading the file " + ExceptionUtils.getStackTrace(clsExec.getCause()));
+			logger.error("Error while reading the file " + ExceptionUtils.getStackTrace(clsExec.getCause()));
 		}
 
 		return instanceId;

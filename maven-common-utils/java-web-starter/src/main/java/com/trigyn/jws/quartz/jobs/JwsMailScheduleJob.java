@@ -12,16 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.servlet.ServletContext;
-import javax.xml.bind.JAXBException;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -56,9 +51,13 @@ import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.security.config.JwsUserDetailsService;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.servlet.ServletContext;
+
 public class JwsMailScheduleJob extends QuartzJobBean {
 
-	private static Logger logger = LogManager.getLogger(JwsMailScheduleJob.class);
+	private static Logger logger = LoggerFactory.getLogger(JwsMailScheduleJob.class);
 
 	@Autowired
 	MailScheduleRepository mScheduleRepository = null;
@@ -127,19 +126,22 @@ public class JwsMailScheduleJob extends QuartzJobBean {
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in executeSendMail.", custStopException);
 			throw custStopException;
-		} catch (JAXBException exception) {
-			logger.error("Error occurred while unmarshalling XML string content ", exception);
-
 		} catch (Throwable a_thr) {
-			logger.error(
+			a_thr.printStackTrace();
+			if(requestParams != null && requestParams.containsKey("dynamicRestUrl") != true) {
+				logger.error(
 					"Error occurred while sending email in " + "Rest API" + " : " + requestParams.get("dynamicRestUrl"),
 					a_thr);
+			} else {
+				logger.error(
+						"Error occurred while sending email : " , a_thr);
+			}
 		}
 
 	}
 
 	private void sendMail(EmailSchedulerRequestVo emailVo)
-			throws JAXBException, Exception, FileNotFoundException, IOException, AddressException {
+			throws Exception, FileNotFoundException, IOException, AddressException {
 
 		EmailXMLVO emailObj = JobUtil.unMarshalEmailXMLVO(emailVo.getMailSchedule().getEmailXml());
 		List<EmailAttachedFile> attachedFileList = new ArrayList<>();

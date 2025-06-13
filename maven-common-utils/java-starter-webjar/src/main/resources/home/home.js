@@ -162,9 +162,9 @@ const typeOfAction = function(formId, selectedButton, saveFunction, backFunction
 	isEdit = 1
 }
 	if (saveFunction !== undefined || backFunction !== undefined) {
-		executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction, isEdit);
+		_executeDefinedFunc(formId, selectedButtonId, saveFunction, backFunction, isEdit);
 	} else {
-		executeCommonFunc(formId, selectedButtonId, isEdit);
+		_executeCommonFunc(formId, selectedButtonId, isEdit);
 	}
 }
 
@@ -227,7 +227,7 @@ const savedAction = function(formId, isEdit) {
 
 	let actionSaved = localStorage.getItem("jwsModuleAction");
 
-	if ((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit") {
+	if ((isEdit === 0 || isEdit === "" || isEdit === "0") && actionSaved === "saveAndEdit") {
 		$("#actionDiv").find("#saveAndEdit").remove();
 		return true;
 	}
@@ -247,7 +247,7 @@ const savedAction = function(formId, isEdit) {
 		}
 	}
 
-	if (isEdit === 0 || isEdit === "") {
+	if (isEdit === 0 || isEdit === "" || isEdit === "0") {
 		$("#actionDiv").find("#saveAndEdit").remove();
 	}
 }
@@ -460,8 +460,17 @@ const capitalizeFirstLetter = function(inputStr) {
 	return updatedStr;
 }
 
+function printFormattedDate(dateStr, jqJSDateFormat) {
+    if (typeof Calendar !== 'undefined') {
+        var parsedDate = new Date(Date.parse(dateStr));
+        return Calendar.printDate(parsedDate, jqJSDateFormat);
+    } else {
+        console.error('Calendar object is not available.');
+    }
+}
 const formatDate = function(dateStr) {
-	const formattedDate = Calendar.printDate(new Date(Date.parse(dateStr)), jqJSDateFormat);
+	//const formattedDate = Calendar.printDate(new Date(Date.parse(dateStr)), jqJSDateFormat);
+	const formattedDate =printFormattedDate(dateStr, jqJSDateFormat);
 	return formattedDate;
 }
 
@@ -547,7 +556,7 @@ const copyModuleURL = function(contentComponentId) {
 	let input = $("<input>");
 	$("body").append(input);
 	var moduleURL = $("#" + contentComponentId).val();
-	input.val('${contextPath}' + "/view/" + moduleURL).select();
+	input.val('${contextPath}' + '${viewPath}'+"/" + moduleURL).select();
 	document.execCommand("copy");
 	input.remove();
 	showMessage("Copied successfully.", "success");
@@ -588,6 +597,8 @@ function getImageNameByType(entityType) {
 			return "additionalresourcesicon";
 		case "12":
 			return "Menu_icon";
+		case "13":
+			return "form-io";
 		default:
 			return "noimageicon";
 
@@ -597,7 +608,8 @@ function getImageNameByType(entityType) {
 function submitForm(selectedEntity) {
 	let form = $(JSON.parse(selectedEntity.formData));
 	$("body").append(form);
-	$(form).attr("action", contextPath + $(form).attr("action"));
+	var action=$(form).attr("action");
+	$(form).attr("action", contextPath + action.replaceAll("/view",viewPath));
 	$(form).find("input").each(function(index, inputElem) {
 		if ($(inputElem).attr("name") !== "formId") {
 			$(inputElem).val(selectedEntity.entityId);
@@ -612,6 +624,7 @@ function changeType() {
 	var type_id = $("#typeSelect").val();
 	if (type_id == '3') {
 		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
+		autocompleteQJ.options["additionalParamaters"]["env"] = env;
 		autocompleteQJ.resetAutocomplete();
 	} else {
 		if (autocompleteQJ.options["autocompleteId"] == "user-favorite-entity-autocomplete") {

@@ -152,7 +152,7 @@ function saveUserDetails() {
 		userData.roleIds = ['2ace542e-0c63-11eb-9cf5-f48e38ab9348', 'ae6465b3-097f-11eb-9a16-f48e38ab9348'];
 		userData.forcePasswordChange = 1;
 		userData.isProfilePage = false;
-		userData.isSendMail = false;
+		userData.isSendMail = true;
 		userData.isActive = 1;
 		let isEdit = 1;
 		let emailExist = saveAdminData();
@@ -162,7 +162,6 @@ function saveUserDetails() {
 			return false;
 		}
 		userData.userId = checkEmailIdExist();
-		
 		$.ajax({
 			type: "POST",
 			url: contextPath + "/cf/surap",
@@ -189,7 +188,6 @@ function saveUserDetails() {
 }
 
 function saveAdminData() {
-
 	let userId = checkEmailIdExist();
 	if (userId != "") {
 		showMessage("User email id already exists", "error");
@@ -215,6 +213,7 @@ function saveAdminData() {
 		url: contextPath + "/cf/sud",
 		data: JSON.stringify(userData),
 		success: function(data) {
+			$("#adminModalDialog").hide();
 			return true;
 		},
 		error: function(data) {
@@ -231,7 +230,7 @@ function checkEmailIdExist() {
 	$.ajax({
 		type: "GET",
 		async: false,
-		url: contextPath + "/api/validate-user-email-get-user-id",
+		url: contextPath+apiPath+"/validate-user-email-get-user-id",
 		data: {
 			email: $("#email").val().trim()
 		},
@@ -250,7 +249,7 @@ function checkAdminEmailExistInPm() {
 	$.ajax({
 		type: "GET",
 		async: false,
-		url: contextPath + "/api/checkAdminEmailExist",
+		url: contextPath+apiPath+"/checkAdminEmailExist",
 		success: function(data) {
 			if (data && data.length != 0) {
 				adminEmail = data[0].adminEmail;
@@ -752,6 +751,7 @@ function validateFormSubmit() {
 		}
 		
 	});
+	  
 	$("tr").find("td input").each(function() { 
 		if($(this).hasClass('key')){
 			if ($(this).val() === '') {
@@ -779,6 +779,32 @@ function validateFormSubmit() {
 			return false;
 		}
 	});
+		 
+	if ($('input[name=displayName]').length && errorFlag == false) {
+		const lengthRegex = /^.{1,10}$/;
+		const specialCharRegex = /[^a-zA-Z0-9 ]/; // Regex to detect special characters
+		const displayRegElements = document.querySelectorAll('input[name="displayName"]');
+
+		for (let i = 0; i < displayRegElements.length; i++) {
+		    const element = displayRegElements[i];
+		    const value = $("#" + element.id).val();
+
+		    if (specialCharRegex.test(value) && !errorFlag) {
+		        showMessage("Special characters are not allowed.", "error");
+		        $("#" + element.id).focus();
+		        errorFlag = true;
+		        break;
+		    }
+
+		    if (!lengthRegex.test(value) && !errorFlag) {
+		        showMessage("Maximum 10 characters are allowed.", "error");
+		        $("#" + element.id).focus();
+		        errorFlag = true;
+		        break;
+		    }
+		}
+	}
+
 	
 	if ($('input[name = regexPattern]').length) {
 		let regexPattern = $('input[name = regexPattern]').val();
@@ -1080,7 +1106,6 @@ function deleteRowProps(authId, displayName, keyObjUpdate) {
 
 
 function htmlToJson(authDivId, authElementVal){
-
 	var authJson = {};	
 	var configurations = [];
 	//console.log(configurations+' DIv Id = '+ authDivId);
@@ -1146,6 +1171,12 @@ function htmlToJson(authDivId, authElementVal){
 		authenticationType.name = "enableOAuthentication";
 		authenticationType.type = "hidden";
 		authenticationType.textValue = "OAuth Authentication";
+		authenticationType.value = "true";
+		authenticationType.configurationType = "multi";
+	} else if(authElementVal == AuthType.SAML){
+		authenticationType.name = "enableSamlAuthentication";
+		authenticationType.type = "hidden";
+		authenticationType.textValue = "Saml Authentication";
 		authenticationType.value = "true";
 		authenticationType.configurationType = "multi";
 	}	
@@ -1217,6 +1248,6 @@ function jsonObject(input, authTypeVal) {
 		obj.dropDownData = arr;
 		obj.type 	= "select";
 	}
-	//console.log(type);
+	console.log(JSON.stringify(obj));
 	return obj;
 }

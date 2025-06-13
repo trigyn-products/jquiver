@@ -20,13 +20,10 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import javax.servlet.http.Cookie;
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +37,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
@@ -62,12 +58,13 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
 import freemarker.core.StopException;
+import jakarta.servlet.http.Cookie;
 
 @Component
 public class ScriptUtil {
 
-	private final static Logger logger = LogManager.getLogger(ScriptUtil.class);
-
+	private final static Logger logger = LoggerFactory.getLogger(ScriptUtil.class);
+	
 	@Autowired
 	private PropertyMasterService propertyMasterService = null;
 
@@ -92,7 +89,7 @@ public class ScriptUtil {
 	protected NamedParameterJdbcTemplate namedParameterJdbcTemplate = null;
 
 	public ScriptUtil() {
-		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+//		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
 
 		if (propertyMasterService == null && ApplicationContextUtils.getApplicationContext() != null) {
 			propertyMasterService = ApplicationContextUtils.getApplicationContext().getBean("propertyMasterService",
@@ -841,8 +838,7 @@ public class ScriptUtil {
 			JdbcTemplate jdbcTemplate = jwsDynarestDAO.updateJdbcTemplateDataSource(a_strdataSourceID);
 			// if a_strdataSourceID is null then take default connection
 			SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName(spName);
-			DataSource dataSource = jdbcTemplate.getDataSource();
-			try (Connection connection = dataSource.getConnection();) {
+			try (Connection connection = jdbcTemplate.getDataSource().getConnection();) {
 				simpleJdbcCall.setCatalogName(connection.getCatalog());
 			} catch (SQLException a_sqlException) {
 				logger.error(
@@ -1034,7 +1030,6 @@ public class ScriptUtil {
 	 * For Adding notification in case of FailedMail Recipient List is empty which
 	 * will last for one month
 	 * 
-	 * @author Bibhusrita.Nayak
 	 * @param a_requestParams the a_requestParams to be set
 	 * @return returnObject to return map of respose
 	 */

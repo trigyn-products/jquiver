@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class HelpManualTypeExportVO {
 
 	private String	manualId		= null;
@@ -12,13 +14,17 @@ public class HelpManualTypeExportVO {
 
 	private Integer	isSystemManual	= null;
 	
-	private String createdBy = null;
+	private String createdBy 		= null;
 	
-	private Date createdDate = null;
+	@JsonIgnore
+	private Date createdDate 		= null;
 	
-	private String lastUpdatedBy = null;
+	private String lastUpdatedBy 	= null;
 	
-	private Date lastUpdatedTs = null;
+	@JsonIgnore
+	private Date lastUpdatedTs 		= null;
+	
+	private String	headerTemplate	= null;
 	
 	private List<ManualEntryDetailsExportVO> manualEntries = new ArrayList<>();
 	
@@ -28,12 +34,13 @@ public class HelpManualTypeExportVO {
 
 	public HelpManualTypeExportVO() {}
 	
-	public HelpManualTypeExportVO(String manualId, String name, Integer isSystemManual,
-			List<ManualEntryDetailsExportVO> manualEntries, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs,FileUploadConfigExportVO fileUploadConfig,List<FileUploadExportVO> fileUploadList) {
+	public HelpManualTypeExportVO(String manualId, String name, Integer isSystemManual, String headerTemplate,
+			List<ManualEntryDetailsExportVO> manualEntries, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs, FileUploadConfigExportVO fileUploadConfig,List<FileUploadExportVO> fileUploadList) {
 		super();
 		this.manualId			= manualId;
 		this.name				= name;
 		this.isSystemManual		= isSystemManual;
+		this.headerTemplate = headerTemplate;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.lastUpdatedBy = lastUpdatedBy;
@@ -121,5 +128,13 @@ public class HelpManualTypeExportVO {
 
 public void setFileUploadList(List<FileUploadExportVO> fileUploadList) {
 	this.fileUploadList = fileUploadList;
+}
+
+public String getHeaderTemplate() {
+	return headerTemplate;
+}
+
+public void setHeaderTemplate(String headerTemplate) {
+	this.headerTemplate = headerTemplate;
 }
 }

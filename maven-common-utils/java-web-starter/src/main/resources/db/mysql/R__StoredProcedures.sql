@@ -1415,42 +1415,68 @@ SELECT `a`.`entityroleid`    AS `entityroleid`,
        `a`.`is_active`       AS `is_active`,
        a.role_type_id 		 AS role_type_id FROM   (
        (
-                 SELECT    `jera`.`entity_role_id` AS `entityroleid`,
-                           `jera`.`entity_id`      AS `entityid`,
-                           `jera`.`entity_name`    AS `entityname`,
-                           `jera`.`module_id`      AS `moduleid`,
-                           `jmm`.`module_name`     AS `modulename`,
-                           `jr`.`role_name`        AS `role_name`,
-                           `jera`.`role_id`        AS `role_id`,
-                           `jera`.`is_active`      AS `is_active`,
-                            jera.role_type_id       AS role_type_id
-                 FROM      ((`jq_entity_role_association` `jera`
-                 LEFT JOIN `jq_role` `jr`
-                 ON       (
-                                     `jera`.`role_id` = `jr`.`role_id`))
-                 JOIN      `jq_master_modules` `jmm`
-                 ON       (
-                                     `jmm`.`module_id` = `jera`.`module_id`))
-                 WHERE     `jr`.`is_active` = 1
-                 AND       `jera`.`module_type_id` = 0 )
-UNION
+         SELECT    `jera`.`entity_role_id` AS `entityroleid`,
+                   `jera`.`entity_id`      AS `entityid`,
+                   `jera`.`entity_name`    AS `entityname`,
+                   `jera`.`module_id`      AS `moduleid`,
+                   `jmm`.`module_name`     AS `modulename`,
+                   `jr`.`role_name`        AS `role_name`,
+                   `jera`.`role_id`        AS `role_id`,
+                   `jera`.`is_active`      AS `is_active`,
+                    jera.role_type_id       AS role_type_id
+         FROM      ((`jq_entity_role_association` `jera`
+         LEFT JOIN `jq_role` `jr`
+         ON       (
+                             `jera`.`role_id` = `jr`.`role_id`))
+         JOIN      `jq_master_modules` `jmm`
+         ON       (
+                             `jmm`.`module_id` = `jera`.`module_id`))
+         WHERE     `jr`.`is_active` = 1
+         AND       `jera`.`module_type_id` = 0 )
+	UNION
       (
-                SELECT    `jrma`.`role_module_id`                AS `entityroleid`,
-                          `jrma`.`module_id`                     AS `entityid`,
-                          `jmm`.`module_name`                    AS `entityname`,
-                          '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS `moduleid`,
-                          'Master module'                        AS `modulename`,
-                          `jr`.`role_name`                       AS `role_name`,
-                          `jrma`.`role_id`                       AS `role_id`,
-                          `jrma`.`is_active`                     AS `is_active`,
-			   			   jrma.role_type_id		             AS role_type_id
-                FROM      ((`jq_role` `jr`
-                LEFT JOIN `jq_role_master_modules_association` `jrma`
-                ON       (
-                                    `jrma`.`role_id` = `jr`.`role_id`))
-                LEFT JOIN `jq_master_modules` `jmm`
-                ON       (
-                                    `jrma`.`module_id` = `jmm`.`module_id`))
-                WHERE     `jmm`.`is_perm_supported` = 1 )) `a`;
+    	SELECT `jrma`.`role_module_id`                AS `entityroleid`,
+               `jrma`.`module_id`                     AS `entityid`,
+              `jmm`.`module_name`                    AS `entityname`,
+              '7982cc6a-6bd3-11ed-997d-7c8ae1bb24d8' AS `moduleid`,
+              'Master module'                        AS `modulename`,
+              `jr`.`role_name`                       AS `role_name`,
+              `jrma`.`role_id`                       AS `role_id`,
+              `jrma`.`is_active`                     AS `is_active`,
+   			   jrma.role_type_id		             AS role_type_id
+	    FROM      ((`jq_role` `jr`
+	    LEFT JOIN `jq_role_master_modules_association` `jrma`
+	    ON       (
+	                        `jrma`.`role_id` = `jr`.`role_id`))
+	    LEFT JOIN `jq_master_modules` `jmm`
+	    ON       (
+	                        `jrma`.`module_id` = `jmm`.`module_id`))
+	    WHERE     `jmm`.`is_perm_supported` = 1 )) `a`;
+	    
+	CREATE  OR REPLACE VIEW `jq_form_io_listing_view` AS 
+	SELECT
+	  `fio`.`form_io_id`        AS `form_io_id`,
+	  `fio`.`form_name`         AS `form_name`,
+	  `fio`.`form_description`  AS `form_description`,
+	  `fio`.`form_io_json`      AS `form_io_json`,
+	  `fio`.`last_updated_ts`   AS `last_updated_ts`, 
+	  `fio`.`form_io_checksum`  AS `form_io_checksum`,
+	  `fio`.`form_io_type`      AS `form_io_type`,
+	  `fio`.`is_custom_updated` AS `is_custom_updated`,
+	  `fio`.`created_by`        AS `created_by`,
+	  `fio`.`created_date`      AS `created_date`,
+	  COUNT(`jmv`.`version_id`) AS `revisionCount`,
+	  MAX(`jmv`.`version_id`)   AS `max_version_id`,
+	  COALESCE(CONCAT(`jus`.`first_name`,' ',`jus`.`last_name`),`fio`.`last_updated_by`,`fio`.`created_by`) AS `last_updated_by`,
+	  CAST(`fio`.`last_updated_ts` AS DATE) AS `isAfterDate`
+	FROM ((`jq_form_io` `fio`
+	    LEFT JOIN `jq_user` `jus`
+	      ON (`jus`.`email` = `fio`.`last_updated_by`))
+	   LEFT JOIN `jq_module_version` `jmv`
+	     ON (`jmv`.`entity_id` = `fio`.`form_io_id`
+	         AND `jmv`.`entity_name` = 'FormIO'))
+	GROUP BY `fio`.`form_io_id`
+	ORDER BY `fio`.`last_updated_ts` DESC;        
+
                 
                 

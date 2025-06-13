@@ -27,7 +27,7 @@
         <h2 class="title-cls-name float-left"> ${messageSource.getMessage('jws.managepermissions')} </h2>
        
        
-        <div class="float-right">
+        <div class="topactionbuttons">
             <select class="typeSelectDropDown" id="typeRole" onchange="changeType()">
                 <#if roles ??>
                     <#list roles as role>
@@ -41,7 +41,7 @@
                 
         </div>
           
-           <div class="pull-right">
+           <div class="text-end">
         ${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
@@ -50,14 +50,13 @@
            </div>
           
 
-        <div class="clearfix"></div>
-    </div>
+     </div>
     <div id="divManageEntityRoleGrid"></div>
 </div>
 
 <script>
 document.title = "Manage Permissions";
-contextPath = "${contextPath}";
+//contextPath = "${contextPath}";
 
 $(function () {
 
@@ -95,7 +94,7 @@ function backToPreviousPage() {
 }
 
 var grid;
-var contextPath = "${contextPath}";
+//var contextPath = "${contextPath}";
 var moduleType = [{"": "All"}];
 $.ajax({
     type: "GET",

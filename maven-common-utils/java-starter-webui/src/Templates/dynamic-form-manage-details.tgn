@@ -1,13 +1,9 @@
 <head>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
-	<script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>	
 	<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+	
     <style>
         .addscrippop {
             width:600px !important;
@@ -31,9 +27,9 @@
 	<div class="row topband">
 		<div class="col-4">
 			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content>
-			    <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.editdynamicform')}</h2> 
+			    <h2 class="title-cls-name">${messageSource.getMessage('jws.editdynamicform')}</h2> 
 	        <#else>
-	            <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.adddynamicform')}</h2> 
+	            <h2 class="title-cls-name">${messageSource.getMessage('jws.adddynamicform')}</h2> 
 	        </#if>
 	    </div>
         
@@ -48,8 +44,7 @@
 	        </#if>
 	     </div>
         
-		<div class="clearfix"></div>                         
-	</div>
+ 	</div>
                               
     <form id="dynamicform" method="post" >
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -72,9 +67,56 @@
 					<input type="text" id="formDescription" name="formDescription" placeholder="Enter Form Description" class="form-control" value="${(dynamicForm?api.getFormDescription())!""}"/>           
 				</div>
 			</div>
+			<#if (dynamicForm?api.getFormId())?? && (dynamicForm?api.getFormId())?has_content && dynamicForm?api.getFormId() == "efaaaf39-4f53-42d3-bb2c-a0df09df0987" >				
+			<#else>
+				<div class="col-2" id="isformIodiv">
+					<div class="col-inner-form full-form-fields">
+						<label for="formIoChkBox">${messageSource.getMessage('jws.formiolabel')}</label>
+						<div class="onoffswitch" style="margin-top:7px">
+							<input type="hidden" id="isFormIo" name="isFormIo" value="0">
+							<input type="checkbox" name="formIoChkBox" class="onoffswitch-checkbox" id="formIoChkBox" onchange="toggleFormIo();"/>
+							<label class="onoffswitch-label" for="formIoChkBox">
+								<span class="onoffswitch-inner"></span>
+								<span class="onoffswitch-switch"></span>
+							</label>
+						</div>
+					</div>				
+				</div>
+				<!-- Start - Autocomplete HTML Body -->
+				<div class="col-4" id="formIoIdForms" style="display:none">
+					<div class="col-inner-form full-form-fields">
+						<label for="flammableState" >${messageSource.getMessage('jws.formiolabel')}
+				</label>
+						<div class="search-cover">
+							
+							<input type="hidden" data-type="text" id="selectedFormIoId" name="selectedFormIoId" />
+							<input class="form-control" id="formIoId" name="formIoId" type="text">
+							<i class="fa fa-search" aria-hidden="true"></i>
+						</div>
+					</div>
+				</div>
+				<!-- End - Autocomplete HTML Body -->
+				<#if (dynamicForm?api.getFormIoId())?? && (dynamicForm?api.getFormIoId())?has_content>					
+					<div class="col-4">
+						<div class="col-inner-form full-form-fields">
+							<label for="flammableState" >${messageSource.getMessage('jws.formiolabel')}
+							</label>
+							<input type="hidden" data-type="hidden" id="savedFormIoId" name="savedFormIoId" />
+                            <span onclick="openFile()" >
+							<a href="#" name="open_file" class="form-control disable-bg-cls resumelink">
+								<div id="formiolabel" class="overflowtext"></div>
+							</a>						
+							<button class="inputactionbtn" title="Open File"id="open_file" name="open_file" type="button">
+								<i class="fa fa-external-link" aria-hidden="true"></i>
+							</button>
+                            </span>
+						</div>
+					</div>
+				</#if>												
+            </#if>
 			<div class="col-6">
 				<div class="col-inner-form full-form-fields">
-	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')}</label>
+	        		<label for="flammableState" >${messageSource.getMessage('jws.querytype')}</label>
 	        		<select id="selectQueryType" name="selectQueryType" class="form-control" onchange="updateSelectDataSource(this)">
 	        			<option id="selectQueryType" value="1" selected>${messageSource.getMessage('jws.selectquery')}</option>
 	        			<option id="jsQueryType" value="2">${messageSource.getMessage('jws.javaScriptContent')}</option>
@@ -82,11 +124,11 @@
                         <option id="phpQueryType" value="4">${messageSource.getMessage('jws.php')}</option>
 	        		</select>
            			</div>
-			</div>
+			</div>		
 
 			<div id="divDatasourceId" class="col-6">
 				<div class="col-inner-form full-form-fields">
-	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        		<label for="flammableState" >${messageSource.getMessage('jws.datasource')}</label>
 	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
 	        			<option id="defaultConnection" value="" data-product-name="default">${messageSource.getMessage('jws.defaultconnection')}</option>
 	        		</select>
@@ -96,7 +138,7 @@
             <#if !(dynamicForm?api.getFormId())?? && !(dynamicForm?api.getFormId())?has_content>   
 	            <div id="tableAutocompleteDiv" class="col-6">
 					<div class="col-inner-form full-form-fields">
-	                    <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.selecttable')}</label>
+	                    <label for="flammableState" >${messageSource.getMessage('jws.selecttable')}</label>
 	                    <div class="search-cover">
 	                        <input class="form-control" id="tableAutocomplete" type="text">
 	                    	<i class="fa fa-search" aria-hidden="true"></i>
@@ -104,15 +146,14 @@
 	                	<input type="hidden" id="formTemplate" name="formTemplate">
 	            	</div>
 				</div>
-			</#if>
-				
+			</#if>				
 
 		</div>
 
         <div id="deleteHeader"></div>		
 			<div id="methodSignatureDiv" class="col-12 method-sign-info-div" style="margin-bottom:15px;">
-				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
+				<a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
+					<i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
 				</a>
             <div class="collapse" id="tipscolpasemethod">
                 <div class="tipscontent">
@@ -123,10 +164,10 @@
             </div>            
 			</div>	
         
-   <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
+		<div id="ftlParameterDiv" class="col-12 method-sign-info-div">
 				
-				 <a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+				 <a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                    <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
                 </a>
 
                 <div class="collapse" id="tipscolpase">
@@ -174,7 +215,7 @@
                    <div style = "position:relative;float:right;">
             
 				 </div>
-				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.save/update')}</h3>
+				<h3 id="saveQueryDiv" class="titlename" style="display:none"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.saveORupdate')}</h3>
 				<div id = "saveScriptContainer"></div>
 			</div>
 		</div>
@@ -188,12 +229,12 @@
      	  
 		<div class="row margin-t-10">
 			<div class="col-12">
-				<div class="float-right">
+				<div class="text-end">
 					<div class="btn-group dropup custom-grp-btn">
 						<div id="savedAction">
 							<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndReturn")}</button>
 						</div>
-						<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+						<button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 						<div class="dropdown-menu action-cls"  id="actionDiv">
 							<ul class="dropdownmenu">
 								<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dynamic-form-manage-details', this, isEdit, addEdit.saveDynamicForm.bind(addEdit), addEdit.backToDynamicFormListing );">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -234,7 +275,9 @@
     var scriptDelArray = [];
     var jsonObj ="";
     var deleteIdArray = new Array();
-	contextPath = "${(contextPath)!''}";
+	//contextPath = "${(contextPath)!''}";
+	//apiPath = "${(apiPath)!'/api'}";
+    var env = '${(environment)!""}';
 	let dashletSQLEditor;
 	let dashletHTMLEditor;
 	let dashletSAVESQLEditor;
@@ -259,6 +302,7 @@
     <#outputformat "HTML">
     let formName = "${(dynamicForm?api.getFormName())!''}";
 	let formId = "${(dynamicForm?api.getFormId())!''}";
+	let autocomplete;
     if(formId!="") {
         isEdit=1;
     }
@@ -267,10 +311,13 @@
   	$(function () {
       
   		 $("#selectQueryType option[value='${(dynamicForm?api.getSelectQueryType())!''}']").prop("selected", "selected");
-  		 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2" || "${(dynamicForm?api.getSelectQueryType())!''}" == "3" || "${(dynamicForm?api.getSelectQueryType())!''}" == "4") {
-  		 	$("#dataSource").val(null);
-			$("#dataSource").closest('div').hide();
-  		 }
+  		 let isFormIo = $('#formIoChkBox').is(':checked');
+		 if(isFormIo == false) {
+			 if("${(dynamicForm?api.getSelectQueryType())!''}" == "2" || "${(dynamicForm?api.getSelectQueryType())!''}" == "3" || "${(dynamicForm?api.getSelectQueryType())!''}" == "4") {
+				$("#dataSource").val(null);
+				$("#dataSource").closest('div').hide();
+			 }
+		 }
         showMethodSignature($("#selectQueryType").val());
 	    AddEditDynamicForm.prototype.loadAddEditDynamicForm();
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
@@ -320,22 +367,35 @@
 			getAllDatasource(1);
 			$("#formName").prop("disabled", true);
 	    </#if>
+	    
+	    let formIoId = "${(dynamicForm?api.getFormIoId())!''}";
+        if(formIoId != "")  {         
+            $("#formIoChkBox").prop("checked",true).trigger("change");           
+			loadFormIo(formIoId);
+        } else {
+            $("#formIoChkBox").prop("checked",false).trigger("change");
+        }		
+		
         
   	});
 
 	function updateSelectDataSource(element) {
-		let selectedOptionVal = $(element).val();
-		if(selectedOptionVal === "2" || selectedOptionVal === "3" || selectedOptionVal === "4"){
-			$("#dataSource").val(null);
-			$("#divDatasourceId").hide();
-			$("#selectTable").val(null);
-			$("#tableAutocompleteDiv").hide();
-		}else{
-			$("#divDatasourceId").show();
-			$("#tableAutocompleteDiv").show();
-           }
-        /*Called for Updating Monaco Suggestions on change of SelectQueryType*/
-         updateMonacoSugg(element);
+		let isFormIo = $('#formIoChkBox').is(':checked');
+		if(isFormIo == false) {
+			let selectedOptionVal = $(element).val();
+			if(selectedOptionVal === "2" || selectedOptionVal === "3" || selectedOptionVal === "4"){
+				$("#dataSource").val(null);
+				$("#divDatasourceId").hide();
+				$("#selectTable").val(null);
+				$("#tableAutocompleteDiv").hide();
+			}else{
+				$("#divDatasourceId").show();
+				$("#divDatasourceId").children('.full-form-fields').show();
+				$("#tableAutocompleteDiv").show();
+			   }
+			/*Called for Updating Monaco Suggestions on change of SelectQueryType*/
+			 updateMonacoSugg(element);
+		 }
     }
     /*Written for Updating Monaco Suggestions on change of SelectQueryType*/
     function updateMonacoSugg(element) {
@@ -352,20 +412,39 @@
     }
 
 	function loadTableTemplate(tableName, dbProductID, dbProductName){
-    	$.ajax({
-        	type: "POST",
-        	url: contextPath+"/cf/dfte",
-         	data: {
-            	tableName: tableName,
-				dbProductID: dbProductID,
-				dbProductName: dbProductName
-          	},
-          	success: function(data) {
-  		    	dashletHTMLEditor.setValue(data["form-template"].trim());
-  		    	dashletSAVESQLEditor.setValue(data["save-template"].trim());
-  		    	dashletSQLEditor.setValue("SELECT * FROM "+ tableName);
-          	}
-        });
+		dashletHTMLEditor.setValue("");
+		dashletSAVESQLEditor.setValue("");
+		dashletSQLEditor.setValue("");
+		let isFormIo = $('#formIoChkBox').is(':checked');
+		let formIoId = $('#selectedFormIoId').val();		
+		if(isFormIo && (formIoId == "" || formIoId == undefined)){
+			showMessage("Please select Form IO", "error");
+			return false;
+		}
+		$("#dataSource").find(":selected").val();
+			$.ajax({
+				type: "POST",
+				url: contextPath+"/cf/dfte",
+				data: {
+					tableName: tableName,
+					dbProductID: dbProductID,
+					dbProductName: dbProductName,
+					isFormIo : isFormIo,
+					formIoId : formIoId
+				},
+				success: function(data) {
+					dashletHTMLEditor.setValue(data["form-template"].trim());
+					dashletSAVESQLEditor.setValue(data["save-template"].trim());
+					dashletSQLEditor.setValue(data["select-template"]);
+				},
+				error : function(xhr, error){
+					if(xhr.status == "403"){
+						showMessage("Please select a table with a primary key", "error");
+					}
+					tableAutocomplete.resetAutocomplete();
+				}
+			});
+		
 	}
 
   
@@ -384,7 +463,7 @@
         $.ajax({
             type: "GET",
             async: true,
-            url: contextPath + "/view/scrlib",
+            url: contextPath + viewPath+"/scrlib",
             data:{     
                 jsonObj : JSON.stringify(jsonObj), 
                 index   : index,
@@ -515,5 +594,102 @@
 		}
     }
     
+        autocomplete = $("#formIoId").autocomplete({
+		autocompleteId: "formIoId",
+		pageSize: 10,//Default page size is 10
+		prefetch : false,
+		render: function(item) {
+			let renderStr ='';      
+			if(item.emptyMsg == undefined || item.emptyMsg === '')
+			{
+				renderStr = '<p>'+item.form_name+'</p>';
+			}
+			else
+			{
+				renderStr = item.emptyMsg;    
+			}                                
+			return renderStr;
+		},	 
+	    additionalParamaters: {formIoId: $('#selectedFormIoId').val()}, 
+		requestParameters: {},
+		extractText: function(item) {
+			return item.form_name;
+		},
+		select: function(item) {
+			$("#formIoId").blur();
+	        $("#selectedFormIoId").val(item.form_io_id);
+	        autocomplete.setSelectedObject(item);
+		},     
+		resetAutocomplete: function(){ 
+			//This function will be executed onblur or when user click on clear text button
+			//Code to reset dependent JavaScript variables, input fields etc.
+		}
+
+	});
+	
+	
+	//User can reset any autocomplete component by calling resetAutocomplete function
+	autocomplete.resetAutocomplete();
+	/*End - Autocomplete code*/
+    
+	
+	//User can reset any autocomplete component by calling resetAutocomplete function
+	autocomplete.resetAutocomplete();
+	/*End - Autocomplete code*/
+   
+	function toggleFormIo() { 
+	   let isChecked = $('#formIoChkBox').is(':checked');
+	   if (isEdit == 0){
+	   		if (isChecked){
+		        $('#isFormIo').val("1");			
+				$('#selectQueryType').val('2').trigger('change');
+				$('#selectcontainer_0').val('4').trigger('change');	
+				$('#isformIodiv').removeClass('col-6');
+		    	$('#isformIodiv').addClass('col-2');
+				$('#formIoIdForms').show();
+				$('#selectQryType').show();
+				$('#divDatasourceId').show();
+				$('#tableAutocompleteDiv').show();
+	    	} else {
+				$('#isformIodiv').removeClass('col-2');
+		    	$('#isformIodiv').addClass('col-6');				
+		    	$('#selectQueryType').val('1').trigger('change');
+		    	$('#selectcontainer_0').val('2').trigger('change');
+		    	$('#formIoIdForms').hide();
+	    	}
+	   } else {
+	   		if (isChecked){
+	   			$('#isformIodiv').attr('disabled', true);
+	   			$("#formIoChkBox").attr('disabled', true);
+	   		} else {
+	   			$('#isformIodiv').hide();
+	   		}
+	   		
+	   }
+	}
+
+	function loadFormIo(formIoId){		
+		$.ajax({
+			type: "GET",
+			url: contextPath+apiPath+"/loadfmio",
+			data: {
+				formIoId: formIoId
+			},
+			success: function(data) {			
+				let obj = new Object();
+				obj["form_io_id"] = formIoId;				
+				$('#formiolabel').append(data[0].formName);
+				$('#savedFormIoId').val(formIoId);
+				obj["form_name"] = data[0].formName;           
+				autocomplete.setSelectedObject(obj);
+				$("#selectedFormIoId").val(formIoId);
+			}
+		});
+	}
+    
+	function openFile(){
+		var savedFormIoId = $('#savedFormIoId').val();		
+		window.open(contextPath+viewPath+"/form-io-details?formioid="+savedFormIoId, '_blank');		
+	}
    
 </script>

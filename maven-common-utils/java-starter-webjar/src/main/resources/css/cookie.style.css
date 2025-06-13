@@ -126,8 +126,12 @@ overflow:hidden;
 
 @media (max-width: 980px) {
 	.cookieConsentContainer {
-		bottom: 0px !important;
+		bottom: 110px  !important;
 		left: 0px !important;
 		width: 100%  !important;
 	}
+	
+
+	
+ 
 }

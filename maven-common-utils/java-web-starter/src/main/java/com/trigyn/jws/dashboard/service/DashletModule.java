@@ -139,7 +139,7 @@ public class DashletModule implements DownloadUploadModule<Dashlet> {
 	}
 
 	@Override
-	public void uploadCodeToDB(String uploadFileName) throws Exception {
+	public void uploadCodeToDB(String dashletTypeID,String uploadFileName) throws Exception {
 		String	user				= "admin";
 		String	templateDirectory	= Constants.DASHLET_DIRECTORY_NAME;
 		String	folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", Constants.TEMPORARY_STORAGE_PATH);

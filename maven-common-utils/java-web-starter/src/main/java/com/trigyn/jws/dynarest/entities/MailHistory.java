@@ -2,9 +2,7 @@ package com.trigyn.jws.dynarest.entities;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity(name = "jq_failed_mail_history")
 public class MailHistory {

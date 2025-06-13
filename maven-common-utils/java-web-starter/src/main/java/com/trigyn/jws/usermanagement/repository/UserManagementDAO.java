@@ -3,13 +3,10 @@ package com.trigyn.jws.usermanagement.repository;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
@@ -19,26 +16,29 @@ import com.trigyn.jws.usermanagement.entities.JwsUserRoleAssociation;
 import com.trigyn.jws.usermanagement.security.config.TwoFactorGoogleUtil;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 @Repository
 public class UserManagementDAO extends DBConnection {
 
-	@PersistenceContext
-	private EntityManager em;
-
-	@Autowired
 	public UserManagementDAO(DataSource dataSource) {
 		super(dataSource);
 	}
 
+	@PersistenceContext
+	private EntityManager em;
+
 	public void deleteUserRoleAssociation(String userId) {
-		Query query = getCurrentSession().createQuery("DELETE FROM JwsUserRoleAssociation WHERE userId=:userId");
+		MutationQuery query = getCurrentSession().createMutationQuery("DELETE FROM JwsUserRoleAssociation WHERE userId=:userId");
 		query.setParameter("userId", userId);
 		query.executeUpdate();
 
 	}
 
 	public List<String> getRoleIdsByUserId(String userId) throws Exception {
-		Query query = getCurrentSession().createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId");
+		Query query = getCurrentSession().createQuery("SELECT roleId FROM JwsUserRoleAssociation WHERE userId =:userId", String.class);
 		query.setParameter("userId", userId);
 		List<String> roleIds = (List<String>) query.getResultList();
 		return roleIds;
@@ -60,14 +60,8 @@ public class UserManagementDAO extends DBConnection {
 	@Transactional
 	public JwsUser updateUserData(JwsUser jwsUser) {
 		jwsUser.setIsCustomUpdated(1);
-		getCurrentSession().saveOrUpdate(jwsUser);
+		getCurrentSession().merge(jwsUser);
 		return jwsUser;
-	}
-
-	@Transactional
-	public void saveRoleData(JwsRole jwsRole) {
-		jwsRole.setIsCustomUpdated(1);
-		getCurrentSession().saveOrUpdate(jwsRole);
 	}
 
 	@Transactional
@@ -76,28 +70,36 @@ public class UserManagementDAO extends DBConnection {
 		userRoleAssociation.setRoleId(Constants.AUTHENTICATED_ROLE_ID);
 		userRoleAssociation.setUserId(userId);
 		userRoleAssociation.setUpdatedDate(new Date());
-		getCurrentSession().save(userRoleAssociation);
+		getCurrentSession().persist(userRoleAssociation);
 	}
 
 	public JwsUser findJwsUserById(String userId) {
-		JwsUser user =  hibernateTemplate.get(JwsUser.class, userId);
-		user.setIsCustomUpdated(1);
-		if(user != null) getCurrentSession().evict(user);
+		JwsUser user = getCurrentSession().get(JwsUser.class, userId);
+		if (user != null) {
+			user.setIsCustomUpdated(1);
+			getCurrentSession().evict(user);
+		}
 		return user;
+	}
+
+	public JwsUserRoleAssociation findJwsUserRoleById(String userRoleId) {
+		JwsUserRoleAssociation userRole =  getCurrentSession().get(JwsUserRoleAssociation.class, userRoleId);
+		if(userRole != null) getCurrentSession().evict(userRole);
+		return userRole;
 	
 	}
 
 	@Transactional
 	public void saveJwsUser(JwsUser user) {
 		if(user.getUserId() == null || findJwsUserById(user.getUserId()) == null) {
-			getCurrentSession().save(user);			
+			getCurrentSession().persist(user);			
 		}else {
-			getCurrentSession().saveOrUpdate(user);
+			getCurrentSession().merge(user);
 		}
 	}
 
 	public JwsRole findJwsRoleById(String roleId) {
-		JwsRole role =  hibernateTemplate.get(JwsRole.class, roleId);
+		JwsRole role =  getCurrentSession().get(JwsRole.class, roleId);
 		if(role != null) getCurrentSession().evict(role);
 		return role;
 	
@@ -106,15 +108,15 @@ public class UserManagementDAO extends DBConnection {
 	@Transactional
 	public void saveJwsRole(JwsRole role) {
 		if(role.getRoleId() == null || findJwsRoleById(role.getRoleId()) == null) {
-			getCurrentSession().save(role);			
+			getCurrentSession().persist(role);			
 		}else {
-			getCurrentSession().saveOrUpdate(role);
+			getCurrentSession().merge(role);
 		}
 	}
 	
 	public Integer getEntityRoleTypeID(String query)
 	{
-		Query querynew = getCurrentSession().createQuery(query);
+		Query querynew = getCurrentSession().createQuery(query, Integer.class);
 		return (Integer) querynew.uniqueResult();
 		
 	}

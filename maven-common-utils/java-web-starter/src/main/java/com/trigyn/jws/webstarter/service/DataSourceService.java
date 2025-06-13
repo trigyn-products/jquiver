@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
@@ -37,10 +35,12 @@ import com.trigyn.jws.dbutils.vo.DatasourceLookUpVO;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 
 public class DataSourceService {
 
-	private final static Logger				logger						= LogManager.getLogger(DataSourceService.class);
+	private final static Logger				logger						= LoggerFactory.getLogger(DataSourceService.class);
 
 	@Autowired
 	private DatasourceLookUpRepository		datasourceLookUpRepo		= null;
@@ -116,6 +116,8 @@ public class DataSourceService {
 				return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("Datasource can not be changed");
 			}
 			additionalDatasource.setLastUpdatedBy(userDetails.getUserName());
+		} else if(additionalDatasourceRepo.getDatasourceByName(dataSourceName) > 0) {
+			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body("Datasource name already exists.");
 		} else {
 			additionalDatasource.setCreatedBy(userDetails.getUserName());
 			additionalDatasource.setCreatedDate(date);

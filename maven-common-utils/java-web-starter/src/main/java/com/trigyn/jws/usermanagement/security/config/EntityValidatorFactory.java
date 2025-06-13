@@ -56,7 +56,7 @@ public class EntityValidatorFactory {
 			case Constants.DYNAMICREST:
 				return dynamicRestEntityValidator;
 
-			case Constants.SITELAYOUT:
+			case Constants.ROUTER:
 				return siteLayoutEntityValidator;
 
 			case Constants.FILEBIN:

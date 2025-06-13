@@ -6,19 +6,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.JobDataMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import com.itextpdf.io.IOException;
+import com.itextpdf.io.exceptions.IOException;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dynarest.dao.JwsClusterStateDAO;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
@@ -29,10 +26,13 @@ import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.quartz.util.InstanceVersion;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletContext;
+
 @Configuration
 public class SchedulerConfiguration {
 	
-	private final static Logger logger = LogManager.getLogger(SchedulerConfiguration.class);
+	private final static Logger logger = LoggerFactory.getLogger(SchedulerConfiguration.class);
 
 	@Autowired
 	private JqschedulerRepository		jqschedulerRepository	= null;

@@ -297,6 +297,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 <script>
   <#noparse>
 	contextPath = "${contextPath}";
+	viewPath = "${(viewPath)!''''}";
 	 let isEdit = 0;
 	</#noparse>
   
@@ -392,7 +393,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
 	//Code go back to previous page
 	function backToPreviousPage() {
 		<#if moduleURL?? && moduleURL?has_content>
-			location.href = contextPath+"/view/${(moduleURL)!''''}";
+			location.href = contextPath+viewPath+"/${(moduleURL)!''''}";
 		<#else>
 			location.href = contextPath+"/cf/home";
 		</#if>
@@ -487,7 +488,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     }
 
     function upsert(element){
-    	let redirectURL = contextPath+"/view/${(dfModuleURL)!''''}";
+    	let redirectURL = contextPath+viewPath+"/${(dfModuleURL)!''''}";
         if(element){
     		let rowData = $( "#${gridId}" ).pqGrid("getData")[element.id];
     	 	<#list primaryKeys as primaryKey>

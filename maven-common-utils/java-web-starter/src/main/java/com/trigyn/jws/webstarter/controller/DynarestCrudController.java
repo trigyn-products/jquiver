@@ -5,25 +5,12 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
-import com.trigyn.jws.dbutils.cipher.utils.RSAKeyPairGeneratorUtil;
-import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
-import com.trigyn.jws.dbutils.utils.CustomStopException;
-import com.trigyn.jws.dynamicform.utils.Constant;
-import com.trigyn.jws.templating.service.MenuService;
-import com.trigyn.jws.usermanagement.security.config.JwtUtil;
-import com.trigyn.jws.webstarter.service.DynarestCrudService;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.MultiValueMap;
@@ -36,12 +23,28 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
+import com.trigyn.jws.dbutils.cipher.utils.RSAKeyPairGeneratorUtil;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.usermanagement.security.config.JwtUtil;
+import com.trigyn.jws.webstarter.service.DynarestCrudService;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','REST API')")
 public class DynarestCrudController {
 
-	private final static Logger	logger				= LogManager.getLogger(DynarestCrudController.class);
+	private final static Logger	logger				= LoggerFactory.getLogger(DynarestCrudController.class);
 
 	@Autowired
 	private PropertyMasterDAO	propertyMasterDAO	= null;
@@ -53,10 +56,17 @@ public class DynarestCrudController {
 	private MenuService			menuService			= null;
 
 	@Autowired
+	@Lazy
 	private UserDetailsService	userDetailsService	= null;
 
 	@Autowired
 	private JwtUtil				jwtUtil				= null;
+	
+	@Autowired
+	private FileUtilities 		fileUtilities 		= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	@GetMapping(value = "/dynl", produces = MediaType.TEXT_HTML_VALUE)
 	public String loadDynarestListing(HttpServletRequest httpServletRequest) throws Exception, CustomStopException {
@@ -69,7 +79,7 @@ public class DynarestCrudController {
 			String			url			= httpServletRequest.getRequestURL().toString();
 			StringBuilder	urlPrefix	= new StringBuilder();
 			url = url.replace(uri, "");
-			urlPrefix.append(url).append("/api/");
+			urlPrefix.append(url).append(jQuiverPropeties.getApiPath()+"/");
 			modelMap.put("urlPrefix", urlPrefix);
 			return menuService.getTemplateWithSiteLayout("dynarest-details-listing", modelMap);
 		} catch (CustomStopException custStopException) {
@@ -118,7 +128,7 @@ public class DynarestCrudController {
 
 		} catch (Exception exec) {
 			logger.error("Error occured while encrypting.", exec);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exec.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exec.getMessage());
 			exec.printStackTrace();
 			return null;
 			//exec.printStackTrace();
@@ -150,7 +160,7 @@ public class DynarestCrudController {
 		} catch (Exception exec) {
 			logger.error("Error occured while decrypting.", exec);
 			exec.printStackTrace();
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exec.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exec.getMessage());
 			exec.printStackTrace();
 			return null;
 		}
@@ -163,4 +173,29 @@ public class DynarestCrudController {
 		String token = jwtUtil.generateToken(userDetailsService.loadUserByUsername(userName));
 		return token;
 	}
+	
+	@PostMapping(value = "/drabi")
+	public void downloadRestApiByIdToLocalDirectory(HttpSession session, HttpServletRequest request) throws Throwable {
+		String dynarestId = request.getParameter("dynarestId");
+		dynarestCrudService.downloadDynamicRestTemplate(dynarestId);
+	}
+	
+	@PostMapping(value = "/darld")
+	public void downloadAllRestApiToLocalDirectory(HttpSession session, HttpServletRequest request) throws Throwable {
+		dynarestCrudService.downloadDynamicRestTemplate(null);
+	}
+	
+	@PostMapping(value = "/urbnd")
+	public void uploadRestApiByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String restUrl = request.getParameter("dynarestUrl");
+		String restTypeId = request.getParameter("restTypeId");
+		dynarestCrudService.uploadRestApis(restTypeId,restUrl);
+	}
+	
+	@PostMapping(value = "/uardb")
+	public void uploadAllRestApisToDB(HttpSession session, HttpServletRequest request) throws Exception {
+		String restTypeId = request.getParameter("restTypeId");
+		dynarestCrudService.uploadRestApis(restTypeId,null);
+	}
+
 }

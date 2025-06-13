@@ -3,21 +3,20 @@ package com.trigyn.jws.dynarest.entities;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_file_upload_temp")
 public class FileUploadTemp {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "file_upload_temp_id")
 	private String	fileUploadTempId	= null;
 

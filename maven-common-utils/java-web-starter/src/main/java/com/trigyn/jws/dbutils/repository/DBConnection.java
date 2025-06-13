@@ -10,24 +10,26 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.entities.AdditionalDatasourceRepository;
 import com.trigyn.jws.dbutils.service.DataSourceFactory;
 import com.trigyn.jws.dbutils.vo.DataSourceVO;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Repository
 public class DBConnection {
 
-	protected DataSource					dataSource						= null;
-
-	protected JdbcTemplate					jdbcTemplate					= null;
-
-	protected NamedParameterJdbcTemplate	namedParameterJdbcTemplate		= null;
-
+//	@Autowired
+//	protected HibernateTemplate				hibernateTemplate				= null;
+	
+	@PersistenceContext 
+	protected EntityManager entityManager;
+	
 	@Autowired
-	protected HibernateTemplate				hibernateTemplate				= null;
+	protected DataSource					dataSource						= null;
 
 	@Autowired
 	protected SessionFactory				sessionFactory					= null;
@@ -36,11 +38,19 @@ public class DBConnection {
 	private AdditionalDatasourceRepository	additionalDatasourceRepository	= null;
 
 	@Autowired
+	protected JdbcTemplate					jdbcTemplate					= null;
+
+	@Autowired
+	protected NamedParameterJdbcTemplate	namedParameterJdbcTemplate		= null;
+
+	private Session 						session 						= null;
+
 	public DBConnection(DataSource dataSource) {
+		 super();
 		this.dataSource = dataSource;
 		setJdbcTemplate();
 		setNamedParameterJdbcTemplate();
-	}
+  	}
 
 	public DataSource getDataSource() {
 		return this.dataSource;
@@ -74,16 +84,20 @@ public class DBConnection {
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
 	}
 
-	public HibernateTemplate getHibernateTemplate() {
-		return this.hibernateTemplate;
-	}
-
-	public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
-		this.hibernateTemplate = hibernateTemplate;
-	}
+//	public HibernateTemplate getHibernateTemplate() {
+//		return this.hibernateTemplate;
+//	}
+//
+//	public void setHibernateTemplate(HibernateTemplate hibernateTemplate) {
+//		this.hibernateTemplate = hibernateTemplate;
+//	}
 
 	public Session getCurrentSession() {
-		return sessionFactory.getCurrentSession();
+		if(session == null) {
+			session = entityManager.unwrap(Session.class);
+		}
+		return session;
+//		return sessionFactory.getCurrentSession();
 	}
 
 	public SessionFactory getSessionFactory() {

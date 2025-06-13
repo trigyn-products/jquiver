@@ -1,5 +1,5 @@
 ALTER TABLE jq_master_modules
- CHANGE auxiliary_data auxiliary_data LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci;
+ CHANGE auxiliary_data auxiliary_data LONGTEXT;
 
 SET FOREIGN_KEY_CHECKS=0;
 

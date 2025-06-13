@@ -1,0 +1,21 @@
+<#compress>
+<#if innerTemplateObj?? && (innerTemplateObj.ssoUrls)?? && (innerTemplateObj.ssoUrls)??> 
+   
+        <div class="socialloginblock">
+            <#list innerTemplateObj.ssoUrlMap as ssoUrl, ssoUrlValue>
+                <#if (ssoUrl)??>  
+                    <div class="block-wrap">	      
+                        <a class="btn-microsoft" href="${ssoUrlValue}">
+                        <div class="ms-content">    
+						<div class="logo">  
+                         <img src="${(contextPath)!''}/webjars/1.0/images/samlicon.svg">SAML	                       
+						</div>  
+					</div> 	
+                    </a>	 
+                    </div>  			 
+                </#if>
+            </#list>
+        </div>
+    </div>	
+</#if>
+</#compress>

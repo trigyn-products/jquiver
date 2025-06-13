@@ -4,33 +4,34 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@ApiModel(value = "This model is used to hold dashboard and its associated dashlet information.")
+
+@Tag(name = "This model is used to hold dashboard and its associated dashlet information.")
 public class DashboardVO implements Serializable {
 
 	private static final long	serialVersionUID	= 3073208964632498741L;
 
-	@ApiModelProperty(position = 1, name = "dashboardId")
+	@Schema(name = "dashboardId")
 	private String				dashboardId			= null;
 
-	@ApiModelProperty(position = 2, name = "dashboardName")
+	@Schema(name = "dashboardName")
 	private String				dashboardName		= null;
 
-	@ApiModelProperty(position = 3, name = "roleIdList")
+	@Schema(name = "roleIdList")
 	private List<String>		roleIdList			= null;
 
-	@ApiModelProperty(position = 5, name = "dashletIdList")
+	@Schema(name = "dashletIdList")
 	private List<String>		dashletIdList		= null;
 
-	@ApiModelProperty(position = 6, name = "isDraggable")
+	@Schema(name = "isDraggable")
 	private Integer				isDraggable			= null;
 
-	@ApiModelProperty(position = 7, name = "isExportable")
+	@Schema(name = "isExportable")
 	private Integer				isExportable		= null;
 	
-	@ApiModelProperty(position = 8, name = "dashboardBody")
+	@Schema(name = "dashboardBody")
 	private String				dashboardBody		= null;
 
 	public DashboardVO() {

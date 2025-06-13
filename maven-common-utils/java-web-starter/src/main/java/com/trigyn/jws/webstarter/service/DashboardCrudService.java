@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,12 +42,13 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.webstarter.dao.DashboardCrudDAO;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
 
 @Service
 @Transactional(readOnly = false)
 public class DashboardCrudService {
 
-	private final static Logger						logger							= LogManager
+	private final static Logger						logger							= LoggerFactory
 			.getLogger(DashboardCrudService.class);
 
 	@Autowired
@@ -70,9 +71,9 @@ public class DashboardCrudService {
 
 	@Autowired
 	private IDashletRepository						iDashletRepository				= null;
-	
+
 	@Autowired
-	private DashletDAO                              dashletDAO=null;
+	private DashletDAO								dashletDAO						= null;
 
 	@Autowired
 	private JwsRoleRepository						userRoleRepository				= null;
@@ -91,7 +92,10 @@ public class DashboardCrudService {
 
 	@Autowired
 	private ActivityLog								activitylog						= null;
-	
+
+	@Autowired
+	private RedissonQueryCacheManagerUtil			cacheManager					= null;
+
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
 		return iDashboardRepository.findById(dashboardId).orElse(null);
 	}
@@ -117,13 +121,14 @@ public class DashboardCrudService {
 			dashboardCrudDAO.deleteAllDashboardRoles(dashboardId);
 		}
 	}
+
 	public DashletVO findDashletByDashletId(String dashletId) throws Exception {
 		return iDashletRepository.findDashletByDashletId(dashletId);
 	}
-	
+
 	public List<DashletVO> getDashletVOFromDashboard(Dashboard dashboard) throws Exception {
-		
-		List<DashletVO> listDashletVO =new ArrayList();
+
+		List<DashletVO> listDashletVO = new ArrayList();
 		if (!CollectionUtils.isEmpty(dashboard.getDashboardDashlets())) {
 			for (DashboardDashletAssociation dashboardDashletAssociation : dashboard.getDashboardDashlets()) {
 				DashletVO dashletVO = new DashletVO();
@@ -151,10 +156,11 @@ public class DashboardCrudService {
 		} else {
 			action = Constants.Action.ADD.getAction();
 		}
-		if(dashboardEntity.getDashboardId()!=null) {
-			dashboardCrudDAO.updateDashboard(dashboardEntity);}			
-		else {
-		dashboardEntity = iDashboardRepository.save(dashboardEntity);}
+		if (dashboardEntity.getDashboardId() != null) {
+			dashboardCrudDAO.updateDashboard(dashboardEntity);
+		} else {
+			dashboardEntity = iDashboardRepository.save(dashboardEntity);
+		}
 		dashboardVO.setDashboardId(dashboardEntity.getDashboardId());
 		if (!CollectionUtils.isEmpty(dashboardVO.getRoleIdList())) {
 			for (String roleId : dashboardVO.getRoleIdList()) {
@@ -234,6 +240,7 @@ public class DashboardCrudService {
 		dashboardEntity.setDashboardBody(dashboardVO.getDashboardBody());
 		return dashboardEntity;
 	}
+
 	public DashboardVO convertDashboardEntityToVO(Dashboard dashboard) {
 		DashboardVO dashboardVO = new DashboardVO();
 		dashboardVO.setDashboardId(dashboard.getDashboardId());
@@ -248,10 +255,9 @@ public class DashboardCrudService {
 		dashboardVO.setIsDraggable(dashboard.getIsDraggable());
 		dashboardVO.setIsExportable(dashboard.getIsExportable());
 		dashboardVO.setDashboardBody(dashboard.getDashboardBody());
-		
+
 		return dashboardVO;
 	}
-
 
 	public DashboardVO convertDashboarEntityToVO(Dashboard dashboard) {
 		DashboardVO dashboardVO = new DashboardVO();
@@ -280,6 +286,8 @@ public class DashboardCrudService {
 	public void saveDashboardDashletAssociation(DashboardDashletAssociation dashboardDashletAssociation)
 			throws Exception {
 		dashboardCrudDAO.saveDashboardDashletAssociation(dashboardDashletAssociation);
+		String cacheKey = com.trigyn.jws.webstarter.utils.Constant.TargetLookupId.DASHBOARD.getTargetLookupId() + "::" + dashboardDashletAssociation.getDashboard().getDashboardId();
+		cacheManager.invalidateDtoORScalarValues("targetTypeDetailsCache", cacheKey);
 	}
 
 	public Map<String, String> findContextDetails() throws Exception {
@@ -310,7 +318,7 @@ public class DashboardCrudService {
 			dashboardCrudDAO.deleteAllDashletRoles(dashletId);
 		}
 	}
-	@Transactional(readOnly = false)
+
 	public String saveDashlet(DashletVO dashletVO, Integer sourceTypeId) throws Exception {
 
 		Dashlet dashlet = convertDashletVOToEntity(dashletVO);
@@ -333,7 +341,7 @@ public class DashboardCrudService {
 				for (DashletPropertyVO dashletPropertyVO : dashletVO.getDashletPropertVOList()) {
 					DashletProperties dashletProperties = convertDashletPropertyVOtoEntity(dashlet.getDashletId(),
 							dashletPropertyVO);
-				    //dashboardCrudDAO.saveDashletProperties(dashletProperties);
+					// dashboardCrudDAO.saveDashletProperties(dashletProperties);
 					iDashletPropertiesRepository.save(dashletProperties);
 					properties.add(dashletProperties);
 				}
@@ -365,9 +373,6 @@ public class DashboardCrudService {
 					&& !dashletVO.getDashletId().isEmpty()) {
 				dashlet.setDashletId(dashletVO.getDashletId());
 				dashlet.setUpdatedBy(userId);
-			} else {
-				dashlet.setCreatedBy(userId);
-				dashlet.setCreatedDate(date);
 			}
 			if (StringUtils.isBlank(dashletVO.getDataSourceId()) == false) {
 				dashlet.setDatasourceId(dashletVO.getDataSourceId());
@@ -383,6 +388,8 @@ public class DashboardCrudService {
 			dashlet.setDashletQuery(dashletVO.getDashletQuery());
 			dashlet.setDashletBody(dashletVO.getDashletBody());
 			dashlet.setShowHeader(dashletVO.getShowHeader());
+			dashlet.setCreatedBy(userId);
+			dashlet.setCreatedDate(date);
 			dashlet.setLastUpdatedTs(date);
 			dashlet.setIsActive(dashletVO.getIsActive());
 			dashlet.setDaoQueryType(dashletVO.getDaoQueryType());
@@ -435,8 +442,8 @@ public class DashboardCrudService {
 		}
 	}
 
-	public void uploadDashlets(String dashletName) throws Exception {
-		downloadUploadModule.uploadCodeToDB(dashletName);
+	public void uploadDashlets(String dashletTypeId, String dashletName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(dashletTypeId, dashletName);
 	}
 
 }

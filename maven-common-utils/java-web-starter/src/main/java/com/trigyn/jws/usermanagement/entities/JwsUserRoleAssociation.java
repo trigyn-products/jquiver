@@ -2,25 +2,24 @@ package com.trigyn.jws.usermanagement.entities;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_user_role_association")
 public class JwsUserRoleAssociation {
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name = "user_role_id")
 	private String	userRoleId	= null;
 

@@ -1,17 +1,10 @@
 <head>
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-    <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-    <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
     <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
     <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
     <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
 </head>
-<div class="container" style="padding-top: 40px">
+<div class="container">
     <div class="topband">
         <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.commonfiles')}</h2> 
         <div class="float-right">
@@ -28,7 +21,7 @@
     </div>
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return);">${messageSource.getMessage('jws.save')}</button>

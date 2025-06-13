@@ -3,8 +3,8 @@ package com.trigyn.jws.gridutils.service;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import com.trigyn.jws.gridutils.utility.GenericGridParams;
 @Service
 public class GenericUtilsService {
 
-	private final static Logger	logger			= LogManager.getLogger(GenericUtilsService.class);
+	private final static Logger	logger			= LoggerFactory.getLogger(GenericUtilsService.class);
 
 	@Autowired
 	private GridUtilsDAO		genericUtilsDAO	= null;

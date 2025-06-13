@@ -5,9 +5,9 @@ CREATE TABLE `jq_master_module` (
   `module_template_id` varchar(50) NOT NULL,
   `grid_details_id` varchar(50) NOT NULL,
   `auxiliary_data` varchar(100) DEFAULT NULL,
-  `module_description_template` text CHARACTER SET utf8 DEFAULT NULL,
+  `module_description_template` text DEFAULT NULL,
   `show_on_dashboard` int(11) NOT NULL,
   `is_system_module` int(11) NOT NULL,
   PRIMARY KEY (`master_module_id`),
   UNIQUE KEY `master_module_name` (`master_module_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);

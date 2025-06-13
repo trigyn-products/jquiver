@@ -4,29 +4,31 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.GenericGenerator;
 
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 import com.trigyn.jws.dbutils.vo.AdditionalDatasourceVO;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jq_additional_datasource")
+@EntityListeners(value = { UUIDEntityListener.class })
 @NamedQuery(name = "AdditionalDatasource.findAll", query = "SELECT j FROM AdditionalDatasource j")
 public class AdditionalDatasource implements Serializable {
 	private static final long	serialVersionUID		= 1L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "additional_datasource_id")
 	private String				additionalDatasourceId	= null;
 

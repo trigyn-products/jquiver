@@ -1,14 +1,8 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
 <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" /> 
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
@@ -21,21 +15,25 @@
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.scheduler')}</h2> 
-        <div class="float-right">
-        	${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown" onchange="changeType()">   
+        <h2 class="title-cls-name">${messageSource.getMessage('jws.scheduler')}</h2> 
+        <div class="topactionbuttons">
+        <div class="addonbtnblock">
+        	<div class="showblock">
+                 <span>${messageSource.getMessage('jws.show')}</span>
+                <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
                 <option value="0">${messageSource.getMessage('jws.all')}</option>                   
                 <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
                 <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-            </select>
-             <button type="submit" class="btn btn-primary" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
+                  </select>       
+                </div> 
+             <button type="submit" class="btn btn-primary spacingclss" onclick="openAddEditScreen()"> ${messageSource.getMessage('jws.createnew')} </button>
             <span onclick="backToWelcomePage();">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span> 
         </div>
+        </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
     <div id="jq-schedulerGrid"></div>
     <div id="log-history-popup" title="Scheduler History" style="display:none;">
@@ -296,7 +294,7 @@ function formatName(uiObject){
         }
         $("#divSchedulerLogHistory").find("button").remove()
         $.ajax({
-            url: "${contextPath!''}/api/getExecutionHistory",
+            url: "${contextPath!''}"+apiPath+"/getExecutionHistory",
             type: "POST",
             data:{"offset": a_offset,
             "schedulerID": schedulerID},

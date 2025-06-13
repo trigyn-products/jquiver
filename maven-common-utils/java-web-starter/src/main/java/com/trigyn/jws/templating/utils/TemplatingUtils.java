@@ -10,12 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -35,17 +32,20 @@ import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 import freemarker.cache.StringTemplateLoader;
 import freemarker.core.StopException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class TemplatingUtils {
 
-	private final static Logger		logger					= LogManager.getLogger(TemplatingUtils.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(TemplatingUtils.class);
 
 //	@Autowired
 	private FreeMarkerConfigurer	freeMarkerConfigurer	= null;
@@ -62,7 +62,7 @@ public class TemplatingUtils {
 	@Autowired
 	private DBTemplatingService		templatingService		= null;
 
-	@Autowired
+//	@Autowired
 	private DynamicTemplate			dynamicTemplate			= null;
 
 	@Autowired
@@ -70,6 +70,10 @@ public class TemplatingUtils {
 
 	@Autowired
 	private PropertyMasterDetails	propertyMasterDetails	= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
 	
 	public String processTemplateContents(String templateContent, String templateName, Map<String, Object> modelMap)
 			throws CustomStopException, Exception {
@@ -131,6 +135,7 @@ public class TemplatingUtils {
 			Map<PropertyMasterKeyVO, String>	propertyMasterMap	= propertyMasterDetails.getAllProperties();
 			Locale								locale				= null;
 			
+			loadDynamicTemplate();
 			HttpServletRequest requestObject = getRequest();
 			
 			if(requestObject == null) {
@@ -139,8 +144,16 @@ public class TemplatingUtils {
 				locale = localeResolver.resolveLocale(requestObject);
 				modelMap.put("httpRequestObject", requestObject);
 			}
+			boolean cspEnable = propertyMasterDetails.getCspConfig().isCSPEnable();
+			String nonce = (String) requestObject.getAttribute("cspNonce");
 			modelMap.put("locale", locale);
 			modelMap.put("contextPath", contextPath);
+			modelMap.put("viewPath", jQuiverPropeties.getViewPath());
+			modelMap.put("apiPath", jQuiverPropeties.getApiPath());
+			if (cspEnable && null!=nonce) {
+				modelMap.put("dynamicNonce", nonce);
+				modelMap.put("enableCSP", cspEnable);
+			}
 			modelMap.put("messageSource", MessageSourceUtils.getMessageSource(messageSource, locale));
 			modelMap.put("dynamicTemplate", dynamicTemplate);
 			modelMap.put("systemProperties", propertyMasterMap);
@@ -215,10 +228,46 @@ public class TemplatingUtils {
 	}
 
 	public Configuration getFreemarkerConfigDetails() {
-		Configuration cfg = new Configuration(Configuration.VERSION_2_3_23);
+		Configuration cfg = new Configuration(Configuration.VERSION_2_3_34);
 		cfg.setAPIBuiltinEnabled(Boolean.TRUE);
 		cfg.setNumberFormat("0.####");
 		return cfg;
 	}
+	
+	private void loadDynamicTemplate() {
+//		SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+		if (dynamicTemplate == null && ApplicationContextUtils.getApplicationContext() != null) {
+			dynamicTemplate = ApplicationContextUtils.getApplicationContext().getBean("dynamicTemplate",
+					DynamicTemplate.class);
+		}
+		
+		if(dynamicTemplate == null) {
+			System.err.println("Dynamic template is null while processing template in TemplatingUtils");
+			logger.error("Dynamic template is null while processing template in TemplatingUtils");
+		}
+	}
+	
+	public boolean isValidJSON(String json) {
+	    try {
+	        new com.fasterxml.jackson.databind.ObjectMapper().readTree(json);
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+
+	public boolean isValidXML(String xml) {
+	    try {
+	        javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+	        factory.setNamespaceAware(true);
+	        javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
+	        builder.parse(new org.xml.sax.InputSource(new java.io.StringReader(xml)));
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+
 
 }

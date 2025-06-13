@@ -12,7 +12,7 @@ class DynamicRest {
 		let context = this;
 		$.ajax({
 			type: "GET",
-			url: contextPath + "/api/dynarestDetails",
+			url: contextPath+apiPath+"/dynarestDetails",
 			async: false,
 			data: {
 				url: dynaresturl
@@ -678,7 +678,7 @@ class DynamicRest {
 	copyUrlContextPath = function() {
 		let input = $("<input>");
 		$("body").append(input);
-		input.val('${contextPath}' + "/api/" + $("#dynarestUrl").val()).select();
+		input.val('${contextPath}'+apiPath+"/" + $("#dynarestUrl").val()).select();
 		document.execCommand("copy");
 		input.remove();
 		showMessage("REST URL copied successfully", "success");
@@ -689,7 +689,7 @@ class DynamicRest {
 		$("body").append($temp);
 		var uriPrefix = $("#baseUrl").val();
 		var dynaRestUri = $("#dynarestUrl").val();
-		$temp.val(uriPrefix + "/api/" +dynaRestUri).select();
+		$temp.val(uriPrefix +apiPath+"/" +dynaRestUri).select();
 		document.execCommand("copy");
 		$temp.remove();
 		showMessage("Copied successfully.", "success");

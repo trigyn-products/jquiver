@@ -33,7 +33,7 @@ public final class QueryStore {
 
 	public static final String		JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_ASSOC_ID										= "SELECT fu FROM FileUpload AS fu WHERE fu.fileAssociationId = :fileAssociationId ORDER BY fu.lastUpdatedTs DESC, fu.originalFileName ASC";
 
-	public static final String		JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_BIN_ID										= "SELECT fu FROM FileUpload AS fu WHERE fu.fileBinId = :fileBinId ORDER BY fu.lastUpdatedTs DESC, fu.originalFileName ASC";
+	public static final String		JPA_QUERY_TO_GET_FILE_DETAILS_BY_FILE_BIN_ID										= "SELECT fu FROM FileUpload AS fu WHERE fu.fileBinId = :fileBinId AND fu.filePath <> '/images' ORDER BY fu.lastUpdatedTs DESC, fu.originalFileName ASC";
 
 	public static final String		JPA_QUERY_TO_GET_ACTIVE_SCHEDULERS													= "SELECT sc FROM JqScheduler AS sc WHERE sc.isActive = :isActive";
 
@@ -49,5 +49,9 @@ public final class QueryStore {
 
 	public static final String		JPA_QUERY_TO_GET_ACTIVE_CLUSTER_STATE_BY_CLUSTER									= "SELECT jcs FROM JwsClusterState AS jcs WHERE jcs.isSchedular = :isActive AND jcs.instanceId = :instanceId";
 
-	public static final String      JPA_QUERY_TO_GET_ACTIVE_SCHEDULERS_BY_ID 											= "SELECT sc FROM JqScheduler AS sc WHERE sc.isActive = :isActive AND sc.schedulerId = :schedulerId";;
+	public static final String      JPA_QUERY_TO_GET_ACTIVE_SCHEDULERS_BY_ID 											= "SELECT sc FROM JqScheduler AS sc WHERE sc.isActive = :isActive AND sc.schedulerId = :schedulerId";
+	
+	public static final String     JPA_QUERY_TO_GET_ALL_TEMP_FILE_DETAILS_BY_FILE_UPLOAD_TEMP_ID ="SELECT fut FROM FileUploadTemp AS fut WHERE fut.fileUploadTempId = :fileUploadTempId AND fut.action = 1";
+
 }
+

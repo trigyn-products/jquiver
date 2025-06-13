@@ -3,18 +3,18 @@ package com.trigyn.jws.usermanagement.utils;
 import java.util.UUID;
 import java.util.Vector;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 
 @Component
 public final class SessionCounter implements HttpSessionListener {
 
-	private final static Logger		logger				= LogManager.getLogger(SessionCounter.class);
+	private final static Logger		logger				= LoggerFactory.getLogger(SessionCounter.class);
 	private static Vector<String>	httpSessionVector	= new Vector<String>();
 	public static final String		COUNTER				= "session-counter";
 

@@ -1,5 +1,6 @@
+SET FOREIGN_KEY_CHECKS = 0;
 
-ALTER TABLE `jq_api_client_details` DROP FOREIGN KEY `jq_encryption_algo_id_ibfk_1`;
+ALTER TABLE `jq_api_client_details` DROP FOREIGN KEY IF EXISTS `jq_encryption_algo_id_ibfk_1`;
 
 /*Table structure for table `jq_encryption_algorithms_lookup` */
 
@@ -44,9 +45,9 @@ CREATE TABLE `jq_enc_key_length_lookup` (
 );
 
 
-/*Table structure for table `jq_enc_alg_mod_pad_lookup` */
+/*Table structure for table `jq_enc_alg_mod_pad_key_lookup` */
 
-DROP TABLE IF EXISTS jq_enc_alg_mod_pad_lookup;
+DROP TABLE IF EXISTS jq_enc_alg_mod_pad_key_lookup;
 
 CREATE TABLE `jq_enc_alg_mod_pad_key_lookup` (
   `enc_lookup_id` int(11) NOT NULL,
@@ -67,3 +68,5 @@ CREATE TABLE `jq_enc_alg_mod_pad_key_lookup` (
 
 
 ALTER TABLE `jq_api_client_details` ADD CONSTRAINT `jq_encryption_algo_id_ibfk_1` FOREIGN KEY (`encryption_algo_id`) REFERENCES `jq_enc_alg_mod_pad_key_lookup`(`enc_lookup_id`);
+
+SET FOREIGN_KEY_CHECKS = 1;

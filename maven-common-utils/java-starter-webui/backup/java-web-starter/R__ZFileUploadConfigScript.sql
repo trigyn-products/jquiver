@@ -44,7 +44,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 
 <script>
 	contextPath = "${(contextPath)!''''}";
-	
+	viewPath = "${(viewPath)!''''}";
 	$(function () {
 		let formElement = $("#formFileUpload")[0].outerHTML;
 		let formDataJson = JSON.stringify(formElement);
@@ -91,7 +91,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 	
 		
     function fileUploadMaster() {
-		location.href = contextPath+"/view/fum";
+		location.href = contextPath+viewPath+"/fum";
 	}
 	
 	function backToWelcomePage() {

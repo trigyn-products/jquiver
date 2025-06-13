@@ -4,10 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -20,7 +16,6 @@ import org.springframework.web.util.NestedServletException;
 
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
-import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -29,6 +24,11 @@ import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class URLExceptionHandler implements ErrorController {
@@ -51,10 +51,12 @@ public class URLExceptionHandler implements ErrorController {
 	@Autowired
 	private JwsRoleRepository			jwsRoleRepository			= null;
 	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
 	@RequestMapping("/error")
 	public Object errorHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
 		Object				status			= httpServletRequest.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-		String				errorMessage1	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
 		Exception			exception		= (Exception) httpServletRequest.getAttribute("javax.servlet.error.exception");
 		boolean isCustomException = false;
 		int customErrorCode = Integer.MIN_VALUE;
@@ -85,7 +87,7 @@ public class URLExceptionHandler implements ErrorController {
 			if (url.contains("webjars")) {
 				return new ResponseEntity<String>("", HttpStatus.OK);
 			}
-			if (url.contains("/japi/") || url.contains("/api/")) {
+			if (url.contains("/japi/") || url.contains(jQuiverPropeties.getApiPath()+"/")) {
 				isCustomException = true;
 				// mobile
 				String		errorMessage	= httpServletRequest.getAttribute(RequestDispatcher.ERROR_MESSAGE).toString();
@@ -163,7 +165,6 @@ public class URLExceptionHandler implements ErrorController {
 		return menuService.getTemplateWithSiteLayout(templateVO.getTemplateName(), parameterMap);
 	}
 
-	@Override
 	public String getErrorPath() {
 		return null;
 	}

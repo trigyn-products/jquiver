@@ -5,7 +5,7 @@ CREATE TABLE `jq_request_type_details` (
   `jws_request_type_details_id` int(11) NOT NULL AUTO_INCREMENT,
   `jws_request_type` varchar(20) NOT NULL,
   PRIMARY KEY (`jws_request_type_details_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9;
 
 DROP TABLE IF EXISTS jq_response_code_details;
 CREATE TABLE `jq_response_code_details` (
@@ -13,14 +13,14 @@ CREATE TABLE `jq_response_code_details` (
   `jws_response_status_code` int(11) NOT NULL,
   `jws_response_code_description` varchar(5000) NOT NULL,
   PRIMARY KEY (`jws_response_code_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13;
 
 DROP TABLE IF EXISTS jq_response_producer_details;
 CREATE TABLE `jq_response_producer_details` (
   `jws_response_producer_type_id` int(11) NOT NULL AUTO_INCREMENT,
   `jws_response_producer_type` varchar(512) NOT NULL,
   PRIMARY KEY (`jws_response_producer_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7;
 
 DROP TABLE IF EXISTS jq_dynamic_rest_details;
 CREATE TABLE `jq_dynamic_rest_details` (
@@ -40,7 +40,7 @@ CREATE TABLE `jq_dynamic_rest_details` (
   KEY `jws_response_producer_type_id` (`jws_response_producer_type_id`),
   CONSTRAINT `jq_dynamic_rest_details_ibfk_1` FOREIGN KEY (`jws_request_type_id`) REFERENCES `jq_request_type_details` (`jws_request_type_details_id`),
   CONSTRAINT `jq_dynamic_rest_details_ibfk_2` FOREIGN KEY (`jws_response_producer_type_id`) REFERENCES `jq_response_producer_details` (`jws_response_producer_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ;
 
 DROP TABLE IF EXISTS jq_dynamic_rest_response_params;
 CREATE TABLE `jq_dynamic_rest_response_params` (
@@ -53,7 +53,7 @@ CREATE TABLE `jq_dynamic_rest_response_params` (
   KEY `jws_response_code_id` (`jws_response_code_id`),
   CONSTRAINT `jq_dynamic_rest_response_params_ibfk_1` FOREIGN KEY (`jws_dynamic_rest_details_id`) REFERENCES `jq_dynamic_rest_details` (`jws_dynamic_rest_id`),
   CONSTRAINT `jq_dynamic_rest_response_params_ibfk_2` FOREIGN KEY (`jws_response_code_id`) REFERENCES `jq_response_code_details` (`jws_response_code_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 DROP TABLE IF EXISTS jq_dynamic_rest_dao_details;
@@ -67,7 +67,7 @@ CREATE TABLE `jq_dynamic_rest_dao_details` (
   PRIMARY KEY (`jws_dao_details_id`),
   KEY `jws_dynamic_rest_details_id` (`jws_dynamic_rest_details_id`),
   CONSTRAINT `jq_dynamic_rest_dao_details_ibfk_1` FOREIGN KEY (`jws_dynamic_rest_details_id`) REFERENCES `jq_dynamic_rest_details` (`jws_dynamic_rest_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 DROP TABLE IF EXISTS `jq_dynamic_rest_role_association`;
@@ -79,7 +79,7 @@ CREATE TABLE `jq_dynamic_rest_role_association`(
 , KEY `role_id` (`role_id`)
 , CONSTRAINT `jq_dynamic_rest_role_association_ibfk_1` FOREIGN KEY (`jws_dynamic_rest_id`) REFERENCES `jq_dynamic_rest_details` (`jws_dynamic_rest_id`)
 , CONSTRAINT `jq_dynamic_rest_role_association_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `jq_user_role` (`role_id`)  
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 SET FOREIGN_KEY_CHECKS=1;

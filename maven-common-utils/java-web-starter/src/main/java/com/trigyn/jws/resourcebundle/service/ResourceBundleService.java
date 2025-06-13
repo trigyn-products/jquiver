@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,21 +17,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONObject;
+import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -47,9 +46,7 @@ import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
-import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dynarest.cipher.utils.ScriptUtil;
 import com.trigyn.jws.gridutils.service.GenericUtilsService;
 import com.trigyn.jws.gridutils.utility.GenericGridParams;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
@@ -67,6 +64,11 @@ import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.utils.FileUtil;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 @Service
 @Transactional(readOnly = true)
@@ -101,8 +103,18 @@ public class ResourceBundleService {
 
 	@Autowired
 	private TemplatingUtils templatingUtils = null;
+	
+	@Autowired
+	private RedissonQueryCacheManagerUtil cacheManager = null;
+	
+	@Autowired
+	private SessionFactory sessionFactory = null;
+	
+	private static final String I18N_CACHE_MAP = "i18n:messages"; // Map name
+	
+	private static final Duration TTL = Duration.ofHours(6); 
 
-	private final static Logger logger = LogManager.getLogger(ResourceBundleService.class);
+	private final static Logger logger = LoggerFactory.getLogger(ResourceBundleService.class);
 
 	private final static String GRIDID = "gridId";
 
@@ -176,12 +188,14 @@ public class ResourceBundleService {
 					oldResourceBundleVOObj = iResourceBundleRepository.findResourceBundleByKey(resourceBundleKey);
 				}
 				for (ResourceBundleVO resourceBundleVO : resourceBundleVOList) {
-					if (resourceBundleVO.getText() != null && !resourceBundleVO.getText().equals("")) {
+				
 						ResourceBundle resourceBundle = convertResourceBundleVOToEntity(resourceBundleKey,
 								resourceBundleVO);
 						if (action.equals(Constants.Action.ADD.getAction())) {
 							resourceBundle.setCreatedBy(user);
 							resourceBundle.setCreatedDate(new Date());
+							resourceBundle.setUpdatedBy(user);
+							resourceBundle.setUpdatedDate(new Date());
 						} else {
 							resourceBundle.setCreatedBy(oldResourceBundleVOObj.get(0).getCreatedBy());
 							resourceBundle.setCreatedDate(oldResourceBundleVOObj.get(0).getCreatedDate());
@@ -189,13 +203,18 @@ public class ResourceBundleService {
 							resourceBundle.setUpdatedDate(new Date());
 						}
 						resourceBundleList.add(resourceBundle);
-					}
 				}
 
 				logActivity(resourceBundleKey, action);
 				iResourceBundleRepository.saveAll(resourceBundleList);
 				moduleVersionService.saveModuleVersion(resourceBundleVOList, null, resourceBundleKey,
 						"jq_resource_bundle", sourceTypeId);
+				
+				// Invalidate the Hibernate 2nd-level query cache region
+				sessionFactory.getCache().evictQueryRegion("resourceBundleDataQueryCache");
+				String cacheName = "resourceBundleCache";
+				String cacheKey = String.join(":", resourceBundleKey);
+				cacheManager.invalidateDtoORScalarValues(cacheName, cacheKey);
 			}
 
 		} catch (Exception ex) {
@@ -240,10 +259,14 @@ public class ResourceBundleService {
 
 		resourceBundlePK.setLanguageId(resourceBundleVO.getLanguageId());
 		resourceBundle.setId(resourceBundlePK);
-		if (resourceBundleVO.getLanguageId().equals(Constant.DEFAULT_LANGUAGE_ID)) {
-			resourceBundle.setText(resourceBundleVO.getText());
-		} else {
-			resourceBundle.setText(ResourceBundleUtils.getUnicode(resourceBundleVO.getText()));
+		if (resourceBundleVO.getText() != null && !resourceBundleVO.getText().equals("")) {
+			if (resourceBundleVO.getLanguageId().equals(Constant.DEFAULT_LANGUAGE_ID)) {
+				resourceBundle.setText(resourceBundleVO.getText());
+			} else {
+				resourceBundle.setText(ResourceBundleUtils.getUnicode(resourceBundleVO.getText()));
+			}
+		}else {
+			resourceBundle.setText(ResourceBundleUtils.getUnicode(""));
 		}
 		return resourceBundle;
 	}
@@ -330,15 +353,13 @@ public class ResourceBundleService {
 				Collections.sort(langList);
 				rbList.put(rb.getResourceKey().trim(), langList);
 			}
-
 		}
-
-		templateMap.put("resourceBundlelist", rbList);
-		if(rbList.isEmpty()){
+		Map<String, List<ResourceBundlePQGrid>> sortedMap = new TreeMap<>(rbList);
+		templateMap.put("resourceBundlelist", sortedMap);
+		if(sortedMap.isEmpty()){
 			return null;	
 		}
 		return evalTemplateByName("export-resourcebundle", templateMap);
-
 	}
 
 
@@ -383,7 +404,6 @@ public class ResourceBundleService {
 							gridParams.getJSONArray("colModel").getJSONObject(colModelCounter).getString("dataIndx"));
 					filterList.add(obj);
 				}
-
 			}
 			String condition = "contain";
 			String dataType = "string";
@@ -404,7 +424,6 @@ public class ResourceBundleService {
 						obj1.put("cbFn", cbFn);
 						filterArray.add(obj1);
 					}
-
 				}
 			}
 			if (resourceType != null && !resourceType.equals("0")) {
@@ -431,7 +450,6 @@ public class ResourceBundleService {
 				list.add(filterArray.get(filterArrayCounter));
 				pqFilter.put("data", list);
 			}
-
 			String gridId = request.getParameter("gridId");
 			String excelString = fetchGridData(saveStatus, gridId, new JSONObject(pqFilter));
 			if(null==excelString)
@@ -454,7 +472,7 @@ public class ResourceBundleService {
 			}
 		}
 	}
-
+	
 	public void downloadExport(HttpServletRequest request, HttpServletResponse response, String path) throws Exception {
 		File filePath = new File(path);
 		InputStream inputStream = new FileInputStream(filePath);
@@ -483,17 +501,20 @@ public class ResourceBundleService {
 			String tempDownloadPath = FileUtil.generateTemporaryFilePath("importTempPath",
 					UUID.randomUUID().toString());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			
 			OutputStream otpStream = new FileOutputStream(
 					new File(tempDownloadPath + File.separator + filePart.getSubmittedFileName()));
+			
 			InputStream iptStream = filePart.getInputStream();
+			
 			final byte[] bytes = new byte[1024];
 			int read = 0;
 			while ((read = iptStream.read(bytes)) != -1) {
 				otpStream.write(bytes, 0, read);
+				
 			}
 			// parse XML file
 			DocumentBuilder db = dbf.newDocumentBuilder();
-
 			Document doc = db.parse(new File(tempDownloadPath + File.separator + filePart.getSubmittedFileName()));
 			doc.getDocumentElement().normalize();
 			NodeList list = doc.getElementsByTagName("Row");
@@ -635,6 +656,8 @@ public class ResourceBundleService {
 						if (action.equals(Constants.Action.ADD.getAction())) {
 							resourceBundle.setCreatedBy(user);
 							resourceBundle.setCreatedDate(new Date());
+							resourceBundle.setUpdatedBy(user);
+							resourceBundle.setUpdatedDate(new Date());
 						} else {
 							resourceBundle.setCreatedBy(resourceBundleVOObj.get(0).getCreatedBy());
 							resourceBundle.setCreatedDate(resourceBundleVOObj.get(0).getCreatedDate());

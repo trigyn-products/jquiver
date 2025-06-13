@@ -6,14 +6,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Map;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,16 +26,23 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.utils.Constants.AuthType;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-	private final static Logger			logger						= LogManager.getLogger(JwtRequestFilter.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(JwtRequestFilter.class);
 	@Autowired
 	@Lazy
 	private UserDetailsService			userDetailsService			= null;
@@ -56,6 +57,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Autowired
 	@Lazy
 	private PropertyMasterService		propertyMasterService		= null;
+	
+	@Autowired
+	private FileUtilities 				fileUtilities 				= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -65,19 +72,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		try {
 			String	url				= request.getRequestURI();
+			String apiPath = jQuiverPropeties.getApiPath().replaceFirst("/", "");
 			String	apiUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
 			if (url != null && apiUrlProperty != null && url.contains("/" + apiUrlProperty + "/")) {
 				chain.doFilter(new HttpServletRequestWrapper(request) {
 
 					@Override
 					public String getRequestURI() {
-						return url.replace("/" + apiUrlProperty + "/", "/" + "api" + "/");
+						return url.replace("/" + apiUrlProperty + "/", "/" + apiPath + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
 						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/",
-								"/" + "api" + "/"));
+								"/" + apiPath + "/"));
 					}
 
 				}, response);
@@ -93,7 +101,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				String	username			= null;
 				String	jwt					= null;
 				if(authTypeAtHeader !=null && null == AuthType.valueOfAt(authTypeAtHeader)){
-					response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Authentication not supported");
+					fileUtilities.customSendError(response,HttpServletResponse.SC_PRECONDITION_FAILED, "Authentication not supported");
 					return;
 					
 				}
@@ -110,8 +118,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					} else if (jwt != null && Integer.valueOf(requestAuthType) == AuthType.OAUTH.getAuthType()) {
 						username = retrieveUsernameFromJwtToken(jwt);
 						if("jq_532".equalsIgnoreCase(username)) {
-							response.sendError(HttpServletResponse.SC_FORBIDDEN,
-									"You do not have enough privilege to access this module due to password expiry.");
+							fileUtilities.customSendError(response,HttpServletResponse.SC_FORBIDDEN, "You do not have enough privilege to access this module due to password expiry.");
 							return;
 						}
 						if (username == null) {
@@ -124,15 +131,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					if(fullURL !=null) {
 						String lastUri = fullURL.substring(fullURL.lastIndexOf('/')+1);
 						if(lastUri!=null && jwt == null && lastUri !=null &&  lastUri.equalsIgnoreCase("login") == false) {
-							response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED,
-									"JWT Token is not available.");
+							fileUtilities.customSendError(response,HttpServletResponse.SC_PRECONDITION_FAILED, "JWT Token is not available.");
 							return;
 						}
 					}
 				}
 				if (jwt != null && username == null) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN,
-							"You do not have enough privilege to access this module");
+					fileUtilities.customSendError(response,HttpServletResponse.SC_FORBIDDEN, "You do not have enough privilege to access this module");
 					return;
 				}
 				boolean				authTypeActive		= false;
@@ -143,8 +148,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 							.containsKey(String.valueOf(AuthType.valueOfAt(authTypeAtHeader).getAuthType()));
 				}
 				if (username != null && username.equalsIgnoreCase("anonymous") == false && authTypeActive == false) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN,
-							"You do not have enough privilege to access this module");
+					fileUtilities.customSendError(response,HttpServletResponse.SC_FORBIDDEN, "You do not have enough privilege to access this module");
 					return;
 				}
 
@@ -159,8 +163,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 								&& SecurityContextHolder.getContext().getAuthentication() != null) {
 							UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 							if (userDetails == null || userDetails.isEnabled() == false) {
-								response.sendError(HttpServletResponse.SC_FORBIDDEN,
-										"You do not have enough privilege to access this module");
+								fileUtilities.customSendError(response,HttpServletResponse.SC_FORBIDDEN, "You do not have enough privilege to access this module");
 								return;
 							}
 							if (jwt != null && ((requestAuthType != null
@@ -186,13 +189,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			logger.error(
 					"Inside JwtRequestFilter - ExpiredJwtException - Error occurred while processing the request (Request URI: {}})",
 					request.getRequestURI(), expiredException);
-			response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, expiredException.getMessage());
+			fileUtilities.customSendError(response,HttpServletResponse.SC_PRECONDITION_FAILED, expiredException.getMessage());
 			return;
 		} catch (SignatureException signatureException) {
 			logger.error(
 					"Inside JwtRequestFilter - SignatureException - Error occurred while processing the request (Request URI: {}})",
 					request.getRequestURI(), signatureException);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, signatureException.getMessage());
+			fileUtilities.customSendError(response,HttpServletResponse.SC_INTERNAL_SERVER_ERROR, signatureException.getMessage());
 			return;
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
@@ -200,10 +203,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					"Inside JwtRequestFilter - Throwable - Error occurred while processing the request (Request URI: {}})",
 					request.getRequestURI(), throwable);
 			if (throwable.getCause() instanceof AccessDeniedException) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN,
-						"You do not have enough privilege to access this module");
+				fileUtilities.customSendError(response,HttpServletResponse.SC_FORBIDDEN, "You do not have enough privilege to access this module");
 			} else {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
+				fileUtilities.customSendError(response,HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
 			}
 			return;
 		}

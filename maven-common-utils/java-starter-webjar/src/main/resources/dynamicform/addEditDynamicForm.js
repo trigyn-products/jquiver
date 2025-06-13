@@ -280,15 +280,15 @@ class AddEditDynamicForm {
 			let indexCount = "";
 			let parentElement;
 			if (element != null) {
-				parentElement = $(element).parent().parent().parent().parent();
+				$(element).parent().parent().parent().parent().parent();
 			}
 			let inputFormQIdElement = "<div class='col-3'><label for='inputformIdcontainer_" + index + "' style='white-space:nowrap'></label><input id='inputformIdcontainer_" + index + "' type ='hidden' class='form-control' /></div>";
 			let inputElement = "<div class='col-3'><label for='inputcontainer_" + index + "' style='white-space:nowrap'> Variable Name </label><input id='inputcontainer_" + index + "' type ='text' value='result_" + (index + 1) + "' class='form-control' /></div>";
 			let selectElement = "<div class='col-3'><label for='selectcontainer_" + index + "' style='white-space:nowrap'>Query Type </label><select id='selectcontainer_" + index + "' class='form-control' onchange='addEdit.updateDatasourceState(this,jsonArray);'><option value='2'>Insert-Update-Delete Query</option><option value='3'>Stored Procedure</option><option value='4'>Javascript</option><option value='5'>Python</option><option value='6'>PHP</option></select></div>";
 			let datasourceEditor = "<div class='col-3'><div><label for='datasourcecontainer_" + index + "' style='white-space:nowrap'>Datasource </label><select id='datasourcecontainer_" + index + "' name='dataSourceId' class='form-control' onchange='showHideTableAutocomplete()'><option id='defaultConnection' value=''>Default Connection</option>";
-			let inputscriptInsertEle = "<div class='col-3'><label for='inputscriptInsert_" + index + "' style='white-space:nowrap'></label><input id='inputscriptInsert_" + index + "' type ='hidden' class='form-control' /></div>";
-			let inputscriptDeleteEle = "<div class='col-3'><label for='inputscriptdelete_" + index + "' style='white-space:nowrap'></label><input id='inputscriptdelete_" + index + "' type ='hidden' class='form-control' /></div>";
-			let inputscriptRevisionEle = "<div class='col-3'><label for='inputscriptrevision_" + index + "' style='white-space:nowrap'></label><input id='inputscriptrevision_" + index + "' type ='hidden' class='form-control' /></div>";
+			let inputscriptInsertEle = "<div class='col-3' style='display:none;'><label for='inputscriptInsert_" + index + "' style='white-space:nowrap'></label><input id='inputscriptInsert_" + index + "' type ='hidden' class='form-control' /></div>";
+			let inputscriptDeleteEle = "<div class='col-3' style='display:none;'><label for='inputscriptdelete_" + index + "' style='white-space:nowrap'></label><input id='inputscriptdelete_" + index + "' type ='hidden' class='form-control' /></div>";
+			let inputscriptRevisionEle = "<div class='col-3' style='display:none;'><label for='inputscriptrevision_" + index + "' style='white-space:nowrap'></label><input id='inputscriptrevision_" + index + "' type ='hidden' class='form-control' /></div>";
 
 			if(index > 0){
 				$("#datasourcecontainer_0 > option").each(function(a_innerIndex, element){
@@ -307,8 +307,8 @@ class AddEditDynamicForm {
 			}
 			
 			datasourceEditor += '</select></div></div>'
-			let buttonElement = "<div class='btn-icons float-right'><input type='button' id='addEditor_" + index + "' value='Add' class='margin-r-3 btn btn-primary' onclick='addEdit.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_" + index + "' value='Remove' style='margin-left:4px;' class='btn btn-secondary' onclick='addEdit.removeSaveQueryEditor(this);'></div>";
-			let buttonScrElement = "<div class='btn-icons float-right' style='margin-right:10px'><input type='button' id='addScript_" + index + "' value='Script Library' class='margin-r-3 btn btn-primary' onclick='addEdit.validateScriptLib(this,jsonArray);'></div>";
+			let buttonElement = "<div class='btngrpcls'><div class='btn-icons float-right'><input type='button' id='addEditor_" + index + "' value='Add' class='margin-r-3 btn btn-primary' onclick='addEdit.addSaveQueryEditor(this);'><input type='button' id='removeTemplate_" + index + "' value='Remove' style='margin-left:4px;' class='btn btn-secondary' onclick='addEdit.removeSaveQueryEditor(this);'></div>";
+			let buttonScrElement = "<div class='btn-icons float-right' style='margin-right:10px;margin-left:11px'><input type='button' id='addScript_" + index + "' value='Script Library' class='margin-r-3 btn btn-primary' onclick='addEdit.validateScriptLib(this,jsonArray);'></div></div>";
 			let daoContainer = $("<div id='daoContainerDiv_" + index + "' class='margin-t-25'><div class='row'>"+ inputElement + "" + selectElement + "" + datasourceEditor +  "<div class='col-3 margin-t-25 float-right'>" + "" + buttonElement + "" + buttonScrElement + "" + inputFormQIdElement + "" + inputscriptInsertEle + "" + inputscriptDeleteEle + "" + inputscriptRevisionEle +"</div></div></div>");
 			daoContainer.append("<div id='container_" + index + "' class='html_script' style='margin-top: 10px;'><div class='grp_lblinp'><div id='saveSqlContainer_" + index + "' class='ace-editor-container'><div id='saveSqlEditor_" + index + "' class='ace-editor'></div></div></div></div></div>");
 
@@ -838,11 +838,11 @@ const SaveAction = {
 
 Object.freeze(SaveAction);
 var isInAction = false;
-
+var isFormIo   = false;
 
 function onSaveButtonClick(a_actionType, isEdit) {
 	if(dynamicFormTexts == null){
-	 	dynamicFormTexts = resourceBundleData("jws.allFieldsMandatory,jws.excpOccured,jws.multiplesave,jws.excpValidatingForm,jws.informationSavedSuccessfully,jws.excOccurSuccess,jws.errSaving,jws.exceGettingError,jws.invalidCaptcha,jws.backToPrevious,jws.excepOnSuccess");
+	 	dynamicFormTexts = resourceBundleData("jws.allFieldsMandatory,jws.excpOccured,jws.multiplesave,jws.excpValidatingForm,jws.informationSavedSuccessfully,jws.excOccurSuccess,jws.errSaving,jws.exceGettingError,jws.backToPrevious,jws.excepOnSuccess");
 	}
 	if (isInAction) {
 		showMessage(dynamicFormTexts["jws.multiplesave"], "error");
@@ -868,7 +868,6 @@ function onSaveButtonClick(a_actionType, isEdit) {
 
 		return;
 	}
-	
 	
 	if (formData === undefined) {
 		showMessage(dynamicFormTexts["jws.allFieldsMandatory"], "warn");
@@ -940,7 +939,6 @@ function onSaveButtonClick(a_actionType, isEdit) {
 			return;
 		}
 	}
-	
 	let formURL = $(location).attr('href').substring(0,$(location).attr('href').indexOf('?'));
     if (typeof getFormURL == "function") {
         try {
@@ -959,7 +957,6 @@ function onSaveButtonClick(a_actionType, isEdit) {
             return;
         }
     }
-
 	if (typeof $.blockUI == "function") {
 		try {
 			$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
@@ -976,69 +973,44 @@ function onSaveButtonClick(a_actionType, isEdit) {
 			processData: false,
 			contentType: false,
 			data: formData,
+            headers: { 'r':  localStorage.getItem('r') },
 			success: function(data) {
-					showMessage(successMsg, "success");
-					isInAction = false;
-					if (typeof onSuccess == "function") {
-						try {
-							onSuccess(data, a_actionType);
-						} catch (excp) {
-							showMessage(dynamicFormTexts["jws.excepOnSuccess"], "error");
+				showMessage(successMsg, "success");
+				isInAction = false;
+				if (typeof onSuccess == "function") {
+					try {
+						onSuccess(data, a_actionType);
+					} catch (excp) {
+						showMessage(dynamicFormTexts["jws.excepOnSuccess"], "error");
 
-							if (typeof $.unblockUI == "function") {
-								try {
-									$.unblockUI();
-								} catch (excp) {
-									showMessage(dynamicFormTexts["jws.excpOccured"], "error");
-								}
+						if (typeof $.unblockUI == "function") {
+							try {
+								$.unblockUI();
+							} catch (excp) {
+								showMessage(dynamicFormTexts["jws.excpOccured"], "error");
 							}
+						}
+						return;
+					}
+				}
+				if (a_actionType == SaveAction.Return) {
+					if (typeof backToPreviousPage == "function") {
+						try {
+							backToPreviousPage();
+						} catch (excp) {
+							showMessage(dynamicFormTexts["jws.backToPrevious"], "error");
 							return;
 						}
 					}
-					if (a_actionType == SaveAction.Return) {
-						if (typeof backToPreviousPage == "function") {
-							try {
-								backToPreviousPage();
-							} catch (excp) {
-								showMessage(dynamicFormTexts["jws.backToPrevious"], "error");
-								return;
-							}
-						}
-						localStorage.setItem("jwsModuleAction", "saveAndReturn");
-						
-					} else if (a_actionType == SaveAction.CreateNew) {
-						window.location = window.location.href.split("?")[0];
-						localStorage.setItem("jwsModuleAction", "saveAndCreateNew");
-					} else {
-						localStorage.setItem("jwsModuleAction", "saveAndEdit");
-					}
-					changeDefaultAction();
+					localStorage.setItem("jwsModuleAction", "saveAndReturn");
 
-					if (typeof $.unblockUI == "function") {
-						try {
-							$.unblockUI();
-						} catch (excp) {
-							showMessage(dynamicFormTexts["jws.excpOccured"], "error");
-						}
-					}
-			},
-			error: function(xhr, error) {
-				isInAction = false;
-				// captcha error handling	
-				if (xhr.status == 412) {
-					showMessage(dynamicFormTexts["jws.invalidCaptcha"], "error");
-					
-				}else {
-					if(errorMsg != null && errorMsg != undefined){
-						showMessage(errorMsg, "error");
-						
-					}
-					
-					if (typeof onError == "function") {
-						onError(xhr, error);
-					}
-					
+				} else if (a_actionType == SaveAction.CreateNew) {
+					window.location = window.location.href.split("?")[0];
+					localStorage.setItem("jwsModuleAction", "saveAndCreateNew");
+				} else {
+					localStorage.setItem("jwsModuleAction", "saveAndEdit");
 				}
+				changeDefaultAction();
 
 				if (typeof $.unblockUI == "function") {
 					try {
@@ -1046,62 +1018,153 @@ function onSaveButtonClick(a_actionType, isEdit) {
 					} catch (excp) {
 						showMessage(dynamicFormTexts["jws.excpOccured"], "error");
 					}
-					
 				}
-                     $("#reloadCaptcha").trigger("click");
+			},
+			error: function(xhr, error) {
+				isInAction = false;
+				// captcha error handling	
+				let errorText = xhr.responseText;
+				if (errorText != '') {
+					if (errorText.startsWith("JQuiverRegexError")) {
+						var regextErrors = errorText.split("-");
+						var errorType = regextErrors[0];
+						var fieldText = regextErrors[1];
+						var fieldName = regextErrors[2];
+						if (errorType != undefined && 'JQuiverRegexError' === errorType && fieldName != undefined && fieldText != undefined){
+							$("[name="+fieldName+"]").effect("highlight", {}, 3000);
+							let labelText = $("input[name='" + fieldName + "']")
+							    .parents(".col-inner-form")
+							    .find("label")
+							    .text()
+							    .trim();
+							showMessage(fieldText+" for "+labelText, "warn");
+						} else {
+							showMessage(xhr.responseText, "warn");
+						}
+					} else if(xhr.status == 428) {
+						showMessage(xhr.responseText, "warn");
+					} else if(isFormIo) {
+						onError(xhr.responseText, error);
+					} else {
+						showMessage(xhr.responseText, "error");
+					}
+				} else {
+					if (errorMsg != null && errorMsg != undefined) {
+						showMessage(errorMsg, "error");
+					}
+					else if (typeof onError == "function") {
+						onError(xhr, error);
+					}
+				}
+				if (typeof $.unblockUI == "function") {
+					try {
+						$.unblockUI();
+					} catch (excp) {
+						showMessage(dynamicFormTexts["jws.excpOccured"], "error");
+					}
+				}
+				$("#reloadCaptcha").trigger("click");
 			},
 		});
 	}
 	fileBinTempMap = new Map();
 }
 
-const changeDefaultAction = function() {
-	let actionSaved = localStorage.getItem("jwsModuleAction");
+const saveFunctionMap = {
+		saveAndEdit: SaveAction.Edit,
+		saveAndReturn: SaveAction.Return,
+		saveAndCreateNew: SaveAction.CreateNew
+	};
 	
-	if(isEdit == null || isEdit == undefined){
-		document.write("isEdit variable is not availabe in JavaScript global scope");
+//const changeDefaultAction = function() {
+//	let actionSaved = localStorage.getItem("jwsModuleAction");
+//	
+//	if(isEdit == null || isEdit == undefined){
+//		document.write("isEdit variable is not availabe in JavaScript global scope");
+//		return;
+//	}
+//	
+//	if ((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit") {
+//		$("#actionDiv").find("#saveAndEdit").remove();
+//		return true;
+//	}
+//
+//	if (actionSaved !== null && actionSaved !== "") {
+//		let defaultAction = $("#savedAction").find("button");
+//		let savedActionId = $(defaultAction).prop("id");
+//		if (savedActionId !== actionSaved) {
+//			let updatedText = $("#actionDiv").find("#" + actionSaved).text();
+//			let savedActionText = $("#savedAction").text();
+//			$("#actionDiv").find("#" + actionSaved).html(savedActionText);
+//			$("#actionDiv").find("#" + actionSaved).attr("onClick", "onSaveButtonClick("+saveFunctionMap[savedActionId]+","+isEdit+")");
+//			$("#actionDiv").find("#" + actionSaved).prop("id", savedActionId);
+//			$(defaultAction).prop("id", actionSaved);
+//			$(defaultAction).html(updatedText);
+//			$(defaultAction).attr("onClick", "onSaveButtonClick("+saveFunctionMap[actionSaved]+","+isEdit+")");
+//		}
+//	}
+//	if (isEdit === 0 || isEdit === "") {
+//		$("#actionDiv").find("#saveAndEdit").remove();
+//	}
+//}
+
+const changeDefaultAction = function () {
+	let actionSaved = localStorage.getItem("jwsModuleAction");
+
+	if (isEdit == null || isEdit == undefined) {
+		console.error("isEdit variable is not available in JavaScript global scope");
 		return;
 	}
-	
-	
-	if ((isEdit === 0 || isEdit === "") && actionSaved === "saveAndEdit") {
-		$("#actionDiv").find("#saveAndEdit").remove();
+
+	if ((isEdit === 0 || isEdit === "" || isEdit === "0") && actionSaved === "saveAndEdit") {
+		document.querySelector("#actionDiv #saveAndEdit")?.remove();
 		return true;
 	}
 
 	if (actionSaved !== null && actionSaved !== "") {
-		let defaultAction = $("#savedAction").find("button");
-		let savedActionId = $(defaultAction).prop("id");
+		let defaultAction = document.querySelector("#savedAction button");
+		if (!defaultAction) return;
+
+		let savedActionId = defaultAction.id;
 		if (savedActionId !== actionSaved) {
-			let updatedText = $("#actionDiv").find("#" + actionSaved).text();
+			let newActionButton = document.querySelector(`#actionDiv #${actionSaved}`);
+			if (!newActionButton) return;
 
-			let savedActionText = $("#savedAction").text();
-			
-			let saveFunction = new Object();
-			saveFunction["saveAndEdit"] = "SaveAction.Edit";
-			saveFunction["saveAndReturn"] = "SaveAction.Return";
-			saveFunction["saveAndCreateNew"] = "SaveAction.CreateNew";
-			
-			$("#actionDiv").find("#" + actionSaved).html(savedActionText);
-			
-			$("#actionDiv").find("#" + actionSaved).attr("onClick", "onSaveButtonClick("+saveFunction[savedActionId]+","+isEdit+")");
-			$("#actionDiv").find("#" + actionSaved).prop("id", savedActionId);
-			
-			
-			$(defaultAction).prop("id", actionSaved);
-			$(defaultAction).html(updatedText);
-			
-			$(defaultAction).attr("onClick", "onSaveButtonClick("+saveFunction[actionSaved]+","+isEdit+")");
-			
+			let updatedText = newActionButton.textContent;
+			let savedActionText = document.querySelector("#savedAction").textContent;
+
+			// Swap text
+			newActionButton.textContent = savedActionText;
+			defaultAction.textContent = updatedText;
+
+			// Swap IDs
+			newActionButton.id = savedActionId;
+			defaultAction.id = actionSaved;
+
+			// Replace click handlers
+			newActionButton.replaceWith(newActionButton.cloneNode(true));
+			defaultAction.replaceWith(defaultAction.cloneNode(true));
+
+			newActionButton = document.getElementById(savedActionId);
+			defaultAction = document.getElementById(actionSaved);
+
+			if (newActionButton) {
+				newActionButton.addEventListener("click", function () {
+					onSaveButtonClick(saveFunctionMap[savedActionId], isEdit);
+				});
+			}
+			if (defaultAction) {
+				defaultAction.addEventListener("click", function () {
+					onSaveButtonClick(saveFunctionMap[actionSaved], isEdit);
+				});
+			}
 		}
-		
 	}
 
-	if (isEdit === 0 || isEdit === "") {
-		$("#actionDiv").find("#saveAndEdit").remove();
+	if (isEdit === 0 || isEdit === "" || isEdit === "0") {
+		document.querySelector("#actionDiv #saveAndEdit")?.remove();
 	}
-}
-
+};
 
 function validateData() {
 	let formName = "addEditForm";
@@ -1116,11 +1179,11 @@ function validateData() {
 			return undefined;
 		}
 	}
-
 	let serializedForm = $("#" + formName).serializeArray();
-	serializedForm.push({ "name": "isEdit", "value": (isEdit + ""), "valueType": "int" });
+	let isFormIoEditor = serializedForm.find(item => item.name === "entityName" && item.value === "FormIO");
+	// serializedForm.push({ "name": "isEdit", "value": (isEdit + ""), "valueType": "int" });
 	serializedForm.push({ "name": "formId", "value": formId, "valueType": "varchar" });
-	 let isEditFound = false;
+	let isEditFound = false;
 	for (let iCounter = 0, length = serializedForm.length; iCounter < length; iCounter++) {
 		let fieldValue = $.trim(serializedForm[iCounter].value);
 		let fieldName = $.trim(serializedForm[iCounter].name);
@@ -1131,13 +1194,24 @@ function validateData() {
 			serializedForm[iCounter].value = fieldValue;
 		} else if (isFieldVisible === true && isOptional === false) {
 			$("#" + fieldName).focus();
-			$("#" + fieldName).closest("div").parent().effect("highlight", {}, 3000);
-			return undefined;
+			// Below code is commented as closest div doesnt work propery in case of captcha and all. 
+			// Hence highlighting the field
+			// $("#" + fieldName).closest("div").parent().effect("highlight", {}, 3000);
+			if (isFormIoEditor != undefined && fieldName === 'formCaptcha') {
+				continue;
+			} else {
+				$("#" + fieldName).effect("highlight", {}, 3000);
+				return undefined;
+			}
 		}
 	
 		if(fieldName === "isEdit"){
 		        serializedForm[iCounter].value = isEdit;
 		        serializedForm[iCounter].valueType = "int";
+		}
+		
+		if(fieldName === "isFormIo"){
+			isFormIo = true;
 		}
 	}
     
@@ -1168,23 +1242,82 @@ function validateData() {
 			return undefined;
 		}
 	}
-
+	let data = new FormData();
 	if (fileBins) {
 		for (let fileBinCounter = 0; fileBinCounter < fileBins.length; fileBinCounter++) {
 			serializedForm.push(fileBins[fileBinCounter]);
 		}
 	}
-
-	let data = new FormData();
-	data.append('formData', JSON.stringify(serializedForm.formatSerializedArray()));
-	if (files.length > 0) {
-		for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
-			data.append($(files[iCounter]).attr("name"), $(files[iCounter])[0].files[0]);
+	serializedForm.forEach(item => {
+		if (item.name == "formCaptcha") {
+			formMap.set("captchaValue", item.value);
 		}
+		if (item.name == "isCaptchaEnabled") {
+			formMap.set("isCaptchaEnabled", item.value);
+		}
+		if (item.name == "isCsrfEnabled") {
+			formMap.set("isCsrfEnabled", item.value);
+		}
+	});
+	let formData = new FormData();
+	let encryptedData;
+	if (formMap.get("isCaptchaEnabled") == 1) {
+		if (formMap.get("isCsrfEnabled") == 1) {
+			if (formMap.get("captchaValue") != null) {
+				encryptedData = encryptFormData(JSON.stringify(serializedForm.formatSerializedArray()), formMap.get("captchaValue"));
+				formData.append('formData', encryptedData);
+			}
+		}
+		formData.append('formData', JSON.stringify(serializedForm.formatSerializedArray()));
+		formData.append('formCaptcha', formMap.get("captchaValue"));
+		formData.append('isCaptchaEnabled', formMap.get("isCaptchaEnabled"));
+		formData.append('isCsrfEnabled', formMap.get("isCsrfEnabled"));
+		if (files.length > 0) {
+			for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
+				formData.append($(files[iCounter]).attr("name"), $(files[iCounter])[0].files[0]);
+			}
+		}
+		return formData;
+	} else {
+		data.append('formData', JSON.stringify(serializedForm.formatSerializedArray()));
+		if (files.length > 0) {
+			for (let iCounter = 0, length = files.length; iCounter < length; iCounter++) {
+				data.append($(files[iCounter]).attr("name"), $(files[iCounter])[0].files[0]);
+			}
+		}
+		return data;
 	}
-	return data;
 }
 
+function padOrTruncateKey(key, length) {
+	if (key.length < length) {
+		return key.padEnd(length, '0');
+	} else if (key.length > length) {
+		return key.substring(0, length);
+	}
+	return key;
+}
+
+function encryptFormData(formDataString, captchaValue) {
+	const paddedKey = padOrTruncateKey(captchaValue, 16); // Ensure key is 16 bytes
+	const key = CryptoJS.enc.Utf8.parse(paddedKey);
+	const encrypted = CryptoJS.AES.encrypt(formDataString, key, {
+		mode: CryptoJS.mode.ECB,
+		padding: CryptoJS.pad.Pkcs7
+	});
+	return encrypted.toString();
+}
+
+function decryptFormData(encryptedString, captchaValue) {
+	const paddedKey = padOrTruncateKey(captchaValue, 16); // Ensure key is 16 bytes
+	const key = CryptoJS.enc.Utf8.parse(paddedKey);
+	const decrypted = CryptoJS.AES.decrypt(encryptedString, key, {
+		mode: CryptoJS.mode.ECB,
+		padding: CryptoJS.pad.Pkcs7
+	});
+	return decrypted.toString(CryptoJS.enc.Utf8);
+}
+    
 function pushToSerializedData(a_serializedFormData, a_name, a_value, a_valueType) {	
 	if(a_value != null && a_value != undefined && typeof a_value == "object") {
 		a_value=JSON.stringify(a_value);
@@ -1204,5 +1337,6 @@ var dynamicFormTexts = null;
 var jsonArray = new Array();
 var querytype = null;
 var querytypename = null;
+var formMap = new Map();
 //end of FileBin
 

@@ -34,8 +34,8 @@ public class TemplateCrudService {
 		}
 	}
 
-	public void uploadTemplates(String templateName) throws Exception {
-		downloadUploadModule.uploadCodeToDB(templateName);
+	public void uploadTemplates(String templateTypeId, String templateName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(templateTypeId,templateName);
 	}
 
 	public String checkVelocityData(String velocityName) throws Exception {

@@ -4,18 +4,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_module_version")
 @NamedQuery(name = "JwsModuleVersion.findAll", query = "SELECT j FROM JwsModuleVersion j")
 public class JwsModuleVersion implements Serializable {
@@ -23,8 +24,6 @@ public class JwsModuleVersion implements Serializable {
 	private static final long	serialVersionUID	= 1L;
 
 	@Id
-	@GeneratedValue(generator = "system-uuid")
-	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	@Column(name = "module_version_id", unique = true, nullable = false)
 	private String				moduleVersionId		= null;
 

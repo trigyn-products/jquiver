@@ -2,10 +2,8 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,22 +11,30 @@ import org.springframework.stereotype.Component;
 // import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 // import com.trigyn.jws.dynarest.vo.RestApiDetails;
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
-import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class DynamicRestEntityValidator implements EntityValidator {
-
-	private final static Logger					logger							= LogManager.getLogger(DynamicRestEntityValidator.class);
-
+	private final static Logger					logger							= LoggerFactory.getLogger(DynamicRestEntityValidator.class);
+	
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
 
 	@Autowired
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
 
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
 	// @Autowired
 	// private JwsDynamicRestDetailService jwsService = null;
+	
+	@Autowired
+	private JwsEntityRoleAssociationDAO entityRoleAssociationDAO = null;
 
 	@Override
 	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
@@ -42,7 +48,7 @@ public class DynamicRestEntityValidator implements EntityValidator {
 		if (requestUri.startsWith("/japi/")) {
 			requestUri = requestUri.replaceFirst("/japi/", "");
 		} else {
-			requestUri = requestUri.replaceFirst("/api/", "");
+			requestUri = requestUri.replaceFirst(jQuiverPropeties.getApiPath()+"/", "");
 		}
 		
 		String	requestType	= reqObject.getMethod();
@@ -67,9 +73,9 @@ public class DynamicRestEntityValidator implements EntityValidator {
 		if (requestUri.startsWith("/japi/")) {
 			requestUri = requestUri.replaceFirst("/japi/", "");
 		} else {
-			requestUri = requestUri.replaceFirst("/api/", "");
+			requestUri = requestUri.replaceFirst(jQuiverPropeties.getApiPath()+"/", "");
 		}
-		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId("REST API", requestUri);
+		return entityRoleAssociationDAO.getEntityNameByEntityAndRoleId("REST API", requestUri);
 	}
 
 }

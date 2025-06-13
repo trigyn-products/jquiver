@@ -1,0 +1,60 @@
+<script>
+	 $(function() {
+		//console.log( "ready!" );
+	});
+</script>
+<style>
+    /************** Header block********************/
+    .helptopblock{
+
+    }
+
+    /************** Hamburger and menu block********************/
+    .lefttopcontenctcls {
+
+    }
+    
+    /************** Tree menu left  block********************/
+    .Helpmanualblock .leftcontenctcls{
+
+    }
+
+    /************** Spiral Image********************/
+    .spiralbinding{
+
+    }
+
+    /************** Tree menu block********************/
+    .jstree-container-ul
+
+
+    /************** Tree menu node********************/
+    .jstree-default>.jstree-container-ul>.jstree-node
+
+    /************** Tree menu icon********************/
+    .jstree-default .jstree-file{
+
+    }
+    
+
+    /************** Main content  block********************/
+    .Helpmanualblock .helpmanual_right{
+
+    }
+
+    /************** Expand collapse button ********************/
+    .resapiactionbtn{
+
+    }
+
+    /************** Top right button ********************/
+    .righttopbuttons > span{
+
+    }
+
+    /************** Top Search Block ********************/
+
+    .searchhelp{
+        
+    }
+</style>

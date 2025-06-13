@@ -7,12 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.typeahead.dao.TypeAheadRepository;
 import com.trigyn.jws.typeahead.entities.Autocomplete;
@@ -39,27 +37,36 @@ import com.trigyn.jws.typeahead.service.TypeAheadService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.utils.Constant;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','TypeAhead Autocomplete')")
 public class TypeAheadCrudController {
 
-	private final static Logger logger = LogManager.getLogger(TypeAheadCrudController.class);
+	private final static Logger logger = LoggerFactory.getLogger(TypeAheadCrudController.class);
 
 	@Autowired
-	private TypeAheadService typeAheadService = null;
+	private TypeAheadService 	typeAheadService 	= null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService 		menuService 		= null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog 		activitylog 	  	= null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService userDetailsService  = null;
 
 	@Autowired
 	private TypeAheadRepository typeAheadRepository = null;
+	
+	@Autowired
+	private FileUtilities 		fileUtilities 		= null;
+	
+	@Autowired
+	private PropertyMasterDAO 	propertyMasterDAO 	= null;
 
 	@GetMapping(value = "/adl", produces = MediaType.TEXT_HTML_VALUE)
 	public String autocompleteListingsPage(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -73,7 +80,7 @@ public class TypeAheadCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -90,7 +97,7 @@ public class TypeAheadCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -101,6 +108,7 @@ public class TypeAheadCrudController {
 
 		try {
 			String autocompleteId = request.getParameter("acId");
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			Map<String, Object> templateData = new HashMap<>();
 			Autocomplete autocomplete = new Autocomplete();
 			if (StringUtils.isBlank(autocompleteId) == false) {
@@ -110,13 +118,14 @@ public class TypeAheadCrudController {
 				Optional<Autocomplete> autocompleteOptional = typeAheadRepository.findById(autocompleteId);
 				autocomplete = autocompleteOptional.get();
 				Integer typeSelect = autocomplete.getAcTypeId();
+				
 				/* Method called for implementing Activity Log */
 				logActivity(autocompleteId, typeSelect, autocompleteVO.getAutocompleteId());
-
 			}
 			/* ContextPath Suggestion in Monaco Editor */
 			String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
 			templateData.put("suggestions", contextSuggestions);
+			templateData.put("environment", environment);
 			// else {
 			// List<String> tableNameList = typeAheadService.getAllTablesListInSchema();
 			// templateData.put("tableNameList", tableNameList);
@@ -130,7 +139,7 @@ public class TypeAheadCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

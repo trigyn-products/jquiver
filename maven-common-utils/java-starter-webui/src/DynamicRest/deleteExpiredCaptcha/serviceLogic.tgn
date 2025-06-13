@@ -1,0 +1,13 @@
+var HashMap=Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+
+function delExpiredCaptch(daoResults)
+{
+    var captchaExpiryValue= daoResults["property_value"][0];
+    var map=new HashMap();
+    map.put("captchaExpiryValue",captchaExpiryValue.property_value);
+    var queryDelete="DELETE FROM jq_captcha WHERE request_time <  NOW() - INTERVAL :captchaExpiryValue MINUTE";
+    jq_updateDBQuery(queryDelete, null, map); 
+   
+}
+delExpiredCaptch(daoResults);

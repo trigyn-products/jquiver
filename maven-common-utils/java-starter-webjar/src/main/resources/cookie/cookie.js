@@ -79,10 +79,13 @@ function deleteCookie(name) {
     document.cookie = name + "=;" + expires + ";path=/";
 }
 
-
 function cookieConsent() {
 	if (!getCookieNew('user_cookie_consent')) {
-		document.body.innerHTML += '<div class="cookieConsentContainer" id="cookieConsentContainer"><div class="cookietitle"><div class="cookieimg"><img src="' + contextPath + '/webjars/1.0/images/cookie.svg"></div><div class="cookieTitle"><h3>' + resourceBundleData("jws.cookieTitle") + '</h3></div></div><div class="designcreator"><div class="cookieDesc"><p>' + resourceBundleData("jws.cookieDesc") + '</p></div><div class="cookieButton"><a class="class="cokibtn"" onClick="purecookieDismiss();">' + resourceBundleData("jws.cookieButton") + '</a></div></div>';
+		document.body.innerHTML += '<div class="cookieConsentContainer" id="cookieConsentContainer"><div class="cookietitle"><div class="cookieimg"><img src="' + contextPath + '/webjars/1.0/images/cookie.svg"></div><div class="cookieTitle"><h3>' + resourceBundleData("jws.cookieTitle") + '</h3></div></div><div class="designcreator"><div class="cookieDesc"><p>' + resourceBundleData("jws.cookieDesc") + '</p></div><div class="cookieButton"><a   id="cookieDismissButton" class="cokibtn" >' + resourceBundleData("jws.cookieButton") + '</a></div></div>';
+		document.getElementById("cookieDismissButton").addEventListener("click", function(e) {
+			e.preventDefault();
+			purecookieDismiss();
+		});
 		pureFadeIn("cookieConsentContainer");
 	}
 }

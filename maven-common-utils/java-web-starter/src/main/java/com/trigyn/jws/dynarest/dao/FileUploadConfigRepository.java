@@ -2,6 +2,7 @@ package com.trigyn.jws.dynarest.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
@@ -10,6 +11,6 @@ import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 public interface FileUploadConfigRepository extends JpaRepository<FileUploadConfig, String> {
 
 	@Query(" FROM FileUploadConfig WHERE fileBinId=:fileBinId")
-	FileUploadConfig getFileUploadConfig(String fileBinId);
+	FileUploadConfig getFileUploadConfig(@Param("fileBinId") String fileBinId);
 
 }

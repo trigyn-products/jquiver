@@ -3,7 +3,6 @@ package com.trigyn.jws.dashboard.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,14 +12,12 @@ import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -61,11 +58,14 @@ import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
 import com.trigyn.jws.usermanagement.security.config.UserInformation;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @Service
 @Transactional
 public class DashletService {
 
-	private final static Logger logger = LogManager.getLogger(DashletService.class);
+	private final static Logger logger = LoggerFactory.getLogger(DashletService.class);
 
 	@Autowired
 	private DashletDAO dashletDAO = null;
@@ -226,7 +226,7 @@ public class DashletService {
 
 				} catch (Throwable a_thr) {
 					logger.error(ExceptionUtils.getStackTrace(a_thr));
-					httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(), ExceptionUtils.getStackTrace(a_thr));
+					fileUtilities.customSendError(httpServletResponse,HttpStatus.BAD_REQUEST.value(),ExceptionUtils.getStackTrace(a_thr));
 				}
 			} else {
 				try {
@@ -256,13 +256,13 @@ public class DashletService {
 					throw custStopException;
 				} catch (Throwable a_thr) {
 					logger.error(ExceptionUtils.getStackTrace(a_thr));
-					httpServletResponse.sendError(HttpStatus.BAD_REQUEST.value(), ExceptionUtils.getStackTrace(a_thr));
+					fileUtilities.customSendError(httpServletResponse,HttpStatus.BAD_REQUEST.value(),ExceptionUtils.getStackTrace(a_thr));
 				}
 			}
 		
 		} catch (Exception a_ex) {
 			isErrorOccured = Boolean.TRUE;
-			logger.error(a_ex);
+			logger.error("Error occured in getDashletUIString.", a_ex);
 		}
 		try {
 			templateHtml = templateEngine.processTemplateContents(htmlBody, a_dashlet.getDashletName(), templateMap);
@@ -271,7 +271,7 @@ public class DashletService {
 			throw custStopException;
 		} catch (Exception a_ex) {
 			isErrorOccured = Boolean.TRUE;
-			logger.error(a_ex);
+			logger.error("Error occured in processing template.", a_ex);
 		}
 
 		if (isErrorOccured) {
@@ -355,7 +355,7 @@ public class DashletService {
 	}
 
 
-	private HttpServletRequest getRequest() {
+	private jakarta.servlet.http.HttpServletRequest getRequest() {
 		ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		return sra.getRequest();
 	}
@@ -364,7 +364,7 @@ public class DashletService {
 
 		List<String> roleNames = new ArrayList<>();
 		Authentication authentication = null;
-		HttpServletRequest requestObject = getRequest();
+		jakarta.servlet.http.HttpServletRequest requestObject = getRequest();
 		if (requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT") != null) {
 			authentication = ((SecurityContextImpl) requestObject.getSession().getAttribute("SPRING_SECURITY_CONTEXT"))
 					.getAuthentication();
@@ -457,8 +457,7 @@ public class DashletService {
 	        if (numberPattern.matcher(entry.getValue().toString()).matches()) {
 	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
 	        } else {
-	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-						"Invalid input for  " + " Number " + " : " + entry.getValue());
+	        	fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),"Invalid input for  " + " Number " + " : " + entry.getValue());
 	            logger.error("Invalid value for property type" + "Number" + " : " + entry.getValue());
 	        }
 	    }
@@ -472,8 +471,7 @@ public class DashletService {
 	        if (decimalPattern.matcher(entry.getValue().toString()).matches()) {
 	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
 	        } else {
-	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-						"Invalid input for  " + " Decimal " + " : " + entry.getValue());
+	        	fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),"Invalid input for  " + " Decimal " + " : " + entry.getValue());
 	            logger.error("Invalid value for property type" + "Decimal" + " : " + entry.getValue());
 	        }
 	    }
@@ -486,8 +484,7 @@ public class DashletService {
 	        if (numberPattern.matcher(entry.getValue().toString()).matches()) {
 	            propertyMap.add(property.getPropertyId(), entry.getValue().toString());
 	        } else {
-	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-						"Invalid input for  " + " Rangeslider " + " : " + entry.getValue());
+	        	fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),"Invalid input for  " + " Rangeslider " + " : " + entry.getValue());
 	            logger.error("Invalid value for property type" + "Rangeslider" + " : " + entry.getValue());
 	        }
 	    }
@@ -501,8 +498,7 @@ public class DashletService {
 	        if (textValue.matches(regexPattern)) {
 	            propertyMap.add(property.getPropertyId(), textValue);
 	        } else {
-	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
-						"Invalid input for " + " Text " + " : " + entry.getValue());
+	        	fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),"Invalid input for  " + " Text " + " : " + entry.getValue());
 	            logger.error("Invalid text format for property type" + "Text" + " : " + textValue);
 	        }
 	    }

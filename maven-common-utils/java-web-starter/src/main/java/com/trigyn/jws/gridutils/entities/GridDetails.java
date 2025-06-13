@@ -4,13 +4,19 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jq_grid_details")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "gridDetailsRegion")
 public class GridDetails implements Serializable {
 
 	private static final long	serialVersionUID		= 4472368074028971649L;
@@ -199,7 +205,7 @@ public class GridDetails implements Serializable {
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdBy, datasourceId, gridColumnName, gridDescription, gridId, gridName, gridTableName,
-				gridTypeId, lastUpdatedBy, queryType);
+				gridTypeId, lastUpdatedBy, queryType, isCustomUpdated, customFilterCriteria);
 	}
 
 	@Override
@@ -219,7 +225,9 @@ public class GridDetails implements Serializable {
 				&& Objects.equals(gridDescription, other.gridDescription) && Objects.equals(gridId, other.gridId)
 				&& Objects.equals(gridName, other.gridName) && Objects.equals(gridTableName, other.gridTableName)
 				&& Objects.equals(gridTypeId, other.gridTypeId) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
-				&& Objects.equals(queryType, other.queryType);
+				&& Objects.equals(queryType, other.queryType)
+				&& Objects.equals(isCustomUpdated, other.isCustomUpdated)
+				&& Objects.equals(customFilterCriteria, other.customFilterCriteria);
 	}
 
 	@Override
@@ -231,6 +239,8 @@ public class GridDetails implements Serializable {
 				.append(", gridTypeId=").append(gridTypeId).append(", createdBy=").append(createdBy)
 				.append(", createdDate=").append(createdDate).append(", datasourceId=").append(datasourceId)
 				.append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedTs=").append(lastUpdatedTs)
+				.append(", isCustomUpdated=").append(isCustomUpdated)
+				.append(", customFilterCriteria=").append(customFilterCriteria)
 				.append("]");
 		return builder.toString();
 	}

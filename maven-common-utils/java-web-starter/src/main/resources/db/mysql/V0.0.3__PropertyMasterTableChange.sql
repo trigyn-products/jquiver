@@ -2,7 +2,7 @@ TRUNCATE jq_property_master;
 
 ALTER TABLE jq_property_master ADD COLUMN property_master_id VARCHAR(50) DEFAULT NULL;
 
-ALTER TABLE jq_property_master MODIFY property_value LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+ALTER TABLE jq_property_master MODIFY property_value LONGTEXT NOT NULL;
 
 
 REPLACE INTO jq_property_master(property_master_id, owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)

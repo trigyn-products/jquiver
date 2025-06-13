@@ -1,9 +1,4 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/jscal2.css" />
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/border-radius.css" />
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/JSCal2/css/steel/steel.css" />
@@ -13,14 +8,64 @@
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
-<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>  
+<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+
+<style>
+        .textarea-wrapper {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 300px;
+        margin: auto;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 5px;
+        background: #d0e2f4 !important;
+        border-radius: 5px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    #progress {
+        height: 5px;
+        width: 100%;
+        background: green;
+        border-radius: 5px;
+        transition: width 0.2s ease;
+    }
+
+    #progress_sel {
+        height: 5px;
+        width: 100%;
+        background: green;
+        border-radius: 5px;
+        transition: width 0.2s ease;
+    }
+
+    .characterscls{
+        font-size: 13px;
+        color: red;
+        margin-top: 5px;
+        text-align: right;
+    }
+    </style>
 </head>
 
 <div class="container">
 	<div class="topband">
 		<h2 class="title-cls-name float-left pageHeader">${messageSource.getMessage('jws.adddetails')}</h2> 
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
    <form method="post" name="addEditForm" id="addEditForm">
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     <input type="hidden" data-type="text" id="notificationid" name="notificationid"  value="${(resultSetObject.notification_id)!""}">
@@ -28,7 +73,7 @@
                 
 	    		<div class="col-4">
 					<div class="col-inner-form full-form-fields">
-						            <label for="messagevalidfrom" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						            <label for="messagevalidfrom" ><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.msgvalidfrom')}
 						            </label>
                                     <span id="messagevalidfromSpan">
@@ -41,7 +86,7 @@
                
 	    		<div class="col-4">
 					<div class="col-inner-form full-form-fields">
-						            <label for="messagevalidtill" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						            <label for="messagevalidtill" ><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.msgvalidtill')}
 						            </label>
                                     <span id="messagevalidtillSpan">
@@ -65,16 +110,17 @@
           <div class="row">
 	    		<div class="col-4" style="    margin-bottom: 20px;">
 					<div class="col-inner-form full-form-fields">
-						            <label for="messagetext" style="white-space:nowrap"><span class="asteriskmark">*</span>
+						            <label for="messagetext" ><span class="asteriskmark">*</span>
 						            	${messageSource.getMessage('jws.msgtext')}
 						            </label>
                             <div class="txtWrapper">
 							 <textarea class="form-control" rows="4" cols="90" data-type="text"  id="messagetext" placeholder="Message Text" name="messagetext" onkeydown="calculateLengthMsgTxt();" onkeyup="calculateLengthMsgTxt();" maxlength="500" >${(resultSetObject.message_text)!""}</textarea>
                              <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                     </div>	
-					<div style = "position:relative;float:right;">
-                    <input style="border:none" readonly type="text" id="countdown_msg" name="countdown_msg" size="1" value="500" >
-                </div>
+                <div class="progress-bar">
+                            <div id="progress"></div>
+                        </div>
+                        <p class="characterscls" id="countdown_msg" name="countdown_msg">500 characters left</p>
                     </div>
 				</div>    
                 <div class="col-4">
@@ -98,22 +144,23 @@
 					<div class="col-inner-form full-form-fields">
 								<span class="asteriskmark">*</span>
 								<label for="selectioncriteria">${messageSource.getMessage('jws.selectioncriteria')}</label>
-                                	 <a class="tipsicon tipslabelright collapsed" style="padding-right: 25px;" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                	 <a class="tipsicon tipslabelright collapsed" style="padding-right: 35px;padding-top: 4px;" title="Tips" data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
                                     </a>
                                 <div class="txtWrapper">
 								<textarea class="form-control" rows="4" cols="90" data-type="text"  id="selectioncriteria" placeholder="Selection Criteria" name="selectioncriteria" onkeydown="calculateLength();" onkeyup="calculateLength();"  maxlength="500">${(resultSetObject.selection_criteria)!""}</textarea>
                                 <i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                                 </div>
-                                <div style = "position:relative;float:right;">
-                                <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="500" >
-                            </div>
+                            <div class="progress-bar">
+                            <div id="progress_sel"></div>
+                        </div>
+                        <p class="characterscls" id="countdown" name="countdown">500 characters left</p>
 					</div>
                     
 				</div>
                 <div id="divDatasourceId" class="col-4">
 				<div class="col-inner-form full-form-fields">
-	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        		<label for="flammableState" >${messageSource.getMessage('jws.datasource')}</label>
 	        		<select id="dataSource" name="dataSourceId" class="form-control">
                        <option id="defaultConnection" value= "" data-product-name="default">${messageSource.getMessage('jws.defaultconnection')}</option>    
 	        		</select>
@@ -146,12 +193,12 @@
 
             <div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -177,10 +224,13 @@
 <script>
 	document.title = "Manage Notification Details";
 
-	contextPath = "${contextPath}";	 
+	//contextPath = "${contextPath}";	 
     formId = "${formId}";
 	let isEdit = 0;  
     $(function(){
+
+        calculateLengthMsgTxt();
+        calculateLength();
 
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];
@@ -249,17 +299,7 @@
             $("#dataSource").val('${resultSetList?api.get("datasource_id")!""}'); 
             if('${resultSetList?api.get("datasource_id")!""}' == '' || '${resultSetList?api.get("datasource_id")!""}'== 'NULL'){
                $("#dataSource").val('')
-            }
-            /*Written for updating the count of Selection Criteria and Message Text in Edit Form*/
-            var selection_count = parseInt(document.getElementById('selectioncriteria').value.length);
-            var msg_count = parseInt(document.getElementById('messagetext').value.length);
-            var maxCount = 500;
-            var finalselcount = maxCount-selection_count;
-            var finalmsgcount = maxCount-msg_count;
-            $('#countdown').val(finalselcount);
-            $('#countdown_msg').val(finalmsgcount);
-            /*Ends Here*/
-          
+            }          
 		</#list>
         
 	    $(".pageHeader").html("Edit Details");
@@ -270,6 +310,7 @@
 		$("#displayOnceTxt").val(0);
         $("#displayOnce").prop("checked",false);
         $("#selectioncriteria").text('select 1 As noti_count');
+        calculateLength();
         /*Added for fetching Datasource ID*/
         getAllDatasource(0);
         /*Setting Datasource Id value in Add Tab*/
@@ -336,21 +377,56 @@
 	}
     /* Written for Limit Count Validation in Selection Criteria Text Area*/
      function calculateLength() {
-        var limitNum=500;
-        var selectioncriteria = $("#selectioncriteria").val();
-        var limitCount = $('#countdown').val();
-        limitCount = (limitNum) - selectioncriteria.length;
-        $('#countdown').val(limitCount);   
+        
+        var textarea = document.getElementById("selectioncriteria");
+        var progress = document.getElementById("progress_sel");
+        var charCount = document.getElementById("countdown");
+        var maxLength = textarea.maxLength;
+
+        var remaining = maxLength - textarea.value.length;
+        charCount.textContent = remaining + " characters left";
+
+        var percent = (textarea.value.length / maxLength) * 100;
+        progress.style.width = percent + "%";
+
+        if (textarea.value.length > 0) {
+            if (remaining <= 100) {
+                progress.style.background = "red";
+            } else if (remaining <= 250) {
+                progress.style.background = "orange";
+            } else {
+                progress.style.background = "green";
+            }
+        } else {
+            progress.style.background = "transparent";
+        }
     }
     /**Ends Here*/	
 
      /* Written for Limit Count Validation in Message Text Area*/
     function calculateLengthMsgTxt() {
-        var limitNum=500;
-        var messagetext = $("#messagetext").val();
-        var limitCount = $('#countdown_msg').val();
-        limitCount = (limitNum) - messagetext.length;
-        $('#countdown_msg').val(limitCount);  
+        var textarea = document.getElementById("messagetext");
+        var progress = document.getElementById("progress");
+        var charCount = document.getElementById("countdown_msg");
+        var maxLength = textarea.maxLength;
+
+        var remaining = maxLength - textarea.value.length;
+        charCount.textContent = remaining + " characters left";
+
+        var percent = (textarea.value.length / maxLength) * 100;
+        progress.style.width = percent + "%";
+
+        if (textarea.value.length > 0) {
+            if (remaining <= 100) {
+                progress.style.background = "red";
+            } else if (remaining <= 250) {
+                progress.style.background = "orange";
+            } else {
+                progress.style.background = "green";
+            }
+        } else {
+            progress.style.background = "transparent";
+        }
     }
     /**Ends Here*/	
 

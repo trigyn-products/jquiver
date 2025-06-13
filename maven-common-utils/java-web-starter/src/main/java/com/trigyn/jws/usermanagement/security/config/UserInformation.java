@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
@@ -40,9 +41,18 @@ public class UserInformation implements UserDetails, OAuth2User, OidcUser {
 	private Map<String, Object>		oAuthAttributes		= new HashMap<String, Object>();
 
 	public UserInformation() {
-
+		// TODO Auto-generated constructor stub
 	}
 
+	public UserInformation(String userName,String firstName,String lastName,String email) {
+        this.userName = userName;
+        this.userId	  = email;
+        this.fullName = firstName + " " + lastName;
+		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ADMIN");
+		roles.add("ADMIN");
+		authorities.add(authority);
+    }
+	
 	public UserInformation(JwsUser user, List<JwsRoleVO> roleVOs) {
 
 		this.userId				= user.getUserId();

@@ -1,14 +1,18 @@
 package com.trigyn.jws.webstarter.dao;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
@@ -16,17 +20,16 @@ import com.trigyn.jws.dbutils.repository.DBConnection;
 @Repository
 public class ImportExportCrudDAO extends DBConnection {
 
-	private final static Logger logger = LogManager.getLogger(ImportExportCrudDAO.class);
-
-	@Autowired
 	public ImportExportCrudDAO(DataSource dataSource) {
 		super(dataSource);
 	}
 
+	private final static Logger logger = LoggerFactory.getLogger(ImportExportCrudDAO.class);
+
 	public List<Object> getAllExportableData(String querySQL, List<String> includeSystemConfigList, Integer systemConfigType,
 		List<String> excludeCustomConfigList, Integer customConfigType) throws Exception {
 
-		Query query = getCurrentSession().createQuery(querySQL);
+		Query query = getCurrentSession().createQuery(querySQL, Object.class);
 		if (excludeCustomConfigList != null)
 			query.setParameterList("excludeCustomConfigList", excludeCustomConfigList);
 		if (customConfigType != null)
@@ -34,15 +37,41 @@ public class ImportExportCrudDAO extends DBConnection {
 		if (includeSystemConfigList != null)
 			query.setParameterList("includeSystemConfigList", includeSystemConfigList);
 		if (systemConfigType != null)
-			query.setParameter("systemConfigType", systemConfigType);
+			query.setParameter("systemConfigType", systemConfigType);		
 
 		return query.list();
+	}
+	public  String getReadableDate(long epochSec, String dateFormatStr) {
+	    Date date = new Date(epochSec * 1000);
+	    SimpleDateFormat format = new SimpleDateFormat(dateFormatStr,
+	            Locale.getDefault());
+	    return format.format(date);
+	}
+	
+	
+	public List<Object> getAllAutoExportableData(String queryStr, Date modifiedAfter, String entityType, String name,
+			BeanPropertyRowMapper mapper) throws Exception {
+
+		StringBuilder querySQL = new StringBuilder(queryStr.toString());
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		if (null != modifiedAfter) {
+			params.addValue("modifiedAfter", modifiedAfter);
+		}
+		if (null != entityType) {
+			params.addValue("entityType", Integer.parseInt(entityType));
+		}
+		if (null != name) {
+			params.addValue("name", name);
+		}
+
+		return namedParameterJdbcTemplate.query(querySQL.toString(), params, mapper);
 	}
 
 	public List<Object> getExportableDataWithIntegerList(String querySQL, List<Integer> includeSystemConfigList, Integer systemConfigType,
 		List<Integer> excludeCustomConfigList, Integer customConfigType) throws Exception {
 
-		Query query = getCurrentSession().createQuery(querySQL);
+		Query query = getCurrentSession().createQuery(querySQL, Object.class);
 		if (excludeCustomConfigList != null)
 			query.setParameterList("excludeCustomConfigList", excludeCustomConfigList);
 		if (customConfigType != null)
@@ -58,7 +87,7 @@ public class ImportExportCrudDAO extends DBConnection {
 	public List<Object> getRBExportableData(String querySQL, List<String> includeSystemConfigList, List<String> excludeCustomConfigList)
 			throws Exception {
 
-		Query query = getCurrentSession().createQuery(querySQL);
+		Query query = getCurrentSession().createQuery(querySQL, Object.class);
 		if (excludeCustomConfigList != null)
 			query.setParameterList("excludeCustomConfigList", excludeCustomConfigList);
 		query.setParameter("customConfigType", "jws.%");
@@ -110,7 +139,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " SELECT jad.additional_datasource_id as id, jad.datasource_name as name, 'NA' as versionID, 'AdditionalDatasource' as enityType"
 				+ " FROM jq_additional_datasource jad "
 				+ " UNION "
-				+ " SELECT ml.module_id as id, mli.module_name as name, 'NA' as versionID, 'SiteLayout' as enityType"
+				+ " SELECT ml.module_id as id, mli.module_name as name, 'NA' as versionID, 'Router' as enityType"
 				+ " FROM jq_module_listing ml, jq_module_listing_i18n mli WHERE ml.module_id=mli.module_id "
 				+ " UNION "
 				+ " SELECT js.scheduler_id as id, js.scheduler_name as name, 'NA' as versionID, 'Scheduler' as enityType"
@@ -121,9 +150,12 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION "
 				+ " SELECT jqsd.script_lib_id as id, jqsd.library_name as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'ScriptLibrary' as enityType"
 				+ " FROM jq_script_lib_details jqsd LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = jqsd.script_lib_id GROUP BY jqsd.script_lib_id"
+				+ " UNION "
+				+ " SELECT fio.form_io_id as id, fio.form_name as name, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') as versionID, 'FormIO' as enityType"
+				+ " FROM jq_form_io fio LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = fio.form_io_id WHERE fio.form_io_type = 1 GROUP BY fio.form_io_id"
 				+ "";
 
-		return getJdbcTemplate().queryForList(querySQL);
+		return jdbcTemplate.queryForList(querySQL);
 	}
 
 	public List<Map<String, Object>> getCustomEntityCount() {
@@ -140,7 +172,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " SELECT count(*) as count, 'DynaRest' as enityType"
 				+ " FROM jq_dynamic_rest_details dr WHERE dr.jws_dynamic_rest_type_id = 1 " + " UNION "
 				+ " SELECT 0 as count, 'Permission' as enityType" + " FROM jq_role jr" + " UNION "
-				+ " SELECT count(*) as count, 'SiteLayout' as enityType FROM jq_module_listing ml WHERE module_type_id=1 " + " UNION "
+				+ " SELECT count(*) as count, 'Router' as enityType FROM jq_module_listing ml WHERE module_type_id=1 " + " UNION "
 				+ " SELECT 0 as count, 'ApplicationConfiguration' as enityType" + " FROM jq_property_master"
 				+ " UNION " + " SELECT 0 as count, 'ManageUsers' as enityType" + " FROM jq_user" + " UNION "
 				+ " SELECT 0 as count, 'ManageRoles' as enityType" + " FROM jq_role"
@@ -149,11 +181,12 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view js WHERE js.schedulerTypeId = 1"
-				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js WHERE file_path <> '/images'"
 				+ " UNION " + " SELECT COUNT(*) AS count, 'ScriptLibrary' AS enityType FROM jq_script_lib_details jqsl"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'FormIO' AS enityType FROM jq_form_io"
 				+ "";
 
-		return getJdbcTemplate().queryForList(querySQL);
+		return jdbcTemplate.queryForList(querySQL);
 	}
 
 	public List<Map<String, Object>> getAllEntityCount() {
@@ -171,7 +204,7 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " FROM jq_entity_role_association AS jera LEFT OUTER JOIN jq_role AS jr ON jr.role_id = jera.role_id AND jr.is_active = 1 "
 				+ " LEFT OUTER JOIN jq_master_modules jmm ON jmm.module_id = jera.module_id "
 				+ " WHERE jera.is_active = 1 ) tableName " + " UNION "
-				+ " SELECT count(*) as totalCount, 'SiteLayout' as enityType" + " FROM jq_module_listing ml" + " UNION "
+				+ " SELECT count(*) as totalCount, 'Router' as enityType" + " FROM jq_module_listing ml" + " UNION "
 				+ " SELECT count(*) as totalCount, 'ApplicationConfiguration' as enityType"
 				+ " FROM jq_property_master_listing_view" + " UNION " + " SELECT count(*) as totalCount, 'ManageUsers' as enityType"
 				+ " FROM jq_user" + " UNION " + " SELECT count(*) as totalCount, 'ManageRoles' as enityType"
@@ -180,11 +213,78 @@ public class ImportExportCrudDAO extends DBConnection {
 				+ " UNION " + " SELECT count(*) as count, 'ApiClientDetails' as enityType" + " FROM jq_api_client_details" 
 				+ " UNION " + " SELECT count(*) as count, 'AdditionalDatasource' as enityType" + " FROM jq_additional_datasource" 
 				+ " UNION " + " SELECT count(*) as count, 'Scheduler' as enityType" + " FROM jq_scheduler_view "
-				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'Files' AS enityType FROM jq_file_upload js WHERE file_path <> '/images'"
 				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'ScriptLibrary' AS enityType FROM jq_script_lib_details"
+				+ " UNION " + " SELECT COUNT(*) AS COUNT, 'FormIO' AS enityType FROM jq_form_io"
 				+ "";
 
-		return getJdbcTemplate().queryForList(querySQL);
+		return jdbcTemplate.queryForList(querySQL);
+	}
+
+	public List<Map<String, Object>> getRecordToExport(String modifiedAfter,String contentType) {
+		StringBuilder querySQL = new StringBuilder(" SELECT * FROM (SELECT gd.grid_id AS moduleID, gd.grid_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Grid' AS moduleType,DATE(COALESCE(`gd`.`last_updated_ts`, `gd`.`created_date`)) AS isAfterDate"
+                + " FROM jq_grid_details gd LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = gd.grid_id"
+                + "  WHERE gd.grid_type_id IN(:contentType) GROUP BY gd.grid_id  UNION"
+                + "  SELECT tm.template_id AS moduleID, tm.template_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Templates' AS moduleType,`tm`.`updated_date` AS isAfterDate"
+                + "  FROM jq_template_master tm LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = tm.template_id WHERE tm.template_type_id IN(:contentType) GROUP BY tm.template_id"
+                + "  UNION"
+                + "  SELECT rb.resource_key AS moduleID, REPLACE(REPLACE(rb.`text`, CHAR(13),' '),CHAR(10),' ')AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'ResourceBundle' AS moduleType,DATE(COALESCE(`rb`.`updated_date`, `rb`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_resource_bundle rb LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = rb.resource_key"
+                + "  WHERE rb.resource_key NOT LIKE 'jws.%' GROUP BY rb.resource_key  UNION"
+                + "  SELECT au.ac_id AS moduleID, au.ac_description AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Autocomplete' AS moduleType,DATE(COALESCE(`au`.`last_updated_ts`, `au`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_autocomplete_details au LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = au.ac_id WHERE au.ac_type_id IN(:contentType) GROUP BY au.ac_id"
+                + "  UNION"
+                + "  SELECT gun.notification_id AS moduleID, gun.message_text AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Notification' AS moduleType,DATE(COALESCE(`gun`.`updated_date`, `gun`.`creation_date`)) AS isAfterDate"
+                + "  FROM jq_generic_user_notification gun LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = gun.notification_id GROUP BY gun.notification_id"
+                + "  UNION"
+                + "  SELECT db.dashboard_id AS moduleID, db.dashboard_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Dashboard' AS moduleType,DATE(COALESCE(`db`.`last_updated_ts`, `db`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_dashboard db LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = db.dashboard_id WHERE db.dashboard_type IN(:contentType) GROUP BY db.dashboard_id"
+                + "  UNION"
+                + "  SELECT dl.dashlet_id AS moduleID, dl.dashlet_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'Dashlets' AS moduleType,DATE(COALESCE(`dl`.`last_updated_ts`, `dl`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_dashlet dl LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = dl.dashlet_id WHERE dl.dashlet_type_id IN(:contentType) GROUP BY dl.dashlet_id"
+                + "  UNION"
+                + "  SELECT df.form_id AS moduleID, df.form_description AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'DynamicForm' AS moduleType,DATE(COALESCE(`df`.`last_updated_ts`, `df`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_dynamic_form df LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = df.form_id WHERE df.form_type_id IN(:contentType) GROUP BY df.form_id"
+                + "  UNION "
+                + "  SELECT fu.file_bin_id AS moduleID, fu.file_type_supported AS moduleName, 'NA' AS moduleVersion, 'FileManager' AS moduleType,DATE(COALESCE(`fu`.`last_updated_ts`, `fu`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_file_upload_config fu LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = fu.file_bin_id GROUP BY fu.file_bin_id"
+                + "  UNION"
+                + "  SELECT dr.jws_dynamic_rest_id AS moduleID, dr.jws_dynamic_rest_url AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'DynaRest' AS moduleType,DATE(COALESCE(`dr`.`last_updated_ts`, `dr`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_dynamic_rest_details dr LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = dr.jws_dynamic_rest_id"
+                + "  WHERE dr.jws_dynamic_rest_type_id IN (:contentType) GROUP BY dr.jws_dynamic_rest_id "
+                + "  UNION"
+                + "  SELECT mt.manual_id AS moduleID, mt.name AS moduleName, 'NA' AS moduleVersion, 'HelpManual' AS moduleType,DATE(COALESCE(`mt`.`last_updated_ts`, `mt`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_manual_type mt WHERE mt.is_system_manual IN (:contentType) GROUP BY mt.manual_id"
+                + "  UNION"
+                + "  SELECT acd.client_id AS moduleID, acd.client_name AS moduleName, 'NA' AS moduleVersion, 'ApiClientDetails' AS moduleType,`acd`.`updated_date` AS isAfterDate"
+                + "  FROM jq_api_client_details acd"
+                + "  UNION"
+                + "  SELECT jad.additional_datasource_id AS moduleID, jad.datasource_name AS moduleName, 'NA' AS moduleVersion, 'AdditionalDatasource' AS moduleType,DATE(COALESCE(`jad`.`last_updated_ts`, `jad`.`created_date`)) AS isAfterDate"
+                + "  FROM jq_additional_datasource jad"
+                + "  UNION"
+                + "  SELECT ml.module_id AS moduleID, mli.module_name AS moduleName, 'NA' AS moduleVersion, 'Router' AS moduleType,`ml`.`last_modified_date` AS isAfterDate"
+                + "  FROM jq_module_listing ml, jq_module_listing_i18n mli WHERE ml.module_id=mli.module_id"
+                + "  UNION"
+                + "  SELECT js.scheduler_id AS moduleID, js.scheduler_name AS moduleName, 'NA' AS moduleVersion, 'Scheduler' AS moduleType,isAfterDate AS isAfterDate"
+                + "  FROM jq_scheduler_view js WHERE js.schedulerTypeId IN (:contentType) GROUP BY js.scheduler_id"
+                + "  UNION"
+                + "  SELECT fu.file_upload_id AS moduleID, fu.original_file_name AS moduleName, '1.0' AS moduleVersion, 'Files' AS moduleType,`fu`.`last_update_ts` AS isAfterDate"
+                + "  FROM jq_file_upload fu	"
+                + "  UNION"
+                + "  SELECT jqsd.script_lib_id AS moduleID, jqsd.library_name AS moduleName, IF(mv.version_id>=1, MAX(mv.version_id), '1.0') AS moduleVersion, 'ScriptLibrary' AS moduleType,`jqsd`.`updated_date` AS isAfterDate"
+                + "  FROM jq_script_lib_details jqsd LEFT OUTER JOIN jq_module_version AS mv ON mv.entity_id = jqsd.script_lib_id GROUP BY jqsd.script_lib_id"
+                + " ) AS DATA ");
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		if (modifiedAfter != null) {
+		   querySQL.append("WHERE isAfterDate >=:modifiedAfter ");
+		    params.addValue("modifiedAfter", modifiedAfter);
+		}
+		if (contentType != null) {
+			   
+		    params.addValue("contentType", contentType);
+		}
+		return namedParameterJdbcTemplate.queryForList(querySQL.toString(), params);
+		//return getJdbcTemplate().queryForList(querySQL);
 	}
 
 }

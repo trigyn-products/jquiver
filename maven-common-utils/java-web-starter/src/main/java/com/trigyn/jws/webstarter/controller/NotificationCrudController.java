@@ -3,12 +3,8 @@ package com.trigyn.jws.webstarter.controller;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,18 +14,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.utils.Constant;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Notification')")
 public class NotificationCrudController {
 
-	private final static Logger	logger				= LogManager.getLogger(NotificationCrudController.class);
+	private final static Logger	logger				= LoggerFactory.getLogger(NotificationCrudController.class);
 
 	@Autowired
 	private MenuService			menuService			= null;
+	
+	@Autowired
+	private FileUtilities 		fileUtilities 		= null;
 
 	@GetMapping(value = "/nl", produces = MediaType.TEXT_HTML_VALUE)
 	public String getGenericUserNotificationHome(HttpSession session, HttpServletRequest request, HttpServletResponse httpServletResponse)
@@ -44,7 +48,7 @@ public class NotificationCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

@@ -1,0 +1,34 @@
+<script ${scriptNonce}>
+    $(function() {
+        //console.log( "ready123!" );
+    });
+</script>
+
+<style>
+    
+        /************** Dashlet Header ********************/
+    .dashlet_header_block{
+
+    }
+
+    /************** Dashlet Title ********************/
+    .dashlet_title_name{
+
+    }
+
+    /************** Dashlet Header Icons ********************/
+    .dashlet_header_buttons{
+
+    }
+
+    /************** Dashlet Common Icons ********************/
+    .dashlet_common_button{
+
+    }
+
+    /************** Dashlet Panel Container  ********************/
+    .panel-body .container{
+
+    }
+
+</style>

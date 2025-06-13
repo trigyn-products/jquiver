@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -30,7 +31,7 @@ public class CustomResponseEntity {
 	private Long responseDuration = null;
 
 	@JsonIgnore
-	private HttpStatus statusCode = null;
+	private HttpStatusCode statusCode = null;
 
 	@JsonIgnore
 	private String statusText = null;
@@ -132,11 +133,11 @@ public class CustomResponseEntity {
 		this.responseDuration = responseDuration;
 	}
 
-	public HttpStatus getStatusCode() {
+	public HttpStatusCode getStatusCode() {
 		return statusCode;
 	}
 
-	public void setStatusCode(HttpStatus statusCode) {
+	public void setStatusCode(HttpStatusCode statusCode) {
 		this.statusCode = statusCode;
 	}
 

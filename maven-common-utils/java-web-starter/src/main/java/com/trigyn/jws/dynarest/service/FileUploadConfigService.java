@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +20,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.Constant;
+import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.utils.Constants;
 import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
-import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 
 @Service
 @Transactional
 public class FileUploadConfigService {
 
-	private static final Logger logger = LogManager.getLogger(FileUploadConfigService.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileUploadConfigService.class);
 
 	@Autowired
 	private FileUploadConfigRepository fileUploadConfigRepository = null;
@@ -66,7 +67,7 @@ public class FileUploadConfigService {
 				entity.getUploadQueryType(), entity.getViewQueryType(), entity.getDeleteQueryType(),
 				entity.getDatasourceViewValidator(), entity.getDatasourceUploadValidator(),
 				entity.getDatasourceDeleteValidator(), entity.getIsCustomUpdated(), entity.getUploadScriptLibraryId(),
-				entity.getViewScriptLibraryId(), entity.getDeleteScriptLibraryId());
+				entity.getViewScriptLibraryId(), entity.getDeleteScriptLibraryId(),entity.getIsFileStorageEnable(),entity.getCustomFileStorageClass());
 		return config;
 
 	}
@@ -102,6 +103,38 @@ public class FileUploadConfigService {
 
 		return config;
 	}
+	
+	public FileUploadConfig convertFileUploadExportVOToEntity(FileUploadConfigExportVO fileUploadConfigExportVO)
+			throws JsonMappingException, JsonProcessingException {
+		logger.debug("Inside FileUploadConfigService.convertFileUploadVOToEntity(vo: {})", fileUploadConfigExportVO);
+		FileUploadConfig config = new FileUploadConfig();
+
+		config.setFileTypSupported(fileUploadConfigExportVO.getFileTypSupported());
+		config.setFileBinId(fileUploadConfigExportVO.getFileBinId());
+		config.setIsDeleted(fileUploadConfigExportVO.getIsDeleted());
+		config.setMaxFileSize(fileUploadConfigExportVO.getMaxFileSize());
+		config.setNoOfFiles(fileUploadConfigExportVO.getNoOfFiles());
+		config.setLastUpdatedBy(fileUploadConfigExportVO.getUpdatedBy());
+		config.setLastUpdatedTs(fileUploadConfigExportVO.getUpdatedDate());
+		config.setDeleteQueryType(fileUploadConfigExportVO.getDeleteQueryType());
+		config.setDeleteQueryContent(fileUploadConfigExportVO.getDeleteQueryContent());
+		config.setDatasourceDeleteValidator(fileUploadConfigExportVO.getDatasourceDeleteValidator());
+		config.setUploadQueryType(fileUploadConfigExportVO.getUploadQueryType());
+		config.setUploadQueryContent(fileUploadConfigExportVO.getUploadQueryContent());
+		config.setDatasourceUploadValidator(fileUploadConfigExportVO.getDatasourceUploadValidator());
+		config.setViewQueryType(fileUploadConfigExportVO.getViewQueryType());
+		config.setViewQueryContent(fileUploadConfigExportVO.getViewQueryContent());
+		config.setDatasourceViewValidator(fileUploadConfigExportVO.getDatasourceViewValidator());
+		config.setIsCustomUpdated(fileUploadConfigExportVO.getIsCustomUpdated());
+		config.setUploadScriptLibraryId(
+				fileUploadConfigExportVO.getUploadScriptLibraryId() != null ? fileUploadConfigExportVO.getUploadScriptLibraryId().trim() : "");
+		config.setViewScriptLibraryId(fileUploadConfigExportVO.getViewScriptLibraryId() != null ? fileUploadConfigExportVO.getViewScriptLibraryId().trim() : "");
+		config.setDeleteScriptLibraryId(
+				fileUploadConfigExportVO.getDeleteScriptLibraryId() != null ? fileUploadConfigExportVO.getDeleteScriptLibraryId().trim() : "");
+
+		return config;
+	}
+
 
 	public String getFileUploadJson(String entityId) throws Exception {
 		logger.debug("Inside FileUploadConfigService.getFileUploadJson(entityId: {})", entityId);
@@ -159,7 +192,7 @@ public class FileUploadConfigService {
 		List<String> scriptUploadIdList = new ArrayList<>();
 		List<String> scriptViewIdList = new ArrayList<>();
 		List<String> scriptDeleteIdList = new ArrayList<>();
-		List<ScriptLibrary> scriptLibInsert = new ArrayList<>();
+		List<ScriptLibraryConnection> scriptLibInsert = new ArrayList<>();
 		if (null == fileUploadConfig.getDeleteScriptLibraryId()) {
 			fileUploadConfig.setDeleteScriptLibraryId("");
 		} else if (null == fileUploadConfig.getUploadScriptLibraryId()) {

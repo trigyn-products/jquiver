@@ -5,7 +5,7 @@ sample JSON below
 
 <div class="col-12 margin-b-10">
     
-	<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+	<label for="${innerTemplateObj.propertyId!''}" >${innerTemplateObj.displayName!''}</label>
 	<select id="${innerTemplateObj.propertyId!''}" class="select form-control" name="${innerTemplateObj.propertyId!''}">
    
         <#if innerTemplateObj.propertyValue?? && innerTemplateObj.propertyValue?has_content>

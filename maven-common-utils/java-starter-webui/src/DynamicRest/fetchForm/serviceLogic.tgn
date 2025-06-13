@@ -1,0 +1,24 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+
+function getFormData(formMetaDataParam){ 
+	
+    params.put("formIoId", requestDetails["formIoId"]);
+    params.put("dataId", requestDetails["dataId"]); 
+    
+    var queryResult = jq_getDBResult("SELECT form_data FROM jq_formio_data WHERE data_id =  :dataId  AND form_io_id = :formIoId", null, params);    
+        if(queryResult != null) {
+            return queryResult.data_list[0].form_data;
+        }
+    
+}
+
+function loadFormIoRenderApi() {
+    var returnObject = new Object();    
+    returnObject.formData = getFormData();
+    return returnObject;
+}
+
+loadFormIoRenderApi();

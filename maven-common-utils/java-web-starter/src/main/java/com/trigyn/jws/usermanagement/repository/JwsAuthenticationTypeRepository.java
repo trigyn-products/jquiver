@@ -7,6 +7,7 @@ import com.trigyn.jws.usermanagement.entities.JwsAuthenticationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,7 @@ public interface JwsAuthenticationTypeRepository extends JpaRepository<JwsAuthen
 	@Modifying
 	@Transactional
 	@Query("UPDATE JwsAuthenticationType SET authenticationProperties=:propertyJson WHERE authenticationId=:authenticationId")
-	void updatePropertyById(Integer authenticationId, String propertyJson);
+	void updatePropertyById(@Param("authenticationId") Integer authenticationId, @Param("propertyJson") String propertyJson);
 	
 	@Query("FROM JwsAuthenticationType WHERE authenticationProperties IS NOT NULL")
 	List<JwsAuthenticationType> getAuthenticationTypes();

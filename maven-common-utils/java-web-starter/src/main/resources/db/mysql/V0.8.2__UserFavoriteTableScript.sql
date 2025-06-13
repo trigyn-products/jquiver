@@ -8,4 +8,4 @@ CREATE TABLE jq_user_favorite_entity (
   last_updated_date timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (favorite_id),
   UNIQUE KEY user_email_id (user_email_id,entity_type,entity_id)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);

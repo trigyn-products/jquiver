@@ -7,8 +7,8 @@ import java.security.SecureRandom;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.google.zxing.BarcodeFormat;
@@ -21,7 +21,7 @@ import de.taimos.totp.TOTP;
 @Component
 public class TwoFactorGoogleUtil {
 
-	private final static Logger logger = LogManager.getLogger(TwoFactorGoogleUtil.class);
+	private final static Logger logger = LoggerFactory.getLogger(TwoFactorGoogleUtil.class);
 
 	// private static final String SecretKey = "XJZI7XO2YD2PEZJQU3RLS4TBDTPL47AJ";
 

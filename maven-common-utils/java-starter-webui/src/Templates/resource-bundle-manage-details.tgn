@@ -1,12 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script> 
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/resourcebundle/addEditResourceBundle.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <style type="text/css">
 .area{
   width:100%;
@@ -16,18 +11,17 @@
 <div class="container">
 		<div class="topband">
 		<#if (resourceBundleKey)?? && (resourceBundleKey)?has_content>
-		    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editResourceBundle")}</h2> 
+		    <h2 class="title-cls-name">${messageSource.getMessage("jws.editResourceBundle")}</h2> 
         <#else>
-            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addResourceBundle")}</h2> 
+            <h2 class="title-cls-name">${messageSource.getMessage("jws.addResourceBundle")}</h2> 
         </#if> 
-		<div class="float-right">
+		<div class="topactionbuttons">
 			<span onclick="addEditResourceBundle.backToResourceBundleListing();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 			</span> 	
 		</div>
 		
-		<div class="clearfix"></div>		
-		</div>
+ 		</div>
 		
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<form id="resourceBundleForm" method="post">
@@ -35,8 +29,8 @@
 				<div class="col-12">
 					<div class="col-inner-form full-form-fields">
 						<label for="targetPlatform"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.resourceKey")}</label>
-						<a class="tipsicon tipslabelright collapsed" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+						<a class="tipsicon tipslabelright collapsed" title="Tips" data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>
                                     </a>
 
                       <div id="ftlParameterDiv" style="margin-top:10px;">
@@ -63,14 +57,13 @@
 
                      <div class="input-group" style="margin-top:20px;">
 						<input type="text" id="resourceBundleKey" name="resourceBundleKey" class="form-control" maxlength="255" value="${(resourceBundleKey)!''}" disabled="true"/>                
-                            <span id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" onclick="copyToClipboard('resourceBundleKey','clientkeyCopyBtn')"" style="border-radius: 0px 3px 3px 0 !important;" title="Copy"> <i class="fa fa-clipboard" aria-hidden="true" 
-                                    style=" padding-top:3px !important; "></i></span>             
-                            </div>                       
-                            <span onclick="copyJsonData()" class="searchrevision">                       
-               
-						</div>
-						 </div>
-					</div>
+                        <span class="btn btn-secondary" onclick="copyId()" style="border-radius: 0px 3px 3px 0 !important;" title="Copy">
+                            <i class="fa fa-regular fa-copy" aria-hidden="true" style=" padding-top:3px !important; "></i>                        
+                        </span>
+                    </div>                       
+				</div>
+				</div>
+			</div>
 
 			<div class="row">
 				<#list languageVOList as languages>
@@ -95,12 +88,12 @@
 				
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('resource-bundle-manage-details', this, isEdit, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('resource-bundle-manage-details', this, isEdit, addEditResourceBundle.saveResourceBundle.bind(addEditResourceBundle), addEditResourceBundle.backToResourceBundleListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -148,12 +141,13 @@
 		hideShowActionButtons();
 	});
     </#outputformat>
-    
-    function copyToClipboard(textName, btnName) {
-      var copyText = document.getElementById(textName);
-      copyText.select();
-      copyText.setSelectionRange(0, 99999); /* For mobile devices */
-      document.execCommand("copy"); 
-      showMessage("Data copied", "success");
-}
+
+    function copyId(){
+        let input = $("<input>");
+        $("body").append(input);
+        input.val($("#resourceBundleKey").val()).select();
+        document.execCommand("copy");
+        input.remove();
+        showMessage("Data copied successfully", "success");
+	}
 </script>

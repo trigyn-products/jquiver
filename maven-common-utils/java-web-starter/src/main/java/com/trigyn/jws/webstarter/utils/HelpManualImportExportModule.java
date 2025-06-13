@@ -124,7 +124,7 @@ public class HelpManualImportExportModule {
 		}
 
 		HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(),
-				a_manualType.getName(), a_manualType.getIsSystemManual(),manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
+				a_manualType.getName(), a_manualType.getIsSystemManual(),a_manualType.getHeaderTemplate(), manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
 				fileUploadConfigExportVO,fileUploadExportVOList);
 
 		Map<String, Object>		map					= new HashMap<>();
@@ -141,11 +141,12 @@ public class HelpManualImportExportModule {
 		String								manualId				= helpManualTypeExportVO.getManualId();
 		String								name					= helpManualTypeExportVO.getName();
 		Integer								isSystemManual			= helpManualTypeExportVO.getIsSystemManual();
+		String								headerTemplate			= helpManualTypeExportVO.getHeaderTemplate();
 				
 		List<ManualEntryDetailsExportVO>	manualEntriesVO			= helpManualTypeExportVO.getManualEntries();
 		FileUploadConfigExportVO			fileUploadConfigVO		= helpManualTypeExportVO.getFileUploadConfig();
 
-		ManualType							manualType				= new ManualType(manualId, name, isSystemManual,helpManualTypeExportVO.getCreatedBy(),helpManualTypeExportVO.getCreatedDate(),helpManualTypeExportVO.getLastUpdatedBy(),helpManualTypeExportVO.getLastUpdatedTs());
+		ManualType							manualType				= new ManualType(manualId, name, isSystemManual,headerTemplate,helpManualTypeExportVO.getCreatedBy(),helpManualTypeExportVO.getCreatedDate(),helpManualTypeExportVO.getLastUpdatedBy(),helpManualTypeExportVO.getLastUpdatedTs());
 
 		FileUploadConfig					fileUploadConfig		= null;
 		if (fileUploadConfigVO != null) {

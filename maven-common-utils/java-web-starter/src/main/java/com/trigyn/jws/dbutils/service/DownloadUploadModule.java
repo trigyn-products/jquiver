@@ -1,22 +1,19 @@
 package com.trigyn.jws.dbutils.service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
 import org.springframework.stereotype.Component;
 
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import com.trigyn.jws.dbutils.utils.CustomCharacterEscapeHandler;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
+import com.trigyn.jws.dbutils.vo.xml.DynaRestExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynamicFormExportVO;
 import com.trigyn.jws.dbutils.vo.xml.ExportModule;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
@@ -24,16 +21,22 @@ import com.trigyn.jws.dbutils.vo.xml.Modules;
 import com.trigyn.jws.dbutils.vo.xml.Settings;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
+import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 
 @Component
 public interface DownloadUploadModule<T> {
 
 	void downloadCodeToLocal(T object, String folderLocation) throws Exception;
 
-	void uploadCodeToDB(String uploadFileName) throws Exception;
+	void uploadCodeToDB(String moduleTypeID, String uploadFileName) throws Exception;
 
 	void exportData(Object object, String folderLocation) throws Exception;
-
+	
 	Object importData(String folderLocation, String uploadFileName, String uploadID, Object importObject)
 			throws Exception;
 
@@ -70,7 +73,10 @@ public interface DownloadUploadModule<T> {
 				module.setDashlet((DashletExportVO) map.get("moduleObject"));
 			} else if (map.get("moduleObject") instanceof DynamicFormExportVO) {
 				module.setDynamicForm((DynamicFormExportVO) map.get("moduleObject"));
+			} else if (map.get("moduleObject") instanceof DynaRestExportVO) {
+				module.setDynaRestExportVO((DynaRestExportVO) map.get("moduleObject"));
 			}
+
 
 			exportModuleList.add(module);
 		}
@@ -82,15 +88,18 @@ public interface DownloadUploadModule<T> {
 
 	}
 
-	public default void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws JAXBException {
+	public default void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) 
+			throws JAXBException, FileNotFoundException {
 		JAXBContext jaxbContext = JAXBContext.newInstance(xmlVO.getClass());
-		;
+
+		File file = new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml");
+		FileOutputStream fout=new FileOutputStream(file); 
 
 		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
-		jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
-		jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml"));
+		jaxbMarshaller.setProperty("org.glassfish.jaxb.characterEscapeHandler", new CustomCharacterEscapeHandler());
+		jaxbMarshaller.marshal(xmlVO, fout);
 	}
 
 	public default XMLVO unMarshaling(Class xmlVOClass, String xmlFilePath) throws JAXBException {
@@ -104,5 +113,7 @@ public interface DownloadUploadModule<T> {
 
 		return outputXMLVO;
 	}
+
+	
 
 }

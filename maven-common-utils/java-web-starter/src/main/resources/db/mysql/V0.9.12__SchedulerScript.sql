@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS jq_job_scheduler(
   PRIMARY KEY (scheduler_id),
   KEY jq_job_scheduler_ibfk1(jws_dynamic_rest_id),
   CONSTRAINT jq_job_scheduler_ibfk1 FOREIGN KEY (jws_dynamic_rest_id) REFERENCES jq_dynamic_rest_details (jws_dynamic_rest_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE IF NOT EXISTS jq_job_scheduler_log(
   scheduler_log_id varchar(50)NOT NULL,
@@ -21,6 +21,6 @@ CREATE TABLE IF NOT EXISTS jq_job_scheduler_log(
   request_time timestamp,
   response_time timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
   PRIMARY KEY (scheduler_log_id) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 SET FOREIGN_KEY_CHECKS=0;

@@ -352,7 +352,7 @@ input:checked + .slider:before {
     $.ajax({
       type : "POST",
       async: false,
-      url : contextPath+"/api/mailConfirationDetails",
+      url : contextPath+apiPath+"/mailConfirationDetails",
       data : {
       saveMailConfigDetailsJson : saveMailConfigDetailsJson
       },

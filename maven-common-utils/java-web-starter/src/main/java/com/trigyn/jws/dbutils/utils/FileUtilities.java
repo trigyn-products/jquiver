@@ -12,14 +12,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class FileUtilities {
 
-	private final static Logger	logger	= LogManager.getLogger(FileUtilities.class);
+	private final static Logger	logger	= LoggerFactory.getLogger(FileUtilities.class);
 
 	private static final String	SHA_256	= "SHA-256";
 
@@ -36,7 +38,7 @@ public class FileUtilities {
 			}
 			return result.toString();
 		} catch (Exception a_exc) {
-			logger.error(a_exc);
+			logger.error("Error occurred in generateFileChecksum", a_exc);
 			return null;
 		}
 	}
@@ -95,6 +97,15 @@ public class FileUtilities {
 			checksum.append(String.format("%02x", bytes));
 		}
 		return checksum.toString();
+	}
+	
+	public void customSendError(HttpServletResponse httpServletRepsonse, int statusCode, String errorMsg)
+			throws IOException {
+//		httpServletRepsonse.setContentType("text/plain");
+//		httpServletRepsonse.setStatus(statusCode);
+//		httpServletRepsonse.getOutputStream().print(errorMsg);
+//		httpServletRepsonse.getOutputStream().flush();
+		httpServletRepsonse.sendError(statusCode, errorMsg);
 	}
 
 }

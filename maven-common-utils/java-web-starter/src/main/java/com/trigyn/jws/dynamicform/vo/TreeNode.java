@@ -6,6 +6,7 @@ public class TreeNode {
 	private boolean children = false;
 	private String type = "file";
 	private String entryContent = null;
+	private String title = "";
 
 	public String getId() {
 		return id;
@@ -46,5 +47,14 @@ public class TreeNode {
 	public void setEntryContent(String entryContent) {
 		this.entryContent = entryContent;
 	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 
 }

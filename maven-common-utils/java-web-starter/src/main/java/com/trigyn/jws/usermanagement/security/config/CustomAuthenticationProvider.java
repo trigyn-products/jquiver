@@ -1,21 +1,25 @@
 package com.trigyn.jws.usermanagement.security.config;
 
+import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.ldap.CommunicationException;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +36,13 @@ import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
+import com.trigyn.jws.webstarter.dao.ICaptchRepository;
+import com.trigyn.jws.webstarter.service.CaptchaService;
+import com.trigyn.jws.webstarter.vo.CaptchaDetails;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * 
@@ -56,6 +67,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	private DaoAuthenticationProvider				daoAuthenticationProvider	= null;
 
 	@Autowired
+	@Lazy
 	private UserDetailsService						userDetailsService			= null;
 
 	@Autowired
@@ -70,9 +82,21 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Autowired
 	LdapUserService									ldapUserService				= null;
 	
+	@Autowired
+	private ICaptchRepository iCaptchRepository 				= null;
+	
+	@Autowired
+	private CaptchaService 						captchaService 					= null;
+	
+	private static final Pattern BASE64_PATTERN = Pattern.compile("^[A-Za-z0-9+/=]+$");
+	
 	public CustomAuthenticationProvider() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public CustomAuthenticationProvider(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
 	public CustomAuthenticationProvider(JwsUserRepository userRepository,
 			JwsUserRoleAssociationRepository userRoleAssociationRepository, UserConfigService userConfigService) {
@@ -97,7 +121,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				Map<String, Object> loginAttributes = jwsUserLoginVO.getLoginAttributes();
 				for (Map.Entry<String, Object> entry : loginAttributes.entrySet()) {
 					String displayKey = entry.getKey();
-					if (displayKey.equalsIgnoreCase("ldapDisplayDetails")) {
+					if (null != displayKey && displayKey.equalsIgnoreCase("ldapDisplayDetails")) {
 						List<String> ldapDisplayDetails = (List<String>) entry.getValue();
 						if (ldapDisplayDetails != null) {
 							for (String ldapDisplayVal : ldapDisplayDetails) {
@@ -125,22 +149,33 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Override
 	public Authentication authenticate(Authentication authentication) {
 
-		Authentication authResponse = null;
 		try {
-			String	username	= authentication.getName();
-			JwsUser	userEntity	= userRepository.findByEmailIgnoreCase(username);
-			String	authType	= request.getParameter("enableAuthenticationType");
-			String authTypeHeader = null;
-			if (authType == null || authType.isEmpty()|| authType.isBlank()) {
-				authTypeHeader = request.getHeader("at");
-				if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
-					authType = Constants.DAO_ID;
-				} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
-					authType = Constants.LDAP_ID;
-				} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
-					authType = Constants.OAUTH_ID;
-				}
+			String decryptedPassword = null;
+			String requestId = null;
+			String password = null;
+			String username = authentication.getName();
+			if (request.getParameter("requestId") != null) {
+				requestId = request.getParameter("requestId");
 			}
+			if (authentication.getCredentials().toString() != null) {
+				password = authentication.getCredentials().toString();
+			}
+			int blockSize = 16;
+			if (isBase64Encoded(password) && isMultipleOfBlockSize(password, blockSize)) {
+				decryptedPassword = userConfigService.decryptPassword(password, requestId);
+			}
+			JwsUser	userEntity	= userRepository.findByEmailIgnoreCase(username);
+	        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+	        Object details = authentication.getDetails();
+	        if(decryptedPassword != null) {
+		        UsernamePasswordAuthenticationToken newAuth = 
+		            new UsernamePasswordAuthenticationToken(username, decryptedPassword, authorities);
+		        newAuth.setDetails(details);
+		        authentication = newAuth;
+	        }
+			String	authType	= request.getParameter("enableAuthenticationType");
+			String authTypeHeader = request.getHeader("at");
+			authType = Constants.getAuthType(authType, authTypeHeader);
 			if(authType != null || authType == Constants.DAO_ID) {
 				validateAuthentication();
 			}
@@ -174,10 +209,19 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				default:
 					throw new IllegalArgumentException(authType + " is not yet implemented!");
 			}
+		} catch (InternalAuthenticationServiceException ce) {
+			logger.error("Failed : Error while authenticating " + ce.getMessage());
+			if (ce.getCause().getClass().equals(CommunicationException.class)) {
+				String		ldapServerDisplayId	= request.getParameter("ldapConfig");
+				throw new InvalidLoginException("Error while connecting "+ ldapServerDisplayId +" network! Make sure logged into domain");
+			} else {
+				ce.printStackTrace();
+			}
 		} catch (Exception exec) {
 			logger.error("Failed : Error while authenticating " + exec.getMessage());
 			throw new InvalidLoginException(exec.getMessage());
 		}
+		return authentication;
 
 	}
 
@@ -211,14 +255,38 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 						.getRequestAttributes();
 				HttpServletRequest			request		= sra.getRequest();
 				HttpSession					session		= request.getSession();
+				String						generatedCaptcha	= null;
+				String captchaRequest_Id=request.getHeader("r");
 				if (loginAttributes.containsKey("enableCaptcha")) {
 					String captcaValue = (String) loginAttributes.get("enableCaptcha");
 					if (captcaValue != null && captcaValue.equalsIgnoreCase("true")) {
-						if ((session.getAttribute("loginCaptcha")!=null && (request.getParameter("captcha")!=null && request.getParameter("captcha")
-								.equals(session.getAttribute("loginCaptcha").toString())== false))) {
-							session.removeAttribute("loginCaptcha");
+						//fetch captcha for database
+						captchaService.deleteExpiredCaptcha();
+						CaptchaDetails captchaDetails = null;
+						if (request.getParameter("captcha")!=null && StringUtils.isBlank(captchaRequest_Id) == false && captchaRequest_Id!=null ) {
+							captchaDetails = iCaptchRepository.findById(captchaRequest_Id).orElse(null);;
+							if (null != captchaDetails)
+							{
+							 generatedCaptcha=captchaDetails.getCaptcha();
+							}
+							else {
+								throw new InvalidLoginException("Captcha has Expired!");
+							}
+						}
+						if ((generatedCaptcha!=null && (request.getParameter("captcha")!=null && request.getParameter("captcha")
+						.equals(generatedCaptcha.toString())== false))) {
+							if (StringUtils.isBlank(captchaRequest_Id) == false && captchaRequest_Id!=null ) {
+								   captchaService.deleteCaptcha(captchaRequest_Id);
+								}
 							throw new InvalidLoginException("Please verify captcha!");
 						}
+						else
+						{
+							if (StringUtils.isBlank(captchaRequest_Id) == false) {
+								   captchaService.deleteCaptcha(captchaRequest_Id);
+								}
+						}
+						//End of Fetch captch
 					}
 				}
 			}
@@ -226,5 +294,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	
 		return Boolean.TRUE;
 	}
+	
+	public static boolean isBase64Encoded(String password) {
+        return BASE64_PATTERN.matcher(password).matches();
+    }
+
+    public static boolean isMultipleOfBlockSize(String password, int blockSize) {
+        try {
+            byte[] decoded = Base64.getDecoder().decode(password);
+            return decoded.length % blockSize == 0;
+        } catch (IllegalArgumentException exce) {
+            return false;
+        }
+    }
 
 }

@@ -1,4 +1,5 @@
 <rest>
+	<verifySSL></verifySSL> <!-- optional | default = true -->
     <url></url> <!-- mandatory -->
     <type></type> <!-- mandatory -->
     <content-type></content-type>

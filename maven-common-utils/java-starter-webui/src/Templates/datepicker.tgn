@@ -28,7 +28,7 @@ if(defaultDate.trim() !== ""){
 </script>
 <div class="col-12 margin-b-10">
 	<div class="dashlet-config-calendar">
-		<label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+		<label for="${innerTemplateObj.propertyId!''}" >${innerTemplateObj.displayName!''}</label>
 		<input class="form-control" id="${innerTemplateObj.propertyId!''}"  name= "${innerTemplateObj.propertyId!''}" placeholder="" />
 		<button id="${innerTemplateObj.propertyId!''}-trigger" class="calender_icon">
 			<i class="fa fa-calendar" aria-hidden="true"></i>

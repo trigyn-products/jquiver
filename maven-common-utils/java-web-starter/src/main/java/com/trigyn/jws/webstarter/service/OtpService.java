@@ -6,13 +6,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import javax.mail.internet.InternetAddress;
-import javax.servlet.ServletContext;
-import javax.transaction.Transactional;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
@@ -35,12 +31,16 @@ import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.JwsUserRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 
+import jakarta.mail.internet.InternetAddress;
+import jakarta.servlet.ServletContext;
+import jakarta.transaction.Transactional;
+
 @Description(value = "Service responsible for handling OTP related functionality.")
 @Transactional
 @Service
 public class OtpService implements InitializingBean{
 
-    private final static Logger				logger					=	LogManager.getLogger(OtpService.class);
+    private final static Logger				logger					=	LoggerFactory.getLogger(OtpService.class);
     
     private LoadingCache<String, Integer> 	otpCache				=	null;
 

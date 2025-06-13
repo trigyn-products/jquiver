@@ -2,15 +2,11 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.Objects;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,6 +21,8 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomRuntimeException;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import reactor.core.publisher.Mono;
 
 /**
@@ -95,14 +93,14 @@ public class LoginSuccessEventListenerRestImpl implements LoginSuccessEventListe
 
 			MultiValueMap<String, String>	multipvalueMap	= new LinkedMultiValueMap<String, String>();
 			WebClient						webClient		= builder.build();
-			Mono<ResponseEntity<String>>	responseContent	= webClient.method(HttpMethod.resolve("POST"))
+			Mono<ResponseEntity<String>>	responseContent	= webClient.method(HttpMethod.POST)
 					.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build())
-					.retrieve().onStatus(HttpStatus::is4xxClientError, response -> {
+					.retrieve().onStatus(HttpStatusCode::is4xxClientError, response -> {
 						return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 							return Mono.error(new CustomRuntimeException(error));
 						});
 					})
-					.onStatus(HttpStatus::is5xxServerError, response -> {
+					.onStatus(HttpStatusCode::is5xxServerError, response -> {
 						return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 							return Mono.error(new CustomRuntimeException(error));
 						});

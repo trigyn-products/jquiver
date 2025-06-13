@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
 </script><script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/importExport/export.css" />
 <script src="${(contextPath)!''}/webjars/1.0/importExport/export.js"></script> 
 <link rel="stylesheet" type="text/css" href="${contextPath!''}/webjars/1.0/JSCal2/css/jscal2.css" />
@@ -33,14 +26,17 @@
     <div class="cm-card">
 	<div class="topband cm-card-header">
 		<h2 class="title-cls-name float-left" style="margin-top: 5px;">${messageSource.getMessage('jws.exportconfiguration')}</h2>
-        <div class="float-right addonbtnblock">
+        <div class=" addonbtnblock">
             <div class="flexblock">
             <div id="expHeader" class="flexblock">
-                ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()">   
-                    <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                    <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                    <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-                </select>
+               <div class="showblock">
+                 <span>${messageSource.getMessage('jws.show')}</span>
+                <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                  </select>       
+                </div> 
                 <span class="calndercutom spacingclss">
                      <label for="chkDatePicker" style="cursor:pointer">${messageSource.getMessage('jws.modifiedafter')} </label>
                     <input type="checkbox" id="chkDatePicker" onchange="selectAsperDate()" >
@@ -70,6 +66,12 @@
                          style="float:left;">
                     <label for="dashletChkBx">${messageSource.getMessage('jws.dashlet')}</label>
                  </div> 
+                 <div class="jws-dashlet-btn btn btn-primary spacingclss" style="margin-top:0px;margin-bottom:0px">
+                 	<input type="checkbox" id="formioChkBx" name="formioChkBx" disabled
+                         style="float:left;">
+                    <label for="formioChkBx">${messageSource.getMessage('jws.formiolabel')}</label>
+                 </div> 
+                 
                   <input id="nextBtn" class="btn btn-primary spacingclss" style="float:right;padding: 6px 12px;    margin: 0 6px;" name="nextBtn" value="${messageSource.getMessage('jws.next')}" type="button" onclick="gotoNextPage()">
 		    </div>
             
@@ -177,7 +179,7 @@
 document.title = "Export Configuration Module";
 let isDeselectedAll = false;
 let selectedType = 1;
-contextPath = "${contextPath}";
+//contextPath = "${contextPath}";
 var isSelectAsPerDate = false;
 var selectedDate;
 let selectDateCal;

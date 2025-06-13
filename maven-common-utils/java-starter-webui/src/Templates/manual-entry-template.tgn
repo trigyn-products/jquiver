@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
@@ -16,8 +9,8 @@
 
 <div class="container">
     <div class="topband">
-        <h2 id="title" class="title-cls-name float-left"></h2> 
-        <div class="float-right">
+        <h2 id="title" class="title-cls-name"></h2> 
+        <div class="topactionbuttons">
             <form id="viewManualForm" action="${(contextPath)!''}/cf/manual" method="get" target="_blank" class="margin-r-5 pull-left">
   				<input id="manualTypeView" name="mt" type="hidden" value="${mt}">
   				<button type="submit" class="btn btn-primary"> ${messageSource.getMessage('jws.viewmanual')} </button>
@@ -40,8 +33,7 @@
 			</form>
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
     <div id="manual-entryGrid"></div>
 
@@ -120,7 +112,7 @@
         $.ajax({
 		    type : "POST",
 			async : true,
-			url : contextPath+"/api/manual-entry-sequence",
+			url : contextPath+apiPath+"/manual-entry-sequence",
 			data : {
 			 	manualType : manualType
 			},success: function(maxManualSequence){

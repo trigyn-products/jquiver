@@ -1,6 +1,6 @@
 <#compress>
 <div>
-   <form class="form-signin" method="post" action="${(contextPath)!''}/cf/login" autocomplete="off">
+   <form class="form-signin" id="loginForm" method="post" action="${(contextPath)!''}/cf/login" autocomplete="off">
      
       <#if queryString?? && queryString?has_content>
 		 <#if resetPasswordSuccess??>    
@@ -9,9 +9,9 @@
 	  </#if>            
       <p class="divdeform">   
          <label for="username" class="formlablename"><@resourceBundleWithDefault "jws.email" "Email"/></label>   
-         <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>    
-    <#if innerTemplateObj.previousMail?? && innerTemplateObj.previousMail?has_content>
-         <input type="email" id="email" value="${innerTemplateObj.previousMail}" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email" />" required autofocus> 
+         <span class="formicosn"><i class="fa-solid fa-user" aria-hidden="true"></i></span>    
+    <#if innerTemplateObj.previousMail?? && innerTemplateObj.previousMail?has_content && innerTemplateObj.prevAuthType?has_content && innerTemplateObj.prevAuthType == "2">
+         <input type="email" id="email" value="${innerTemplateObj.previousMail?html}" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email" />" required autofocus> 
 	<#else>
 		<input type="email" id="email"  name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email" />" required autofocus> 
 	</#if>
@@ -19,18 +19,22 @@
       <#if innerTemplateObj.verificationType?? && innerTemplateObj.verificationType=="1">   
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
-         <span class="formicosn"><i class="fa fa-key" aria-hidden="true"></i></span>  
+         <span class="formicosn"><i class="fa-solid fa-key" aria-hidden="true"></i></span>  
          <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Password"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
       </p>
+      <#if innerTemplateObj.requestId?? && innerTemplateObj.requestId?has_content> 
+		<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
+	  </#if>
       <#if innerTemplateObj.enableCaptcha == "true">     
       <div class="captchablock"> 
-         <img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''}/cf/captcha/loginCaptcha">   
+         <img id="imgCaptcha" name="imgCaptcha" src="">   
          <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>    
          <label for="captcha" class="sr-only"><@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/></label>  
          <input type="text" id="captcha" name="captcha" class="form-control" placeholder="<@resourceBundleWithDefault "jws.entercaptcha" "Enter Captcha"/>" required autofocus >    
       </div>
-      </#if>  
+      </#if>
+      <div class="blockpass">  
       <span class="remebermeblock">   
       <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
       </span>     
@@ -38,8 +42,9 @@
       <a href="${(contextPath)!''}/cf/resetPasswordPage"><@resourceBundleWithDefault "jws.forgotpassword" "Forgot Password"/>?</a>     
       </span>                           
       </#if> 
+      </div>
       <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="2"/>               
-      <button class="btn btn-lg btn-primary btn-block" type="submit"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> 
+      <div class="loginbtn"><button class="btn btn-lg btn-primary btn-block" type="submit" onclick="encryptPasswordOnSubmit()"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> </div>
       <#if innerTemplateObj.enableRegistration?? && innerTemplateObj.enableRegistration?string == "true" >  
       <p class="registerlink"><@resourceBundleWithDefault "jws.newuser" "New User"/>?   
          <a href="${(contextPath)!''}/cf/register"> <@resourceBundleWithDefault "jws.registerhere" "Register"/></a>   
@@ -48,6 +53,9 @@
    </form>
 </div>
 <script>
+    localStorage.setItem('r', null);
+    contextPath = "${(contextPath)!''}";
+
    function showHidePassword(thisObj){
    	var element = $(thisObj).parent().find("input[name='password']");
    	if (element.prop("type") === "password") {
@@ -64,12 +72,118 @@
    
    }		
    $(function(){
-   	contextPath = "${(contextPath)!''}";
-   	$("#reloadCaptcha").click(function(event){
-   		$("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
-   	});
-   	
+   	<#if innerTemplateObj.enableCaptcha == "true">
+    var imagesrc=contextPath+"/cf/captcha/lc";
+       generateCaptch(imagesrc);
+   	</#if>
    });
    
+    $("#reloadCaptcha").click(function(event){
+       var imagesrc=contextPath+"/cf/captcha/lc"+"#";
+       generateCaptch(imagesrc);
+   	});
+
+   function encryptPasswordOnSubmit(){
+        var password = $("#password").val();
+         <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
+            var encryptionKey = "${innerTemplateObj.salt}";
+        </#if>
+        var encryptedPassword = encryptPassword(password, encryptionKey);
+        $("#password").val(encryptedPassword);  
+
+    }
+
+    function padOrTruncateKey(key, length) {
+	if (key.length < length) {
+		return key.padEnd(length, '0');
+	} else if (key.length > length) {
+		return key.substring(0, length);
+	}
+	return key;
+}
+
+	function encryptPassword(password, encryptKey) {
+		const paddedKey = padOrTruncateKey(encryptKey, 16); 
+		const key = CryptoJS.enc.Utf8.parse(paddedKey);
+		const encrypted = CryptoJS.AES.encrypt(password, key, {
+			mode: CryptoJS.mode.ECB,
+			padding: CryptoJS.pad.Pkcs7
+		});
+		return encrypted.toString();
+	}
+   
+  /* function generateCaptch(imagesrc) {
+       // alert("generate Captch");
+     const imgElement = document.getElementById('imgCaptcha');    
+     fetch(imagesrc, {
+        headers: {
+
+        'r':  localStorage.getItem('r')
+        }
+      }) // Fetch the image using its 'src' attribute
+     .then(response => {
+      // Access the desired header
+       localStorage.setItem('r', response.headers.get('r'));
+	    if (response.ok) {
+	      return response.blob();
+	     // console.log('Image URL is valid');
+	    } else {
+	     // console.log('Image URL is invalid');
+	      return null;
+	    }	
+       
+	     })
+	    .then((blob) => {
+	       if(blob!=null){
+	             //set image to image Src
+	              const objectURL = URL.createObjectURL(blob);
+	              imgElement.src = objectURL;
+                      
+                         if ($('#captcha').prop('disabled')) {
+                           $("#captcha").removeAttr('disabled');
+			}
+		   }
+		else{
+		     //set path and show error Message and disable text
+		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
+		      $("#captcha").attr('disabled','disabled');
+              $("#captchaGenerationError").attr("style","display:block");
+              $("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
+             // alert(resourceBundleData("jws.clearTxt"));
+		    }
+	     })
+      .catch(error => {
+       $("#captchaGenerationError").attr("style","display:block");
+       $("#captchaGenerationError").html("<@resourceBundle "jws.fetchCaptchError"/>");
+
+     });
+    }*/
+
+
+    document.getElementById('loginForm').addEventListener('submit', (event)=> {
+            event.preventDefault(); // Prevent default form submission
+            const formData = new FormData(event.target); // Access form data
+
+            fetch(event.target.action, { // Use form's action attribute
+                method: 'POST',
+                headers: {
+                    'r': localStorage.getItem('r')
+                },
+                body: formData
+            })
+            .then(response => {return response.text();
+                            })
+            .then(html => {  //Seting Html content 
+                            document.open();
+                            document.write(html);
+                            document.close();
+            })
+            .catch(error => {
+               $("#LoginFormError").attr("style","display:block");
+               $("#LoginFormError").html("<@resourceBundle "jws.loginFormFailed"/>");
+           });
+        
+    });
+  
 </script>
 </#compress>

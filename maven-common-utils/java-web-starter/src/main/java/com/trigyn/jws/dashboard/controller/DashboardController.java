@@ -1,15 +1,11 @@
 package com.trigyn.jws.dashboard.controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
@@ -25,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.trigyn.jws.dashboard.dao.DashletDAO;
 import com.trigyn.jws.dashboard.service.DashboardService;
 import com.trigyn.jws.dashboard.service.DashletService;
-import com.trigyn.jws.dashboard.utility.Constants;
 import com.trigyn.jws.dashboard.vo.DashboardDashletVO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
@@ -34,6 +29,9 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping(value = "/cf")
@@ -57,7 +55,7 @@ public class DashboardController {
 	@Autowired
 	private DashletDAO 			dashletDAO 				= null;
 	
-	private final static Logger	logger					= LogManager.getLogger(DashboardController.class);
+	private final static Logger	logger					= LoggerFactory.getLogger(DashboardController.class);
 
 	@GetMapping(value = "/gdbc", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public List<DashboardDashletVO> getDashletByContextId(@RequestHeader(value = "dashboardId", required = false) String dashboardId) throws NumberFormatException, Exception {

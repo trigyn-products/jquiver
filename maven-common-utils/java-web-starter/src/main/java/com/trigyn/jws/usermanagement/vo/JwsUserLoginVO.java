@@ -10,8 +10,28 @@ public class JwsUserLoginVO {
 
 	private Map<String, Object>	loginAttributes;
 
+	private String				databaseDisplayName	= null;
+
+	private String				ldapDisplayName		= null;
+
 	public Integer getAuthenticationType() {
 		return authenticationType;
+	}
+
+	public String getDatabaseDisplayName() {
+		return databaseDisplayName;
+	}
+
+	public void setDatabaseDisplayName(String databaseDisplayName) {
+		this.databaseDisplayName = databaseDisplayName;
+	}
+
+	public String getLdapDisplayName() {
+		return ldapDisplayName;
+	}
+
+	public void setLdapDisplayName(String ldapDisplayName) {
+		this.ldapDisplayName = ldapDisplayName;
 	}
 
 	public void setAuthenticationType(Integer authenticationType) {

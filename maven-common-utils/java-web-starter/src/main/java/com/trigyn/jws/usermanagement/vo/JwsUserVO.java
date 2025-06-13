@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.trigyn.jws.usermanagement.entities.JwsUser;
@@ -187,6 +185,7 @@ public class JwsUserVO implements Serializable {
 		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
 		jwsUser.setOneTimePassword(userData.getOneTimePassword());
 		jwsUser.setOtpRequestedTime(userData.getOtpRequestedTime());
+		jwsUser.setForcePasswordChange(userData.getForcePasswordChange());
 		return jwsUser;
 	}
 

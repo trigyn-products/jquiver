@@ -8,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.devtools.restart.FailureHandler;
 import org.springframework.boot.devtools.restart.Restarter;
@@ -26,14 +23,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.templating.service.MenuService;
@@ -55,12 +53,15 @@ import com.trigyn.jws.usermanagement.vo.UserManagementVo;
 import com.trigyn.jws.webstarter.service.OtpService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping(value = "/cf")
 @PreAuthorize("hasPermission('module','User Management')")
 public class JwsUserManagementController {
 
-	private final static Logger			logger						= LogManager
+	private final static Logger			logger						= LoggerFactory
 			.getLogger(JwsUserManagementController.class);
 
 	@Autowired
@@ -93,6 +94,9 @@ public class JwsUserManagementController {
 	@Autowired
 	private LdapConfigService			ldapService					= null;
 	
+	@Autowired
+	private FileUtilities 				fileUtilities 				= null;
+	
 	@GetMapping(value = "/um")
 	public String userManagement(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 			throws Exception, CustomStopException {
@@ -107,7 +111,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 		}
 		return null;
 	}
@@ -119,8 +123,7 @@ public class JwsUserManagementController {
 				Map<String, Object> mapDetails = new HashMap<>();
 				return menuService.getTemplateWithSiteLayout("role-listing", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -131,7 +134,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -159,7 +162,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -180,7 +183,7 @@ public class JwsUserManagementController {
 			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while saving Role Module.", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -200,8 +203,7 @@ public class JwsUserManagementController {
 
 				return menuService.getTemplateWithSiteLayout("jws-user-listing", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -212,7 +214,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -276,7 +278,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -303,8 +305,7 @@ public class JwsUserManagementController {
 
 				return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -315,7 +316,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -371,7 +372,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -419,8 +420,7 @@ public class JwsUserManagementController {
 				mapDetails.put("roles", roles);
 				return menuService.getTemplateWithSiteLayout("manage-permission", mapDetails);
 			} else {
-				httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
-						"You dont have rights to access these module");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -431,7 +431,7 @@ public class JwsUserManagementController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -508,7 +508,8 @@ public class JwsUserManagementController {
 	public void saveJwsUser(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse)
 			throws Exception {
 		String			modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
-		ObjectMapper	objectMapper	= new ObjectMapper();
+		ObjectMapper	objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		JwsUser			user			= objectMapper.readValue(modifiedContent, JwsUser.class);
 		userManagementService.saveJwsUser(user);
 	}

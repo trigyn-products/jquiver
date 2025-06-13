@@ -10,7 +10,7 @@ CREATE TABLE `jq_property_master` (
   `app_version` decimal(7,4) NOT NULL,
   `comments` text DEFAULT NULL,
   PRIMARY KEY (`owner_type`,`owner_id`,`property_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS `jq_user_role`;
 CREATE TABLE `jq_user_role` (
@@ -20,7 +20,7 @@ CREATE TABLE `jq_user_role` (
 , `is_deleted` INT(2) DEFAULT 0
 , PRIMARY KEY (`role_id`)
 ,UNIQUE KEY `role_name` (`role_name`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 REPLACE INTO jq_property_master(owner_type, owner_id, property_name, property_value, is_deleted, last_modified_date, modified_by, app_version, comments)

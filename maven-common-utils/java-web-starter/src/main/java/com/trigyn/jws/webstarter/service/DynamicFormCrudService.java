@@ -1,24 +1,19 @@
 package com.trigyn.jws.webstarter.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,18 +37,18 @@ import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynamicform.vo.DynamicFormSaveQueryVO;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
-import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
-import com.trigyn.jws.templating.entities.TemplateMaster;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.utils.Constants;
-import com.trigyn.jws.webstarter.controller.DynamicFormCrudController;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
 
 @Service
 @Transactional
 public class DynamicFormCrudService {
 
-	private final static Logger logger = LogManager.getLogger(DynamicFormCrudService.class);
-	
+	private final static Logger					logger							= LoggerFactory
+			.getLogger(DynamicFormCrudService.class);
+
 	@Autowired
 	private DynamicFormCrudDAO					dynamicFormDAO					= null;
 
@@ -80,45 +75,60 @@ public class DynamicFormCrudService {
 
 	@Autowired
 	private ActivityLog							activitylog						= null;
-	
+
 	@Autowired
-	private AdditionalDatasourceRepository additionalDatasourceRepository;
+	private AdditionalDatasourceRepository		additionalDatasourceRepository;
+
+	@Autowired
+	private RedissonQueryCacheManagerUtil		cacheManager					= null;
 
 	@Transactional(readOnly = true)
 	public String addEditForm(String formId) throws Exception, CustomStopException {
 		try {
-		Map<String, Object>	templateMap	= new HashMap<>();
-		DynamicForm			dynamicForm	= new DynamicForm();
-		if (StringUtils.isNotEmpty(formId)) {
-			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
-			dynamicForm.setFormBody(dynamicForm.getFormBody());
-			dynamicForm.setFormSelectQuery(dynamicForm.getFormSelectQuery());
-		}
-		/* Populating ContextPath and JavaScript Suggestions in Monaco Editor */
-		String contextSuggestions = IMonacoSuggestion.getTemplateDynamicFormSuggestion();
-		String jSSuggestions = IMonacoSuggestion.getJSSuggestion(additionalDatasourceRepository);
-		templateMap.put("suggestions", contextSuggestions);
-		templateMap.put("JSsuggestions", jSSuggestions);
-		templateMap.put("dynamicForm", dynamicForm);
-		return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
+			Map<String, Object>	templateMap		= new HashMap<>();
+			DynamicForm			dynamicForm		= new DynamicForm();
+			Map<String, Object>	errorDataMap	= new HashMap<>();
+			String				environment		= propertyMasterDAO.findPropertyMasterValue("system", "system",
+					"profile");
+			if (StringUtils.isNotEmpty(formId)) {
+				dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
+				dynamicForm.setFormBody(dynamicForm.getFormBody());
+				dynamicForm.setFormSelectQuery(dynamicForm.getFormSelectQuery());
+			}
+			/* Populating ContextPath and JavaScript Suggestions in Monaco Editor */
+			String	contextSuggestions	= IMonacoSuggestion.getTemplateDynamicFormSuggestion();
+			String	jSSuggestions		= IMonacoSuggestion.getJSSuggestion(additionalDatasourceRepository);
+			templateMap.put("suggestions", contextSuggestions);
+			templateMap.put("JSsuggestions", jSSuggestions);
+			templateMap.put("dynamicForm", dynamicForm);
+			templateMap.put("environment", environment);
+
+			if (environment.equalsIgnoreCase("dev") && StringUtils.isNotEmpty(formId)) {
+				errorDataMap.put("statusCode", HttpStatus.RESET_CONTENT.value());
+				errorDataMap.put("errorMessage",
+						"The request was successful. Accessing Form Builder in DEV mode is restricted.");
+				return menuService.getTemplateWithSiteLayout("error-page", errorDataMap);
+			} else {
+				return menuService.getTemplateWithSiteLayout("dynamic-form-manage-details", templateMap);
+			}
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Dynamic Form page.", custStopException);
 			throw custStopException;
 		}
 	}
 
-//	@Transactional(readOnly = false)
+	// @Transactional(readOnly = false)
 	@Transactional(propagation = Propagation.REQUIRED)
 	public DynamicForm saveDynamicFormDetails(MultiValueMap<String, String> formData, Integer sourceTypeId)
 			throws Exception {
 
-		DynamicForm					dynamicForm				= null;
-		Date						date					= new Date();
-		UserDetailsVO				userDetailsVO			= userDetailsService.getUserDetails();
-		String						formId					= formData.getFirst("formId");
-		String						dataSourceId			= formData.getFirst("dataSourceId");
-		String						formName				= formData.getFirst("formName");
-		String						selectQueryType			= formData.getFirst("selectQueryType");
+		DynamicForm		dynamicForm		= null;
+		Date			date			= new Date();
+		UserDetailsVO	userDetailsVO	= userDetailsService.getUserDetails();
+		String			formId			= formData.getFirst("formId");
+		String			dataSourceId	= formData.getFirst("dataSourceId");
+		String			formName		= formData.getFirst("formName");
+		String			selectQueryType	= formData.getFirst("selectQueryType");
 		if (StringUtils.isNotEmpty(formId)) {
 			dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
 		}
@@ -130,7 +140,10 @@ public class DynamicFormCrudService {
 		dynamicForm.setLastUpdatedBy(userDetailsVO.getUserName());
 		if (StringUtils.isBlank(dataSourceId) == false) {
 			dynamicForm.setDatasourceId(dataSourceId);
+		} else {
+			dynamicForm.setDatasourceId(null);
 		}
+
 		if (!StringUtils.isBlank(formName)) {
 			dynamicForm.setFormName(formName);
 		}
@@ -140,78 +153,75 @@ public class DynamicFormCrudService {
 		dynamicForm.setFormBody(formData.getFirst("formBody").toString());
 		dynamicForm.setLastUpdatedTs(date);
 		dynamicForm.setIsCustomUpdated(1);
+		dynamicForm.setFormIoId((formData.getFirst("selectedFormIoId") != null
+				&& formData.getFirst("selectedFormIoId").isEmpty() == false
+				&& formData.getFirst("selectedFormIoId").isBlank() == false) ? formData.getFirst("selectedFormIoId")
+						: null);
 		dynamicFormDAO.saveDynamicForm(dynamicForm);
 		return dynamicForm;
-	
+
 	}
-	
+
 	@Transactional(propagation = Propagation.REQUIRED)
-	public String saveDynamicFormDetails2(MultiValueMap<String, String> formData,DynamicForm dynamicForm,Integer sourceTypeId)
-			throws Exception {
+	public String saveDynamicFormDetails2(MultiValueMap<String, String> formData, DynamicForm dynamicForm,
+			Integer sourceTypeId) throws Exception {
 		String						formId					= formData.getFirst("formId");
 		List<DynamicFormSaveQuery>	dynamicFormSaveQueries	= new ArrayList<>();
-		List<DynamicFormSaveQuery> formSaveQueries = saveDynamicFormQueries(formData, dynamicForm.getFormId(),
+		List<DynamicFormSaveQuery>	formSaveQueries			= saveDynamicFormQueries(formData, dynamicForm.getFormId(),
 				dynamicFormSaveQueries, formId);
 		dynamicForm.setDynamicFormSaveQueries(formSaveQueries);
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		if (environment.equalsIgnoreCase("dev")) {
-			String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
-					"template-storage-path");
-			downloadUploadModule.downloadCodeToLocal(dynamicForm, downloadFolderLocation);
-		}
-		DynamicFormVO	dynamicFormVO	= convertEntityToVO(dynamicForm,formData);
-		
+		DynamicFormVO	dynamicFormVO	= convertEntityToVO(dynamicForm, formData);
+
 		String			templateName	= dynamicFormVO.getFormName();
 		Integer			typeSelect		= dynamicFormVO.getFormTypeId();
 		/* Method called for implementing Activity Log */
 		logActivity(formId, templateName, typeSelect);
-		saveScriptLibraryDetails(formData,sourceTypeId,dynamicFormVO);
+		saveScriptLibraryDetails(formData, sourceTypeId, dynamicFormVO);
 		moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), "jq_dynamic_form",
 				sourceTypeId);
-
+		String templateCacheKey = com.trigyn.jws.webstarter.utils.Constant.TargetLookupId.DYANMICFORM.getTargetLookupId() + "::" + dynamicForm.getFormId();
+		cacheManager.invalidateDtoORScalarValues("targetTypeDetailsCache", templateCacheKey);
 		return dynamicForm.getFormId();
 	}
-	
+
 	@Transactional(propagation = Propagation.REQUIRED)
-	public String saveScriptLibraryDetails(MultiValueMap<String, String> formData,Integer sourceTypeId,DynamicFormVO	dynamicFormVO)
-			throws Exception {
-		ObjectMapper					objectMapper			= new ObjectMapper();
-		String formSaveQueryId;
-		String scriptLibInsertId;
-		String scriptLibDeleteId;
-		String moduleId;
-		if(null == formData.getFirst("formSaveQueryId")) {
+	public String saveScriptLibraryDetails(MultiValueMap<String, String> formData, Integer sourceTypeId,
+			DynamicFormVO dynamicFormVO) throws Exception {
+		ObjectMapper	objectMapper	= new ObjectMapper();
+		String			formSaveQueryId;
+		String			scriptLibInsertId;
+		String			scriptLibDeleteId;
+		String			moduleId;
+		if (null == formData.getFirst("formSaveQueryId")) {
 			formSaveQueryId = formData.getFirst("formQueryId");
-		}else {
+		} else {
 			formSaveQueryId = formData.getFirst("formSaveQueryId");
 		}
-		if(null == formData.getFirst("moduleId")) {
+		if (null == formData.getFirst("moduleId")) {
 			moduleId = Constant.DYNAFORM_MOD_ID;
-		}else {
+		} else {
 			moduleId = formData.getFirst("moduleId");
 		}
-		
-		List<String> formSaveQueryIdList = objectMapper.readValue(formSaveQueryId, List.class);
-		
-		List<ScriptLibrary>	scriptLibInsert	= new ArrayList<>();
-		if(sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE) {
-			String scriptLibId = dynamicFormVO.getScriptLibId();
-			List<String>  scriptLibIdList = objectMapper.readValue(scriptLibId, List.class);
-			dynamicFormDAO.scriptLibSave(formSaveQueryIdList,scriptLibIdList,scriptLibInsert,moduleId,sourceTypeId);
-		
-		}else {
-			scriptLibInsertId = formData.getFirst("scriptLibInsert");
-			scriptLibDeleteId = formData.getFirst("scriptLibDelete");
-			List<String> scriptLibDeleteList = objectMapper.readValue(scriptLibDeleteId, List.class);
-			List<String> scriptLibInsertList = objectMapper.readValue(scriptLibInsertId, List.class);
-			dynamicFormDAO.scriptLibDelete(formSaveQueryIdList,scriptLibDeleteList,moduleId);
-			dynamicFormDAO.scriptLibSave(formSaveQueryIdList,scriptLibInsertList,scriptLibInsert,moduleId,sourceTypeId);
+
+		List<String>					formSaveQueryIdList	= objectMapper.readValue(formSaveQueryId, List.class);
+
+		List<ScriptLibraryConnection>	scriptLibInsert		= new ArrayList<>();
+		if (sourceTypeId == Constant.REVISION_SOURCE_VERSION_TYPE) {
+			String			scriptLibId		= dynamicFormVO.getScriptLibId();
+			List<String>	scriptLibIdList	= objectMapper.readValue(scriptLibId, List.class);
+			dynamicFormDAO.scriptLibSave(formSaveQueryIdList, scriptLibIdList, scriptLibInsert, moduleId, sourceTypeId);
+
+		} else {
+			scriptLibInsertId	= formData.getFirst("scriptLibInsert");
+			scriptLibDeleteId	= formData.getFirst("scriptLibDelete");
+			List<String>	scriptLibDeleteList	= objectMapper.readValue(scriptLibDeleteId, List.class);
+			List<String>	scriptLibInsertList	= objectMapper.readValue(scriptLibInsertId, List.class);
+			dynamicFormDAO.scriptLibDelete(formSaveQueryIdList, scriptLibDeleteList, moduleId);
+			dynamicFormDAO.scriptLibSave(formSaveQueryIdList, scriptLibInsertList, scriptLibInsert, moduleId,
+					sourceTypeId);
 		}
 		return null;
 	}
-
-
-	
 
 	/**
 	 * Purpose of this method is to log activities</br>
@@ -260,7 +270,7 @@ public class DynamicFormCrudService {
 		String	variableName		= formData.getFirst("variableName");
 		String	queryType			= formData.getFirst("queryType");
 		String	datasourceDetails	= formData.getFirst("datasourceDetails");
-		String 	formSaveQueryId 	= formData.getFirst("formSaveQueryId");
+		String	formSaveQueryId		= formData.getFirst("formSaveQueryId");
 
 		if (queriesList == null && variableName != null) {
 			queriesList = formData.getFirst("formSaveQuery");
@@ -287,8 +297,7 @@ public class DynamicFormCrudService {
 			dynamicFormSaveQuery.setDatasourceId(datasourceDetailsList.get(queryCounter));
 			dynamicFormSaveQuery.setResultVariableName(variableNameList.get(queryCounter));
 			dynamicFormSaveQueries.add(dynamicFormSaveQuery);
-			
-			
+
 		}
 
 		return dynamicFormQueriesRepository.saveAll(dynamicFormSaveQueries);
@@ -307,13 +316,14 @@ public class DynamicFormCrudService {
 			formSaveQueryMap.put("datasourceId", dynamicFormSaveQuery.getDatasourceId());
 			formSaveQueryMap.put("queryType", dynamicFormSaveQuery.getDaoQueryType());
 			formSaveQueryMap.put("variableName", dynamicFormSaveQuery.getResultVariableName());
-			//List<Map<String, Object>> scriptLibList = getScriptLibDetatils(dynamicFormSaveQuery.getDynamicFormQueryId());
+			// List<Map<String, Object>> scriptLibList =
+			// getScriptLibDetatils(dynamicFormSaveQuery.getDynamicFormQueryId());
 			dynamicFormList.add(formSaveQueryMap);
-		
+
 		}
 		return dynamicFormList;
 	}
-	
+
 	public List<Map<String, Object>> getScriptLibDetatils(String formQueryId) throws Exception {
 		List<Map<String, Object>> scriptLibList = dynamicFormDAO.getScriptLibDetatils(formQueryId);
 		return scriptLibList;
@@ -340,16 +350,17 @@ public class DynamicFormCrudService {
 		}
 	}
 
-	public void uploadFormsToDB(String formName) throws Exception {
-		downloadUploadModule.uploadCodeToDB(formName);
+	public void uploadFormsToDB(String formTypeId, String formName) throws Exception {
+		downloadUploadModule.uploadCodeToDB(formTypeId, formName);
 	}
 
-	public DynamicFormVO convertEntityToVO(DynamicForm dynamicForm,MultiValueMap<String, String> formData) throws Exception {
-		DynamicFormVO dynamicFormVO = new DynamicFormVO();
-		ObjectMapper					objectMapper		= new ObjectMapper();
+	public DynamicFormVO convertEntityToVO(DynamicForm dynamicForm, MultiValueMap<String, String> formData)
+			throws Exception {
+		DynamicFormVO	dynamicFormVO	= new DynamicFormVO();
+		ObjectMapper	objectMapper	= new ObjectMapper();
 		dynamicFormVO.setFormId(dynamicForm.getFormId());
 		dynamicFormVO.setFormName(dynamicForm.getFormName());
-		
+
 		dynamicFormVO.setFormDescription(dynamicForm.getFormDescription());
 		dynamicFormVO.setFormBody(dynamicForm.getFormBody());
 		dynamicFormVO.setFormSelectQuery(dynamicForm.getFormSelectQuery());
@@ -357,23 +368,23 @@ public class DynamicFormCrudService {
 		dynamicFormVO.setFormTypeId(dynamicForm.getFormTypeId());
 		dynamicFormVO.setCreatedBy(dynamicForm.getCreatedBy());
 		dynamicFormVO.setCreatedDate(dynamicForm.getCreatedDate());
-		List<String>					variableName		= new ArrayList<>();
-		List<String>					dataSourceId		= new ArrayList<>();
-		List<Integer>					formInsertQueryType	= new ArrayList<>();
-		List<String>					formQueryId		    = new ArrayList<>();
-		
-		String scriptLibraryId = formData.getFirst("scriptLibId"); 
-		List<String> 					scriptLibIds 	= objectMapper.readValue(scriptLibraryId, List.class);
-		List<String>					scriptLibId		= new ArrayList<>();
-		for(int iScriptIdCounter = 0 ; iScriptIdCounter<scriptLibIds.size(); iScriptIdCounter++) {
-			scriptLibId.add("\"" +scriptLibIds.get(iScriptIdCounter)+ "\"");
-			String scriptLibrayIds = scriptLibId.toString();
-			String scriptLibIDs = scriptLibrayIds.replaceAll("\\[", "").replaceAll("\\]","");
-			List<String> scriptLibraryIds = new ArrayList<String>();
+		List<String>	variableName		= new ArrayList<>();
+		List<String>	dataSourceId		= new ArrayList<>();
+		List<Integer>	formInsertQueryType	= new ArrayList<>();
+		List<String>	formQueryId			= new ArrayList<>();
+
+		String			scriptLibraryId		= formData.getFirst("scriptLibId");
+		List<String>	scriptLibIds		= objectMapper.readValue(scriptLibraryId, List.class);
+		List<String>	scriptLibId			= new ArrayList<>();
+		for (int iScriptIdCounter = 0; iScriptIdCounter < scriptLibIds.size(); iScriptIdCounter++) {
+			scriptLibId.add("\"" + scriptLibIds.get(iScriptIdCounter) + "\"");
+			String			scriptLibrayIds		= scriptLibId.toString();
+			String			scriptLibIDs		= scriptLibrayIds.replaceAll("\\[", "").replaceAll("\\]", "");
+			List<String>	scriptLibraryIds	= new ArrayList<String>();
 			scriptLibraryIds.add(scriptLibIDs);
 			dynamicForm.setScriptLibraryId(scriptLibraryIds.toString());
 		}
-		
+
 		List<DynamicFormSaveQuery>		formSaveQueries		= dynamicForm.getDynamicFormSaveQueries();
 		List<DynamicFormSaveQueryVO>	formSaveQueryVOs	= new ArrayList<>();
 		for (DynamicFormSaveQuery formSaveQuery : formSaveQueries) {
@@ -388,14 +399,14 @@ public class DynamicFormCrudService {
 		dynamicFormVO.setVariableName(variableName.toString());
 		dynamicFormVO.setDatasourceDetails(dataSourceId.toString());
 		dynamicFormVO.setQueryType(formInsertQueryType.toString());
-		
+
 		dynamicFormVO.setScriptLibId(dynamicForm.getScriptLibraryId());
-		if(null == formData.getFirst("formSaveQueryId")) {
+		if (null == formData.getFirst("formSaveQueryId")) {
 			dynamicFormVO.setFormQueryId(formQueryId.toString());
-		}else {
+		} else {
 			dynamicFormVO.setFormQueryId(formData.getFirst("formSaveQueryId"));
 		}
-		
+
 		return dynamicFormVO;
 	}
 
@@ -405,6 +416,11 @@ public class DynamicFormCrudService {
 		formSaveQueryVO.setFormSaveQuery(dynamicFormSaveQuery.getDynamicFormSaveQuery());
 		formSaveQueryVO.setSequence(dynamicFormSaveQuery.getSequence());
 		return formSaveQueryVO;
+	}
+
+	public DynamicForm getDynamicFormById(String formId) throws Exception {
+		DynamicForm dynamicForm = dynamicFormDAO.findDynamicFormById(formId);
+		return dynamicForm;
 	}
 
 }

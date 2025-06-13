@@ -3,11 +3,8 @@ package com.trigyn.jws.webstarter.controller;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,14 +18,18 @@ import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.templating.service.MenuService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Application Configuration')")
 public class PropertyMasterController {
 
-	private final static Logger		logger					= LogManager.getLogger(PropertyMasterController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(PropertyMasterController.class);
 
 	@Autowired
 	private MenuService				menuService				= null;
@@ -38,6 +39,9 @@ public class PropertyMasterController {
 	
 	@Autowired
 	private PropertyMasterDAO		propertyMasterDAO		= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
 	@GetMapping(value = "/pml", produces = MediaType.TEXT_HTML_VALUE)
 	public String propertyMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -51,7 +55,7 @@ public class PropertyMasterController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -62,7 +66,7 @@ public class PropertyMasterController {
 			propertyMasterDetails.resetPropertyMasterDetails();
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
 	}
 
@@ -77,7 +81,7 @@ public class PropertyMasterController {
 			propertyMasterDetails.setPropertyMasterDetails(ownerId, ownerType, propertyName, propertyValue);
 		} catch (Exception a_exception) {
 			logger.error("Error ", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 		}
 	}
 	
@@ -86,7 +90,7 @@ public class PropertyMasterController {
 			throws Exception {
 		String  propertyName = a_httpServletRequest.getParameter("propertyName"); 
 		String propertyValue = a_httpServletRequest.getParameter("propertyValue");
-		PropertyMaster propertyMaster = new PropertyMaster(null, "system", "system", propertyName, propertyValue, 0, null, propertyName, 1.4, "Admin Email ID.");
+		PropertyMaster propertyMaster = new PropertyMaster(null, "system", "system", propertyName, propertyValue, 0, null, propertyName, 1.4, "Admin Email ID.",null);
 		propertyMasterDAO.save(propertyMaster);
 	}
 

@@ -12,7 +12,7 @@
 			<#if innerTemplateObj.ldapDisplayDetails??>
 				<#if (innerTemplateObj.ldapDisplayDetails?size > 0)>				
 					<label for="ldapConfig" class="formlablename"><@resourceBundleWithDefault "jws.loginusing" "Login using"/></label>   
-					<span class="formicosn"><i class="fa fa-users  fa-solid" aria-hidden="true"></i></span>
+					<span class="formicosn"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
 					<select id="ldapConfig" name="ldapConfig" class="form-control">
 						<#list innerTemplateObj.ldapDisplayDetails as displayDetails>													
 							<option
@@ -25,23 +25,31 @@
 				</#if> 
 			</#if>         
       </p>
-      <p class="divdeform">   
-         <label for="username" class="formlablename"><@resourceBundleWithDefault "jws.email" "Email"/></label>   
-         <span class="formicosn"><i class="fa fa-user" aria-hidden="true"></i></span>    
-         <input type="email" id="email" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>" required autofocus> 
+      <p class="divdeform">
+      	 <label for="username" class="formlablename"><@resourceBundleWithDefault "jws.email" "Email"/></label>   
+         <span class="formicosn"><i class="fa-solid fa-user" aria-hidden="true"></i></span> 
+      	 <#if innerTemplateObj.previousMail?? && innerTemplateObj.previousMail?has_content && innerTemplateObj.prevAuthType?has_content && innerTemplateObj.prevAuthType == "3">   
+            <input type="email" id="email" name="email" class="form-control" value="${innerTemplateObj.previousMail?html}"  placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>" required autofocus> 
+         <#else>
+            <input type="email" id="email" name="email" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enteremail" "Enter Email"/>" required autofocus> 
+      	 </#if>
       </p>
        
       <p class="divdeform">   
          <label for="password" class="formlablename">Password</label>    
-         <span class="formicosn"><i class="fa fa-key" aria-hidden="true"></i></span>  
-         <input type="password" id="password" name="password" class="form-control" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Enter Password"/>" required>   
+         <span class="formicosn"><i class="fa-solid fa-key" aria-hidden="true"></i></span>  
+         <input type="password" id="password" name="password" class="form-control ldappassword" placeholder="<@resourceBundleWithDefault "jws.enterpwd" "Enter Password"/>" required>   
          <span class="passview" onclick="showHidePassword(this);"><i class="fa fa-eye" aria-hidden="true"></i></span>    
-      </p>     
+      </p> 
+      <#if innerTemplateObj.requestId?? && innerTemplateObwj.requestId?has_content> 
+		<input type="hidden" id="requestId" name="requestId" value="${innerTemplateObj.requestId}"/>  
+	  </#if>    
+	  
       <span class="remebermeblock">   
       <input type="checkbox" name="remember-me" id="remember-me">   <label for="remember-me"><@resourceBundleWithDefault "jws.rememberme" "Remember Me"/></label>  
       </span>                                   
                     
-      <button class="btn btn-lg btn-primary btn-block" type="submit"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> 
+      <div class="loginbtn"><button class="btn btn-lg btn-primary btn-block" type="submit" onclick="encryptLDAPPassword()"><@resourceBundleWithDefault "jws.signin" "Sign In"/></button> </div>
 	  <input type="hidden" id="enableAuthenticationType" name="enableAuthenticationType" value="3"/>
    </form>
 </div>
@@ -68,6 +76,34 @@
    	});
    	
    });
+
+   function encryptLDAPPassword(){
+        var password = $(".ldappassword").val(); 
+        <#if innerTemplateObj.salt?? && innerTemplateObj.salt?has_content> 
+            var encryptionKey = "${innerTemplateObj.salt}";
+        </#if>
+        var encryptedPassword = encryptPassword(password, encryptionKey);
+        $(".ldappassword").val(encryptedPassword);  
+    }
+
+    function padOrTruncateKey(key, length) {
+        if (key.length < length) {
+            return key.padEnd(length, '0');
+        } else if (key.length > length) {
+            return key.substring(0, length);
+        }
+        return key;
+    }
+
+	function encryptPassword(password, encryptKey) {
+		const paddedKey = padOrTruncateKey(encryptKey, 16); 
+		const key = CryptoJS.enc.Utf8.parse(paddedKey);
+		const encrypted = CryptoJS.AES.encrypt(password, key, {
+			mode: CryptoJS.mode.ECB,
+			padding: CryptoJS.pad.Pkcs7
+		});
+		return encrypted.toString();
+	}
    
 </script>
 </#compress>

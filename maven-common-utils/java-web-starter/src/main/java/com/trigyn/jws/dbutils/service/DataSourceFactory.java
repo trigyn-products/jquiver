@@ -32,7 +32,7 @@ public final class DataSourceFactory {
 			datasource.setUsername(dsConfig.get("userName"));
 			datasource.setPassword(dsConfig.get("password"));
 			datasource.setTestOnBorrow(true);
-			datasource.setValidationQuery("/* ping */ SELECT 1");
+//			datasource.setValidationQuery("/* ping */ SELECT 1");
 			datasource.setMaxIdle(650000);
 			dataSourceMap.put(a_dataSourceVO.getAdditionalDataSourceId(), datasource);
 		}

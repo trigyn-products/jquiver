@@ -50,6 +50,10 @@ public class FileUploadConfigExportVO {
 	private String						viewScriptLibraryId		  = null;
 	
 	private String						deleteScriptLibraryId	  = null;
+	
+	private Integer                     isFileStorageEnable       = 0;
+
+	private String                      customFileStorageClass    = null;
 
 
 	public FileUploadConfigExportVO() {
@@ -104,7 +108,7 @@ public class FileUploadConfigExportVO {
 			Date updatedDate, Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType,
 			String datasourceViewValidator, String datasourceUploadValidator, String datasourceDeleteValidator,
 			Integer isCustomUpdated, String uploadScriptLibraryId, String viewScriptLibraryId,
-			String deleteScriptLibraryId) {
+			String deleteScriptLibraryId,Integer isFileStorageEnable,String customFileStorageClass) {
 		this.fileBinId = fileBinId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
@@ -128,6 +132,8 @@ public class FileUploadConfigExportVO {
 		this.uploadScriptLibraryId = uploadScriptLibraryId;
 		this.viewScriptLibraryId = viewScriptLibraryId;
 		this.deleteScriptLibraryId = deleteScriptLibraryId;
+		this.isFileStorageEnable=isFileStorageEnable;
+		this.customFileStorageClass=customFileStorageClass;
 	}
 
 	public String getFileBinId() {
@@ -314,4 +320,21 @@ public class FileUploadConfigExportVO {
 		this.deleteScriptLibraryId = deleteScriptLibraryId;
 	}
 
+	public Integer getIsFileStorageEnable() {
+		return isFileStorageEnable;
+	}
+
+	public void setIsFileStorageEnable(Integer isFileStorageEnable) {
+		this.isFileStorageEnable = isFileStorageEnable;
+	}
+
+	public String getCustomFileStorageClass() {
+		return customFileStorageClass;
+	}
+
+	public void setCustomFileStorageClass(String customFileStorageClass) {
+		this.customFileStorageClass = customFileStorageClass;
+	}
+
+	
 }

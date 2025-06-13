@@ -25,13 +25,17 @@ public class DynamicFormVO implements Serializable {
 	private String 							queryDetails 			= null;
 	private String 							formQueryId 			= null;
 	private String 							scriptLibId 			= null;
+	private Integer 						isCaptchaEnabled		= null;
+	private Integer 						isCsrfEnabled 			= null;
+	private String							formIoId				= null;
+
 
 	public DynamicFormVO() {
 
 	}
 
 	public DynamicFormVO(String formId, String formName, String formDescription, String formSelectQuery,
-			String formBody, Integer formTypeId, String createdBy, Date createdDate,
+			String formBody, Integer formTypeId, String createdBy, Date createdDate,Integer isCaptchaEnabled,Integer isCsrfEnabled,
 			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries) {
 		this.formId					= formId;
 		this.formName				= formName;
@@ -41,6 +45,8 @@ public class DynamicFormVO implements Serializable {
 		this.formTypeId				= formTypeId;
 		this.createdBy				= createdBy;
 		this.createdDate			= createdDate;
+		this.isCaptchaEnabled 		= isCaptchaEnabled;
+		this.isCsrfEnabled 			= isCsrfEnabled;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 	}
 
@@ -48,7 +54,7 @@ public class DynamicFormVO implements Serializable {
 			String formBody, Integer formTypeId, String createdBy, Date createdDate,
 			List<DynamicFormSaveQueryVO> dynamicFormSaveQueries, Integer selectQueryType, String variableName,
 			String datasourceDetails, String queryType, String daoDetailsId, String queryDetails, String formQueryId,
-			String scriptLibId) {
+			String scriptLibId,Integer isCaptchaEnabled,Integer isCsrfEnabled) {
 		this.formId = formId;
 		this.formName = formName;
 		this.formDescription = formDescription;
@@ -66,6 +72,8 @@ public class DynamicFormVO implements Serializable {
 		this.queryDetails = queryDetails;
 		this.formQueryId = formQueryId;
 		this.scriptLibId = scriptLibId;
+		this.isCaptchaEnabled = isCaptchaEnabled;
+		this.isCsrfEnabled = isCsrfEnabled;
 	}
 
 	/**
@@ -217,14 +225,18 @@ public class DynamicFormVO implements Serializable {
 				&& Objects.equals(formBody, other.formBody) && Objects.equals(formDescription, other.formDescription)
 				&& Objects.equals(formId, other.formId) && Objects.equals(formName, other.formName)
 				&& Objects.equals(formSelectQuery, other.formSelectQuery)
-				&& Objects.equals(formTypeId, other.formTypeId);
+				&& Objects.equals(formTypeId, other.formTypeId)
+				&& Objects.equals(isCaptchaEnabled, other.isCaptchaEnabled)
+				&& Objects.equals(formIoId, other.formIoId)
+				&& Objects.equals(isCsrfEnabled, other.isCsrfEnabled);
+		
 	}
 
 	@Override
 	public String toString() {
 		return "DynamicFormVO [formId=" + formId + ", formName=" + formName + ", formDescription=" + formDescription
 				+ ", formSelectQuery=" + formSelectQuery + ", formBody=" + formBody + ", formTypeId=" + formTypeId
-				+ ", createdBy=" + createdBy + ", createdDate=" + createdDate + ", dynamicFormSaveQueries="
+				+ ", createdBy=" + createdBy + ", formIoId=" + formIoId+ ", createdDate=" + createdDate + ", isCaptchaEnabled=" + isCaptchaEnabled + ", dynamicFormSaveQueries="
 				+ dynamicFormSaveQueries + "]";
 	}
 
@@ -291,5 +303,30 @@ public class DynamicFormVO implements Serializable {
 	public void setScriptLibId(String scriptLibId) {
 		this.scriptLibId = scriptLibId;
 	}
+
+	public Integer getIsCaptchaEnabled() {
+		return isCaptchaEnabled;
+	}
+
+	public void setIsCaptchaEnabled(Integer isCaptchaEnabled) {
+		this.isCaptchaEnabled = isCaptchaEnabled;
+	}
+
+	public Integer getIsCsrfEnabled() {
+		return isCsrfEnabled;
+	}
+
+	public void setIsCsrfEnabled(Integer isCsrfEnabled) {
+		this.isCsrfEnabled = isCsrfEnabled;
+	}
+
+	public String getFormIoId() {
+		return formIoId;
+	}
+
+	public void setFormIoId(String formIoId) {
+		this.formIoId = formIoId;
+	}
+
 
 }

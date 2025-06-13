@@ -2,28 +2,32 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class GridEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager.getLogger(GridEntityValidator.class);
+	private final static Logger					logger							= LoggerFactory.getLogger(GridEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
 
 	@Autowired
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
+	
+	@Autowired
+	private JwsEntityRoleAssociationDAO entityRoleAssociationDAO = null;
 
 	private String								primaryKeyName					= "gridId";
 
@@ -48,7 +52,7 @@ public class GridEntityValidator implements EntityValidator {
 
 		String	gridId		= reqObject.getParameter(primaryKeyName);
 		String	gridName	= authorizedValidatorDAO.getGridNameByGridId(gridId);
-		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.GRIDUTILS.getModuleName(), gridName);
+		return entityRoleAssociationDAO.getEntityNameByEntityAndRoleId(Constants.Modules.GRIDUTILS.getModuleName(), gridName);
 	}
 
 }

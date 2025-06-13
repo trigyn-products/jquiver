@@ -8,4 +8,4 @@ file_upload_config_id VARCHAR(500)
 , updated_by VARCHAR(100) NOT NULL
 , updated_date datetime DEFAULT  NULL
 , PRIMARY KEY (file_upload_config_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);

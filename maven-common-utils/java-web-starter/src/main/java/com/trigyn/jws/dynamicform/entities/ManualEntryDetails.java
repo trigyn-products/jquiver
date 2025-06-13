@@ -3,22 +3,29 @@ package com.trigyn.jws.dynamicform.entities;
 import java.util.Date;
 import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+@SuppressWarnings("deprecation")
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_manual_entry")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "manualEntryDetails")
 public class ManualEntryDetails {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "manual_entry_id")
 	private String manualEntryId = null;
 
@@ -37,12 +44,14 @@ public class ManualEntryDetails {
 	@Column(name = "created_by")
 	private String createdBy = null;
 
+	@JsonIgnore
 	@Column(name = "created_date")
 	private Date createdDate = null;
-
+	
 	@Column(name = "last_updated_by")
 	private String lastUpdatedBy = null;
 
+	@JsonIgnore
 	@Column(name = "last_updated_ts")
 	private Date lastModifiedOn = null;
 

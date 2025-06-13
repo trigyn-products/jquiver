@@ -68,7 +68,7 @@ function  deleteEntityData(requestDetails, daoResults){
         params.put("entityId", requestDetails["entityId"]);
         jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='c6cc466a-0ed3-11eb-94b2-f48e38ab9348'", null, params);    
         jq_updateDBQuery("delete from jq_module_listing_i18n where module_id=:entityId", null, params);
-         activityLog("SITE LAYOUT",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]); 
+         activityLog("ROUTER",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]); 
         jq_updateDBQuery("delete from jq_module_listing where module_id=:entityId", null, params);
     } else if(requestDetails["moduleType"] == "additional_datasource") {
         var HashMap = Java.type("java.util.HashMap");
@@ -81,7 +81,17 @@ function  deleteEntityData(requestDetails, daoResults){
         params.put("entityId", requestDetails["entityId"]);
         activityLog("NOTIFICATION","Notification-Listing",requestDetails["loggedInUserName"],"Custom",new Date()); 
         jq_updateDBQuery("delete from jq_generic_user_notification where notification_id=:entityId", null, params);    
-    }
+    } else if(requestDetails["moduleType"] == "1faee99c-021c-11ef-a019-7c8ae1bb24d8") {		
+		var HashMap = Java.type("java.util.HashMap");
+		var params = new HashMap();
+		params.put("entityId", requestDetails["entityId"]);
+		jq_updateDBQuery("delete from jq_module_version where entity_id=:entityId", null, params);
+		jq_updateDBQuery("delete from jq_user_favorite_entity where entity_id=:entityId AND entity_type='FormIO'", null, params);
+		jq_updateDBQuery("delete from jq_entity_role_association where entity_id=:entityId AND module_id='1faee99c-021c-11ef-a019-7c8ae1bb24d8'", null, params);    
+		jq_updateDBQuery("UPDATE jq_dynamic_form SET form_io_id = NULL WHERE form_io_id IN(:entityId)", null, params);
+		jq_updateDBQuery("delete from jq_form_io where form_io_id=:entityId", null, params);
+		activityLog("FormIO",requestDetails["templateName"],requestDetails["loggedInUserName"],"Custom",requestDetails["updatedDate"]);
+	}
 }
 
 function activityLog(masterModuleType,templateName,userName,typeSelect,date){
@@ -90,7 +100,7 @@ function activityLog(masterModuleType,templateName,userName,typeSelect,date){
         var baseUrl = jq_getDBResult("SELECT property_value As baseUrl FROM jq_property_master WHERE property_name='base-url'", null, new HashMap()).data_list[0].baseUrl;
         var contextPath = requestDetails["contextPath"];
         var restXML = '<rest>';      
-        restXML+='<url>'+baseUrl+''+contextPath+'/api/activityLog</url>';
+        restXML+='<url>'+baseUrl+''+contextPath+apiPath+'/activityLog</url>';
         restXML+='<type>POST</type>';
         restXML+='<request>';
         restXML+='<body>';

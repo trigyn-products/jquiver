@@ -1,19 +1,12 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script> 
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/addEditGridDetails.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -40,8 +33,7 @@
 		    </#if>
 		 </div>
          
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 		
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<form method="post" name="addEditForm" id="addEditForm">
@@ -50,21 +42,21 @@
             
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridId" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridid')}</label>
-					<input type="text" id="gridId" name="gridId" value="" maxlength="255" class="form-control" onkeydown="updateOldVal()" onkeyup="updateDefaultTemplate()">
+					<label for="gridId" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridid')}</label>
+					<input type="text" id="gridId" name="gridId" <#if (resultSet)?? && resultSet?has_content> readonly</#if> value="" maxlength="255" class="form-control" onkeydown="updateOldVal()" onkeyup="updateDefaultTemplate()">
 				</div>
 			</div>
 			
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridname')}</label>
+					<label for="gridName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridname')}</label>
 					<input type="text" id="gridName" name="gridName" value="" maxlength="1000" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridDescription" style="white-space:nowrap">${messageSource.getMessage('jws.gridDescription')}</label>
+					<label for="gridDescription" >${messageSource.getMessage('jws.gridDescription')}</label>
 					<input type="text" id="gridDescription" name="gridDescription" value="" class="form-control">
 				</div>
 			</div>
@@ -73,7 +65,7 @@
 		<div class="row">	
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-		        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+		        	<label for="flammableState" >${messageSource.getMessage('jws.datasource')}</label>
 		        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
 		        		<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>
 		        	</select>
@@ -82,21 +74,21 @@
 			
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridTableName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridtablename')}</label>
+					<label for="gridTableName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridtablename')}</label>
 					<input type="text" id="gridTableName" name="gridTableName" value="" maxlength="1000" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="gridColumnName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridcolnames')}</label>
+					<label for="gridColumnName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.gridcolnames')}</label>
 					<input type="text" id="gridColumnName" name="gridColumnName" value="" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="queryType" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')}</label>
+					<label for="queryType" >${messageSource.getMessage('jws.querytype')}</label>
 						<select id="queryType" name="queryType"  class="form-control">
 							<option value="1">${messageSource.getMessage('jws.viewtable')}</option>
 							<option value="2">${messageSource.getMessage('jws.storedprocedure')}</option>
@@ -112,9 +104,9 @@
 		    
 		    <div class="col-lg-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="customFilterCriteria" style="white-space:nowrap">${messageSource.getMessage('jws.additionalfilter')}</label>
-                       	 <a class="tipsicon tipslabelright collapsed" style="padding-right: 25px;" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+					<label for="customFilterCriteria" >${messageSource.getMessage('jws.additionalfilter')}</label>
+                       	 <a class="tipsicon tipslabelright collapsed" style="padding-right: 25px;" title="Tips" data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>
                                     </a>
                                 <div class="txtWrapper">
 								<textarea id="customFilterCriteria" rows="4" cols="50" class="form-control">${(resultSetObject.customFilterCriteria)!""}</textarea>
@@ -185,7 +177,7 @@
 	            <div id="contentDiv">
 	           		 <span class="copyblockcls tabcopybtn" onclick="copyGenericContent('htmlPreview');">
            			${messageSource.getMessage('jws.copyhtml')}				
- 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+ 					<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
 					</span> 
 	                <div id="htmlPreview" class="default-previews cm-scrollbar"></div>
 	            </div>
@@ -196,7 +188,7 @@
 	            <div id="contentDiv">
 	            <span class="copyblockcls tabcopybtn" onclick="copyGenericContent('jsPreview');">
            			${messageSource.getMessage('jws.copyjavascript')}				
- 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+ 					<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
 					</span> 
 	                <div id="jsPreview" class="default-previews cm-scrollbar"></div>
 	            </div>
@@ -219,12 +211,12 @@
 	<br>
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('grid-details-form', this, $('#isEdit').val(), saveData,backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -244,9 +236,9 @@
 <script>
 	document.title = "Manage Grid Module Details";
 	let formId = "${formId}";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
 	let oldGridId = "yourGridId";
-    
+     var env = '${(environment)!""}';
 	$(function() {
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];

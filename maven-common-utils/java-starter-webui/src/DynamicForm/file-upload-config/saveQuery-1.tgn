@@ -9,7 +9,23 @@ function saveFileDetails(){
     map.put('fileBinId', requestDetails.fileBinId);
     map.put('fileTypeSupported', requestDetails.fileTypeSupported);
     map.put('maxFileSize', requestDetails.maxFileSize);
-    map.put('noOfFiles', requestDetails.noOfFiles);
+
+    if(requestDetails.noOfFiles < 256) {
+        map.put('noOfFiles', requestDetails.noOfFiles);
+    } else {
+        var nof = 256;
+        var nofProperty = jq_getDBResult('SELECT property_value FROM jq_property_master WHERE property_name = "max-file-count"', null, null);
+        if(nofProperty != null && nofProperty.data_list != null && nofProperty.data_list.length > 0) {
+            nof = nofProperty.data_list[0]["property_value"];
+        }
+        map.put('noOfFiles', nof);
+    }
+    map.put('fileStorageTxt', requestDetails.fileStorageTxt);                                                                                                                                                                                                                                                                         
+    if(requestDetails.fileStorageTxt != '[0]') {
+         map.put('customFileStorageClass', requestDetails.customFileStorageClass);       
+    } else{
+        map.put('customFileStorageClass', null);
+    } 
 
     if(requestDetails.uploadValidator_query[0] != '' && requestDetails.uploadValidator_query[0] != 'null'){
          map.put('queryType_uploadValidator', requestDetails.queryType_uploadValidator);
@@ -57,10 +73,9 @@ function saveFileDetails(){
    
      
 if(requestDetails.isEdit != "" && requestDetails.isEdit[0] == 1){   
-    jq_updateDBQuery('UPDATE jq_file_upload_config SET file_type_supported = :fileTypeSupported,max_file_size = :maxFileSize,no_of_files = :noOfFiles,upload_query_content = :uploadValidator_query,view_query_content = :viewValidator_query,delete_query_content = :deleteValidator_query,last_updated_by = :updatedby,last_updated_ts = NOW() ,is_deleted = 0,is_custom_updated = 1,upload_query_type = :queryType_uploadValidator,view_query_type = :queryType_viewValidator,delete_query_type = :queryType_deleteValidator,datasource_upload_validator = :datasource_uploadValidator,datasource_view_validator = :datasource_viewValidator,datasource_delete_validator = :datasource_deleteValidator WHERE file_bin_id = :fileBinId',null, map); 
+    jq_updateDBQuery('UPDATE jq_file_upload_config SET file_type_supported = :fileTypeSupported,max_file_size = :maxFileSize,no_of_files = :noOfFiles,upload_query_content = :uploadValidator_query,view_query_content = :viewValidator_query,delete_query_content = :deleteValidator_query,last_updated_by = :updatedby,last_updated_ts = NOW() ,is_deleted = 0,is_custom_updated = 1,upload_query_type = :queryType_uploadValidator,view_query_type = :queryType_viewValidator,delete_query_type = :queryType_deleteValidator,datasource_upload_validator = :datasource_uploadValidator,datasource_view_validator = :datasource_viewValidator,datasource_delete_validator = :datasource_deleteValidator,is_file_storage_enable=:fileStorageTxt ,custom_file_storage_class=:customFileStorageClass WHERE file_bin_id = :fileBinId',null, map); 
 } else{
-    jq_updateDBQuery('INSERT INTO jq_file_upload_config (file_bin_id, file_type_supported, max_file_size, no_of_files, upload_query_content, view_query_content, delete_query_content, is_deleted, created_by, created_date, last_updated_ts, upload_query_type, view_query_type, delete_query_type, datasource_upload_validator, datasource_view_validator, datasource_delete_validator,is_custom_updated) VALUES (:fileBinId,:fileTypeSupported, :maxFileSize,:noOfFiles, :uploadValidator_query, :viewValidator_query, :deleteValidator_query,0,:createdby,NOW(),NOW(), :queryType_uploadValidator, :queryType_viewValidator, :queryType_deleteValidator, :datasource_uploadValidator, :datasource_viewValidator, :datasource_deleteValidator, 1)', null, map);
-        
+    jq_updateDBQuery('INSERT INTO jq_file_upload_config (file_bin_id, file_type_supported, max_file_size, no_of_files, upload_query_content, view_query_content, delete_query_content, is_deleted, created_by, created_date, last_updated_ts, upload_query_type, view_query_type, delete_query_type, datasource_upload_validator, datasource_view_validator, datasource_delete_validator,is_custom_updated,is_file_storage_enable,custom_file_storage_class) VALUES (:fileBinId,:fileTypeSupported, :maxFileSize,:noOfFiles, :uploadValidator_query, :viewValidator_query, :deleteValidator_query,0,:createdby,NOW(),NOW(), :queryType_uploadValidator, :queryType_viewValidator, :queryType_deleteValidator, :datasource_uploadValidator, :datasource_viewValidator, :datasource_deleteValidator, 1,:fileStorageTxt,:customFileStorageClass)', null, map);
     }
      if(null != requestDetails.uploadScriptLibraryId && "" != requestDetails.uploadScriptLibraryId && undefined != requestDetails.uploadScriptLibraryId[0] && '[""]' != requestDetails.uploadScriptLibraryId[0]){
         saveDeleteScriptLibDetails(requestDetails.uploadScriptLibraryId[0],"upload_"+requestDetails.fileBinId[0],"save");

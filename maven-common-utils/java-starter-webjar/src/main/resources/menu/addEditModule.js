@@ -117,10 +117,10 @@ class AddEditModule {
 		}
 
 		let sequence = $("#sequence").val().trim();
-		if (sequence === "" && ($("#insideMenuCheckbox").prop("checked")) === true) {
+		if ((sequence === 0 || sequence === "") && ($("#insideMenuCheckbox").prop("checked")) === true) {
 			$("#sequence").closest("div").parent().effect("highlight", {}, 3000);
 			$("#sequence").focus();
-			showMessage("Please enter sequence number", "warn");
+			showMessage("Please enter valid sequence number", "warn");
 			return false;
 		}
 
@@ -569,7 +569,7 @@ class AddEditModule {
 	copyUrl = function() {
 		let input = $("<input>");
 		$("body").append(input);
-		input.val('${contextPath}' + "/view/" + $("#moduleURL").val()).select();
+		input.val('${contextPath}' + '${viewPath}'+"/" + $("#moduleURL").val()).select();
 		document.execCommand("copy");
 		input.remove();
 		showMessage("Copied successfully.", "success");
@@ -599,7 +599,7 @@ class AddEditModule {
 	copyUrlContextPath = function(elementId) {
 		let input = $("<input>");
 		$("body").append(input);
-		input.val('${contextPath}' + "/view/" + $("#" + elementId).val()).select();
+		input.val('${contextPath}' + '${viewPath}'+"/" + $("#" + elementId).val()).select();
 		document.execCommand("copy");
 		input.remove();
 	}

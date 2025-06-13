@@ -366,7 +366,7 @@ input:checked + .slider:before {
 	    $.ajax({
 	    	type : "POST",
 	      	async: false,
-	      	url : contextPath+"/api/mailConfigurationDetails",
+	      	url : contextPath+apiPath+"/mailConfigurationDetails",
 	      	data : {
 	      		saveMailConfigDetailsJson : saveMailConfigDetailsJson
 	      	},
@@ -618,9 +618,9 @@ input:checked + .slider:before {
   
     function downloadFile(uiObject){
     	let xhr = new XMLHttpRequest();
-    	//window.open( contextPath+"/api/downloadEmails/"+escape(uiObject), "_blank");
+    	//window.open( contextPath+apiPath+"/downloadEmails/"+escape(uiObject), "_blank");
 	    let fileId = uuidv4();
-		xhr.open("GET", contextPath+"/api/downloadEmails?emlFilePath="+escape(uiObject));
+		xhr.open("GET", contextPath+apiPath+"/downloadEmails?emlFilePath="+escape(uiObject));
 		xhr.responseType = "blob";
 		xhr.send();
 	

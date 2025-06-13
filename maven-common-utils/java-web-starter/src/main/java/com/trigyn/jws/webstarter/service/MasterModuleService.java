@@ -8,13 +8,11 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +23,7 @@ import com.google.gson.Gson;
 import com.trigyn.jws.dashboard.service.DashboardService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
@@ -34,12 +33,16 @@ import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.webstarter.utils.Constant;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 @Transactional
 public class MasterModuleService {
 
-	private final static Logger			logger						= LogManager.getLogger(MasterModuleService.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(MasterModuleService.class);
 
 	@Autowired
 	private ModuleService				moduleService				= null;
@@ -48,7 +51,7 @@ public class MasterModuleService {
 	private MenuService					menuService					= null;
 
 	@Autowired
-	private DashboardService				dashboardService				= null;
+	private DashboardService			dashboardService			= null;
 
 	@Autowired
 	private IUserDetailsService			userDetails					= null;
@@ -63,8 +66,16 @@ public class MasterModuleService {
 	private SessionLocaleResolver		sessionLocaleResolver		= null;
 	
 	@Autowired
-	private JwsDynamicRestDetailService jwsService = null;
+	private JwsDynamicRestDetailService jwsService 					= null;
+	
+	@Autowired
+	private FileUtilities 				fileUtilities 				= null;
+	
 
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
+	
 	public List<JwsMasterModules> getModules() {
 
 		List<JwsMasterModules> masterModules = new ArrayList<>();
@@ -192,13 +203,13 @@ public class MasterModuleService {
 					} else {
 						logger.error(
 								"This Response Type is not supported.Only text/html or text/plain response type is supported. ");
-						httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(), 
 								"Only text/html or text/plain response type is supported.");
 						return null;
 					}
 				}
 			}
-			httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Not found");
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.NOT_FOUND.value(),"Not found");
 			return null;
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in executeRESTCall for Stop Exception.", custStopException);
@@ -261,7 +272,7 @@ public class MasterModuleService {
 		List<String>	pathVariableList	= new ArrayList<>();
 		String			moduleUrl			= httpServletRequest.getRequestURI()
 				.substring(httpServletRequest.getContextPath().length());
-		moduleUrl	= moduleUrl.replaceFirst("/view/", "");
+		moduleUrl	= moduleUrl.replaceFirst(jQuiverPropeties.getViewPath()+"/", "");
 		moduleUrl	= moduleUrl.replaceFirst("/cf/", "");
 
 		if (moduleUrl.indexOf("/") != -1) {

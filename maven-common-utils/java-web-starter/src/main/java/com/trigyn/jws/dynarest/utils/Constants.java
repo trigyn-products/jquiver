@@ -53,6 +53,7 @@ public final class Constants {
 	public static final int		    	JS					        			= 4;
 	public static final int		    	PY					        			= 2;
 	public static final int		    	FilePHP					        		= 3;
+	public static final int				ISACTIVE								= 1;
 
 	private static Map<String, String>	SELECT_REQUIRED_COLUMN_MAP				= new HashMap<String, String>();
 
@@ -168,7 +169,7 @@ public final class Constants {
 	public enum Modules {
 
 		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
-		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"), FILEBIN("File Bin"),
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), ROUTER("Router"), FILEBIN("File Bin"),
 		HELPMANUAL("Help Manual"), MULTILINGUAL("MultiLingual"), NOTIFICATION("Notification"),
 		APPLICATIONCONFIGURATION("Application Configuration"), USERMANAGEMENT("User Management"),
 		APICLIENTS("API Clients"), SCHEDULER("Scheduler");

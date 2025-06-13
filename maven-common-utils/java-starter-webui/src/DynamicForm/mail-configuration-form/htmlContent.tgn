@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
@@ -118,8 +111,7 @@ input:checked + .slider:before {
         <#else>
             <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.mailconfiguration')}</h2> 
         </#if>
-    <div class="clearfix"></div>    
-  </div>
+   </div>
   
   <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>  
   <form method="post"   name="addEditForm" id="addEditForm" >
@@ -128,21 +120,21 @@ input:checked + .slider:before {
     <div class="row">
       <div class="col-4">
         <div class="col-inner-form full-form-fields">
-          <label for="smtpHost" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.smtphost')}</label>
+          <label for="smtpHost" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.smtphost')}</label>
           <input type="text" id="smtpHostId" name="smtpHost" value="" placeholder="SMTP Host" required  class="form-control mailForm">
         </div>
       </div>
       
       <div class="col-4 ">
         <div class="col-inner-form full-form-fields">
-          <label for="smtpPort" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.smtpPort')}</label>
+          <label for="smtpPort" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.smtpPort')}</label>
           <input type="text" id="smtpPortId" name="smtpPort" value="" placeholder="SMTP Port" required  class="form-control mailForm">
         </div>
       </div>
       
       <div class="col-4">
         <div class="col-inner-form full-form-fields">
-          <label for="smtpSecurityProtocal" style="white-space:nowrap">${messageSource.getMessage('jws.securityprotocol')}</label>
+          <label for="smtpSecurityProtocal" >${messageSource.getMessage('jws.securityprotocol')}</label>
           <select id="smtpSecurityProtocalId" name="smtpSecurityProtocal" onchange="populateFields(this)" class="form-control">
               <option value="" disabled>${messageSource.getMessage('jws.select')}</option> 
               <option value="Plain">${messageSource.getMessage('jws.plain')}</option>
@@ -166,18 +158,20 @@ input:checked + .slider:before {
         
      </label></legend>
       
-      <div class="col-6 float-left"">
+      <div class="row">
+      <div class="col-6"">
         <div class="col-inner-form full-form-fields">
-                  <label for="txtMailUserName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.username')} </label>
+                  <label for="txtMailUserName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.username')} </label>
           <input type="text" id="txtMailUserName" name="txtMailUserName" value="" placeholder="UserName"  required class="form-control mailForm RemoveData">
         </div>
       </div>
-      <div class="col-6 float-right">
+      <div class="col-6">
         <div class="col-inner-form full-form-fields">
   
-          <label for="txtMailPassword" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.password')}</label>
+          <label for="txtMailPassword" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.password')}</label>
           <input type="password" id="txtMailPassword" name="txtMailPassword" value=""  placeholder="Password" required class="form-control mailForm RemoveData">
         </div>
+      </div>
       </div>
       </fieldset>
       </div>
@@ -185,21 +179,21 @@ input:checked + .slider:before {
       
       <div class="col-6 float-right">
         <div class="col-inner-form full-form-fields">
-          <label for="email" style="white-space:nowrap"><span class="asteriskmark">*</span>  ${messageSource.getMessage('jws.fromemail')}  </label>
+          <label for="email" ><span class="asteriskmark">*</span>  ${messageSource.getMessage('jws.fromemail')}  </label>
           <input type="email" id="mailFrom" name="mailFrom" value=""  placeholder="EMail" required class="form-control mailForm"  >
         </div>
       </div>
       
        <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="mailFromName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.fromname')}</label>
+          <label for="mailFromName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.fromname')}</label>
           <input type="text" id="fromNameId" name="mailFromName" value=""  placeholder="Name" required class="form-control mailForm">
         </div>
       </div>
       
       <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="replyToEmailDropdown" style="white-space:nowrap">${messageSource.getMessage('jws.replyto')}</label>
+          <label for="replyToEmailDropdown" >${messageSource.getMessage('jws.replyto')}</label>
           <select id="replyToEmailDropdown" name="replyToEmailDropdown"  class="form-control mailForm">
               <option value="Same">${messageSource.getMessage('jws.same')}</option> 
               <option value="NoReply">${messageSource.getMessage('jws.noreply')}</option> 
@@ -210,21 +204,21 @@ input:checked + .slider:before {
       
        <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="email" style="white-space:nowrap">${messageSource.getMessage('jws.replytoemailid')}</label>
+          <label for="email" >${messageSource.getMessage('jws.replytoemailid')}</label>
           <input type="email" id="replyToDifferentEmailId" name="replyToDifferentEmailId" placeholder="EMail" value=""  required class="form-control mailForm">
         </div>
       </div>
 	  
 	  <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="email" style="white-space:nowrap">${messageSource.getMessage('jws.noreplyemailid')}</label>
+          <label for="email" >${messageSource.getMessage('jws.noreplyemailid')}</label>
           <input type="email" id="noReplyToMailId" name="noReplyToMailId" placeholder="EMail" value=""  required class="form-control mailForm">
         </div>
       </div>
 
       <div class="col-6">  
         <div class="col-inner-form full-form-fields">  
-         <label for="email" style="white-space:nowrap">Allow Custom Sender</label>               
+         <label for="email" >Allow Custom Sender</label>               
             <div class="onoffswitch">
                 <input class="onoffswitch-checkbox" type="checkbox" name="isAllowCustomSender" id="isAllowCustomSender" checked >
                 <label class="onoffswitch-label" for="isAllowCustomSender">
@@ -255,7 +249,7 @@ input:checked + .slider:before {
         </div>
         </div>   
       
-       <div class="col-7" style="float:left;">
+       <div class="col-6" style="float:right;">
       <div id="fileUploadMaster" class="col-12 customefileupload fileupload dropzone"></div></div> 
       
       </fieldset>
@@ -267,14 +261,14 @@ input:checked + .slider:before {
       
       <div class="col-6">
         <div class="col-inner-form full-form-fields">
-          <label for="internetAddressToArray" style="white-space:nowrap">${messageSource.getMessage('jws.sendtestmailto')}</label>
+          <label for="internetAddressToArray" >${messageSource.getMessage('jws.sendtestmailto')}</label>
           <input type="text" id="internetAddressToArray" name="internetAddressToArray" placeholder="Comma seperated email addresses" value=""  required class="form-control">
         </div>
       </div>
     
     <div class="col-4">
 		<div class="col-inner-form full-form-fields">
-			<label for="noOfFailedMails" style="white-space:nowrap">
+			<label for="noOfFailedMails" >
     	        <span class="asteriskmark">*</span>${messageSource.getMessage('jws.noOfFailedemails')}
             </label>
             <input type="hidden" id="noOfFailedMails" name="noOfFailedMails">
@@ -290,7 +284,7 @@ input:checked + .slider:before {
   <div class="row margin-t-10">
         
     <div class="col-12">
-      <div class="float-right">
+      <div class="text-end">
         <div class="btn-group dropup custom-grp-btn">
             <div id="sendTestMail">
                 <button type="button" id="sendTestMailId" class="btn btn-primary" onclick="sendMail()">${messageSource.getMessage("jws.sendTestMail")}</button>
@@ -311,7 +305,7 @@ input:checked + .slider:before {
 
 <script>
   document.title = "Mail Configuration Details";
-  contextPath = "${contextPath}";
+  //contextPath = "${contextPath}";
   /**Added for File Bin*/
   let dropZone = $(".fileupload").fileUpload({
         fileBinId : "mailAttachment",
@@ -420,7 +414,7 @@ input:checked + .slider:before {
 	    $.ajax({
 	    	type : "POST",
 	      	async: false,
-	      	url : contextPath+"/api/mailConfigurationDetails",
+	      	url : contextPath+apiPath+"/mailConfigurationDetails",
 	      	data : {
 	      		saveMailConfigDetailsJson : saveMailConfigDetailsJson
 	      	},
@@ -686,9 +680,9 @@ input:checked + .slider:before {
   
     function downloadFile(uiObject){
     	let xhr = new XMLHttpRequest();
-    	//window.open( contextPath+"/api/downloadEmails/"+escape(uiObject), "_blank");
+    	//window.open( contextPath+apiPath+"/downloadEmails/"+escape(uiObject), "_blank");
 	    let fileId = uuidv4();
-		xhr.open("GET", contextPath+"/api/downloadEmails?emlFilePath="+escape(uiObject));
+		xhr.open("GET", contextPath+apiPath+"/downloadEmails?emlFilePath="+escape(uiObject));
 		xhr.responseType = "blob";
 		xhr.send();
 	

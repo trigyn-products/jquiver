@@ -1,0 +1,34 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var Gson = Java.type('com.google.gson.Gson');
+var GsonBuilder = Java.type('com.google.gson.GsonBuilder');
+var FormioClient = Java.type('com.trigyn.jws.formio.service.FormioClient');
+var params = new HashMap();
+var formId =  <#noparse>"${(formId)!''}"</#noparse>;
+var formIoId =  <#noparse>"${formIoId! 'null' }"</#noparse>;
+params.put('formIoId', formIoId);
+var dataSourceId = null;
+<#if (dataSourceId)??  && dataSourceId?has_content> 
+dataSourceId = "${dataSourceId! null}"; 
+</#if>
+
+function getFormData(){
+    var formData = new Object(); 
+    var primaryKeyValue = <#noparse>"${(primaryKeyValue)!''}"</#noparse>;     
+    var formData = { };
+    if(primaryKeyValue != ''){
+        var queryResult = jq_getDBResult("SELECT ${(columnNames)!''} FROM ${(tableName)!''} WHERE ${(primaryKeyColumnName)!''} =  <#noparse>'${(primaryKeyValue)!''}'</#noparse>", dataSourceId, params);   
+        var fmIoClient = new FormioClient();               
+        var jsonResult = fmIoClient.getFormWithData(formId, queryResult.data_list[0]);              
+        formData =  JSON.parse(jsonResult);                 
+    }     
+    return JSON.stringify(formData);
+}
+
+function loadForm(){   
+    var returnObject = new Object();    
+    returnObject.formData = getFormData();  
+    return returnObject;
+}
+
+loadForm();

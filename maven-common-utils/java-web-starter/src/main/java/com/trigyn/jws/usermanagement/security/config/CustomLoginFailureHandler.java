@@ -5,10 +5,6 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -18,6 +14,11 @@ import com.trigyn.jws.usermanagement.entities.JwsUser;
 import com.trigyn.jws.usermanagement.exception.InvalidLoginException;
 import com.trigyn.jws.usermanagement.repository.UserManagementDAO;
 import com.trigyn.jws.usermanagement.service.JwsUserService;
+import com.trigyn.jws.usermanagement.utils.Constants;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
@@ -36,6 +37,9 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 		try {
 			String	emailID	= request.getParameter("email");
 			JwsUser	user	= userService.findUserByEmail(emailID);
+			String	authType	= request.getParameter("enableAuthenticationType");
+			String authTypeHeader = request.getHeader("at");
+			authType = Constants.getAuthType(authType, authTypeHeader);
 			Integer	maxFailedCount;
 			maxFailedCount = Integer.parseInt(propertyMasterDetails.getSystemPropertyValue("maxFailedCount"));
 
@@ -48,22 +52,22 @@ public class CustomLoginFailureHandler extends SimpleUrlAuthenticationFailureHan
 						}
 						userManagementDAO.updateUserData(user);
 						if (user.getFailedAttempt() == maxFailedCount) {
-							exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
+							exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID, authType);
 						} else {
 							String msg = exception.getMessage();
 							if (msg.startsWith("?")) {
 								msg = "Login failed. Bad credentials.";
 							}
-							exception = new InvalidLoginException(msg, emailID);
+							exception = new InvalidLoginException(msg, emailID, authType);
 						}
 					} else {
-						exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
+						exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID, authType);
 					}
 				} else {
-					exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID);
+					exception = new InvalidLoginException("Account Locked. Please contact Admin.", emailID, authType);
 				}
 			} else {
-				exception = new InvalidLoginException("User does not exist.", emailID);
+				exception = new InvalidLoginException("User does not exist.", emailID, authType);
 			}
 			super.setDefaultFailureUrl("/cf/login");
 			super.onAuthenticationFailure(request, response, exception);

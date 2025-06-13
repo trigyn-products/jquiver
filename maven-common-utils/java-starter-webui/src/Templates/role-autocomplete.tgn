@@ -5,7 +5,7 @@
 </head>
 
 			<div class="col-inner-form full-form-fields">
-				<label for="rolesMultiselect" style="white-space:nowrap">${messageSource.getMessage('jws.roles')}</label>
+				<label for="rolesMultiselect" >${messageSource.getMessage('jws.roles')}</label>
 				<div class="search-cover">
 					<input class="form-control" id="rolesMultiselect" type="text">
 					<i class="fa fa-search" aria-hidden="true"></i>

@@ -7,13 +7,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,42 +28,53 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.utils.IMonacoSuggestion;
-import com.trigyn.jws.dbutils.utils.JwsCustomException;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.service.MenuService;
+import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.TemplateCrudService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Templating')")
 public class TemplateCrudController {
 
-	private final static Logger logger = LogManager.getLogger(TemplateCrudController.class);
+	private final static Logger logger = LoggerFactory.getLogger(TemplateCrudController.class);
 
 	@Autowired
-	private DBTemplatingService dbTemplatingService = null;
+	private DBTemplatingService 	dbTemplatingService   = null;
 
 	@Autowired
-	private TemplateCrudService templateCrudService = null;
+	private TemplateCrudService 	templateCrudService   = null;
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO 		propertyMasterDAO 	  = null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService 			menuService 		  = null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService 	userDetailsService 	  = null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog 			activitylog 		  = null;
 
 	@Autowired
-	private PropertyMasterService propertyMasterService = null;
+	private PropertyMasterService 	propertyMasterService = null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 		  = null;
+	
+	@Autowired
+	private TemplatingUtils 		templateEngine 		  = null;
 
 	@GetMapping(value = "/te", produces = MediaType.TEXT_HTML_VALUE)
 	public String templatePage(HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -86,7 +93,7 @@ public class TemplateCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -102,8 +109,10 @@ public class TemplateCrudController {
 	public String velocityTemplateEditor(HttpServletRequest request, HttpServletResponse httpServletResponse)
 			throws IOException, CustomStopException {
 		try {
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			String templateId = request.getParameter("vmMasterId");
 			Map<String, Object> vmTemplateData = new HashMap<>();
+			Map<String, Object> vmErrorData = new HashMap<>();
 			if (!StringUtils.isBlank(templateId)) {
 				TemplateVO templateDetails = dbTemplatingService.getVelocityDataById(templateId);
 				templateDetails.setTemplate("");
@@ -112,11 +121,22 @@ public class TemplateCrudController {
 				Integer typeSelect = templateDetails.getTemplateType();
 				/* Method called for implementing Activity Log */
 				logActivity(templateName, typeSelect);
+				vmTemplateData.put("environment", environment);
 			}
 			/* ContextPath Suggestion in Monaco Editor */
 			String contextSuggestions = IMonacoSuggestion.getTemplateSuggestion();
 			vmTemplateData.put("suggestions", contextSuggestions);
-			return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
+
+
+			if (environment.equalsIgnoreCase("dev") && !StringUtils.isBlank(templateId)){
+				vmErrorData.put("statusCode", HttpStatus.RESET_CONTENT.value());
+				vmErrorData.put("errorMessage",
+						"The request was successful. Accessing template in DEV mode is restricted.");
+				return menuService.getTemplateWithSiteLayout("error-page", vmErrorData);
+			} else {
+				return menuService.getTemplateWithSiteLayout("template-manage-details", vmTemplateData);
+			}
+
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading Templating page.", custStopException);
 			throw custStopException;
@@ -126,9 +146,10 @@ public class TemplateCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
+		
 	}
 
 	/**
@@ -211,7 +232,8 @@ public class TemplateCrudController {
 
 	@PostMapping(value = "/utd")
 	public void uploadAllTemplatesToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		templateCrudService.uploadTemplates(null);
+		String templatetypeId = request.getParameter("templatetypeId");
+		templateCrudService.uploadTemplates(templatetypeId,null);
 	}
 
 	@PostMapping(value = "/dtbi")
@@ -223,7 +245,8 @@ public class TemplateCrudController {
 	@PostMapping(value = "/utdbi")
 	public void uploadTemplateByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String templateName = request.getParameter("templateName");
-		templateCrudService.uploadTemplates(templateName);
+		String templatetypeId = request.getParameter("templatetypeId");
+		templateCrudService.uploadTemplates(templatetypeId,templateName);
 	}
 
 	@PostMapping(value = "/gadc")
@@ -231,9 +254,10 @@ public class TemplateCrudController {
 			throws Exception {
 		String templateName = a_httpServletRequest.getParameter("templateName");
 		String selectedTab = a_httpServletRequest.getParameter("selectedTab");
-
+		String formioid = a_httpServletRequest.getParameter("formioid");
 		Map<String, Object> templateParamMap = new HashMap<>();
 		templateParamMap.put("selectedTab", selectedTab);
+		templateParamMap.put("formioid", formioid);
 		return menuService.getTemplateWithoutLayout(templateName, templateParamMap);
 
 	}

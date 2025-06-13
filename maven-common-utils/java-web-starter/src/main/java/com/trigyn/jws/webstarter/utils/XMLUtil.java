@@ -1,18 +1,14 @@
 package com.trigyn.jws.webstarter.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import com.trigyn.jws.dbutils.utils.CustomCharacterEscapeHandler;
 import com.trigyn.jws.dbutils.vo.xml.DashletExportVO;
 import com.trigyn.jws.dbutils.vo.xml.DynaRestExportVO;
@@ -27,6 +23,10 @@ import com.trigyn.jws.dbutils.vo.xml.ScriptLibraryDetailsExportVO;
 import com.trigyn.jws.dbutils.vo.xml.Settings;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
 import com.trigyn.jws.dbutils.vo.xml.XMLVO;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 
 public class XMLUtil {
 
@@ -72,7 +72,7 @@ public class XMLUtil {
 				} else if (map.get("moduleObject") instanceof DynaRestExportVO) {
 					module.setDynaRestExportVO((DynaRestExportVO) map.get("moduleObject"));
 				} else if (map.get("moduleObject") instanceof ScriptLibraryDetailsExportVO) { 
-			//		module.setScriptLibraryExportVo(ScriptLibraryDetailsExportVO) map.get("moduleObject");
+					module.setScriptLibraryExportVo((ScriptLibraryDetailsExportVO) map.get("moduleObject"));
 				}else if (map.get("moduleObject") instanceof List) {
 					module.setFileUploadList((List<FileUploadExportVO>) map.get("moduleObject"));
 				} 
@@ -107,22 +107,25 @@ public class XMLUtil {
 		}
 	}
 
-	public static void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws JAXBException {
+	public static void marshaling(XMLVO xmlVO, String fileName, String downloadLocation) throws FileNotFoundException, JAXBException {
 		JAXBContext	jaxbContext		= JAXBContext.newInstance(xmlVO.getClass());
+
+		File file = new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml");
+		FileOutputStream fout = new FileOutputStream(file); 
 
 		Marshaller	jaxbMarshaller	= jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-		jaxbMarshaller.setProperty(CharacterEscapeHandler.class.getName(), new CustomCharacterEscapeHandler());
-		jaxbMarshaller.marshal(xmlVO, new File(downloadLocation + File.separator + fileName.toLowerCase() + ".xml"));
+		jaxbMarshaller.setProperty("org.glassfish.jaxb.characterEscapeHandler", new CustomCharacterEscapeHandler());
+		jaxbMarshaller.marshal(xmlVO, fout);
 	}
 
 	public static XMLVO unMarshaling(Class xmlVOClass, String xmlFilePath) throws JAXBException {
 
 		File		xmlFile		= new File(xmlFilePath);
 
-		JAXBContext	jaxbContext	= JAXBContext.newInstance(xmlVOClass);
-		Unmarshaller	jaxbUnmarshaller	= jaxbContext.createUnmarshaller();
+		jakarta.xml.bind.JAXBContext	jaxbContext	= jakarta.xml.bind.JAXBContext.newInstance(xmlVOClass);
+		jakarta.xml.bind.Unmarshaller	jaxbUnmarshaller	= jaxbContext.createUnmarshaller();
 		XMLVO			outputXMLVO			= (XMLVO) jaxbUnmarshaller.unmarshal(xmlFile);
 
 		return outputXMLVO;

@@ -298,7 +298,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
         $.ajax({
             type : "GET",
             async: false,
-            url : contextPath+"/api/application-metrics-details",
+            url : contextPath+apiPath+"/application-metrics-details",
             success : function(data) {
                 appMetrics.applicationDetails = data;
             }
@@ -308,7 +308,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
     $.ajax({
         type : "GET",
         async: false,
-        url : contextPath+"/api/application-metrics-details",
+        url : contextPath+apiPath+"/application-metrics-details",
         success : function(data) {
             appMetrics.applicationDetails = data;
             appMetrics.initDetails();

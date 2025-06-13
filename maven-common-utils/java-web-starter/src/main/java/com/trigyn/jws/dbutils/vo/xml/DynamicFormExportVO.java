@@ -18,7 +18,7 @@ public class DynamicFormExportVO {
 
 	private String					htmlBodyFileName		= null;
 
-	private String					dataSourceId			= null;
+	private String					datasourceId			= null;
 
 	private Map<Integer, String>	saveFileNameMap			= null;
 
@@ -31,10 +31,16 @@ public class DynamicFormExportVO {
 	private Map<Integer, Integer>	queryTypeMap			= null;
 
 	private Date					lastUpdatedTs			= null;
-	
-	private Map<Integer, String>		scriptLibId			= null;
-	
+
+	private Map<Integer, String>	scriptLibId				= null;
+
 	private Map<Integer, String>	formQueryIdMap			= null;
+
+	private Integer					isCaptchaEnabled		= 0;
+
+	private Integer					isCsrfEnabled			= 0;
+
+	private String					formIoId				= null;
 
 	public DynamicFormExportVO() {
 
@@ -43,44 +49,48 @@ public class DynamicFormExportVO {
 	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
 			String selectQueryFileName, String htmlBodyFileName, String dataSourceId,
 			Map<Integer, String> saveFileNameMap, Integer selectQueryType, Map<Integer, String> variableNameMap,
-			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs) {
+			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs, Map<Integer, String> scriptLibMap) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
 		this.formTypeId				= formTypeId;
 		this.selectQueryFileName	= selectQueryFileName;
 		this.htmlBodyFileName		= htmlBodyFileName;
-		this.dataSourceId			= dataSourceId;
+		this.datasourceId			= dataSourceId;
 		this.saveFileNameMap		= saveFileNameMap;
 		this.selectQueryType		= selectQueryType;
 		this.variableNameMap		= variableNameMap;
 		this.datasourceDetailsMap	= datasourceDetailsMap;
 		this.queryTypeMap			= queryTypeMap;
 		this.lastUpdatedTs			= lastUpdatedTs;
+		this.scriptLibId			= scriptLibMap;
 	}
-
 
 	public DynamicFormExportVO(String formId, String formName, String formDescription, Integer formTypeId,
 			String selectQueryFileName, String htmlBodyFileName, String dataSourceId,
 			Map<Integer, String> saveFileNameMap, Integer selectQueryType, Map<Integer, String> variableNameMap,
 			Map<Integer, String> datasourceDetailsMap, Map<Integer, Integer> queryTypeMap, Date lastUpdatedTs,
-			Map<Integer, String> scriptLibMap, Map<Integer, String> formQueryIdMap) {
+			Map<Integer, String> scriptLibMap, Map<Integer, String> formQueryIdMap, Integer isCaptchaEnabled,
+			Integer isCsrfEnabled, String formIoId) {
 		super();
-		this.formId = formId;
-		this.formName = formName;
-		this.formDescription = formDescription;
-		this.formTypeId = formTypeId;
-		this.selectQueryFileName = selectQueryFileName;
-		this.htmlBodyFileName = htmlBodyFileName;
-		this.dataSourceId = dataSourceId;
-		this.saveFileNameMap = saveFileNameMap;
-		this.selectQueryType = selectQueryType;
-		this.variableNameMap = variableNameMap;
-		this.datasourceDetailsMap = datasourceDetailsMap;
-		this.queryTypeMap = queryTypeMap;
-		this.lastUpdatedTs = lastUpdatedTs;
-		this.scriptLibId = scriptLibMap;
-		this.formQueryIdMap = formQueryIdMap;
+		this.formId					= formId;
+		this.formName				= formName;
+		this.formDescription		= formDescription;
+		this.formTypeId				= formTypeId;
+		this.selectQueryFileName	= selectQueryFileName;
+		this.htmlBodyFileName		= htmlBodyFileName;
+		this.datasourceId			= dataSourceId;
+		this.saveFileNameMap		= saveFileNameMap;
+		this.selectQueryType		= selectQueryType;
+		this.variableNameMap		= variableNameMap;
+		this.datasourceDetailsMap	= datasourceDetailsMap;
+		this.queryTypeMap			= queryTypeMap;
+		this.lastUpdatedTs			= lastUpdatedTs;
+		this.scriptLibId			= scriptLibMap;
+		this.formQueryIdMap			= formQueryIdMap;
+		this.isCaptchaEnabled		= isCaptchaEnabled;
+		this.isCsrfEnabled			= isCsrfEnabled;
+		this.formIoId				= formIoId;
 	}
 
 	public String getFormId() {
@@ -141,7 +151,7 @@ public class DynamicFormExportVO {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(dataSourceId, formDescription, formId, formName, formTypeId, htmlBodyFileName,
+		return Objects.hash(datasourceId, formDescription, formId, formName, formTypeId, htmlBodyFileName,
 				saveFileNameMap, selectQueryFileName);
 	}
 
@@ -157,7 +167,7 @@ public class DynamicFormExportVO {
 			return false;
 		}
 		DynamicFormExportVO other = (DynamicFormExportVO) obj;
-		return Objects.equals(dataSourceId, other.dataSourceId)
+		return Objects.equals(datasourceId, other.datasourceId)
 				&& Objects.equals(formDescription, other.formDescription) && Objects.equals(formId, other.formId)
 				&& Objects.equals(formName, other.formName) && Objects.equals(formTypeId, other.formTypeId)
 				&& Objects.equals(htmlBodyFileName, other.htmlBodyFileName)
@@ -170,9 +180,9 @@ public class DynamicFormExportVO {
 		StringBuilder builder = new StringBuilder();
 		builder.append("DynamicFormExportVO [formId=").append(formId).append(", formName=").append(formName)
 				.append(", formDescription=").append(formDescription).append(", formTypeId=").append(formTypeId)
-				.append(", selectQueryFileName=").append(selectQueryFileName).append(", htmlBodyFileName=")
-				.append(htmlBodyFileName).append(", dataSourceId=").append(dataSourceId).append(", saveFileNameMap=")
-				.append(saveFileNameMap).append("]");
+				.append(", formIoId=").append(formIoId).append(", selectQueryFileName=").append(selectQueryFileName)
+				.append(", htmlBodyFileName=").append(htmlBodyFileName).append(", dataSourceId=").append(datasourceId)
+				.append(", saveFileNameMap=").append(saveFileNameMap).append("]");
 		return builder.toString();
 	}
 
@@ -184,12 +194,12 @@ public class DynamicFormExportVO {
 		this.selectQueryType = selectQueryType;
 	}
 
-	public String getDataSourceId() {
-		return dataSourceId;
+	public String getDatasourceId() {
+		return datasourceId;
 	}
 
-	public void setDataSourceId(String dataSourceId) {
-		this.dataSourceId = dataSourceId;
+	public void setDatasourceId(String dataSourceId) {
+		this.datasourceId = dataSourceId;
 	}
 
 	public Map<Integer, String> getVariableNameMap() {
@@ -238,6 +248,30 @@ public class DynamicFormExportVO {
 
 	public void setScriptLibId(Map<Integer, String> scriptLibId) {
 		this.scriptLibId = scriptLibId;
+	}
+
+	public Integer getIsCaptchaEnabled() {
+		return isCaptchaEnabled;
+	}
+
+	public void setIsCaptchaEnabled(Integer isCaptchaEnabled) {
+		this.isCaptchaEnabled = isCaptchaEnabled;
+	}
+
+	public Integer getIsCsrfEnabled() {
+		return isCsrfEnabled;
+	}
+
+	public void setIsCsrfEnabled(Integer isCsrfEnabled) {
+		this.isCsrfEnabled = isCsrfEnabled;
+	}
+
+	public String getFormIoId() {
+		return formIoId;
+	}
+
+	public void setFormIoId(String formIoId) {
+		this.formIoId = formIoId;
 	}
 
 }

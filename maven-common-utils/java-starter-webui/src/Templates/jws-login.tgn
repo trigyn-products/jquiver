@@ -13,8 +13,58 @@
 </title> <@templateWithoutParams "jws-common-css-js"/>
 <script>
 $(document).ready(function(){
-    $('#logintabs a:first').tab('show');   
+    <#if (prevAuthType)?? && prevAuthType?has_content && (prevAuthType=="3")>        
+        $('#logintabs a:last').tab('show');      
+    <#else>     
+       $('#logintabs a:first').tab('show');    
+    </#if>     
 });
+function generateCaptch(imagesrc) {
+       // alert("generate Captch");
+     const imgElement = document.getElementById('imgCaptcha');    
+     fetch(imagesrc, {
+        headers: {
+
+        'r':  localStorage.getItem('r')
+        }
+      }) // Fetch the image using its 'src' attribute
+     .then(response => {
+      // Access the desired header
+       localStorage.setItem('r', response.headers.get('r'));
+	    if (response.ok) {
+	      return response.blob();
+	     // console.log('Image URL is valid');
+	    } else {
+	     // console.log('Image URL is invalid');
+	      return null;
+	    }	
+       
+	     })
+	    .then((blob) => {
+	       if(blob!=null){
+	             //set image to image Src
+	              const objectURL = URL.createObjectURL(blob);
+	              imgElement.src = objectURL;
+                      
+                         if ($('#captcha').prop('disabled')) {
+                           $("#captcha").removeAttr('disabled');
+			}
+		   }
+		else{
+		     //set path and show error Message and disable text
+		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
+		      $("#captcha").attr('disabled','disabled');
+              $("#captchaGenerationError").attr("style","display:block");
+              $("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
+             // alert(resourceBundleData("jws.clearTxt"));
+		    }
+	     })
+      .catch(error => {
+       $("#captchaGenerationError").attr("style","display:block");
+       $("#captchaGenerationError").html("<@resourceBundle "jws.fetchCaptchError"/>");
+
+     });
+    }
 </script>
 
 <style>
@@ -26,7 +76,7 @@ $(document).ready(function(){
     </style>
 </head>
 <body>
-	<div class="container">
+	<div class="container pagecenterbox">
 		<div class="row">
 			<div class="login_bg_mobile col-7">
 				<div class="loginbg">
@@ -57,6 +107,9 @@ $(document).ready(function(){
 						</#if>
 					</#if>
 				</#if>
+                <div id="captchaGenerationError" class="alert alert-danger" role="alert" style="display: none"></div>
+                <div id="LoginFormError" class="alert alert-danger" role="alert" style="display: none"></div>
+                                
 				<div id="emailRequiredError" class="alert alert-danger" role="alert" style="display: none">Email is required</div>
 				<div class="alert alert-danger" id="userNotFoundError" role="alert" style="display:none"><@resourceBundle "jws.usernotfound"/></div>
 				<div class="alert alert-success" id="otpSuccessMsg" role="alert" style="display:none"><@resourceBundle "jws.otpsuccessmsg"/></div>
@@ -83,8 +136,7 @@ $(document).ready(function(){
 									<#if (authenticationType ==2 || authenticationType ==3)>	
 										<#if authenticationType ==2 > 
 											<#assign numConvert ="databaseauth"> 
-										
-											<#assign labelConvert><@resourceBundle "jws.internal"/></#assign>
+											<#assign labelConvert = authType?api.getDatabaseDisplayName()>
 											<#assign daoAuth = true> 
 										<#elseif (authenticationType)?? && authenticationType?has_content && authenticationType ==3 >
 											<#assign ldapAuth = true>
@@ -132,7 +184,7 @@ $(document).ready(function(){
 								<#assign authenticationType=authType?api.getAuthenticationType()>
 								<#assign verificationType=authType?api.getVerificationType()>
 								<#if (authenticationType)?? && authenticationType?has_content>									
-									<#if (authenticationType)?? && authenticationType?has_content && authenticationType ==4>	
+									<#if (authenticationType)?? && authenticationType?has_content && (authenticationType ==4 || authenticationType ==5)>	
 										<@templateWithParams "jws-login-${authenticationType}-${verificationType}" loginAttributes/>
 																		
 									</#if>
@@ -144,5 +196,6 @@ $(document).ready(function(){
 			</div>
 		</div>
 	</div>
+   
 </body>
 </html>

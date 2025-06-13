@@ -8,48 +8,54 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
-
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.spi.PropertyMasterDetails;
 import com.trigyn.jws.webstarter.service.ImportService;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletContext;
 
 @Configuration
 public class StaticCodeImportConfiguration {
 
-	private final static Logger		logger					= LogManager.getLogger(StaticCodeImportConfiguration.class);
+	private final static Logger logger = LoggerFactory.getLogger(StaticCodeImportConfiguration.class);
 
-	private static Boolean			isCodeImported			= false;
+	private static Boolean isCodeImported = false;
 
-	private static String			webUIJarPrefix			= "webui-";
+	private static String webUIJarPrefix = "webui-";
 
-	private static String			webUIJarName			= "";
+	private static String webUIJarName = "";
 
-	private static String			webUIWarPath			= "";
+	private static String webUIWarPath = "";
 
-	private static String			webUIJarPath			= "";
-
-	@Autowired
-	private PropertyMasterService	propertyMasterService	= null;
+	private static String webUIJarPath = "";
 
 	@Autowired
-	private ImportService			importService			= null;
+	private PropertyMasterService propertyMasterService = null;
 
 	@Autowired
-	private ServletContext			servletContext			= null;
+	private ImportService importService = null;
+
+	@Autowired
+	private ServletContext servletContext = null;
+
+	@Autowired
+	private PropertyMasterDetails propertyMasterDetails = null;
+
+	@Autowired
+	private JQuiverProperties jQuiverProperties = null;
 
 	@PostConstruct
 	public void initialiseScheduler() {
 		try {
-
-			System.out.println("############# Inside Static Code Importer");
+			logger.info("############# Inside Static Code Importer");
 
 			Properties prop = new Properties();
 			prop.load(getClass().getClassLoader().getResourceAsStream("webui-pom.properties"));
@@ -60,18 +66,18 @@ public class StaticCodeImportConfiguration {
 			} else {
 				webUIJarName = webUIJarVersion + ".jar";
 			}
-			webUIJarPrefix	= webUIJarVersion.split("-")[0];
-			webUIWarPath	= "/WEB-INF/lib/" + webUIJarName;
-			webUIJarPath	= "BOOT-INF" + File.separator + "lib" + File.separator + webUIJarName;
+			webUIJarPrefix = webUIJarVersion.split("-")[0];
+			webUIWarPath = "/WEB-INF/lib/" + webUIJarName;
+			webUIJarPath = "BOOT-INF" + File.separator + "lib" + File.separator + webUIJarName;
 
 			prop.load(getClass().getClassLoader().getResourceAsStream("jws-pom.properties"));
-			String	currentVersion		= prop.getProperty("jws.version");
-			String	lastDeployedVersion	= propertyMasterService.findPropertyMasterValue("last-deployed-version");
+			String currentVersion = prop.getProperty("jws.version");
+			String lastDeployedVersion = propertyMasterService.findPropertyMasterValue("last-deployed-version");
 
 			if (isCodeImported == false) {
 				String profile = propertyMasterService.findPropertyMasterValue("profile");
 				if (lastDeployedVersion == null || currentVersion.equals(lastDeployedVersion) == false) {
-					System.out.println("############# Importing through static code importer");
+					logger.info("############# Importing through static code importer");
 					if (profile != null && profile.equalsIgnoreCase("dev")) {
 
 						// import file from temporary storage path
@@ -112,10 +118,18 @@ public class StaticCodeImportConfiguration {
 						lastDeployedDatePropertyMaster.setOwnerId("system");
 						lastDeployedDatePropertyMaster.setOwnerType("system");
 					}
-					Date date = DateUtils.addMinutes(Calendar.getInstance().getTime(), 15); ;
+					Date date = DateUtils.addMinutes(Calendar.getInstance().getTime(), 15);
 					lastDeployedDatePropertyMaster
 							.setPropertyValue(new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss").format(date));
 					propertyMasterService.save(lastDeployedDatePropertyMaster);
+
+					PropertyMaster baseUrlPropertyMaster = propertyMasterService.findPropertyMasterByName("base-url");
+					baseUrlPropertyMaster.setPropertyValue(jQuiverProperties.getBaseUrl());
+					baseUrlPropertyMaster.setLastModifiedDate(new Date());
+					propertyMasterService.save(baseUrlPropertyMaster);
+
+					propertyMasterDetails.fetchXSSPatterns();
+					propertyMasterDetails.fetchCSPHeader();
 
 				}
 
@@ -130,9 +144,9 @@ public class StaticCodeImportConfiguration {
 
 	private String explodeJar() throws IOException {
 
-		String	classpath	= System.getProperty("java.class.path");
-		String	cPaths[]	= classpath.split(File.pathSeparator);
-		File	f;
+		String classpath = System.getProperty("java.class.path");
+		String cPaths[] = classpath.split(File.pathSeparator);
+		File f;
 		for (String p : cPaths) {
 			f = new File(p);
 			if (f.isFile()) {

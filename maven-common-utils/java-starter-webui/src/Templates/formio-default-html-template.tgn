@@ -1,0 +1,143 @@
+<#noparse>
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+</#noparse>
+<html>
+<head>
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap-icons.css">  
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap.min.css"> 
+	<link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.css" />
+    <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.css" />
+    <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
+    <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/fileupload/fileupload.js"></script>
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/gridutils/gridutils.js"></script> 
+	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
+	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/typeahead/typeahead.js"></script>
+	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.js"></script>
+	<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+</head>
+	<body>   
+        <form method="post" name="addEditForm" id="addEditForm">
+        	<div class="container">
+        	<input type="hidden" id="isFormIo" name="isFormIo" value="1"/>
+        	<input type="hidden" id="isCaptchaEnabled" name="isCaptchaEnabled" value="<#noparse>${(isCaptchaEnabled)!'0'}</#noparse>"/>
+        	<input  id="primaryKeyId"  type="hidden" name="${(primaryKeyColumnName)!''}" value="<#noparse>${(primaryKeyValue)!''}</#noparse>" />  
+            <input  id="isEdit"  type="hidden" name="isEdit" value="<#noparse>${(isEdit)!'0'}</#noparse>" />  
+            <input  id="saveQueryParametersType"  type="hidden" name="saveQueryParametersType" value='${(queryParametersType)!""}' />    
+            <div id="formioBody"></div> 
+            </div>   
+         </form>   
+	</body>
+   
+<script <#noparse>${scriptNonce} </#noparse>>
+    contextPath = <#noparse>"${contextPath}"</#noparse>;	 
+    formId = <#noparse>"${formId}"</#noparse>;        
+    let isEdit = <#noparse>"${(isEdit)!'0'}"</#noparse>;  
+    let isCaptchaEnabled = <#noparse>"${(isCaptchaEnabled)!'0'}"</#noparse>;
+    let formMetaData = <#noparse>${(formMetaData)!""}</#noparse>;
+    let formOptions = {
+        disableAlerts: true,
+        noAlerts: true
+    };      
+	Formio.createForm(document.getElementById('formioBody'), formMetaData, formOptions).then(function(form) {              
+        form.submission = {              
+            data: <#noparse>${(resultSetObject.formData)!""}</#noparse>
+        };
+        form.on('submit', function(submission) { 
+        	submission.data.id = <#noparse>$("#primaryKeyId").val(); </#noparse>               
+            if(submission["data"].${(primaryKeyColumnName)!''} != undefined){
+                $("#primaryKeyId").val(submission["data"].${(primaryKeyColumnName)!''});
+            }  
+           
+        });
+        if(isCaptchaEnabled == 1){ 
+        	reloadCptcha();
+        }
+        form.ready.then(() => {
+        	let buttonElement = '<div class="row"><div class="col-12"><div class="text-end"><div class="btn-group dropup custom-grp-btn"><span id="savedAction"><button type="button" id="saveAndReturn" class="btn btn-primary" >Save & Return</button></span><span id="actionDropdownBtn"  data-bs-toggle="dropdown" aria-expanded="false" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" ></span><div class="dropdown-menu action-cls"  id="actionDiv"><ul class="dropdownmenu"><li id="saveAndCreateNew" >Save & Create New</li><li id="saveAndEdit" >Save & Edit</li></ul></div></div><span ><input id="backBtn" class="btn btn-secondary" name="backBtn" value="Cancel" type="button"></span></div></div></div>';
+            $("#jqFmioSaveButton").html(buttonElement);
+
+             const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
+                const backBtn = document.getElementById("backBtn");
+                const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+                
+                actionDropdownBtn.addEventListener("click", function (event) {
+                    actionOptions();
+                });
+                
+                backBtn.addEventListener("click", function (event) {
+                    backToPreviousPage();
+                });
+                Object.keys(saveFunctionMap).forEach(actionId => {
+                const $el = $('#' + actionId);
+                if ($el.length) {
+                    $el.on("click", () => {
+                        onSaveButtonClick(saveFunctionMap[actionId], isEdit);
+                    });
+                }
+            });
+            changeDefaultAction();
+	        hideShowActionButtons();
+        });
+    });
+   
+   function onValidation(a_serializedFormData){
+   		const rawFormData = a_serializedFormData.get('formData');
+        let parsedFormData;
+        try {
+            parsedFormData = JSON.parse(rawFormData); 
+        } catch (exec) {
+            showMessage("Invalid JSON in formData", "error");
+            return false;
+        }	       
+        let fieldList = ${(fieldList)!''}        
+        for (let field of parsedFormData) {
+	        let fieldName = field.name;
+	        let fieldValue = field.value ?? '';     
+	        let match = fieldName.match(/^data\[(.+)\]$/);
+            let baseName = match ? match[1] : fieldName; 
+            let fieldConfig = fieldList.find(f => f.fieldName === baseName);                     
+            if (fieldConfig) {                       
+                let pattern =  fieldConfig.regexPattern;
+                let regex = new RegExp(pattern);
+                if (regex.test(fieldValue) == false) {
+                   var errorMessage = "Invalid value";
+                   let labelText = $("input[name='data["+baseName+"]']")
+	                .closest("[ref='component']")
+	                .find("label[ref='label']")
+	                .text()
+	                .trim();
+					if(labelText != ''){
+						errorMessage = errorMessage +" for "+labelText;
+					}
+	                showMessage(errorMessage, "warn");
+                    $('[name="data[' + baseName + ']"]').focus();
+                    $('[name="data[' + baseName + ']"]').effect("highlight", {}, 3000);
+                    return null;
+                }                    
+            }
+	    }	    
+		return a_serializedFormData;
+	}
+	    	
+    function onError(message, exception){   
+		showMessage(message, "error");
+	}
+	
+    function onSuccess(a_serverResponse){
+     
+	}
+	
+	//Code go back to previous page
+	function backToPreviousPage() {
+		<#if moduleURL?? && moduleURL?has_content>
+			location.href = contextPath+viewPath+"/${(moduleURL)!''}";
+		<#else>
+			location.href = contextPath+"/cf/home";
+		</#if>
+	}
+       
+	</script>
+</html>

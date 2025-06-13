@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dashboard.dao.QueryStore;
@@ -15,5 +16,5 @@ import com.trigyn.jws.dashboard.vo.DashletRoleAssociationVO;
 public interface IDashletRoleAssociationRepository extends JpaRepository<DashletRoleAssociation, DashletRoleAssociationPK> {
 
 	@Query(QueryStore.JPQ_QUERY_TO_GET_DASHLET_ROLES_ASSOCIATION_BY_ID)
-	List<DashletRoleAssociationVO> getDashletRolesByDashletId(String dashletId);
+	List<DashletRoleAssociationVO> getDashletRolesByDashletId(@Param("dashletId") String dashletId);
 }

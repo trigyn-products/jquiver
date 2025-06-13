@@ -11,23 +11,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +34,16 @@ import com.trigyn.jws.usermanagement.service.UserConfigService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 @Transactional
 public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 
-	private final static Logger						logger				= LogManager
+	private final static Logger						logger				= LoggerFactory
 			.getLogger(CustomAuthSuccessHandler.class);
 
 	private static Set<LoginSuccessEventListener>	loginListener		= new HashSet<LoginSuccessEventListener>();
@@ -56,10 +58,13 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 	private UserManagementDAO						userManagementDAO	= null;
 
 	@Autowired
-	private DataSource								dataSource			= null;
+	private JdbcTemplate							jdbcTemplate		= null;
 
 	@Autowired
 	private UserConfigService						userConfigService	= null;
+
+	@Autowired
+	private SecurityContextRepository securityContextRepository			= null;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -70,6 +75,7 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 		logger.debug("Before: " + httpSession.getMaxInactiveInterval());
 		httpSession.setMaxInactiveInterval(0);
 		logger.debug("After: " + httpSession.getMaxInactiveInterval());
+		boolean isLoggedOut = false;
 
 		StringBuilder		defaultUrl		= new StringBuilder().append(servletContext.getContextPath()).append("/");
 		String				redirectUrl		= defaultUrl.toString();
@@ -109,6 +115,8 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 						authType = Constants.LDAP_ID;
 					} else if (authType.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
 						authType = Constants.OAUTH_ID;
+					} else if (authType.equals(Constants.AuthTypeHeaderKey.SAML.getAuthTypeHeaderKey())) {
+						authType = Constants.SAML_ID;
 					}
 				}
 				if (multiAuthLoginVO != null && authType !=null && authType.equals("2")) {
@@ -136,6 +144,8 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 												if (user.getForcePasswordChange() == 1
 														|| currentDate.isAfter(lastUpdatedDate.plusDays(expiryDays))) {
 													logout(request, response, authentication, user);
+													isLoggedOut = true;
+													authentication.setAuthenticated(false);
 													redirectUrl = new StringBuilder()
 															.append(servletContext.getContextPath())
 															.append("/cf/changePassword?token=").append(user.getUserId())
@@ -170,28 +180,44 @@ public class CustomAuthSuccessHandler implements AuthenticationSuccessHandler {
 				session.removeAttribute("loginCaptcha");
 			}
 		}
+		
+		if(isLoggedOut == false) {
+			SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+		        .getContextHolderStrategy();
+
+		    SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+		    context.setAuthentication(authentication);
+		    securityContextHolderStrategy.setContext(context);
+
+		    securityContextRepository.saveContext(context, request, response);
+		}
 		response.sendRedirect(redirectUrl);
 	}
 
 	private void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
-			JwsUser user) {
+			JwsUser user) throws ServletException {
 		if (user != null) {
-			new SecurityContextLogoutHandler().logout(request, response, authentication);
+			request.logout();
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				// logger.debug("Invalidating session: " + session.getId());
 				session.invalidate();
 			}
+			
+			SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+			logoutHandler.setInvalidateHttpSession(true);
+			logoutHandler.logout(request, response, authentication);
 			SecurityContext context = SecurityContextHolder.getContext();
 			context.setAuthentication(null);
 			SecurityContextHolder.clearContext();
 
 			session = request.getSession(true);
 			session.setMaxInactiveInterval(-1);
+			session.invalidate();
 			authentication.setAuthenticated(false);
 
 			JdbcTokenRepositoryImpl jdbcTokenRepositoryImpl = new JdbcTokenRepositoryImpl();
-			jdbcTokenRepositoryImpl.setDataSource(dataSource);
+			jdbcTokenRepositoryImpl.setJdbcTemplate(jdbcTemplate);
 			jdbcTokenRepositoryImpl.removeUserTokens(user.getEmail());
 		}
 	}

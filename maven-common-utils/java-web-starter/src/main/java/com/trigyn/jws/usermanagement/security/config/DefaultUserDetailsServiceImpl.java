@@ -7,11 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,10 +32,12 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 public class DefaultUserDetailsServiceImpl implements UserDetailsService {
 
-	private final static Logger					logger							= LogManager
+	private final static Logger					logger							= LoggerFactory
 			.getLogger(DefaultUserDetailsServiceImpl.class);
 
 	private JwsUserRepository					userRepository					= null;

@@ -7,17 +7,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
@@ -28,9 +23,14 @@ import com.trigyn.jws.dynarest.vo.EmailListXMLVO;
 import com.trigyn.jws.dynarest.vo.EmailXMLVO;
 import com.trigyn.jws.quartz.config.PersistableCronTriggerFactoryBean;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+
 public class JobUtil {
 	
-	private static Logger		LOGGER					= LogManager.getLogger(JobUtil.class);
+	private static Logger		logger					= LoggerFactory.getLogger(JobUtil.class);
 
 	/**
 	 * Create Quartz Job.
@@ -81,7 +81,7 @@ public class JobUtil {
 		try {
 			factoryBean.afterPropertiesSet();
 		} catch (ParseException pe) {
-			LOGGER.error("Error occured in executeSendMail.", pe.getCause());
+			logger.error("Error occured in executeSendMail.", pe.getCause());
 		}
 		return factoryBean.getObject();
 	}
@@ -164,8 +164,7 @@ public class JobUtil {
 		Marshaller		jaxbMarshaller	= jaxbContext.createMarshaller();
 		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "Unicode");
-		jaxbMarshaller.setProperty(com.sun.xml.bind.marshaller.CharacterEscapeHandler.class.getName(),
-				new CustomCharacterEscapeHandler());
+		jaxbMarshaller.setProperty("org.glassfish.jaxb.characterEscapeHandler", new CustomCharacterEscapeHandler());
 		jaxbMarshaller.marshal(xmlVO, sw);
 		return sw.toString();
 	}

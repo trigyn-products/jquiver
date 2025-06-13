@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.resourcebundle.dao.QueryStore;
@@ -15,14 +16,16 @@ import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
 public interface IResourceBundleRepository extends JpaRepository<ResourceBundle, ResourceBundlePK> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_MESSAGE_DETAILS_BY_RESOURCE_KEY)
-	List<ResourceBundleVO> findResourceBundleByKey(String resourceBundleKey);
+	List<ResourceBundleVO> findResourceBundleByKey(@Param("resourceBundleKey") String resourceBundleKey);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_MESSAGE_BY_LANGUAGE_CODE)
-	String findByKeyAndLanguageCode(String resourceBundleKey, String localeCode, String defaultLocaleCode, Integer isDeleted);
+	String findByKeyAndLanguageCode(@Param("resourceBundleKey") String resourceBundleKey, @Param("localeCode") String localeCode, 
+			@Param("defaultLocaleCode") String defaultLocaleCode, @Param("isDeleted") Integer isDeleted);
 
 	@Query(QueryStore.JPA_QUERY_TO_CHECK_RESOURCE_KEY_EXIST)
-	String checkResourceKeyExist(String resourceBundleKey);
+	String checkResourceKeyExist(@Param("resourceBundleKey") String resourceBundleKey);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_TEXT_BY_KEY_AND_LANGUAGE_ID)
-	String findMessageByKeyAndLanguageId(String resourceBundleKey, Integer languageId, Integer defaultLanguageId, Integer isDeleted);
+	String findMessageByKeyAndLanguageId(@Param("resourceBundleKey") String resourceBundleKey, @Param("languageId") Integer languageId, 
+			@Param("defaultLanguageId") Integer defaultLanguageId, @Param("isDeleted") Integer isDeleted);
 }

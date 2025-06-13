@@ -5,13 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,17 +28,22 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.webstarter.service.DashboardCrudService;
 import com.trigyn.jws.webstarter.utils.Constant;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Dashlet')" + "&& hasPermission('module','Dashboard')")
 public class DashletCrudController {
 
-	private final static Logger		logger					= LogManager.getLogger(DashletCrudController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(DashletCrudController.class);
 
 	@Autowired
 	private DashboardCrudService	dashboardCrudService	= null;
@@ -61,6 +62,9 @@ public class DashletCrudController {
 
 	@Autowired
 	private ActivityLog				activitylog				= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
 	@GetMapping(value = "/dlm", produces = MediaType.TEXT_HTML_VALUE)
 	public String dashletMasterListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -77,7 +81,7 @@ public class DashletCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -87,11 +91,13 @@ public class DashletCrudController {
 			HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
 		try {
 			Map<String, Object>	templateMap			= new HashMap<>();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
 			DashletVO			dashletVO			= dashletServive.getDashletDetailsById(dashletId);
 			Map<String, String>	componentsMap		= dashletServive
 					.findComponentTypes(Constants.COMPONENT_TYPE_CATEGORY);
 			templateMap.put("dashletVO", dashletVO);
 			templateMap.put("componentMap", componentsMap);
+			templateMap.put("environment", environment);
 
 			/* Method called for implementing Activity Log */
 			if (!StringUtils.isBlank(dashletId)) {
@@ -108,7 +114,7 @@ public class DashletCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -162,7 +168,7 @@ public class DashletCrudController {
 
 	@PostMapping(value = "/udl")
 	public void uploadAllDashletsToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		dashboardCrudService.uploadDashlets(null);
+		dashboardCrudService.uploadDashlets(null,null);
 	}
 
 	@PostMapping(value = "/ddlbi")
@@ -174,6 +180,6 @@ public class DashletCrudController {
 	@PostMapping(value = "/udlbn")
 	public void uploadDashletsByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String dashletName = request.getParameter("dashletName");
-		dashboardCrudService.uploadDashlets(dashletName);
+		dashboardCrudService.uploadDashlets(null,dashletName);
 	}
 }

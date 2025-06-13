@@ -2,17 +2,21 @@ package com.trigyn.jws.dynarest.vo;
 
 import java.util.Objects;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 
 @XmlRootElement(name = "rest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WebClientXMLVO {
 
 	@XmlJavaTypeAdapter(value = CDATAAdapter.class)
+	@XmlElement(name = "verifySSL")
+	private String				verifySSL		= null;
+	
 	@XmlElement(name = "url")
 	private String				webClientURL		= null;
 
@@ -41,9 +45,10 @@ public class WebClientXMLVO {
 		super();
 	}
 
-	public WebClientXMLVO(String webClientURL, String requestType, String contentType, Integer responseTimeOut, Integer sslHandshakeTimeout,
+	public WebClientXMLVO(String verifySSL,String webClientURL, String requestType, String contentType, Integer responseTimeOut, Integer sslHandshakeTimeout,
 			Integer sslFlushTimeout, Integer sslReadTimeout, WebClientRequestVO webClientRequestVO) {
 		super();
+		this.verifySSL				= verifySSL;
 		this.webClientURL			= webClientURL;
 		this.requestType			= requestType;
 		this.contentType			= contentType;
@@ -116,6 +121,16 @@ public class WebClientXMLVO {
 
 	public void setWebClientRequestVO(WebClientRequestVO webClientRequestVO) {
 		this.webClientRequestVO = webClientRequestVO;
+	}
+	
+	
+
+	public String getVerifySSL() {
+		return verifySSL;
+	}
+
+	public void setVerifySSL(String verifySSL) {
+		this.verifySSL = verifySSL;
 	}
 
 	@Override

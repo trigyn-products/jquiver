@@ -20,11 +20,8 @@ import java.util.Map.Entry;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 
-import javax.servlet.http.Part;
-import javax.xml.bind.JAXBException;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
@@ -88,9 +85,9 @@ import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynamicform.vo.DynamicFormVO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
-import com.trigyn.jws.dynarest.entities.JqApiClientDetails;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.entities.JqApiClientDetails;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
@@ -103,6 +100,9 @@ import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
 import com.trigyn.jws.dynarest.vo.SchedulerVO;
+import com.trigyn.jws.formio.dao.IFormIORepository;
+import com.trigyn.jws.formio.entities.FormIO;
+import com.trigyn.jws.formio.vo.FormIOImportExportVO;
 import com.trigyn.jws.gridutils.dao.GridDetailsDAO;
 import com.trigyn.jws.gridutils.entities.GridDetails;
 import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
@@ -110,7 +110,7 @@ import com.trigyn.jws.resourcebundle.entities.ResourceBundle;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.utils.ResourceBundleUtils;
 import com.trigyn.jws.resourcebundle.vo.ResourceBundleVO;
-import com.trigyn.jws.sciptlibrary.entities.ScriptLibrary;
+import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryConnection;
 import com.trigyn.jws.sciptlibrary.entities.ScriptLibraryDetails;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
@@ -150,6 +150,7 @@ import com.trigyn.jws.webstarter.xml.AdditionalDatasourceXMLVO;
 import com.trigyn.jws.webstarter.xml.ApiClientDetailsXMLVO;
 import com.trigyn.jws.webstarter.xml.AutocompleteXMLVO;
 import com.trigyn.jws.webstarter.xml.DashboardXMLVO;
+import com.trigyn.jws.webstarter.xml.FormIOXMLVO;
 import com.trigyn.jws.webstarter.xml.GenericUserNotificationXMLVO;
 import com.trigyn.jws.webstarter.xml.GridXMLVO;
 import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
@@ -161,11 +162,14 @@ import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
 
+import jakarta.servlet.http.Part;
+import jakarta.xml.bind.JAXBException;
+
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 public class ImportService {
 
-	private final static Logger						logger								= LogManager
+	private final static Logger						logger								= LoggerFactory
 			.getLogger(ImportService.class);
 
 	@Autowired
@@ -293,6 +297,9 @@ public class ImportService {
 	
 	@Autowired
 	private DynamicFormService						dynamicFormService					= null;
+	
+	@Autowired
+	private IFormIORepository						formIORepository					= null;
 
 
 	public Map<String, Object> importConfig(Part file, boolean isImportfromLocal,String filePath) throws Exception {
@@ -402,7 +409,7 @@ public class ImportService {
 						.startsWith(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 					outputMap = getImportPermissionDetails(outputMap, file);
 				} else if (fileName.toLowerCase()
-						.startsWith(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+						.startsWith(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())) {
 					outputMap = getImportSiteLayoutDetails(outputMap, file);
 				} else if (fileName.toLowerCase()
 						.startsWith(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().toLowerCase())) {
@@ -425,6 +432,8 @@ public class ImportService {
 				} else if (fileName.toLowerCase()
 						.startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
 					outputMap = getScriptLibrary(outputMap, file);
+				} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())) {
+					outputMap = getFormIOImportDetails(outputMap, file);
 				}
 			} else if (Constant.FOLDER_EXPORT_TYPE.equals(moduleType)) {
 				if (Constant.MasterModuleType.TEMPLATES.getModuleType().equalsIgnoreCase(moduleName)) {
@@ -594,7 +603,7 @@ public class ImportService {
 		for (ModuleListing siteLayout : xmlVO.getModuleListingDetails()) {
 			ModuleDetailsVO vo = moduleService.convertModuleEntityToVO(siteLayout);
 			updateOutputMap(outputMap, siteLayout.getModuleId(), vo, siteLayout,
-					Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase());
+					Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase());
 		}
 		return outputMap;
 	}
@@ -848,7 +857,7 @@ public class ImportService {
 		Boolean isCheckSumUpdated = true;
 		if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
-				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())
@@ -856,6 +865,7 @@ public class ImportService {
 				|| moduleType
 						.equalsIgnoreCase(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())
+				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())
 				|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())){
 			String existingJson = "";
 			/*
@@ -865,7 +875,7 @@ public class ImportService {
 			 */if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 				existingJson = userManagementService.getJwsEntityRoleAssociationJson(id);
 			} else if (moduleType
-					.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+					.equalsIgnoreCase(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())) {
 				existingJson = moduleService.getModuleListingJson(id);
 			} else if (moduleType
 					.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())) {
@@ -885,10 +895,11 @@ public class ImportService {
 				existingJson = getFilesJson(id);
 			}
 
-			isCheckSumUpdated = checkSumComparisonForNonVersioningModules(existingJson, importedJson);
+			isCheckSumUpdated = checkSumComparisonForNonVersioningModules(existingJson, importedJson,moduleType);
 			if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
 					|| moduleType
-							.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())) {
+							.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())|| moduleType
+							.equalsIgnoreCase(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())) {
 				isCheckSumUpdated = true;
 			}
 		} else {
@@ -906,20 +917,42 @@ public class ImportService {
 		return isDataUpdated;
 	}
 
-	private Boolean checkSumComparisonForNonVersioningModules(String existingJsonStr, String importedJsonStr)
-			throws Exception {
+	private Boolean checkSumComparisonForNonVersioningModules(String existingJsonStr, String importedJsonStr,
+			String moduleType) throws Exception {
 		String existingJsonChecksum = null;
-	    ObjectMapper om = new ObjectMapper();
-	    om.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+		ObjectMapper om = new ObjectMapper();
+		om.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+		String existingJson =null;
 		if (existingJsonStr != null && !existingJsonStr.isBlank()) {
-		    Map<String, Object> map = om.readValue(existingJsonStr, HashMap.class);
-		    String existingJson = om.writeValueAsString(map);
+			if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())) {
+//				List<Map<String, Object>> map = om.readValue(existingJsonStr, List.class);
+//				existingJson = om.writeValueAsString(map);
+				if (existingJsonStr.trim().startsWith("[")) {
+				    List<Map<String, Object>> map = om.readValue(existingJsonStr, List.class);
+				    existingJson = om.writeValueAsString(map);
+				} else {
+				    Map<String, Object> map = om.readValue(existingJsonStr, Map.class);
+				    existingJson = om.writeValueAsString(map);
+				}
+ 
+			} else {
+				Map<String, Object> map = om.readValue(existingJsonStr, Map.class);
+				existingJson = om.writeValueAsString(map);
+			}
+			
 			existingJsonChecksum = moduleVersionService.generateJsonChecksum(existingJson);
 		}
 		String moduleJsonChecksum = null;
+		String importedJson = null;
 		if (importedJsonStr != null && !importedJsonStr.isBlank()) {
-			 Map<String, Object> map1 = om.readValue(importedJsonStr, HashMap.class);
-			 String importedJson = om.writeValueAsString(map1);
+			if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())) {
+				List<Map<String, Object>> map = om.readValue(importedJsonStr, List.class);
+				importedJson = om.writeValueAsString(map);
+			} else {
+				Map<String, Object> map = om.readValue(importedJsonStr, Map.class);
+				importedJson = om.writeValueAsString(map);
+			}
+		    
 			moduleJsonChecksum = moduleVersionService.generateJsonChecksum(importedJson);
 		}
 		Boolean isChecksumChanged = true;
@@ -945,7 +978,6 @@ public class ImportService {
 	private Map<String, String> getLatestVersion(String jsonArrayString) throws Exception {
 		Map<String, String>	versionMap	= new HashMap<>();
 		JSONArray			jsonArray	= new JSONArray(jsonArrayString);
-
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject	explrObject	= jsonArray.getJSONObject(i);
 			String		entityID	= explrObject.getString("moduleID");
@@ -955,7 +987,7 @@ public class ImportService {
 
 			if (moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
-					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.HELPMANUAL.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(
@@ -978,7 +1010,7 @@ public class ImportService {
 						version = "NE";
 					}
 				} else if (moduleType
-						.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+						.equalsIgnoreCase(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())) {
 					ModuleListing module = moduleService.getModuleListing(entityID);
 					if (module == null) {
 						version = "NE";
@@ -1086,9 +1118,8 @@ public class ImportService {
 			}
 		}
 	}
-
-	public String importAll(String imporatableData, String importedIdJsonArray, boolean isOnLoad) throws Exception {
-
+	public String importAllForAuto(String imporatableData, String importedIdJsonArray, boolean isOnLoad) throws Exception {
+		List<String>		rejectedList	= new ArrayList<>();
 		try {
 			Gson				g									= new Gson();
 			JSONObject			imporatableDataJson					= new JSONObject(imporatableData);
@@ -1152,6 +1183,9 @@ public class ImportService {
 						}
 
 					}
+					else {
+						rejectedList.add(entityStringMap.get(importId));
+					}
 
 				}
 			}
@@ -1165,7 +1199,7 @@ public class ImportService {
 				} else {
 					saveEntityOnLoad(Constant.MasterModuleType.DASHBOARD.getModuleType(), entityString, importId, isOnLoad);
 				}
-			}
+			} 
 
 			for (Entry<String, String> entry : pendingPermissionEntityStringMap.entrySet()) {
 				String	importId		= entry.getKey();
@@ -1214,6 +1248,190 @@ public class ImportService {
 				throw new Exception("fail:" + "Error while importing data");
 			}
 		}
+		if(!rejectedList.isEmpty()) {
+			return rejectedList.toString();
+		}
+		return "success";
+	}
+
+	public String importAll(String imporatableData, String importedIdJsonArray, boolean isOnLoad) throws Exception {
+		List<String>		rejectedList	= new ArrayList<>();
+		try {
+			Gson				g									= new Gson();
+			JSONObject			imporatableDataJson					= new JSONObject(imporatableData);
+
+			JSONObject			exportedModuleTypeObject			= (JSONObject) imporatableDataJson
+					.get("exportedModuleTypeObject");
+			Map<String, String>	moduleTypeMap						= g.fromJson(exportedModuleTypeObject.toString(),
+					Map.class);
+
+			JSONObject			exportedFormatObject				= (JSONObject) imporatableDataJson
+					.get("exportedFormatObject");
+			Map<String, String>	entityStringMap						= g.fromJson(exportedFormatObject.toString(),
+					Map.class);
+
+			List<String>		importedIdList						= g.fromJson(importedIdJsonArray, List.class);
+			Collection<String>	moduleTypeList						= moduleTypeMap.values();
+
+			Map<String, String>	pendingDashboardEntityStringMap		= new HashMap<>();
+			Map<String, String>	pendingPermissionEntityStringMap	= new HashMap<>();
+			Map<String, String>	pendingSchedulerEntityStringMap	= new HashMap<>();
+			Map<String, String>	pendingFilesEntityStringMap			= new HashMap<>();
+			Map<String, String>	pendingDynamicFormEntityStringMap		= new HashMap<>();
+			
+			List<String> removeList = new ArrayList<>();
+
+			for (Entry<String, String> entry : entityStringMap.entrySet()) {
+				if (entry.getKey().startsWith(Constant.MasterModuleType.ADDITIONALDATASOURCE.getModuleType().toLowerCase())) {
+
+					String importId = entry.getKey();
+					String entityString = entry.getValue();
+					String moduleType = moduleTypeMap.get(importId);
+					if (importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
+
+						String crcMapObject = (String) imporatableDataJson.get("crcMap");
+						Map<String, Boolean> crcMap = g.fromJson(crcMapObject, Map.class);
+						if (crcMap != null && crcMap.containsKey(importId) && crcMap.get(importId) == true) {
+							if (isOnLoad == false) {
+								saveEntityOnLoad(moduleType, entityString, importId, isOnLoad);
+							} else {
+								saveEntityOnLoad(moduleType, entityString, importId, isOnLoad);
+							}
+						} else {
+							rejectedList.add(entityStringMap.get(importId));
+						}
+					}
+					removeList.add(importId);
+				}
+			}
+			
+			for(String id : removeList) {
+				entityStringMap.remove(id);
+			}
+			
+			for (Entry<String, String> entry : entityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				String	moduleType		= moduleTypeMap.get(importId);
+
+				if (importedIdList == null || (importedIdList != null && !importedIdList.contains(importId))) {
+
+					String					crcMapObject	= (String) imporatableDataJson.get("crcMap");
+					Map<String, Boolean>	crcMap			= g.fromJson(crcMapObject, Map.class);
+					if (crcMap != null && crcMap.containsKey(importId) && crcMap.get(importId) == true) {
+
+						if (Constant.MasterModuleType.DASHBOARD.getModuleType().equalsIgnoreCase(moduleType)
+								&& moduleTypeList
+										.contains(Constant.MasterModuleType.DASHLET.getModuleType().toLowerCase())) {
+							pendingDashboardEntityStringMap.put(importId, entityString);
+							continue;
+						}
+
+						if (Constant.MasterModuleType.PERMISSION.getModuleType().equalsIgnoreCase(moduleType)) {
+							pendingPermissionEntityStringMap.put(importId, entityString);
+							continue;
+						}
+
+						if (Constant.MasterModuleType.SCHEDULER.getModuleType().equalsIgnoreCase(moduleType)) {
+							pendingSchedulerEntityStringMap.put(importId, entityString);
+							continue;
+						}
+						
+						if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
+							pendingFilesEntityStringMap.put(importId, entityString);
+							continue;
+						}
+						
+						if (Constant.MasterModuleType.DYNAMICFORM.getModuleType().equalsIgnoreCase(moduleType)
+								&& moduleTypeList
+										.contains(Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase())) {
+							pendingDynamicFormEntityStringMap.put(importId, entityString);
+							continue;
+						}
+
+						if (isOnLoad == false) {
+//							saveEntity(moduleType, entityString, importId);
+							saveEntityOnLoad(moduleType, entityString, importId, isOnLoad);
+						} else {
+							saveEntityOnLoad(moduleType, entityString, importId, isOnLoad);
+						}
+
+					}
+					else {
+						rejectedList.add(entityStringMap.get(importId));
+					}
+
+				}
+			}
+
+			for (Entry<String, String> entry : pendingDashboardEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+//					saveEntity(Constant.MasterModuleType.DASHBOARD.getModuleType(), entityString, importId);
+					saveEntityOnLoad(Constant.MasterModuleType.DASHBOARD.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.DASHBOARD.getModuleType(), entityString, importId, isOnLoad);
+				}
+			} 
+
+			for (Entry<String, String> entry : pendingPermissionEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+//					saveEntity(Constant.MasterModuleType.PERMISSION.getModuleType(), entityString, importId);
+					saveEntityOnLoad(Constant.MasterModuleType.PERMISSION.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.PERMISSION.getModuleType(), entityString, importId, isOnLoad);
+				}
+			}
+
+			for (Entry<String, String> entry : pendingSchedulerEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+//					saveEntity(Constant.MasterModuleType.SCHEDULER.getModuleType(), entityString, importId);
+					saveEntityOnLoad(Constant.MasterModuleType.SCHEDULER.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.SCHEDULER.getModuleType(), entityString, importId, isOnLoad);
+				}
+			}
+			
+			for (Entry<String, String> entry : pendingFilesEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+					saveEntityOnLoad(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType(), entityString, importId, isOnLoad);
+				}
+			}
+			
+			for (Entry<String, String> entry : pendingDynamicFormEntityStringMap.entrySet()) {
+				String	importId		= entry.getKey();
+				String	entityString	= entry.getValue();
+				if (isOnLoad == false) {
+					saveEntityOnLoad(Constant.MasterModuleType.DYNAMICFORM.getModuleType(), entityString, importId, isOnLoad);
+				} else {
+					saveEntityOnLoad(Constant.MasterModuleType.DYNAMICFORM.getModuleType(), entityString, importId, isOnLoad);
+				}
+			}
+		} catch (Exception a_excep) {
+			logger.error("Error while importing the configuration ", a_excep);
+			if (a_excep instanceof FileNotFoundException) {
+				return "fail:" + HttpStatus.NOT_FOUND.getReasonPhrase();
+			}
+			if (a_excep instanceof FileUploadException) {
+				return "fail: No file bin exists with id" ;
+			}
+			String errorMessage = a_excep.getMessage();
+			if (a_excep.getMessage() != null && a_excep.getMessage().startsWith("Error while importing entity of ")) {
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+				throw new Exception("fail:" + errorMessage);
+			} else {
+				throw new Exception("fail:" + "Error while importing data");
+			}
+		}
 		return "success";
 	}
 
@@ -1231,7 +1449,7 @@ public class ImportService {
 			String	tableName	= "";
 			if (!(moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEMANAGER.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())
-					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())
+					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEUSERS.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.MANAGEROLES.getModuleType().toLowerCase())
 					|| moduleType.equalsIgnoreCase(Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().toLowerCase())))
@@ -1280,6 +1498,8 @@ public class ImportService {
 					if(isOnLoad == false || existingObject == null 
 							|| (isOnLoad &&  existingObject.getIsCustomUpdated() != null && existingObject.getIsCustomUpdated() == 0)) {
 						if(isOnLoad == true) entity.setIsCustomUpdated(0);
+						entity.setUpdatedBy(user);
+						entity.setUpdatedDate(date);
 						resourceBundleDAO.saveResourceBundle(entity);
 						ResourceBundleVO vo = resourceBundleService.convertResourceBundleEntityToVO(entity);
 						resourceBundleVOList.add(vo);
@@ -1359,14 +1579,7 @@ public class ImportService {
 					dynarest.setJwsDynamicRestDaoDetails(null);
 					
 					jwsDynarestDAO.saveDynaRestDetail(dynarest, jwsDynamicRestDaoDetails);
-					
-					if(null != dynarest.getScriptLibraryId() && dynarest.getScriptLibraryId().isEmpty() == false) {
-						List<String>  scriptLibIdList = objectMapper.readValue(dynarest.getScriptLibraryId(), List.class);
-						List<String> entityIdList = new ArrayList<>();
-						entityIdList.add(dynarest.getJwsDynamicRestId().toString());
-						List<ScriptLibrary>	scriptLibInsert	= new ArrayList<>();
-						fileUploadConfigDAO.scriptLibSave(entityIdList,scriptLibIdList,scriptLibInsert,Constant.DYNA_REST_MOD_ID,Constant.IMPORT_SOURCE_VERSION_TYPE);
-					}
+
 					dynarest.setJwsDynamicRestDaoDetails(jwsDynamicRestDaoDetails);
 				
 					RestApiDetailsJsonVO vo = convertDynaRestEntityToVO(dynarest);
@@ -1388,9 +1601,6 @@ public class ImportService {
 					if (fileConfig != null) {
 						fileUploadConfigDAO.saveFileUploadConfig(fileConfig);
 					}
-					if(null != fileConfig || null != fileConfig.getDeleteScriptLibraryId()  || null != fileConfig.getUploadScriptLibraryId() || null != fileConfig.getDeleteScriptLibraryId()) {
-						fileUploadConfigService.scriptLibSave(fileConfig);
-					}
 					saveAndUploadFiles(fileConfigImportEntity.getFileUpload(), Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME,
 						fileConfig.getFileBinId());
 				}
@@ -1406,7 +1616,7 @@ public class ImportService {
 	
 					jwsEntityRoleAssociationDAO.saveJwsEntityRoleAssociation(role);
 				}
-			} else if (Constant.MasterModuleType.SITELAYOUT.getModuleType().equalsIgnoreCase(moduleType)) {
+			} else if (Constant.MasterModuleType.ROUTER.getModuleType().equalsIgnoreCase(moduleType)) {
 				ModuleListing			module				= g.fromJson(entityString, ModuleListing.class);
 				ModuleListing existingObject = moduleDAO.findModuleListingById(module.getModuleId());
 				if(isOnLoad == false || existingObject == null
@@ -1491,29 +1701,15 @@ public class ImportService {
 	
 					dynamicForm.setDynamicFormSaveQueries(dynamicFormSaveQueries);
 					
-					List<ScriptLibrary>	scriptLibInsert	= new ArrayList<>();
-					List<String>  formSaveQueryIdList = new ArrayList<>();
-					List<String>  scriptLibraryIdList = new ArrayList<>();
-					for(int iscrLibCounter = 0; iscrLibCounter<dynamicFormSaveQueries.size(); iscrLibCounter++) {
-					
-						String formQueryId = dynamicFormSaveQueries.get(iscrLibCounter).getDynamicFormQueryId();
-						formSaveQueryIdList.add(formQueryId);
-						if(null != dynamicFormSaveQueries.get(iscrLibCounter).getScriptLibraryId()) {
-							String scriptLibId = dynamicFormSaveQueries.get(iscrLibCounter).getScriptLibraryId();
-							scriptLibraryIdList.add(scriptLibId);
-						}
-					}
-					if(null != scriptLibraryIdList && scriptLibraryIdList.size() != 0) {
-						dynamicFormCrudDAO.scriptLibSave(formSaveQueryIdList,scriptLibraryIdList,scriptLibInsert,Constant.DYNAFORM_MOD_ID,Constant.IMPORT_SOURCE_VERSION_TYPE);
-					}
-					
 					DynamicFormVO dynamicFormVO = dynamicFormDownloadUploadModule.convertEntityToVO(dynamicForm);
 					moduleVersionService.saveModuleVersion(dynamicFormVO, null, dynamicForm.getFormId(), tableName,
 							Constant.IMPORT_SOURCE_VERSION_TYPE);
 				}
 			} else if (Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().equalsIgnoreCase(moduleType)) {
 					ScriptLibraryDetails	scriptLibDetails	= g.fromJson(entityString, ScriptLibraryDetails.class);
+					List<ScriptLibraryConnection> scriptLibConns = scriptLibDetails.getScriptLibraryConnection();
 					dynamicFormService.saveScriptLibDetails(scriptLibDetails,Constant.IMPORT_SOURCE_VERSION_TYPE,tableName);
+					dynamicFormService.saveScriptConnDetails(scriptLibConns,Constant.IMPORT_SOURCE_VERSION_TYPE,Constant.DYNA_REST_MOD_ID);
 						
 			} else if (Constant.MasterModuleType.HELPMANUAL.getModuleType().equalsIgnoreCase(moduleType)) {
 				HelpManual helpManual = g.fromJson(entityString, HelpManual.class);
@@ -1555,12 +1751,25 @@ public class ImportService {
 					
 					schedulerDAO.saveScheduler(scheduler);
 				}
-			}else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
+			} else if (Constant.MasterModuleType.FILEIMPEXPDETAILS.getModuleType().equalsIgnoreCase(moduleType)) {
 				FileUploadImportEntity	fileImportEntity	= g.fromJson(entityString,
 						FileUploadImportEntity.class);
 				List<FileUpload> files = getFileImportEntity(importId, fileImportEntity);
 				if(isOnLoad == false || (isOnLoad && files != null && files.isEmpty() == false)) {
 					saveAndUploadFiles(files, Constant.FILES_UPLOAD_DIRECTORY_NAME);
+				}
+			} else if (Constant.MasterModuleType.FORMIO.getModuleType().equalsIgnoreCase(moduleType)) {
+				FormIO formIoDetails = g.fromJson(entityString, FormIO.class);
+				FormIO existingObject = formIORepository.findById(importId).orElse(null);
+				if(isOnLoad == false || existingObject == null
+						|| (isOnLoad && existingObject.getFormIoId() != null && existingObject.getIsCustomUpdated() == 0)) {
+					if(isOnLoad == true) {
+						formIoDetails.setIsCustomUpdated(0);
+					}
+					formIORepository.saveAndFlush(formIoDetails);
+					FormIOImportExportVO vo = convertFormIOEntityToVO(formIoDetails);
+					moduleVersionService.saveModuleVersion(vo, null, formIoDetails.getFormIoId(), tableName,
+						Constant.IMPORT_SOURCE_VERSION_TYPE);
 				}
 			}
 		}catch (FileUploadException fue) {
@@ -1568,7 +1777,7 @@ public class ImportService {
 		} catch (Exception exp) {
 			exp.printStackTrace();
 			logger.error("Error while importing entity of id: " + importId + ", module type: " + moduleType);
-//			throw new Exception("Error while importing entity of id: " + importId + ", module type: " + moduleType);
+			throw new Exception("Error while importing entity of id: " + importId + ", module type: " + moduleType);
 		}
 	}
 
@@ -1712,7 +1921,7 @@ public class ImportService {
 		return vo;
 	}
 
-	private void saveAndUploadFiles(List<FileUpload> fileUploadList, String parentFolderName, String moduleName)
+	public void saveAndUploadFiles(List<FileUpload> fileUploadList, String parentFolderName, String moduleName)
 			throws Exception {
 		LocalDate		localDate		= LocalDate.now();
 		Integer			year			= localDate.getYear();
@@ -1898,8 +2107,30 @@ public class ImportService {
 			} else {
 				exportPath = fileUpload.getFilePath();
 			}
-			String extZipFilePath = unZipFilePath + File.separator + parentFolderName + File.separator + exportPath
-					+ File.separator + fileUpload.getPhysicalFileName();
+			String extZipFilePath = unZipFilePath;
+			if(extZipFilePath.endsWith(File.separator) == false) {
+				extZipFilePath += File.separator;
+			}
+			extZipFilePath += parentFolderName;
+
+			if(extZipFilePath.endsWith(File.separator) == false && exportPath.startsWith(File.separator) == false) {
+				extZipFilePath += File.separator;
+			}
+			extZipFilePath += exportPath;
+
+			if(extZipFilePath.endsWith(File.separator) == false) {
+				extZipFilePath += File.separator;
+			}
+			extZipFilePath += fileUpload.getPhysicalFileName();
+			
+			if(extZipFilePath != null) {
+				if("\\".equals(File.separator)) {
+					extZipFilePath = extZipFilePath.replaceAll("/", File.separator + File.separator).replaceAll("\\\\", File.separator + File.separator);
+				} else {
+					extZipFilePath = extZipFilePath.replaceAll("/", File.separator).replaceAll("\\\\", File.separator);
+				}
+			}
+			
 			if (new File(extZipFilePath).exists() == false) {
 				throw new FileNotFoundException("File Not found!!: " + extZipFilePath);
 			}
@@ -1941,5 +2172,76 @@ public class ImportService {
 		}
 		return files;
 	}
+
+	public String importFileOnAutoImport(Part file) throws Exception {
+		try {
+			Map<String, Object> map = importConfig(file, false, null);
+
+			MetadataXMLVO metadataXmlvo = (MetadataXMLVO) map.get("metadataVO");
+			String unZipFilePath = (String) map.get("unZipFilePath");
+
+			String jsonArray = getJsonArrayFromMetadataXMLVO(metadataXmlvo);
+			Map<String, Object> zipFileDataMap = getXMLJsonDataMap(metadataXmlvo, unZipFilePath);
+			Gson gson = new GsonBuilder().create();
+
+			zipFileDataMap.put("completeZipJsonData", jsonArray);
+			Map<String, String> versionMap = getLatestVersion(zipFileDataMap);
+			zipFileDataMap.put("versionMap", gson.toJson(versionMap));
+
+			Map<String, Boolean> crcMap = getLatestCRC(zipFileDataMap);
+
+			zipFileDataMap.put("crcMap", gson.toJson(crcMap));
+
+			Map<String, String> responseMap = new HashMap<>();
+			
+			String jsonString = gson.toJson(zipFileDataMap);
+			responseMap.put("imporatableData", jsonString);
+
+			String imporatableData = null;
+			String importedIdList = null;
+			for (Entry<String, String> obj : responseMap.entrySet()) {
+				if (obj.getKey().contains("imporatableData")) {
+					imporatableData = obj.getValue();
+				}
+				
+			}
+
+			String responseStatus = importAllForAuto(imporatableData, importedIdList, false);
+			return responseStatus;
+		} catch (Exception a_exception) {
+			a_exception.printStackTrace();
+			logger.error("Error ", a_exception);
+			throw new Exception("");
+		}
+	}
+	
+	private Map<String, Object> getFormIOImportDetails(Map<String, Object> outputMap, File file) throws Exception {
+		FormIOXMLVO xmlVO = (FormIOXMLVO) XMLUtil.unMarshaling(FormIOXMLVO.class, file.getAbsolutePath());
+		for (FormIO fmioEntity : xmlVO.getFormIODetails()) {
+			FormIOImportExportVO fmioVo = convertFormIOEntityToVO(fmioEntity);
+			updateOutputMap(outputMap, fmioEntity.getFormIoId(), fmioVo, fmioEntity,
+					Constant.MasterModuleType.FORMIO.getModuleType().toLowerCase());
+		}
+		return outputMap;
+	}
+
+	private FormIOImportExportVO convertFormIOEntityToVO(FormIO fmioEntity) {
+		FormIOImportExportVO formIOImportExportVO =  new FormIOImportExportVO();
+		
+		formIOImportExportVO.setFormIoId(fmioEntity.getFormIoId());
+		formIOImportExportVO.setCreatedBy(fmioEntity.getCreatedBy());
+		formIOImportExportVO.setCreatedDate(fmioEntity.getCreatedDate());
+		formIOImportExportVO.setFormDescription(fmioEntity.getFormDescription());
+		formIOImportExportVO.setFormIoChecksum(fmioEntity.getFormIoChecksum());
+		formIOImportExportVO.setFormIoJson(fmioEntity.getFormIoJson());
+		formIOImportExportVO.setFormIoType(fmioEntity.getFormIoType());
+		formIOImportExportVO.setFormName(fmioEntity.getFormName());
+		formIOImportExportVO.setIsCustomUpdated(fmioEntity.getIsCustomUpdated());
+		formIOImportExportVO.setLastUpdatedBy(fmioEntity.getLastUpdatedBy());
+		formIOImportExportVO.setLastUpdatedTs(fmioEntity.getLastUpdatedTs());
+		
+		return formIOImportExportVO;
+	}
+
 
 }

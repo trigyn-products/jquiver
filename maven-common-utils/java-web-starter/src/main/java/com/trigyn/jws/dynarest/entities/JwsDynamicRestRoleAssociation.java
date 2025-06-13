@@ -3,12 +3,7 @@ package com.trigyn.jws.dynarest.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import jakarta.persistence.*;
 
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 

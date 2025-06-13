@@ -1,0 +1,13 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+
+function getFormIoMetaData() {
+    var returnObject = new Object();    
+    params.put("formIoId", requestDetails["formIoId"]);
+    var queryResult = jq_getDBResult("SELECT form_io_json FROM jq_form_io WHERE form_io_id = :formIoId", null, params);
+    returnObject.formMetaData = queryResult.data_list[0];    
+    return returnObject;
+}
+
+getFormIoMetaData();

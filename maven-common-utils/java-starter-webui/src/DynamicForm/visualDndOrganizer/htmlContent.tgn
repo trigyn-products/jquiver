@@ -115,6 +115,13 @@
     .dragaction .fa {
         padding: 5px;
         color: var(--bluebgcolor);
+        border-radius: 4px;
+        border:1px solid #fff;
+    }
+
+    .dragaction:hover .fa {
+     	border: 1px solid var(--bluebgcolor);
+    	border-radius: 4px;
     }
 
     .moveicon {
@@ -158,6 +165,7 @@
 
 <head>
     <script src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+    <script src="${(contextPath)!''}/webjars/1.0/jquery/1.12.1/jquery-ui.min.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/nestedsortable/nestedSortable.js"></script>
 </head>
 <form method="post"   name="addEditForm" id="addEditForm" ></form>
@@ -191,19 +199,19 @@
                                         <#if "true"==parentData.openInNewTab>
                                             <i class="fa fa-external-link" aria-hidden="true"></i>
                                         </#if>
-                                        <i class="fa fa-pencil-square-o" onclick ="submitFormData('Site Layout','${parentData.moduleURL}')" aria-hidden="true"></i>
+                                        <i class="fa fa-solid fa-pen-to-square" onclick ="submitFormData('Router','${parentData.moduleURL}')" aria-hidden="true"></i>
                                     </div>
                                 </div>
                                 <#if "null" !=parentData.targetTypeId>
                                     <div class="secondrow">
                                         <div class="leftsection">
                                             <strong>${parentData.targetLookupId}:</strong>
-                                            <span onclick ="submitFormData('${parentData.targetLookupId}','${parentData.targetTypeId}')"><a href="#">${parentData.targetTypeId}</a></span>
-                                        </div>
-                                        <div class="rightsection">
-                                            <a href="${(contextPath)!''}/view/${parentData.moduleURL}"
-                                                target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}/view/${parentData.moduleURL}</a>
-                                        </div>
+                                            <span onclick ="submitFormData('${parentData.targetLookupId}','${parentData.targetTypeId}')"><#if environment=="dev" && (parentData.targetLookupId == "Template" || parentData.targetLookupId == "Form Builder")>${parentData.targetTypeId}<#else><a href="#">${parentData.targetTypeId}</a></#if></span>
+                                        </div>     
+                                            <div class="rightsection">
+                                                <a href="${(contextPath)!''}${(viewPath)!''}/${parentData.moduleURL}"
+                                                    target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}${(viewPath)!''}/${parentData.moduleURL}</a>
+                                            </div>              
                                     </div>
                                 <#else>
                                     <div class="secondrow">
@@ -231,19 +239,19 @@
                                                             <#if "true"==childData.openInNewTab>
                                                                 <i class="fa fa-external-link" aria-hidden="true"></i>
                                                             </#if>
-                                                            <i class="fa fa-pencil-square-o" onclick ="submitFormData('Site Layout','${childData.moduleURL}')" aria-hidden="true"></i>
+                                                            <i class="fafa-solid fa-pen-to-square" onclick ="submitFormData('Router','${childData.moduleURL}')" aria-hidden="true"></i>
                                                         </div>
                                                 </div>
                                                 <#if "null" !=childData.targetTypeId>
                                                     <div class="secondrow">
                                                         <div class="leftsection">
                                                             <strong>${childData.targetLookupId}:</strong>
-                                                            <span onclick ="submitFormData('${childData.targetLookupId}','${childData.targetTypeId}')"><a href="#">${childData.targetTypeId}</a></span>
+                                                            <span onclick ="submitFormData('${childData.targetLookupId}','${childData.targetTypeId}')"><#if environment=="dev" && (childData.targetLookupId == "Template" || childData.targetLookupId == "Form Builder")>${childData.targetTypeId}<#else><a href="#">${childData.targetTypeId}</a></#if></span>
                                                         </div>
-                                                        <div class="rightsection">
-                                                            <a href="${(contextPath)!''}/view/${childData.moduleURL}"
-                                                                target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}/view/${childData.moduleURL}</a>
-                                                        </div>
+                                                            <div class="rightsection">
+                                                                <a href="${(contextPath)!''}${(viewPath)!''}/${childData.moduleURL}"
+                                                                    target='_blank'>${getSystemProperty('base-url')}${(contextPath)!''}${(viewPath)!''}/${childData.moduleURL}</a>
+                                                            </div>                
                                                     </div>
                                                 <#else>
                                                     <div class="secondrow">
@@ -282,7 +290,7 @@
      <#if visualDataList?size gt 1 || parentData.children?size gt 0>
      <div class="row">
                 <div class="col-12">
-                    <div class="float-right">
+                    <div class="text-end">
                         <div class="btn-group dropup custom-grp-btn">
                             <div id="savedAction">
                                 <button type="button" id="saveAndEdit" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Edit);">${messageSource.getMessage("jws.save")}</button>
@@ -310,6 +318,7 @@
     <script>
         document.title = "Organize Menu(s)";
         contextPath = "${contextPath}";  
+        var env = "${environment}";
         formId = "${formId}";
         let isEdit = 0;
         $().ready(function(){
@@ -329,21 +338,48 @@
             isTree: true,
             expandOnHover: 700,
             startCollapsed: false,
+            appendTo: 'body',       
+			containment: 'document', 
             change: function(){
                       
             } 
         });
-        
+        $(".sortable").sortable({
+            placeholder: "sortable-placeholder",
+            tolerance: "pointer",
+            start: function (event, ui) {
+                ui.placeholder.height(ui.item.outerHeight()); // Ensure placeholder matches item height
+                // Remove any pre-existing placeholders to prevent extra spacing
+                $(".sortable-placeholder").not(ui.placeholder).remove();
+            },
+            sort: function (event, ui) {
+                ui.placeholder.height(ui.item.outerHeight()); // Adjust dynamically while sorting
+            },
+            change: function (event, ui) {
+                $(".sortable-placeholder").not(ui.placeholder).remove(); // Remove extra placeholders while moving
+            },
+            stop: function (event, ui) {
+                $(".sortable-placeholder").remove(); // Cleanup after sorting is complete
+                $(".sortable").children().each(function () {
+                    if ($.trim($(this).text()) === "") {
+                        $(this).remove(); // Remove any empty elements left behind
+                    }
+                });
+            }
+        }).disableSelection();        
     });
           
 function submitFormData(targetLookupId,targetTypeId) {
+	if(env == "dev" && (targetLookupId == "Template" || targetLookupId == "Form Builder")){
+		targetLookupId = "";
+	}
     if( targetLookupId == "Template"){
         targetLookupId = "Templating"
     }
     $.ajax({
     type : "GET",
     async: false,
-    url : contextPath+"/api/getFormData",
+    url : contextPath+apiPath+"/getFormData",
     data : {
     targetLookupId: targetLookupId,
     targetTypeId: targetTypeId

@@ -6,23 +6,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.dbutils.vo.ModuleVersionVO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
+import com.trigyn.jws.formio.entities.FormIO;
+import com.trigyn.jws.formio.service.FormIOService;
+import com.trigyn.jws.formio.utils.FormIOUtils;
+import com.trigyn.jws.formio.vo.FormIOVO;
 import com.trigyn.jws.typeahead.service.TypeAheadService;
 import com.trigyn.jws.webstarter.utils.Constant;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class ModuleRevisionService {
@@ -45,6 +53,9 @@ public class ModuleRevisionService {
 	@Autowired
 	private DynarestCrudService		dynarestCrudService		= null;
 
+	@Autowired
+	private FormIOService			formIOService			= null;
+
 	public void saveModuleVersioning(MultiValueMap<String, String> formData, Integer sourceTypeId) throws Exception {
 		Map<String, Object>	versioningData	= new HashMap<>();
 		String				primaryKey		= null;
@@ -61,7 +72,7 @@ public class ModuleRevisionService {
 		moduleVersionService.saveModuleVersion(versioningData, null, primaryKey, entityName, sourceTypeId);
 	}
 
-	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest) throws Exception {
+	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest,HttpServletResponse a_httpServletResponse) throws Exception {
 		String							modifiedContent	= a_httpServletRequest.getParameter("modifiedContent");
 		String							moduleType		= a_httpServletRequest.getParameter("moduleType");
 		ObjectMapper					objectMapper	= new ObjectMapper();
@@ -86,8 +97,20 @@ public class ModuleRevisionService {
 		} else if (moduleType.equals(Constant.ModuleType.DYNAMICFORM.getModuleType())) {
 			DynamicForm dynamicform = dynamicFormCrudService.saveDynamicFormDetails(multivalueMap, Constant.REVISION_SOURCE_VERSION_TYPE);
 			dynamicFormCrudService.saveDynamicFormDetails2(multivalueMap, dynamicform, Constant.REVISION_SOURCE_VERSION_TYPE);
+		} else if (moduleType.equalsIgnoreCase(Constant.ModuleType.FORMIO.getModuleType())) {
+			FormIO formIoEntity;
+			FormIOVO formIoVo;
+			try {
+				formIoVo = objectMapper.readValue(modifiedContent, FormIOVO.class);
+				formIoEntity = FormIOUtils.convertToFormIoEntity(formIoVo);
+				formIOService.saveFormIOByVersion(formIoEntity, formIoVo);
+			} catch (JsonProcessingException jpe) {
+				throw new Exception("Error while saving the contents.");
+			} catch (CustomStopException cse) {
+				throw new CustomStopException("Error while saving the contents.");
+			}
 		} else {
-			dynamicFormService.saveDynamicForm(multivalueMap);
+			dynamicFormService.saveDynamicForm(multivalueMap,a_httpServletResponse);
 			if (moduleType.equals(Constant.ModuleType.DYNAREST.getModuleType())) {
 				dynarestCrudService.deleteDAOQueries(multivalueMap,Constant.REVISION_SOURCE_VERSION_TYPE);
 				dynarestCrudService.saveDAOQueries(multivalueMap,Constant.REVISION_SOURCE_VERSION_TYPE);

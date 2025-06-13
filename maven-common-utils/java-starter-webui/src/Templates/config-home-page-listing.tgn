@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
@@ -20,8 +13,8 @@
 <div class="container">
 		<div class="topband">
 		
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.configHomePageListing')}</h2> 
-		<div class="float-right">
+		<h2 class="title-cls-name">${messageSource.getMessage('jws.configHomePageListing')}</h2> 
+		<div class="topactionbuttons">
 		 <!-- <span>
   		    <input id="configHomePage" class="btn btn-primary" name="configHomePage" value="Add Default Page" type="button" onclick="editHomePage()">
 		</span> -->
@@ -32,8 +25,7 @@
          </span>	
 		</div>
 		
-		<div class="clearfix"></div>		
-		</div>
+ 		</div>
 		
 		<div id="divConfigHomeListing"></div>
 
@@ -49,7 +41,7 @@
 			            <input type="hidden" id="oldModuleId" name="old-module-id">
 			            <input type="hidden" id="moduleId" name="module-id">
 			            <input type="hidden" id="moduleName" name="module-name">
-			            <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.moduleName')}</label>
+			            <label for="flammableState" >${messageSource.getMessage('jws.moduleName')}</label>
 			            <div class="search-cover">
 							<input class="form-control" id="slAutocomplete" type="text">
 							<i class="fa fa-search" aria-hidden="true"></i>
@@ -74,7 +66,8 @@
 
 <script>
 	document.title = "Home Page Module List";
-	contextPath = "${(contextPath)!''}";
+	//contextPath = "${(contextPath)!''}";
+	//viewPath = "${(viewPath)!''}";
 	let slAutocomplete;
 	
 	function backToModuleListingPage() {
@@ -174,7 +167,7 @@
 	}
   
     function openModuleListing(moduleURL) {
-		window.open(contextPath+"/view/"+moduleURL);
+		window.open(contextPath+viewPath+"/"+moduleURL);
     }
     
 	function editHomePage(sourceElement) {

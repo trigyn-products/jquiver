@@ -1,22 +1,17 @@
 package com.trigyn.jws.usermanagement.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_role_master_modules_association")
 public class JwsRoleMasterModulesAssociation {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "role_module_id")
 	private String				roleModuleId	= null;
 

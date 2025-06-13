@@ -1,21 +1,18 @@
 package com.trigyn.jws.dynarest.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jq_encryption_algorithms_lookup")
 public class EncryptionAlgorithms {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "custom-identity-generator")
-	@GenericGenerator(name = "custom-identity-generator", strategy = "com.trigyn.jws.dbutils.configurations.CustomIdentityGenerator")
+	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	@Column(name = "encryption_algo_id")
 	private Integer	encryptionAlgorithmId	= null;
 

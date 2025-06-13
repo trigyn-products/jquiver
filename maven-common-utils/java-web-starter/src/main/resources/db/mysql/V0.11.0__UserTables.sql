@@ -8,7 +8,7 @@ CREATE TABLE jq_role (
   is_active int(2)  NOT NULL DEFAULT 1,
   PRIMARY KEY (role_id),
   UNIQUE KEY role_name (role_name) 
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ );
 
 DROP TABLE IF EXISTS jq_master_modules;
 CREATE TABLE jq_master_modules (
@@ -18,7 +18,7 @@ CREATE TABLE jq_master_modules (
   auxiliary_data varchar(100) DEFAULT NULL,
   PRIMARY KEY (module_id),
   UNIQUE KEY module_name(module_name) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_role_master_modules_association;
 CREATE TABLE jq_role_master_modules_association (
@@ -29,7 +29,7 @@ CREATE TABLE jq_role_master_modules_association (
   PRIMARY KEY (role_module_id),
   CONSTRAINT jq_role_master_modules_association_ibfk_1 FOREIGN KEY (role_id) REFERENCES jq_role (role_id),
   CONSTRAINT jq_role_master_modules_association_ibfk_2 FOREIGN KEY (module_id) REFERENCES jq_master_modules (module_id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_user;
 CREATE TABLE jq_user (
@@ -41,7 +41,7 @@ CREATE TABLE jq_user (
   is_active int(2) NOT NULL DEFAULT 1,
   PRIMARY KEY (user_id),
   UNIQUE KEY email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_user_role_association;
 CREATE TABLE jq_user_role_association (
@@ -54,7 +54,7 @@ CREATE TABLE jq_user_role_association (
   KEY jq_user_role_association_ibfk_2 (user_id),
   CONSTRAINT jq_user_role_association_ibfk_1 FOREIGN KEY (role_id) REFERENCES jq_role (role_id),
   CONSTRAINT jq_user_role_association_ibfk_2 FOREIGN KEY (user_id) REFERENCES jq_user (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 REPLACE INTO jq_role VALUES ('ae6465b3-097f-11eb-9a16-f48e38ab9348','ADMIN','admin role',1 ),('b4a0dda1-097f-11eb-9a16-f48e38ab9348','ANONYMOUS','anonymous role',1 )
@@ -160,7 +160,7 @@ CREATE TABLE  jq_confirmation_token (
   `user_id` varchar(500) NOT NULL,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `jq_confirmation_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `jq_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_reset_password_token;
 CREATE TABLE  `jq_reset_password_token` (
@@ -171,7 +171,7 @@ CREATE TABLE  `jq_reset_password_token` (
   `is_reset_url_expired` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'This flag will decide ,Is password reset url expired or not .0 means not expired and 1 means Expired',
   PRIMARY KEY (`token_id`),
   CONSTRAINT `jq_reset_password_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `jq_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_authentication_type;
 CREATE TABLE  jq_authentication_type (
@@ -179,7 +179,7 @@ authentication_id int(11) auto_increment,
 authentication_name varchar(50),
 authentication_properties JSON  DEFAULT NULL,
 PRIMARY KEY (authentication_id)
-)ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+);
 
 
 REPLACE INTO jq_authentication_type (
@@ -217,6 +217,6 @@ CREATE TABLE jq_entity_role_association  (
   PRIMARY KEY (entity_role_id),
   CONSTRAINT jq_entity_role_association_ibfk_1 FOREIGN KEY (module_id) REFERENCES jq_master_modules (module_id),
   CONSTRAINT jq_entity_role_association_ibfk_2 FOREIGN KEY (role_id) REFERENCES jq_role (role_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 SET FOREIGN_KEY_CHECKS=1;

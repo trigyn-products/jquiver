@@ -6,38 +6,38 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_dynamic_rest_details")
 @NamedQuery(name = "JwsDynamicRestDetail.findAll", query = "SELECT j FROM JwsDynamicRestDetail j")
 public class JwsDynamicRestDetail implements Serializable {
 
-	private final static Logger					logger							= LogManager
+	private final static Logger					logger							= LoggerFactory
 			.getLogger(JwsDynamicRestDetail.class);
 
 	private static final long					serialVersionUID				= 1L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "jws_dynamic_rest_id")
 	private String								jwsDynamicRestId				= null;
 
@@ -101,7 +101,7 @@ public class JwsDynamicRestDetail implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "jws_request_type_id", referencedColumnName = "jws_request_type_details_id", insertable = false, updatable = false)
 	private JwsRequestTypeDetail				jwsRequestTypeDetail			= null;
-
+	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "jws_response_producer_type_id", referencedColumnName = "jws_response_producer_type_id", insertable = false, updatable = false)
 	private JwsResponseProducerDetail			jwsResponseProducerDetail		= null;

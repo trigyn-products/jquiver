@@ -6,11 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,17 +22,21 @@ import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 import com.trigyn.jws.dynarest.service.FileUploadConfigService;
 import com.trigyn.jws.dynarest.vo.FileUploadConfigVO;
 import com.trigyn.jws.templating.service.MenuService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','File Bin')")
 public class FileController {
 
-	private final static Logger		logger					= LogManager.getLogger(FileController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(FileController.class);
 
 	@Autowired
 	private PropertyMasterService	propertyMasterService	= null;
@@ -45,6 +46,9 @@ public class FileController {
 
 	@Autowired
 	private FileUploadConfigService	fileUploadConfigService	= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
 	@GetMapping(value = "/fucl", produces = MediaType.TEXT_HTML_VALUE)
 	public String fileUploadConfigListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -61,7 +65,7 @@ public class FileController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

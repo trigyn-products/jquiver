@@ -1,0 +1,114 @@
+var HashMap =  Java.type("java.util.HashMap");
+var System = Java.type("java.lang.System");
+var ObjectMapper = Java.type("com.fasterxml.jackson.databind.ObjectMapper");
+var FormIOUtils = Java.type("com.trigyn.jws.formio.utils.FormIOUtils");
+var TemplatingUtils = Java.type("com.trigyn.jws.templating.utils.TemplatingUtils");
+var RegextPattern = Java.type("java.util.regex.Pattern");
+var dbProductName = "${dbProductName}";
+var dataSourceId = null;
+<#if (dataSourceId)??  && dataSourceId?has_content> 
+dataSourceId = "${dataSourceId! null}"; 
+</#if>
+
+function saveFormDetails() {
+   var fieldList = ${(fieldList)!''}	
+<#noparse>	
+	fieldList.forEach(function(item, index) {
+		if (requestDetails &&
+			requestDetails[item.fieldName] != null) {		
+            var templatingUtils = new TemplatingUtils();
+            var valueStr = String(requestDetails[item.fieldName]);	
+			var dataType = String(item.dataType);	
+			if(dataType != null && dataType.equalsIgnoreCase("xml")) {	
+                if(valueStr != "" && templatingUtils.isValidXML(valueStr) == false){
+                    jq_sendError("412", "Invalid value ");
+                    return;
+                }	
+            } else if(dataType != null && dataType.equalsIgnoreCase("json")) {
+                if(valueStr != "" && templatingUtils.isValidJSON(valueStr) == false){
+                    jq_sendError("412", "Invalid value ");
+                    return;
+                }
+            } else {	
+                var pattern = RegextPattern.compile(item.regexPattern);
+                var valueStr = String(requestDetails[item.fieldName]);
+                var matcher = pattern.matcher(valueStr);
+                if (matcher.matches() == false) {
+                    jq_sendError("412", "Invalid value ");
+                    return;
+                }
+            }
+		}
+	});
+</#noparse>
+	var queryParam = new HashMap();
+	var columns = new Array(${queryParams});
+	var updateQuery = "UPDATE ${tableName} SET ";
+	var insertQuery = "INSERT INTO ${tableName} (";
+	var insertQueryValues = ") values (";
+	var isFirst = true;
+    var pkColumnName = "${(primaryKeyColumnName)!''}";
+    var pkColumnValueType = "${(pkColumnValueType)!''}";
+    var isEdit =  "<#noparse>${(isEdit)!'0'}</#noparse>";
+    var primaryKeyValue = "<#noparse>${(primaryKeyValue)!''}</#noparse>";
+    var mapper = new ObjectMapper();
+	var formioutils = new FormIOUtils();
+	var map = mapper.readValue(requestDetails['saveQueryParametersType'], HashMap.class);
+	var pkColDataType = map.get(pkColumnName);
+	if(null == primaryKeyValue || primaryKeyValue == undefined || primaryKeyValue == ""){
+		primaryKeyValue = requestDetails[pkColumnName];
+	}
+	columns.forEach(function(item, index) {
+		if (requestDetails &&
+			requestDetails[item] != null) {
+			queryParam.put(item, requestDetails[item]);
+			if (!isFirst) {
+				updateQuery += ', ';
+				insertQuery += ', ';
+				insertQueryValues += ', ';
+			} else {
+				isFirst = false;
+			} 
+			var columnName  =  ":"+item;     
+			var itemCastVal = formioutils.getCastExpressionForSave(columnName, map.get(item), dbProductName);			
+			updateQuery += item + ' = ' + itemCastVal;			 
+			insertQuery += item;
+            if (pkColumnName != null && pkColumnName == item) {		
+				if (isEdit != "1") {
+					if(pkColumnValueType != 'int'){
+						primaryKeyValue = pkColumnValueType;
+					} else{
+						primaryKeyValue = requestDetails[item];
+					}	
+				} else {
+					primaryKeyValue = requestDetails[item];	
+				}				
+                queryParam.put(item, primaryKeyValue);
+				insertQueryValues += primaryKeyValue; 					
+              
+            } else {
+				insertQueryValues += itemCastVal; 
+			}          
+		}
+
+	});
+	
+	var queryResult = {};
+	if (isEdit == "1") {
+		if(pkColDataType != "int"){
+			updateQuery += " WHERE " + pkColumnName + " = '" + primaryKeyValue + "'";
+		} else {
+			updateQuery += ' WHERE '+pkColumnName+' = ' + primaryKeyValue;
+		}
+		queryResult = jq_updateDBQuery(updateQuery, dataSourceId, queryParam);
+	} else {
+		insertQuery += insertQueryValues + ")";
+		queryResult = jq_updateDBQuery(insertQuery, dataSourceId, queryParam);
+	}
+
+	if(queryResult["actionStatus"] != "true" ){
+		jq_sendError("403", "Error while saving the query.");
+	}
+}
+
+saveFormDetails();

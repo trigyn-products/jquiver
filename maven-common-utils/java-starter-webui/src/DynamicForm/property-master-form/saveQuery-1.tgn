@@ -1,26 +1,44 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
 
-REPLACE INTO jq_property_master (
-   property_master_id
-  ,owner_type
-  ,owner_id
-  ,property_name
-  ,property_value
-  ,is_deleted
-  ,last_modified_date
-  ,modified_by
-  ,app_version
-  ,comments
-  ,is_custom_updated
-) VALUES (
-  :propertyMasterId
-  ,:ownerId
-  ,:ownerType
-  ,:propertyName
-  ,:propertyValue
-  ,0
-  ,NOW()
-  ,:loggedInUserName
-  ,:appVersion
-  ,:comment
-  , 1
-);
+function validatePropertyValue() {
+if(null != requestDetails.propertyRegex && "" != requestDetails.propertyRegex && undefined != requestDetails.propertyRegex[0] && '[""]' != requestDetails.propertyRegex[0]){
+  var propertyRegex=requestDetails.propertyRegex[0];
+  var propertyValue =requestDetails.propertyValue[0];
+      var validFlag= isValidRegExp(propertyRegex);
+      if(validFlag){   
+                var regex = new RegExp(propertyRegex);              
+                if (!regex.test(propertyValue)) {  
+                    jq_sendError("500", "Property Value does not match Regex");
+                }
+      }
+      else
+      {
+        jq_sendError("500", "Invalid Regular Expression");
+      }
+        
+  }
+    var map = new HashMap();
+    map.put("propertyMasterId", requestDetails["propertyMasterId"]);
+    map.put("ownerId", requestDetails["ownerId"]);
+    map.put("ownerType", requestDetails["ownerType"]);
+    map.put("propertyName", requestDetails["propertyName"]);
+    map.put("propertyValue", requestDetails["propertyValue"]);
+    map.put("loggedInUserName", requestDetails["loggedInUserName"]);
+    map.put("appVersion", requestDetails["appVersion"]);
+    map.put("comment", requestDetails["comment"]);
+    map.put("propertyRegex", requestDetails["propertyRegex"]);
+        var queryToExecute = "REPLACE INTO jq_property_master (property_master_id,owner_type,owner_id,property_name,property_value,is_deleted,last_modified_date,modified_by,app_version,comments,is_custom_updated,property_regex) VALUES (:propertyMasterId,:ownerType,:ownerId,:propertyName,:propertyValue,0,NOW(),:loggedInUserName,:appVersion,:comment,1,:propertyRegex)";
+
+         jq_updateDBQuery(queryToExecute,null,map);
+    }
+
+function isValidRegExp(regexString) {
+        try {
+            new RegExp(regexString);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+validatePropertyValue();

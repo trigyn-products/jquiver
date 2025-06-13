@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 @Transactional
 public class MenuService {
 
-	private final static Logger			logger						= LogManager.getLogger(MenuService.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(MenuService.class);
 
 	@Autowired
 	private DBTemplatingService			templatingService			= null;

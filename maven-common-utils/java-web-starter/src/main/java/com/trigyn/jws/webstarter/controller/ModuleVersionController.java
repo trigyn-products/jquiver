@@ -2,15 +2,10 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,17 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
-import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.webstarter.service.ModuleRevisionService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/cf")
 public class ModuleVersionController {
 
-	private final static Logger		logger					= LogManager.getLogger(ModuleVersionController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(ModuleVersionController.class);
 
 	@Autowired
 	private ModuleVersionService	moduleVersionService	= null;
@@ -99,7 +96,7 @@ public class ModuleVersionController {
 	@PostMapping(value = "/suj")
 	public void saveUpdatedContent(HttpServletRequest a_httpServletRequest, HttpServletResponse a_httpServletResponse) throws Exception {
 		logger.debug("Inside ModuleVersionController.getLastUpdatedJsonData()");
-		revisionService.saveUpdatedContent(a_httpServletRequest);
+		revisionService.saveUpdatedContent(a_httpServletRequest,a_httpServletResponse);
 	}
 
 	@PostMapping(value = "/muj")

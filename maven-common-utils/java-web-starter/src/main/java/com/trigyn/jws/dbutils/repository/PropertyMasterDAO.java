@@ -2,22 +2,22 @@ package com.trigyn.jws.dbutils.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.hibernate.transform.Transformers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trigyn.jws.dbutils.entities.JwsModuleVersion;
 import com.trigyn.jws.dbutils.entities.PropertyMaster;
 
 @Repository
 @Transactional
 public class PropertyMasterDAO extends DBConnection {
 
-	@Autowired
 	public PropertyMasterDAO(DataSource dataSource) {
 		super(dataSource);
 	}
@@ -32,7 +32,7 @@ public class PropertyMasterDAO extends DBConnection {
 
 	public String findPropertyMasterValue(String ownerType, String ownerId, String propertyName) throws Exception {
 		String	propertyValue	= null;
-		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_DETAILS);
+		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_DETAILS, String.class);
 		query.setParameter("ownerType", ownerType);
 		query.setParameter("ownerId", ownerId);
 		query.setParameter("propertyName", propertyName);
@@ -48,26 +48,26 @@ public class PropertyMasterDAO extends DBConnection {
 	}
 
 	public List<Map<String, Object>> findAll() {
-		Query query = getCurrentSession().createQuery(QUERY_TO_GET_ALL_PROPERTY_MASTER_DETAILS);
+		Query query = getCurrentSession().createQuery(QUERY_TO_GET_ALL_PROPERTY_MASTER_DETAILS, Map.class);
 		query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
 		return query.list();
 	}
 
 	public PropertyMaster findPropertyMasterById(String propertyMasterId) {
-		PropertyMaster propertyMaster =  hibernateTemplate.get(PropertyMaster.class, propertyMasterId);
+		PropertyMaster propertyMaster =  getCurrentSession().get(PropertyMaster.class, propertyMasterId);
 		if(propertyMaster != null) getCurrentSession().evict(propertyMaster);
 		return propertyMaster;
 	}
 
 	public PropertyMaster findPropertyMasterByName(String propertyName) {
-		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_ID);
+		Query	query			= getCurrentSession().createQuery(QUERY_TO_GET_PROPERTY_MASTER_ID, String.class);
 		query.setParameter("ownerType", "system");
 		query.setParameter("ownerId", "system");
 		query.setParameter("propertyName", propertyName);
 		Object propertValueObj = query.uniqueResult();
 		if (propertValueObj != null) {
 			String propertyId = propertValueObj.toString();
-			PropertyMaster propertyMaster =  hibernateTemplate.get(PropertyMaster.class, propertyId);
+			PropertyMaster propertyMaster =  getCurrentSession().get(PropertyMaster.class, propertyId);
 			return propertyMaster;
 		}
 		return null;		
@@ -79,10 +79,10 @@ public class PropertyMasterDAO extends DBConnection {
 		if(prop != null) getCurrentSession().evict(prop);
 		if(propertyMaster.getPropertyMasterId() == null || 
 				(findPropertyMasterById(propertyMaster.getPropertyMasterId()) == null && prop == null)) {
-			getCurrentSession().save(propertyMaster);			
+			getCurrentSession().persist(propertyMaster);			
 		}else {
 			if(prop != null) propertyMaster.setPropertyMasterId(prop.getPropertyMasterId());
-			getCurrentSession().saveOrUpdate(propertyMaster);
+			getCurrentSession().merge(propertyMaster);
 		}
 	}
 

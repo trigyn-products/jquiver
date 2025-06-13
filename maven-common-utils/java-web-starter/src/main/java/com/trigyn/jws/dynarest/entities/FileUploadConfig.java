@@ -4,26 +4,24 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_file_upload_config")
 public class FileUploadConfig {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "file_bin_id")
 	private String		fileBinId			= null;
 
@@ -92,6 +90,12 @@ public class FileUploadConfig {
 	
 	@Transient
 	private String				deleteScriptLibraryId	= null;
+	
+	@Column(name = "is_file_storage_enable")
+	private Integer		isFileStorageEnable		= 0;
+	
+	@Column(name = "custom_file_storage_class")
+	private String customFileStorageClass  =null;
 
 	public FileUploadConfig() {
 
@@ -120,7 +124,7 @@ public class FileUploadConfig {
 			String uploadQueryContent, String viewQueryContent, String deleteQueryContent, String datasourceId,
 			Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs,
 			Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType, String datasourceViewValidator,
-			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated) {
+			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated,Integer isFileStorageEnable,String customFileStorageClass) {
 		this.fileBinId = fileBinId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
@@ -141,6 +145,8 @@ public class FileUploadConfig {
 		this.datasourceUploadValidator = datasourceUploadValidator;
 		this.datasourceDeleteValidator = datasourceDeleteValidator;
 		this.isCustomUpdated = isCustomUpdated;
+		this.isFileStorageEnable = isFileStorageEnable;
+		this.customFileStorageClass=customFileStorageClass;
 	}
 
 	public FileUploadConfig(String fileBinId, String fileTypSupported, BigDecimal maxFileSize, Integer noOfFiles,
@@ -148,7 +154,7 @@ public class FileUploadConfig {
 			Integer isDeleted, String createdBy, Date createdDate, String lastUpdatedBy, Date lastUpdatedTs,
 			Integer uploadQueryType, Integer viewQueryType, Integer deleteQueryType, String datasourceViewValidator,
 			String datasourceUploadValidator, String datasourceDeleteValidator, Integer isCustomUpdated,
-			String uploadScriptLibraryId, String viewScriptLibraryId, String deleteScriptLibraryId) {
+			String uploadScriptLibraryId, String viewScriptLibraryId, String deleteScriptLibraryId,Integer isFileStorageEnable,String customFileStorageClass) {
 		this.fileBinId = fileBinId;
 		this.fileTypSupported = fileTypSupported;
 		this.maxFileSize = maxFileSize;
@@ -172,6 +178,8 @@ public class FileUploadConfig {
 		this.uploadScriptLibraryId = uploadScriptLibraryId;
 		this.viewScriptLibraryId = viewScriptLibraryId;
 		this.deleteScriptLibraryId = deleteScriptLibraryId;
+		this.isFileStorageEnable = isFileStorageEnable;
+		this.customFileStorageClass=customFileStorageClass;
 	}
 
 	public FileUploadConfig getObject() throws JsonMappingException, JsonProcessingException {
@@ -196,6 +204,8 @@ public class FileUploadConfig {
 		file.setUploadScriptLibraryId(uploadScriptLibraryId != null ? uploadScriptLibraryId.trim() : "");
 		file.setViewScriptLibraryId(viewScriptLibraryId != null ? viewScriptLibraryId.trim() : "");
 		file.setDeleteScriptLibraryId(deleteScriptLibraryId != null ? deleteScriptLibraryId.trim() : "");
+		file.setIsFileStorageEnable(isFileStorageEnable);
+		file.setCustomFileStorageClass(customFileStorageClass != null ? customFileStorageClass.trim() : "");
 		return file;
 	}
 
@@ -425,4 +435,21 @@ public class FileUploadConfig {
 		this.deleteScriptLibraryId = string;
 	}
 
+	public Integer getIsFileStorageEnable() {
+		return isFileStorageEnable;
+	}
+
+	public void setIsFileStorageEnable(Integer isFileStorageEnable) {
+		this.isFileStorageEnable = isFileStorageEnable;
+	}
+
+	public String getCustomFileStorageClass() {
+		return customFileStorageClass;
+	}
+
+	public void setCustomFileStorageClass(String customFileStorageClass) {
+		this.customFileStorageClass = customFileStorageClass;
+	}
+
+	
 }

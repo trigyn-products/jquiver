@@ -3,8 +3,9 @@ package com.trigyn.jws.dbutils.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+
 
 @Embeddable
 public class ModuleListingI18nPK implements Serializable {

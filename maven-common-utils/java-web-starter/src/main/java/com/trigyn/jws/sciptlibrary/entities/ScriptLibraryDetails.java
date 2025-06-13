@@ -1,27 +1,28 @@
 package com.trigyn.jws.sciptlibrary.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Objects;
+import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import com.trigyn.jws.webstarter.vo.GenericUserNotification;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_script_lib_details")
 public class ScriptLibraryDetails {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "script_lib_id")
-	private String						scriptLibId				= null;
+	private String						scriptLibId			= null;
 
 	@Column(name = "template_id")
 	private String						templateId			= null;
@@ -36,23 +37,27 @@ public class ScriptLibraryDetails {
 	private String						scriptType			= null;
 
 	@Column(name = "created_by")
-	private String						createdBy				= null;
+	private String						createdBy			= null;
 
 	@Column(name = "updated_by")
-	private String						updatedBy			= "admin@jquiver.io";
+	private String						updatedBy			= null;
 
 	@Column(name = "updated_date")
 	private Date						updatedDate			= null;
 
 	@Column(name = "is_custom_updated")
-	private Integer						isCustomUpdated			= 1;
+	private Integer						isCustomUpdated		= 1;
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "scriptLibraryDetails")
+	private List<ScriptLibraryConnection>	scriptLibraryConnection	= null;
 
 	public ScriptLibraryDetails() {
 
 	}
 
 	public ScriptLibraryDetails(String scriptLibId, String templateId, String libraryName, String description,
-			String scriptType, String createdBy, String updatedBy, Date updatedDate, Integer isCustomUpdated) {
+			String scriptType, String createdBy, String updatedBy, Date updatedDate, Integer isCustomUpdated,
+			List<ScriptLibraryConnection> scriptLibraryConnection) {
 		this.scriptLibId = scriptLibId;
 		this.templateId = templateId;
 		this.libraryName = libraryName;
@@ -62,6 +67,8 @@ public class ScriptLibraryDetails {
 		this.updatedBy = updatedBy;
 		this.updatedDate = updatedDate;
 		this.isCustomUpdated = isCustomUpdated;
+		this.scriptLibraryConnection = scriptLibraryConnection;
+		
 	}
 
 
@@ -137,6 +144,15 @@ public class ScriptLibraryDetails {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
+
+	public List<ScriptLibraryConnection> getScriptLibraryConnection() {
+		return scriptLibraryConnection;
+	}
+
+	public void setScriptLibraryConnection(List<ScriptLibraryConnection> scriptLibraryConnection) {
+		this.scriptLibraryConnection = scriptLibraryConnection;
+	}
+
 	public ScriptLibraryDetails getObject() {
 		ScriptLibraryDetails scriptLibraryDetails = new ScriptLibraryDetails();
 		scriptLibraryDetails.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
@@ -148,6 +164,16 @@ public class ScriptLibraryDetails {
 		scriptLibraryDetails.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
 		scriptLibraryDetails.setUpdatedDate(updatedDate);
 		scriptLibraryDetails.setIsCustomUpdated(isCustomUpdated);
+
+		List<ScriptLibraryConnection> scriptLibraryConnection = new ArrayList<>();
+		if (this.scriptLibraryConnection != null && !this.scriptLibraryConnection.isEmpty()) {
+			for (ScriptLibraryConnection dfs : this.scriptLibraryConnection) {
+				scriptLibraryConnection.add(dfs.getObject());
+			}
+			scriptLibraryDetails.setScriptLibraryConnection(scriptLibraryConnection);
+		} else {
+			scriptLibraryDetails.setScriptLibraryConnection(null);
+		}
 
 		return scriptLibraryDetails;
 	}

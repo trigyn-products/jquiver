@@ -11,4 +11,4 @@ CREATE TABLE jq_file_upload_temp (
    file_association_id VARCHAR(50) NOT NULL,
    action INT(10) NOT NULL,
   PRIMARY KEY (file_upload_temp_id)
-) ENGINE = innodb ROW_FORMAT = DEFAULT CHARACTER SET utf8;
+);

@@ -9,13 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RMapCache;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,58 +42,101 @@ import com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional(readOnly = false)
 public class ModuleService {
 
 	@Autowired
-	private IModuleListingRepository iModuleListingRepository = null;
+	private IModuleListingRepository			iModuleListingRepository		= null;
 
 	@Autowired
-	private IModuleListingI18nRepository iModuleListingI18nRepository = null;
+	private IModuleListingI18nRepository		iModuleListingI18nRepository	= null;
 
 	@Autowired
-	private IModuleTargetLookupRepository iModuleTargetLookupRepository = null;
+	private IModuleTargetLookupRepository		iModuleTargetLookupRepository	= null;
 
 	@Autowired
-	private ModuleDAO moduleDAO = null;
+	private ModuleDAO							moduleDAO						= null;
 
 	@Autowired
-	private JwsRoleRepository userRoleRepository = null;
+	private JwsRoleRepository					userRoleRepository				= null;
 
 	@Autowired
-	private PropertyMasterService propertyMasterService = null;
+	private PropertyMasterService				propertyMasterService			= null;
 
 	@Autowired
-	private IUserDetailsService detailsService = null;
+	private IUserDetailsService					detailsService					= null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog							activitylog						= null;
 
 	@Autowired
-	private IModuleRoleAssociationRepository roleAssociationRepository = null;
+	private IModuleRoleAssociationRepository	roleAssociationRepository		= null;
+
+	@Autowired(required = false)
+	private RedissonClient						redissonClient					= null;
+
+	@Value("${jquiver.redis.cache.enabled:false}")
+	private boolean								isCacheEnabled;
+
+	@Autowired
+	private RedissonQueryCacheManagerUtil		cacheManager					= null;
 
 	public ModuleDetailsVO getModuleDetails(String moduleId) throws Exception {
-		if (!StringUtils.isBlank(moduleId)) {
-			ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId,
-					Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
 
-			if (moduleDetailsVO != null) {
-				Integer targetLookupId = moduleDetailsVO.getTargetLookupId();
-				if (targetLookupId != null && !targetLookupId.equals(Constant.MODULE_GROUP_ID)) {
-					Map<String, Object> moduleDetailsMap = getContextNameDetailsByType(moduleDetailsVO);
-					moduleDetailsVO.setTargetLookupName(moduleDetailsMap.get("targetTypeName").toString());
-				}
-			}
+		if (StringUtils.isBlank(moduleId)) {
+			return null;
+		}
+
+		// If cache is disabled, go straight to the DB
+		if (!isCacheEnabled || redissonClient == null) {
+			return queryAndLoadData(moduleId);
+		}
+
+		// Otherwise, try Redisson cache
+		RMapCache<String, ModuleDetailsVO>	cache			= redissonClient.getMapCache("moduleDetailsCache");
+		String								cacheKey		= moduleId + "-" + Constant.DEFAULT_LANGUAGE_ID + "-"
+				+ Constant.DEFAULT_LANGUAGE_ID;
+
+		ModuleDetailsVO						moduleDetailsVO	= cache.get(cacheKey);
+		if (moduleDetailsVO != null) {
 			return moduleDetailsVO;
 		}
-		return null;
+
+		// Cache miss → load from DB and enrich
+		moduleDetailsVO = queryAndLoadData(moduleId);
+		if (moduleDetailsVO != null) {
+			cache.put(cacheKey, moduleDetailsVO, 10, TimeUnit.MINUTES);
+		}
+		return moduleDetailsVO;
+	}
+
+	/**
+	 * Always load from repository and then set the targetLookupName if needed.
+	 * 
+	 * @throws Exception
+	 */
+	public ModuleDetailsVO queryAndLoadData(String moduleId) throws Exception {
+		ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getModuleDetails(moduleId,
+				Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
+
+		if (moduleDetailsVO != null) {
+			Integer targetLookupId = moduleDetailsVO.getTargetLookupId();
+			if (targetLookupId != null && !targetLookupId.equals(Constant.MODULE_GROUP_ID)) {
+				Map<String, Object> moduleDetailsMap = getContextNameDetailsByType(moduleDetailsVO);
+				moduleDetailsVO.setTargetLookupName(moduleDetailsMap.get("targetTypeName").toString());
+			}
+		}
+		return moduleDetailsVO;
 	}
 
 	public List<ModuleDetailsVO> getAllMenuModules() throws Exception {
-		UserDetailsVO detailsVO = detailsService.getUserDetails();
-		List<String> roleIdList = detailsVO.getRoleIdList();
+		UserDetailsVO	detailsVO	= detailsService.getUserDetails();
+		List<String>	roleIdList	= detailsVO.getRoleIdList();
 
 		if (roleIdList.contains("ADMIN")) {
 			return iModuleListingRepository.getAllModulesDetails(Constant.DEFAULT_LANGUAGE_ID,
@@ -103,8 +148,8 @@ public class ModuleService {
 	}
 
 	public List<ModuleDetailsVO> getAllParentModules(String moduleId) throws Exception {
-		List<ModuleDetailsVO> parentModulesList = new ArrayList<>();
-		List<ModuleDetailsVO> parentModuleVOs = new ArrayList<>();
+		List<ModuleDetailsVO>	parentModulesList	= new ArrayList<>();
+		List<ModuleDetailsVO>	parentModuleVOs		= new ArrayList<>();
 		parentModulesList = iModuleListingRepository.getAllParentModules(Constant.IS_NOT_HOME_PAGE,
 				Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID, Constant.IS_INSIDE_MENU);
 		if (!StringUtils.isBlank(moduleId)) {
@@ -127,8 +172,8 @@ public class ModuleService {
 	}
 
 	public String saveModuleDetails(ModuleDetailsVO moduleDetailsVO) throws Exception {
-		ModuleListing moduleListing = convertModuleVOToEntitity(moduleDetailsVO);
-		ModuleListingI18n moduleListingI18n = convertModuleVOToI18nEntitity(moduleDetailsVO);
+		ModuleListing		moduleListing		= convertModuleVOToEntitity(moduleDetailsVO);
+		ModuleListingI18n	moduleListingI18n	= convertModuleVOToI18nEntitity(moduleDetailsVO);
 		moduleListing.setLastUpdatedBy(detailsService.getUserDetails().getFullName());
 		moduleListing = iModuleListingRepository.save(moduleListing);
 		ModuleListingI18nPK moduleListingI18nPK = moduleListingI18n.getId();
@@ -141,19 +186,19 @@ public class ModuleService {
 
 	/**
 	 * Purpose of this method is to log activities</br>
-	 * in Site Layout Module.
+	 * in Router Module.
 	 * 
-	 * @author Bibhusrita.Nayak
-	 * @param entityName
-	 * @param typeSelect
-	 * @param moduleId
+	 * @author            Bibhusrita.Nayak
+	 * @param  entityName
+	 * @param  typeSelect
+	 * @param  moduleId
 	 * @throws Exception
 	 */
 	private void logActivity(Integer typeSelect, String entityName, String moduleId) throws Exception {
-		Date activityTimestamp = new Date();
-		Map<String, String> requestParams = new HashMap<>();
-		UserDetailsVO detailsVO = detailsService.getUserDetails();
-		String action = "";
+		Date				activityTimestamp	= new Date();
+		Map<String, String>	requestParams		= new HashMap<>();
+		UserDetailsVO		detailsVO			= detailsService.getUserDetails();
+		String				action				= "";
 		if (!StringUtils.isBlank(moduleId)) {
 			action = Constant.Action.EDIT.getAction();
 			if (typeSelect == Constant.Changetype.CUSTOM.getChangeTypeInt()) {
@@ -166,7 +211,7 @@ public class ModuleService {
 			requestParams.put("typeSelect", Constant.Changetype.CUSTOM.getChangetype());
 		}
 		requestParams.put("entityName", entityName);
-		requestParams.put("masterModuleType", Constant.MasterModuleType.SITELAYOUT.getModuleType());
+		requestParams.put("masterModuleType", Constant.MasterModuleType.ROUTER.getModuleType());
 		requestParams.put("userName", detailsVO.getUserName());
 		requestParams.put("message", "");
 		requestParams.put("date", activityTimestamp.toString());
@@ -176,8 +221,9 @@ public class ModuleService {
 
 	public Map<String, Object> getExistingModuleData(String moduleId, String moduleName, String parentModuleId,
 			Integer sequence, String moduleURL) throws Exception {
-		Map<String, Object> moduleDetailsMap = new HashMap<>();
-		String moduleIdDB = getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID, Constant.DEFAULT_LANGUAGE_ID);
+		Map<String, Object>	moduleDetailsMap	= new HashMap<>();
+		String				moduleIdDB			= getModuleIdByName(moduleName, Constant.DEFAULT_LANGUAGE_ID,
+				Constant.DEFAULT_LANGUAGE_ID);
 		if (!StringUtils.isBlank(moduleIdDB)) {
 			moduleDetailsMap.put("moduleIdName", moduleIdDB);
 		}
@@ -187,8 +233,8 @@ public class ModuleService {
 		}
 
 		if (!StringUtils.isBlank(moduleURL) && !moduleURL.equals(Constant.GROUP_MODULE_URL)) {
-			StringBuilder newURL = new StringBuilder();
-			List<String> pathVariableList = new ArrayList<>();
+			StringBuilder	newURL				= new StringBuilder();
+			List<String>	pathVariableList	= new ArrayList<>();
 			if (moduleURL.indexOf("/**") != -1) {
 				moduleURL = moduleURL.substring(0, moduleURL.lastIndexOf("/**"));
 			}
@@ -203,7 +249,7 @@ public class ModuleService {
 				for (String pathVariable : pathVariableList) {
 					newURL = new StringBuilder(pathVariable);
 					for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-						if ((moduleDetailsVO.getModuleId() == moduleId 
+						if ((moduleDetailsVO.getModuleId() == moduleId
 								&& moduleDetailsVO.getModuleUrl().matches(".*\\b" + newURL + "\\b.*"))
 								|| moduleDetailsVO.getModuleUrl().equals(moduleURL)) {
 							moduleIdDB = moduleDetailsVO.getModuleId();
@@ -213,7 +259,7 @@ public class ModuleService {
 			} else {
 				List<ModuleDetailsVO> moduleDetailsVOs = getAllModuleId(moduleId);
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOs) {
-					if ((moduleDetailsVO.getModuleId() == moduleId 
+					if ((moduleDetailsVO.getModuleId() == moduleId
 							&& moduleDetailsVO.getModuleUrl().matches(".*\\b" + moduleURL + "\\b.*"))
 							|| moduleDetailsVO.getModuleUrl().equals(moduleURL)) {
 						moduleIdDB = moduleDetailsVO.getModuleId();
@@ -225,23 +271,24 @@ public class ModuleService {
 			if (!StringUtils.isBlank(moduleIdDB)) {
 				moduleDetailsMap.put("moduleIdURL", moduleIdDB);
 			}
-		}else {
-			List<ModuleDetailsVO> moduleDetailsVOList = iModuleListingRepository.getTargetTypeURL(moduleURL);
-			String maxModuleUrl = "#";
-			boolean moduleUrlExist = false;
-			if(moduleDetailsVOList.size()>0) {
+		} else {
+			List<ModuleDetailsVO>	moduleDetailsVOList	= iModuleListingRepository.getTargetTypeURL(moduleURL);
+			String					maxModuleUrl		= "#";
+			boolean					moduleUrlExist		= false;
+			if (moduleDetailsVOList.size() > 0) {
 				for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-					if(moduleDetailsVO.getModuleUrl().length() >= maxModuleUrl.length() && moduleDetailsVO.getModuleUrl().matches("#+")) {
-						maxModuleUrl = moduleDetailsVO.getModuleUrl();
-						moduleUrlExist = true;
+					if (moduleDetailsVO.getModuleUrl().length() >= maxModuleUrl.length()
+							&& moduleDetailsVO.getModuleUrl().matches("#+")) {
+						maxModuleUrl	= moduleDetailsVO.getModuleUrl();
+						moduleUrlExist	= true;
 					}
 				}
 			}
 			// Below code is used append # for root module for first time.
-			if(maxModuleUrl.length() == 1 && moduleUrlExist == false) {
+			if (maxModuleUrl.length() == 1 && moduleUrlExist == false) {
 				maxModuleUrl = "";
 			}
-			moduleDetailsMap.put("parentModuleURL", maxModuleUrl);	
+			moduleDetailsMap.put("parentModuleURL", maxModuleUrl);
 		}
 		return moduleDetailsMap;
 	}
@@ -327,8 +374,8 @@ public class ModuleService {
 	}
 
 	private ModuleListingI18n convertModuleVOToI18nEntitity(ModuleDetailsVO moduleDetailsVO) {
-		ModuleListingI18n moduleListingI18n = new ModuleListingI18n();
-		ModuleListingI18nPK moduleListingI18nPK = new ModuleListingI18nPK();
+		ModuleListingI18n	moduleListingI18n	= new ModuleListingI18n();
+		ModuleListingI18nPK	moduleListingI18nPK	= new ModuleListingI18nPK();
 		if (moduleDetailsVO.getModuleId() != null && !moduleDetailsVO.getModuleId().isBlank()
 				&& !moduleDetailsVO.getModuleId().isEmpty()) {
 			moduleListingI18nPK.setModuleId(moduleDetailsVO.getModuleId());
@@ -372,8 +419,8 @@ public class ModuleService {
 	}
 
 	public Map<String, Object> getModuleTargetByURL(String moduleURL) throws Exception {
-		ModuleDetailsVO moduleDetailsVO = iModuleListingRepository.getTargetTypeByURL(moduleURL);
-		Map<String, Object> moduleDetailsMap = getContextNameDetailsByType(moduleDetailsVO);
+		ModuleDetailsVO		moduleDetailsVO		= iModuleListingRepository.getTargetTypeByURL(moduleURL);
+		Map<String, Object>	moduleDetailsMap	= getContextNameDetailsByType(moduleDetailsVO);
 		return moduleDetailsMap;
 	}
 
@@ -395,8 +442,8 @@ public class ModuleService {
 	}
 
 	public List<Map<String, Object>> getModuleTargetTypeURL(String moduleURL) throws Exception {
-		List<ModuleDetailsVO> moduleDetailsVOList = iModuleListingRepository.getTargetTypeURL(moduleURL);
-		List<Map<String, Object>> moduleDetailsList = getContextNameDetails(moduleDetailsVOList);
+		List<ModuleDetailsVO>		moduleDetailsVOList	= iModuleListingRepository.getTargetTypeURL(moduleURL);
+		List<Map<String, Object>>	moduleDetailsList	= getContextNameDetails(moduleDetailsVOList);
 		return moduleDetailsList;
 	}
 
@@ -406,8 +453,8 @@ public class ModuleService {
 		if (CollectionUtils.isEmpty(moduleDetailsVOList) == false) {
 
 			for (ModuleDetailsVO moduleDetailsVO : moduleDetailsVOList) {
-				Map<String, Object> moduleDetailsMap = new HashMap<>();
-				List<Map<String, Object>> targetTypeList = moduleDAO
+				Map<String, Object>			moduleDetailsMap	= new HashMap<>();
+				List<Map<String, Object>>	targetTypeList		= moduleDAO
 						.findTargetTypeDetails(moduleDetailsVO.getTargetLookupId(), moduleDetailsVO.getTargetTypeId());
 				moduleDetailsMap.put("targetLookupId", moduleDetailsVO.getTargetLookupId());
 				if (!CollectionUtils.isEmpty(targetTypeList)) {
@@ -446,11 +493,11 @@ public class ModuleService {
 	}
 
 	public String saveConfigHomePage(HttpServletRequest a_httHttpServletRequest) {
-		String moduleId = a_httHttpServletRequest.getParameter("moduleId");
-		String oldModuleId = a_httHttpServletRequest.getParameter("oldModuleId");
+		String			moduleId			= a_httHttpServletRequest.getParameter("moduleId");
+		String			oldModuleId			= a_httHttpServletRequest.getParameter("oldModuleId");
 
-		ModuleListing moduleListing = new ModuleListing();
-		ModuleListing oldModuleListing = new ModuleListing();
+		ModuleListing	moduleListing		= new ModuleListing();
+		ModuleListing	oldModuleListing	= new ModuleListing();
 
 		if (StringUtils.isBlank(moduleId) == false) {
 			moduleListing = iModuleListingRepository.getModuleListing(moduleId);
@@ -471,13 +518,13 @@ public class ModuleService {
 	}
 
 	public void saveModuleRoleAssociation(HttpServletRequest a_httHttpServletRequest) {
-		String moduleId = a_httHttpServletRequest.getParameter("moduleId");
-		String oldModuleId = a_httHttpServletRequest.getParameter("oldModuleId");
-		UserDetailsVO detailsVO = detailsService.getUserDetails();
-		String loggedInUserId = detailsVO.getUserName();
-		Date date = new Date();
-		String roleId = a_httHttpServletRequest.getParameter("roleId");
-		ModuleRoleAssociation moduleRoleAssociation = new ModuleRoleAssociation();
+		String					moduleId				= a_httHttpServletRequest.getParameter("moduleId");
+		String					oldModuleId				= a_httHttpServletRequest.getParameter("oldModuleId");
+		UserDetailsVO			detailsVO				= detailsService.getUserDetails();
+		String					loggedInUserId			= detailsVO.getUserName();
+		Date					date					= new Date();
+		String					roleId					= a_httHttpServletRequest.getParameter("roleId");
+		ModuleRoleAssociation	moduleRoleAssociation	= new ModuleRoleAssociation();
 		if (StringUtils.isBlank(roleId) == false
 				&& (StringUtils.isBlank(moduleId) == false || StringUtils.isBlank(oldModuleId) == false)) {
 			moduleRoleAssociation.setRoleId(roleId);
@@ -504,26 +551,27 @@ public class ModuleService {
 	}
 
 	public void saveModuleListing(ModuleListing moduleListing) throws Exception {
-		
+
 		moduleListing.setIsCustomUpdated(1);
 		moduleListing.getModuleUrl();
 		iModuleListingRepository.save(moduleListing);
 	}
 
 	public String getModuleListingJson(String entityId) throws Exception {
-		ModuleListing module = getModuleListing(entityId);
-		String jsonString = "";
+		ModuleListing	module		= getModuleListing(entityId);
+		String			jsonString	= "";
 		if (module != null) {
 			module = module.getObject();
 
-			ModuleDetailsVO vo = convertModuleEntityToVO(module);
-			
-			Gson gson = new Gson();
-			ObjectMapper objectMapper = new ObjectMapper();
-			String dbDateFormat = propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
-					Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+			ModuleDetailsVO	vo				= convertModuleEntityToVO(module);
+
+			Gson			gson			= new Gson();
+			ObjectMapper	objectMapper	= new ObjectMapper();
+			String			dbDateFormat	= propertyMasterService.getDateFormatByName(
+					Constant.PROPERTY_MASTER_OWNER_TYPE, Constant.PROPERTY_MASTER_OWNER_ID,
+					Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
 					com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
-			DateFormat dateFormat = new SimpleDateFormat(dbDateFormat);
+			DateFormat		dateFormat		= new SimpleDateFormat(dbDateFormat);
 			objectMapper.setDateFormat(dateFormat);
 			Map<String, Object> objectMap = objectMapper.convertValue(vo, TreeMap.class);
 			jsonString = gson.toJson(objectMap);
@@ -531,11 +579,10 @@ public class ModuleService {
 		}
 		return jsonString;
 	}
-	
+
 	public String getServerBaseURL(HttpServletRequest a_httpServletRequest) throws Exception {
-		String	baseURL	= propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
-				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
-				"base-url");
+		String baseURL = propertyMasterService.getDateFormatByName(Constant.PROPERTY_MASTER_OWNER_TYPE,
+				Constant.PROPERTY_MASTER_OWNER_ID, Constant.JWS_DATE_FORMAT_PROPERTY_NAME, "base-url");
 		if (StringUtils.isBlank(baseURL) == false && a_httpServletRequest.getContextPath().isBlank() == false) {
 			baseURL = baseURL + a_httpServletRequest.getContextPath();
 		}

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
 
-@Repository
 public interface IFileUploadConfigRepository extends JpaRepositoryImplementation<FileUploadConfig, String> {
 
 }

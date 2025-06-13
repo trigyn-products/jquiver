@@ -5,13 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
@@ -25,41 +21,52 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
+import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.Constant;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.repository.JwsRoleRepository;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping(value = { "/cf", "/", "" })
 public class HomeController {
 
-	private final static Logger			logger						= LogManager.getLogger(HomeController.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(HomeController.class);
 
 	@Autowired
-	private MenuService					menuService					= null;
+	private MenuService					    menuService							= null;
 
 	@Autowired
-	private IModuleListingRepository	iModuleListingRepository	= null;
+	private IModuleListingRepository	    iModuleListingRepository			= null;
 
 	@Autowired
-	private IUserDetailsService			userDetails					= null;
+	private IUserDetailsService			    userDetails							= null;
 
 	@Autowired
-	private JwsRoleRepository			jwsRoleRepository			= null;
+	private JwsRoleRepository			    jwsRoleRepository					= null;
 
 	@Autowired
-	private MasterModuleService			masterModuleService			= null;
+	private MasterModuleService			    masterModuleService					= null;
 
 	@Autowired
-	private ApplicationSecurityDetails	applicationSecurityDetails	= null;
+	private ApplicationSecurityDetails	    applicationSecurityDetails			= null;
 
 	@Autowired
-	private JwsUserRegistrationController	jwsUserRegistrationController	= null;
+	private JwsUserRegistrationController	jwsUserRegistrationController	 	= null;
+	
+	@Autowired
+	private FileUtilities 					fileUtilities 						= null;
+	
+	@Autowired
+	private PropertyMasterDAO 				propertyMasterDAO 	  				= null;
 	
 	@Autowired
 	private ApplicationContext context;
@@ -77,15 +84,18 @@ public class HomeController {
 			Map<String, Object> authenticationDetails = applicationSecurityDetails.getAuthenticationDetails();
 			
 			String path = httpServletRequest.getRequestURL().toString().toLowerCase();
+			Map<String, Object> modelMap = new HashMap<>();
+			String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
+			modelMap.put("environment", environment);
 			
 			if(roleNameList.contains("ADMIN")) { // Admin cannot have any home page, so always control-panel will be the home
-				return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+				return menuService.getTemplateWithSiteLayout("control-panel", modelMap);
 			}
 			
 			if(path.contains("cf/home")) {
 				if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == false) && 
 					roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
-					return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+					return menuService.getTemplateWithSiteLayout("control-panel", modelMap);
 				}else if((authenticationDetails != null && (boolean)authenticationDetails.get("isAuthenticationEnabled") == true) && 
 						roleNameList.contains("anonymous") && CollectionUtils.isEmpty(homePageURLList) == true){
 					return jwsUserRegistrationController.userLoginPage(httpServletRequest, httpServletRequest.getSession(), httpServletResponse);
@@ -118,8 +128,7 @@ public class HomeController {
 					return null;
 				}
 			}
-			
-			return menuService.getTemplateWithSiteLayout("control-panel", new HashMap<String, Object>());
+			return menuService.getTemplateWithSiteLayout("control-panel", modelMap);
 		} catch (CustomStopException custStopException) {
 			logger.error("Error occured in homePage.", custStopException);
 			throw custStopException;

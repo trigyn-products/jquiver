@@ -8,4 +8,4 @@ CREATE TABLE `jq_master_module` (
   `module_type` varchar(50) NOT NULL,
   PRIMARY KEY (`master_module_id`),
   UNIQUE KEY `master_module_name` (`master_module_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);

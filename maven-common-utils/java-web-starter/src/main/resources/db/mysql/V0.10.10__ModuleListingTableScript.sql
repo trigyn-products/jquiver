@@ -2,7 +2,7 @@ ALTER TABLE jq_module_listing ADD is_home_page INT(4) DEFAULT '0' AFTER is_insid
 
 ALTER TABLE jq_module_role_association
  DROP FOREIGN KEY jq_module_role_association_ibfk_1,
- CHANGE role_id role_id VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL FIRST,
+ CHANGE role_id role_id VARCHAR(100) NOT NULL FIRST,
  ADD updated_by VARCHAR(100) AFTER module_id,
  ADD updated_date TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT current_timestamp(),
  ADD is_deleted INT(4) DEFAULT '0';

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -12,15 +13,15 @@ import com.trigyn.jws.dbutils.repository.DBConnection;
 
 @Repository
 public class MailScheduleDao extends DBConnection {
-
+	
 	public MailScheduleDao(DataSource dataSource) {
 		super(dataSource);
 	}
-	
+
 	public void deleteEntityMailScheduleById(String mailScheduleId) {
 		StringBuilder	deleteManualQuery	= new StringBuilder(
 				"DELETE FROM MailSchedule AS ms WHERE ms.mailScheduleId = :mailScheduleId ");
-		Query<?>			query				= getCurrentSession().createQuery(deleteManualQuery.toString());
+		MutationQuery			query				= getCurrentSession().createMutationQuery(deleteManualQuery.toString());
 		query.setParameter("mailScheduleId", mailScheduleId);
 		query.executeUpdate();
 	}

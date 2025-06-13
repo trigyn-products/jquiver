@@ -261,7 +261,8 @@ margin: 0px;
             </tr>
       <tr>       
               <td colspan="2"><div class="col-inner-form full-form-fields" style="padding-top:20px;"><label>Description </label>
-                <span>${dynaList.dynarestMethodDescription}</span></div> </td>
+                <span><textarea rows="6" cols="90" data-type="text"  id="dynarestMethodDescription" placeholder="Method Description" name="dynarestMethodDescription"  maxlength="500">${dynaList.dynarestMethodDescription}</textarea>
+                </span></div> </td>
             </tr>
   
           </tbody>
@@ -320,4 +321,3 @@ margin: 0px;
 </table>
  </#list>
 </#if>
-

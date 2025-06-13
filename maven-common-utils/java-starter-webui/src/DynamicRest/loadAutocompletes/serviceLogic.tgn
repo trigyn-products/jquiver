@@ -1,0 +1,4 @@
+function loadAutocompletes() {
+    return daoResults["autocompleteResultSet"];
+}
+loadAutocompletes();

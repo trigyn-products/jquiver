@@ -4,25 +4,29 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_template_master")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "templateMasters") // Provide cache strategy.
 public class TemplateMaster implements Serializable {
 
 	private static final long	serialVersionUID	= -5210067567698574574L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "template_id", nullable = false)
 	private String				templateId			= null;
 

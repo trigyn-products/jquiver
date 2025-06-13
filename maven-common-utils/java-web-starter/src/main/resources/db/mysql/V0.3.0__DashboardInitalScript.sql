@@ -6,7 +6,7 @@ CREATE TABLE jq_context_master (
   created_by varchar(20) DEFAULT 'ADMIN',
   created_date timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (context_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 DROP TABLE IF EXISTS jq_dashboard;
@@ -22,7 +22,7 @@ CREATE TABLE jq_dashboard (
   is_draggable int(11) NOT NULL DEFAULT 1,
   is_exportable int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (dashboard_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashlet;
 CREATE TABLE jq_dashlet (
@@ -47,7 +47,7 @@ CREATE TABLE jq_dashlet (
   PRIMARY KEY (dashlet_id),
   KEY jq_dashlet_ibfk_1 (context_id),
   CONSTRAINT jq_dashlet_ibfk_1 FOREIGN KEY (context_id) REFERENCES jq_context_master (context_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashboard_dashlet_association;
 CREATE TABLE jq_dashboard_dashlet_association (
@@ -58,7 +58,7 @@ CREATE TABLE jq_dashboard_dashlet_association (
   KEY jq_dashboard_dashlet_association_ibfk_2 (dashlet_id),
   CONSTRAINT jq_dashboard_dashlet_association_ibfk_1 FOREIGN KEY (dashboard_id) REFERENCES jq_dashboard (dashboard_id),
   CONSTRAINT jq_dashboard_dashlet_association_ibfk_2 FOREIGN KEY (dashlet_id) REFERENCES jq_dashlet (dashlet_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashboard_lookup_category;
 CREATE TABLE jq_dashboard_lookup_category (
@@ -68,7 +68,7 @@ CREATE TABLE jq_dashboard_lookup_category (
   updated_by varchar(100) DEFAULT NULL,
   updated_date date DEFAULT NULL,
   PRIMARY KEY (lookup_category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashboard_role_association;
 CREATE TABLE jq_dashboard_role_association (
@@ -79,7 +79,7 @@ CREATE TABLE jq_dashboard_role_association (
 , KEY role_id (role_id)
 , CONSTRAINT jq_dashboard_role_association_ibfk_1 FOREIGN KEY (dashboard_id) REFERENCES jq_dashboard (dashboard_id)
 , CONSTRAINT jq_dashboard_role_association_ibfk_2 FOREIGN KEY (role_id) REFERENCES jq_user_role (role_id) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 DROP TABLE IF EXISTS jq_dashboard_shared_to_association;
@@ -90,7 +90,7 @@ CREATE TABLE jq_dashboard_shared_to_association (
   PRIMARY KEY (user_id,dashboard_id),
   KEY jq_dashboard_shared_to_association_ibfk_1 (dashboard_id),
   CONSTRAINT jq_dashboard_shared_to_association_ibfk_1 FOREIGN KEY (dashboard_id) REFERENCES jq_dashboard (dashboard_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashlet_configuration;
 CREATE TABLE jq_dashlet_configuration (
@@ -102,7 +102,7 @@ CREATE TABLE jq_dashlet_configuration (
   PRIMARY KEY (user_id,dashlet_id,dashboard_id),
   KEY jq_dashlet_configuration_ibfk_1 (dashlet_id),
   CONSTRAINT jq_dashlet_configuration_ibfk_1 FOREIGN KEY (dashlet_id) REFERENCES jq_dashlet (dashlet_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashlet_properties;
 CREATE TABLE jq_dashlet_properties (
@@ -120,7 +120,7 @@ CREATE TABLE jq_dashlet_properties (
   PRIMARY KEY (property_id),
   KEY jq_dashlet_properties_ibfk_1 (dashlet_id),
   CONSTRAINT jq_dashlet_properties_ibfk_1 FOREIGN KEY (dashlet_id) REFERENCES jq_dashlet (dashlet_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashlet_property_configuration;
 CREATE TABLE jq_dashlet_property_configuration (
@@ -133,7 +133,7 @@ CREATE TABLE jq_dashlet_property_configuration (
   KEY jq_dashlet_property_configuration_ibfk_2 (dashboard_id),
   CONSTRAINT jq_dashlet_property_configuration_ibfk_1 FOREIGN KEY (property_id) REFERENCES jq_dashlet_properties (property_id),
   CONSTRAINT jq_dashlet_property_configuration_ibfk_2 FOREIGN KEY (dashboard_id) REFERENCES jq_dashboard (dashboard_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_dashlet_role_association;
 CREATE TABLE jq_dashlet_role_association (
@@ -144,7 +144,7 @@ CREATE TABLE jq_dashlet_role_association (
 , KEY jq_dashlet_role_association_ibfk_2 (role_id)
 , CONSTRAINT jq_dashlet_role_association_ibfk_1 FOREIGN KEY (dashlet_id) REFERENCES jq_dashlet (dashlet_id)
 , CONSTRAINT jq_dashlet_role_association_ibfk_2 FOREIGN KEY (role_id) REFERENCES jq_user_role (role_id) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 ALTER TABLE jq_dashboard ADD UNIQUE INDEX (dashboard_name);

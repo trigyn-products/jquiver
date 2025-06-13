@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractMessageSource;
 import org.springframework.stereotype.Component;
 
+import com.trigyn.jws.resourcebundle.dao.ResourceBundleDAO;
 import com.trigyn.jws.resourcebundle.repository.interfaces.IResourceBundleRepository;
 
 
@@ -15,6 +16,9 @@ public class DBResourceBundle extends AbstractMessageSource {
 
 	@Autowired
 	private IResourceBundleRepository	iResourceBundleRepository	= null;
+	
+	@Autowired
+	private ResourceBundleDAO	resourceBundleDAO	= null;
 
 	private static final Locale			DEFAULT_LOCALE_CODE			= Locale.US;
 
@@ -27,8 +31,10 @@ public class DBResourceBundle extends AbstractMessageSource {
 			a_locale = DEFAULT_LOCALE_CODE;
 		}
 
-		message = iResourceBundleRepository.findByKeyAndLanguageCode(a_key, a_locale.toString(), DEFAULT_LOCALE_CODE.toString(),
+		//message = iResourceBundleRepository.findByKeyAndLanguageCode(a_key, a_locale.toString(), DEFAULT_LOCALE_CODE.toString(),
+		message = resourceBundleDAO.findByKeyAndLanguageCode(a_key, a_locale.toString(), DEFAULT_LOCALE_CODE.toString(),
 				Constant.RecordStatus.INSERTED.getStatus());
+		
 		if (message != null) {
 			mfReturn = new MessageFormat(message, a_locale);
 		} else {

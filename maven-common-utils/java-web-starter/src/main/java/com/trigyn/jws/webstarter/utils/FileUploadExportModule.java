@@ -17,9 +17,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.CustomeFileStorageException;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
+import com.trigyn.jws.dynarest.dao.ICustomFileStorage;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
@@ -37,6 +40,9 @@ public class FileUploadExportModule {
 	
 	@Autowired
 	private FileUploadConfigDAO fileUploadConfigDAO = null;
+	
+	@Autowired
+	private PropertyMasterService propertyMasterService = null;
 
 	public void exportData(Object object, String folderLocation) throws Exception {
 		FileUploadConfig fileUploadConfig = (FileUploadConfig) object;
@@ -64,7 +70,35 @@ public class FileUploadExportModule {
 			Path		downloadPath	= Paths.get(folderLocation + File.separator
 					+ Constant.FILE_BIN_UPLOAD_DIRECTORY_NAME + File.separator + fileUploadConfig.getFileBinId());
 
-			Path		fileRoot		= Paths.get(fu.getFilePath());
+			//Path		fileRoot		= Paths.get(fu.getFilePath());
+			 Path fileRoot =null;
+				if(("1").equalsIgnoreCase(fileUploadConfig.getIsFileStorageEnable().toString())==true)
+				{String className=null;
+					try {
+					String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+					fileRoot = Paths.get(fileUploadDir);
+					String customeClassName=fileUploadConfig.getCustomFileStorageClass();
+					int lastIndex = customeClassName.lastIndexOf(".");
+					className = customeClassName.substring(lastIndex + 1); 
+			
+					Class<?> serviceClass = Class.forName(fileUploadConfig.getCustomFileStorageClass(), Boolean.TRUE,
+							this.getClass().getClassLoader());
+					Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
+					
+						((ICustomFileStorage) classInstance).viewFile(fu.getFileUploadId());
+						if (!(classInstance instanceof ICustomFileStorage)) {
+							throw new CustomeFileStorageException("Class "+className+" does not implements ICustomeFileStorage Interface. ");
+						}
+					} catch (ClassNotFoundException e) {
+						throw new CustomeFileStorageException("Class " + className + " not found. ");
+					}
+					 catch (Exception e) {
+						throw new CustomeFileStorageException(e.getMessage());
+					}
+				}
+				else {
+					fileRoot = Paths.get(fu.getFilePath());
+				}
 			Path		filePath		= fileRoot.resolve(fu.getPhysicalFileName());
 			Resource	resource		= new UrlResource(filePath.toUri());
 			InputStream	in;
@@ -109,8 +143,8 @@ public class FileUploadExportModule {
 				fileUploadConfig.getLastUpdatedBy(),fileUploadConfig.getLastUpdatedTs(),fileUploadConfig.getUploadQueryType()
 				,fileUploadConfig.getDeleteQueryType(),fileUploadConfig.getViewQueryType(),fileUploadConfig.getDatasourceUploadValidator()
 				,fileUploadConfig.getDatasourceDeleteValidator(),fileUploadConfig.getDatasourceViewValidator(),fileUploadConfig.getIsCustomUpdated(),
-				fileUploadConfig.getUploadScriptLibraryId(),fileUploadConfig.getViewScriptLibraryId(),fileUploadConfig.getDeleteScriptLibraryId()
-				);
+				fileUploadConfig.getUploadScriptLibraryId(),fileUploadConfig.getViewScriptLibraryId(),fileUploadConfig.getDeleteScriptLibraryId(),
+				fileUploadConfig.getIsFileStorageEnable(),fileUploadConfig.getCustomFileStorageClass());
 
 		Map<String, Object>			map							= new HashMap<>();
 		map.put("moduleName", fileUploadConfig.getFileBinId());
@@ -133,7 +167,8 @@ public class FileUploadExportModule {
 				fileUploadConfigVO.getCreatedDate(), fileUploadConfigVO.getUpdatedBy(),fileUploadConfigVO.getUpdatedDate(),
 				fileUploadConfigVO.getUploadQueryType(),fileUploadConfigVO.getViewQueryType(),fileUploadConfigVO.getDeleteQueryType(),
 				fileUploadConfigVO.getDatasourceViewValidator(),fileUploadConfigVO.getDatasourceUploadValidator(),
-				fileUploadConfigVO.getDatasourceDeleteValidator(),fileUploadConfigVO.getIsCustomUpdated(),fileUploadConfigVO.getUploadScriptLibraryId(),fileUploadConfigVO.getViewScriptLibraryId(),fileUploadConfigVO.getDeleteScriptLibraryId());
+				fileUploadConfigVO.getDatasourceDeleteValidator(),fileUploadConfigVO.getIsCustomUpdated(),fileUploadConfigVO.getUploadScriptLibraryId(),fileUploadConfigVO.getViewScriptLibraryId(),fileUploadConfigVO.getDeleteScriptLibraryId(),
+				fileUploadConfigVO.getIsFileStorageEnable(),fileUploadConfigVO.getCustomFileStorageClass());
 
 		List<FileUpload>				fileUploads						= new ArrayList<>();
 

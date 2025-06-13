@@ -1,11 +1,4 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
@@ -16,8 +9,7 @@
 <div class="container">
                <div class="topband">
                               <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.addeditdetails')}</h2> 
-                              <div class="clearfix"></div>                         
-               </div>
+                </div>
   <form method="post" name="addEditForm" id="addEditForm">
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
@@ -25,7 +17,7 @@
                                                             <input type="hidden" data-type="text" id="schedulerid" name="schedulerid"  value="${(resultSetObject.scheduler_id)!""}" >
                                              <div class="col-3">
                                                                            <div class="col-inner-form full-form-fields">
-                                                                                                      <label for="schedulername" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                                                                                                      <label for="schedulername" ><span class="asteriskmark">*</span>
                                                                                                          ${messageSource.getMessage('jws.schedulername')}
                                                                                                       </label>
                                                                                                                         <input type="text" data-type="text" id="schedulername" name="schedulername"  value="${(resultSetObject.scheduler_name)!""}" maxlength="50" placeholder="Scheduler Name" class="form-control">
@@ -35,7 +27,7 @@
                 <div class="col-3">
                     <input type="hidden" id="restapiurl" name="restapiurl"  value="${(resultSetObject.jws_dynamic_rest_id)!""}">
                   <div class="col-inner-form full-form-fields">
-                        <label for="algoAutocomplete" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                        <label for="algoAutocomplete" ><span class="asteriskmark">*</span>
                             ${messageSource.getMessage('jws.targetapi')}</label>
                         <div class="search-cover">
                             <input class="form-control" id="algoAutocomplete" type="text">
@@ -45,7 +37,7 @@
                 </div>
                                              <div class="col-3">
                                                                            <div class="col-inner-form full-form-fields">
-                                                                                                      <label for="cronscheduler" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                                                                                                      <label for="cronscheduler" ><span class="asteriskmark">*</span>
                                                                                                          ${messageSource.getMessage('jws.cronschedulerexpression')}
                                                                                                       </label>
                                                                                                                         <input type="text" data-type="text" id="cronscheduler" name="cronscheduler"  value="${(resultSetObject.cron_scheduler)!""}" maxlength="50" placeholder="Cron Scheduler" class="form-control">
@@ -159,7 +151,7 @@
                 <div class="cornexpcopy">
                 <span class="cronResult">0 0 0 0 0 0 0</span>
                 <button onclick="copyToClipboard()" class="copybtn">
-                    <i class="fa fa-clipboard" aria-hidden="true"></i>
+                    <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
                     ${messageSource.getMessage('jws.copy')}
                  </button>
                 </div>
@@ -2921,12 +2913,12 @@
 
                <div class="row">
                               <div class="col-12">
-                                             <div class="float-right">
+                                             <div class="text-end">
                                                             <div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="submitAction('${formId}', this);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                               <ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="submitAction('${formId}', this);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -2944,7 +2936,7 @@
 <script>
 	document.title = "Manage Scheduler Details";
                let formId = "${formId}";
-               contextPath = "${contextPath}";
+              //contextPath = "${contextPath}";
                let isEdit = 0;
                let failedNotificationParam="";
      let autocomplete;

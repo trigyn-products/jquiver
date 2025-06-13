@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -20,7 +18,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -29,10 +26,10 @@ import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.vo.AuthenticationDetails;
 import com.trigyn.jws.usermanagement.vo.ConnectionDetailsJSONSpecification;
-import com.trigyn.jws.usermanagement.vo.DropDownData;
-import com.trigyn.jws.usermanagement.vo.JwsAuthAdditionalProperty;
 import com.trigyn.jws.usermanagement.vo.JwsAuthConfiguration;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
+
+import jakarta.servlet.ServletContext;
 
 @Service
 public class OAuth2HelperService {
@@ -171,8 +168,9 @@ public class OAuth2HelperService {
 			userInfoUrl = null;
 		}
 		return ClientRegistration.withRegistrationId(registrationId.getValue())
-				.redirectUriTemplate(redirectUriTemplate.getValue())
-				.clientAuthenticationMethod(ClientAuthenticationMethod.POST)// ClientAuthenticationMethod(String value)
+				.redirectUri(redirectUri)
+//				.redirectUriTemplate(redirectUriTemplate.getValue())
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)// ClientAuthenticationMethod(String value)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE) // AuthorizationGrantType(String
 																					// value)
 				.authorizationUri(authorizationUri.getValue())
@@ -190,7 +188,7 @@ public class OAuth2HelperService {
 
 	public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenResponseClient() {
 		OAuth2AccessTokenResponseHttpMessageConverter tokenResponseHttpMessageConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
-		tokenResponseHttpMessageConverter.setTokenResponseConverter(new CustomAccessTokenResponseConverter()); // https://github.com/jzheaux/messaging-app/blob/392a1eb724b7447928c750fb2e47c22ed26d144e/client-app/src/main/java/sample/web/CustomAccessTokenResponseConverter.java#L35
+		tokenResponseHttpMessageConverter.setAccessTokenResponseConverter(new CustomAccessTokenResponseConverter()); // https://github.com/jzheaux/messaging-app/blob/392a1eb724b7447928c750fb2e47c22ed26d144e/client-app/src/main/java/sample/web/CustomAccessTokenResponseConverter.java#L35
 
 		RestTemplate restTemplate = new RestTemplate(
 				Arrays.asList(new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));

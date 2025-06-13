@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public class AutocompleteParams {
 

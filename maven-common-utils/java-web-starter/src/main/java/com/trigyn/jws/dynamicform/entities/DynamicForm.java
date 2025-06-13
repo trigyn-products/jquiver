@@ -5,26 +5,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_dynamic_form")
 public class DynamicForm {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "form_id")
 	private String						formId					= null;
 
@@ -65,7 +63,7 @@ public class DynamicForm {
 	@Column(name = "last_updated_ts")
 	private Date						lastUpdatedTs			= null;
 
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "dynamicForm")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "dynamicForm")
 	private List<DynamicFormSaveQuery>	dynamicFormSaveQueries	= null;
 
 	@Column(name = "query_type")
@@ -73,9 +71,18 @@ public class DynamicForm {
 
 	@Column(name = "is_custom_updated")
 	private Integer						isCustomUpdated			= 1;
-	
+
 	@Transient
 	private String						scriptLibraryId			= null;
+
+	@Column(name = "is_captcha_enabled")
+	private Integer						isCaptchaEnabled		= 0;
+
+	@Column(name = "is_csrf_enabled")
+	private Integer						isCsrfEnabled			= 0;
+
+	@Column(name = "form_io_id")
+	private String						formIoId				= null;
 
 	public DynamicForm() {
 
@@ -84,7 +91,7 @@ public class DynamicForm {
 	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
 			Integer formTypeId, String createdBy, Date createdDate, String datasourceId, String formSelectChecksum,
 			String formBodyChecksum, String lastUpdatedBy, Date lastUpdatedTs,
-			List<DynamicFormSaveQuery> dynamicFormSaveQueries, Integer selectQueryType) {
+			List<DynamicFormSaveQuery> dynamicFormSaveQueries, Integer selectQueryType, String formIoId) {
 		this.formId					= formId;
 		this.formName				= formName;
 		this.formDescription		= formDescription;
@@ -100,30 +107,34 @@ public class DynamicForm {
 		this.lastUpdatedTs			= lastUpdatedTs;
 		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
 		this.selectQueryType		= selectQueryType;
+		this.formIoId				= formIoId;
 	}
 
 	public DynamicForm(String formId, String formName, String formDescription, String formSelectQuery, String formBody,
 			Integer formTypeId, String createdBy, Date createdDate, String datasourceId, String formSelectChecksum,
 			String formBodyChecksum, String lastUpdatedBy, Date lastUpdatedTs,
 			List<DynamicFormSaveQuery> dynamicFormSaveQueries, Integer selectQueryType, Integer isCustomUpdated,
-			String scriptLibraryId) {
-		this.formId = formId;
-		this.formName = formName;
-		this.formDescription = formDescription;
-		this.formSelectQuery = formSelectQuery;
-		this.formBody = formBody;
-		this.formTypeId = formTypeId;
-		this.createdBy = createdBy;
-		this.createdDate = createdDate;
-		this.datasourceId = datasourceId;
-		this.formSelectChecksum = formSelectChecksum;
-		this.formBodyChecksum = formBodyChecksum;
-		this.lastUpdatedBy = lastUpdatedBy;
-		this.lastUpdatedTs = lastUpdatedTs;
-		this.dynamicFormSaveQueries = dynamicFormSaveQueries;
-		this.selectQueryType = selectQueryType;
-		this.isCustomUpdated = isCustomUpdated;
-		this.scriptLibraryId = scriptLibraryId;
+			String scriptLibraryId, Integer isCaptchaEnabled, Integer isCsrfEnabled, String formIoId) {
+		this.formId					= formId;
+		this.formName				= formName;
+		this.formDescription		= formDescription;
+		this.formSelectQuery		= formSelectQuery;
+		this.formBody				= formBody;
+		this.formTypeId				= formTypeId;
+		this.createdBy				= createdBy;
+		this.createdDate			= createdDate;
+		this.datasourceId			= datasourceId;
+		this.formSelectChecksum		= formSelectChecksum;
+		this.formBodyChecksum		= formBodyChecksum;
+		this.lastUpdatedBy			= lastUpdatedBy;
+		this.lastUpdatedTs			= lastUpdatedTs;
+		this.dynamicFormSaveQueries	= dynamicFormSaveQueries;
+		this.selectQueryType		= selectQueryType;
+		this.isCustomUpdated		= isCustomUpdated;
+		this.scriptLibraryId		= scriptLibraryId;
+		this.isCaptchaEnabled		= isCaptchaEnabled;
+		this.isCsrfEnabled			= isCsrfEnabled;
+		this.formIoId				= formIoId;
 	}
 
 	public String getFormId() {
@@ -262,6 +273,30 @@ public class DynamicForm {
 		this.scriptLibraryId = scriptLibraryId;
 	}
 
+	public Integer getIsCaptchaEnabled() {
+		return isCaptchaEnabled;
+	}
+
+	public void setIsCaptchaEnabled(Integer isCaptchaEnabled) {
+		this.isCaptchaEnabled = isCaptchaEnabled;
+	}
+
+	public Integer getIsCsrfEnabled() {
+		return isCsrfEnabled;
+	}
+
+	public void setIsCsrfEnabled(Integer isCsrfEnabled) {
+		this.isCsrfEnabled = isCsrfEnabled;
+	}
+
+	public String getFormIoId() {
+		return formIoId;
+	}
+
+	public void setFormIoId(String formIoId) {
+		this.formIoId = formIoId;
+	}
+
 	public DynamicForm getObject(Boolean isImport) {
 		DynamicForm obj = new DynamicForm();
 		obj.setCreatedBy(createdBy != null ? createdBy.trim() : createdBy);
@@ -279,6 +314,7 @@ public class DynamicForm {
 		obj.setLastUpdatedTs(lastUpdatedTs);
 		obj.setSelectQueryType(selectQueryType);
 		obj.setScriptLibraryId(scriptLibraryId != null ? scriptLibraryId.trim() : scriptLibraryId);
+		obj.setFormIoId(formIoId != null ? formIoId.trim() : formIoId);
 
 		List<DynamicFormSaveQuery> dfsOtr = new ArrayList<>();
 		if (dynamicFormSaveQueries != null && !dynamicFormSaveQueries.isEmpty()) {
@@ -296,7 +332,7 @@ public class DynamicForm {
 	public int hashCode() {
 		return Objects.hash(createdBy, datasourceId, dynamicFormSaveQueries, formBody, formBodyChecksum,
 				formDescription, formId, formName, formSelectChecksum, formSelectQuery, formTypeId, lastUpdatedBy,
-				selectQueryType);
+				selectQueryType, formIoId);
 	}
 
 	@Override
@@ -319,7 +355,7 @@ public class DynamicForm {
 				&& Objects.equals(formSelectChecksum, other.formSelectChecksum)
 				&& Objects.equals(formSelectQuery, other.formSelectQuery)
 				&& Objects.equals(formTypeId, other.formTypeId) && Objects.equals(lastUpdatedBy, other.lastUpdatedBy)
-				&& Objects.equals(selectQueryType, other.selectQueryType);
+				&& Objects.equals(selectQueryType, other.selectQueryType) && Objects.equals(formIoId, other.formIoId);
 	}
 
 	@Override
@@ -332,7 +368,8 @@ public class DynamicForm {
 				.append(createdDate).append(", datasourceId=").append(datasourceId).append(", formSelectChecksum=")
 				.append(formSelectChecksum).append(", formBodyChecksum=").append(formBodyChecksum)
 				.append(", lastUpdatedBy=").append(lastUpdatedBy).append(", lastUpdatedDate=").append(lastUpdatedTs)
-				.append(", dynamicFormSaveQueries=").append(dynamicFormSaveQueries).append(selectQueryType).append("]");
+				.append(", formIoId=").append(formIoId).append(", dynamicFormSaveQueries=")
+				.append(dynamicFormSaveQueries).append(selectQueryType).append("]");
 		return builder.toString();
 	}
 

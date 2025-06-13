@@ -1,7 +1,4 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.js"></script>
@@ -17,12 +14,23 @@
 
 .searchrevision {
     background:var(--bluebgcolor);
-    padding: 10px;
-    margin-left: -1px;
+  	margin-left: -3px;
     z-index: 9;
     color: #fff;
-        cursor: pointer;
+    cursor: pointer;
+    padding: 8.9px 10px;
+    border-radius: 0 5px 5px 0;
 }
+
+.margintop{
+margin-top:20px;
+}
+
+.searchrevision:hover{
+opacity: 0.8;
+}
+
+
     </style>
 
 
@@ -31,16 +39,15 @@
 	<div class="container" style="padding-top: 40px">
 	     
 		 <div class="topband">
-			<h2 class="title-cls-name float-left history-label">${messageSource.getMessage("jws.history")}: ${(moduleName)!''}</h2> 
+			<h2 class="title-cls-name history-label">${messageSource.getMessage("jws.history")}: ${(moduleName)!''}</h2> 
              <#if isImport == "false"> 
-			<div class="float-right">
+			<div class="topactionbuttons">
 				<span onclick="backToPreviousPage();">
 	  				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 	  		 	</span>
 			</div>
              </#if>
-			<div class="clearfix"></div>
-		</div>
+ 		</div>
 		
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
@@ -80,7 +87,7 @@
 							</div>
 						</#if>
 						<span onclick="copyJsonData()" class="searchrevision">
-                                <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                <i class="fa fa-regular fa-copy" aria-hidden="true"></i>
  	                    </span>
 					</div>
                     </div>
@@ -98,8 +105,8 @@
 			</div>
 		</div>
 	
-		<div class="col-12">
-			<div class="float-right margin-b-25">
+		<div class="col-12 margintop" >
+			<div class="text-end margin-b-25">
 				<div class="btn-group dropup custom-grp-btn">
 					<div id="savedAction">
 		    	        <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="saveUpdatedJson();">${messageSource.getMessage("jws.save")}</button>
@@ -575,7 +582,7 @@ function saveScriptLibDetails(formId,contentJson){
      $.ajax({
        async: false,
         type: "POST",
-        url: contextPath + "/api/saveScript", 
+        url: contextPath+apiPath+"/saveScript", 
         data:{
             formId: formId,
             scriptIdArray : contentJson.scriptLibId,

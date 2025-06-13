@@ -10,4 +10,4 @@ CREATE TABLE `jws_template_version` (
   `updated_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
   PRIMARY KEY (`template_version_id`),
   UNIQUE KEY `entity_id` (`entity_id`,`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);

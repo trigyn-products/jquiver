@@ -640,7 +640,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 			$("#defaultTemplateDiv").show();
 			$.ajax({
 				type : "GET",
-				url : contextPath+"/api/defaultTemplates",
+				url : contextPath+apiPath+"/defaultTemplates",
 				success : function(data){
 					defaultTemplates = data["defaultTemplates"];
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
@@ -720,6 +720,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 </form>
 <script>
 	contextPath = "${(contextPath)!''''}";
+	viewPath = "${(viewPath)!''''}";
 	function backToWelcomePage() {
         location.href = contextPath+"/cf/home";
 	}
@@ -800,7 +801,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	}
   
     function openModuleListing(moduleURL) {
-		window.open(contextPath+"/view/"+moduleURL);
+		window.open(contextPath+viewPath+"/"+moduleURL);
     }
     
   	function formatIsInsideMenu(uiObject){
@@ -1979,7 +1980,7 @@ REPLACE INTO  jq_template_master (template_id, template_name, template, updated_
 	}
   
     function openModuleListing(moduleURL) {
-		window.open(contextPath+"/view/"+moduleURL);
+		window.open(contextPath+viewPath+"/"+moduleURL);
     }
     
 	function editHomePage(sourceElement) {
@@ -2162,7 +2163,7 @@ let autocompletePF;
         let entityIdVar = "${innerTemplateObj.entityId}";
         let entityNameVar = "${innerTemplateObj.entityName}";
         $.ajax({
-			url:contextPath+"/api/user-favorite-entity",
+			url:contextPath+apiPath+"/user-favorite-entity",
 			type:"POST",
 	        data:{
                 entityType: "${innerTemplateObj.entityType}",
@@ -2184,7 +2185,7 @@ let autocompletePF;
         let entityIdVar = "${innerTemplateObj.entityId}";
         let entityNameVar = "${innerTemplateObj.entityName}";
          $.ajax({
-			url:contextPath+"/api/user-favorite-entity-by-type",
+			url:contextPath+apiPath+"/user-favorite-entity-by-type",
 			type:"POST",
 	        data:{
                 entityType: "${innerTemplateObj.entityType}",

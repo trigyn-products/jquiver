@@ -2,31 +2,31 @@ package com.trigyn.jws.dynamicform.entities;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.GenericGenerator;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_dynamic_form_save_queries")
 @NamedQuery(name = "DynamicFormSaveQuery.findAll", query = "SELECT d FROM DynamicFormSaveQuery d")
 public class DynamicFormSaveQuery implements Serializable {
-	private final static Logger	logger				= LogManager.getLogger(DynamicFormSaveQuery.class);
+	private final static Logger	logger				= LoggerFactory.getLogger(DynamicFormSaveQuery.class);
 	private static final long	serialVersionUID	= 1L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "dynamic_form_query_id")
 	private String				dynamicFormQueryId	= null;
 

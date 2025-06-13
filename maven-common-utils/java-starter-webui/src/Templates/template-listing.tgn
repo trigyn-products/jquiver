@@ -1,12 +1,5 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" /> 
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>   
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>   
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
@@ -20,33 +13,35 @@
 </script>
 <div class="container">
   
-        <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.templating')}</h2> 
-         <div class="float-right"> 
-            <div class="addonbtnblock">
-        	${messageSource.getMessage('jws.show')}:<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()">   
-                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-            </select>
-            <#if environment == "dev">
+          <div class="topband">
+        <h2 class="title-cls-name">${messageSource.getMessage('jws.templating')}</h2> 
+            <div class="autocomplete-listing"> 
+                <div class="addonbtnblock">
+                <div class="showblock">
+                    <span>${messageSource.getMessage('jws.show')}</span>
+                    <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
+                    <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                    <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                    <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                    </select>       
+                    </div> 
+                <#if environment == "dev">
 
-             <button id="downloadTemplate" onclick= "downloadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.downloadtemplate')}</button>
+                <button id="downloadTemplate" onclick= "downloadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.downloadtemplate')}</button>
 
-             <button id="uploadTemplate" onclick= "uploadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.uploadTemplate')}</button>               
-               
-            </#if>
-            
-             <button id="addFreemarkerTemplate" onclick="submitForm()" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addtemp')}</button> 
+                <button id="uploadTemplate" onclick= "uploadTemplate();" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.uploadTemplate')}</button>               
+                
+                </#if>
+                
+                <button id="addFreemarkerTemplate" onclick="submitForm()" type="button" class="spacingclss btn btn-primary ">${messageSource.getMessage('jws.addtemp')}</button> 
 
-             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
-                </button>
+                <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
+                    </button>
+                </div>
             </div>
-        </div>
         
-        <div class="clearfix"></div>        
-        </div>
-        
+         </div>
+         
 		<div id="deleteHeader"></div>
         <div id="divTemplateGrid" class="tablescrollcls"></table>
 
@@ -182,11 +177,13 @@
 	function uploadTemplateById(thisObj){
 	  	let templateId = thisObj.id;
 		let templateName = $("#"+templateId).attr("name");
+		var templatetypeId = $("#typeSelect").val(); 
 	  	$.ajax({
 			url:contextPath+"/cf/utdbi",
 			type:"POST",
 	        data:{
 	        	templateName : templateName,
+	        	templatetypeId : templatetypeId,
 	        },
 			success : function(data) {
 			  showMessage("Template uploaded successfully", "success");
@@ -249,9 +246,13 @@
             });
         }
         function uploadTemplate(){
+        var templatetypeId = $("#typeSelect").val(); 
             $.ajax({
                 url:contextPath+"/cf/utd",
                 type:"POST",
+                 data:{
+		        	templatetypeId : templatetypeId,
+		        },
                 success : function(data) {
 				  showMessage("Template uploaded successfully", "success");
 				},

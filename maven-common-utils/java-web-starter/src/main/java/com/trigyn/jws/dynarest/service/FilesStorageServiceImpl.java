@@ -24,18 +24,14 @@ import java.util.stream.Collectors;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -50,12 +46,12 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.CustomeFileStorageException;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
-import com.trigyn.jws.dynamicform.entities.DynamicFormSaveQuery;
-import com.trigyn.jws.dynamicform.utils.Constant;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigDAO;
 import com.trigyn.jws.dynarest.dao.FileUploadConfigRepository;
+import com.trigyn.jws.dynarest.dao.ICustomFileStorage;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
 import com.trigyn.jws.dynarest.entities.FileUploadConfig;
@@ -67,12 +63,14 @@ import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 import com.trigyn.jws.templating.vo.TemplateVO;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Component
 @Qualifier(value = "file-system-storage")
 @Transactional
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-	private static final Logger logger = LogManager.getLogger(FilesStorageServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilesStorageServiceImpl.class);
 
 	@Autowired
 	private PropertyMasterService propertyMasterService = null;
@@ -166,6 +164,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		fileUpload.setUpdatedBy(userDetailsVO.getUserName());
 		fileUpload.setFileBinId(fileBinId);
 		fileUpload.setFileAssociationId(fileAssociationId);
+		fileUpload.setLastUpdatedTs(new Date());
 		fileUpload.setAction(action);
 		return fileUploadTempRepository.save(fileUpload);
 	}
@@ -207,7 +206,25 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			if (fileUploadDetails == null) {
 				throw (new Exception("file not found with id : " + fileUploadId));
 			}
-			Path root = Paths.get(fileUploadDetails.getFilePath());
+			
+            Path root =null;
+			FileUploadConfig fileUploadConfig= fileUploadConfigDAO.getFileUploadConfig(fileUploadDetails.getFileBinId());
+			if(("1").equalsIgnoreCase(fileUploadConfig.getIsFileStorageEnable().toString())==true)
+			{
+				String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+				root = Paths.get(fileUploadDir);
+				Class<?> serviceClass = Class.forName(fileUploadConfig.getCustomFileStorageClass(), Boolean.TRUE,
+						this.getClass().getClassLoader());
+				Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
+				try {
+					((ICustomFileStorage) classInstance).viewFile(fileUploadId);
+				} catch (Exception e) {
+					throw new CustomeFileStorageException(e.getMessage());
+				}
+			}
+			else {
+				root = Paths.get(fileUploadDetails.getFilePath());
+			}
 			Path filePath = root.resolve(fileUploadDetails.getPhysicalFileName());
 			Resource resource = new UrlResource(filePath.toUri());
 			String mimeType = URLConnection.guessContentTypeFromName(fileUploadDetails.getOriginalFileName());
@@ -302,7 +319,28 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		logger.debug("Inside FilesStorageServiceImpl.convertFileUploadToFileInfo(fileUploads: {})", fileUploads);
 		List<FileInfo> fileInfos = new ArrayList<>();
 		for (FileUpload fileUploadEntity : fileUploads) {
-			String filePath = fileUploadEntity.getFilePath() + File.separator + fileUploadEntity.getPhysicalFileName();
+			String filePath = null;
+			FileUploadConfig fileUploadConfig = fileUploadConfigDAO.getFileUploadConfig(fileUploadEntity.getFileBinId());
+			if(("1").equalsIgnoreCase(fileUploadConfig.getIsFileStorageEnable().toString())==true) {
+				/** This section is to handle file storage on 
+		        remote location eg sftp */
+				
+				String fileUploadDir = propertyMasterService.findPropertyMasterValue("file-upload-location");
+				Class<?> serviceClass = Class.forName(fileUploadConfig.getCustomFileStorageClass(), Boolean.TRUE,
+						this.getClass().getClassLoader());
+				Object classInstance = serviceClass.getDeclaredConstructor().newInstance();				
+				try {
+					((ICustomFileStorage) classInstance).viewFile(fileUploadEntity.getFileUploadId());
+				} catch (Exception e) {
+					throw new CustomeFileStorageException(e.getMessage());
+				}
+			    filePath=fileUploadDir + File.separator + fileUploadEntity.getPhysicalFileName();
+			}
+			else
+			{
+				 filePath = fileUploadEntity.getFilePath() + File.separator + fileUploadEntity.getPhysicalFileName();
+			     
+			}
 			File file = new File(filePath);
 			if (file.length() == 0) {
 				InputStream in = FilesStorageServiceImpl.class.getResourceAsStream(filePath);
@@ -763,21 +801,27 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		for (Map.Entry<String, List<Object[]>> entry : returnResult.entrySet()) {
 			String key = entry.getKey();
 			List<Object[]> val = entry.getValue();
-			for (Object[] queryRes : val) {
-				if (queryRes != null) {
-					if (key == "INSERT") {
-						requestParams.put("action", Constants.ACTION_UPL);
-					} else {
-						requestParams.put("action", Constants.ACTION_DEL);
+
+			for (Object queryRes : val) {
+				if (queryRes instanceof Map) {
+					@SuppressWarnings("unchecked")
+					Map<String, Object> map = (Map<String, Object>) queryRes;
+					if (val != null) {
+						if (key == "INSERT") {
+							requestParams.put("action", Constants.ACTION_UPL);
+						} else {
+							requestParams.put("action", Constants.ACTION_DEL);
+						}
+						String entityName = map.get("file_bin_id") + "-" + map.get("original_file_name");
+						requestParams.put("entityName", entityName);
+						requestParams.put("masterModuleType", Constants.MODULE_NAME);
+						requestParams.put("typeSelect", Constants.CHANGETYPE);
+						requestParams.put("userName", detailsVO.getUserName());
+						requestParams.put("message", "");
+						requestParams.put("date", activityTimestamp.toString());
 					}
-					requestParams.put("entityName", (String) queryRes[0] + "-" + (String) queryRes[1]);
-					requestParams.put("masterModuleType", Constants.MODULE_NAME);
-					requestParams.put("typeSelect", Constants.CHANGETYPE);
-					requestParams.put("userName", detailsVO.getUserName());
-					requestParams.put("message", "");
-					requestParams.put("date", activityTimestamp.toString());
+					activitylog.activitylog(requestParams);
 				}
-				activitylog.activitylog(requestParams);
 			}
 		}
 	}
@@ -814,6 +858,27 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		if (fileUploadTempDetails != null && fileUploadTempDetails.isEmpty() == false) {
 			fileList.addAll(fileUploadTempDetails);
 		}
+		
+		/** This section is to handle file storage on 
+        remote location eg sftp */
+		FileUploadConfig fileUploadConfig = fileUploadConfigDAO.getFileUploadConfig(fileBinId);
+
+		if (("1").equalsIgnoreCase(fileUploadConfig.getIsFileStorageEnable().toString())==true) {
+			String className=null;
+			try {
+				String customeClassName=fileUploadConfig.getCustomFileStorageClass();
+				int lastIndex = customeClassName.lastIndexOf(".");
+				className = customeClassName.substring(lastIndex + 1); 
+				Class<?> serviceClass = Class.forName(fileUploadConfig.getCustomFileStorageClass(), Boolean.TRUE,
+						this.getClass().getClassLoader());
+				Object classInstance = serviceClass.getDeclaredConstructor().newInstance();
+				if (!(classInstance instanceof ICustomFileStorage)) {
+					throw new CustomeFileStorageException("Class "+className+" does not implements ICustomeFileStorage Interface. ");
+				}
+			} catch (ClassNotFoundException e) {
+				throw new CustomeFileStorageException("Class " + className + " not found. ");
+			}
+		}
 
 		Map<String, List<Object[]>> returnResult = fileUploadConfigDAO.commitChanges(fileBinId, fileAssociationId,
 				fileUploadTempId);
@@ -833,7 +898,6 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -889,7 +953,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 		if (fileBinId != null) {
 			FileUploadConfig fileUploadConfig = fileUploadConfigRepository.getFileUploadConfig(fileBinId);
 			if (fileUploadConfig != null) {
-				String supportedExtensions = fileUploadConfig.getFileTypSupported();
+				String supportedExtensions = fileUploadConfig.getFileTypSupported().toLowerCase();
 				if (supportedExtensions != null
 						&& (supportedExtensions.equals("*") || supportedExtensions.equals(".*"))) {
 					return true;
@@ -900,7 +964,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 					MultipartFile file = files[0];
 					String fileName = file.getOriginalFilename();
 					if (fileName.contains(".")) {
-						String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+						String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 						if (supportedExtensions.contains(fileExtension) == false) {
 							return false;
 						}
@@ -981,7 +1045,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 			String fileAssociationId) throws Exception {
 		logger.debug("Inside FilesStorageServiceImpl.updateFileUploadTemp(fileBinId: {}, fileAssociationId: {})",
 				fileBinId, fileAssociationId);
-
+		
 		try {
 			LocalDate localDate = LocalDate.now();
 			Integer year = localDate.getYear();

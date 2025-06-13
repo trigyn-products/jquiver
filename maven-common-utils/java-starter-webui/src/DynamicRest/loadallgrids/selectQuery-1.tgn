@@ -1,0 +1,1 @@
+SELECT `grid_id` AS `value`, `grid_name` AS `label` FROM `jq_grid_details`

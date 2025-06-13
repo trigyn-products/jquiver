@@ -11,7 +11,7 @@ CREATE TABLE `jq_script_lib_details` (
   `updated_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
   `is_custom_updated` INT(1) DEFAULT NULL,
   PRIMARY KEY (`script_lib_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8mb3;
+);
 
 DROP TABLE IF EXISTS `jq_script_lib_connect`;
 
@@ -29,5 +29,5 @@ CREATE TABLE `jq_script_lib_connect` (
   KEY `script_lib_id` (`script_lib_id`),
   CONSTRAINT `mod_type_id` FOREIGN KEY (`module_type_id`) REFERENCES `jq_master_modules` (`module_id`),
   CONSTRAINT `script_lib_id` FOREIGN KEY (`script_lib_id`) REFERENCES `jq_script_lib_details` (`script_lib_id`)
-) ENGINE=INNODB DEFAULT CHARSET=utf8mb3;
+);
 

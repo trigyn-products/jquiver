@@ -6,16 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,42 +26,54 @@ import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynamicform.dao.DynamicFormCrudDAO;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
+import com.trigyn.jws.dynamicform.service.DynamicFormIoService;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.service.DynamicFormCrudService;
 import com.trigyn.jws.webstarter.utils.Constant;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Form Builder')")
 public class DynamicFormCrudController {
 
-	private final static Logger logger = LogManager.getLogger(DynamicFormCrudController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(DynamicFormCrudController.class);
 
 	@Autowired
-	private DynamicFormCrudService dynamicFormCrudService = null;
+	private DynamicFormCrudService	dynamicFormCrudService	= null;
 
 	@Autowired
-	private PropertyMasterDAO propertyMasterDAO = null;
+	private PropertyMasterDAO		propertyMasterDAO		= null;
 
 	@Autowired
-	private DynamicFormService dynamicFormService = null;
+	private DynamicFormService		dynamicFormService		= null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService				menuService				= null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService		userDetailsService		= null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog				activitylog				= null;
 
 	@Autowired
-	private DynamicFormCrudDAO dynamicFormDAO = null;
+	private DynamicFormCrudDAO		dynamicFormDAO			= null;
+
+	@Autowired
+	private FileUtilities			fileUtilities			= null;
+
+	@Autowired
+	private DynamicFormIoService	dynamicFormIoService	= null;
 
 	@PostMapping(value = "/aedf", produces = { MediaType.TEXT_HTML_VALUE })
 	public String addEditForm(@RequestParam("form-id") String formId, HttpServletResponse httpServletResponse)
@@ -82,8 +90,7 @@ public class DynamicFormCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -162,22 +169,43 @@ public class DynamicFormCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
 
 	@PostMapping(value = "/dfte", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> createDefaultFormByTableName(HttpServletRequest httpServletRequest) throws Exception {
+		Map<String, String> response  =  new HashMap<>();
 		String tableName = httpServletRequest.getParameter("tableName");
 		Boolean toggleCaptcha = false;
+		Boolean toggleCsrf = false;
 		Boolean toggleFileBin = false;
 		String additionalDataSourceId = httpServletRequest.getParameter("dbProductID");
 		String dbProductName = httpServletRequest.getParameter("dbProductName");
 		List<Map<String, Object>> tableDetails = dynamicFormService.getTableDetailsByTableName(tableName,
 				additionalDataSourceId);
-		return dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId,
-				dbProductName, toggleCaptcha,toggleFileBin,null,null);
+		Boolean isFormIo = Boolean.valueOf(httpServletRequest.getParameter("isFormIo"));
+		String formIoId = httpServletRequest.getParameter("formIoId");
+		if(isFormIo) {
+			Boolean isTableValid = Boolean.FALSE;
+			for (Map<String, Object> info : tableDetails) {
+				String	columnKey	= info.get("columnKey").toString();
+				if ("PK".equals(columnKey)) {
+					isTableValid = Boolean.TRUE;
+					break;
+				}
+			}
+			if(isTableValid == Boolean.FALSE) {
+				return (Map<String, String>) ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(response);
+			}
+			response = dynamicFormIoService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId,
+					dbProductName, formIoId);
+		} else {
+			response = dynamicFormService.createDefaultFormByTableName(tableName, tableDetails, null, additionalDataSourceId,
+					dbProductName, toggleCaptcha,toggleCsrf,toggleFileBin,null,null);
+		}
+		return response;
 	}
 
 	@GetMapping(value = "/cdd")
@@ -196,7 +224,8 @@ public class DynamicFormCrudController {
 
 	@PostMapping(value = "/udf")
 	public void uploadAllFormsToDB(HttpSession session, HttpServletRequest request) throws Exception {
-		dynamicFormCrudService.uploadFormsToDB(null);
+		String formTypeID = request.getParameter("formTypeID");
+		dynamicFormCrudService.uploadFormsToDB(formTypeID,null);
 	}
 
 	@PostMapping(value = "/ddfbi")
@@ -208,7 +237,8 @@ public class DynamicFormCrudController {
 	@PostMapping(value = "/udfbn")
 	public void uploadFormsByNameToDB(HttpSession session, HttpServletRequest request) throws Exception {
 		String formName = request.getParameter("formName");
-		dynamicFormCrudService.uploadFormsToDB(formName);
+		String formTypeID = request.getParameter("formTypeID");
+		dynamicFormCrudService.uploadFormsToDB(formTypeID,formName);
 	}
 
 }

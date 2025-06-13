@@ -1,14 +1,49 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
+<style>
+        .textarea-wrapper {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 300px;
+        margin: auto;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 5px;
+        background: #d0e2f4 !important;
+        border-radius: 5px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    #progress {
+        height: 5px;
+        width: 100%;
+        background: green;
+        border-radius: 5px;
+        transition: width 0.2s ease;
+    }
+
+    .characterscls{
+        font-size: 13px;
+        color: red;
+        margin-top: 5px;
+        text-align: right;
+    }
+    </style>
 </head>
 
 <div class="container">
@@ -18,8 +53,7 @@
         <#else>
             <h2 class="title-cls-name float-left"><@resourceBundleWithDefault "jws.addProperty" "Add property"/></h2> 
         </#if>
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 	
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>	
 	<form method="post" name="addEditForm" id="addEditForm">
@@ -27,36 +61,37 @@
 		<div class="row">
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="ownerType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownertype')}</label>
+					<label for="ownerType" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownertype')}</label>
 					<input type="text" id="ownerType" name="ownerType" value="" required maxlength="100" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
+                    <input type="hidden" id="propertyRegex" name="propertyRegex" value="">
 					<input type="hidden" id="propertyMasterId" name="propertyMasterId" value="">
-					<label for="ownerId" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownerid')}</label>
+					<label for="ownerId" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.ownerid')}</label>
 					<input type="text" id="ownerId" name="ownerId" value="" required maxlength="100" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="appVersion" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.appversion')}</label>
+					<label for="appVersion" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.appversion')}</label>
 					<input type="number" id="appVersion" name="appVersion" value="" maxlength="7" required class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="propertyName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyname')}</label>
+					<label for="propertyName" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyname')}</label>
 					<input type="text" id="propertyName" name="propertyName" placeholder="Name of the property" value="" required maxlength="100" class="form-control">
 				</div>
 			</div>
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="propertyValue" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyvalue')}</label>
+					<label for="propertyValue" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.propertyvalue')}</label>
 					<div class="txtWrapper">
 					<textarea placeholder="Proper value" id="propertyValue" name="propertyValue" rows="4" required class="form-control">${(resultSetObject?api.get("property_value"))!""}</textarea>
 					<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
@@ -67,15 +102,15 @@
 			
 			<div class="col-4">
 				<div class="col-inner-form full-form-fields">
-					<label for="comment" style="white-space:nowrap">${messageSource.getMessage('jws.comments')}</label>
+					<label for="comment" >${messageSource.getMessage('jws.comments')}</label>
 					<div class="txtWrapper">
 					<textarea placeholder="Purpose of the property" id="comment" name="comment" rows="4" onkeydown="calculateLength();" onkeyup="calculateLength();" maxlength="100" class="form-control"></textarea>
 					<i class="fa fa-arrows-alt" title="Click to enter full screen" aria-hidden="true"></i>
                     </div>
-
-                <div style = "text-align:right">
-                    <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="100" >
-                </div>
+                     <div class="progress-bar">
+                            <div id="progress"></div>
+                        </div>
+                        <p class="characterscls" id="countdown" name="countdown">100 characters left</p>
                 </div>
 			</div>
 			
@@ -87,12 +122,12 @@
 	</form>
 	<div class="row margin-t-10">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
 			      <div id="savedAction">
 		    	  		<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		     	   </div>
-		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		        	<button id="actionDropdownBtn" type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		           	<div class="dropdown-menu action-cls"  id="actionDiv">
 		               	<ul class="dropdownmenu">
 		                  	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('property-master-form', this, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -114,7 +149,7 @@
 
 <script>
 	document.title = "Manage Application Configuration Module";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
 	let formId = "${formId}";
 	let isEdit = 0;
 	
@@ -136,8 +171,12 @@
 			showMessage("Information saved successfully", "success");
 			enableVersioning(formData);
 		  },
-	      error : function(xhr, error){
-			showMessage("Error occurred while saving", "error");
+	      error : function(xhr, error){			
+             if (xhr != undefined && xhr.status == 500) {			
+                    showMessage(xhr.responseText, "error");
+                }else{
+                	showMessage("Error occurred while scheduling", "error");
+                }
 	      },
      	});
      	refreshMailConfiguration();
@@ -154,6 +193,7 @@
             	ownerType: $("#ownerType").val(),
             	propertyName: $("#propertyName").val(),
             	propertyValue: $("#propertyValue").val(),
+                propertyRegex: $("#propertyRegex").val(),
         	},
         	success : function(data) {
 	
@@ -184,19 +224,48 @@
         const propertyValue = $("#propertyValue").val().trim();
         const appVersion = $("#appVersion").val().trim();
         const comment = $("#comment").val().trim();
+        const propertyRegex = $("#propertyRegex").val().trim(); //validation for property Value
         if(ownerId == "" || ownerType == "" || propertyName == "" 
                 || propertyValue == "" || appVersion == "" ){
             showMessage("Fields marked with an * are required", "warn");
     		return false;
         }
-        return true;
+        if(propertyRegex!="") {
+           	var validFlag= isValidRegExp(propertyRegex);
+	        if(validFlag) {
+	          	try {
+                    const regex = new RegExp(propertyRegex);
+                    if (!regex.test(propertyValue)) {
+                        showMessage("Invalid property value, as it does not match Regular Expression", "warn");
+                        return false;
+                    }
+                } catch(e) {
+	                showMessage("Error occurred while validating property value.", "warn");
+	                return false;
+                }
+           } else {
+               showMessage("Invalid Regular Expression defined for property value.", "warn");
+               return false;
+           }
+         }
+         return true;
     }
 	
+    function isValidRegExp(regexString) {
+    try {
+        new RegExp(regexString);
+        return true;
+    } catch (e) {
+        return false;
+    }
+    }
+
 	function backToPreviousPage() {
 		location.href = contextPath+"/cf/pml"
 	}
 	
 	$(function() {
+        calculateLength();
         $( ".txtWrapper i" ).click(function() {
             let elem = $(this).prev().get()[0];
             if (elem.requestFullscreen) {
@@ -219,17 +288,15 @@
                 $("#ownerId").val($('<div></div>').html('${resultSetList?api.get("owner_id")}').text());
                 $("#ownerType").val($('<div></div>').html('${resultSetList?api.get("owner_type")}').text());
                 $("#propertyName").val($('<div></div>').html('${resultSetList?api.get("property_name")}').text());
-                $("#comment").val($('<div></div>').html('${resultSetList?api.get("comments")}').text());
+                $("#propertyRegex").val($('<div></div>').html('${resultSetList?api.get("property_regex")!""}').text());
+                $("#comment").val('${resultSetList?api.get("comments")?js_string}');
                 </#outputformat>
 				<#outputformat "RTF">
 					
 				</#outputformat>
         		$("#appVersion").val('${resultSetList?api.get("app_version")}');
-                var num = parseInt(document.getElementById('comment').value.length);
-                var num2 = 100;
-                var num3 = num2-num;
-                $('#countdown').val(num3);
-                 
+                calculateLength();
+                               
         	</#list>
         <#else>
 			const generatedPrimaryKey = uuidv4();
@@ -253,11 +320,28 @@
 
     
     function calculateLength() {
-        var limitNum=100;
-        var commentField = $("#comment").val();
-        var limitCount = $('#countdown').val();
-        limitCount = (limitNum) - commentField.length;
-        $('#countdown').val(limitCount);
+        var textarea = document.getElementById("comment");
+        var progress = document.getElementById("progress");
+        var charCount = document.getElementById("countdown");
+        var maxLength = textarea.maxLength;
+
+        var remaining = maxLength - textarea.value.length;
+        charCount.textContent = remaining + " characters left";
+
+        var percent = (textarea.value.length / maxLength) * 100;
+        progress.style.width = percent + "%";
+
+        if (textarea.value.length > 0) {
+            if (remaining <= 10) {
+                progress.style.background = "red";
+            } else if (remaining <= 50) {
+                progress.style.background = "orange";
+            } else {
+                progress.style.background = "green";
+            }
+        } else {
+            progress.style.background = "transparent";
+        }
         
     }
 

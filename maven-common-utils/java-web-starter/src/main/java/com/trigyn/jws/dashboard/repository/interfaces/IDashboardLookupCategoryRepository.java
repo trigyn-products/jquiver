@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dashboard.dao.QueryStore;
@@ -14,11 +15,11 @@ import com.trigyn.jws.dashboard.vo.DashboardLookupCategoryVO;
 public interface IDashboardLookupCategoryRepository extends JpaRepository<DashboardLookupCategory, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_NAME)
-	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByName(String lookupCategoryName);
+	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByName(@Param("lookupCategoryName") String lookupCategoryName);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_CATEOGRY_ID)
-	List<DashboardLookupCategoryVO> findDashboardLookupCategoryById(List<String> lookupCategoryId);
+	List<DashboardLookupCategoryVO> findDashboardLookupCategoryById(@Param("lookupCategoryId") List<String> lookupCategoryId);
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_LOOKUP_DETAILS_BY_TYPE)
-	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByType(String type);
+	List<DashboardLookupCategoryVO> findDashboardLookupCategoryByType(@Param("type") String type);
 }

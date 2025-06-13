@@ -5,8 +5,9 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+
 
 /**
  * @author Mini.Pillai

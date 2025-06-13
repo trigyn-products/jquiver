@@ -2,9 +2,8 @@ var exportedFormatObject;
 var imporatableData;
 var importedIdList;
 function importFile() {
-	
-	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
-		
+	$.blockUI({ message: "<img src='" + contextPathHome + "/webjars/1.0/images/loading.gif' />" });
+
 	var importedFileData = new FormData(document.getElementById("importForm"))
 	$.ajax({
 		url: contextPath + '/cf/impF',
@@ -18,9 +17,9 @@ function importFile() {
 				let errorMessageString = data.substring(5);
 				showMessage(errorMessageString, "error");
 			} else {
-//				localStorage.removeItem("imporatableData");
-//				localStorage.removeItem("importedIdList");
-//				localStorage.removeItem("exportedFormatObject");
+				//				localStorage.removeItem("imporatableData");
+				//				localStorage.removeItem("importedIdList");
+				//				localStorage.removeItem("exportedFormatObject");
 				idList = new Array();
 				imporatableData = data;
 				//localStorage.setItem("imporatableData", imporatableData);
@@ -31,7 +30,7 @@ function importFile() {
 
 				var exportedFormat = zipFileJsonDataMap.get("exportedFormatObject");
 				//localStorage.setItem("exportedFormatObject", JSON.stringify(exportedFormatObject));
-				exportedFormatObject=exportedFormat;
+				exportedFormatObject = exportedFormat;
 				var versionMap = new Map();
 				let versionJson = JSON.parse(zipFileJsonDataMap.get("versionMap"));
 				for (var value in versionJson) {
@@ -46,14 +45,14 @@ function importFile() {
 
 				loadTable(zipFileJsonDataMap, versionMap, crcMap);
 			}
-			
-				 $.unblockUI();
+
+			$.unblockUI();
 		},
 		error: function(textStatus, errorThrown) {
 			$("#htmlTable > tbody").empty();
 			showMessage("Error while importing data", "error");
-			
-			 $.unblockUI();
+
+			$.unblockUI();
 		}
 	});
 }
@@ -66,7 +65,7 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 		var htmlTableJsonArray = JSON.parse(completeZipJsonData);
 		var tableRow = "";
 		$("#htmlTable > tbody").empty();
-		count=0;
+		count = 0;
 		if (htmlTableJsonArray != null) {
 			for (var i = 0; i < htmlTableJsonArray.length; i++) {
 				let importVersion = htmlTableJsonArray[i].moduleVersion;
@@ -74,80 +73,81 @@ function loadTable(zipFileJsonDataMap, versionMap, crcMap) {
 				let moduleID = htmlTableJsonArray[i].moduleID;
 				let existingVersion = versionMap.get(moduleType.toLowerCase() + moduleID);
 				let isNonVersioningModule = "false";
-				if (moduleType == "FileManager" || moduleType == "Permission" || moduleType == "SiteLayout"
+				if (moduleType == "FileManager" || moduleType == "Permission" || moduleType == "Router"
 					|| moduleType == "ManageUsers" || moduleType == "ManageRoles" || moduleType == "HelpManual") {
 					isNonVersioningModule = "true";
 				}
 				let isCheckSumUpdated = crcMap.get(moduleType.toLowerCase() + moduleID);
-               if(isCheckSumUpdated){
-				let existingVersionDisplay = versionMap.get(moduleType.toLowerCase() + moduleID);
-				if (existingVersion == "NE" && isNonVersioningModule == "true") {
-					existingVersionDisplay = "NA";
-				}
-				count++;
-				tableRow += '<tr>';
-				tableRow += '<td><label>' + count + '</label> </td>';
-				tableRow += '<td><label>' + moduleType + '</label> </td>';
-				tableRow += '<td><label>' + moduleID + '</label> </td>';
-				tableRow += '<td><label s>' + htmlTableJsonArray[i].moduleName + '</label> </td>';
-				tableRow += '<td><label id = "lblExistingVersion' + moduleID + '">' + existingVersionDisplay + '</label> </td>';
-				tableRow += '<td><label>' + importVersion + '</label> </td>';
-				tableRow += '<td>';
-
-				if ((existingVersion == "NA" && isNonVersioningModule == "false")
-					|| (existingVersion == "NE" && isNonVersioningModule == "true")
-					|| idList.includes(moduleType.toLowerCase() + moduleID) || isCheckSumUpdated == false) {
-					tableRow += '<button id="btnCompare' + moduleID + '" class="btn" name="importInd" type="button" disabled="disabled" '
-						+ 'onclick="submitRevisionForm(\'' + moduleType + '\','
-						+ '\'' + moduleID + '\')" >'
-						+ '<i class="fa fa-exchange"></i></button>';
-				} else {
-					tableRow += '<button id="btnCompare' + moduleID + '" class="btn" name="importInd" type="button" '
-						+ 'onclick="submitRevisionForm(\'' + moduleType + '\','
-						+ '\'' + moduleID + '\')" >'
-						+ '<i class="fa fa-exchange"></i></button>';
-				}
-
-				if (idList.includes(moduleType.toLowerCase() + moduleID) || isCheckSumUpdated == false) {
-					tableRow += '<button id="btnImport' + moduleID + '" class="btn" name="importInd" type="button"  disabled="disabled" '
-						+ 'onclick="importSingle(\'' + moduleType + '\','
-						+ '\'' + moduleID + '\')" >'
-						+ '<i class="fa fa-download"></i></button>';
-					if (!idList.includes(moduleType.toLowerCase() + moduleID)) {
-						idList.push(moduleType.toLowerCase() + moduleID);
-
+				if (isCheckSumUpdated) {
+					let existingVersionDisplay = versionMap.get(moduleType.toLowerCase() + moduleID);
+					if (existingVersion == "NE" && isNonVersioningModule == "true") {
+						existingVersionDisplay = "NA";
 					}
-				} else {
-					tableRow += '<button id="btnImport' + moduleID + '" class="btn" name="importInd" type="button" '
-						+ 'onclick="importSingle(\'' + moduleType + '\','
-						+ '\'' + moduleID + '\')" >'
-						+ '<i class="fa fa-download"></i></button>';
-					isDataAvailableForImport = true;
+					count++;
+					tableRow += '<tr>';
+					tableRow += '<td><label>' + count + '</label> </td>';
+					tableRow += '<td><label>' + moduleType + '</label> </td>';
+					tableRow += '<td><label>' + moduleID + '</label> </td>';
+					tableRow += '<td><label s>' + htmlTableJsonArray[i].moduleName + '</label> </td>';
+					tableRow += '<td><label id = "lblExistingVersion' + moduleID + '">' + existingVersionDisplay + '</label> </td>';
+					tableRow += '<td><label>' + importVersion + '</label> </td>';
+					tableRow += '<td>';
+
+					if ((existingVersion == "NA" && isNonVersioningModule == "false")
+						|| (existingVersion == "NE" && isNonVersioningModule == "true")
+						|| (existingVersion == "NE" && isNonVersioningModule == "false")
+						|| idList.includes(moduleType.toLowerCase() + moduleID) || isCheckSumUpdated == false) {
+						tableRow += '<button id="btnCompare' + moduleID + '" class="btn" name="importInd" type="button" disabled="disabled" '
+							+ 'onclick="submitRevisionForm(\'' + moduleType + '\','
+							+ '\'' + moduleID + '\')" >'
+							+ '<i class="fa fa-exchange"></i></button>';
+					} else {
+						tableRow += '<button id="btnCompare' + moduleID + '" class="btn" name="importInd" type="button" '
+							+ 'onclick="submitRevisionForm(\'' + moduleType + '\','
+							+ '\'' + moduleID + '\')" >'
+							+ '<i class="fa fa-exchange"></i></button>';
+					}
+
+					if (idList.includes(moduleType.toLowerCase() + moduleID) || isCheckSumUpdated == false) {
+						tableRow += '<button id="btnImport' + moduleID + '" class="btn" name="importInd" type="button"  disabled="disabled" '
+							+ 'onclick="importSingle(\'' + moduleType + '\','
+							+ '\'' + moduleID + '\')" >'
+							+ '<i class="fa fa-download"></i></button>';
+						if (!idList.includes(moduleType.toLowerCase() + moduleID)) {
+							idList.push(moduleType.toLowerCase() + moduleID);
+
+						}
+					} else {
+						tableRow += '<button id="btnImport' + moduleID + '" class="btn" name="importInd" type="button" '
+							+ 'onclick="importSingle(\'' + moduleType + '\','
+							+ '\'' + moduleID + '\')" >'
+							+ '<i class="fa fa-download"></i></button>';
+						isDataAvailableForImport = true;
+					}
+					tableRow += '</td>';
+					tableRow += '</tr>';
 				}
-				tableRow += '</td>';
-				tableRow += '</tr>';
 			}
-			}
-			
+
 		}
 
-										   
-		
-}
-		 if(tableRow==""){
-			    tableRow="<tr><td style= 'text-align: center;font-weight: bold;'>There are no changes to import.</td></tr>"
-		  }
-		$("#htmlTable > tbody").append(tableRow);
-		sessionStorage.setItem("tableRow",tableRow);
-	
+
+
+	}
+	if (tableRow == "") {
+		tableRow = "<tr><td style= 'text-align: center;font-weight: bold;'>There are no changes to import.</td></tr>"
+	}
+	$("#htmlTable > tbody").append(tableRow);
+	sessionStorage.setItem("tableRow", tableRow);
+
 }
 
 function submitRevisionForm(moduleType, entityId) {
 	let entity;
 	if (moduleType == "ResourceBundle") {
-		 entity = zipFileJsonDataMap.get(entityId);
-	} else{
-		 entity = zipFileJsonDataMap.get(moduleType.toLowerCase() + entityId);
+		entity = zipFileJsonDataMap.get(entityId);
+	} else {
+		entity = zipFileJsonDataMap.get(moduleType.toLowerCase() + entityId);
 	}
 	let jsonObject = JSON.parse(entity);
 	let formId = "";
@@ -155,15 +155,15 @@ function submitRevisionForm(moduleType, entityId) {
 	let saveURL = "";
 	let isNonVersioningModule = "false";
 	let nonVersioningFetchURL = "";
-	let cmvEntityName = ""; 
+	let cmvEntityName = "";
 	//localStorage.setItem("imporatableData", imporatableData);
-	imporatableData=imporatableData;
+	imporatableData = imporatableData;
 	if (moduleType == "Grid") {
 		cmvEntityName = "jq_grid_details";
 		formId = jsonObject["formId"];
 		moduleName = jsonObject["gridName"];
 		moduleTypeStr = "grid";
-		
+
 	} else if (moduleType == "ScriptLibrary") {
 		cmvEntityName = "jq_script_lib_details";
 		formId = jsonObject["formId"];
@@ -210,14 +210,14 @@ function submitRevisionForm(moduleType, entityId) {
 		moduleName = jsonObject["formName"];
 		moduleTypeStr = "dynamicForm";
 
-	} else if(moduleType == "FileManager") { 
-			cmvEntityName = "jq_file_upload_config";
-			moduleName = jsonObject["fileBinId"];
-			moduleTypeStr = "fileManager";
-			isNonVersioningModule = "true";
-			nonVersioningFetchURL = "/cf/fuj";
-			saveURL = "/cf/sfuc";
-			
+	} else if (moduleType == "FileManager") {
+		cmvEntityName = "jq_file_upload_config";
+		moduleName = jsonObject["fileBinId"];
+		moduleTypeStr = "fileManager";
+		isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/fuj";
+		saveURL = "/cf/sfuc";
+
 	} else if (moduleType == "DynaRest") {
 		cmvEntityName = "jq_dynamic_rest_details";
 		formId = jsonObject["formId"];
@@ -231,9 +231,9 @@ function submitRevisionForm(moduleType, entityId) {
 		nonVersioningFetchURL = "/cf/puj";
 		saveURL = "/cf/sjra";
 
-	} else if (moduleType == "SiteLayout") {
+	} else if (moduleType == "Router") {
 		moduleName = jsonObject["moduleName"];
-		moduleTypeStr = "sitelayout";
+		moduleTypeStr = "router";
 		isNonVersioningModule = "true";
 		nonVersioningFetchURL = "/cf/muj";
 		saveURL = "/cf/sml";
@@ -249,13 +249,27 @@ function submitRevisionForm(moduleType, entityId) {
 		isNonVersioningModule = "true";
 		nonVersioningFetchURL = "/cf/mjwsu";
 		saveURL = "/cf/sjwsu";
+
 	} else if (moduleType == "ManageRoles") {
 		moduleName = jsonObject["roleName"];
 		moduleTypeStr = "manageroles";
 		isNonVersioningModule = "true";
 		nonVersioningFetchURL = "/cf/mjwsr";
 		saveURL = "/cf/sjwsr";
+
+	} else if (moduleType == "HelpManual") {
+		cmvEntityName = "jq_manual_entry";
+		moduleName = jsonObject["name"];
+		moduleTypeStr = "helpmanual";
+		isNonVersioningModule = "true";
+		nonVersioningFetchURL = "/cf/lumjd";
+		saveURL = "/cf/sjmed";
+	} else if (moduleType == "FormIO") {
+		cmvEntityName = "FormIO";
+		moduleName = jsonObject["formName"];
+		moduleTypeStr = "formio";
 	}
+
 	$("#cmvEntityName").val(cmvEntityName);
 	$("#entityId").val(entityId);
 	$("#moduleName").val(moduleName);
@@ -275,15 +289,15 @@ function submitRevisionForm(moduleType, entityId) {
 function importSingle(moduleType, entityId) {
 	var exportedFormat = zipFileJsonDataMap.get("exportedFormatObject");
 	const out = Object.create(null);
-    out["exportedFormatObject"]=JSON.stringify(exportedFormat);
-    //if(idList.length>0){
-		out["importId"]= entityId;
-		out["moduleType"]= moduleType;
-   // }
+	out["exportedFormatObject"] = JSON.stringify(exportedFormat);
+	//if(idList.length>0){
+	out["importId"] = entityId;
+	out["moduleType"] = moduleType;
+	// }
 	$.ajax({
 		url: contextPath + '/cf/importConfig',
 		type: "POST",
-		async: false,					
+		async: false,
 		contentType: "application/json",
 		data: JSON.stringify(out),
 		success: function(data) {
@@ -294,7 +308,7 @@ function importSingle(moduleType, entityId) {
 				if (!idList.includes(moduleType.toLowerCase() + entityId)) {
 					idList.push(moduleType.toLowerCase() + entityId);
 					//localStorage.setItem("importedIdList", JSON.stringify(idList));
-					importedIdList=JSON.stringify(idList);
+					importedIdList = JSON.stringify(idList);
 				}
 				$("#lblExistingVersion" + entityId).text(data);
 				$("#btnImport" + entityId).attr("disabled", true);
@@ -310,32 +324,34 @@ function importSingle(moduleType, entityId) {
 
 function importAll() {
 
-	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
 	
-//	let exportedFormatObject = localStorage.getItem("exportedFormatObject");
-    const map = Object.create(null);
-    map["imporatableData"]=imporatableData;
-    if(idList.length>0){
-		map["importedIdList"]=  JSON.stringify(idList);
-    }
+	//	let exportedFormatObject = localStorage.getItem("exportedFormatObject");
+	const map = Object.create(null);
+	map["imporatableData"] = imporatableData;
+	if (idList.length > 0) {
+		map["importedIdList"] = JSON.stringify(idList);
+	}
 	if (isDataAvailableForImport == true) {
+		$.blockUI({ message: "<img src='" + contextPathHome + "/webjars/1.0/images/loading.gif' />" });
+
 		$.ajax({
 			url: contextPath + '/cf/importAll',
 			type: "POST",
-			async: false,			
+			async: false,
 			contentType: "application/json",
-			data : JSON.stringify(map),
+			data: JSON.stringify(map),
 			success: function(data) {
 				if (data.startsWith("fail:")) {
 					var errorMessageString = data.substring(5);
 					showMessage(errorMessageString, "error");
 				} else {
 					$("#importAllBtn").attr("disabled", true);
-					backToPreviousPage();
+					//backToPreviousPage();
 					showMessage("All data imported.", "success");
+					location.reload();
 				}
-				
-			 $.unblockUI();
+
+				$.unblockUI();
 			},
 			error: function(textStatus, errorThrown) {
 				if (data.startsWith("fail:")) {
@@ -344,14 +360,14 @@ function importAll() {
 				} else {
 					showMessage("Error while importing data", "error");
 				}
-				 $.unblockUI();
+				$.unblockUI();
 			}
 		});
 	} else {
 		showMessage("No data available for importing", "info");
 	}
-	
-	
+
+
 }
 
 function backToPreviousPage() {
@@ -371,13 +387,13 @@ function showFileName(event) {
 }
 
 function importFromLocal() {
-	$.blockUI({ message: "<img src='"+contextPathHome+"/webjars/1.0/images/loading.gif' />" });
+	$.blockUI({ message: "<img src='" + contextPathHome + "/webjars/1.0/images/loading.gif' />" });
 	var importedFileData = new FormData(document.getElementById("importForm"))
 	$.ajax({
 		url: contextPath + '/cf/ifl',
 		type: "POST",
 		data: importedFileData,
-		enctype: 'multipart/form-data',	
+		enctype: 'multipart/form-data',
 		processData: false,
 		contentType: false,
 		success: function(data) {
@@ -385,9 +401,9 @@ function importFromLocal() {
 				let errorMessageString = data.substring(5);
 				showMessage(errorMessageString, "error");
 			} else {
-//				localStorage.removeItem("imporatableData");
-//				localStorage.removeItem("importedIdList");
-//				localStorage.removeItem("exportedFormatObject");
+				//				localStorage.removeItem("imporatableData");
+				//				localStorage.removeItem("importedIdList");
+				//				localStorage.removeItem("exportedFormatObject");
 				idList = new Array();
 				imporatableData = data;
 				//localStorage.setItem("imporatableData", imporatableData);
@@ -396,9 +412,9 @@ function importFromLocal() {
 					zipFileJsonDataMap.set(value, jsonObject[value])
 				}
 
-				var exportedFormat= zipFileJsonDataMap.get("exportedFormatObject")
+				var exportedFormat = zipFileJsonDataMap.get("exportedFormatObject")
 				//localStorage.setItem("exportedFormatObject", JSON.stringify(exportedFormatObject));
-				exportedFormatObject=exportedFormat;
+				exportedFormatObject = exportedFormat;
 				var versionMap = new Map();
 				let versionJson = JSON.parse(zipFileJsonDataMap.get("versionMap"));
 				for (var value in versionJson) {
@@ -413,12 +429,12 @@ function importFromLocal() {
 
 				loadTable(zipFileJsonDataMap, versionMap, crcMap);
 			}
-				 $.unblockUI();
+			$.unblockUI();
 		},
 		error: function(textStatus, errorThrown) {
 			$("#htmlTable > tbody").empty();
 			showMessage("Error while importing data", "error");
-				 $.unblockUI();
+			$.unblockUI();
 		}
 	});
 }
@@ -429,7 +445,7 @@ function changeImportType() {
 	if (type_id == '1') {
 		$("#showFilePath").show();
 		$("#filepathLabel").show();
-		$("#showFileupload").hide();		
+		$("#showFileupload").hide();
 	} else {
 		$("#showFilePath").hide();
 		$("#filepathLabel").hide();

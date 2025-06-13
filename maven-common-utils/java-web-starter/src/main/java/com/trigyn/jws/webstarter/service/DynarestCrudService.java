@@ -1,36 +1,27 @@
 package com.trigyn.jws.webstarter.service;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
+import com.trigyn.jws.dbutils.service.DownloadUploadModule;
+import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDAORepository;
 import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDaoDetail;
-import com.trigyn.jws.usermanagement.security.config.JwtUtil;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 
 @Service
 @Transactional
@@ -50,13 +41,13 @@ public class DynarestCrudService {
 
 	@Autowired
 	private JwsDynarestDAO					dynarestDAO						= null;
-
-	@Autowired
-	private UserDetailsService				userDetailsService 				= null;
 	
 	@Autowired
-	private JwtUtil							jwtUtil 						= null;
+	private IUserDetailsService				detailsService					= null;
 
+	
+	@Autowired
+	private DownloadUploadModule<JwsDynamicRestDetail>	downloadUploadModule			= null;
 
 	public String getContentForDevEnvironment(String formName, String fileName) throws Exception {
 
@@ -144,5 +135,20 @@ public class DynarestCrudService {
 		dynarestDAO.deleteDAOQueriesById(dynamicRestId, daoDetailsIdList);
 	}
 	
+	public void downloadDynamicRestTemplate(String dynarestId) throws Throwable {
+		String downloadFolderLocation = propertyMasterDAO.findPropertyMasterValue("system", "system",
+				"template-storage-path");
+		if (!StringUtils.isBlank(dynarestId)) {
+			
+			JwsDynamicRestDetail jwsDynamicRestDetail = dynarestDAO.findDynamicRestById(dynarestId);
+			downloadUploadModule.downloadCodeToLocal(jwsDynamicRestDetail, downloadFolderLocation);
+		} else {
+			downloadUploadModule.downloadCodeToLocal(null, downloadFolderLocation);
+		}
+	}
 	
+	public void uploadRestApis(String restTypeId,String restUrl) throws Exception {
+		downloadUploadModule.uploadCodeToDB(restTypeId,restUrl);
+	}
+
 }

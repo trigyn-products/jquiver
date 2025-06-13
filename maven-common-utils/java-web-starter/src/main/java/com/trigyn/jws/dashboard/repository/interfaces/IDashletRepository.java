@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dashboard.dao.QueryStore;
@@ -15,8 +16,8 @@ import com.trigyn.jws.dashboard.vo.DashletVO;
 public interface IDashletRepository extends JpaRepository<Dashlet, String> {
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_DASHLET_BY_CONTEXT_ID)
-	List<DashboardDashletVO> findDashletByContextId(String dashboardId);
+	List<DashboardDashletVO> findDashletByContextId(@Param("dashboardId") String dashboardId);
 
 	@Query(QueryStore.JPA_QUERY_TO_GET_DAHSLET_DETAILS_BY_ID)
-	DashletVO findDashletByDashletId(String dashletId);
+	DashletVO findDashletByDashletId(@Param("dashletId") String dashletId);
 }

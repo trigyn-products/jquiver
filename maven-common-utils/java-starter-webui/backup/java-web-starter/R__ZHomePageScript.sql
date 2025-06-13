@@ -31,12 +31,12 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 					        </select>
 						</li>
             			<li>
-            				<a class="nav-link " href="${(contextPath)!''''}/view/jqhm" title="<@resourceBundleWithDefault ''jws.helpManual'' ''Help Manual''/>" target="_blank">
+            				<a class="nav-link " href="${(contextPath)!''''}${(viewPath)!''''}/jqhm" title="<@resourceBundleWithDefault ''jws.helpManual'' ''Help Manual''/>" target="_blank">
 							<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</a>
 						</li>
 						<li>
-            				<a class="nav-link " href="${(contextPath)!''''}/view/health" title="<@resourceBundleWithDefault ''jws.appMetrics'' ''Application Metrics''/>" target="_blank">
+            				<a class="nav-link " href="${(contextPath)!''''}${(viewPath)!''''}/health" title="<@resourceBundleWithDefault ''jws.appMetrics'' ''Application Metrics''/>" target="_blank">
 							<i class="fa fa-heartbeat" aria-hidden="true"></i>
 							</a>
 						</li>
@@ -80,7 +80,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 											<#list moduleDetailsVOList as moduleDetailsVOChild>
 												<#if (moduleDetailsVOChild?api.getParentModuleId())?? && (moduleDetailsVOChild?api.getParentModuleId()) == (moduleDetailsVO?api.getModuleId())>
 													<li>
-														<a href = "${(contextPath)!''''}/view/${moduleDetailsVOChild?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''''}</a> 
+														<a href = "${(contextPath)!''''}${(viewPath)!''''}/${moduleDetailsVOChild?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVOChild?api.getModuleName()!''''}</a> 
 													</li>
 												</#if>
 											</#list>
@@ -90,7 +90,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 							<#elseif !(moduleDetailsVO?api.getParentModuleId())??>
 								<li class="nav-item">
 									<span data-feather="file"></span>
-									<a href = "${(contextPath)!''''}/view/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVO?api.getModuleName()!''''}</a>
+									<a href = "${(contextPath)!''''}${(viewPath)!''''}/${moduleDetailsVO?api.getModuleURL()!''''}" class="nav-link">${moduleDetailsVO?api.getModuleName()!''''}</a>
 								</li>
 							</#if>
 						
@@ -112,7 +112,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
     <div class="footer bg-dark">
         <div class="text-center">
             <small>Copyright &copy; <a href = "https://www.trigyn.com/" target="_blank">Trigyn Technologies</a></small>
-            <small class="float-right"><a href = "${(contextPath)!''''}/view/team" target="_blank">${(jquiverVersion)!''1.0.0''}</a></small>
+            <small class="float-right"><a href = "${(contextPath)!''''}${(viewPath)!''''}/team" target="_blank">${(jquiverVersion)!''1.0.0''}</a></small>
         </div>
     </div>
 </footer>
@@ -143,7 +143,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
         $.ajax({
 			type : "GET",
 	    	contentType : "application/json",
-			url : contextPathHome+"/api/retrieveProfilePic",
+			url : contextPathHome+apiPath+"/retrieveProfilePic",
             success: function(data) {
 				if(data == undefined || data.length==0) {
 	                if(document.getElementById("iClass") != null) {

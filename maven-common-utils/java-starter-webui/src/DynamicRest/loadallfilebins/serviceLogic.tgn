@@ -1,0 +1,4 @@
+function loadFileBins() {
+    return daoResults["fileBinsResultSet"];
+}
+loadFileBins();

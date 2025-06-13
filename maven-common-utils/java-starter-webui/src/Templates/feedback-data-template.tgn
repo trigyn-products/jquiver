@@ -1,0 +1,162 @@
+
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<head>
+<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
+</head>
+
+<div class="container">
+    <div class="topband">
+        <h2 class="title-cls-name">feedback-data</h2> 
+        <div class="topactionbuttons">
+             <button type="submit" class="btn btn-primary spacingclss"  id="createBtn"> Create New </button>
+            <span >
+                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
+            </span> 
+        </div>
+        
+     </div>
+        
+    <div class="table_responsive">
+         <div id="curDiv" class="cursor show"></div>  
+            <div id="feedback-dataGrid" class="tablescrollcls"></div>
+    </div>
+
+    <div id="snackbar"></div>
+</div>
+
+<script ${scriptNonce}>
+    contextPath = "${(contextPath)!''}";
+    viewPath = "${(viewPath)!''}";
+     let listingData  = [];
+    $(function () {
+	     const createBtn = document.getElementById("createBtn");
+	     const backBtn = document.getElementById("backBtn");
+	     createBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        upsert(null);
+	    });
+	     
+	     backBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        backToWelcomePage();
+	    });
+    //Add all columns that needs to be displayed in the grid
+        let colM = [
+            	{ title: "Id", hidden : false, width: 130, dataIndx: "id", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Rating", hidden : false, width: 130, dataIndx: "rating", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Feedback", hidden : false, width: 130, dataIndx: "feedback", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Module", hidden : false, width: 130, dataIndx: "module", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "Updated Date", hidden : false, width: 130, dataIndx: "updated_date", align: "left", halign: "center",  
+                filter: { type: "textbox", condition: "contain", listeners: ["change"]}  },
+            	{ title: "<@resourceBundle 'jws.action' />", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
+        ];
+    
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+        	
+            $("#feedback-dataGrid").addClass("mobiledatagrid");
+            $("#curDiv").removeClass("cursor");
+	        colM = [
+	            { title: "feedback-dataGrid", width: 100, align: "center", dataIndx: "gridId", align: "left", halign: "center",
+	                filter: { type: "textbox", condition: "contain", listeners: ["change"]},  sortable: false, render: renderMobileDisplay },
+	            { title: "Id", hidden : false, dataIndx: "id", hidden: true},
+	            { title: "Rating", hidden : false, dataIndx: "rating", hidden: true},
+	            { title: "Feedback", hidden : false, dataIndx: "feedback", hidden: true},
+	            { title: "Module", hidden : false, dataIndx: "module", hidden: true},
+	            { title: "Updated Date", hidden : false, dataIndx: "updated_date", hidden: true},
+	        ];
+        }
+    
+    	/*uncomment below section if you want sorting on any specific column by default.
+    	That column needs to be present in the column model defined above. If you don't 
+    	want to show that column, you can keep that as hidden column*/
+    	let dataModel = {
+    		url: contextPath + "/cf/pq-grid-data"
+    		/*,sortIndx: "lastUpdatedTs",
+   			sortDir: "down"*/
+    	};
+    	
+    //System will fecth grid data based on gridId
+        let grid = $("#feedback-dataGrid").grid({
+          gridId: "feedback-dataGrid",
+          colModel: colM,
+          dataModel: dataModel,
+		  additionalParameters: { "m": isMobile + ""}
+        });
+    
+     // Access the actual pqGrid instance
+       let pqGrid = $("#feedback-dataGrid").pqGrid("instance");
+
+       // Attach to the reliable `refresh` event
+        pqGrid.on("refresh", function () {
+        bindAllActionButtons(); // <- This WILL fire after rendering
+        });
+    });
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want date format
+    render: dateFormatter
+    */
+    /*
+    function dateFormatter(uiObject){
+    	let dateToBeFormatted = uiObject.cellData;
+    	return formatDate(dateToBeFormatted);
+    }*/
+    
+    /*
+    uncomment below method and set as formatter for your column if 
+    you want boolean format for dynamically rendering boolean grid values(true/false) as ticked/unticked check boxes
+    render: checkBoxRenderer
+    */
+    /*
+   function checkBoxRenderer(uiObject){
+        return "<span>" + ( uiObject.cellData ? "☑" : "☐") + "</span>";
+       
+    }
+    */
+    
+    function renderMobileDisplay(uiObject){
+        return "<span class='mb-data'>" + JSON.stringify(uiObject.rowData) + "</span>";
+    }    
+
+     //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
+    function actionButtonRenderer(uiObject) {
+         listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;  
+        let spanId = 'editBtn_' + rowIndx;
+        let generateRow='<span id="'+spanId+'"  class= "grid_action_icons" title="Edit Record"><i class="fa fa-pencil"></i></span>'.toString();
+        return generateRow;
+    }
+    // Bind All Buttons in One Go
+    function bindAllActionButtons() {
+	    $(".grid_action_icons").each(function () {
+	    const id = this.id;
+	    const rowIndx = parseInt(id.split("_")[1]);
+	    this.onclick = function () {
+	      upsert(rowIndx);
+	    };
+	  });
+	  }
+	
+
+     function upsert(a_rowID){
+    	let redirectURL = contextPath+viewPath+"/feedback-data-f";
+        if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
+    				redirectURL += '?id=' + listingData[a_rowID]["id"];
+    	}
+    	location.href = redirectURL;
+    }
+
+    //Code go back to previous page
+    function backToWelcomePage() {
+        location.href = contextPath;
+        
+    }
+</script>

@@ -1,16 +1,16 @@
 package com.trigyn.jws.quartz.config;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JobsListener implements JobListener{
 	
-	private final static Logger LOGGER = LogManager.getLogger(JobsListener.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(JobsListener.class);
 
 	@Override
 	public String getName() {

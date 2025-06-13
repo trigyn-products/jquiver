@@ -1,16 +1,35 @@
 server:
-  port: 8080
+  port: ${APPLICATION_PORT}
   shutdown: graceful
-spring:
+  servlet:
+    context-path: /${context_path}
+    session:
+      persistent: false 
+      timeout: -1
+spring:			
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: -1
+      max-request-size: -1
+  web:
+    resources:
+      static-locations: classpath:/
+  #comment the profile out if you don't need this
   profiles: ${profileName}
-  resources:
-    static-locations: classpath:/
   flyway:
     cleanDisabled: true
     enabled: true
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mysql://${DB_URL}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=true&serverTimezone=UTC&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    #note: for docker or k8, you should use proper IP rather than localhost / 127.0.0.1 if the database is running on host machine
+    url: jdbc:mariadb://${DB_URL}:${DB_PORT}/${DB_NAME}?createDatabaseIfNotExist=true&serverTimezone=UTC&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    ## if running on docker environment and mariadb server is not hosted on docker, then comment above line and uncomment below
+    #url: jdbc:mariadb://host.docker.internal:${DB_PORT}/${DB_NAME}
+    ## if running on docker environment and mariadb server is hosted on docker, then comment above line of url and uncomment below
+    #url: jdbc:mariadb://${mariadb service name on docker}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     #comment url, username & password and uncomment below property if you want to use JDNI instead of direct connection
@@ -21,3 +40,21 @@ logging:
     root: info
     org:
       flywaydb: info
+## Uncomment below code if javamelody configuration has to be set
+#javamelody:
+#  enabled: true
+#  spring-monitoring-enabled: true
+#  init-parameters:
+#    # to exclude images, css, fonts and js urls from the monitoring:
+#    url-exclude-pattern: (/webjars/.*|/css/.*|/images/.*|/fonts/.*|/js/.*)
+## Below configuration will define the path javamelody path. 
+## Default is "monitoring", but can be configured as per user preference.
+#    monitoring-path: /monitoring
+## Uncomment below code if Rest API and Router configuration has to be set.
+## Below configuration will define the path prefix of Rest API and Router define in application.
+## Default are view and api, but can be configured here, as per user preference. 
+#jquiver:
+#  view:
+#    path: /view
+#  api:
+#    path: /api

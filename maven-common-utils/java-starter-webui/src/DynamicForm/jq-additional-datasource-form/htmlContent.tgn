@@ -1,11 +1,4 @@
 <head>
-<link rel="stylesheet" href="${contextPath!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${contextPath!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${contextPath!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${contextPath!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${contextPath!''}/webjars/1.0/css/starter.style.css" />
 <script src="${contextPath!''}/webjars/1.0/common/passwordStrength.js"></script> 
         
 </head>
@@ -17,8 +10,7 @@
         <#else>
             <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.adddatasource')}</h2> 
         </#if>
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
   <form method="post" name="addEditForm" id="addEditForm">
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
@@ -37,8 +29,8 @@
 					<div class="col-inner-form full-form-fields">
 						<span class="asteriskmark">*</span>
 						<label for="allDBDrivers"><@resourceBundle "jws.databaseProductName" /></label>
-                        <a class="tipsicon tipslabelright collapsed" title="Tips" data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                                        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                        <a class="tipsicon tipslabelright collapsed" title="Tips" data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                                        <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>
                                     </a>
 						<select class="form-control" id="allDBDrivers" onchange="onDBTypeChange()">
 						</select>
@@ -52,7 +44,7 @@
 						<input type="text" data-type="varchar" id="datasourceid" name="datasourceid" readonly disabled 
                             class="form-control" value="${(resultSetObject.additional_datasource_id)!""}" >
                         <span onclick="copyId()" class="copybtnc">
-                            <i class="fa fa-clipboard"></i>                        
+                            <i class="fa fa-regular fa-copy"></i>                        
                         </span>
 					</div>
 				</div>
@@ -99,13 +91,13 @@
   </form>
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<button type="button" id="testConnBtn" class="btn btn-primary" onclick="testDatabaseConnection()"><@resourceBundleWithDefault "jws.testConnection" "Test Connection" /></button>
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" data-bs-toggle="dropdown" aria-expanded="false"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('${formId}', this, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -124,7 +116,7 @@
 <script>
 	document.title = "Manage Additional Datasource";
 	let formId = "${formId}";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
 	 let isEdit = 0;
      let driverList;
   
@@ -161,7 +153,7 @@
         let dbTypeId = $("#datasourceLookupId").val().trim();
         $.ajax({
 		    type : "POST",
-		    url : contextPath+"/api/jq-db-driver-list",
+		    url : contextPath+apiPath+"/jq-db-driver-list",
             success : function(data) {
                 driverList = data;
                 for (let property in data) {
@@ -245,7 +237,7 @@
          $.ajax({
 		    type : "POST",
 		    async:false,
-		    url : contextPath+"/api/jq-db-datasource",
+		    url : contextPath+apiPath+"/jq-db-datasource",
             data:{
                 adi: additionalDatasourceId,
                 dn: dataSourceName,
@@ -258,9 +250,11 @@
 	           if(xhr.responseText == "Success"){   
 	              isDataSaved = true;
 				  showMessage("Datasource saved successfully", "success");
-	            } else{
-	              showMessage("Error occured while saving", "error");
-	            }      
+	            } else if (xhr.responseText != null || xhr.responseText != ""){ 
+	              showMessage(xhr.responseText, "error");
+	            } else {
+                    showMessage("Error occured while saving", "error");
+                }  
 		},
 	        
 		});
@@ -314,7 +308,7 @@
         $.ajax({
 		    type : "POST",
             async: true,
-		    url : contextPath+"/api/jq-test-database-connection",
+		    url : contextPath+apiPath+"/jq-test-database-connection",
 		    data:{ 
 		    	dli: datasourceLookupId,
 		    	curl: connectionUrl,

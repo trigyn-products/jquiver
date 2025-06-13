@@ -8,13 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +31,7 @@ import com.trigyn.jws.dbutils.repository.IModuleListingRepository;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.ModuleDetailsVO;
 import com.trigyn.jws.dbutils.vo.ModuleTargetLookupVO;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -40,45 +39,57 @@ import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.usermanagement.entities.JwsRole;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
-@PreAuthorize("hasPermission('module','Site Layout')")
+@PreAuthorize("hasPermission('module','Router')")
 public class MenuCrudController {
 
-	private final static Logger logger = LogManager.getLogger(MenuCrudController.class);
+	private final static Logger logger = LoggerFactory.getLogger(MenuCrudController.class);
 
 	@Autowired
-	private ModuleService moduleService = null;
+	private ModuleService 				moduleService 			= null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService 				menuService 			= null;
 
 	@Autowired
-	private RequestMappingHandlerMapping handlerMapping = null;
+	private RequestMappingHandlerMapping handlerMapping 		= null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService 		userDetailsService 		 = null;
 
 	@Autowired
-	private ActivityLog activitylog = null; 
+	private ActivityLog 				activitylog 			 = null; 
 
 	@Autowired
-	private IModuleListingRepository iModuleListingRepository = null;
+	private IModuleListingRepository 	iModuleListingRepository = null;
+	
+	@Autowired
+	private FileUtilities 				fileUtilities 		  	 = null;
+	
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
 	
 	@GetMapping(value = "/mul", produces = MediaType.TEXT_HTML_VALUE)
 	public String moduleListingPage(HttpServletResponse httpServletResponse) throws Exception, CustomStopException {
 		try {
 			return menuService.getTemplateWithSiteLayout("menu-module-listing", new HashMap<>());
 		} catch (CustomStopException custStopException) {
-			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			logger.error("Error occured while loading Router Listing Page.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {
-			logger.error("Error occured while loading Site Layout Listing Page.", a_exception);
+			logger.error("Error occured while loading Router Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -100,7 +111,7 @@ public class MenuCrudController {
 			String url = a_httHttpServletRequest.getRequestURL().toString();
 			StringBuilder urlPrefix = new StringBuilder();
 			url = url.replace(uri, "");
-			urlPrefix.append(url).append("/view/");
+			urlPrefix.append(url).append(jQuiverPropeties.getViewPath()+"/");
 			ModuleListing moduleListing = new ModuleListing();
 			templateMap.put("urlPrefix", urlPrefix);
 			templateMap.put("userRoleVOs", userRoleVOs);
@@ -116,14 +127,14 @@ public class MenuCrudController {
 			}
 			return menuService.getTemplateWithSiteLayout("module-manage-details", templateMap);
 		} catch (CustomStopException custStopException) {
-			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			logger.error("Error occured while loading Router Listing Page.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {
-			logger.error("Error occured in Site Layout : "+"Module Id : " + moduleId, a_exception);
+			logger.error("Error occured in Router : "+"Module Id : " + moduleId, a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -131,7 +142,7 @@ public class MenuCrudController {
 
 	/**
 	 * Purpose of this method is to log activities</br>
-	 * in Site Layout Module.
+	 * in Router Module.
 	 * 
 	 * @author Bibhusrita.Nayak
 	 * @param entityName
@@ -143,7 +154,7 @@ public class MenuCrudController {
 		Map<String, String> requestParams = new HashMap<>();
 		UserDetailsVO detailsVO = userDetailsService.getUserDetails();
 		requestParams.put("entityName", entityName);
-		requestParams.put("masterModuleType", Constants.Modules.SITELAYOUT.getModuleName());
+		requestParams.put("masterModuleType", Constants.Modules.ROUTER.getModuleName());
 		requestParams.put("userName", detailsVO.getUserName());
 		requestParams.put("message", "");
 		requestParams.put("date", activityTimestamp.toString());
@@ -169,7 +180,7 @@ public class MenuCrudController {
 		try {
 			return moduleService.getModuleIdBySequence(parentModuleId, sequence);
 		} catch (Exception a_exception) {
-			logger.error("Error occured in Site Layout :"+ "Parent Module Id :"+ parentModuleId, a_exception);
+			logger.error("Error occured in Router :"+ "Parent Module Id :"+ parentModuleId, a_exception);
 			return "Error occurred";
 		}
 	}
@@ -212,14 +223,14 @@ public class MenuCrudController {
 			Map<String, Object> templateMap = new HashMap<>();
 			return menuService.getTemplateWithSiteLayout("config-home-page-listing", templateMap);
 		} catch (CustomStopException custStopException) {
-			logger.error("Error occured while loading Site Layout Listing Page.", custStopException);
+			logger.error("Error occured while loading Router Listing Page.", custStopException);
 			throw custStopException;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading Config Home Page Listing Page.", a_exception);
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 

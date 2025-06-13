@@ -310,7 +310,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
         }
         $("#divSchedulerLogHistory").find("button").remove()
         $.ajax({
-            url: "${contextPath!''''}/api/getExecutionHistory",
+            url: "${contextPath!''''}"+apiPath+"/getExecutionHistory",
             type: "POST",
             data:{"offset": a_offset,
             "schedulerID": schedulerID},

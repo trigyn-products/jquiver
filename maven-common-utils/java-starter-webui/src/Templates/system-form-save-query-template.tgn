@@ -1,12 +1,20 @@
-
-  <#noparse>
-   <#if isEdit == 1>
-  </#noparse>
-    ${updateQuery}
-  <#noparse>
-    <#else>
-  </#noparse>
-    ${insertQuery}
-  <#noparse>
-    </#if>
-  </#noparse>
+<#noparse>
+<#assign hasError = false>
+<#assign fieldList = </#noparse>${fieldList}<#noparse>/> 
+<#list fieldList as field>
+	<@validateRegex field.regexPattern field.fieldValue field.fieldName field.dataType />
+</#list>
+</#noparse>
+<#noparse>
+<#if !hasError> 
+	<#if isEdit == 1>
+</#noparse>
+		${updateQuery}
+<#noparse>
+	<#else>
+</#noparse>
+		${insertQuery}
+<#noparse>
+	</#if>
+</#if>
+ </#noparse>

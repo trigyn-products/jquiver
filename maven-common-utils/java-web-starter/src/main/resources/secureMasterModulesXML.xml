@@ -101,7 +101,7 @@
 		<entityID>b0f8646c-0ecf-11eb-94b2-f48e38ab9348</entityID>
 	</secureEntity>
 	<secureEntity>
-		<name>Site Layout</name>
+		<name>Router</name>
 		<type>master-module</type>
 		<entityID>c6cc466a-0ed3-11eb-94b2-f48e38ab9348</entityID>
 	</secureEntity>
@@ -119,5 +119,10 @@
 		<name>Help Manual</name>
 		<type>master-module</type>
 		<entityID>fcd0df1f-783f-11eb-94ed-f48e38ab8cd7</entityID>
+	</secureEntity>
+	<secureEntity>
+		<name>Form IO</name>
+		<type>master-module</type>
+		<entityID>1faee99c-021c-11ef-a019-7c8ae1bb24d8</entityID>
 	</secureEntity>
 </secureEntities>

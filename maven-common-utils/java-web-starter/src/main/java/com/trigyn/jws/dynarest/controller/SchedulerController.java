@@ -5,14 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.CronExpression;
 import org.quartz.JobDataMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +20,7 @@ import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.cipher.utils.JwsSchedulerJob;
 import com.trigyn.jws.dynarest.entities.JqScheduler;
@@ -33,11 +30,15 @@ import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/cf")
 public class SchedulerController {
 
-	private final static Logger		logger					= LogManager.getLogger(SchedulerController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(SchedulerController.class);
 
 	@Autowired
 	private JqschedulerRepository	jqschedulerRepository	= null;
@@ -62,6 +63,9 @@ public class SchedulerController {
 
 	@Autowired
 	private JwsQuartzJobService		jobService				= null;
+	
+	@Autowired
+	private FileUtilities		    fileUtilities			= null;
 
 	@RequestMapping(value = "/sl", produces = MediaType.TEXT_HTML_VALUE)
 	public String schedulerListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -75,7 +79,8 @@ public class SchedulerController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_exception.getMessage());
 			return null;
 		}
 	}
@@ -96,7 +101,8 @@ public class SchedulerController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_exception.getMessage());
 			return String.valueOf(status);
 		}
 		return String.valueOf(status);
@@ -152,7 +158,8 @@ public class SchedulerController {
 			}
 		} catch (Throwable a_thr) {
 			logger.error(a_thr.getMessage());
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_thr.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_thr.getMessage());
 		}
 		return String.valueOf(status);
 	}
@@ -165,7 +172,8 @@ public class SchedulerController {
 			String		schedulerId		= httpServletRequest.getParameter("schedulerID");
 			JqScheduler	jwsScheduler	= jqschedulerRepository.getOne(schedulerId);
 			if (jwsScheduler.getIsActive().equals(Constants.INACTIVE)) {
-				httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Scheduler is In Active.");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
+						"Scheduler is In Active.");
 				return String.valueOf(status);
 			}
 			String jobGroup = jwsScheduler.getJwsDynamicRestId();
@@ -177,7 +185,8 @@ public class SchedulerController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					a_exception.getMessage());
 		}
 		return String.valueOf(status);
 	}

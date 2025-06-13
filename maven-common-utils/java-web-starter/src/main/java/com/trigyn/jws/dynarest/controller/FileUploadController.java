@@ -9,12 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
@@ -40,6 +37,7 @@ import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dynarest.entities.FileUploadTemp;
@@ -47,14 +45,17 @@ import com.trigyn.jws.dynarest.repository.FileUploadTempRepository;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.dynarest.utils.Constants;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 import freemarker.core.StopException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
 public class FileUploadController {
 
-	private final static Logger			logger						= LogManager.getLogger(FileUploadController.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(FileUploadController.class);
 
 	@Autowired
 	private IUserDetailsService			userDetailsService			= null;
@@ -65,9 +66,16 @@ public class FileUploadController {
 	@Autowired
 	@Qualifier("file-system-storage")
 	private FilesStorageService			storageService				= null;
-
+	
 	@Autowired
 	private FileUploadTempRepository	fileUploadTempRepository	= null;
+	
+	@Autowired
+	private FileUtilities				fileUtilities				= null;
+	
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	@PostMapping(value = "/upload", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseBody
@@ -218,7 +226,7 @@ public class FileUploadController {
 			return ResponseEntity.status(HttpStatus.OK).build();
 		}
 		logUnauthorizedAccess("delete");
-		httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+		fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(),
 				"You don't have enough privileges to delete this file");
 		return null;
 	}
@@ -278,7 +286,7 @@ public class FileUploadController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), message);
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.NOT_FOUND.value(),message);
 			return null;
 		}
 	}
@@ -314,8 +322,8 @@ public class FileUploadController {
 				return new ResponseEntity<InputStreamResource>(streamResource, headers, HttpStatus.OK);
 			}
 
-			logUnauthorizedAccess("access/view");
-			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+			logUnauthorizedAccess("access"+jQuiverPropeties.getViewPath());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(),
 					"You don't have enough privileges to view this file");
 			return null;
 		} catch (Exception exception) {
@@ -324,7 +332,8 @@ public class FileUploadController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), message);
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.NOT_FOUND.value(),
+					message);
 			return null;
 		}
 	}
@@ -363,8 +372,8 @@ public class FileUploadController {
 				return fileInfo;
 			}
 
-			logUnauthorizedAccess("access/view");
-			httpServletResponse.sendError(HttpStatus.FORBIDDEN.value(),
+			logUnauthorizedAccess("access"+jQuiverPropeties.getViewPath());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.FORBIDDEN.value(),
 					"You don't have enough privileges to view this file");
 			return null;
 		} catch (Exception exception) {

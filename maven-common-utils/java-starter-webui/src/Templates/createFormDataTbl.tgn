@@ -1,0 +1,12 @@
+var System = Java.type("java.lang.System");
+var HashMap = Java.type("java.util.HashMap");
+
+
+function createFormDataTbl(){   
+    var queryCreateTbl = "CREATE TABLE IF NOT EXISTS`jq_formio_data`(`data_id`VARCHAR(50)NOT NULL,`form_io_id`VARCHAR(50)NOT NULL,`form_data`LONGTEXT DEFAULT NULL CHECK(JSON_VALID(`form_data`)),`created_by`VARCHAR(100)DEFAULT NULL,`created_date`DATETIME DEFAULT NULL,`last_updated_by`VARCHAR(500)DEFAULT NULL,`last_updated_ts`TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP()ON UPDATE CURRENT_TIMESTAMP(),PRIMARY KEY(`data_id`))";
+    var createTblResult = jq_updateDBQuery(queryCreateTbl, null, null);
+    if(createTblResult["actionStatus"] != "true" ){
+		 return "404";
+	}
+}
+createFormDataTbl();

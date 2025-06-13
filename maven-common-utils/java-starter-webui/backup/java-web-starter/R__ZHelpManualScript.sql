@@ -370,7 +370,7 @@ replace into jq_template_master (template_id, template_name, template, updated_b
         $.ajax({
 		    type : "POST",
 			async : true,
-			url : contextPath+"/api/manual-entry-sequence",
+			url : contextPath+apiPath+"/manual-entry-sequence",
 			data : {
 			 	manualType : manualType
 			},success: function(maxManualSequence){

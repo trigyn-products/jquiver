@@ -2,12 +2,6 @@ package com.trigyn.jws.dynarest.cipher.utils;
 
 import java.io.IOException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -20,12 +14,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-@Lazy
 public class SchedulerRequestFilter extends OncePerRequestFilter {
 
 	@Autowired
@@ -35,6 +35,14 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 	@Autowired
 	@Lazy
 	private PropertyMasterService	propertyMasterService	= null;
+	
+	@Autowired
+	private FileUtilities			fileUtilities			= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
+	
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -50,6 +58,7 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 			String	adminEmail				= propertyAdminEmailId == null ? "admin@jquiver.io"
 					: propertyAdminEmailId.equals("") ? "admin@jquiver.io" : propertyAdminEmailId;
 			String	apiUrlProperty			= propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
+			String apiPath = jQuiverPropeties.getApiPath().replaceFirst("/", "");
 			if (uri != null && schedulerUrlProperty != null && uri.contains("/" + schedulerUrlProperty + "/")
 					&& schedulerId != null && schedulerId.isEmpty() == false) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(adminEmail);
@@ -66,12 +75,14 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 				chain.doFilter(new HttpServletRequestWrapper(request) {
 					@Override
 					public String getRequestURI() {
-						return uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + "api" + "/");
+ 						//return uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + "api" + "/");
+						
+						return uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + apiPath + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
-						return new StringBuffer(uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
+						return new StringBuffer(uri.replace("/sch-api/" + schedulerUrlProperty + "/", "/" + apiPath + "/"));
 					}
 
 				}, response);
@@ -80,25 +91,27 @@ public class SchedulerRequestFilter extends OncePerRequestFilter {
 
 					@Override
 					public String getRequestURI() {
-						return uri.replace("/" + apiUrlProperty + "/", "/" + "api" + "/");
+						return uri.replace("/" + apiUrlProperty + "/", "/" + apiPath + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
-						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/", "/" + "api" + "/"));
+						return new StringBuffer(request.getRequestURL().toString().replace("/" + apiUrlProperty + "/", "/" + apiPath + "/"));
 					}
 
 				}, response);
 			}
 
 		} catch (ExpiredJwtException expiredException) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, expiredException.getMessage());
+			fileUtilities.customSendError(response,HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					expiredException.getMessage());
 			return;
 		} catch (SignatureException signatureException) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, signatureException.getMessage());
+			fileUtilities.customSendError(response,HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+					signatureException.getMessage());
 			return;
 		} catch (Exception exception) {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
+			fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You do not have enough privilege to access this module");
 			return;
 		}
 	}

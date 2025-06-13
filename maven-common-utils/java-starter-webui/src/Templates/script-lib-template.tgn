@@ -57,7 +57,7 @@
         <div class="col-12">
             <div class="col-inner-form full-form-fields">
                 
-                <label for="scriptlibid" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.scriptlibrary')}</label>
+                <label for="scriptlibid" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.scriptlibrary')}</label>
                 <div class="search-cover">
                     <input class="form-control" id="scriptlibid" type="text">
                     <i class="fa fa-search" aria-hidden="true"></i>
@@ -72,7 +72,7 @@
   </form>
     <div class="row">
 		<div class="col-12">
-         <div class="float-right">	
+         <div class="end">	
            <div class="btn-group dropup custom-grp-btn">
             <#if editorName?? && editorName?has_content>
                 <span onclick="saveMultiselect('${editorName}')">
@@ -93,7 +93,7 @@
     </div>
 <script>
 	document.title = "${messageSource.getMessage('jws.managescriptlib')}";
-	contextPath = "${contextPath}";	 
+	//contextPath = "${contextPath}";	 
     var index;
     var scriptLibJson = "";
     var deleteData = "";

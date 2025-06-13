@@ -6,7 +6,7 @@ CREATE TABLE `jq_authentication_type` (
   `authentication_properties` longtext DEFAULT NULL CHECK (json_valid(`authentication_properties`)),
   `default_auth_properties` longtext DEFAULT NULL CHECK (json_valid(`default_auth_properties`)),
   PRIMARY KEY (`authentication_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+);
 
 
 insert into `jq_authentication_type` (`authentication_id`, `authentication_name`, `authentication_properties`, `default_auth_properties`) 

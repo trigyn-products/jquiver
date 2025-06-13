@@ -1,7 +1,7 @@
 
 function getNotifications() {
 	$.ajax({
-		url: contextPathHome + '/api/gnd',
+		url: contextPathHome+apiPath+'/gnd',
 		type: "GET",
 		dataType: "json",
 		async: true,
@@ -49,7 +49,7 @@ function getNotifications() {
 function loadNotificationView() {
 	$("#divNotificationView").html("");
 	$.ajax({
-		url: contextPath + "/api/gnd",
+		url: contextPath+apiPath+"/gnd",
 		type: "GET",
 		dataType: "json",
 		async: true,

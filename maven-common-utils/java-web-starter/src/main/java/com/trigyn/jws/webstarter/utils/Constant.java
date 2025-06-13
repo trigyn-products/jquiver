@@ -34,9 +34,35 @@ public final class Constant {
 	public static final String	GENERIC_USER_NOTIFICATION		= "notification-listing";
 	public static final String	FILES_UPLOAD_DIRECTORY_NAME		= "Files";
 
+	
+	
+	public final static String TEMPLATES                = "Templates";
+	public final static String AUTOCOMPLETE             = "Autocomplete";
+	public final static String RESOURCEBUNDLE           = "ResourceBundle";
+	public final static String DASHBOARD                = "Dashboard";
+	public final static String DASHLET                  = "Dashlets";
+	public final static String DYNAREST                 = "DynaRest";
+	public final static String DYNAMICFORM              = "DynamicForm";
+	public final static String GRID                     = "Grid";
+	public final static String NOTIFICATION             = "Notification";
+	public final static String FILEMANAGER              = "FileManager";
+	public final static String PERMISSION               = "Permission";
+	public final static String ROUTER               	= "Router";
+	public final static String APPLICATIONCONFIGURATION = "ApplicationConfiguration";
+	public final static String MANAGEUSERS              = "ManageUsers";
+	public final static String MANAGEROLES              = "ManageRoles";
+	public final static String HELPMANUAL               = "HelpManual";
+	public final static String APICLIENTDETAILS         = "ApiClientDetails";
+	public final static String ADDITIONALDATASOURCE     = "AdditionalDatasource";
+	public final static String SCHEDULER                = "Scheduler";
+	public final static String FILEIMPEXPDETAILS        = "Files";
+	public final static String SCRIPTLIBRARY            = "ScriptLibrary";
+	
+	
+	
 	public enum ModuleType {
 		TEMPLATE("template"), AUTOCOMPLETE("autocomplete"), RESOURCEBUNDLE("resouceBundle"), DASHBOARD("dashboard"),
-		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm"),SCRIPTLIBRARY("scriptlibrary");
+		DASHLET("dashlet"), DYNAREST("dynarest"), DYNAMICFORM("dynamicForm"),SCRIPTLIBRARY("scriptlibrary"), FORMIO("FormIO");
 
 		final String moduleType;
 
@@ -52,10 +78,10 @@ public final class Constant {
 	public enum MasterModuleType {
 		TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"), RESOURCEBUNDLE("ResourceBundle"), DASHBOARD("Dashboard"),
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
-		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
+		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), ROUTER("Router"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
-		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("ScriptLibrary");
+		SCHEDULER("Scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("ScriptLibrary"), FORMIO("FormIO");
 
 		final String moduleType;
 
@@ -63,18 +89,55 @@ public final class Constant {
 			moduleType = i;
 		}
 
+		
 		public String getModuleType() {
 			return moduleType;
 		}
+		 @Override
+		 public String toString() {
+		       return this.moduleType;
+		    }
+		 
+		public static MasterModuleType valueOfModuleType(String a_strModuleType) {
+			if(a_strModuleType == null) {
+				return null;
+			}
+			for(MasterModuleType moduleType : MasterModuleType.values()) {
+				if(moduleType.getModuleType().equalsIgnoreCase(a_strModuleType
+						)) {
+					return moduleType;
+				}
+			}
+			return null;
+		}
 	}
+	
+	public enum EntityNameModuleTypeEnumExportImport {
+		GridUtils(MasterModuleType.GRID),Autocomplete(MasterModuleType.AUTOCOMPLETE),
+		FileBins(MasterModuleType.FILEMANAGER),Templating(MasterModuleType.TEMPLATES),DynamicForm(MasterModuleType.DYNAMICFORM), 
+		RestAPI(MasterModuleType.DYNAREST),Router(MasterModuleType.ROUTER),Internalization(MasterModuleType.RESOURCEBUNDLE),
+		Dashboard(MasterModuleType.DASHBOARD),Dashlet(MasterModuleType.DASHLET),Notification(MasterModuleType.NOTIFICATION),UserManagement(MasterModuleType.MANAGEUSERS),
+		ApplicationConfiguration(MasterModuleType.APPLICATIONCONFIGURATION), HelpManual(MasterModuleType.HELPMANUAL),ManagePermissions(MasterModuleType.PERMISSION),
+		ManageRoles(MasterModuleType.MANAGEROLES),Files(MasterModuleType.FILEIMPEXPDETAILS),APIClientDetails(MasterModuleType.APICLIENTDETAILS),
+		AdditionalDatasource(MasterModuleType.ADDITIONALDATASOURCE),Scriptlibrary(MasterModuleType.SCRIPTLIBRARY),Scheduler(MasterModuleType.SCHEDULER), FORMIO(MasterModuleType.FORMIO);
+		final MasterModuleType _baseEnum;
 
+		EntityNameModuleTypeEnumExportImport(MasterModuleType a_baseEnum) {
+			_baseEnum = a_baseEnum;
+		}
+
+		public MasterModuleType getBaseEnum() {
+			return _baseEnum;
+		}
+	}
+	
 	public enum EntityNameModuleTypeEnum {
 		TEMPLATES("jq_template_master"), AUTOCOMPLETE("jq_autocomplete_details"), RESOURCEBUNDLE("jq_resource_bundle"),
 		DASHBOARD("jq_dashboard"), DASHLET("jq_dashlet"), DASHLETS("jq_dashlet"), DYNAREST("jq_dynamic_rest_details"),
 		DYNAMICFORM("jq_dynamic_form"), GRID("jq_grid_details"), NOTIFICATION("jq_generic_user_notification"),
 		APPLICATIONCONFIGURATION("jq_property_master"), HELPMANUAL("jq_manual_type"),
 		APICLIENTDETAILS("jq_api_client_details"), ADDITIONALDATASOURCE("jq_additional_datasource"),
-		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details");
+		SCHEDULER("jq_job_scheduler"), FILEIMPEXPDETAILS("Files"),SCRIPTLIBRARY("jq_script_lib_details"), FORMIO("FormIO");
 
 		final String tableName;
 
@@ -101,4 +164,5 @@ public final class Constant {
 	public static final Integer	EXCLUDE_LAYOUT						= 0;
 	public static final String	DYNA_REST_MOD_ID					= "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
 	public static final String	DYNAFORM_MOD_ID						= "30a0ff61-0ecf-11eb-94b2-f48e38ab9348";
+	public static final String	Captcha								= "Captcha";
 }

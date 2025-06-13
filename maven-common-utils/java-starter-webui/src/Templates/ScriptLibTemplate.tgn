@@ -33,9 +33,8 @@
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left pageHeader">Add Details</h2> 
-		<div class="clearfix"></div>		
-	</div>
+		<h2 class="title-cls-name pageHeader">Add Details</h2> 
+ 	</div>
   <form name="addEditForm" id="addEditForm" onsubmit="return false;" action="#">
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>            
     	<div class="row">	         
@@ -43,7 +42,7 @@
 
         <div class="col-4">
             <div class="col-inner-form full-form-fields">
-                <label for="scriptlibid" style="white-space:nowrap"><span class="asteriskmark">*</span>Script Library</label>
+                <label for="scriptlibid" ><span class="asteriskmark">*</span>Script Library</label>
                 <div class="search-cover">
                     <input class="form-control" id="scriptlibid" type="text">
                     <i class="fa fa-search" aria-hidden="true"></i>
@@ -58,7 +57,7 @@
   </form>
     <div class="row">
 		<div class="col-12">
-         <div class="float-right">	
+         <div class="text-end">	
            <div class="btn-group dropup custom-grp-btn">
             <#if editorName?? && editorName?has_content>
                 <span onclick="saveMultiselect('${editorName}','${scriptEdit}')">
@@ -75,7 +74,7 @@
     </div>
 <script>
 	document.title = "Manage Script Connect";
-	contextPath = "${contextPath}";	 
+	//contextPath = "${contextPath}";	 
     <#if jsonObj?? && jsonObj?has_content>
         var json = '${jsonObj}';
     </#if>

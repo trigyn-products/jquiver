@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -29,12 +27,15 @@ import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Transactional(readOnly = true)
 public class DBTemplatingService {
 
-	private static final Logger		logger					= LogManager.getLogger(DBTemplatingService.class);
+	private static final Logger		logger					= LoggerFactory.getLogger(DBTemplatingService.class);
 
 	@Autowired
 	private DBTemplatingRepository	dbTemplatingRepository	= null;
@@ -60,6 +61,9 @@ public class DBTemplatingService {
 	
 	@Autowired
 	private ActivityLog				activitylog				= null;
+	
+	@Autowired
+	private RedissonQueryCacheManagerUtil cacheManager = null;
 
 	@Authorized(moduleName = Constants.TEMPLATING)
 	public TemplateVO getTemplateByName(String templateName) throws Exception {
@@ -68,7 +72,8 @@ public class DBTemplatingService {
 
 	public TemplateVO getTemplateByNameWithoutAuthorization(String templateName) throws Exception {
 
-		TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
+		//TemplateVO templateVO = dbTemplatingRepository.findByVmName(templateName);
+		TemplateVO templateVO = getTemplateByVmName(templateName);
 		if (templateVO == null) {
 			throw new Exception("No template was found with the name " + templateName);
 		}
@@ -79,6 +84,13 @@ public class DBTemplatingService {
 		return templateVO;
 	}
 
+	public TemplateVO getTemplateByVmName(String templateName) {
+		String	cacheName	= "templateDtoRegion";
+		String	cacheKey	= "vmName=" + templateName;
+		return cacheManager.fetchJpaDto(cacheName, cacheKey, () -> dbTemplatingRepository.findByVmName(templateName));
+	}
+
+	
 	public TemplateVO getVelocityDataById(String templateId) throws Exception {
 		/**Written for Preventing Cross Site Scripting*/
 		//  Avoid anything between script tags  added - paranoid regex
@@ -92,7 +104,8 @@ public class DBTemplatingService {
 	}
 
 	public String checkVelocityData(String velocityName) throws Exception {
-		TemplateVO templateVO = dbTemplatingRepository.findByVmName(velocityName);
+		//TemplateVO templateVO = dbTemplatingRepository.findByVmName(velocityName);
+		TemplateVO templateVO = getTemplateByVmName(velocityName);
 		if (templateVO == null) {
 			return null;
 		}
@@ -119,23 +132,6 @@ public class DBTemplatingService {
 		} else {
 			templateDetails.setCreatedBy(detailsVO.getUserName());
 		}
-		String environment = propertyMasterDAO.findPropertyMasterValue("system", "system", "profile");
-		if (environment.equalsIgnoreCase("dev")) {
-
-			String		ftlCustomExtension	= ".tgn";
-			String		templateDirectory	= "Templates";
-			String		folderLocation		= propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
-			TemplateVO	templateVO			= new TemplateVO();
-			templateVO.setTemplate(templateData);
-			folderLocation = folderLocation + File.separator + templateDirectory;
-			File directory = new File(folderLocation);
-			if (!directory.exists()) {
-				throw new Exception("No such directory present");
-			}
-			File templateFile = new File(folderLocation + File.separator + templateName + ftlCustomExtension);
-			templateDetails.setChecksum(fileUtilities.writeFileContents(templateVO.getTemplate(), templateFile));
-		}
-
 		TemplateMaster	templateMaster	= dbTemplatingRepository.saveAndFlush(templateDetails);
 		TemplateVO		templateVO		= new TemplateVO(templateMaster.getTemplateId(), templateMaster.getTemplateName(),
 				templateMaster.getTemplate(), new Date());
@@ -144,7 +140,12 @@ public class DBTemplatingService {
 		logActivity(templateName, typeSelect, templateId);
 		moduleVersionService.saveModuleVersion(templateVO, null, templateMaster.getTemplateId(), "jq_template_master",
 				Constant.MASTER_SOURCE_VERSION_TYPE);
-
+		// Invalidate the Redisson cache
+				String cacheKey = "vmName=" + templateMaster.getTemplateName(); // or however you build cacheKey
+				String cacheName = "templateDtoRegion";
+				cacheManager.invalidateDtoORScalarValues(cacheName, cacheKey);
+				String templateCacheKey = com.trigyn.jws.webstarter.utils.Constant.TargetLookupId.TEMPLATE.getTargetLookupId() + "::" + templateMaster.getTemplateId();
+				cacheManager.invalidateDtoORScalarValues( "targetTypeDetailsCache",templateCacheKey);
 		return templateMaster.getTemplateId();
 	}
 	
@@ -189,11 +190,6 @@ public class DBTemplatingService {
 		return templates;
 	}
 
-	public List<TemplateVO> getAllDefaultTemplates() {
-		List<TemplateVO> templateVOs = dbTemplatingRepository.getAllDefaultTemplates(Constant.DEFAULT_TEMPLATE_TYPE);
-		return templateVOs;
-	}
-
 	public void saveAllTemplates(List<TemplateMaster> templates) {
 		dbTemplatingRepository.saveAll(templates);
 	}
@@ -229,11 +225,5 @@ public class DBTemplatingService {
 			String content = fileUtilities.readContentsOfFile(file.getAbsolutePath());
 			templateVO.setTemplate(content);
 		}
-	}
-	
-	@Transactional(readOnly = false)
-	public void saveTemplate(TemplateMaster template) throws Exception {
-		template.setIsCustomUpdated(1);
-		templateDAO.saveVelocityTemplateData(template);
 	}
 }

@@ -3,9 +3,9 @@ package com.trigyn.jws.dynarest.vo;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.mail.internet.InternetAddress;
-
 import org.springframework.stereotype.Component;
+
+import jakarta.mail.internet.InternetAddress;
 
 @Component
 public class Email implements Serializable {

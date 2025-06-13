@@ -2,18 +2,14 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.awt.Dimension;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
@@ -46,14 +43,21 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.usermanagement.utils.Constants.VerificationType;
 import com.trigyn.jws.usermanagement.vo.JwsUserLoginVO;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
+import com.trigyn.jws.webstarter.service.CaptchaService;
 import com.trigyn.jws.webstarter.service.OtpService;
 import com.trigyn.jws.webstarter.service.UserManagementService;
+import com.trigyn.jws.webstarter.vo.CaptchaDetails;
+
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/cf")
 public class JwsUserRegistrationController {
 
-	private final static Logger			logger						= LogManager.getLogger(JwsUserRegistrationController.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(JwsUserRegistrationController.class);
 
 	@Autowired
 	private JwsUserRepository					userRepository					= null;
@@ -91,6 +95,13 @@ public class JwsUserRegistrationController {
 	@Autowired
 	private PropertyMasterService				propertyMasterService			= null;
 	
+	@Autowired
+	private FileUtilities 						fileUtilities 					= null;
+	
+	@Autowired
+	private CaptchaService 						captchaService 					= null;
+	
+	
 	@GetMapping("/login")
 	@ResponseBody
 	public String userLoginPage(HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
@@ -112,6 +123,9 @@ public class JwsUserRegistrationController {
 						if(((InvalidLoginException)excep).getPreviousEmail() != null) {
 							mapDetails.put("previousMail", ((InvalidLoginException)excep).getPreviousEmail());
 						}
+						if(((InvalidLoginException)excep).getPreviousAuth() != null) {
+							mapDetails.put("prevAuthType", ((InvalidLoginException)excep).getPreviousAuth());
+						}
 					}
 				}
 			} else if (session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION") != null) {
@@ -121,6 +135,9 @@ public class JwsUserRegistrationController {
 					mapDetails.put("exceptionMessage", exc.getMessage());
 					if(((InvalidLoginException)exc).getPreviousEmail() != null) {
 						mapDetails.put("previousMail", ((InvalidLoginException)exc).getPreviousEmail());
+					}
+					if(((InvalidLoginException)exc).getPreviousAuth() != null) {
+						mapDetails.put("prevAuthType", ((InvalidLoginException)exc).getPreviousAuth());
 					}
 				}
 				session.setAttribute("SPRING_SECURITY_LAST_EXCEPTION", null);
@@ -141,10 +158,10 @@ public class JwsUserRegistrationController {
 				userConfigService.getConfigurableDetails(mapDetails);
 				if (mapDetails.get(enableRegistrationPropertyName) != null
 						&& mapDetails.get(enableRegistrationPropertyName).toString().equalsIgnoreCase("false")) {
-					response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+					fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				}
 			} else {
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 			TemplateVO templateVO = templatingService.getTemplateByName("jws-register");
@@ -167,8 +184,17 @@ public class JwsUserRegistrationController {
 			if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 				userConfigService.getConfigurableDetails(mapDetails);
 			} else {
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
+			}
+			if(user.getPassword() != null) {
+				String password = user.getPassword();
+				String requestId = null;
+				if (request.getParameter("requestId") != null) {
+					requestId = request.getParameter("requestId");
+				}
+		        String decryptedPassword = userConfigService.decryptPassword(password,requestId);
+				user.setPassword(decryptedPassword); 
 			}
 			boolean isInValid = userManagementService.validateUserRegistration(request, user, mapDetails);
 
@@ -191,8 +217,12 @@ public class JwsUserRegistrationController {
 				break;
 			}
 			if (mapDetails.get("enableCaptcha").toString().equalsIgnoreCase("true")) {
-				HttpSession session = request.getSession();
-				session.removeAttribute("registerCaptcha");
+				//HttpSession session = request.getSession();
+				//session.removeAttribute("registerCaptcha");
+				String captchaRequest_Id=request.getHeader("r");
+				if (StringUtils.isBlank(captchaRequest_Id) == false) {
+					   captchaService.deleteCaptcha(captchaRequest_Id);
+					}
 			}
 			mapDetails.put("emailId", user.getEmail());
 			TemplateVO templateVO = templatingService.getTemplateByName(viewName);
@@ -230,7 +260,7 @@ public class JwsUserRegistrationController {
 					sb.append("Email :" + user.getEmail().trim());
 					viewName = "jws-accountVerified";
 				} else {
-					response.sendError(HttpStatus.BAD_REQUEST.value(), "The link is invalid or broken!");
+					fileUtilities.customSendError(response,HttpStatus.BAD_REQUEST.value(), "The link is invalid or broken!");
 					return null;
 				}
 
@@ -238,8 +268,7 @@ public class JwsUserRegistrationController {
 				return templatingUtils.processTemplateContents(templateVO.getTemplate(), templateVO.getTemplateName(),
 						mapDetails);
 			} else {
-
-				response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+				fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 				return null;
 			}
 		} catch (CustomStopException custStopException) {
@@ -249,33 +278,75 @@ public class JwsUserRegistrationController {
 	}
 
 	@GetMapping(value = "/captcha/{flagCaptcha}")
-	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request, HttpServletResponse response) throws Throwable {
+	public String loadCaptcha(@PathVariable String flagCaptcha, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 
-		String				captchaStr	= "";
-		String				captchaVal	= "";
-		int					captchaType	= 0;
-		
-		if (CaptchaUtil.getRandomNumber(10, 100) % 2 == 0) {
-			captchaStr	= CaptchaUtil.getCaptchaString();
-			captchaVal	= captchaStr;
-			captchaType	= 0;
-		} else {
-			Map<String, String> captchaMap = CaptchaUtil.getMathCaptcha();
-			captchaStr	= captchaMap.get("cs");
-			captchaVal	= captchaMap.get("cv");
-			captchaType	= 1;
+		try {
+			String captchaStr = "";
+			String captchaVal = "";
+			int captchaType = 0;
+
+			// String formId = request.getParameter("request_Id").toString();
+			if (CaptchaUtil.getRandomNumber(10, 100) % 2 == 0) {
+				captchaStr = CaptchaUtil.getCaptchaString();
+				captchaVal = captchaStr;
+				captchaType = 0;
+			} else {
+				Map<String, String> captchaMap = CaptchaUtil.getMathCaptcha();
+				captchaStr = captchaMap.get("cs");
+				captchaVal = captchaMap.get("cv");
+				captchaType = 1;
+			}
+
+			int width = 130;
+			int height = 59;
+
+			// currently storing Captcha in session now store in DB -- remove this
+//		HttpSession	session	= request.getSession();
+//		session.setAttribute(flagCaptcha, captchaVal);
+
+			// Storing Captch in DB
+
+			CaptchaDetails captchaDetails = new CaptchaDetails();
+			captchaService.deleteExpiredCaptcha();
+			if (null != captchaVal) {
+				captchaDetails.setCaptcha(captchaVal);
+				String request_id = request.getHeader("r");
+				if (null == request_id || "null".equalsIgnoreCase(request_id) || request_id.isBlank()
+						|| request_id.isEmpty()) {
+					captchaService.saveCaptchDetails(captchaDetails);
+				} else {
+
+					CaptchaDetails captcha = captchaService.fetchCaptchDetailsById(request_id);
+					if (null != captcha) {
+						captchaDetails.setRequestId(captcha.getRequestId());
+						captchaDetails.setRequestTime(new Date());
+						captchaService.updateCaptchDetails(captchaDetails);
+					} else {
+						captchaDetails.setCaptcha(captchaVal);
+						captchaDetails.setRequestTime(new Date());
+						captchaService.saveCaptchDetails(captchaDetails);
+					}
+
+				}
+				if (null != captchaDetails && null != captchaDetails.getRequestId()) {
+					response.addHeader("r", captchaDetails.getRequestId());
+				}
+			}
+
+			// end of Storing Captcha in DB
+
+			OutputStream outputStream = response.getOutputStream();
+			CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream, captchaType);
+			outputStream.close();
+			return captchaStr;
+		} catch (Exception exception) {
+			logger.error("Captcha Generation Failed.", exception);
+			// throw exception;
+			fileUtilities.customSendError(response, HttpStatus.INTERNAL_SERVER_ERROR.value(),
+					"Captcha Generation Failed.");
+			return null;
 		}
-
-		
-		int			width	= 130;
-		int			height	= 59;
-		HttpSession	session	= request.getSession();
-		session.setAttribute(flagCaptcha, captchaVal);
-
-		OutputStream outputStream = response.getOutputStream();
-		CaptchaUtil.generateCaptcha(new Dimension(width, height), captchaStr, outputStream, captchaType);
-		outputStream.close();
-		return captchaStr;
 	}
 
 	@GetMapping(value = "/profile")
@@ -287,7 +358,7 @@ public class JwsUserRegistrationController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -299,17 +370,17 @@ public class JwsUserRegistrationController {
 		if (applicationSecurityDetails.getIsAuthenticationEnabled()) {
 			Map<String, Object> mapDetails = applicationSecurityDetails.getAuthenticationDetails();
 			if (userEmailId == null || userEmailId.isEmpty()) {
-				response.sendError(HttpStatus.BAD_REQUEST.value(), "Email is required.");
+				fileUtilities.customSendError(response,HttpStatus.BAD_REQUEST.value(), "Email is required.");
 				return null;
 			}
 			JwsUser existingUser = userManagementService.findByEmailIgnoreCase(userEmailId);
 			if (existingUser == null) {
-				response.sendError(HttpStatus.NOT_FOUND.value(), "Invalid user");
+				fileUtilities.customSendError(response,HttpStatus.NOT_FOUND.value(), "Invalid user");
 				return null;
 			}
 			String mailConfiguration = propertyMasterService.findPropertyMasterValue("mail-configuration");
 			if(mailConfiguration == null || mailConfiguration.isEmpty()) {
-				response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), "SMTP configuration not available");
+				fileUtilities.customSendError(response,HttpStatus.SERVICE_UNAVAILABLE.value(), "SMTP configuration not available");
 				return null;
 			}
 			List<JwsUserLoginVO> multiAuthLoginVOs = (List<JwsUserLoginVO>) mapDetails.get("activeAutenticationDetails");
@@ -322,7 +393,7 @@ public class JwsUserRegistrationController {
 								if (loginAttributes.containsKey("verificationType")) {
 									String verificationTypeValue = (String) loginAttributes.get("verificationType");
 									if (verificationTypeValue != null && verificationTypeValue.equals(VerificationType.OTP.getVerificationType())== false) {
-										response.sendError(HttpStatus.NOT_IMPLEMENTED.value(), "OTP auhentcation not supported !");
+										fileUtilities.customSendError(response,HttpStatus.NOT_IMPLEMENTED.value(), "OTP auhentcation not supported !");
 										return null;
 									}
 								}
@@ -361,7 +432,7 @@ public class JwsUserRegistrationController {
 			otpService.sendMailForOtp(mapDetails);
 			return "OTP sent to "+userEmailId;
 		} else {
-			response.sendError(HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
+			fileUtilities.customSendError(response,HttpStatus.FORBIDDEN.value(), "You dont have rights to access these module");
 			return null;
 		}
 	}

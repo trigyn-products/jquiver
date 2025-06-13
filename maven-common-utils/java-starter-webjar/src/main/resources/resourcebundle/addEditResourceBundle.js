@@ -11,7 +11,12 @@ class AddEditResourceBundle {
 		}
 		else{
 			$("#resourceBundleKey").prop("disabled",true);
-		}
+			//get tip content 
+			var tipContent = document.getElementById("tipscolpase");
+      	    // Replace specific text
+		    tipContent.innerHTML = tipContent.innerHTML.replace("your.key", data);
+			tipContent.innerHTML = tipContent.innerHTML.replaceAll("your.key1", data);
+}
 	}
 
 	updateResourceBundleData = function(){
@@ -27,17 +32,18 @@ class AddEditResourceBundle {
 				let parser = new DOMParser();
 	    		let doc = parser.parseFromString(languageTextData,"text/html");
 	    		
-	    		if(doc){
-	    			let parsedDesc= doc.body.innerHTML;
-	    			if(parsedDesc.indexOf("<br>") != -1){
-	    				parsedDesc = parsedDesc.replace(/<br>/g, "<br></br>");
-	    			}
-	          		resourceFormDataObject.resourceKey = resourceBundleKey;
-	          		resourceFormDataObject.languageId = languageId;
-	    			resourceFormDataObject.text = parsedDesc;
-	    		}
+				if (doc) {
+					let parsedDesc = doc.body.innerHTML;
+					if (parsedDesc.indexOf("<br>") != -1) {
+						parsedDesc = parsedDesc.replace(/<br>/g, "<br></br>");
+					}
+					resourceFormDataObject.text = parsedDesc;
+				}
+			} else{
+				resourceFormDataObject.text = "";
 			}
-			
+			resourceFormDataObject.resourceKey = resourceBundleKey;
+			resourceFormDataObject.languageId = languageId;
 			context.resourceBundleFormData[iCounter] = resourceFormDataObject;
 			
 			iCounter++;

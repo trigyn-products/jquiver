@@ -15,28 +15,10 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Authenticator;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.dbcp.SQLNestedException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.quartz.DateBuilder;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,11 +60,30 @@ import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.quartz.util.JobUtil;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
+import jakarta.mail.Address;
+import jakarta.mail.Authenticator;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.bind.JAXBException;
+
 @Service
 @Transactional
 public class SendMailService {
 
-	private final static Logger		logger					= LogManager.getLogger(SendMailService.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(SendMailService.class);
 
 	private final static String		IS_ALLOW_CUSTOM_SENDER	= "isAllowCustomSender";
 
@@ -144,7 +145,7 @@ public class SendMailService {
 			prop.put("mail.smtp.auth", smtpAuth);
 			prop.setProperty("mail.smtp.user", (String) mailMap.get("userName"));
 			prop.setProperty("mail.smtp.password", (String) mailMap.get("password"));
-			class SMTPAuthenticator extends javax.mail.Authenticator {
+			class SMTPAuthenticator extends Authenticator {
 				String	username	= "";
 				String	password	= "";
 
@@ -238,10 +239,10 @@ public class SendMailService {
 			if (replyTo != null && replyTo != "" && isValidEmailAddressFromStringValidation(replyTo)) {
 				message.setReplyTo(InternetAddress.parse(replyTo));
 				InternetAddress replyToIA = InternetAddress.parse(replyTo)[0];
-				message.setReplyTo(new javax.mail.Address[] { replyToIA });// Ends Here
+				message.setReplyTo(new Address[] { replyToIA });// Ends Here
 			} else if (isReplyToDifferentMail != null && isReplyToDifferentMail.equals(Boolean.TRUE)) {
 				if (isValidEmailInternetAddress(replyToDifferentEmailId)) {
-					message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+					message.setReplyTo(new Address[] { replyToDifferentEmailId });
 				} else {
 					// Added below hard coded mail id if users entered invalid email address
 					message.setReplyTo(InternetAddress.parse("inVallidOrNoREPLYTOMailId@required.com"));
@@ -249,10 +250,10 @@ public class SendMailService {
 				}
 			} else {
 				if (replyToDifferentEmailId != null && replyToDifferentEmailId.toString().equals(fromMailId)) {
-					message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+					message.setReplyTo(new Address[] { replyToDifferentEmailId });
 				} else {
 					message.setReplyTo(
-							new javax.mail.Address[] { new javax.mail.internet.InternetAddress("noreply@trigyn.com") });
+							new Address[] { new InternetAddress("noreply@trigyn.com") });
 				}
 			}
 
@@ -503,7 +504,7 @@ public class SendMailService {
 			prop.put("mail.smtp.auth", Boolean.TRUE);
 			prop.setProperty("mail.smtp.user", mailMap.get("userName"));
 			prop.setProperty("mail.smtp.password", mailMap.get("password"));
-			class SMTPAuthenticator extends javax.mail.Authenticator {
+			class SMTPAuthenticator extends Authenticator {
 				String	username	= "";
 				String	password	= "";
 
@@ -626,9 +627,9 @@ public class SendMailService {
 			if (replyTo != null && replyTo != "" && isValidEmailAddressFromStringValidation(replyTo)) {
 				message.setReplyTo(InternetAddress.parse(replyTo));
 				InternetAddress replyToIA = InternetAddress.parse(replyTo)[0];
-				message.setReplyTo(new javax.mail.Address[] { replyToIA });// Ends Here
+				message.setReplyTo(new Address[] { replyToIA });// Ends Here
 			} else if (isReplyToDifferentMail != null && isReplyToDifferentMail.equals(Boolean.TRUE)) {
-				message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+				message.setReplyTo(new Address[] { replyToDifferentEmailId });
 			} else {
 				throw new Exception("Invalid/No Reply to  Emailid entered " + replyToDifferentEmailId);
 
@@ -1020,7 +1021,7 @@ public class SendMailService {
 			prop.put("mail.smtp.auth", smtpAuth);
 			prop.setProperty("mail.smtp.user", (String) mailMap.get("userName"));
 			prop.setProperty("mail.smtp.password", (String) mailMap.get("password"));
-			class SMTPAuthenticator extends javax.mail.Authenticator {
+			class SMTPAuthenticator extends Authenticator {
 				String	username	= "";
 				String	password	= "";
 
@@ -1108,10 +1109,10 @@ public class SendMailService {
 			if (replyTo != null && replyTo != "" && isValidEmailAddressFromStringValidation(replyTo)) {
 				message.setReplyTo(InternetAddress.parse(replyTo));
 				InternetAddress replyToIA = InternetAddress.parse(replyTo)[0];
-				message.setReplyTo(new javax.mail.Address[] { replyToIA });// Ends Here
+				message.setReplyTo(new Address[] { replyToIA });// Ends Here
 			} else if (isReplyToDifferentMail != null && isReplyToDifferentMail.equals(Boolean.TRUE)) {
 				if (isValidEmailInternetAddress(replyToDifferentEmailId)) {
-					message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+					message.setReplyTo(new Address[] { replyToDifferentEmailId });
 				} else {
 					// Added below hard coded mail id if users entered invalid email address
 					message.setReplyTo(InternetAddress.parse("inVallidOrNoREPLYTOMailId@required.com"));
@@ -1119,10 +1120,10 @@ public class SendMailService {
 				}
 			} else {
 				if (replyToDifferentEmailId != null && replyToDifferentEmailId.toString().equals(fromMailId)) {
-					message.setReplyTo(new javax.mail.Address[] { replyToDifferentEmailId });
+					message.setReplyTo(new Address[] { replyToDifferentEmailId });
 				} else {
 					message.setReplyTo(
-							new javax.mail.Address[] { new javax.mail.internet.InternetAddress("noreply@trigyn.com") });
+							new Address[] { new InternetAddress("noreply@trigyn.com") });
 				}
 			}
 

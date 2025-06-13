@@ -1,0 +1,26 @@
+var HashMap =  Java.type("java.util.HashMap");
+var System = Java.type('java.lang.System');
+var ObjectMapper = Java.type("com.fasterxml.jackson.databind.ObjectMapper");
+function saveFormIoDetails() {	
+	
+	var queryParam = new HashMap();
+	var columns = "";
+	var updateQuery = "UPDATE jq_formio_data SET form_data=:formData, last_updated_ts= NOW() where data_id = :dataId";
+    var isEdit =  requestDetails.isEdit;
+    queryParam.put("formIoId", requestDetails.formIoId);
+
+	var objMapper = new ObjectMapper();
+	var queryInsert = "INSERT INTO jq_formio_data (data_id, form_io_id, form_data, created_date, last_updated_ts) VALUES (UUID(), :formIoId, :formData, NOW(), NOW())";
+
+    queryParam.put("formData", requestDetails.formData);
+
+	if (requestDetails.isEdit == "1") {
+		queryParam.put("dataId", requestDetails.dataId);
+		jq_updateDBQuery(updateQuery, null, queryParam);
+	} else {
+		jq_updateDBQuery(queryInsert, null, queryParam);
+	}
+    return "success";
+}
+
+saveFormIoDetails();

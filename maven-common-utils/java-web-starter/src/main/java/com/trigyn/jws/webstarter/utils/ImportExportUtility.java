@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.dashboard.utility.Constants;
@@ -24,8 +22,11 @@ import com.trigyn.jws.webstarter.xml.PropertyMasterXMLVO;
 import com.trigyn.jws.webstarter.xml.ResourceBundleXMLVO;
 import com.trigyn.jws.webstarter.xml.RoleXMLVO;
 import com.trigyn.jws.webstarter.xml.SchedulerXMLVO;
+import com.trigyn.jws.webstarter.xml.ScriptLibraryXMLVO;
 import com.trigyn.jws.webstarter.xml.SiteLayoutXMLVO;
 import com.trigyn.jws.webstarter.xml.UserXMLVO;
+
+import jakarta.xml.bind.JAXBException;
 
 @Component
 public class ImportExportUtility {
@@ -73,7 +74,7 @@ public class ImportExportUtility {
 						xmlVO = XMLUtil.unMarshaling(GenericUserNotificationXMLVO.class, file.getAbsolutePath());
 					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.PERMISSION.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(PermissionXMLVO.class, file.getAbsolutePath());
-					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SITELAYOUT.getModuleType().toLowerCase())) {
+					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.ROUTER.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(SiteLayoutXMLVO.class, file.getAbsolutePath());
 					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.APPLICATIONCONFIGURATION.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(PropertyMasterXMLVO.class, file.getAbsolutePath());
@@ -87,6 +88,8 @@ public class ImportExportUtility {
 						xmlVO = XMLUtil.unMarshaling(AdditionalDatasourceXMLVO.class, file.getAbsolutePath());
 					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SCHEDULER.getModuleType().toLowerCase())) {
 						xmlVO = XMLUtil.unMarshaling(SchedulerXMLVO.class, file.getAbsolutePath());
+					} else if (fileName.toLowerCase().startsWith(Constant.MasterModuleType.SCRIPTLIBRARY.getModuleType().toLowerCase())) {
+						xmlVO = XMLUtil.unMarshaling(ScriptLibraryXMLVO.class, file.getAbsolutePath());
 					}
 	
 					if(xmlVO != null) {
@@ -124,7 +127,7 @@ public class ImportExportUtility {
 	}
 
 
-	public MetadataXMLVO readMetaDataXML(String filePath) throws JAXBException {
+	public MetadataXMLVO readMetaDataXML(String filePath) throws JAXBException, jakarta.xml.bind.JAXBException {
 		MetadataXMLVO	metadataXMLVO	= null;
 		File			directory		= new File(filePath);
 		if (directory.isDirectory()) {

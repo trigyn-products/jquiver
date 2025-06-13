@@ -15,7 +15,6 @@ class FileBinMaster {
 				 fileBinDisplayTexts = resourceBundleData("jws.fileBinAlreadyExist,jws.fileBinCannotBeBlank");
 			}
 		loadDefaultTab("filebin-default-template", context.updateFileBinTemplate);
-		context.initializeFileSlider();
 		if (edit == 1) {
 			context.getEntityRoles();
 		} else {
@@ -369,23 +368,6 @@ class FileBinMaster {
 		}
 	}
 
-	initializeFileSlider = function() {
-		let context = this;
-		$("#fileSliderDiv").slider({
-			orientation: "horizontal",
-			min: 1,
-			max: 50,
-			value: $("#noOfFiles").val() == "" ? 15 : $("#noOfFiles").val(),
-			slide: function(event, ui) {
-				$("#fileSliderSpan").text(ui.value);
-				$("#noOfFiles").val(ui.value);
-			}
-		});
-		let fileCount = $("#fileSliderDiv").slider("value");
-		$("#fileSliderSpan").text(fileCount);
-		$("#noOfFiles").val(fileCount);
-	}
-
 	disableAllValidator = function() {
 		let context = this;
 		$("*[id$=_chkbox]").each(function(index, element) {
@@ -398,7 +380,7 @@ class FileBinMaster {
 	getDefaultQueries = function() {
 		$.ajax({
 			type: "GET",
-			url: contextPath + "/api/file-bin-default-queries",
+			url: contextPath+apiPath+"/file-bin-default-queries",
 			async: false,
 			success: function(data) {
 				for(let iCounter = 0; iCounter < data.children[0].children.length; iCounter++){
@@ -501,6 +483,8 @@ class FileBinMaster {
 		$("#uploadValidator_query").val($("#uploadValidator_query").val());
 		$("#viewValidator_query").val($("#viewValidator_query").val());
 		$("#deleteValidator_query").val($("#deleteValidator_query").val());
+		let fileCount = $( "#custom-handle" ).text();
+		$("#noOfFiles").val(fileCount); 
 		
 		let form = $("#addEditForm");
 		
@@ -534,7 +518,6 @@ class FileBinMaster {
 		
 	
 		if (isValidForm === true) {
-		
 			let formData = $("#addEditForm").serialize() + "&formId=" + formId ;
 			if (edit === 1) {
 				formData = formData + "&edit=" + edit;
@@ -565,12 +548,14 @@ class FileBinMaster {
 	}
 
 	validateForm = function() {
+		let context = this;
 		let fileBinId = $("#fileBinId").val().trim();
 		let maxFileSize = $("#maxFileSize").val().trim();
 		let fileTypeSupported = $("#fileTypeSupported").val().trim();
-		if (fileBinId !== "" && fileTypeSupported !== "" && maxFileSize !== "" && maxFileSize >= 1) {
-			return true;
-		}
+		let customFileStorageClass=$("#customFileStorageClass").val().trim();
+//		if (fileBinId !== "" && fileTypeSupported !== "" && maxFileSize !== "" && maxFileSize >= 1) {
+//			return true;
+//		}
 		if (fileBinId === "") {
 			$("#fileBinId").focus();
 			$("#fileBinId").closest("div").parent().effect("highlight", {}, 3000);
@@ -592,9 +577,56 @@ class FileBinMaster {
 			$("html, body").animate({ scrollTop: 0 }, "slow");
 			return false;
 		}
+		
+	    if ($("#isFileStorageEnable").prop("checked") ){
+	     if(customFileStorageClass === ""){             
+			$("#customFileStorageClass").focus();
+	        $("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
+			showMessage("Custom File Storage Class cannot be blank", "warn");
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+		    return false;			  
+            }
+     else{      
+		       var message=null;   
+		       let key = $("#customFileStorageClass").val().trim();
+		       const lastIndex = key.lastIndexOf(".");
+		       let className;
+		       let packageName;
+		       if (lastIndex !== -1) {
+				  const word = key.slice(lastIndex + 1).trim();
+				  const result = key.substring(0, lastIndex);
+				  className=word; 
+				  packageName=result;
+				} else {
+				   message="Class Name should contain package name ."
+				   context.getMessage(message);
+		           return false;   
+				}
+				const re1 =/^[A-Z_$][A-Za-z0-9_$]*$/	 //validation for class name
+			    const re2 =/^[a-z]\w*(\.[a-z]\w*)+$/   //validation for package name
+			  
+			   	if(!re1.test(className)) {
+					  message="Class name begins with UpperCase and does not contain spaces/start with digit."  
+				} 
+				else if(!re2.test(packageName)) {
+					 message="Package name should start with small letter. "		
+				}
+				else {
+							  return true;
+					 } 
+		        context.getMessage(message);
+		        return false;    		    
+			  }
+           }
 		return true;
 	}
-
+    getMessage= function(msg) {
+		 $("#customFileStorageClass").focus();
+		 $("#customFileStorageClass").closest("div").parent().effect("highlight", {}, 3000);
+		 showMessage(msg, "warn");
+	     $("html, body").animate({ scrollTop: 0 }, "slow");	 
+	         
+	}
 	prepareValidatorContent = function() {
 		let context = this;
 		$("*[id$=_chkbox]").each(function(index, element) {

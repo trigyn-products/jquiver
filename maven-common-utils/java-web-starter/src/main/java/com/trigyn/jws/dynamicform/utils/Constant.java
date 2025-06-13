@@ -40,6 +40,42 @@ public final class Constant {
 	public static final int		PY					        	= 5;
 	public static final int		QPHP					        = 6;
 	
+	public static final String AES = "AES";
+	public static final String ECB = "ECB";
+	public static final String PKCS5PADDING = "PKCS5PADDING";
+	public static String INVALID_CAPTCHA_MESSAGE;
+	public static String CAPTCHA_NOT_FOUND_MESSAGE;
+	public static String CAPTCHA_EXPIRED;
+	public static final String INVALID_CAPTCHA_KEY = "jws.invalidCaptcha";
+	public static final String NO_CAPTCHA_KEY = "jws.noCaptcha";
+	public static final String CAPTCHA_EXPIRED_KEY = "jws.expiredCaptcha";
+	public static final String	DYNA_REST_MOD_ID   = "47030ee1-0ecf-11eb-94b2-f48e38ab9348";
+	public static final String	PERMISSION   = "permission";
+	public static final String	SCRIPTLIBRARY   = "scriptlibrary";
+	public static final CharSequence MYSQL = "mysql";
+	public static final CharSequence MARIADB = "mariadb";
+	public static final int MSSQL_DATETIMEOFFSET = -155;
+	public static final CharSequence DEFAULT = "default";
+	public static final int XML = -16;
+	public static final int UNIQUEIDENTIFIER = 1;
+	public static final String UNIQUEID = "uniqueidentifier";
+	public static final String MSSQL = "Microsoft SQL Server";
+	public static final String UNIQUEID_REGEX = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+	public static final String BASETYPE_STRING = "STRING";
+	public static final String BASETYPE_INT = "INTEGER";
+	public static final String BASETYPE_DECIMAL = "DECIMAL";
+	public static final String BASETYPE_DATE = "DATE";
+	public static final String BASETYPE_TIMESTAMP = "TIMESTAMP";
+	public static final String BASETYPE_DATETIME = "DATETIME";
+	public static final String BASETYPE_TIME = "TIME";
+	public static final String BASETYPE_BOOLEAN = "BOOLEAN";
+	public static final String DECIMAL_REGEX = "^$|^-?\\d+(\\.\\d+)?([eE][-+]?\\d+)?$";
+	public static final String TIME_REGEX = "^(?:([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d|([01]\\d|2[0-3]):[0-5]\\d)?$|^$";
+	public static final String BOOLEAN_REGEX = "(true|false|0|1|yes|no|48)";
+	public static final String ORACLEDB= "Oracle";
+	public static final String DECIMAL= "decimal";
+	public static final String XMLCOL= "XML";
+	public static final String LONG= "LONG";
 
 	public enum QueryType {
 		SELECT(1, "SELECT"), DML(2, "DML"), SP(3,"SP"), JS(4,"nashorn"), PY(5, "python"), PHP(6, "php");

@@ -654,7 +654,7 @@ Replace into jq_template_master (template_id, template_name, template, updated_b
         $.ajax({
                 type : "GET",
                 async: false,
-                url : contextPath+"/api/validate-user-email-id",
+                url : contextPath+apiPath+"/validate-user-email-id",
                 data : {
                     email:  $("#email").val().trim()
                 },

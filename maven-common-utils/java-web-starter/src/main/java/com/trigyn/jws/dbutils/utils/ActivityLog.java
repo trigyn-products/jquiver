@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletContext;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,7 +21,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.Builder;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
+import jakarta.servlet.ServletContext;
 import reactor.core.publisher.Mono;
 
 /**
@@ -37,11 +37,14 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class ActivityLog {
-	private static final Logger logger = LogManager.getLogger(ActivityLog.class);
+	private static final Logger logger = LoggerFactory.getLogger(ActivityLog.class);
 	@Autowired
 	private ServletContext servletContext = null;
 	@Autowired
 	private PropertyMasterService propertyMasterService = null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	@ResponseBody
 	public void activitylog(Map<String, String> requestParams) throws Exception {
@@ -58,7 +61,7 @@ public class ActivityLog {
 			if (contextPath != null && contextPath.isEmpty() == false) {
 				fullRestApiUrl = fullRestApiUrl.append(contextPath);
 			}
-			fullRestApiUrl = fullRestApiUrl.append("/api/activityLog");
+			fullRestApiUrl = fullRestApiUrl.append(jQuiverPropeties.getApiPath()+"/activityLog");
 			String restApiUrl = fullRestApiUrl.toString();
 			requestParams.put("isFromRestAPI", isFromRestAPI);
 			try {
@@ -72,13 +75,13 @@ public class ActivityLog {
 						.defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json")
 						.defaultHeader(HttpHeaders.USER_AGENT, "JQuiver");
 				WebClient webClient = builder.build();
-				Mono<ResponseEntity<String>> responseContent = webClient.method(HttpMethod.resolve("POST"))
+				Mono<ResponseEntity<String>> responseContent = webClient.method(HttpMethod.valueOf("POST"))
 						.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build()).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 								return Mono.error(new CustomRuntimeException(error));
 							});
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus(HttpStatusCode::is5xxServerError, response -> {
 							return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 								return Mono.error(new CustomRuntimeException(error));
 							});

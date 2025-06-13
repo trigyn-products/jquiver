@@ -1,0 +1,1 @@
+select `fc`.`file_bin_id` AS `label`, `fc`.`file_bin_id` AS `value` FROM `jq_file_upload_config` `fc` WHERE  `fc`.`is_deleted` = 0

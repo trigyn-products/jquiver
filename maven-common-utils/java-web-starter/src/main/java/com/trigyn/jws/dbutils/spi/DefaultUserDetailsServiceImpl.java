@@ -3,8 +3,8 @@ package com.trigyn.jws.dbutils.spi;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
@@ -12,7 +12,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 
 public class DefaultUserDetailsServiceImpl implements IUserDetailsService {
 
-	private static final Logger		logger					= LogManager.getLogger(DefaultUserDetailsServiceImpl.class);
+	private static final Logger		logger					= LoggerFactory.getLogger(DefaultUserDetailsServiceImpl.class);
 
 	@Autowired
 	private PropertyMasterService	propertyMasterService	= null;

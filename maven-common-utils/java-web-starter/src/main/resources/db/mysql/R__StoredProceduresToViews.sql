@@ -124,7 +124,7 @@ SELECT
   `df`.`form_type_id` AS `formTypeId`, 
   COUNT(`jmv`.`version_id`) AS `revisionCount`, 
   `df`.`created_date` AS `createdDate`, 
-  `df`.`last_updated_ts` AS `lastUpdatedTs`, 
+ COALESCE(`df`.`last_updated_ts`,`df`.`created_date`) AS `lastUpdatedTs`, 
   COALESCE(
     CONCAT(
       `jus`.`first_name`, ' ', `jus`.`last_name`

@@ -1,12 +1,5 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
@@ -14,11 +7,11 @@
 </head>
 
 <div class="container">
-        <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.fileUploadConfig')}</h2> 
-        <div class="float-right"> 
+           <div class="topband">
+        <h2 class="title-cls-name ">${messageSource.getMessage('jws.fileUploadConfig')}</h2> 
+        <div class="topactionbuttons"> 
 			
-		  <form id="formFileUpload" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
+		     <form id="formFileUpload" action="${(contextPath)!''}/cf/df" method="post" class="margin-r-5 pull-left">
            <div class="addonbtnblock">
                 <input type="hidden" name="formId" value="40289d3d750decc701750e3f1e3c0000"/>
                 <input type="hidden" name="fileBinId" id="fileBinId" value=""/>
@@ -33,7 +26,7 @@
                 </button>
                 
                 <span class="iconscover spacingclss">
-                 <button type='button' onclick="location.href='${contextPath}/view/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="Add Script Library">
+                 <button type='button' onclick="location.href='${contextPath}${(viewPath)!''}/jq-script-lib-details'" class="addonicons scriptlibraryicon" title="Add Script Library">
                     </button>
                 </span>  
 
@@ -43,9 +36,8 @@
             </form>
 			  
        
-        </div>
-        <div class="clearfix"></div>        
-        </div>
+            </div>
+         </div>
         
         <div id="divFileConfigListingGrid" class="tablescrollcls"></div>
 
@@ -55,7 +47,8 @@
 
 <script>
 	document.title= "File Upload Configuration Module List";
-	contextPath = "${(contextPath)!''}";
+	//contextPath = "${(contextPath)!''}";
+	//viewPath = "${(viewPath)!''}";
 	
 	$(function () {
 		let formElement = $("#formFileUpload")[0].outerHTML;
@@ -112,7 +105,7 @@
 	
 		
     function fileUploadMaster() {
-		location.href = contextPath+"/view/fum";
+		location.href = contextPath+viewPath+"/fum";
 	}
 	
 	function backToWelcomePage() {

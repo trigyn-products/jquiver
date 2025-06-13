@@ -1,0 +1,303 @@
+<#if selectedTab == "htmlContent">
+```HTML
+<!-- HTML Header -->
+<html>
+<head>
+    <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap-icons.css">  
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap.min.css">
+	<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.js"></script>
+</head>
+	<body>   
+        <form method="post" name="addEditForm" id="addEditForm">
+        	<div class="container">
+        	<input type="hidden" id="isFormIo" name="isFormIo" value="1"/>
+        	<input type="hidden" id="isCaptchaEnabled" name="isCaptchaEnabled" value="<#noparse>${(isCaptchaEnabled)!'0'}</#noparse>"/>
+        	<input  id="primaryKeyId"  type="hidden" name="${(primaryKeyColumnName)!''}" value="<#noparse>${(primaryKeyValue)!''}</#noparse>" />  
+            <input  id="isEdit"  type="hidden" name="isEdit" value="<#noparse>${(isEdit)!'0'}</#noparse>" />    
+             <!-- Change It :  Set the JSON parameter value ='{"id":"int","name":"text","dateOfBirth":"date"}'-->
+             <input  id="saveQueryParametersType"  type="hidden" name="saveQueryParametersType" value='<#noparse>${(queryParametersType)!""}</#noparse>' />  
+            <div id="formioBody"></div>
+            </div>     
+         </form>   
+	</body>
+   
+	<script>
+        contextPath = <#noparse>"${contextPath}"</#noparse>;	 
+        viewPath = <#noparse>"${viewPath}</#noparse>;	
+        formId = <#noparse>"${formId}"</#noparse>;        
+	    let isEdit = <#noparse>"${(isEdit)!'0'}"</#noparse>;  
+        let formMetaData = <#noparse>${(formMetaData)!""}</#noparse>;  
+        let formOptions = {
+            disableAlerts: true,
+            noAlerts: true
+        };    
+		Formio.createForm(document.getElementById('formioBody'), formMetaData, formOptions).then(function(form) {              
+            form.submission = {              
+                data: <#noparse>${(resultSetObject.formData)!""}</#noparse>
+            };
+            form.on('submit', function(submission) {
+            <!-- TODO : Change the primaryKeyColumnName as per the table -->  
+            	<#noparse> submission.data.id = $("#primaryKeyId").val();               
+                if(submission["data"].${(primaryKeyColumnName)!''} != undefined){
+                    $("#primaryKeyId").val(submission["data"].${(primaryKeyColumnName)!''});
+                }  </#noparse>
+                onSaveButtonClick(isEdit);  
+              
+            });
+            
+            form.on('cancelFormIoEvent', (event) => {
+    			// Your custom logic for canceling the form
+    			// You can redirect or clear the form fields
+    			// form.reset();  // Reset the form fields
+    			// window.location.href = '/home';  // Optionally redirect to another page
+			});
+        });
+        
+        <#noparse>
+         $(document).ready(function() {
+            $('.form-check-input').change(function() {
+                var inputType = $(this).attr('type');
+            	if(inputType=="checkbox"){
+            		var id = this.name;
+	                id = id.replace(/[^a-z0-9\s]/gi, '').replace(/[_\s]/g, '-');
+		            $('#hidden-'+id).remove();
+	                var val = 0;
+	                if(this.checked) {
+	                    this.value = 1;                   
+	                } else {                    
+	                    this.value = val;
+	                    $(this).after('<input id = "hidden-' + id + '" name = "' + this.name + '" type="hidden" value = "' + val + '" />');
+	                    
+	                }
+            	}                        
+            });
+        });
+        function onValidation(a_serializedFormData){
+   		const rawFormData = a_serializedFormData.get('formData');
+        let parsedFormData;
+        try {
+            parsedFormData = JSON.parse(rawFormData); 
+        } catch (exec) {
+            showMessage("Invalid JSON in formData", "error");
+            return false;
+        }	       
+        let fieldList = ${(fieldList)!''}        
+        for (let field of parsedFormData) {
+	        let fieldName = field.name;
+	        let fieldValue = field.value ?? '';     
+	        let match = fieldName.match(/^data\[(.+)\]$/);
+            let baseName = match ? match[1] : fieldName; 
+            let fieldConfig = fieldList.find(f => f.fieldName === baseName);                     
+            if (fieldConfig) {                       
+                let pattern =  fieldConfig.regexPattern;
+                let regex = new RegExp(pattern);
+                if (regex.test(fieldValue) == false) {
+                   var errorMessage = "Invalid value";
+                   let labelText = $("input[name='data["+baseName+"]']")
+	                .closest("[ref='component']")
+	                .find("label[ref='label']")
+	                .text()
+	                .trim();
+					if(labelText != ''){
+						errorMessage = errorMessage +" for "+labelText;
+					}
+	                showMessage(errorMessage, "warn");
+                    $('[name="data[' + baseName + ']"]').focus();
+                    $('[name="data[' + baseName + ']"]').effect("highlight", {}, 3000);
+                    return null;
+                }                    
+            }
+	    }	    
+		return a_serializedFormData;
+	}
+	function generateCaptch(imagesrc) {
+		const imgElement = document.getElementById('imgCaptcha');    
+	    fetch(imagesrc, {
+	        headers: {
+	
+	        'r':  localStorage.getItem('r')
+	        }
+	      }) // Fetch the image using its 'src' attribute
+		.then(response => {      	
+       		localStorage.setItem('r', response.headers.get('r'));
+	    	if (response.ok) {
+	      		return response.blob();
+	    	} else {
+	      		return null;
+	    	}	
+       
+	     })
+	    .then((blob) => {
+	       if(blob!=null){
+				const objectURL = URL.createObjectURL(blob);
+				imgElement.src = objectURL;
+                $('#imgCaptcha').attr('src', objectURL);   
+					if ($('#captcha').prop('disabled')) {
+						$("#formCaptcha").removeAttr('disabled');
+					}
+		   		}
+				else{
+				     //set path and show error Message and disable text
+				      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
+				      $("#formCaptcha").attr('disabled','disabled');
+				      //$("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
+				      showMessage("<@resourceBundle "jws.captchGenerationFailed"/>", "warn");
+				     // alert(resourceBundleData("jws.clearTxt"));
+				    }
+				 })
+		      .catch(error => {
+		          showMessage("<@resourceBundle "jws.fetchCaptchError"/>", "warn");
+		
+		});
+    }
+    	
+    function onError(message, exception){   
+		showMessage(message, "error");
+	}
+	
+    function onSuccess(a_serverResponse){
+       <!-- TODO : Change the redirect URI as per the Listing page defined through Master Generator --> 
+       window.location.href = contextPath+viewPath+"/"+"${(moduleURL)!''}";
+	}
+    	
+	function reloadCptcha(){
+    	var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha";
+        generateCaptch(imagesrc);
+        $("#formCaptcha").val('');
+	}
+	
+	$(document).on("click", "#reloadCaptcha", function(event) {
+        reloadCptcha();
+    });
+       </#noparse>
+       
+	</script>
+</html>
+```
+
+<#elseif selectedTab == "selectContent">
+```JavaScript
+	var HashMap =  Java.type('java.util.HashMap');
+	var System = Java.type('java.lang.System');
+	var Gson = Java.type('com.google.gson.Gson');
+	var GsonBuilder = Java.type('com.google.gson.GsonBuilder');
+	var FormioClient = Java.type('com.trigyn.jws.formio.service.FormioClient');
+	var params = new HashMap();
+	var formId =  <#noparse>"${(formId)!''}"</#noparse>;
+    <#if formioid?? && (formioid)?has_content>
+    var formIoId = "${formioid}";
+    <#else>
+    var formIoId =  <#noparse>"${formIoId!''}"</#noparse>;
+    </#if>	
+	params.put('formIoId', formIoId);
+	 
+	function getFormData(){
+	    var formData = new Object(); 
+	    var primaryKeyValue = <#noparse>"${(primaryKeyValue)!''}"</#noparse>;     
+	    var formData = { };
+	    if(primaryKeyValue != ''){
+	    	<!-- TODO : Change the tableName, primaryKeyColumnName and List the columns with aliases names as per the table created -->
+	        var queryResult = jq_getDBResult("<#noparse>SELECT ${(columnNames)!''} FROM ${(tableName)!''} WHERE ${(primaryKeyColumnName)!''} =  '${(primaryKeyValue)!''}'</#noparse>", null, params);   
+	        var fmIoClient = new FormioClient();               
+        	var jsonResult = fmIoClient.getFormWithData(formId, queryResult.data_list[0]);              
+        	formData =  JSON.parse(jsonResult);                 
+	    }     
+	    return JSON.stringify(formData);
+	}
+	
+	function loadForm(){   
+	    var returnObject = new Object();    
+	    returnObject.formData = getFormData();  
+	    return returnObject;
+	}
+	
+	loadForm();
+	    
+```
+<#elseif selectedTab == "jsContent">
+```JavaScript
+	var HashMap =  Java.type("java.util.HashMap");
+	var System = Java.type("java.lang.System");
+	var ObjectMapper = Java.type("com.fasterxml.jackson.databind.ObjectMapper");
+	var FormIOUtils = Java.type("com.trigyn.jws.formio.utils.FormIOUtils");
+
+	var dataSourceId = null;
+	var dbProductName = "${dbProductName}";
+	function saveFormDetails() {
+
+		var queryParam = new HashMap();
+		<!-- TODO : Change the tableName, primaryKeyColumnName and pkColumnValueType as per the table created -->
+		var columns = new Array(<#noparse>${queryParams})</#noparse>;
+		var updateQuery = "UPDATE <#noparse>${tableName} SET </#noparse>";
+		var insertQuery = "INSERT INTO <#noparse>${tableName} (</#noparse>";
+		var insertQueryValues = ") values (";
+		var isFirst = true;
+	    var pkColumnName = "<#noparse>${(primaryKeyColumnName)!''}</#noparse>";
+	    var pkColumnValueType = "<#noparse>${(pkColumnValueType)!''}</#noparse>";
+	    var isEdit =  "<#noparse>${(isEdit)!'0'}</#noparse>";
+	    var primaryKeyValue = "<#noparse>${(primaryKeyValue)!''}</#noparse>";
+		var mapper = new ObjectMapper();
+		var formioutils = new FormIOUtils();
+		var map = mapper.readValue(requestDetails['saveQueryParametersType'], HashMap.class);
+		var pkColDataType = map.get(pkColumnName);
+		if(null == primaryKeyValue || primaryKeyValue == undefined || primaryKeyValue == ""){
+			primaryKeyValue = requestDetails[pkColumnName];
+		}
+		columns.forEach(function(item, index) {
+			if (requestDetails &&
+				requestDetails[item] != null) {
+				queryParam.put(item, requestDetails[item]);
+				if (!isFirst) {
+					updateQuery += ', ';
+					insertQuery += ', ';
+					insertQueryValues += ', ';
+				} else {
+					isFirst = false;
+				}           
+				var columnName  =  ":"+item;     
+				var itemCastVal = formioutils.getCastExpressionForSave(columnName, map.get(item), dbProductName);			
+				updateQuery += item + ' = ' + itemCastVal;
+	            if (pkColumnName != null && pkColumnName == item) {		
+					if (isEdit != "1") {
+						if(pkColumnValueType != 'int'){
+							primaryKeyValue = pkColumnValueType;
+						} else{
+							primaryKeyValue = requestDetails[item];
+						}	
+					} else {
+						primaryKeyValue = requestDetails[item];	
+					}				
+	                queryParam.put(item, primaryKeyValue);
+					insertQueryValues += primaryKeyValue; 					
+	              
+	            } else {
+					insertQueryValues += itemCastVal; 
+				}          
+			}
+	
+		});
+		var queryResult = {};
+		if (isEdit == "1") {
+			if(pkColumnValueType != "int"){
+				updateQuery += ' WHERE '+pkColumnName+' = "' + primaryKeyValue+'"';
+			} else {
+				updateQuery += ' WHERE '+pkColumnName+' = ' + primaryKeyValue;
+			}
+			queryResult = jq_updateDBQuery(updateQuery, dataSourceId, queryParam);
+		} else {
+			insertQuery += insertQueryValues + ")";
+			queryResult = jq_updateDBQuery(insertQuery, dataSourceId, queryParam);
+		}
+		
+		if(queryResult["actionStatus"] != "true" ){
+			jq_sendError("403", "Error while saving the query.");
+		}
+		
+	}
+
+saveFormDetails();
+	    
+```
+
+</#if>

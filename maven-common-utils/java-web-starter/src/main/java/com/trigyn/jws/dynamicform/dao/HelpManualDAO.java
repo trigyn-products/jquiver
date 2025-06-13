@@ -5,12 +5,12 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.query.MutationQuery;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
+import com.trigyn.jws.dbutils.vo.xml.ManualEntryDetailsExportVO;
 import com.trigyn.jws.dynamicform.entities.ManualEntryDetails;
 import com.trigyn.jws.dynamicform.entities.ManualEntryFileAssociation;
 import com.trigyn.jws.dynamicform.entities.ManualType;
@@ -18,7 +18,6 @@ import com.trigyn.jws.dynamicform.entities.ManualType;
 @Repository
 public class HelpManualDAO extends DBConnection {
 
-	@Autowired
 	public HelpManualDAO(DataSource dataSource) {
 		super(dataSource);
 	}
@@ -62,11 +61,15 @@ public class HelpManualDAO extends DBConnection {
 	public void saveManualEntry(ManualEntryDetails manualEntryDetails) {
 		getCurrentSession().saveOrUpdate(manualEntryDetails);
 	}
+	
+	public void saveManualEntryExportVO(ManualEntryDetailsExportVO manualEntryDetailsExportVO) {
+		getCurrentSession().saveOrUpdate(manualEntryDetailsExportVO);
+	}
 
 	public void deleteManualEntryId(String manualType, String manualEntryId) {
 		StringBuilder deleteManualQuery = new StringBuilder(
 				"DELETE FROM ManualEntryDetails AS med WHERE med.manualEntryId = :manualEntryId AND med.manualId = :manualType ");
-		Query query = getCurrentSession().createQuery(deleteManualQuery.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(deleteManualQuery.toString());
 		query.setParameter("manualType", manualType);
 		query.setParameter("manualEntryId", manualEntryId);
 		query.executeUpdate();
@@ -75,14 +78,14 @@ public class HelpManualDAO extends DBConnection {
 	public void updateSortIndex(String manualType, Integer sortIndex) {
 		StringBuilder updateManualIndexQuery = new StringBuilder(
 				"UPDATE ManualEntryDetails AS med SET med.sortIndex = med.sortIndex - 1 WHERE med.manualId = :manualType AND med.sortIndex > :sortIndex");
-		Query query = getCurrentSession().createQuery(updateManualIndexQuery.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(updateManualIndexQuery.toString());
 		query.setParameter("manualType", manualType);
 		query.setParameter("sortIndex", sortIndex);
 		query.executeUpdate();
 	}
 
 	public ManualType getManualType(String manualTypeId) {
-		ManualType manualType = hibernateTemplate.get(ManualType.class, manualTypeId);
+		ManualType manualType = getCurrentSession().get(ManualType.class, manualTypeId);
 		if (manualType != null)
 			getCurrentSession().evict(manualType);
 		return manualType;
@@ -91,14 +94,14 @@ public class HelpManualDAO extends DBConnection {
 	@Transactional(readOnly = false)
 	public void saveManualType(ManualType manualType) {
 		if (manualType.getManualId() == null || getManualType(manualType.getManualId()) == null) {
-			getCurrentSession().save(manualType);
+			getCurrentSession().persist(manualType);
 		} else {
-			getCurrentSession().saveOrUpdate(manualType);
+			getCurrentSession().merge(manualType);
 		}
 	}
-
+	
 	public ManualEntryDetails getManualEntryDetails(String medId) {
-		ManualEntryDetails med = hibernateTemplate.get(ManualEntryDetails.class, medId);
+		ManualEntryDetails med = getCurrentSession().get(ManualEntryDetails.class, medId);
 		if (med != null)
 			getCurrentSession().evict(med);
 		return med;
@@ -107,9 +110,9 @@ public class HelpManualDAO extends DBConnection {
 	@Transactional(readOnly = false)
 	public void saveManualEntryDetails(ManualEntryDetails med) {
 		if (med.getManualEntryId() == null || getManualEntryDetails(med.getManualEntryId()) == null) {
-			getCurrentSession().save(med);
+			getCurrentSession().persist(med);
 		} else {
-			getCurrentSession().saveOrUpdate(med);
+			getCurrentSession().merge(med);
 		}
 	}
 
@@ -128,9 +131,17 @@ public class HelpManualDAO extends DBConnection {
 	public void deleteHelpManualEntryId(String manualType, String manualEntryId) {
 		StringBuilder deleteManualQuery = new StringBuilder(
 				"DELETE FROM ManualEntryDetails AS med WHERE med.manualEntryId = :manualEntryId AND med.manualId = :manualType ");
-		Query query = getCurrentSession().createQuery(deleteManualQuery.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(deleteManualQuery.toString());
 		query.setParameter("manualType", manualType);
 		query.setParameter("manualEntryId", manualEntryId);
+		query.executeUpdate();
+	}
+	
+	public void deleteHelpManualIdEntries(String manualType) {
+		StringBuilder deleteManualQuery = new StringBuilder(
+				"DELETE FROM ManualEntryDetails AS med WHERE med.manualId = :manualType ");
+		MutationQuery query = getCurrentSession().createMutationQuery(deleteManualQuery.toString());
+		query.setParameter("manualType", manualType);
 		query.executeUpdate();
 	}
 

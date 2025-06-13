@@ -21,11 +21,17 @@ public class ScriptLibraryDetailsExportVO {
 	private Date	updatedDate			= null;
 
 	private Integer	isCustomUpdated		= 0;
+	
+	private String	scriptLibConnId		= null;
+	
+	private String	moduleTypeId		= null;
+	
+	private String	enityId			= null;
 
 	public ScriptLibraryDetailsExportVO() {}
 
 	public ScriptLibraryDetailsExportVO(String scriptLibId, String templateId, String libraryName, String description,
-			String scriptType, String createdBy, String updatedBy, Date updatedDate, Integer isCustomUpdated) {
+			String scriptType, String createdBy, String updatedBy, Date updatedDate, Integer isCustomUpdated, String scriptLibConnId, String moduleTypeId, String enityId) {
 		this.scriptLibId = scriptLibId;
 		this.templateId = templateId;
 		this.libraryName = libraryName;
@@ -35,6 +41,9 @@ public class ScriptLibraryDetailsExportVO {
 		this.updatedBy = updatedBy;
 		this.updatedDate = updatedDate;
 		this.isCustomUpdated = isCustomUpdated;
+		this.scriptLibConnId = scriptLibConnId;
+		this.moduleTypeId = moduleTypeId;
+		this.enityId = enityId;
 	}
 
 	public String getScriptLibId() {
@@ -107,5 +116,29 @@ public class ScriptLibraryDetailsExportVO {
 
 	public void setUpdatedDate(Date updatedDate) {
 		this.updatedDate = updatedDate;
+	}
+
+	public String getScriptLibConnId() {
+		return scriptLibConnId;
+	}
+
+	public void setScriptLibConnId(String scriptLibConnId) {
+		this.scriptLibConnId = scriptLibConnId;
+	}
+
+	public String getModuleTypeId() {
+		return moduleTypeId;
+	}
+
+	public void setModuleTypeId(String moduleTypeId) {
+		this.moduleTypeId = moduleTypeId;
+	}
+
+	public String getEnityId() {
+		return enityId;
+	}
+
+	public void setEnityId(String enityId) {
+		this.enityId = enityId;
 	}
 }

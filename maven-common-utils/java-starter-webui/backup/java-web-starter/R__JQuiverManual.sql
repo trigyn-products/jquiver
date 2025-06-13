@@ -442,7 +442,7 @@ replace into jq_manual_entry (manual_entry_id, manual_type, entry_name, entry_co
 ('61fb4be9-a197-4759-9a4c-b885ce973f46', '07cf45ae-2987-11eb-a9be-e454e805e22f', 'Master Generator', '# Master Generator
 
 Master Generator plays a pivotal role while creating an application by using JQuiver framework.
-It helps you to design the listing page, form builder and site layout from the table you have, to support your application.
+It helps you to design the listing page, form builder and router from the table you have, to support your application.
 
 **How to make use of Master Generator**
 
@@ -463,7 +463,7 @@ Select the table from the Select Table list. This  list will contain all the tab
  ![](/cf/files/6cdc83c4-e2b2-4eb8-b9cb-17aff7c51a58)
  
   ** Step 4**
- If you want to include this module in Site Layout/ menu, then  that can also be  configured using "Show In Menu" option.
+ If you want to include this module in Router/ menu, then  that can also be  configured using "Show In Menu" option.
   ![](/cf/files/5ea356bb-88d3-4097-b44d-d96ec273ed2f)
 	
  ** Step 5**
@@ -500,7 +500,7 @@ Opting for Create New, will enable you to create a new department. This page wil
 Logically, if we create a Master Generator, entries in 3 modules are done.
 1. Template
 2. Dynamic Form
-3. Site Layout.
+3. Router.
 
 Taking an example of above scenario, 
 * listing page for department will be created in Templates. You can update the template to customize the page as per your requirement.
@@ -509,7 +509,7 @@ Taking an example of above scenario,
 * Add/Edit form is create in Dynamic Form. To customize this page, dynamic form has to be modified.
  ![](/cf/files/a6b9c378-6ffc-4874-870e-271d829103cf)
   ![](/cf/files/f625d2c2-6073-46a3-adc0-64d903aeaaa7)
-* To add a menu entry, entry in site layout is done through Master Generator.  
+* To add a menu entry, entry in Router is done through Master Generator.  
  ![](/cf/files/a501ef3d-bcc9-4d42-8990-99ddeb97fbe4)
  ![](/cf/files/88260a66-eaaf-40fb-b383-518e131cb6f9)
 		 
@@ -1293,6 +1293,9 @@ public class DynaRest {
 
 	@Autowired
 	private MenuService					menuService					= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	/**
 	 * 
@@ -1378,7 +1381,7 @@ public class DynaRest {
 		String			url			= a_httpServletRequest.getRequestURL().toString();
 		StringBuilder	urlPrefix	= new StringBuilder();
 		url = url.replace(uri, "");
-		urlPrefix.append(url).append("/api/");
+		urlPrefix.append(url).append(jQuiverPropeties.getApiPath()+"/");
 		return urlPrefix.toString();
 	}
 

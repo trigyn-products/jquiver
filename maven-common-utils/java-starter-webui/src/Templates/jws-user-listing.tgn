@@ -1,20 +1,13 @@
 <head>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 	<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.userMaster')}</h2> 
-		<div class="float-right">
+		<h2 class="title-cls-name">${messageSource.getMessage('jws.userMaster')}</h2> 
+		<div class="topactionbuttons">
 			<form id="addEditUser" action="${(contextPath)!''}/cf/aedu" method="post" style="padding-right:5px;" class="margin-r-10 pull-left">
                 <input type="hidden" name="userId" id="userId" value=""/>
                 <button type="submit" class="btn btn-primary">
@@ -35,8 +28,7 @@
     	 	</span>	
 		</div>
 		
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 		
 	<div id="divUserMasterGrid"></div>
 
@@ -44,7 +36,7 @@
 </div>
 <script>
 document.title = "User Master Module List";
-contextPath = "${contextPath}";
+//contextPath = "${contextPath}";
 var userArray = ["111415ae-0980-11eb-9a16-f48e38ab9348"];
 $(function () {
  	let formElement = $("#addEditUser")[0].outerHTML;

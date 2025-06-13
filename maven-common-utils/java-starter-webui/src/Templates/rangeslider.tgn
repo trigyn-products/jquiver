@@ -9,7 +9,7 @@
 	}
 	</style>
 <div class="col-12 margin-b-10">
-    <label for="${innerTemplateObj.propertyId!''}" style="white-space:nowrap">${innerTemplateObj.displayName!''}</label>
+    <label for="${innerTemplateObj.propertyId!''}" >${innerTemplateObj.displayName!''}</label>
     <div id="slider_${innerTemplateObj.propertyId!''}" name="${innerTemplateObj.propertyId!''}" value="${innerTemplateObj.defaultValue!''}"> 
 	<div id="custom-handle" class="ui-slider-handle"></div>
 </div>

@@ -4,25 +4,29 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import org.hibernate.annotations.GenericGenerator;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_property_master")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE,region = "applicationProperties") // Provide cache strategy.
 public class PropertyMaster implements Serializable {
 
 	private static final long	serialVersionUID	= -6641076236442355786L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "property_master_id")
 	private String				propertyMasterId	= null;
 
@@ -56,10 +60,13 @@ public class PropertyMaster implements Serializable {
 
 	@Column(name = "is_custom_updated")
 	private Integer				isCustomUpdated		= 1;
+	
+	@Column(name = "property_regex")
+	private String				propertyRegex			= null;
 
 	public PropertyMaster(String propertyMasterId, String ownerType, String ownerId, String propertyName,
 			String propertyValue, Integer isDeleted, Date lastModifiedDate, String modifiedBy, Double appVersion,
-			String comments) {
+			String comments,String propertyRegex) {
 		this.propertyMasterId	= propertyMasterId;
 		this.ownerType			= ownerType;
 		this.ownerId			= ownerId;
@@ -70,6 +77,7 @@ public class PropertyMaster implements Serializable {
 		this.modifiedBy			= modifiedBy;
 		this.appVersion			= appVersion;
 		this.comments			= comments;
+		this.propertyRegex      =propertyRegex;
 	}
 
 	public PropertyMaster() {
@@ -164,10 +172,19 @@ public class PropertyMaster implements Serializable {
 		this.isCustomUpdated = isCustomUpdated;
 	}
 
+	
+	public String getPropertyRegex() {
+		return propertyRegex;
+	}
+
+	public void setPropertyRegex(String propertyRegex) {
+		this.propertyRegex = propertyRegex;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(appVersion, comments, isDeleted, lastModifiedDate, modifiedBy, ownerId, ownerType,
-				propertyMasterId, propertyName, propertyValue);
+				propertyMasterId, propertyName, propertyValue,propertyRegex);
 	}
 
 	@Override
@@ -189,7 +206,8 @@ public class PropertyMaster implements Serializable {
 				&& Objects.equals(ownerType, other.ownerType)
 				&& Objects.equals(propertyMasterId, other.propertyMasterId)
 				&& Objects.equals(propertyName, other.propertyName)
-				&& Objects.equals(propertyValue, other.propertyValue);
+				&& Objects.equals(propertyValue, other.propertyValue)
+				&& Objects.equals(propertyRegex, other.propertyRegex);
 	}
 
 	@Override
@@ -197,7 +215,7 @@ public class PropertyMaster implements Serializable {
 		return "PropertyMaster [propertyMasterId=" + propertyMasterId + ", ownerType=" + ownerType + ", ownerId="
 				+ ownerId + ", propertyName=" + propertyName + ", propertyValue=" + propertyValue + ", isDeleted="
 				+ isDeleted + ", lastModifiedDate=" + lastModifiedDate + ", modifiedBy=" + modifiedBy + ", appVersion="
-				+ appVersion + ", comments=" + comments + "]";
+				+ appVersion + ", comments=" + comments + ",propertyRegex="+propertyRegex +"]";
 	}
 
 	public PropertyMaster getObject() {
@@ -213,6 +231,7 @@ public class PropertyMaster implements Serializable {
 		propertyMaster.setPropertyMasterId(propertyMasterId);
 		propertyMaster.setPropertyName(propertyName);
 		propertyMaster.setPropertyValue(propertyValue);
+		propertyMaster.setPropertyRegex(propertyRegex);
 
 		return propertyMaster;
 	}

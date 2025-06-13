@@ -4,21 +4,8 @@
           
          <div class="col-12">
             <div class="bs-example">
-               <div class="accordion" id="accordionExample">
-                  <div class="card">
-                     <div class="card-header" id="headingOne">
-                        <h2 class="mb-0">
-                           <button type="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseOne">Modules Count <i class="fa fa-plus"></i></button>									
-                        </h2>
-                     </div>
-                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-                        <div class="card-body">
-                           <div id="dashlet-module-content">
-                              <canvas id="dashlet-module-chart" width="500" height="200"></canvas>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+               <div id="dashlet-module-content">
+                  <canvas id="dashlet-module-chart" width="500" height="200"></canvas>
                </div>
             </div>
          </div>
@@ -36,7 +23,7 @@ $(function() {
     $.ajax({
         type : "GET",
         async : false,
-        url : contextPath+"/api/dashlet-module-details",
+        url : contextPath+apiPath+"/dashlet-module-details",
         data : {
             startDate: startDate,
             endDate: endDate,

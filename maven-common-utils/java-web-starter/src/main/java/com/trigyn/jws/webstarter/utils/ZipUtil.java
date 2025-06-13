@@ -17,12 +17,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipUtil {
 
-	private final static Logger logger = LogManager.getLogger(ZipUtil.class);
+	private final static Logger logger = LoggerFactory.getLogger(ZipUtil.class);
 
 	public static String zipDirectory(String zipSourceFolder, String zipDestinationFolder) {
 

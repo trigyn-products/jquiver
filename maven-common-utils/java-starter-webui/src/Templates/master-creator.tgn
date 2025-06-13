@@ -2,7 +2,6 @@
 <script src="${(contextPath)!''}/webjars/1.0/mastergenerator/mastergenerator.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/fileupload/fileBinMaster.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 
 <style>
 
@@ -41,33 +40,32 @@
 </head>
 
 
-<div class="pg-master-generator">
+<div>
 
 
 <div class="container">
 
-	<div class="cm-card">
-	<div class="topband cm-card-header">
+	 <div class="Mastercreator">
+	<div class="topband">
 	
 	
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.masterGenerator')}</h2> 
-		<div class="float-right">
+		<h2 class="title-cls-name ">${messageSource.getMessage('jws.masterGenerator')}</h2> 
+		<div class="topactionbuttons">
 			<span onclick="backToPreviousPage();">
 				<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 			</span>	
 		</div>
 		
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 		
 		
-	<div class="cm-card-body">
+	<div >
 	<form method="post" name="createMasterForm" id="createMasterForm">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 		<div class="row">
 			<div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
-	        		<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
+	        		<label for="flammableState" >${messageSource.getMessage('jws.datasource')} </label>
 	        		<select id="dataSource" name="dataSourceId" class="form-control" onchange="updateDataSource()">
 	        			<option id="defaultConnection" value="" data-product-name="default">${messageSource.getMessage('jws.defaultconnection')}</option>
 	        		</select>
@@ -75,7 +73,7 @@
 			</div>
 			<div class="col-sm-4 col-12">
                 <div class="col-inner-form full-form-fields">
-                    <label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.selecttable')}</label>
+                    <label for="flammableState" >${messageSource.getMessage('jws.selecttable')}</label>
                     <div class="search-cover">
                         <input class="form-control" id="tableAutocomplete" type="text">
                     	<i class="fa fa-search" aria-hidden="true"></i>
@@ -85,9 +83,22 @@
             </div>
             <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>Module Name</label>
+					<label for="moduleName" ><span class="asteriskmark">*</span>Module Name</label>
 					<input type="text" id="moduleName" name="moduleName" value="" maxlength="100" class="form-control">
 				</div>
+			</div>
+			<div class="col-4  col-12" id="isformIodiv">
+				<div class="col-inner-form full-form-fields">
+					<label for="formIoChkBox">${messageSource.getMessage('jws.formiolabel')}</label>
+					<div class="onoffswitch">
+						<input type="hidden" id="isFormIo" name="isFormIo" value="0">
+						<input type="checkbox" name="formIoChkBox" class="onoffswitch-checkbox" id="formIoChkBox" onchange="updateFormIo();"/>
+						<label class="onoffswitch-label" for="formIoChkBox">
+							<span class="onoffswitch-inner"></span>
+							<span class="onoffswitch-switch"></span>
+						</label>
+					</div>
+				</div>				
 			</div>
 		</div>
 
@@ -115,16 +126,11 @@
             </div>
             
         </div>
-
-
-
-
-        <div class="cm-menutable">
-
+    <div class="cm-menutable">
         <div class="row" style="display:none">
             <div class="col-sm-3 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="showInMenu" style="white-space:nowrap">
+					<label for="showInMenu" >
                         ${messageSource.getMessage('jws.showInMenu')}
                     </label>
 					<div class="onoffswitch">
@@ -136,37 +142,31 @@
                         </label>
                     </div>
 				</div>
-			</div>
-            
+			</div>       
 		</div>
-        <div class="row">
-        
+        <div class="row">   
             <div class="col-sm-4 col-12">
-
 				<div class="col-inner-form full-form-fields">
-					<label for="menuDisplayName" style="white-space:nowrap">Route Display Name</label>
+					<label for="menuDisplayName" >Route Display Name</label>
 					<input type="text"  id = "menuDisplayName" name = "menuDisplayName" value = "" maxlength="100" class="form-control">
 				</div>
 			</div>
-
             <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="moduleURL" style="white-space:nowrap">					
+					<label for="moduleURL" >					
 					${messageSource.getMessage("jws.moduleUrl")}					
-					</label>
-					
+					</label>			
 					<span class="copyblockcls" />				
 					 <span class="copytexturl">${(urlPrefix)!''}</span>					
-					<i class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyModuleURL('moduleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
-					<i id="moduleUrlIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','moduleURL');" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
-					</span>
-					 
+					<i class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();copyModuleURL('moduleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="moduleUrlIcon" class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','moduleURL');" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
+					</span>		 
 					<input type="text"  id = "moduleURL" name = "moduleURL" value = "" maxlength="200" class="form-control">
 				</div>
 			</div>
             <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+					<label for="parentModuleName" >${messageSource.getMessage("jws.parentModuleName")}</label>
 					<select id="parentModuleName" name="parentModuleName" class="form-control">
 						<option value="">Root</option>
 						<#if (moduleListingVOList)??>
@@ -181,8 +181,7 @@
         </div>
 
         <div class="row">
-            <div class="col-12">
-               
+            <div class="col-12">         
                 <h4>${messageSource.getMessage('jws.form')}</h4><hr/>
             </div>
             <div class="col-12 margin-t-b">
@@ -202,21 +201,20 @@
         </div>
         <div class="row">
             <div class="col-sm-4 col-12">
-
 				<div class="col-inner-form full-form-fields">
-					<label for="formDisplayName" style="white-space:nowrap">${messageSource.getMessage("jws.moduleName")}</label>
+					<label for="formDisplayName" >${messageSource.getMessage("jws.moduleName")}</label>
 					<input type="text"  id = "formDisplayName" name = "formDisplayName" value = "" maxlength="100" class="form-control">
 				</div>
 			</div>
 
             <div class="col-sm-4 col-12">
 				<div class="col-inner-form full-form-fields">
-					<label for="formModuleURL" style="white-space:nowrap">${messageSource.getMessage('jws.form')} ${messageSource.getMessage("jws.moduleUrl")}</label>
+					<label for="formModuleURL" >${messageSource.getMessage('jws.form')} ${messageSource.getMessage("jws.moduleUrl")}</label>
 					
 					<span class="copyblockcls">				
 					 <span class="copytexturl">${(urlPrefix)!''}	</span>			
-					<i class="fa fa-clipboard" aria-hidden="true"  onclick="copyModuleURL('formModuleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
-					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','formModuleURL');"
+					<i class="fa fa-regular fa-copy" aria-hidden="true"  onclick="copyModuleURL('formModuleURL');" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="copyIcon" class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();copyUrlContent('${(urlPrefix)}','formModuleURL');"
 					title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>"></i>
 					</span>
 					
@@ -224,7 +222,7 @@
  					<input type="text"  id = "formModuleURL" name = "formModuleURL" value = "" maxlength="200" class="form-control">
 				</div>
 			</div>
-            <div class="displayflex">
+            <div class="displayflex col-6 col-sm-2" id="captchadiv">
 										<label for="toggleCaptcha">Enable Captcha</label>
 										<label class="newswitch">
 											<input type="hidden"
@@ -239,11 +237,26 @@
 													<span class="slider round"/>
 												</label>
 									</div>    
-                                          <div class="col-12"> 
+                                    <div class="displayflex col-6 col-sm-2"  id="csrfdiv">
+										<label for="toggleCsrf">Enable CSRF</label>
+										<label class="newswitch">
+											<input type="hidden"
+											       id="toggleCsrf"
+											       name="toggleCsrf"
+											       value="0">
+												<input type="checkbox"
+												       name="toggleCsrfChkBox"
+												       class="onoffswitch-checkbox"
+												       id="toggleCsrfChkBox"
+												       onchange="toggleCsrfVal()">
+													<span class="slider round"/>
+												</label>
+									</div> 
+                                          <div class="col-12" id="filebindiv"> 
         <fieldset class="hm-fieldset" style="position:relative;">
          <legend class="hm-legend" style="display:flex;align-items: center;width: 75px;">File Bin
             <!-- <span> ${messageSource.getMessage('jws.fileBin')} </span> -->
-             <label class="switch" style="margin-left:85px;margin-right:15px;    position: absolute; margin-top:15px;"> 
+             <label class="switch" style="margin-left:85px;margin-right:15px;    position: absolute; margin-top:0px;"> 
 
                          <div class="onoffswitch">
                              <input type="hidden"
@@ -255,14 +268,13 @@
                                         <span class="onoffswitch-inner"></span>
                                         <span class="onoffswitch-switch"></span>
                                     </label>
-                            </div>
-        
+                            </div>     
      </label></legend>
       
 <div class="row">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="fileBinId"  style="white-space:nowrap"><span class="asteriskmark">*</span>
+					<label for="fileBinId"  ><span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filebinid')}
 		            </label>
 					<input type="text" id="fileBinId" name="fileBinId"   value="" maxlength="500" class="form-control RemoveData">
@@ -270,7 +282,7 @@
 				</div>
 				<div class="col-3">
 					<div class="col-inner-form full-form-fields">
-						<label for="fileTypeSupported" style="white-space:nowrap">
+						<label for="fileTypeSupported" >
 		            <span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filetypesupported')}<i class="fa fa-info-circle" aria-hidden="true" title="Valid format is '.' followed by supported file extension or '.*'" style="margin-left: 2px;"> </i>
 		            </label>
@@ -299,16 +311,43 @@
 							</div>
 						</div>
 						<div class="col-3">
-							<div class="col-inner-form full-form-fields">
-								<label for="noOfFiles" style="white-space:nowrap">
+							<div class="col-inner-form full-form-fields ">
+								<label for="noOfFiles" >
                     <span class="asteriskmark">*</span>${messageSource.getMessage('jws.noOfFilesbet1and50')}
                 </label>
 								<input type="hidden" id="noOfFiles" name="noOfFiles">
-								<p class="file-slider-span-cls"   >
-									<span id="fileSliderSpan" class="no-of-files-counter"  style="z-index: 999;"></span></p>
-								<div class="file-slider-div-cls" id="fileSliderDiv"></div>
+								<div id="slider">
+                                    <div id="custom-handle" class="ui-slider-handle"></div>
+                                </div>
 							</div>
 						</div>
+                        
+                        <div class="col-3" >  
+                            <div class="col-inner-form full-form-fields ">                        
+                             <label for="name" ><span class="asteriskmark">*</span>
+                                ${messageSource.getMessage('jws.fileStorage')}
+                            </label>
+                            <input type="hidden" id="fileStorageTxt" name="fileStorageTxt" value="0" />
+                            <div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
+									<input  class="onoffswitch-checkbox RemoveData" type="checkbox" name="isFileStorageEnable" id="isFileStorageEnable"  value="0" onchange="updateIsFileStorageEnableText();" >
+									<label class="onoffswitch-label" for="isFileStorageEnable">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+								</div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6" id="fileStorageClassDiv" >
+                            <div class="col-inner-form full-form-fields">
+                                <label for="name" ><span class="asteriskmark">*</span>
+                                    ${messageSource.getMessage('jws.customFileStorageClass')}<i class="fa fa-info-circle" aria-hidden="true" title="${messageSource.getMessage('jws.implementInterfaceValidation')}" style="margin-left: 2px;"> </i>
+                                </label>
+                                <input type="text" id="customFileStorageClass" name="customFileStorageClass" placeholder="eg: com.trigyn.jws.dynarest.service.SFTPConnector" disabled value="" maxlength="500" class="form-control">
+                            </div>
+                        </div>
+
 					</div>
 
 	                <input type="hidden" id="previousFileSizeScale" value="1">
@@ -317,49 +356,37 @@
       </fieldset>
       </div>            
         </div>
-        </div>
-        
+        </div>      
 	
-	<input id="isDev" type="hidden" value="${(isDev)?c!''}">
-	
+	<input id="isDev" type="hidden" value="${(isDev)?c!''}">	
 	<div class="row">
 		<div class="col-sm-4 col-12"> 
 			<@templateWithoutParams "role-autocomplete"/>
 		</div>
-	</div> 
-		
-		
-	</form>
-    
+	</div> 				
+	</form>  
     </div>
 <div class="cm-card-footer">
     <div class="row margin-t-b">
-			<div class="col-12">
-			
-				<div class="float-right">
+			<div class="col-12">			
+				<div class="text-end">
 					<input class="btn btn-primary" name="" value="${messageSource.getMessage('jws.create')}" type="button" onclick="createMaster()">
 					<span onclick="backToPreviousPage();">
 						<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 					</span> 
-				</div>
-			
+				</div>		
 		</div>
 	</div>
     </div>
-             </div>
-    
-
-
+    </div>
 	<div id="snackbar"></div>
 </div>
 </div>
 </div>
-
-
-
+<div id="saveCreateMasterConfirm"></div>
 <script>
 	document.title = "Master Module Generator";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
     let gridDetails = new Array();
     let formDetails = new Array();
     let menuDetails = new Object();
@@ -377,8 +404,16 @@
     </#list>
     $("#baseUrl").val(baseUrl);
     function toggleCaptchaVal() {
-		let isChecked = $('#toggleCaptchaChkBox').is(':checked')? 1 : 0;		
+		let isChecked = $('#toggleCaptchaChkBox').is(':checked')? 1 : 0;
+        let isCsrfChecked = $('#toggleCsrfChkBox').is(':checked')? 1 : 0;		
         $("#toggleCaptcha").val(isChecked);  
+        if (!isCsrfChecked) {
+            $("#toggleCsrf").val(0); 
+        }
+    } 
+    function toggleCsrfVal() {
+		let isCsrfChecked = $('#toggleCsrfChkBox').is(':checked')? 1 : 0;
+        $("#toggleCsrf").val(isCsrfChecked);  
     }  
 	
 	$(function() {
@@ -423,7 +458,7 @@
          
        // let context = this;
         initializeFileSlider();
-        $('#fileSliderDiv').slider("disable");
+        $('#slider').slider("disable");
 	});
 	
 	$(document).ready(function(){
@@ -441,13 +476,11 @@
             $("#formDisplayName").val(this.value+ '-form');
             $("#formModuleURL").val(this.value+ '-f');
             if(toogleFileBin==1){
-                     $("#fileBinId").val(this.value+ '_fb');
+                     $("#fileBinId").val(this.value.replace(/[^a-zA-Z0-9]/g, "")+ '_fb');
                 }
             }
-		});
-		
+		});	
 	});
-
    
     $("#tableAutocomplete").on('change',function(){
         if($.trim(this.value).length < 1) {
@@ -457,68 +490,102 @@
             $("#formDisplayName").prop("readonly", true); 
             $("#formModuleURL").prop("readonly", true); 
         }
-        });
+    });
 
-    function selectAllIncludedListing(){
-        $("#listingDetailsTable tr td:first-child input").prop('checked', $("#chkSelectAllIncludedListing").prop('checked'));
+    function selectAllIncludedListing(){        
         $("#listingDetailsTable tr td:first-child input").each(function(a_index, a_element){
-            addRemoveToGridDetails(a_element);
+			if($(this).is(':disabled') == false){
+				$(this).prop('checked', $("#chkSelectAllIncludedListing").prop('checked'));
+				addRemoveToGridDetails(a_element);
+			}            
         });
     }
 
     function selectAllHiddenListing(){
-        $("#listingDetailsTable tr td:nth-child(2) input").prop('checked', $("#chkSelectAllHiddenListing").prop('checked'));
         $("#listingDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
-            updateGridDetails(a_element);
+        	if($(this).is(':disabled') == false){
+        		$(this).prop('checked', $("#chkSelectAllHiddenListing").prop('checked'));
+        		updateGridDetails(a_element);
+        	}
         });
     }
 
-    function selectAllIncludedForm(){
-        $("#formDetailsTable tr td:first-child input").prop('checked', $("#chkSelectAllIncludedForm").prop('checked'));
-        $("#formDetailsTable tr td:first-child input").each(function(a_index, a_element){
-            addRemoveToFormDetails(a_element);
+    function selectAllIncludedForm(){        
+        $("#formDetailsTable tr td:first-child input").each(function(a_index, a_element){			
+			if($(this).is(':disabled') == false){			
+				$(this).prop('checked', $("#chkSelectAllIncludedForm").prop('checked'));
+				addRemoveToFormDetails(a_element);
+			}			
         });  
     }
 
     function selectAllHiddenForm(){
-        $("#formDetailsTable tr td:nth-child(2) input").prop('checked', $("#chkSelectAllHiddenForm").prop('checked'));
         $("#formDetailsTable tr td:nth-child(2) input").each(function(a_index, a_element){
-            updateFormDetails(a_element);
+	        if($(this).is(':disabled') == false){
+	        	$(this).prop('checked', $("#chkSelectAllHiddenForm").prop('checked'));
+	        	updateFormDetails(a_element);
+	        }
         });
     }
 
     function fileBinChecked(t){  
-       
         let isChecked = $('#toggleFileBinChkBox').is(':checked')? 1 : 0;		
         $("#toggleFileBin").val(isChecked); 
         if (t.is(":checked")) {
             $(".RemoveData").removeAttr("disabled", "disabled"); 
-            $('#fileSliderDiv').slider("enable");
+            $('#slider').slider("enable");
             $("#fileTypeSupported").attr("placeholder", ".png, .jpg, .gif, .*");
             document.getElementById('size').value = '1';
             $("#maxFileSize").focus();
-             $("#fileBinId").val($("#moduleName").val().replaceAll("_", "-")+"_fb");
+            $("#fileBinId").val($("#moduleName").val().replace(/[^a-zA-Z0-9]/g, "")+"_fb");
+
         } else {
             $(".RemoveData").attr("placeholder", ""); 
             $(".RemoveData").val("");    
             $(".RemoveData").attr("disabled", "disabled");   
-            $('#fileSliderDiv').slider("disable"); 
+            $('#slider').slider("disable"); 
         }
     }
   	 function initializeFileSlider() {
-		//let context = this;
-		$("#fileSliderDiv").slider({
-			orientation: "horizontal",
-			min: 1,
-			max: 50,
-			value: $("#noOfFiles").val() == "" ? 15 : $("#noOfFiles").val(),
-			slide: function(event, ui) {
-				$("#fileSliderSpan").text(ui.value);
-				$("#noOfFiles").val(ui.value);
-			}
-		});
-		let fileCount = $("#fileSliderDiv").slider("value");
-		$("#fileSliderSpan").text(fileCount);
+		var handle = $("#custom-handle");
+        $("#slider").slider({
+            max: 256,
+            min: 0,
+            value: $("#noOfFiles").val() == "" ? 0 : $("#noOfFiles").val(),
+            create: function () {
+                handle.text($(this).slider("value"));
+            },
+            slide: function (event, ui) {
+                handle.text(ui.value);
+                $("#slider").slider(ui.value);
+			    $("#noOfFiles").val(ui.value);
+            }
+        });
+        let fileCount = $("#slider").slider("value");
+		$("#custom-handle").text(fileCount);
 		$("#noOfFiles").val(fileCount);
 	}
+
+    function updateIsFileStorageEnableText() {
+            if($("#isFileStorageEnable").prop("checked") == true) {
+                 $("#customFileStorageClass").prop("disabled", false);
+                $("#fileStorageTxt").val(1);
+            } else {
+                $("#fileStorageTxt").val(0);
+                 $("#customFileStorageClass").prop("disabled", true);
+                 $("#customFileStorageClass").val("")
+            }
+        }
+        
+     function updateFormIo() {
+		let formIoChkBox = $('#formIoChkBox').is(':checked')? 1 : 0;
+        $("#isFormIo").val(formIoChkBox);  
+        if(formIoChkBox == 1) {
+        	$("#filebindiv").hide();
+        	$("#csrfdiv").hide();
+        } if(formIoChkBox == 0) {
+        	$("#filebindiv").show();
+        	$("#csrfdiv").show();
+        }
+     }
 </script>

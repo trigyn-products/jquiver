@@ -148,7 +148,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         let dbTypeId = $("#datasourceLookupId").val().trim();
         $.ajax({
 		    type : "POST",
-		    url : contextPath+"/api/jq-db-driver-list",
+		    url : contextPath+apiPath+"/jq-db-driver-list",
             success : function(data) {
                 driverList = data;
                 for (let property in data) {
@@ -224,7 +224,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         $.ajax({
 		    type : "POST",
 		    async: false,
-		    url : contextPath+"/api/jq-db-datasource",
+		    url : contextPath+apiPath+"/jq-db-datasource",
             data:{
                 adi: additionalDatasourceId,
                 dn: dataSourceName,
@@ -270,7 +270,7 @@ REPLACE INTO jq_dynamic_form (form_id, form_name, form_description, form_select_
         $.ajax({
 		    type : "POST",
             async: true,
-		    url : contextPath+"/api/jq-test-database-connection",
+		    url : contextPath+apiPath+"/jq-test-database-connection",
 		    data:{ 
 		    	dli: datasourceLookupId,
 		    	curl: connectionUrl,

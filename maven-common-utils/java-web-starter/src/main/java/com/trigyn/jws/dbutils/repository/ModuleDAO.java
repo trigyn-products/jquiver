@@ -3,14 +3,16 @@ package com.trigyn.jws.dbutils.repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trigyn.jws.dbutils.entities.AdditionalDatasource;
 import com.trigyn.jws.dbutils.entities.ModuleListing;
 import com.trigyn.jws.dbutils.entities.ModuleListingI18n;
 import com.trigyn.jws.dbutils.utils.Constant;
@@ -18,17 +20,16 @@ import com.trigyn.jws.dbutils.utils.Constant;
 @Repository
 public class ModuleDAO extends DBConnection {
 
+	public ModuleDAO(DataSource dataSource) {
+		super(dataSource);
+	}
+
 	public static final String	TARGET_MODULE_PROCEDURE_NAME						= "CALL moduleTargetType(:targetLookupId, :targetTypeId)";
 
 	public static final String	HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE				= "SELECT MAX(ml.sequence) AS maxSequence FROM ModuleListing AS ml WHERE ml.parentId IS NULL AND "
 			+ " ml.isHomePage = :isNotHomePage ";
 
 	public static final String	HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE_BY_PARENT_ID	= "SELECT MAX(ml.sequence) AS maxSequence FROM ModuleListing AS ml WHERE ml.parentId = :parentModuleId ";
-
-	@Autowired
-	public ModuleDAO(DataSource dataSource) {
-		super(dataSource);
-	}
 
 	public List<Map<String, Object>> findTargetTypeDetails(Integer targetLookupId, String targetTypeId) throws Exception {
 		List<Map<String, Object>>	targetTypeList	= null;
@@ -41,7 +42,7 @@ public class ModuleDAO extends DBConnection {
 
 	public Integer getModuleMaxSequence() throws Exception {
 		Integer	sequence	= null;
-		Query	query		= getCurrentSession().createQuery(HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE);
+		Query	query		= getCurrentSession().createQuery(HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE, Integer.class);
 		query.setParameter("isNotHomePage", Constant.IS_NOT_HOME_PAGE);
 		Object versionIdObj = query.uniqueResult();
 		if (versionIdObj != null) {
@@ -52,7 +53,7 @@ public class ModuleDAO extends DBConnection {
 
 	public Integer getMaxSequenceByParent(String parentModuleId) throws Exception {
 		Integer	sequence	= null;
-		Query	query		= getCurrentSession().createQuery(HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE_BY_PARENT_ID);
+		Query	query		= getCurrentSession().createQuery(HQL_QUERY_TO_GET_MAX_MODULE_SEQUENCE_BY_PARENT_ID, Integer.class);
 		query.setParameter("parentModuleId", parentModuleId);
 		Object versionIdObj = query.uniqueResult();
 		if (versionIdObj != null) {
@@ -62,27 +63,28 @@ public class ModuleDAO extends DBConnection {
 	}
 
 	public ModuleListing findModuleListingById(String moduleId) {
-		ModuleListing moduleListing =  hibernateTemplate.get(ModuleListing.class, moduleId);
+		ModuleListing moduleListing =  getCurrentSession().get(ModuleListing.class, moduleId);
 		if(moduleListing != null) getCurrentSession().evict(moduleListing);
 		return moduleListing;
 	}
 
 	@Transactional(readOnly = false)
 	public void saveModuleListing(ModuleListing moduleListing, List<ModuleListingI18n>	moduleListingI18ns) {
-		if(moduleListing.getModuleId() == null || findModuleListingById(moduleListing.getModuleId()) == null) {
-			getCurrentSession().save(moduleListing);			
-		}else {
-			getCurrentSession().saveOrUpdate(moduleListing);
+		if (moduleListing.getModuleId() == null
+				|| Objects.isNull(findModuleListingById(moduleListing.getModuleId()))) {
+			getCurrentSession().persist(moduleListing);
+		} else {
+			getCurrentSession().merge(moduleListing);
 		}
-		
+
 		deleteModuleListingI18n(moduleListing.getModuleId());
 		for(ModuleListingI18n moduleI18ns : moduleListingI18ns) {
-			getCurrentSession().saveOrUpdate(moduleI18ns);
+			getCurrentSession().persist(moduleI18ns);
 		}
 	}
 
 	public void deleteModuleListingI18n(String moduleId) {
-		Query query = getCurrentSession().createQuery("DELETE FROM ModuleListingI18n AS mli WHERE mli.id.moduleId = :moduleId");
+		MutationQuery query = getCurrentSession().createMutationQuery("DELETE FROM ModuleListingI18n AS mli WHERE mli.id.moduleId = :moduleId");
 		query.setParameter("moduleId", moduleId);
 		query.executeUpdate();
 	

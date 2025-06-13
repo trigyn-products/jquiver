@@ -2,25 +2,24 @@ package com.trigyn.jws.usermanagement.entities;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 import com.trigyn.jws.usermanagement.vo.JwsUserVO;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_user")
 public class JwsUser {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "user_id")
 	private String	userId					= null;
 
@@ -207,6 +206,7 @@ public class JwsUser {
 		jwsUser.setPassword(userData.getPassword());
 		jwsUser.setFailedAttempt(userData.getFailedAttempt());
 		jwsUser.setLastPasswordUpdatedDate(userData.getLastPasswordUpdatedDate());
+		jwsUser.setForcePasswordChange(userData.getForcePasswordChange());
 		return jwsUser;
 	}
 

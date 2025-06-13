@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class FileUtil {
 
@@ -78,10 +79,33 @@ public class FileUtil {
 		IOUtils.copy(inputStream, response.getOutputStream());
 		response.flushBuffer();
 		inputStream.close();
-
 		File directory = new File(zipFilePath);
 		if (directory.exists()) {
 			deleteFolder(directory);
+		}
+
+	}
+	
+	public static void downloadZipFile(HttpServletRequest request, HttpServletResponse response, String zipFilePath)
+			throws IOException, Exception {
+		ZipFile zipFile = new ZipFile(zipFilePath);
+		if (zipFile.size() > 0) {
+			File file = new File(zipFilePath);
+			InputStream inputStream = new FileInputStream(file);
+			response.setContentType("application/force-download");
+			response.setHeader("Content-disposition", "attachment; filename=" + file.getName());
+			IOUtils.copy(inputStream, response.getOutputStream());
+			response.flushBuffer();
+			inputStream.close();
+			File directory = new File(zipFilePath);
+			if (directory.exists()) {
+				deleteFolder(directory);
+			}
+			zipFile.close();
+		} else {
+			zipFile.close();
+			throw new Exception("Nothing to Export.");
+
 		}
 
 	}

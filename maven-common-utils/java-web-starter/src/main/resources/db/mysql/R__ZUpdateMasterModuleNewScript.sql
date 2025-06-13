@@ -8,4 +8,6 @@ UPDATE jq_master_modules SET auxiliary_data = '"<form action=\\"/cf/aem\\" metho
 
 DELETE FROM `jq_master_modules` WHERE `module_id` = '699ac104-8c8f-11eb-8dcd-0242ac130003' ;
 
+UPDATE jq_master_modules SET auxiliary_data = '"<form id=\\"formIORedirect\\" action=\\"/view/form-io-details\\" method=\\"GET\\"><input type=\\"hidden\\" data-type=\\"text\\" id=\\"formioid\\" name=\\"formioid\\"></form>"' WHERE module_id="1faee99c-021c-11ef-a019-7c8ae1bb24d8";
+
 SET FOREIGN_KEY_CHECKS=1;

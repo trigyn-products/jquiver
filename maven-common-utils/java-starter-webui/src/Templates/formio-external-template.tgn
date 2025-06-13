@@ -1,0 +1,202 @@
+<#if selectedTab == "htmlContent">
+```HTML
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap-icons.css">  
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/bootstrap.min.css"> 
+	<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/markdown/dist/simplemde.min.css">
+    <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/markdown/dist/simplemde.min.js"></script>
+	<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/formio/formio.js"></script>
+    <style>
+        
+    </style>
+</head>
+    <body>   
+        <form>  
+			  <div class="container">                    
+				<div id="formioBody"></div> 
+			  </div>    
+        </form>                  
+    </body>
+
+    <script>
+		let contextPath = "<#noparse>${contextPath}</#noparse>";        
+        let dataId ;
+		/* TODO : Set the formIoId variable : Its the primary key value from jq_form_io table, 
+				  of the formIO created. Its used in loadFormIo
+				  method to get meta information about the page. It will be unique for formIO created.  */
+        <#if formioid?? && (formioid)?has_content>
+        let formIoId = "${formioid}";
+        <#else>
+        let formIoId = "<formIOId>";
+        </#if>		
+        $(document).ready(function() {
+            var params = new window.URLSearchParams(window.location.search);
+			// TODO : formDataId fecth the grid data based on gridId or listing page.
+            dataId =  params.get('formDataId');            
+            loadFormIo();            
+        });
+		
+		/* Default method is called on page load for the following information
+			1.	Load the meta data information required to render the page using "fetchMetaData" Rest API.
+			2.	Load the formIO form as per the metadata provided, using "fetchForm" Rest API. 
+				This system restapi call should not be modified.
+		*/
+        function loadFormIo() {
+        	if(formIoId == undefined || formIoId == "" || formIoId == "<formIOId>"){
+				showMessage("Form IO ID is required.", "error");
+				return false;
+			}	
+			// Below URL is responsible to load the meta data information required to render the page.
+			const url = contextPath+apiPath+"/fetchMetaData";
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: url, 
+                data: {
+                    formIoId: formIoId
+                },
+                success: function (data) {
+                    let formMetaData = JSON.parse(data.formMetaData['form_io_json']);                                        
+                    let formIoData ; 
+					if(dataId != null && dataId != "") {
+						formIoData = getFormData();
+					}
+					const builderOptions = { noDefaultSubmitButton: true };                   
+                    Formio.createForm(document.getElementById('formioBody'), formMetaData, builderOptions).then(function(form) {              
+                        if(formIoData != undefined) {
+                            form.submission = {              
+                                data: JSON.parse(formIoData.formData)
+                            };
+                        }
+
+                        form.on('submit', function(submission) {                 
+                            submit(submission, form);							
+                			/* TODO : Change the redirect URI to another page, once the form is submitted. 
+								Below needs to be used, as per requirement 
+							*/
+                            // window.location.href = '/home';  
+                        }); 
+                         form.on('cancelFormIoEvent', function(submission) { 
+							/* 	Your custom logic for canceling the form.
+								You can redirect or clear the form fields
+							*/
+							// form.reset();  // Reset the form fields
+							// window.location.href = '/home';  // Optionally redirect to another page
+                        });
+                    });
+                },
+                error: function (xhr, error) {
+					showMessage("Error occurred while loading", "error");
+                },
+            });
+        }
+		
+		/* 
+			This method  will load the data required for the page using the custom rest API created. 
+			We have provided a system Rest API "fetchForm", which can be used.
+			This method is used to get information about data required while pre populating page in edit mode.
+			
+			The request params required for the rest api are 
+			1.	formIoId : the primary key value of the form IO used.
+			2.	dataId : Primary key value required to get the information about the data stored in the data table. 
+			
+			The response of this rest api should be formData as a json format.
+		*/
+		
+        function getFormData() {		
+			var returnData;
+			// Rest API to load form data.
+			const url = contextPath+apiPath+"/fetchForm";           
+            
+            try {
+                $.ajax({
+                    type: "POST",
+                    async: false,
+                    url: url,
+                    data: {
+                        formIoId: formIoId,
+                        dataId:dataId
+                    },
+                    success: function (data) {
+                        returnData = data;                
+                    },
+                    error: function (xhr, error) {
+						showMessage("Error occurred while loading the data", "error");
+                    },
+                });
+            } catch (error) {
+                showMessage("Error occurred while loading the data", "error");
+            }
+            return returnData;;
+        }
+		
+		/* The below method (submit) is used save the information into the database. 
+			This will be the custom rest api to save the data in its respective table.
+			We have provided a system Rest API "saveForm", which can be used.
+			
+			If saveForm is used, the request params required for the rest api are 
+			1.	isEdit : For new records the value will be 0. For existing records it will be 1.
+			2.	formIoId : the primary key value required to render the page.
+			3.	dataId : Primary key value required to get the information about the data stored in the table.
+			4.	formData: This variable is availble from Form IO Framework as submission variable 
+				after submitting the form.
+		*/
+		
+        function submit(submission, form) {           
+            var isEdit = 0;
+			const url = contextPath+apiPath+"/saveForm";            
+            if(dataId != null && dataId != "") {
+                isEdit = 1;            
+			}            
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: url,
+                dataType: "text",
+                data: {
+                    isEdit: isEdit,
+                    formIoId: formIoId,
+                    dataId: dataId,
+                    formData: JSON.stringify(submission["data"])
+                },
+                success: function (data) {
+					showMessage("Information saved successfully", "success");
+					if(isEdit == 0){
+                        form.setPristine(true); // Remove validation error messages
+                        form.submission = { data: {} }; // Clear all values
+                        form.setValue({}); // Force clear values in all fields
+                    }                    
+                    form.redraw(); // Rerender form to reflect changes
+                    form.refresh();
+                },
+                error: function (xhr, error) {
+					showMessage("Error occurred while saving the data", "error");
+					form.redraw();
+                    form.refresh();
+					return false;
+                },
+            });
+            return true;
+        }
+    </script>
+</html>
+
+
+
+```
+
+<#elseif selectedTab == "selectContent">
+```JavaScript
+	External Select JS Content
+	    
+```
+<#elseif selectedTab == "jsContent">
+```JavaScript
+	External Save JS Content
+	    
+```
+
+</#if>

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import org.glassfish.jaxb.core.marshaller.CharacterEscapeHandler;
 
 public class CustomCharacterEscapeHandler implements CharacterEscapeHandler {
 

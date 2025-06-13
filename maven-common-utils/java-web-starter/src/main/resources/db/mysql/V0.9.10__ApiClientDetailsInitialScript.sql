@@ -4,7 +4,7 @@ CREATE TABLE jq_encryption_algorithms_lookup (
   `encryption_algo_id` INT(11) NOT NULL,
   `encryption_algo_name` varchar(100) NOT NULL,  
   PRIMARY KEY (`encryption_algo_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9;
 
 REPLACE INTO jq_encryption_algorithms_lookup (encryption_algo_id,encryption_algo_name) 
 VALUES 
@@ -29,4 +29,4 @@ CREATE TABLE jq_api_client_details(
   PRIMARY KEY (`client_id`)
  ,KEY encryption_algo_id (encryption_algo_id)
  ,CONSTRAINT jq_encryption_algo_id_ibfk_1 FOREIGN KEY (`encryption_algo_id`) REFERENCES  jq_encryption_algorithms_lookup (`encryption_algo_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9;

@@ -2,13 +2,10 @@ package com.trigyn.jws.quartz.service.impl;
 
 import java.util.Date;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.JobDataMap;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,10 +24,12 @@ import com.trigyn.jws.dynarest.repository.JqschedulerRepository;
 import com.trigyn.jws.quartz.service.IJwsJobService;
 import com.trigyn.jws.quartz.service.IJwsQuartzJobService;
 
+import jakarta.servlet.ServletContext;
+
 @Transactional
 public class JwsRestSchedulerService implements IJwsJobService {
 
-	private final static Logger		LOGGER					= LogManager.getLogger(JwsRestSchedulerService.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(JwsRestSchedulerService.class);
 
 	private PropertyMasterService	propertyMasterService	= ApplicationContextProvider
 			.getBean(PropertyMasterService.class);
@@ -79,14 +78,14 @@ public class JwsRestSchedulerService implements IJwsJobService {
 				boolean status = jobService.scheduleCronJob(jwsScheduler.getScheduler_name(), jobGroup, JwsSchedulerJob.class,
 						new Date(), jwsScheduler.getCronScheduler(), jobDataMap);
 				if (status) {
-					LOGGER.debug("Scheduler executed successfully.");
+					logger.debug("Scheduler executed successfully.");
 				} else {
-					LOGGER.debug("Could not start job ");
+					logger.debug("Could not start job ");
 				}
 			} catch (SchedulerException sce) {
-				LOGGER.error("Could not start job with due to error - {}", sce.getLocalizedMessage());
+				logger.error("Could not start job with due to error - {}", sce.getLocalizedMessage());
 			} catch (Exception exec) {
-				LOGGER.error("Could not start job with due to error - {}", exec.getLocalizedMessage());
+				logger.error("Could not start job with due to error - {}", exec.getLocalizedMessage());
 			}
 		}
 
@@ -98,7 +97,7 @@ public class JwsRestSchedulerService implements IJwsJobService {
 		if (sra != null) {
 
 			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-			HttpServletRequest					request								= sra.getRequest();
+			jakarta.servlet.http.HttpServletRequest					request								= sra.getRequest();
 			UsernamePasswordAuthenticationToken	usernamePasswordAuthenticationToken	= new UsernamePasswordAuthenticationToken(
 					userDetails, null, userDetails.getAuthorities());
 			usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

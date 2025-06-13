@@ -1,10 +1,9 @@
 package com.trigyn.jws.dbutils.vo.xml;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import javax.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 public class ManualEntryDetailsExportVO {
 
@@ -20,10 +19,12 @@ public class ManualEntryDetailsExportVO {
 	
 	private String createdBy = null;
 
+	@JsonIgnore
 	private Date createdDate = null;
 
 	private String lastUpdatedBy = null;
 
+	@JsonIgnore
 	private Date lastModifiedOn = null;	
 
 	private String parentId = null;

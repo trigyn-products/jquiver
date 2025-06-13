@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.security.KeyStore;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,21 +28,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.TrustManagerFactory;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.util.IOUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.quartz.DateBuilder;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +84,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomResponseEntity;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.FileInfo.FileType;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
@@ -98,7 +94,6 @@ import com.trigyn.jws.dynarest.dao.JwsDynamicRestDetailsRepository;
 import com.trigyn.jws.dynarest.dao.JwsDynarestDAO;
 import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.utils.Constants;
-import com.trigyn.jws.dynarest.utils.Constants.Platforms;
 import com.trigyn.jws.dynarest.utils.WebClientCustomException;
 import com.trigyn.jws.dynarest.vo.RestApiDaoQueries;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
@@ -117,18 +112,29 @@ import com.trigyn.jws.usermanagement.security.config.JwsUserDetailsService;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
 import com.trigyn.jws.usermanagement.vo.JwsAuthenticationType;
 import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
 import freemarker.core.StopException;
+import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
+import jakarta.xml.bind.Unmarshaller;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+
 @Service
 @Transactional
 @Lazy
 public class JwsDynamicRestDetailService {
 
-	private final static Logger				logger							= LogManager.getLogger(JwsDynamicRestDetailService.class);
+	private final static Logger				logger							= LoggerFactory.getLogger(JwsDynamicRestDetailService.class);
 
 	@Autowired
 	private TemplatingUtils					templatingUtils					= null;
@@ -184,9 +190,6 @@ public class JwsDynamicRestDetailService {
 	private HttpServletRequest				request							= null;
 
 	@Autowired
-	private JwsDynamicRestDetailService		jwsService						= null;
-
-	@Autowired
 	private FileUploadController			fileUploadController			= null;
 
 	@Autowired
@@ -200,6 +203,12 @@ public class JwsDynamicRestDetailService {
 
 	@Autowired
 	private JwsQuartzJobService				jobService						= null;
+	
+	@Autowired
+	private FileUtilities					fileUtilities					= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 	
 	protected NamedParameterJdbcTemplate	namedParameterJdbcTemplate		= null;
 
@@ -318,7 +327,7 @@ public class JwsDynamicRestDetailService {
 		
 		if (scriptEngine == null) {
 			logger.error("Nashorn Script Engine not found.");
-			httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
 					"Nashorn Script Engine not found.");
 			return null;
         }
@@ -336,7 +345,7 @@ public class JwsDynamicRestDetailService {
 		
 		if (scriptEngine == null) {
 			logger.error("Python Script Engine not found.");
-			httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
 					"Python Script Engine not found.");
 			return null;
         }
@@ -354,7 +363,7 @@ public class JwsDynamicRestDetailService {
 		try {
 	        if (scriptEngine == null) {
 	        	logger.error("PHP Script Engine not found.");
-	        	httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+	        	fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
 						"PHP Script Engine not found.");
 				return null;
 	        }
@@ -475,10 +484,11 @@ public class JwsDynamicRestDetailService {
 						URI		serverUrl				= new URI(serverBaseURL);
 						if (requestedURL.compareTo(serverUrl) == 0) {
 							String requestURL = webClientXMLVO.getWebClientURL().toString();
-							if (requestURL.indexOf("/api/") > 0 || requestURL.indexOf("/japi/") > 0) {
+							if (requestURL.indexOf(jQuiverPropeties.getApiPath()+"/") > 0 || requestURL.indexOf("/japi/") > 0) {
 								String schedularURL = propertyMasterService.findPropertyMasterValue("scheduler-url") + "-api";
-								if (requestURL.indexOf("/api/") > 0) {
-									String replaceUrl = requestURL.replaceAll("api", schedularURL);
+								String apiPath = jQuiverPropeties.getApiPath().replaceFirst("/", "");
+								if (requestURL.indexOf(jQuiverPropeties.getApiPath()+"/") > 0) {
+									String replaceUrl = requestURL.replaceAll(apiPath, schedularURL);
 									webClientXMLVO.setWebClientURL(replaceUrl);
 								} else if (requestURL.indexOf("/japi/") > 0) {
 									String replaceUrl = requestURL.replaceAll("japi", schedularURL);
@@ -606,7 +616,7 @@ public class JwsDynamicRestDetailService {
 						HttpStatus.PRECONDITION_FAILED,
 						"HTTP Request Type is mandatory. It should not be empty or null.");
 			}
-
+			
 			if (webClientXMLVO.getWebClientURL() != null
 					&& webClientXMLVO.getWebClientURL().equalsIgnoreCase("about:blank") == false) {
 				Date							requestTime		= new Date();
@@ -640,7 +650,7 @@ public class JwsDynamicRestDetailService {
 				customResponseEntity.setStatusCode(wce.getStatusCode());
 				customResponseEntity.setMessage(wce.getMessage());
 			} else if (a_thr instanceof UnmarshalException) {
-				logger.error("Error while UnMarshalling in JwsDynamicRestDetailService :: " + a_thr);
+				logger.error("Error occured while UnMarshalling in JwsDynamicRestDetailService :: " + a_thr);
 				UnmarshalException une = (UnmarshalException) a_thr;
 				customResponseEntity.setResponseBody(stacktrace);
 				customResponseEntity.setResponseStatusCode(HttpStatus.PRECONDITION_FAILED.value());
@@ -717,26 +727,27 @@ public class JwsDynamicRestDetailService {
 					}
 				}
 
-				Map<String, Object> queriesResponse = jwsService.executeDAOQueries(restApiDetails.getDynamicId(),
+				Map<String, Object> queriesResponse = executeDAOQueries(restApiDetails.getDynamicId(),
 						requestParams, fileMap);
 
-				response = jwsService.createSourceCodeAndInvokeServiceLogic(fileMap, httpServletRequest, httpServletResponse, requestParams,
+				response = createSourceCodeAndInvokeServiceLogic(fileMap, httpServletRequest, httpServletResponse, requestParams,
 						queriesResponse, restApiDetails);
 				String responseType = restApiDetails.getReponseType();
 				if (StringUtils.isBlank(responseType) == false && responseType.equals("email/xml")) {
 					Map<String, Object> combParam = new HashMap<>();
 					combParam.putAll(requestParams);
 					combParam.putAll(queriesResponse);
-					response = jwsService.executeSendMail(response, combParam);
+					response = executeSendMail(response, combParam);
 				}
 
 				if ((response instanceof FileInfo) == false
 						&& restApiDetails.getReponseType().equalsIgnoreCase("application/octet-stream")) {
 					if (response != null && "404".equalsIgnoreCase(response.toString())) {
-						httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(), "Invalid file information.");
+						fileUtilities.customSendError(httpServletResponse,HttpStatus.NOT_FOUND.value(),
+								"Invalid file information.");
 						return new ResponseEntity<>(HttpStatus.NOT_FOUND, HttpStatus.NOT_FOUND);
 					} else {
-						httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(),
+						fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
 								"Invalid file information.");
 						return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED, HttpStatus.PRECONDITION_FAILED);
 					}
@@ -746,8 +757,8 @@ public class JwsDynamicRestDetailService {
 						&& restApiDetails.getReponseType().equalsIgnoreCase("application/octet-stream")) {
 					fileInfoObject = (FileInfo) response;
 				}
-				
-				Map<String, String> getResourceBundledata = getResourceData(httpServletRequest);
+				String keyInitials = "jws.file_mtd_sign,jws.mtd_signature";
+				Map<String, String> getResourceBundledata = getResourceData(httpServletRequest,keyInitials);
 
 				for (Entry<String, String> set : ((Map<String, String>) getResourceBundledata).entrySet()) {
 					if (set.getKey().equalsIgnoreCase("jws.file_mtd_sign")) {
@@ -763,23 +774,26 @@ public class JwsDynamicRestDetailService {
 				logger.error("Error occured while invoking the method " + "Rest API" + " : "
 						+ restApiDetails.getMethodName(), a_exception);
 				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
+						METHOD_SIGNATURE_MESSAGE);
 			} catch (InvocationTargetException a_exception) {
 				logger.error("Error occured while invoking the method " + "Rest API" + " : "
 						+ restApiDetails.getMethodName(), a_exception);
 			} catch (NoSuchMethodException a_exception) {
 				logger.error("Error occured while invoking the method " + "Rest API" + " : "
 						+ restApiDetails.getMethodName(), a_exception);
-				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), METHOD_SIGNATURE_MESSAGE);
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),
+						METHOD_SIGNATURE_MESSAGE);
 			} catch (ClassNotFoundException a_exception) {
 				logger.error("Error occured while invoking the method " + "Rest API" + " : "
 						+ restApiDetails.getMethodName(), a_exception);
-				httpServletResponse.sendError(HttpStatus.NOT_FOUND.value(),
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.NOT_FOUND.value(),
 						"The class was not found in the mentioned package.");
 			}
 			buildResponseEntity(httpServletRequest, httpServletResponse, restApiDetails);
 			if (restApiDetails.getReponseType().equalsIgnoreCase("application/octet-stream")) {
 				if (fileInfoObject == null) {
-					httpServletResponse.sendError(HttpStatus.UNPROCESSABLE_ENTITY.value(),
+					fileUtilities.customSendError(httpServletResponse,HttpStatus.UNPROCESSABLE_ENTITY.value(),
 							FILE_METHOD_SIGNATURE_MESSAGE);
 					logActivity(restApiDetails, false, (String) requestParams.get("isFromRestAPI"));
 					return new ResponseEntity<>(FILE_METHOD_SIGNATURE_MESSAGE, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -861,10 +875,10 @@ public class JwsDynamicRestDetailService {
 
 	}
 	
-	public Map<String, String> getResourceData(HttpServletRequest httpServletRequest) {
+	public Map<String, String> getResourceData(HttpServletRequest httpServletRequest,String keyInitials) {
 
 		String localeId = sessionLocaleResolver.resolveLocale(httpServletRequest).toString();
-		String keyInitials = "jws.file_mtd_sign,jws.mtd_signature";
+		//String keyInitials = "jws.file_mtd_sign,jws.mtd_signature";
 		List<String> keyList = Arrays.asList(keyInitials.split(","));
 		Object resourceKeyList;
 		Map<String, String> resourceMap = new HashMap<>();
@@ -899,7 +913,7 @@ public class JwsDynamicRestDetailService {
 		} else if (action == false) {
 			requestParams.put("action", Constants.Action.APIEXECFAILED.getAction());
 		}
-		JwsDynamicRestDetail query = jwsService.getDynamicRestDetailsByName(restApiDetails.getMethodName());
+		JwsDynamicRestDetail query = getDynamicRestDetailsByName(restApiDetails.getMethodName());
 		if (query.getJwsDynamicRestTypeId() == Constants.Changetype.CUSTOM.getChangeTypeInt()) {
 			requestParams.put("typeSelect", Constants.Changetype.CUSTOM.getChangetype());
 		} else if (query.getJwsDynamicRestTypeId() == Constants.Changetype.SYSTEM.getChangeTypeInt()) {
@@ -963,23 +977,53 @@ public class JwsDynamicRestDetailService {
 			throw new WebClientCustomException("Response Timeout value can't be empty.", HttpStatus.PRECONDITION_FAILED,
 					"Response Timeout value can't be empty.");
 		}
+		String verifySSL; 
+		
+		if(webClientVO.getVerifySSL() == null || webClientVO.getVerifySSL() == "" || webClientVO.getVerifySSL().isEmpty() == true){
+			verifySSL = "true";
+		} else {
+			verifySSL = webClientVO.getVerifySSL();
+		}
+		HttpClient httpClient = null;
+		SslContext sslContext;
 
-		HttpClient			httpClient			= HttpClient.create().secure(spec -> {
-													try {
-														spec.sslContext(SslContextBuilder.forClient().build())
-																.handshakeTimeout(
-																		Duration.ofSeconds(sslHandshakeTimeout))
-																.closeNotifyFlushTimeout(
-																		Duration.ofSeconds(sslFlushTimeout))
-																.closeNotifyReadTimeout(
-																		Duration.ofSeconds(sslReadTimeout));
-													} catch (SSLException exception) {
-														logger.debug("SSLException ", exception);
-													}
-												})
-				.responseTimeout(Duration.ofSeconds(responseTimeout));
+		try {
+			if (verifySSL == null || verifySSL.equalsIgnoreCase("true") || verifySSL.equalsIgnoreCase("1")) {
+
+				// Load the default Java truststore
+				TrustManagerFactory trustManagerFactory = TrustManagerFactory
+						.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				trustManagerFactory.init((KeyStore) null);
+
+				// Build the SSL context with proper trust manager
+				 sslContext = SslContextBuilder.forClient().trustManager(trustManagerFactory) // Enable SSL
+																										// verification
+						.build();
+
+			} else {
+				SslContextBuilder sslContextBuilder = SslContextBuilder.forClient();
+				sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE);// Disable SSL verification
+				// Build the SSL context
+				 sslContext = sslContextBuilder.build();
+				
+			}
+			
+			// Create the HttpClient with secure configuration
+			httpClient = HttpClient.create()
+					.secure(spec -> spec.sslContext(sslContext)
+							.handshakeTimeout(Duration.ofSeconds(sslHandshakeTimeout))
+							.closeNotifyFlushTimeout(Duration.ofSeconds(sslFlushTimeout))
+							.closeNotifyReadTimeout(Duration.ofSeconds(sslReadTimeout)));
+
+			httpClient = httpClient.responseTimeout(Duration.ofSeconds(responseTimeout));
+
+		} catch (SSLException exc) {
+			logger.error("Error configuring SSL.", exc);
+
+		}
+		  
 		ClientHttpConnector	connector			= new ReactorClientHttpConnector(httpClient.wiretap(true));
-
+		
 		Builder				webClientBuilder	= WebClient.builder().defaultHeader(HttpHeaders.USER_AGENT, "JQuiver");
 		WebClientRequestVO	webClientRequestVO	= webClientVO.getWebClientRequestVO();
 		String				rawBody				= "";
@@ -1218,7 +1262,7 @@ public class JwsDynamicRestDetailService {
 					.codecs(clientCodecConfigurer -> clientCodecConfigurer.defaultCodecs().maxInMemorySize(10000000))
 					.build()).build();
 			RequestHeadersSpec	reqHeaderSpec	= null;
-			RequestBodySpec		reqBodySpec		= webClient.method(HttpMethod.resolve(webClientVO.getRequestType()))
+			RequestBodySpec		reqBodySpec		= webClient.method(HttpMethod.valueOf(webClientVO.getRequestType()))
 					.uri(webClientVO.getWebClientURL(), uri -> uri.queryParams(queryParamMultipvalueMap).build());
 			if (hasAttachment == true) {
 				for (Entry<String, File> entry : fileMap.entrySet()) {

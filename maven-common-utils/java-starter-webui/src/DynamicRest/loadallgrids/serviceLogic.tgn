@@ -1,0 +1,4 @@
+function loadGridUtils() {
+    return daoResults["gridUtilsResultSet"];
+}
+loadGridUtils();

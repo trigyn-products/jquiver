@@ -5,11 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.FileInfo;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.gridutils.service.GenericUtilsService;
@@ -29,22 +27,28 @@ import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping(value = "/cf")
 public class GridUtilsController {
 
-	private final static Logger	logger				= LogManager.getLogger(GridUtilsController.class);
+	private final static Logger	logger				= LoggerFactory.getLogger(GridUtilsController.class);
 
 	@Autowired
-	private GenericUtilsService	genericGridService	= null;
+	private GenericUtilsService		genericGridService		= null;
 
 	@Autowired
-	private IUserDetailsService	detailsService		= null;
+	private IUserDetailsService		detailsService			= null;
 
 	@Autowired
-	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
+	private AuthorizedValidatorDAO	authorizedValidatorDAO	= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
-	private String								moduleId						= "07067149-098d-11eb-9a16-f48e38ab9348";
+	private String					moduleId				= "07067149-098d-11eb-9a16-f48e38ab9348";
 
 	@RequestMapping(value = "/grid-data", produces = MediaType.APPLICATION_JSON_VALUE)
 	@Authorized(moduleName = Constants.GRIDUTILS)
@@ -72,7 +76,7 @@ public class GridUtilsController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
 		}
 	}
@@ -96,7 +100,7 @@ public class GridUtilsController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
 		}
 	}

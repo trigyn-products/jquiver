@@ -2,17 +2,18 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class AutocompleteEntityValidator implements EntityValidator {
@@ -22,8 +23,11 @@ public class AutocompleteEntityValidator implements EntityValidator {
 
 	@Autowired
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
+	
+	@Autowired
+	private JwsEntityRoleAssociationDAO entityRoleAssociationDAO = null;
 
-	private final static Logger					logger							= LogManager.getLogger(AutocompleteEntityValidator.class);
+	private final static Logger					logger							= LoggerFactory.getLogger(AutocompleteEntityValidator.class);
 
 	private String								primaryKeyName					= "autocompleteId";
 
@@ -50,8 +54,8 @@ public class AutocompleteEntityValidator implements EntityValidator {
 				reqObject.getParameter(primaryKeyName), reqObject, roleNameList, a_joinPoint);
 
 		String autocompleteId = reqObject.getParameter(primaryKeyName);
-		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.AUTOCOMPLETE.getModuleName(),
-				autocompleteId);
+		return entityRoleAssociationDAO
+				.getEntityNameByEntityAndRoleId(Constants.Modules.AUTOCOMPLETE.getModuleName(), autocompleteId);
 	}
 
 }

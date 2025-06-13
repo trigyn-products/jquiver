@@ -1,15 +1,17 @@
-<html lang="${(locale)}">
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+<!DOCTYPE html>
+<html id="htmlElement" lang="en-US">
 <head>
 <link rel="icon" type="image/x-icon" href="${(contextPath)!''}/webjars/1.0/images/favicon.png"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/6.7.2/css/all.min.css" /> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.css"/>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.theme.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery/3.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/jquery-ui/1.14.1/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/blockui/jquery.blockUI.js"></script>
-<script type="text/javascript" src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/bootstrap/bootstrap.bundle.min.js"></script>
+ <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.min.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/home/home.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/cookie/cookie.js"></script>
@@ -21,41 +23,198 @@
     below two lines are for custom implementation. The CSS & JS can be modified from 
     template management module.
  -->
-<link rel="stylesheet" href="${contextPath}/view/custom-style-css" />
-<script src="${contextPath}/view/custom-js"></script>
+<link rel="stylesheet" href="${contextPath}${viewPath}/custom-style-css" />
+<script src="${contextPath}${viewPath}/custom-js"></script>
 
 <title><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></title> 
+<#-- Check if enableCSP exists and is true -->
 
+<style>
+    .navbar{
+        display:flex !important;
+    }
+
+
+.navbar-nav {
+    margin: 0;
+}
+
+.headertop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+    </Style>
+<script ${scriptNonce}>
+// Get the root element
+var r = document.querySelector(':root');
+
+// Create a function for setting a variable value
+
+function themColor(color){    
+     r.style.setProperty('--bluebgcolor', '#'+color);
+     setCookie("theme", color, 100);
+}
+
+function onDarkMode(){
+	if($("#darkmodebtn").hasClass("darkonoff") == false){
+		setCookie("darkMode", "true", 100);
+	}else{
+		setCookie("darkMode", "false", 100);
+	}
+	$("body").toggleClass("darktheme");
+	$("#darkmodebtn").toggleClass("darkonoff");
+}
+
+  	const contextPathHome = "${contextPath}";
+	contextPath = "${contextPath}";
+	viewPath = "${(viewPath)!'/view'}";
+	apiPath = "${(apiPath)!'/api'}";
+	let homePageFn;
+	let jqJSDateFormat;
+  
+	$(function() {
+        let entityName = "${entityName}";
+        if(entityName == "help-manual-entry-template"){
+          $("body").addClass("Helpmanualblock");
+        }
+
+        const hamburgerMenu = document.querySelector(".hamburgermenu");
+	    if (hamburgerMenu) {
+	        hamburgerMenu.addEventListener("click", function () {
+	            homePageFn.toggleNavigation();
+	        });
+	    }
+ 	     if(getCookie("theme").trim().length > 0){			
+			 themColor(getCookie("theme"));
+		 }  else{
+			 themColor('005DA3'); 
+		 }  
+ 	  
+ 	  if(getCookie("darkMode").trim() === "true"){
+		$("body").addClass("darktheme");
+		$("#darkmodebtn").addClass("darkonoff");
+	  }
+     
+      let selectedLanguageId = getCookie("locale");
+      if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
+        setCookie("locale", "en_US", 1);
+        // below code has been commented, to avoid loading of page twice
+        // location.reload();
+      }
+		  
+	  const homePage = new HomePage();
+	  homePageFn = homePage.fn;
+	  homePageFn.collapsableMenu();
+	  disableInputSuggestion();
+	  
+	  <#list systemProperties as key, value>
+        <#if key.propertyName == "jws-date-format">
+            jqJSDateFormat = JSON.stringify(${value});
+        	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
+      	</#if>
+      </#list>
+      
+      <#if loggedInUserName?? && loggedInUserName != "anonymous">
+      retrieveProfilePic();
+      </#if>
+      
+      getLanguageOption(); 
+    
+      	$("#bodyDiv").click(function(){
+      		if($(".hamburgermenu").hasClass("open")){
+      			homePageFn.toggleNavigation();
+      		}
+		}); 
+     
+	});
+
+    function retrieveProfilePic() {
+        $.ajax({
+			type : "GET",
+	    	contentType : "application/json",
+			url : contextPathHome+apiPath+"/retrieveProfilePic",
+            success: function(data) {
+				if(data == undefined || data.length==0) {
+	                if(document.getElementById("iClass") != null) {
+						document.getElementById("iClass").style.display = "inline";
+	                }
+                    if(document.getElementById("profileImg") != null) {
+	                    document.getElementById("profileImg").style.display = "none";
+                    }
+				} else {
+	                $("#profileImg").attr("src", contextPathHome + "/cf/files/" + data[0].fileUploadId);
+					document.getElementById("iClass").style.display = "none";
+	                document.getElementById("profileImg").style.display = "inline";
+	            }
+			},
+			error: function(data) {
+				showMessage("Error occurred while retrieving details", "error");
+			},
+		});
+    }
+
+	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId) {
+		let requestParams = $("#"+requestParamsModuleId).val();
+		let form = $('<form id="targetUrlForm"' + requestParamsModuleId + '" action="' + moduleURL + '" method="' + actionType + '">');
+		if(requestParams != ''){
+			var jsonRequestParams = $.parseJSON(requestParams);
+			$.each(jsonRequestParams, function(key, val) {	 
+				form.append('<input name="' + key + '" value="' + val + '" type="hidden" />');
+			});
+		}
+		form.append('</form>');
+		$(form).attr('target', '_blank');
+		$('body').append(form);
+		$(form).submit();
+		$("#targetUrlForm"+requestParamsModuleId).remove();
+        /*Written for hiding menu when navigating to external URL in new tab*/
+       if($(".hamburgermenu").hasClass("open") && homePageFn){
+        	homePageFn.toggleNavigation();
+        }
+    }
+     //Added for setting Default Cookie 
+     window.onload = function() { cookieConsent(); };
+
+</script>
  </head>
 
 <body>
- 		<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap p-0 shadow ">
+ 		<nav class="navbar navbar-dark sticky-top blue-bg flex-md-nowrap  ">
 		<!-- <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/"><@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a> -->
  		
- 		
- 		
- 		<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="${(contextPath)!''}/">
-	 		<#if messageSource.getMessage("jws.projectName") != "JQuiver">
-	 			<@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
-	 		<#else>
-	 			<img src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png">
-	 		</#if> 		
- 		</a> 
-        <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
-         <div class="hamburgermenu" onclick="homePageFn.toggleNavigation()">
-           <div class="icon"></div>
-        </div>
-		</#if>
+ 		       
         
+ 		<div class="headertop">
+
+             <div class="logo-hamburger-block"> 
+               <#if moduleDetailsVOList?? && moduleDetailsVOList?size gte 1>
+                  <div class="hamburgermenu">
+                    <div class="icon"></div>
+                    </div>
+                    </#if>
+
+ 	        	<a class="navbar-brand" href="${(contextPath)!''}/">
+                    <#if messageSource.getMessage("jws.projectName") != "JQuiver">
+                        <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+                    <#else> 
+                        <img src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png" title="JQuiver" alt="JQuiver Logo">
+                    </#if> 		
+                </a> 
+
+                </div>
+       
         <ul class="navbar-nav px-3 float-right">
-			<li class="nav-item text-nowrap">
+			<li class="nav-item ">
 				<div class="row margin-r-5 profile-tray">
 					<ul>
 						<li class="multilang_block">
                             <span class="multilingicon">
-                                <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png">	</span>					
-					       <select class="multilingselectbox" id="languageOptions" onchange="changeLanguage()">
-					        </select>
+                                <span class="iconss"><img src="${(contextPath)!''}/webjars/1.0/images/multiling.png" title="Multilingual" alt="Multilingual Icon">	</span>
+                                    <label for="languageOptions"></label>				
+					                <select class="multilingselectbox" id="languageOptions" aria-label="Select a language" onchange="changeLanguage()">
+					                </select>
                             </span>
 						</li>
 
@@ -67,12 +226,12 @@
                         	
 						</li>
                         <li>
-            				<a class="nav-link " href="${(contextPath)!''}/view/jqhm" title="<@resourceBundleWithDefault 'jws.helpManual' 'Help Manual'/>" target="_blank">
+            				<a class="nav-link " href="${(contextPath)!''}${(viewPath)!''}/jqhm" title="<@resourceBundleWithDefault 'jws.helpManual' 'Help Manual'/>" target="_blank">
 							<i class="fa fa-question-circle" aria-hidden="true"></i>
 							</a>
 						</li>
             			<#if loggedInUserName?? && loggedInUserName != "anonymous">
-                        	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa fa-user-circle-o"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" /> ${loggedInUserName}</a></li>
+                        	<li class="usernameblock"><a class="nav-link cm-userid" href="${(contextPath)!''}/cf/profile"><i id="iClass" class="fa-solid fa-user"  style="display:block;" aria-hidden="true"></i><img style="width:20px; height:20px;display:none;" id="profileImg" alt="profileImg" /> ${loggedInUserName}</a></li>
                             <li>
                             	<a class="nav-link signout-icon" href="${(contextPath)!''}/logout" onclick="clearCookie();" title="<@resourceBundleWithDefault 'jws.logout' 'Logout'/>"> 
                             		<i class="fa fa-sign-out" aria-hidden="true"></i>
@@ -81,7 +240,7 @@
                         <#elseif loggedInUserName?? && loggedInUserName == "anonymous" && isAuthEnabled?c == "true" >
                         	<li>
                         		<a class="nav-link signout-icon" href="${(contextPath)!''}/cf/login" title="<@resourceBundleWithDefault 'jws.login' 'Login'/>">
-                        			<img src="${(contextPath)!''}/webjars/1.0/images/login.png" class="login-img-cls">
+                        			<img src="${(contextPath)!''}/webjars/1.0/images/login.png" class="login-img-cls" alt="Login Icon">
                         		</a>
                         	</li>
             			</#if>
@@ -89,6 +248,8 @@
                   </div>
              </li>
           </ul>
+
+          </div>
 	</nav>
 
 <div class="container-fluid ">
@@ -157,7 +318,7 @@
 																<li
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
 																	<div class="dr-menu" style="display:flex;">
-																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																		<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																			class="nav-link drclickmenu"
 																			style="width:100%;" target="${openTarget}"
 																			onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}
@@ -169,7 +330,7 @@
                                     <#else>
                                         <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} dropdownclas">
 																			<div class="dr-menu" style="display:flex;">
-																				<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																				<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																					class="nav-link drclickmenu"
 																					style="width:100%;"
 																					target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
@@ -183,7 +344,7 @@
                                    <#if targetBlank?has_content && targetBlank == 1>
                                    <li class=" nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} " >    
                                    <div class=" dr-menu" style="display:flex;">
-																					<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																					<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																						class="nav-link drclickmenu"
 																						style="width:100%;"
 																						target="${openTarget}"
@@ -197,7 +358,7 @@
 																<li
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''} ">
 																	<div class="dr-menu" style="display:flex;">
-																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																		<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																			class="nav-link drclickmenu"
 																			style="width:100%;"
 																			target="${openTarget}">${moduleDetailsVO?api.getModuleName()!''}
@@ -248,14 +409,14 @@
 																			<#if targetBlankChild?has_content &&
 																				targetBlankChild==1>
 																				<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}">
-																					<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																					<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVOChild?api.getModuleUrl()!''}"
 																						class="nav-link"
 																						target="${openTargetChild}"
 																						onclick="homePageFn.toggleNavigation();">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																				</li>
 																				<#else>
 																					<li  class = "${(moduleDetailsVOChild?api.getMenuStyle())!''}"> 
-																						<a href="${(contextPath)!''}/view/${moduleDetailsVOChild?api.getModuleUrl()!''}"
+																						<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVOChild?api.getModuleUrl()!''}"
 																							class="nav-link"
 																							target="${openTargetChild}">${moduleDetailsVOChild?api.getModuleName()!''}</a>
 																					</li>
@@ -303,7 +464,7 @@
 																<li
 																	class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 																	<span data-feather="file"></span>
-																	<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																	<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																		class="nav-link" target="${openTargetFile}"
 																		onclick="homePageFn.toggleNavigation();">${moduleDetailsVO?api.getModuleName()!''}</a>
 																</li>
@@ -311,7 +472,7 @@
 																	<li
 																		class="nav-item ${(moduleDetailsVO?api.getMenuStyle())!''}">
 																		<span data-feather="file"></span>
-																		<a href="${(contextPath)!''}/view/${moduleDetailsVO?api.getModuleUrl()!''}"
+																		<a href="${(contextPath)!''}${(viewPath)!''}/${moduleDetailsVO?api.getModuleUrl()!''}"
 																			class="nav-link"
 																			target="${openTargetFile}">${moduleDetailsVO?api.getModuleName()!''}</a>
 																	</li>
@@ -328,19 +489,42 @@
 		<!--  Theme Color and dark mode code -->
         <div class="themecolorpalette">
                 <div class="colorpalette-hover">
-                    <img src="${(contextPath)!''}/webjars/1.0/images/color_colors_themes.png">
+                    <img src="${(contextPath)!''}/webjars/1.0/images/color_colors_themes.png" title="Colors" alt="Color Pallete">
                 </div>
                 <div class="colorpalette">
-                    <button type="button" class="bluecolortheme colorbtn" onclick="themColor('005da3')">Blue</button>
+                     <button type="button" class="bluecolortheme colorbtn" onclick="themColor('005da3')">Blue</button>
                     <button type="button" class="orangecolortheme colorbtn" onclick="themColor('FF9800')">Orange</button>
                     <button type="button" class="purplecolortheme colorbtn" onclick="themColor('7B1FA2')">purple</button>
                     <button type="button" class="greencolortheme colorbtn" onclick="themColor('008a00')">Green</button>
                     <button type="button" class="browncolortheme colorbtn" onclick="themColor('ba4b4b')">Brown</button>
                     
-					<div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">
+					 <!-- <div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">
 		                <span class="darkmodeon"><i class="fa fa-sun-o"></i></span>
 		                <span class="darkmodeoff"><i class="fa fa-moon-o"></i></span>
-		            </div>
+		            </div> -->
+
+                    <div id="darkmodebtn" class="darkmodeblock" onclick="onDarkMode()">       
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+                            <g id="_25-day_and_night" data-name="25-day and night" transform="translate(0 0)">
+                                <path id="Path_1" data-name="Path 1" d="M63.707.293a1,1,0,0,0-1.414,0l-62,62a1,1,0,1,0,1.414,1.414l62-62a1,1,0,0,0,0-1.414Z"/>
+                                <circle id="Ellipse_1" data-name="Ellipse 1" cx="8" cy="8" r="8" transform="translate(10 10)"/>
+                                <path id="Path_2" data-name="Path 2" d="M18,1,15,7h6Z"/>
+                                <path id="Path_3" data-name="Path 3" d="M12.343,8.1,5.979,5.979,8.1,12.343Z"/>
+                                <path id="Path_4" data-name="Path 4" d="M7,15,1,18l6,3Z"/>
+                                <path id="Path_5" data-name="Path 5" d="M5.979,30.021,12.343,27.9,8.1,23.657Z"/>
+                                <path id="Path_6" data-name="Path 6" d="M18,35l3-6H15Z"/>
+                                <path id="Path_7" data-name="Path 7" d="M23.657,27.9l6.364,2.122L27.9,23.657Z"/>
+                                <path id="Path_8" data-name="Path 8" d="M29,15v6l6-3Z"/>
+                                <path id="Path_9" data-name="Path 9" d="M30.021,5.979,23.657,8.1,27.9,12.343Z"/>
+                                <path id="Path_10" data-name="Path 10" d="M52.222,34.778A11.974,11.974,0,0,1,36.778,50.221,11.993,11.993,0,1,0,52.222,34.778Z"/>
+                                <path id="Path_11" data-name="Path 11" d="M41,44a7.272,7.272,0,0,1,5-5,7.272,7.272,0,0,1-5-5,7.272,7.272,0,0,1-5,5A7.272,7.272,0,0,1,41,44Z"/>
+                                <circle id="Ellipse_2" data-name="Ellipse 2" cx="2" cy="2" r="2" transform="translate(47 26)"/>
+                                <circle id="Ellipse_3" data-name="Ellipse 3" cx="2" cy="2" r="2" transform="translate(26 52)"/>
+                            </g>
+                            </svg>
+                 
+                         <!-- <img src="${(contextPath)!''}/webjars/1.0/images/day-and-nighticon.svg"> -->
+                    </div>
                 </div>
         </div>
 	
@@ -354,9 +538,9 @@
 <div class="clearfix"></div>
 <footer class="page-footer font-small blue pt-4">
     <div class="footer bg-dark">
-        <div class="text-center">
-            <small>${messageSource.getMessage('jws.copywright©')} <a href = "https://www.trigyn.com/" target="_blank">${messageSource.getMessage('jws.trigyntech')}</a></small>
-            <small class="float-right"><a href = "${(contextPath)!''}/view/team" target="_blank">${(jquiverVersion)!'1.0.0'}</a></small>
+        <div class="row">
+            <div class="col-sm-8 col-8 text-end copyrighttext">${messageSource.getMessage('jws.copywright©')} <a href = "https://www.trigyn.com?utm_source=JQuiver&utm_medium=organic" target="_blank" rel="noopener noreferrer">${messageSource.getMessage('jws.trigyntech')}</a></div>
+           <div class="col-sm-4 col-4 text-end teamtext"><a href = "${(contextPath)!''}${(viewPath)!''}/team" target="_blank">${(jquiverVersion)!'1.0.0'}</a></div>
         </div>
     </div>
 </footer>
@@ -364,129 +548,7 @@
 </body>
 
 
-<script>
-// Get the root element
-var r = document.querySelector(':root');
 
-// Create a function for setting a variable value
-
-function themColor(color){    
-     r.style.setProperty('--bluebgcolor', '#'+color);
-     setCookie("theme", color, 100);
-}
-
-function onDarkMode(){
-	if($("#darkmodebtn").hasClass("darkonoff") == false){
-		setCookie("darkMode", "true", 100);
-	}else{
-		setCookie("darkMode", "false", 100);
-	}
-	$("body").toggleClass("darktheme");
-	$("#darkmodebtn").toggleClass("darkonoff");
-}
-
-  	const contextPathHome = "${contextPath}";
-	contextPath = "${contextPath}";
-	let homePageFn;
-	let jqJSDateFormat;
-  
-	$(function() {
-        let entityName = "${entityName}";
-        if(entityName == "help-manual-entry-template"){
-          $("body").addClass("Helpmanualblock");
-        }
-
- 	     if(getCookie("theme").trim().length > 0){			
-			 themColor(getCookie("theme"));
-		 }  else{
-			 themColor('005DA3'); 
-		 }  
- 	  
- 	  if(getCookie("darkMode").trim() === "true"){
-		$("body").addClass("darktheme");
-		$("#darkmodebtn").addClass("darkonoff");
-	  }
-     
-      let selectedLanguageId = getCookie("locale");
-      if(selectedLanguageId == null || selectedLanguageId == undefined || selectedLanguageId == "") {
-        setCookie("locale", "en_US", 1);
-        location.reload();
-      }
-		  
-	  const homePage = new HomePage();
-	  homePageFn = homePage.fn;
-	  homePageFn.collapsableMenu();
-	  disableInputSuggestion();
-	  
-	  <#list systemProperties as key, value>
-        <#if key.propertyName == "jws-date-format">
-            jqJSDateFormat = JSON.stringify(${value});
-        	jqJSDateFormat = JSON.parse(jqJSDateFormat).js;
-      	</#if>
-      </#list>
-      
-      <#if loggedInUserName?? && loggedInUserName != "anonymous">
-      retrieveProfilePic();
-      </#if>
-      
-      getLanguageOption(); 
-    
-      	$("#bodyDiv").click(function(){
-      		if($(".hamburgermenu").hasClass("open")){
-      			homePageFn.toggleNavigation();
-      		}
-		}); 
-     
-	});
-
-    function retrieveProfilePic() {
-        $.ajax({
-			type : "GET",
-	    	contentType : "application/json",
-			url : contextPathHome+"/api/retrieveProfilePic",
-            success: function(data) {
-				if(data == undefined || data.length==0) {
-	                if(document.getElementById("iClass") != null) {
-						document.getElementById("iClass").style.display = "inline";
-	                }
-                    if(document.getElementById("profileImg") != null) {
-	                    document.getElementById("profileImg").style.display = "none";
-                    }
-				} else {
-	                $("#profileImg").attr("src", contextPathHome + "/cf/files/" + data[0].fileUploadId);
-					document.getElementById("iClass").style.display = "none";
-	                document.getElementById("profileImg").style.display = "inline";
-	            }
-			},
-			error: function(data) {
-				showMessage("Error occurred while retrieving details", "error");
-			},
-		});
-    }
-
-	function submitTargetUrl(moduleURL, actionType, requestParamsModuleId) {
-		let requestParams = $("#"+requestParamsModuleId).val();
-		let form = $('<form id="targetUrlForm"' + requestParamsModuleId + '" action="' + moduleURL + '" method="' + actionType + '">');
-		if(requestParams != ''){
-			var jsonRequestParams = $.parseJSON(requestParams);
-			$.each(jsonRequestParams, function(key, val) {	 
-				form.append('<input name="' + key + '" value="' + val + '" type="hidden" />');
-			});
-		}
-		form.append('</form>');
-		$(form).attr('target', '_blank');
-		$('body').append(form);
-		$(form).submit();
-		$("#targetUrlForm"+requestParamsModuleId).remove();
-        /*Written for hiding menu when navigating to external URL in new tab*/
-       if($(".hamburgermenu").hasClass("open") && homePageFn){
-        	homePageFn.toggleNavigation();
-        }
-    }
-     //Added for setting Default Cookie 
-     window.onload = function() { cookieConsent(); };
-
-</script>
 <#assign gaAttributes = {
 "enableGoogleAnalytics": enableGoogleAnalytics,
 "googleAnalyticsKey": googleAnalyticsKey,

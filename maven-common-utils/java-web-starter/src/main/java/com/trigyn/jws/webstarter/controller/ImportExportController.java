@@ -2,24 +2,20 @@ package com.trigyn.jws.webstarter.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,25 +30,29 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
+import com.trigyn.jws.gridutils.service.GenericUtilsService;
 import com.trigyn.jws.templating.service.MenuService;
-import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
 import com.trigyn.jws.usermanagement.entities.JwsMasterModules;
 import com.trigyn.jws.usermanagement.repository.JwsMasterModulesRepository;
 import com.trigyn.jws.usermanagement.vo.JwsEntityRoleAssociationVO;
-import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 import com.trigyn.jws.webstarter.service.ExportService;
 import com.trigyn.jws.webstarter.service.ImportService;
 import com.trigyn.jws.webstarter.service.MasterModuleService;
 import com.trigyn.jws.webstarter.utils.Constant.MasterModuleType;
 import com.trigyn.jws.webstarter.utils.Constant.ModuleType;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+
 @RestController
 @RequestMapping("/cf")
 //@PreAuthorize("hasPermission('module','Import/Export')")
 public class ImportExportController {
 
-	private final static Logger		logger					= LogManager.getLogger(ImportExportController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(ImportExportController.class);
 
 	@Autowired
 	private MasterModuleService		masterModuleService		= null;
@@ -68,6 +68,12 @@ public class ImportExportController {
 
 	@Autowired
 	private PropertyMasterService	propertyMasterService	= null;
+	
+	@Autowired
+	private GenericUtilsService 	genericUtilsService		= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 	
 	@Autowired
 	private JwsMasterModulesRepository					jwsmasterModuleRepository		= null;
@@ -94,7 +100,7 @@ public class ImportExportController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -128,7 +134,7 @@ public class ImportExportController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -179,7 +185,7 @@ public class ImportExportController {
 			return gson.toJson(versionMap);
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading latest version.", a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -200,7 +206,7 @@ public class ImportExportController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			return null;
 		}
 	}
@@ -307,6 +313,54 @@ public class ImportExportController {
 		  }
 		return exportService.getEntityPermissions(entityId, moduleId);
 	}
+	
+	
+	@GetMapping(value = "/export")
+	public ResponseEntity<?> autoExport(@RequestParam Map<String, String> params,
+			@RequestParam(required = false, name = "modifiedAfter") String modifiedAfter,
+			@RequestParam(required = false, name = "entityType", defaultValue = "custom") String entityType,
+			@RequestParam(required = false, name = "name") String encodedName, HttpServletRequest request,
+			HttpServletResponse response){
 
+		try {
+
+			String[] moduleTypes = request.getParameterValues("moduleType");
+			List<JwsMasterModules> moduleVOList = masterModuleService.getModules();
+			String filePath = exportService.exportAutoConfigData(request, response, moduleVOList, modifiedAfter,
+					entityType, encodedName, moduleTypes);
+			return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
+					.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=", filePath))
+					.body(filePath);
+
+		} catch (IllegalArgumentException exception) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+		} catch (Exception exception) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+		}
+
+	}
+
+	@PostMapping(value = "/import", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<?> autoImport(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			Part file = request.getPart("filePath");
+			if(file.getSize()==0)
+			{
+				throw new FileNotFoundException();
+			}
+			String responseStatus =importService.importFileOnAutoImport(file);
+			return ResponseEntity.ok(responseStatus);
+		} catch (FileNotFoundException f_nexcec) {
+			logger.error("File Not Found.", f_nexcec);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File Not Found");
+		} /*
+			 * catch (FileUploadException fuec) { logger.error("File Bin Not Found.", fuec);
+			 * return "fail:" + fuec.getMessage(); }
+			 */catch (Exception exception) {
+			logger.error("Error occured while importing all data.", exception);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+		}
+
+	}
 
 }

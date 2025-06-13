@@ -2,9 +2,9 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.aspectj.lang.ProceedingJoinPoint;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface EntityValidator {
 

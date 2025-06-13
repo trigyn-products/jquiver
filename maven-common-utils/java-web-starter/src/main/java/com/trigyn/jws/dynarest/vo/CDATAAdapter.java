@@ -1,6 +1,6 @@
 package com.trigyn.jws.dynarest.vo;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class CDATAAdapter extends XmlAdapter<String, String> {
 

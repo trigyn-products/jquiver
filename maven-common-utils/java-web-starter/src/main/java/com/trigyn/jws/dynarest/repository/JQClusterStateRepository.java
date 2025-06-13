@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
+import org.springframework.data.repository.query.Param;
 
 import com.trigyn.jws.dynarest.dao.QueryStore;
 import com.trigyn.jws.dynarest.entities.JwsClusterState;
@@ -15,8 +16,8 @@ import com.trigyn.jws.dynarest.entities.JwsClusterState;
 public interface JQClusterStateRepository extends JpaRepositoryImplementation<JwsClusterState, String> {
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_ACTIVE_CLUSTER_STATE)
-	List<JwsClusterState> retrieveAllClusterByActiveState(Integer isActive);
+	List<JwsClusterState> retrieveAllClusterByActiveState(@Param("isActive") Integer isActive);
 	
 	@Query(QueryStore.JPA_QUERY_TO_GET_ACTIVE_CLUSTER_STATE_BY_CLUSTER)
-	JwsClusterState retrieveClusterByClusterState(Integer isActive, String instanceId);
+	JwsClusterState retrieveClusterByClusterState(@Param("isActive") Integer isActive, @Param("instanceId") String instanceId);
 }

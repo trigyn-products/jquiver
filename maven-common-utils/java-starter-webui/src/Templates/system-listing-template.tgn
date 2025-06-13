@@ -1,43 +1,51 @@
+<#noparse>
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+</#noparse>
 <head>
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/css/starter.style.css" />
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">${pageTitle!"Your page title here"}</h2> 
-        <div class="float-right">
-             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.createnew')} </button>
-            <span onclick="backToWelcomePage();">
-                <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
+        <h2 class="title-cls-name">${pageTitle!"Your page title here"}</h2> 
+        <div class="topactionbuttons">
+             <button type="submit" class="btn btn-primary spacingclss"  id="createBtn"> ${messageSource.getMessage('jws.createnew')} </button>
+            <span >
+                <input id="backBtn" class="btn btn-secondary spacingclss" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span> 
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
     <div class="table_responsive">
-         <div class="cursor show"></div>  
+         <div id="curDiv" class="cursor show"></div>  
             <div id="${gridId}" class="tablescrollcls"></div>
     </div>
 
     <div id="snackbar"></div>
 </div>
 
-<script>
+<script <#noparse>${scriptNonce}</#noparse>>
     contextPath = <#noparse>"${(contextPath)!''}"</#noparse>;
-    let primaryKeyDetails = ${primaryKeyObject};
+    viewPath = <#noparse>"${(viewPath)!''}"</#noparse>;
      let listingData  = [];
      <#assign booleanFieldExists = false>
     $(function () {
+	     const createBtn = document.getElementById("createBtn");
+	     const backBtn = document.getElementById("backBtn");
+	     createBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        upsert(null);
+	    });
+	     
+	     backBtn.addEventListener("click", function (event) {
+	        event.preventDefault(); // prevent form from submitting if needed
+	        backToWelcomePage();
+	    });
     //Add all columns that needs to be displayed in the grid
         let colM = [
           <#list gridDetails as gridInfo>
@@ -56,6 +64,24 @@
             	{ title: "<#noparse><@resourceBundle</#noparse> 'jws.action' <#noparse>/></#noparse>", width: 50, maxWidth: 145, dataIndx: "action", align: "center", halign: "center", render: actionButtonRenderer, sortable: false}
         ];
     
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+        	
+            $("#${gridId}").addClass("mobiledatagrid");
+            $("#curDiv").removeClass("cursor");
+	        colM = [
+	            { title: "${gridId}", width: 100, align: "center", dataIndx: "gridId", align: "left", halign: "center",
+	                filter: { type: "textbox", condition: "contain", listeners: ["change"]},  sortable: false, render: renderMobileDisplay },
+	            <#list gridDetails as gridInfo>
+	            <#if (gridInfo.i18nResourceKey)?? && (gridInfo.i18nResourceKey)?has_content>
+	            { title: "<#noparse><@resourceBundle</#noparse> '${(gridInfo.i18nResourceKey)!''}' <#noparse>/></#noparse>", dataIndx: "${(gridInfo.column)}", hidden: true},
+	            <#else>          
+	            { title: "${(gridInfo.displayName)!''}", hidden : ${(gridInfo.hidden)?c}, dataIndx: "${(gridInfo.column)}", hidden: true},
+	            </#if>
+	            </#list>
+	        ];
+        }
+    
     	/*uncomment below section if you want sorting on any specific column by default.
     	That column needs to be present in the column model defined above. If you don't 
     	want to show that column, you can keep that as hidden column*/
@@ -69,9 +95,20 @@
         let grid = $("#${gridId}").grid({
           gridId: "${gridId}",
           colModel: colM,
-          dataModel: dataModel
+          dataModel: dataModel,
+		  additionalParameters: { "m": isMobile + ""}
         });
     
+     // Access the actual pqGrid instance
+       let pqGrid = $("#${gridId}").pqGrid("instance");
+
+       // Attach to the reliable `refresh` event
+        pqGrid.on("refresh", function () {
+            bindAllActionButtons(); // <- This WILL fire after rendering
+            if (isMobile) {
+                bindAllActionButtonsForMobile();
+            }
+        });
     });
     
     /*
@@ -100,21 +137,36 @@
     <#if  booleanFieldExists?? && booleanFieldExists == false>
     */
     </#if>
-
     
-
      //Customize grid action column. You can add buttons to perform various operations on records like add, edit, delete etc.
     function actionButtonRenderer(uiObject) {
-        listingData  [uiObject.rowIndx] = uiObject.rowData;
-        let rowIndx = uiObject.rowIndx;
-        return '<span id="'+rowIndx+'" onclick="upsert('+ uiObject.rowIndx +')" class= "grid_action_icons" title="<#noparse><@resourceBundle</#noparse>'jws.edit'<#noparse>/></#noparse>"><i class="fa fa-pencil"></i></span>'.toString();
+         listingData  [uiObject.rowIndx] = uiObject.rowData;
+        let rowIndx = uiObject.rowIndx;  
+        let spanId = 'editBtn_' + rowIndx;
+        let generateRow='<span id="'+spanId+'"  class= "grid_action_icons" title="<@resourceBundle'jws.edit'/>"><i class="fa fa-pencil"></i></span>'.toString();
+        return generateRow;
     }
+    // Bind All Buttons in One Go
+    function bindAllActionButtons() {
+	    $(".grid_action_icons").each(function () {
+            const id = this.id;
+            const rowIndx = parseInt(id.split("_")[1]);
+            this.onclick = function () {
+                upsert(rowIndx);
+            };
+	    });
+	}
+	
 
     function upsert(a_rowID){
-    	let redirectURL = contextPath+"/view/${(dfModuleURL)!''}";
+    	let redirectURL = contextPath+viewPath+"/${(dfModuleURL)!''}";
         if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
     	 	<#list primaryKeys as primaryKey>
-    			redirectURL += '?${primaryKey?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
+    	 		<#if  isFormIo?? && isFormIo == false>
+    				redirectURL += '?${primaryKey?replace("_", "")}=' + listingData[a_rowID]["${primaryKey}"];
+    			<#else>
+    				redirectURL += '?${primaryKey}=' + listingData[a_rowID]["${primaryKey}"];
+    			</#if>
         	</#list>
     	}
     	location.href = redirectURL;
@@ -122,7 +174,121 @@
 
     //Code go back to previous page
     function backToWelcomePage() {
-        location.href = contextPath;
-        
+        location.href = contextPath;        
+    }
+
+	/**
+	 ** Below code is specifically for mobile view handling
+	 **/
+    
+    function renderMobileDisplay(uiObject){
+        return generateDynamicCardForMob(uiObject, { ${options}});
+    }    
+
+    // Bind All Buttons in One Go
+    function bindAllActionButtonsForMobile() {
+        $(".grid_action_icons_mob").each(function () {
+            const id = this.id;
+            const rowIndx = id.split("_")[1];
+            this.onclick = function () {
+                upsert(rowIndx);
+            };
+        });
+    }	
+
+    function generateDynamicCardForMob(uiObject, options = {}) {
+        // Default options with overrides
+        var data =uiObject["rowData"];
+        listingData[uiObject.rowIndx] = uiObject.rowData;
+
+        const config = {
+            title: 'Details',
+            excludeFields: ['id', 'created_at'],
+            dateFields: ['date', 'created_at', 'updated_at', 'start_date', 'end_date'],
+            currencyFields: ['price', 'amount', 'salary', 'cost'],
+            statusFields: ['active', 'status', 'is_active'],
+            ...options
+        };
+
+        // Formatting helpers
+        const formatValue = (key, value) => {
+            if (value === null || value === undefined) return 'N/A';
+            
+            // Format dates
+            if (config.dateFields.includes(key)) {
+                return formatDate(value);
+            }
+            
+            // Format currency
+            if (config.currencyFields.includes(key)) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(value);
+            }
+            
+            // Format booleans
+            if (config.statusFields.includes(key)) {
+            return value ? 
+                '<span style="color: green;">Active</span>' : 
+                '<span style="color: red;">Inactive</span>';
+            }
+            
+            // Default formatting
+            return String(value);
+        };
+
+        // Filter and sort keys
+        const keys = Object.keys(data)
+            .filter(key => !config.excludeFields.includes(key))
+            .sort((a, b) => a.localeCompare(b));
+
+          // Generate the HTML
+            var response = '<div class="data-card tbledatacard">';
+            response += '<div class="tableheaderblock">';
+            response += '<h3>' + config.title + '</h3>';
+            response += '<div>';
+        if(data.id != null && data.id != ""){ 
+            response += '<button class="edit-btn grid_action_icons_mob"  data-id="' + data.id + '" id="edit_' + uiObject.rowIndx + '">  ';
+            response += '<i class="fa fa-pencil"></i>';
+            response += '</button>';
+
+            /**
+             * If any new buttons need to be included in the card, either below code can be uncommented or new button can be added below
+             **/
+
+            // response += '<button class="delete-btn grid_action_icons_mob" ';
+            // response += 'data-id="' + data.id + '" id="del_' + uiObject.rowIndx + '">';
+            // response += '<i class="fa-solid fa-trash"></i>';
+            // response += '</button>';
+        } else {
+            response += '';
+        }
+        response += '</div>';
+        response += '</div>';
+        response += '<div style="display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px;">';
+        for (var i = 0; i < keys.length; i++) { 
+            response += '<span style="font-weight: bold;">' + keys[i].replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()) + ':</span>';
+            response += '<span>' + formatValue(keys[i], data[keys[i]]) + '</span>';
+        }
+        response += '</div>';
+        // if(data.id != null && data.id != "") {
+        //     response += '<div style="margin-top: 12px; font-size: 0.8em; color: #666;">';
+        //     if(data.created_at != null && data.created_at != "") {
+        //         response += '<div>Created: ' + formatValue("created_at", data.created_at ) + '}</div>';
+        //     } else {
+        //         response += '';
+        //     }
+        //     if(data.updated_date != null && data.updated_date != "") {
+        //         response += '<div>Updated: ' + formatValue("updated_date", data.updated_date ) + '</div>';
+        //     } else {
+        //         response += '';
+        //     }
+        //     response += '</div>'; 
+        // } else {
+        //     response += '';
+        // }
+        response += '</div>';
+        return response;
     }
 </script>

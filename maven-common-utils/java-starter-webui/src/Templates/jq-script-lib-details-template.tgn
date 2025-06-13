@@ -1,33 +1,24 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/localize/pq-localize-de.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/localize/pq-localize-en.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" /> 
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 </head>
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.scriptlibrary')}</h2> 
-        <div class="float-right">
-             <button type="submit" class="btn btn-primary" onclick="upsert(null)"> ${messageSource.getMessage('jws.addscript')} </button>
-            <span onclick="backToWelcomePage();">
+        <h2 class="title-cls-name ">${messageSource.getMessage('jws.scriptlibrary')}</h2> 
+         <div class="topactionbuttons">
+             <button type="submit" class="btn btn-primary spacingclss " onclick="upsert(null)"> ${messageSource.getMessage('jws.addscript')} </button>
+            <span onclick="backToDynarestListingPage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span> 
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         <input type="hidden" name="formId" value="229c8556-2a52-4765-95ab-d1254020e1f0"/>
         <input type="hidden" id="formName" name="formName" value="jq-script-lib-details-form">
 	    <input type="hidden" name="primaryId" id="primaryId" value=""/>
@@ -49,7 +40,8 @@
 </form>
 
 <script>
-    contextPath = "${(contextPath)!''}";
+    //contextPath = "${(contextPath)!''}";
+    //viewPath = "${(viewPath)!''}";
     let primaryKeyDetails = {"scriptlibid":""};
     let listingData  = [];
     $(function () {
@@ -163,7 +155,7 @@
     }
 
     function upsert(a_rowID){
-    	let redirectURL = contextPath+"/view/jq-script-lib-details-f";
+    	let redirectURL = contextPath+viewPath+"/jq-script-lib-details-f";
         if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
     			redirectURL += '?scriptlibid=' + listingData[a_rowID]["script_lib_id"];
     	}
@@ -211,7 +203,7 @@
     
     function deleteScript(scriptID) {
     	$.ajax({
-             url : "${contextPath}/api/deleteScript",
+             url : "${contextPath}"+apiPath+"/deleteScript",
             async:false,
             type:"POST",
             data : {
@@ -240,8 +232,8 @@
 	}
 
     //Code go back to previous page
-    function backToWelcomePage() {
-        location.href = contextPath;
+    function backToDynarestListingPage() {
+        location.href = contextPath+"/cf/dynl";
         
     }
 </script>

@@ -3,15 +3,14 @@ package com.trigyn.jws.dashboard.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-
-
 import com.trigyn.jws.usermanagement.entities.JwsRole;
+
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "jq_dashlet_role_association")

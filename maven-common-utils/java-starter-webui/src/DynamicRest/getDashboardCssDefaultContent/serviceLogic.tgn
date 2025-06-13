@@ -1,0 +1,16 @@
+var System = Java.type("java.lang.System");
+
+function log2Console(a_strMessage) {
+    var isToPrint = true;
+    if (isToPrint == false) {
+        return;
+    }
+    System.out.println(a_strMessage);
+}
+
+function getDashboardCssDefaultContent() {
+    var templateContent = jq_getDBResult("select template from jq_template_master where template_name = 'dashboardDefaultCSS'", null, null).data_list[0];
+    return templateContent["template"];
+}
+
+getDashboardCssDefaultContent();

@@ -1,0 +1,1 @@
+select property_value from jq_property_master where property_name='captchaExpiry';

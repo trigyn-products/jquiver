@@ -8,19 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.usermanagement.repository.JwsRoleMasterModulesAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
+@Component
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 
 	private ApplicationSecurityDetails					applicationSecurityDetails	= null;
 
-	@Autowired
 	private JwsRoleMasterModulesAssociationRepository	roleModuleRepository		= null;
 
-	public CustomPermissionEvaluator(ApplicationSecurityDetails applicationSecurityDetails) {
+	public CustomPermissionEvaluator(ApplicationSecurityDetails applicationSecurityDetails, JwsRoleMasterModulesAssociationRepository roleModuleRepository) {
 		this.applicationSecurityDetails = applicationSecurityDetails;
+		this.roleModuleRepository = roleModuleRepository;
 	}
 
 	@Override

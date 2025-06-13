@@ -1,22 +1,17 @@
 <head>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 </head>
 
 <div class="container"> 
- <div class="row topband" style="display:flex;justify-content: space-between;"> 
-  <div class="col-8">
-    <h2 class="title-cls-name float-left">View REST API</h2> </div>
+ 	<div class="topband"> 
+  
+    <h2 class="title-cls-name">View REST API</h2> 
     <span onclick="backToDynarestListingPage();">
         <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
     </span> 
- </div>
+    </div>
+ 
 <div class="resapiactionbtn">
     <ul class="restaction">
         <li title='Select All'  >
@@ -41,7 +36,7 @@
                 </ul>
             </div>
             </li>
-            <li title='Export' id="exportvtb" class="restapiiconhover" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-file-pdf-o" style="font-size:20px !important;"></i></label></li>
+             <li title='Export' id="exportvtb" class="restapiiconhover" onclick="getExport();"> <label for="exportvtb"> <i class="fa fa-solid fa-file-pdf" style="font-size:20px !important;"></i></label></li>
         </ul>
         </div>
      <div id="viewRestAPI" class="getapidetailsblock">
@@ -71,7 +66,7 @@ function loadRestAPI(a_offset) {
     $.ajax({
         type : "POST",
         async: true,
-        url : "${contextPath!''}/api/getRestAPI",
+        url : "${contextPath!''}"+apiPath+"/getRestAPI",
         data:{
             "offset": a_offset,
             "startCount": a_offset *10,
@@ -83,7 +78,7 @@ function loadRestAPI(a_offset) {
                 $('.apiChk').prop('checked', 'checked');  
             }
             $('.sortblock').hide();
-            showMessage("Data loaded...", "success")
+            showMessage("Rest APIs are loaded successfully.", "success")
         },
         error: function(jqXHR, exception){
             showMessage("Error occurred while fetching REST APIs", "error");
@@ -95,6 +90,7 @@ function loadRestAPI(a_offset) {
 function exportDetails(l_columnName,a_sortOrder){
   /*written for passing the values*/
 }
+
 /**For exporting the contents on click of Export Button*/
 function getExport() {
     let ischeckBoxSelected = validateExport();
@@ -102,16 +98,20 @@ function getExport() {
         showMessage("No API selected...", "warn");
         return;
     }
-exportDetails(l_columnName,a_sortOrder);
-
+    exportDetails(l_columnName,a_sortOrder); 
      var select_All = "" ;
      var exportIdList = [];
-    $.each($(".apiChk:checked"), function () {
-        exportIdList.push($(this).val());
-    });
-select_All = "false";
-getDynaExport(select_All, exportIdList,l_columnName,a_sortOrder);
+    if (document.getElementById('selectAll').checked) {
+        select_All = "true";
+        getDynaExport(select_All, '',l_columnName,a_sortOrder);
+    } else {
+        $.each($(".apiChk:checked"), function () {
+            exportIdList.push($(this).val());
+        });
+    select_All = "false";
+    getDynaExport(select_All, exportIdList,l_columnName,a_sortOrder);
 
+    }
 }
 
 /** Called from getExport()*/
@@ -129,7 +129,7 @@ function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
     $.ajax({
         type : "POST",
         async: true,
-        url : "${contextPath!''}/api/getexportableAPI",
+        url : "${contextPath!''}"+apiPath+"/getexportableAPI",
         data:{"dynaId":JSON.stringify(dynaId),
             "select_All": select_All+"",
             "l_columnName": l_columnName+"",
@@ -142,7 +142,7 @@ function getDynaExport(select_All,dynaId,l_columnName,a_sortOrder) {
               form .target ="_blank";
               form .id="stmtForm";
               form .method = "POST";
-              form .action = "${contextPath!''}/api/exportAPIList";
+              form .action = "${contextPath!''}"+apiPath+"/exportAPIList";
               var mapInput = document.createElement("input");
               mapInput.type = "hidden";
               mapInput.name = "a_strSourceBody";
@@ -323,7 +323,7 @@ $('#selectAll').change(function () {
 /** For Toggling or Expandin/Collapsing all the divs 
  * on click of Expand All button*/
 
-let isExpanded = false;
+let isExpanded = true;
 $(document).ready(function () {
     $('#expand').on('click', function () {
         if(isExpanded){
@@ -336,6 +336,7 @@ $(document).ready(function () {
         isExpanded = !isExpanded;
     });
 });
+
 /**Ends Here*/
    
 /** For Toggling or Expanding/Collapsing individual div on click of the respective div*/    
@@ -357,10 +358,11 @@ for(iCounter = 0;iCounter<restDivlen;iCounter++)
        methodUrl = $("#methodblocktwo_"+iCounter).text().trim();
        splitUrl = methodUrl.split("japi/")[1];
        methodUrlDiv.textContent = '';
-       methodUrlDiv.append("${getSystemProperty('base-url')}${(contextPath)!''}/api/"+splitUrl);
+       methodUrlDiv.append("${getSystemProperty('base-url')}${(contextPath)!''}"+apiPath+"/"+splitUrl);
     } else {
        methodUrl = $("#methodblocktwo_"+iCounter).text().trim();
-       splitUrl = methodUrl.split("api/")[1];
+       var apiPathValue=apiPath.replace(/^\/+/, '');
+       splitUrl = methodUrl.split(apiPathValue+"/")[1];
        methodUrlDiv.textContent = '';
        methodUrlDiv.append("${getSystemProperty('base-url')}${(contextPath)!''}/japi/"+splitUrl);
     }
@@ -374,21 +376,6 @@ function backToDynarestListingPage() {
 
 function CheckedAll() {   
     $('#selectAll').prop('checked', ($(".apiChk").length == $(".apiChk:checked").length));
-}
-
-function getExport() {
-var select_All = "";
-if (document.getElementById('selectAll').checked) {
-    select_All = "true";
-    getDynaExport(select_All, '');
-} else {
-    var exportIdList = [];
-    $.each($(".apiChk:checked"), function () {
-        exportIdList.push($(this).val());
-    });
-select_All = "false";
-getDynaExport(select_All, exportIdList);
-}
 }
 
 $('#selectAll').change(function () {

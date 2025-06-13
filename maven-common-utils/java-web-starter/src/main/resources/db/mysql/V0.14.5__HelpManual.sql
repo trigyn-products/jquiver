@@ -1,0 +1,1 @@
+ALTER TABLE `jq_manual_entry` CHANGE `entry_name` `entry_name` VARCHAR(500) NOT NULL;

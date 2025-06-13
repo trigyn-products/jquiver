@@ -266,14 +266,7 @@
 				resizable: false,
 				dialogClass: "deletepopupblock",
 				title: fileBinDisplayTexts["jws.deleteBtnText"],
-				buttons: [{
-					text: fileBinDisplayTexts["jws.cancel"],
-					"class":'btn btn-secondary',
-					click: function() {
-						$(this).dialog("destroy");
-						$(this).remove();
-					},
-				},
+				buttons: [
 				{
 					text: fileBinDisplayTexts["jws.deleteBtnText"],
 					"class":'btn btn-primary',
@@ -319,6 +312,14 @@
 						});
 
 					}
+				},
+				{
+					text: fileBinDisplayTexts["jws.cancel"],
+					"class":'btn btn-secondary',
+					click: function() {
+						$(this).dialog("destroy");
+						$(this).remove();
+					},
 				},
 				],
 				open: function(event, ui) {
@@ -451,8 +452,8 @@
 			}
 		}
 	}
+	
 	//this is to hold temp file in memory
-	//
 	$.fn.fileUpload = function(options, selectedFiles) {
 		let fileUpload = new FileUpload(this, options, selectedFiles);
 		if(fileBinDisplayTexts == null){
@@ -468,7 +469,6 @@
 		if (options.isEdit == false) {
 			this.disableDropZone("You can't edit");
 		}
-
 		//if(fileBins != undefined && fileBins != null){
 		//fileBins[fileBins.length] = { "FileBinID": options.fileBinId, "fileAssociationID": options.fileAssociationId, "valueType": "fileBin" };
 		//}
@@ -492,7 +492,6 @@
 				// + '<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">'
 				// + '<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div></div>'
 				+ '</span></div><div class="clearfix"></div>';
-
 			Dropzone.autoDiscover = false;
 			const context = this;
 			var isReplaceExistingFile = "false";
@@ -500,7 +499,7 @@
 			$.ajax({
 				type: "GET",
 				async: false,
-				url: contextPath + "/api/fileconfig-details",
+				url: contextPath+apiPath+"/fileconfig-details",
 				data: {
 					fileBinId: options.fileBinId
 				},
@@ -519,6 +518,7 @@
 						clickable: true,
 						maxFilesize: fileUpload.getByteSize(data["max_file_size"]).toFixed(2),
 						uploadMultiple: true,
+						parallelUploads:1,
 						maxFiles: Number.parseInt(data["no_of_files"]),
 						acceptedFiles: data["file_type_supported"],
 						createImageThumbnails: false,
@@ -541,9 +541,10 @@
 							let viewButton = Dropzone.createElement("<div class='fileicons'><span class='iconcovercls'><i class='fileupload-actions float-right' title='" + resourceBundleData("jws.viewFile") + "'></i></span></div>");
 							let fileId = JSON.parse(data.xhr.response)["fileIds"][0];
 							viewButton.addEventListener("click", function(e) {
-								fileUpload.viewFileEvent(e, fileId)
+								fileUpload.viewFileEvent(e, fileId);
+								data.previewElement.appendChild(viewButton);
 							});
-							data.previewElement.appendChild(viewButton);
+							
 							if (options.successcallback !== undefined) {
 								options.successcallback(fileId);
 							}
@@ -594,12 +595,15 @@
 									if (fileCount > 1 && document.readyState === 'complete') {
 										for (iFileCounter = 0, iFileLen = this.files.length; iFileCounter < iFileLen - 1; iFileCounter++) {
 											if (this.files[iFileCounter].name.toUpperCase() === file.name.toUpperCase()) {
-												fileUpload.dropzone.options.autoProcessQueue = false;
+												fileUpload.dropzone.options.autoProcessQueue = true;
 												var existFileRef = this.files[iFileCounter];
 												fileUploadId = existFileRef.id;
 												// Below code is used when we have to delete the file by temp id
 												if (fileUploadId == undefined) {
 													fileUploadId = getFileUploadIdUsingCookie(file.name.toUpperCase());
+												}
+												if ($("#confirm").length) {
+												    $("#confirm").dialog("destroy").remove(); // Remove previous instance
 												}
 												$("<div id='confirm' class='hide'>"+ fileBinDisplayTexts['jws.fileAlreadyExist'] +"</div>").
 													dialog({
@@ -614,28 +618,32 @@
 														},
 														buttons: [{
 															text: fileBinDisplayTexts["jws.duplicate"],
+															"class":'btn btn-primary',
 															click: function() {
 																isProcessQueue = true;
-																file.status = "queued";
-																fileUpload.dropzone.processQueue();
 																$(this).dialog('close');
 															}
 														}, {
 															text: fileBinDisplayTexts["jws.replace"],
+															"class":'btn btn-warning btn-secondary',
 															click: function() {
-
 																isReplaceExistingFile = "true";
 																existingFileId = fileUploadId;
 																fileUpload.dropzone.removeFile(existFileRef);
-																file.status = "queued";
-																fileUpload.dropzone.processQueue();
+																var tmpFileUploadId  = getFileUploadIdUsingCookie(file.name.toUpperCase());
+																deleteFileUploadTempIdCookie(tmpFileUploadId)
+																deleteTempFile(tmpFileUploadId);
 																$(this).dialog('close');
 															},
 														}, {
 															text: fileBinDisplayTexts["jws.cancel"],
+															"class":'btn btn-secondary',
 															click: function() {
 																isProcessQueue = false;
 																fileUpload.dropzone.removeFile(file);
+																var tmpFileUploadId = fileUploadId = getFileUploadIdUsingCookie(file.name.toUpperCase());
+																deleteFileUploadTempIdCookie(tmpFileUploadId)
+																deleteTempFile(tmpFileUploadId);
 																$(this).dialog('close');
 															},
 														},
@@ -656,7 +664,7 @@
 								}
 
 							});
-
+							
 							fileUpload.showSelectedFiles(this.selectedFiles, this, fileUpload.options.renderer);
 							fileUpload.loadSelectedFiles();
 						}
@@ -748,6 +756,25 @@
 		setCookie("fileBinDetails", JSON.stringify(fileBinJsonLocalArr), 1);
 		appendAssociationID(options, options.fileAssociationId);
 	}
+	
+	function deleteTempFile(fileUploadTempId) {
+			if(fileUploadTempId != undefined){
+				$.ajax({
+					type: "POST",
+					async: false,
+					url: contextPath+apiPath+"/dfut",
+					data: {
+						fileUploadId: fileUploadTempId
+					},
+					success: function(data) {
+						
+					},
+					error: function(xhr, error) {
+						
+					},
+				});
+			}
+		}
 
 }(jQuery));
 // Added new  section to paste section

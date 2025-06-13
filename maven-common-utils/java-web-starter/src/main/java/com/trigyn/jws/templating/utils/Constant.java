@@ -18,27 +18,32 @@ public final class Constant {
 	public static final String	SYSTEM_OWNER_TYPE				= "system";
 	public static final String	SYSTEM_OWNER_ID					= "system";
 	public static final String	JQUIVER_VERSION_PROPERTY_NAME	= "version";
-	
-	
-	public enum Changetype{
-		SYSTEM("System"),
-		CUSTOM("Custom");
-		
+
+	public static final String	PERMISSION						= "permission";
+	public static final String	TEMP_MOD_ID						= "1b0a2e40-098d-11eb-9a16-f48e38ab9348";
+
+	public static final String	REGEXERROR						= "JQuiverRegexError";
+	public static final String	REGEX_INVALID_VALUE				= REGEXERROR + "-Invalid Value-{0}";
+
+	public enum Changetype {
+		SYSTEM("System"), CUSTOM("Custom");
+
 		final String changetype;
-		
+
 		Changetype(String i) {
 			changetype = i;
-		} 
+		}
 
 		public String getChangetype() {
 			return changetype;
 		}
 
-		}
+	}
+
 	public enum MasterModuleType {
 		TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"), RESOURCEBUNDLE("ResourceBundle"), DASHBOARD("Dashboard"),
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
-		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
+		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), ROUTER("Router"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
 		SCHEDULER("Scheduler");
@@ -53,14 +58,12 @@ public final class Constant {
 			return moduleType;
 		}
 	}
-	public enum Action{
-		ADD("Add"),
-		EDIT("Edit"),
-		DELETE("Delete"),
-		OPEN("Open");
-		
+
+	public enum Action {
+		ADD("Add"), EDIT("Edit"), DELETE("Delete"), OPEN("Open");
+
 		final String action;
-		
+
 		Action(String i) {
 			action = i;
 		}
@@ -69,6 +72,6 @@ public final class Constant {
 			return action;
 		}
 
-		}
+	}
 
 }

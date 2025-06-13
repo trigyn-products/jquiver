@@ -1,7 +1,7 @@
 <head>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
 	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
-	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+	<script src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/fileupload/fileBinMaster.js"></script>
@@ -37,7 +37,6 @@
 			</#if>
 		</div>
 
-		<div class="clearfix"></div>
 	</div>
 
 	<form method="post" name="addEditForm" id="addEditForm">
@@ -46,7 +45,7 @@
         <div class="row">
 			<div class="col-3">
 				<div class="col-inner-form full-form-fields">
-					<label for="fileBinId" style="white-space:nowrap"><span class="asteriskmark">*</span>
+					<label for="fileBinId" ><span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filebinid')}
 		            </label>
 					<input type="text" id="fileBinId" name="fileBinId" onchange="fileBinMaster.updateFileBinTemplate()" value="" maxlength="500" class="form-control">
@@ -54,7 +53,7 @@
 				</div>
 				<div class="col-3">
 					<div class="col-inner-form full-form-fields">
-						<label for="fileTypeSupported" style="white-space:nowrap">
+						<label for="fileTypeSupported" >
 		            <span class="asteriskmark">*</span>
 		              ${messageSource.getMessage('jws.filetypesupported')}<i class="fa fa-info-circle" aria-hidden="true" title="Valid format is '.' followed by supported file extension or '.*'" style="margin-left: 2px;"> </i>
 		            </label>
@@ -83,16 +82,41 @@
 							</div>
 						</div>
 						<div class="col-3">
-							<div class="col-inner-form full-form-fields">
-								<label for="noOfFiles" style="white-space:nowrap">
-                    <span class="asteriskmark">*</span>${messageSource.getMessage('jws.noOfFilesbet1and50')}
-                </label>
-								<input type="hidden" id="noOfFiles" name="noOfFiles">
-								<p class="file-slider-span-cls">
-									<span id="fileSliderSpan" class="no-of-files-counter" style="z-index: 999;"></span></p>
-								<div class="file-slider-div-cls" id="fileSliderDiv"></div>
-							</div>
+						<div class="col-inner-form full-form-fields">
+							<label for="noOfFiles" >
+                                <span class="asteriskmark">*</span>${messageSource.getMessage('jws.noOfFilesbet1and50')}
+                            </label>
+							<input type="hidden" id="noOfFiles" name="noOfFiles">
+                            <div id="slider">
+                                <div id="custom-handle" class="ui-slider-handle"></div>
+                            </div>
+						</div> 
 						</div>
+
+                        <div class="col-3" >  
+                            <div class="col-inner-form full-form-fields">                        
+                             <label for="name" ><span class="asteriskmark">*</span>
+                                ${messageSource.getMessage('jws.fileStorage')}
+                            </label>
+                            <input type="hidden" id="fileStorageTxt" name="fileStorageTxt" value="0" />
+                            <div class="onoffswitch" style="margin-top: 9px; margin-left:10px">
+									<input  class="onoffswitch-checkbox" type="checkbox" name="isFileStorageEnable" id="isFileStorageEnable"  value="0" onchange="updateIsFileStorageEnableText();" >
+									<label class="onoffswitch-label" for="isFileStorageEnable">
+                                        <span class="onoffswitch-inner"></span>
+                                        <span class="onoffswitch-switch"></span>
+                                    </label>
+								</div>
+                            </div>
+                        </div>
+
+                        <div class="col-6" id="fileStorageClassDiv" style="display:none">
+                            <div class="col-inner-form full-form-fields">
+                                <label for="name" ><span class="asteriskmark">*</span>
+                                    ${messageSource.getMessage('jws.customFileStorageClass')}<i class="fa fa-info-circle" aria-hidden="true" title="${messageSource.getMessage('jws.implementInterfaceValidation')}" style="margin-left: 2px;"> </i>
+                                </label>
+                                <input type="text" id="customFileStorageClass" name="customFileStorageClass" placeholder="eg: com.trigyn.jws.dynarest.service.SFTPConnector" disabled value="" maxlength="500" class="form-control">
+                            </div>
+                        </div> 
 					</div>
 
 					<input type="hidden" id="previousFileSizeScale" value="1">
@@ -100,9 +124,9 @@
 					<input type="hidden" id="previousFileSize" value="">
 
 					<div id="ftlParameterDiv" class="col-12 method-sign-info-div">
-						<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button"
+						<a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpase" role="button"
 							aria-expanded="false">
-							<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+							<i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
 						</a>
 
 						<div class="collapse" id="tipscolpase">
@@ -112,6 +136,10 @@
 									<label for="ftlParameter">${messageSource.getMessage('jws.sqlorftlparamandmacros')} :</label>
 								</h3>
 								<span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
+                                <h3 class="titlename method-sign-info">
+									<label for="CustomFileStorageImplementaion">${messageSource.getMessage('jws.CustomFileStorageImplementaion')} :</label>
+								</h3>
+                                <span id="CustomFileStorageImplementaion">${messageSource.getMessage('jws.CustomFileStorageImplementaionNote')}</span>
 							</div>
 						</div>
 					</div>
@@ -133,7 +161,7 @@
 							</h3>
 							<div class="row">                       
 								<div class="col-3">                                  
-									<label for="queryType_uploadValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
+									<label for="queryType_uploadValidator" >${messageSource.getMessage('jws.querytype')} </label>
 									<select id="queryType_uploadValidator" name="queryType_uploadValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'uploadValidator',jsonObjUpload);">
                                         <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
                                         <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>	
@@ -143,7 +171,7 @@
 								</div>
 								<div class="col-3" >
 									<div id="dt-uploadValidator">
-										<label for="datasource_uploadValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
+										<label for="datasource_uploadValidator" >${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_uploadValidator" name="datasource_uploadValidator" class="form-control" onchange="updateDataSource()">
                                             <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
                                         </select>
@@ -187,7 +215,7 @@
 							</h3>
 							<div class="row">
 								<div class="col-3">
-									<label for="queryType_viewValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
+									<label for="queryType_viewValidator" >${messageSource.getMessage('jws.querytype')} </label>
 									<select id="queryType_viewValidator" name="queryType_viewValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'viewValidator',jsonObjView);">
                                         <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
                                         <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
@@ -197,7 +225,7 @@
 								</div>
 								<div class="col-3">
 									<div id="dt-viewValidator">
-										<label for="datasource_viewValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
+										<label for="datasource_viewValidator" >${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_viewValidator" name="datasource_viewValidator" class="form-control" onchange="fileBinMaster.refreshEditorContent(this);">
                                             <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
                                         </select>
@@ -238,7 +266,7 @@
 							</h3>
 							<div class="row">
 								<div class="col-3">
-									<label for="queryType_deleteValidator" style="white-space:nowrap">${messageSource.getMessage('jws.querytype')} </label>
+									<label for="queryType_deleteValidator" >${messageSource.getMessage('jws.querytype')} </label>
 									<select id="queryType_deleteValidator" name="queryType_deleteValidator" class="form-control" onchange="valScriptLibOnchangeQueryType(this,'deleteValidator',jsonObjDelete);">
                                         <option value="1">${messageSource.getMessage('jws.selectquery')}</option>
                                         <option value="4">${messageSource.getMessage('jws.javaScriptContent')}</option>
@@ -248,7 +276,7 @@
 								</div>
 								<div class="col-3">
 									<div id="dt-deleteValidator">
-										<label for="datasource_deleteValidator" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')} </label>
+										<label for="datasource_deleteValidator" >${messageSource.getMessage('jws.datasource')} </label>
 										<select id="datasource_deleteValidator" name="datasource_deleteValidator" class="form-control" onchange="enableDiableDataSource()">
                                             <option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>						
                                         </select>
@@ -305,7 +333,7 @@
 				<div id="contentDiv">
 					<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
            			${messageSource.getMessage("jws.copyhtml")} 				 
- 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+ 					<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
 					</span>
 					<div id="htmlPreview" class="default-previews cm-scrollbar"></div>
 				</div>
@@ -316,7 +344,7 @@
 				<div id="contentDiv">
 					<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
            			${messageSource.getMessage("jws.copyjavascript")} 				 
- 					<i class="fa fa-clipboard" aria-hidden="true"></i>
+ 					<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
 					</span>
 					<div id="jsPreview" class="default-previews cm-scrollbar"></div>
 				</div>
@@ -344,12 +372,12 @@
 
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
 					<div id="savedAction">
 						<button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('file-upload-config', this, $('#isEdit').val(),fileBinMaster.saveData.bind(fileBinMaster), fileBinMaster.backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 					</div>
-					<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+					<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" data-bs-toggle="dropdown" aria-expanded="false"></button>
 					<div class="dropdown-menu action-cls" id="actionDiv">
 						<ul class="dropdownmenu">
 							<li id="saveAndCreateNew"
@@ -379,7 +407,9 @@
 <script>
 	document.title = "Manage File Bin Configuration";
 	let formId = "${formId}";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
+	//viewPath = "${viewPath}";
+     var env = '${(environment)!""}';
     var fileBinDisplayTexts = null;
 	let edit = 0;
 	let fileBinMaster;
@@ -410,6 +440,19 @@
     jsSuggestionArray = JSON.parse(jsSugg);
 
 	$(function(){
+		$("#slider").slider({
+            max: 256,
+            min: 0,
+            value: 0,
+            create: function () {
+                $("#custom-handle").text($(this).slider("value"));
+            },
+            slide: function (event, ui) {
+                $("#custom-handle").text(ui.value);
+            }
+        });
+	
+	
 	  fileBinMaster = new FileBinMaster();
 	  $("#tabs").tabs();
 	 <#if resultSetObject.fileBinData?? && resultSetObject.fileBinData[0]?has_content>
@@ -419,8 +462,28 @@
 			$("#maxFileSize").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
 			$("#maxFileSizeUi").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
 			$("#previousFileSize").val('${(resultSetObject.fileBinData[0].max_file_size)!''}');
-			$("#fileSliderSpan").html('${(resultSetObject.fileBinData[0].no_of_files)!''}');
+			$("#slider").slider("value", '${(resultSetObject.fileBinData[0].no_of_files)!''}');
 			$("#noOfFiles").val('${(resultSetObject.fileBinData[0].no_of_files)!''}');
+            		let nofiles = '${(resultSetObject.fileBinData[0].no_of_files)!''}';
+            		if(parseInt(nofiles) > 256) {
+                		nofiles = 256;
+            		}
+            		$("#custom-handle").html(nofiles);
+			$("#custom-handle").text(nofiles);
+            		$("#customFileStorageClass").val('${(resultSetObject.fileBinData[0].custom_file_storage_class)!''}');
+			if(${resultSetObject.fileBinData[0]?api.get("is_file_storage_enable")!""} == 1){ 
+            	 $("#isFileStorageEnable").prop("checked",true);
+            	 $("#fileStorageTxt").val(1);
+                 $("#customFileStorageClass").prop("disabled", false);
+                 $("#fileStorageClassDiv").show();
+                $("#fileStorageClassDiv").css('display', 'block');
+                } else {
+                    $("#isFileStorageEnable").prop("checked",false);
+                    $("#fileStorageTxt").val(0);
+                    $("#customFileStorageClass").prop("disabled", true);
+                    $("#fileStorageClassDiv").hide();
+                    $("#fileStorageClassDiv").css('display', 'none');
+                }
 			
 			<#if (resultSetObject.fileBinData[0].upload_query_type)?has_content>
 				$("#queryType_uploadValidator").val('${(resultSetObject.fileBinData[0].upload_query_type)!''}');	
@@ -486,6 +549,7 @@
 
         <#if (resultSetObject.fileBinData[0].file_bin_id)?has_content>
 			edit = 1;
+       
 		</#if>
 
 		if(typeof getSavedEntity !== undefined && typeof getSavedEntity === "function"){
@@ -499,7 +563,6 @@
             $('#datasource_viewValidator').append($(element).clone());
             $('#datasource_deleteValidator').append($(element).clone());
         });
-
 		savedAction("file-upload-config", edit);
 		hideShowActionButtons();
 		fileBinMaster.setQueryContent();
@@ -513,7 +576,7 @@
         $.ajax({
             type: "GET",
             async: true,
-            url: contextPath + "/view/scrlib",
+            url: contextPath + viewPath+"/scrlib",
             data:{
                 fileBinId: fileBinId,
                 jsonObj : jsonObj,
@@ -587,5 +650,20 @@
         }
         fileBinMaster.refreshEditorContent(value,'','');
     }
+
+      function updateIsFileStorageEnableText() {
+            if($("#isFileStorageEnable").prop("checked") == true) {
+                $("#customFileStorageClass").prop("disabled", false);
+                $("#fileStorageClassDiv").show();
+                $("#fileStorageClassDiv").css('display', 'block');
+                $("#fileStorageTxt").val(1);
+            } else {
+                $("#fileStorageTxt").val(0);
+                $("#customFileStorageClass").prop("disabled", true);
+                $("#customFileStorageClass").val("");
+                $("#fileStorageClassDiv").hide();
+                $("#fileStorageClassDiv").css('display', 'none');
+            }
+        }
    
 </script>

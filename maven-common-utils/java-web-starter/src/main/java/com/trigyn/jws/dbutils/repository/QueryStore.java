@@ -111,4 +111,10 @@ public final class QueryStore {
 			+ " WHERE ml.targetLookupId = 5 "
 			+ " AND ml.targetTypeId = (SELECT templateId FROM TemplateMaster WHERE templateName = :targetName) ";
 
+	public static final String	JPA_QUERY_TO_GET_ROUTER_SYSTEM_URL			= "SELECT  ml.moduleUrl AS moduleUrl "
+			+ " FROM ModuleListing AS ml WHERE ml.moduleTypeId = 2";
+
+	public static final String	JPA_QUERY_TO_GET_CHECK_IF_FORM_IO			= "SELECT  COUNT(*) AS cnt "
+			+ " FROM ModuleListing AS ml, DynamicForm AS df WHERE ml.targetTypeId = df.formId AND ml.targetLookupId = 2"
+			+ " AND df.formIoId IS NOT NULL AND ml.moduleUrl=:moduleUrl";
 }

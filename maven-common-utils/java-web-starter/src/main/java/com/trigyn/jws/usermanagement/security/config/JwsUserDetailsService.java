@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -17,6 +15,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwsUserDetailsService implements IUserDetailsService {

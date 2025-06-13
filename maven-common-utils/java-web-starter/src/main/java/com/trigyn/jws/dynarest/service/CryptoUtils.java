@@ -15,13 +15,13 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.trigyn.jws.dynarest.utils.CryptoException;
 
 public class CryptoUtils {
-	private static final Logger	logger			= LogManager.getLogger(CryptoUtils.class);
+	private static final Logger	logger			= LoggerFactory.getLogger(CryptoUtils.class);
 
 	private static final String	ALGORITHM		= "AES";
 	private static final String	TRANSFORMATION	= "AES";

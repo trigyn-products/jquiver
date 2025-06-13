@@ -1,10 +1,6 @@
 <head>   
-	<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-	<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-	<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 	<script src="${(contextPath)!''}/webjars/1.0/dynarest/dynarest.js"></script>
 	<script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 
@@ -12,6 +8,49 @@
    <#if resultSetObject.restData?? && resultSetObject.restData[0]?has_content>
 	    <#assign restData=resultSetObject.restData[0]>
     </#if>
+
+    <style>
+        .textarea-wrapper {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 300px;
+        margin: auto;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 5px;
+        background: #d0e2f4 !important;
+        border-radius: 5px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    #progress {
+        height: 5px;
+        width: 100%;
+        background: green;
+        border-radius: 5px;
+        transition: width 0.2s ease;
+    }
+
+    .characterscls{
+        font-size: 13px;
+        color: red;
+        margin-top: 5px;
+        text-align: right;
+    }
+    </style>
     
 </head>
 
@@ -55,8 +94,8 @@
 					<span class="asteriskmark">*</span><label for="dynarestUrl">${messageSource.getMessage('jws.resturl')} </label>	
 					 <span class="copyblockcls" onclick="dynarest.copyUrlContextPath()">				
 					 <span id="urlPrefixLabel" ></span>
-                     <i class="fa fa-clipboard" aria-hidden="true"  id="restUrlSpan" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
-                     <i title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>" id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();dynarest.copyUrlActualPath()"></i>
+                     <i class="fa fa-regular fa-copy aria-hidden="true"  id="restUrlSpan" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+                     <i title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>" id="copyIcon" class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();dynarest.copyUrlActualPath()"></i>
 					</span>			
 					
 					<span id="dynarestURLSapn">
@@ -158,22 +197,23 @@
 				<div class="col-inner-form full-form-fields">
 					<label for="dynarestMethodDescription">${messageSource.getMessage('jws.restmtdDesc')}</label>
 					<span id="dynarestMethodDescriptionSpan">
-                        <textarea class="form-control" rows="6" cols="90" data-type="text"  id="dynarestMethodDescription" placeholder="Method Description" name="dynarestMethodDescription"  maxlength="500" onkeydown="calculateLength();" onkeyup="calculateLength();"></textarea>
+                        <textarea class="form-control" rows="6" cols="90" data-type="text"  id="dynarestMethodDescription" placeholder="Method Description" name="dynarestMethodDescription"  maxlength="500" onkeydown="calculateLength();" onkeyup="calculateLength();">${(restData.jws_method_description)!""}</textarea>
                     </span>
-                    <div style = "position:relative;float:right;">
-                        <input style="border:none" readonly type="text" id="countdown" name="countdown" size="1" value="500" >
-                    </div>
-				</div>
+                      <div class="progress-bar">
+                            <div id="progress"></div>
+                        </div>
+                        <p class="characterscls" id="countdown" name="countdown">500 characters left</p>
+    				</div>
 			</div>
             </div>
 			<div id="deleteHeader"></div>		
 			<div id="methodSignatureDiv" class="col-12 method-sign-info-div" style="margin-bottom:15px;">
-				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
+				<a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpasemethod" role="button" aria-expanded="false">
+					<i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.mtdsignature')} with Example
 			
             	</a>
-           <div style = "position:relative;float:right;">
-            <span id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" onclick="copyToClipboard('methodSignature','clientkeyCopyBtn')"" style="border-radius: 0px 3px 3px 0 !important;" title="Copy"> <i class="fa fa-clipboard" aria-hidden="true" 
+           <div style = "position:relative;float:right;    margin-top: -30px;">
+            <span id="clientkeyCopyBtn" class="btn btn-secondary" name="clientkeyCopyBtn" value="${messageSource.getMessage('jws.copy')}" onclick="copyToClipboard('methodSignature','clientkeyCopyBtn')"" style="border-radius: 0px 3px 3px 0 !important;" title="Copy"> <i class="fa fa-regular fa-copy" aria-hidden="true" 
                                     style=" padding-top:3px !important; "></i></span>                                     
             </div>
             <div id="methodSignatureContainer">
@@ -190,8 +230,8 @@
                <div class="accordion" id="accordionExample">
                   <div class="card customcardblock">
                      <div class="card-header" id="headingOne">
-                        <h3 class="titlename method-sign-info collapsed" data-toggle="collapse" data-target="#collapseOne">
-                           <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label id="lblXmlFormat" for="xmlFormat">${messageSource.getMessage('jws.emailxmlstructure')} </label>								
+                        <h3 class="titlename method-sign-info collapsed" data-bs-toggle="collapse" data-target="#collapseOne">
+                           <i class="fa-solid fa-lightbulb" aria-hidden="true"></i><label id="lblXmlFormat" for="xmlFormat">${messageSource.getMessage('jws.emailxmlstructure')} </label>								
                         </h3>
                      </div>
                      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
@@ -203,8 +243,8 @@
                </div>
             </div> 
 			<div id="ftlParameterDiv" class="col-12 method-sign-info-div">
-				<a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-					<i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+				<a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+					<i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
 				</a>
 				<div class="collapse" id="tipscolpase">
 					<div class="tipscontent">
@@ -273,12 +313,12 @@
     </div>  
     <div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dynamic-rest-form', this, $('#isEdit').val(),dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" data-bs-toggle="dropdown" aria-expanded="false" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
                             <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dynamic-rest-form', this, $('#isEdit').val(),dynarest.saveDynarest.bind(dynarest), dynarest.backToDynarestListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -300,9 +340,12 @@
     </div> 
 </div>
 <script type="text/javascript">
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
+	//viewPath = "${viewPath}";
+	//apiPath = "${(apiPath)!'/api'}";
 	document.title = "Manage Dynamic REST API";
 	var baseUrl = "";
+	var env = '${(environment)!""}';
     var scriptIdArray = [];
     var scriptDelArray = [];
     var deleteIdArray = new Array();
@@ -325,6 +368,7 @@
     </#list>
 
  $(document).ready(function(){
+     calculateLength();  
        // Add minus icon for collapse element which is open by default
        $(".collapse.show").each(function(){
        	$(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-plus");
@@ -743,7 +787,7 @@
 
 	function getDynarestBAseURL(){ 
 		$.ajax({
-			url:contextPath+"/api/rest-api-base-url",
+			url:contextPath+apiPath+"/rest-api-base-url",
 			type:"GET",
 	        data:{
 	        	
@@ -765,8 +809,7 @@
             <#outputformat "HTML">   
 				$("#dynarestId").val('${(resultSetObject.restData[0].jws_dynamic_rest_id)!''}');
 				$("#primaryKey").val('${(resultSetObject.restData[0].jws_dynamic_rest_id)!''}');
-                $("#dynarestMethodDescription").val($('<div></div>').html('${(resultSetObject.restData[0].jws_method_description)!''}').text());
-			    $("#dynarestPlatformId option[value='${(resultSetObject.restData[0].jws_platform_id)!''}']").prop("selected", "selected");
+                $("#dynarestPlatformId option[value='${(resultSetObject.restData[0].jws_platform_id)!''}']").prop("selected", "selected");
 			    $("#allowFiles").val('${(resultSetObject.restData[0].jws_allow_files)!''}');
              
                 let produceTypeText = dynarest.populateDetails('${(resultSetObject.restData[0].jws_dynamic_rest_type_id)!''}',
@@ -980,11 +1023,28 @@
     /**Ends here*/
      /* Written for Limit Count Validation in Method Description Text Area*/
      function calculateLength() {
-        var limitNum=500;
-        var methodDesc = $("#dynarestMethodDescription").val();
-        var limitCount = $('#countdown').val();
-        limitCount = (limitNum) - methodDesc.length;
-        $('#countdown').val(limitCount);   
+        var textarea = document.getElementById("dynarestMethodDescription");
+        var progress = document.getElementById("progress");
+        var charCount = document.getElementById("countdown");
+        var maxLength = textarea.maxLength;
+
+        var remaining = maxLength - textarea.value.length;
+        charCount.textContent = remaining + " characters left";
+
+        var percent = (textarea.value.length / maxLength) * 100;
+        progress.style.width = percent + "%";
+
+        if (textarea.value.length > 0) {
+            if (remaining <= 100) {
+                progress.style.background = "red";
+            } else if (remaining <= 250) {
+                progress.style.background = "orange";
+            } else {
+                progress.style.background = "green";
+            }
+        } else {
+            progress.style.background = "transparent";
+        }
     }
     /**Ends Here*/	
     
@@ -1000,7 +1060,7 @@
         $.ajax({
             type: "GET",
             async: true,
-            url: contextPath + "/view/scrlib",
+            url: contextPath + viewPath+"/scrlib",
             data:{
                 dynarestId: dynarestId,
                 jsonObj : jsonObj,   

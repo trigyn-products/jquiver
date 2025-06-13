@@ -8,16 +8,19 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletRequestWritableWrapper;
 import com.trigyn.jws.dynarest.cipher.utils.HttpServletResponseReadableWrapper;
 import com.trigyn.jws.dynarest.cipher.utils.ParameterWrappedRequest;
@@ -27,20 +30,19 @@ import com.trigyn.jws.dynarest.repository.JqEncAlgLookupRepository;
 import com.trigyn.jws.dynarest.service.JwsDynamicRestDetailService;
 import com.trigyn.jws.dynarest.vo.ApiClientDetailsVO;
 import com.trigyn.jws.dynarest.vo.RestApiDetails;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.util.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 
 @Component
 public class ApiClientFilter extends OncePerRequestFilter {
 
-	private final static Logger			logger						= LogManager.getLogger(ApiClientFilter.class);
+	private final static Logger			logger						= LoggerFactory.getLogger(ApiClientFilter.class);
 
 	@Autowired
 	private IApiClientDetailsRepository	apiClientDetailsRepository	= null;
@@ -53,6 +55,12 @@ public class ApiClientFilter extends OncePerRequestFilter {
 	
 	@Autowired
 	private JqEncAlgLookupRepository	algLookupRepository			= null;
+	
+	@Autowired
+	private FileUtilities 				fileUtilities 				= null;
+	
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -62,6 +70,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 		try {
 
 			final String	requestURL				= httpServletRequest.getRequestURL().toString();
+			String apiPath = jQuiverPropeties.getApiPath().replaceFirst("/", "");
 
 			String			schedulerUrlProperty	= propertyMasterService.findPropertyMasterValue("scheduler-url")
 					+ "-api";
@@ -70,14 +79,16 @@ public class ApiClientFilter extends OncePerRequestFilter {
 				chain.doFilter(new HttpServletRequestWrapper(httpServletRequest) {
 					@Override
 					public String getRequestURI() {
-						return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/",
-								"/" + "api" + "/");
+					//	return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/",
+					//			"/" + "api" + "/");
+				return httpServletRequest.getRequestURI().replace("/" + schedulerUrlProperty + "/",
+						"/" + apiPath + "/");
 					}
 
 					@Override
 					public StringBuffer getRequestURL() {
 						return new StringBuffer(
-								requestURL.replace("/" + schedulerUrlProperty + "/", "/" + "api" + "/"));
+								requestURL.replace("/" + schedulerUrlProperty + "/", "/" + apiPath + "/"));
 					}
 
 				}, httpServletResponse);
@@ -85,7 +96,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 			}
 
 			// run normally if it's not an API call
-			if (requestURL.indexOf("/api/") < 0 && requestURL.indexOf("/japi/") < 0) {
+			if (requestURL.indexOf(jQuiverPropeties.getApiPath()+"/") < 0 && requestURL.indexOf("/japi/") < 0) {
 				chain.doFilter(httpServletRequest, httpServletResponse);
 				return;
 			}
@@ -163,7 +174,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 			// secured API without client key
 			if (restAPI != null && restAPI.getIsSecured() != null && restAPI.getIsSecured() == Constants.IS_SECURED
 					&& httpServletRequest != null && httpServletRequest.getHeader("ck") == null) {
-				httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "API Client key not found.");
+				fileUtilities.customSendError(httpServletResponse,HttpServletResponse.SC_PRECONDITION_FAILED,"API Client key not found.");
 				return;
 			}
 
@@ -174,8 +185,7 @@ public class ApiClientFilter extends OncePerRequestFilter {
 						.findClientDetailsByClientKey(clientKey);
 				
 				if(null == apiClientDetailsVO) {
-					httpServletResponse.sendError(HttpServletResponse.SC_PRECONDITION_FAILED,
-							"Invalid Client Key ");
+					fileUtilities.customSendError(httpServletResponse,HttpServletResponse.SC_PRECONDITION_FAILED,"Invalid Client Key.");
 					return;
 				}
 
@@ -332,11 +342,11 @@ public class ApiClientFilter extends OncePerRequestFilter {
 			logger.error("Inside ApiClientFilter - Error occurred while processing the request (Request URI: {}})",
 					httpServletRequest.getRequestURI(), throwable);
 			if (throwable.getCause() instanceof AccessDeniedException) {
-				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+				fileUtilities.customSendError(httpServletResponse,HttpServletResponse.SC_FORBIDDEN,
 						"You do not have enough privilege to access this module : "
 								+ httpServletRequest.getRequestURI());
 			} else {
-				httpServletResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
+				fileUtilities.customSendError(httpServletResponse,HttpServletResponse.SC_INTERNAL_SERVER_ERROR,throwable.getMessage());
 			}
 			return;
 		}

@@ -7,20 +7,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -44,13 +42,16 @@ import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.quartz.service.impl.JwsQuartzJobService;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
 import com.trigyn.jws.usermanagement.utils.Constants;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import reactor.core.publisher.Mono;
 
 public class JwsSchedulerJob implements Job {
 
 
-	private static Logger				logger						= LogManager.getLogger(JwsSchedulerJob.class);
+	private static Logger				logger						= LoggerFactory.getLogger(JwsSchedulerJob.class);
 
 	private IUserDetailsService			detailsService				= ApplicationContextUtils.getApplicationContext().getBean(IUserDetailsService.class);
 
@@ -66,6 +67,9 @@ public class JwsSchedulerJob implements Job {
 	
 	private JwsQuartzJobService			jobService					= ApplicationContextUtils.getApplicationContext().getBean(JwsQuartzJobService.class);
 
+	@Autowired
+	private JQuiverProperties 			jQuiverPropeties 			= null;
+	
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
@@ -105,12 +109,12 @@ public class JwsSchedulerJob implements Job {
 				if (contextPath != null && contextPath.isEmpty() == false) {
 					fullRestApiUrl = fullRestApiUrl.append(contextPath);
 				}
-				fullRestApiUrl = fullRestApiUrl.append("/api/").append(jwsDynamicRestDetail.getJwsDynamicRestUrl());
+				fullRestApiUrl = fullRestApiUrl.append(jQuiverPropeties.getApiPath()+"/").append(jwsDynamicRestDetail.getJwsDynamicRestUrl());
 
 				String	requestType	= jwsDynamicRestDetail.getJwsRequestTypeDetail().getJwsRequestType();
 
 				String	restApiUrl	= fullRestApiUrl.toString();
-				restApiUrl = restApiUrl.replace("/api/", "/sch-api/" + schedulerUrlProperty + "/");
+				restApiUrl = restApiUrl.replace(jQuiverPropeties.getApiPath()+"/", "/sch-api/" + schedulerUrlProperty + "/");
 
 				MultiValueMap<String, String> multipvalueMap = new LinkedMultiValueMap<String, String>();
 				if (jqScheduler.getRequestParamJson() != null && jqScheduler.getRequestParamJson().isEmpty() == false) {
@@ -138,9 +142,9 @@ public class JwsSchedulerJob implements Job {
 
 				WebClient						webClient		= builder.build();
 
-				Mono<ResponseEntity<String>>	responseContent	= webClient.method(HttpMethod.resolve(requestType))
+				Mono<ResponseEntity<String>>	responseContent	= webClient.method(HttpMethod.valueOf(requestType))
 						.uri(restApiUrl, uri -> uri.queryParams(multipvalueMap).build()).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 																			return response
 																					.bodyToMono(
 																							CustomRuntimeException.class)
@@ -150,7 +154,7 @@ public class JwsSchedulerJob implements Job {
 																																						error));
 																																	});
 																		})
-						.onStatus(HttpStatus::is5xxServerError, response -> {
+						.onStatus(HttpStatusCode::is5xxServerError, response -> {
 							return response.bodyToMono(CustomRuntimeException.class).flatMap(error -> {
 								return Mono.error(new CustomRuntimeException(error));
 							});
@@ -180,7 +184,7 @@ public class JwsSchedulerJob implements Job {
 					log.setRequestTime(requestTime);
 					jwsDynarestDAO.saveJqSchedulerLog(log);
 				}
-				logger.log(Level.DEBUG, "JwsScheduler completed susccesfully. Scheduler ID: " + schedulerId);
+				logger.debug("JwsScheduler completed susccesfully. Scheduler ID: " + schedulerId);
 			} catch (CustomRuntimeException crte) {
 				crte.printStackTrace();
 				JqSchedulerLog	log			= new JqSchedulerLog();
@@ -195,7 +199,7 @@ public class JwsSchedulerJob implements Job {
 				log.setRequestTime(requestTime);
 				jwsDynarestDAO.saveJqSchedulerLog(log);
 				sendFailedMailNotification(jqScheduler, sendMailService, g, stacktrace, true, userName, activityLog);
-				logger.log(Level.ERROR,
+				logger.error(
 						"Exception occurred while executing JwsScheduler. " + crte + " Scheduler ID: " + schedulerId);
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -211,7 +215,7 @@ public class JwsSchedulerJob implements Job {
 				log.setRequestTime(requestTime);
 				jwsDynarestDAO.saveJqSchedulerLog(log);
 				sendFailedMailNotification(jqScheduler, sendMailService, g, stacktrace, true, userName, activityLog);
-				logger.log(Level.ERROR,
+				logger.error(
 						"Exception occurred while executing JwsScheduler. " + e + " Scheduler ID: " + schedulerId);
 			}
 		}

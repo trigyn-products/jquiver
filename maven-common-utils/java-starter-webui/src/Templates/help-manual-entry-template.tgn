@@ -1,14 +1,9 @@
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="icon" type="image/x-icon" href="${(contextPath)!''}/cf/files/a1ecae13-f784-4121-b7bf-1e64a339d7af"/>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
-<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
+<script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></su> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
@@ -19,113 +14,324 @@
 <script src="${(contextPath)!''}/webjars/1.0/simplemde/simplemde.min.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css"/>
 <style>
+
+	.Helpmanualblock .container{
+        width:100% !important;
+        max-width:100% !important;
+    }
+
+    .Helpmanualblock .container-fluid {
+        margin-top:0px !important;
+    }
     .leftrideblock{
         display:flex;
         width:100%;
         position:relative;
     }
-
-    .leftcontenctcls {
-           border: 1px solid #ccc;
-    padding: 5px;
-    border-radius: 5px;
-    height: calc(100vh - 173px);
-     overflow: auto;
+    
+    .restapiiconhover{
+        height: 22px;
+	    width: 23px;
     }
 
+    .expandalliconsls{
+        height: 19px;
+    	width: 44px;
+     }
 
-     
+    .resapiactionbtn ul.restaction > li:hover .expandalliconsls{
+     	background-color: #fff !important;
+    }
+
+    
+
+    .resapiactionbtn .restaction{
+        margin:1px 3px 0px 0px !important;
+    }
+
+    .Helpmanualblock .navbar {
+        display:none !important;
+    }
+
+     .restapiiconhover {
+  		background:#fff;}
+     }
+
+    .restapiiconhover:hover{
+        background:#033a62;
+    }
+
+    
+
+    .logosize {
+	    width: 45px;
+	    margin-left: 10px;
+}
+    .helphomelink a{
+        color:#fff !important;
+    }
+
+    .helphomelink a:hover{
+        text-decoration:none;
+    }
+
+    .leftcontenctcls {
+        border: 1px solid #ccc;
+        padding: 5px;
+        border-radius: 5px;
+        height: calc(100vh - 173px);
+        overflow: auto;
+    }
+
+    .serchclose{
+        position: absolute;
+        z-index: 9;
+        right: 43px;
+        color: #000;
+        cursor: pointer;
+     }
+
+    .Helpmanualblock .leftcontenctcls {
+        width: 268px;
+        z-index: 99;
+        position:relative;
+         
+    }
+
+    .jstree-container-ul.jstree-children > li.jstree-node > .jstree-children > li.jstree-node > ul.jstree-children > li.jstree-node > .jstree-anchor{
+        width: 135px;
+    }
+
+     .jstree-default .jstree-anchor{
+             white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 160px;
+     }
+
+     .rightnavbuttons {
+    /*    display: flex;*/
+        align-items: center;
+    }
  
-    </style>
+    .rightnavbuttons > span {
+        cursor: pointer;
+        margin: 0px 3px;
+        border: 1px solid #ccc;
+        padding: 3px;
+        background: #fff;
+        color: #005da3;
+        width: 25px;
+        text-align: center;
+        border-radius: 3px;
+    }
+
+    .comnbtncls {
+    background: #fff;
+    color: #013b91;
+    border-radius: 3px;
+    padding: 3px 6px;
+    margin: 0px 5px 0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.expandbutton {
+    display: flex;
+}
+
+    .comnbtncls:hover{
+            background: #033a62;
+            color:#fff;
+    }
+    .rightnavbuttons > span:hover{
+            background: #033a62;
+            color:#fff;
+    }
+
+    .Helpmanualblock .spiralbinding {
+    left: 246px;
+    height: calc(88vh - 15px) ! Important;
+ }
+
+</style>
 </head>
+
+<body>
+  
+     
+</body>
 
 <div class="container">
     <div class="topband">
-      <!--  <h2 class="title-cls-name float-left"></h2> -->
+      <!--  <h2 class="title-cls-name"></h2> -->
          <h2 id="title" class="title-cls-name float-left help-manual-title"> </h2>
-        <div class="float-right">
-             <div class="addonbtnblock">
-                  <!--<input id="search-input" class="search-input" />-->
-                  <div class="cm-searchwithicon">
-                       <!-- <div class="form-group has-search clearfix searchblockcyst"> <span class="fa fa-search form-control-feedback"></span>
-                            <input type="text" id="searchInputField" class="form-control" placeholder="Search..." onkeyup="search(event, this.value)">
-                               <span id="manualSearchClear" onclick="clearManualSearch()" class="manual-clear-txt">
-                    			<i class="fa fa-times" aria-hidden="true"></i>
-                			</span>  
-                        </div>-->
-                         <div class="backclsmanual"> <span onclick="back();">
-                       		 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button" style="display:none">
-                    			</span> 
-                   			 </div>
+        <div class="topactionbuttons">
+            <div class="addonbtnblock">
+                  <!--<input id="searchinputbox" class="searchinputbox" />-->
+                <div class="cm-searchwithicon">
+                    <div class="backclsmanual"> <span onclick="back();">
+                        <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button" style="display:none">
+                                </span> 
+                    </div>
                     
-            </div>
-                  <a href="#prev" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.previous')} </a>
-                 <a href="#next" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.next')} </a>
-             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
-                </button>
-
-        </div>
-        </div>
-        
-        <div class="clearfix"></div>        
-    </div>
-        
-   
-   <div class="leftrideblock">
-       <span class="spiralbinding"> </span>
-    <div class="leftcontenctcls" id="tree_container"></div>
-   <!-- <div id="divider">----------------------------------------</div>
-    <div id="treeListAjax-container"></div>-->
-     <div id="contentDiv" class="cm-right-wrapper helpmanual_right">
-                         <div class="topactionbutton">
-                     <a href="#prev" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.previous')} </a>
-                 <a href="#next" class="spacingclss btn btn-secondary" >${messageSource.getMessage('jws.next')} </a>
-             <button type='button' onclick="backToWelcomePage();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.back')}                    
-                </button>
                 </div>
-       <div id="previews" class="previews  cm-scrollbar" ></div>
-    </div>
-    <div class="rightcontecntcls" id="previewDiv" style="border: 1px solid red " class="cm-right-wrapper helpmanual_right"> 
-           
-          <textarea id="previewContent" style="display:none;"></textarea>
+            </div>
+        </div>
+        
      </div>
-     
-   </div>
+        
 
+    <div class="helptopblock">
+                    <span class="hamburgerclsss" id="menuButton">
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                  </span>
+
+            <div class="lefttopcontenctcls ">
+                    <span class="helphomelink"><a  href="${(contextPath)!''}"><i class="fa fa-home" aria-hidden="true" ></i> 
+                <#if messageSource.getMessage("jws.projectName") != "JQuiver">
+                    <@resourceBundleWithDefault "jws.projectName" "JQuiver"/></a>
+                <#else>
+                    <img class="logosize" src="${(contextPath)!''}/webjars/1.0/images/White_Trans_Logo.png" alt="logo">
+                </#if></a> </span>
+
+               
+
+            </div>
+
+            <div class="righttopcontecntcls">
+                    <div class="rightsearhblock">
+                        <span><i id="titleSpan" class="fa fa-book" aria-hidden="true"></i>
+                        </span>
+                        <div class="searchhelp">
+                            <input type="text" id="tree_search" placeholder="Search" class="searchinputbox">
+                            <span id ="searchClose" class="serchclose"><i class="fa fa-times" aria-hidden="true"></i>
+                            </span>
+                            <span class="searchclick"><i class="fa fa-search" aria-hidden="true""></i>
+                            </span>
+                        </div>
+                    </div>
+
+                  
+
+                     <div class="righttopbuttons">
+
+                   <!-- <div class="expandbutton">
+                      
+                        <span class="comnbtncls"onclick="expandAll();"><i class="fa " aria-hidden="true "><i class="fa fa-plus-circle" aria-hidden="true"></i>
+                            Expand all</i></span>
+                              <span class="comnbtncls" onclick="collapseAll();"><i class="fa " aria-hidden="true" ><i class="fa fa-minus-circle" aria-hidden="true"></i>
+                    Collape all</i></span>
+                    </div>-->
+                    <div class="resapiactionbtn">
+                        <ul class="restaction">
+                        <li id="expand" title = "Expand/Collapse" class=" restapiiconhover expandcls " onclick="expandCollapse();"><span class="expandalliconsls"></span> </li>
+                         </ul>
+                    </div>
+
+                                <span class="" title = "First" onclick="first();"><i class="fa fa-fast-backward" aria-hidden="true"></i></span>
+                                <span  onclick="backward();"class="" title = "Previous"><i class="fa fa-step-backward" aria-hidden="true"></i></span>
+                                <span class="" onclick="forward();" title = "Next"><i class="fa fa-step-forward" aria-hidden="true" ></i></span>
+                                <span class="" onclick="last();" title = "Last"><i class="fa fa-fast-forward" aria-hidden="true" ></i></span>
+                    </div>
+            </div>
+            <div>${headerTemplate!''}</div>
+    </div>
+   
+   <div class="leftrideblock" id="overlaycls">
+        <div class="leftspiralblock hiddencls" id="mobileNav">
+        <span class="spiralbinding"> </span>
+        <div class="leftcontenctcls" id="tree_container"></div>
+        </div>
+        <div id="contentDiv" class="cm-right-wrapper helpmanual_right">
+            <div id="previews" class="previews  cm-scrollbar" ></div>
+        </div>
+       <div class="rightcontecntcls" id="previewDiv" class="cm-right-wrapper helpmanual_right">            
+            <textarea id="previewContent" style="display:none;"></textarea>
+        </div>    
+   </div>
 </div>     
 
-<script>
-	document.title = "JQuvier Help Manual";
+<script ${scriptNonce}>
+
+const menuButton = document.getElementById("menuButton");
+const mobileNav = document.getElementById("mobileNav");
+const overlayDiv = document.getElementById("overlaycls");
+
+// Toggle navigation visibility
+    menuButton.addEventListener("click", function(event) {
+    event.stopPropagation(); // Prevents click from propagating to document
+    menuButton.classList.toggle("addremovecls");
+    mobileNav.classList.toggle("hiddencls");
+    overlayDiv.classList.toggle("fixedcls");
+   
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", function(event) {
+    if (!mobileNav.contains(event.target) && event.target !== menuButton) {
+        menuButton.classList.remove("addremovecls");
+        mobileNav.classList.add("hiddencls");
+        overlayDiv.classList.remove("fixedcls");
+    }
+});
+
+
+
+
+    document.title = "JQuvier Help Manual";
     contextPath = "${(contextPath)!''}";
     let manual = new HelpManual();
     let manualTypes = manual.getManualDetails();
     $("#title").html(manualTypes.find(manual => {
         return manual["manual_id"] == "${mt!''}"
     })["name"]); 
+    
+    $("#titleSpan").text("  " + manualTypes.find(manual => {
+        return manual["manual_id"] == "${mt!''}"
+    })["name"]);
     const treeViewMap = new Map();  
     let isEdit;
     var i = 1;
-    let simplemde = new SimpleMDE({
+     var search_res = '';
+    let simplemde = new SimpleMDE({ 
+                                    toolbar:false,
+                                    status : false,
                                     renderingConfig: {
                                     codeSyntaxHighlighting: true,
                                     }
                                   });
+
+
+    function responsivefun() {
+    var helplinks = document.getElementById("responsive-help");
+    
+    // Toggle the class instead of manipulating display property
+    helplinks.classList.toggle("active");
+
+     if (!responsive-help.contains(event.target) && event.target !== menuButton) {
+        responsive-help.classList.add("hidden");
+        }
+    }
+
     $(function () {
+        //$( document ).tooltip({track: true});
         //Lazy Loading- Initally Parents will be loaded later child node loading on click
          var result;
+        
         $("#tree_container").jstree({
-            "core": {                  
-                                              
+            "core": {                        
                        "data": {                          
                             'url' : contextPath+"/cf/hmfn", 
                             'data' : function (node) { 
-                                
-
                                     return { 'id' : node.id,'mt' : '${mt}' }; 
                                    },
-                            'dataFilter' : function (treeData) {         
+                           'dataFilter' : function (treeData) {  
+                                                                 
+                                      
                                         $.each(JSON.parse(treeData), function(i, data) {
-											treeViewMap.set(data.id, data.entryContent);
+                                            treeViewMap.set(data.id, data.entryContent);
                                         });
                                        if (document.readyState === 'complete') {
                                             // The page is fully loaded
@@ -140,13 +346,6 @@
                                             }
                                             if(content!=null){
                                                const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/");
-                                            
-                                              /* let simplemde = new SimpleMDE({
-                                                    initialValue: finalcontent,
-                                                    renderingConfig: {
-                                                    codeSyntaxHighlighting: true,
-                                                    }
-                                                });*/
                                                 $("#previewDiv").css('display', 'none');
                                                     $('#previews').html("");
                                                    // $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
@@ -159,95 +358,105 @@
                                  }
                        
                     },
-                        'types' : { 
-                                   'folder': {
-                                        'icon' : "${(contextPath)!''}/webjars/1.0/images/book.png"
-                                        },
-                                    'default': {
-                                       'icon': 'jstree-icon jstree-file'
-                                               },
-                                    'open': {
-                                       'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
-                                            },
-                                    'closed': {
-                                        'icon': "${(contextPath)!''}/webjars/1.0/images/book.png"
-                                            }
-                                  },
-                                   "search": {
-                    "show_only_matches": true,
-                    "ajax": function (dataObject, callback) {
-                        $.ajax({
-                            "type": "POST", 
-                            "url": contextPath+"/cf/search",
-                            "dataType": "json",
-                            "contentType": "application/json;",
-                            "data": dataObject
-                        })
-                            .done(function (resultData) {
-                                const ids = [];
-                                $.each(resultData, function(i, data) {
-                                                ids.push(data.ids);
-                                            });
-                                 
-                               // callback(ids);
-                               return ids;
-                            });
-                    }
-                                   },
-					    'plugins' : ['themes','types','states','search']
+            "types":{ 
+                        'folder': {
+                            'icon' :  "${(contextPath)!''}/webjars/1.0/images/0b8d3083-ba34-4b0a-b498-4e94f7034636.png"
+                            },
+                        'default': {
+                            'icon': 'jstree-icon jstree-file'
+                                    },
+                        'open': {
+                            'icon': "${(contextPath)!''}/webjars/1.0/images/openbook.png"
+                                },
+                        'closed': {
+                            'icon': "${(contextPath)!''}/webjars/1.0/images/0b8d3083-ba34-4b0a-b498-4e94f7034636.png"
+                                }
+                    },
+            "search":{
+                        "show_only_matches": true, 
+                        'search_callback': jstree_ajax_search,
+                        "show_only_matches" : true,
+                        "ajax" : {
+                              //'async':true,
+                                "url" : contextPath+"/cf/search",
+                                "contentType": "application/json;",
+                                "data": { 'mt':'${mt}'},
+                                "success": function (data) {
+                                    if(data.length!=0) {
+                                        search_res = data;
+                                    }
+                                    else {
+                                        showMessage("${messageSource.getMessage('jws.noRecordFound')}", "info");
+                                    }                                              
+                                }
+                            }              
+      
+                     },
+            "plugins" : ['themes','types','states','search','adv_search']
         }).bind("loaded.jstree", function (event, data) {
-                      data.instance.select_node('ul > li:first');
-                      data.instance.open_node('ul > li:first');
+                data.instance.select_node('ul > li:first');
+                data.instance.open_node('ul > li:first');
          }).on('open_node.jstree', function (event, data) {
-      data.instance.set_type(data.node, 'open');
-   }).on('close_node.jstree', function (event, data) {
-      data.instance.set_type(data.node, 'closed');
-   });
+                data.instance.set_type(data.node, 'open');
+         }).on('hover_node.jstree',function (event, data){
+            $("#"+data.node.id).prop('title', data.node.text);
+         }).on('close_node.jstree', function (event, data) {
+                data.instance.set_type(data.node, 'closed');
+                data.instance.deselect_all();
+                data.instance.select_node(data.node.id);
+         });   
 
-        /*$(".search-input").keyup(function () {
-                var searchString = $(this).val();
-                $('#tree_container').jstree('search', searchString);
-        });*/
+      $("#searchClose").click(function () {
+          $(".searchinputbox").val("");
+          $("#tree_container").jstree("clear_search");
+        });
 
-        var to = false;
-        $(".search-input").keyup(function () {
-            if (to) { clearTimeout(to); }
-            to = setTimeout(function () {
-                 var searchString =  $(".search-input").val();
-                 var dataObject = JSON.stringify({
-                    //"finalManualDataList": treeViewMap,
-                    "searchText": searchString,
-                    "manualId":"${mt}"
-                });
-
-                $.jstree.reference("tree_container").search(dataObject);
-            }, 250);
+      var to = false;
+      $(".searchclick").click(function () {
+           // if (to) { clearTimeout(to); }
+            //to = setTimeout(function () {
+                 var searchString =  $(".searchinputbox").val();
+                $('#tree_container').jstree(true).search(searchString);
+            //}, 250);
         });
 
         $('#tree_container').on("changed.jstree", function (e, data) {
                     var id=data.selected;
-                    if(id.length===0)
-                    {return false;}
+                    if(id.length===0) {
+                        return false;
+                    }
                     const flag=treeViewMap.has(id[0]);  
-                    if(flag){
+                    if(flag) {
                         const content=treeViewMap.get(id[0]);
                         if(content!=null) {
-                        const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
-                        
-                      /*  let simplemde = new SimpleMDE({
-                            initialValue: finalcontent,
-                            renderingConfig: {
-                            codeSyntaxHighlighting: true,
-                            }
-                        });*/
-                         simplemde.value(finalcontent);
-                        }
-                           $("#previewDiv").css('display', 'none');
+                           const  finalcontent= content.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                           simplemde.value(finalcontent);
+                            $("#previewDiv").css('display', 'none');
                             $('#previews').html("");
                             $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
-                            $("#previews").scrollTop(0);
+                            $("#contentDiv").scrollTop(0);
+                        }
+                       else{
+                            $.ajax({
+                                async: true,
+                                type: "Get",
+                                url: contextPath+"/cf/hmfc",
+                                data:{"id":id[0]},
+                                success: function (data) {
+                                   treeViewMap.set(id[0], data); 
+                                  const  finalcontent1= data.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                                      simplemde.value(finalcontent1);
+                                       $("#previewDiv").css('display', 'none');
+                                       $('#previews').html("");
+                                       $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                                       $("#contentDiv").scrollTop(0);
+                                       
+                                }
+                        });
+                        }
+                          
                     }
-                    else{
+                    else {
                         $.ajax({
                                 async: true,
                                 type: "Get",
@@ -258,110 +467,188 @@
                                 }
                         });
                     }
+                   
         }); 
     });
-$("[href='#prev']").click(function () {
+
+  function first() {
     var tree = $('#tree_container').jstree(true),
-        curr = tree.get_selected(false);
+    curr = tree.get_selected (false) ; 
     tree.deselect_all();
-     tree.open_all (); 
-    var p = tree.get_prev_dom(curr);
-     if(p==false)
-      {
-         showMessage("${messageSource.getMessage('jws.firstTopic')}", "info");
-         //tree.select_node(curr); 
-         $('#tree_container').jstree('select_node', 'ul > li:first');   
-      }
-    else
-      {
-        if(tree.is_parent (p))
-            {
-                tree.open_all ();               
-            }
-          tree.select_node(p);
-      }
-});
-$("[href='#next']").click(function () {
+    $('#tree_container').jstree('select_node', 'ul > li:first'); 
+    var  sn = tree.get_selected (false) ; 
+     $("#"+sn+"_anchor").focus();
+    showMessage("${messageSource.getMessage('jws.firstTopic')}", "info"); 
+}
+ 
+//code for last
+function last() {
     var tree = $('#tree_container').jstree(true),
-      curr = tree.get_selected (false);
-     
-    tree.deselect_all ();  
-    tree.open_all ();
-    var n = tree.get_next_dom (curr);
-     if(n.length==0)
-      {
-          showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
-         // tree.select_node (curr);
-          $('#tree_container').jstree('select_node', 'ul > li:last');   
-      }
-      else {
-            if(tree.is_parent (n))
-            {
-                $('#tree_container').jstree("open_node", n);
-            }
-            tree.select_node (n);
-      }
+    curr = tree.get_selected (false); 
+    tree.deselect_all();
+ 
+    $('#tree_container').jstree('select_node', 'ul > li:last');
+    curr = tree.get_selected (false);
+     if(tree.is_parent(curr)){   
+                    var flag=tree.is_open(curr);
+                    if(!flag)
+                    {
+                        
+                       tree.deselect_all();
+                       $('#tree_container').jstree("open_node", curr, function (e,data) {
+                           $('#tree_container').jstree('select_node', 'ul > li:last'); 
+                           showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
+    },false); 
+                   
+ 
+                    }
+                    else{
+                         tree.deselect_all();
+                        $('#tree_container').jstree('select_node', 'ul > li:last'); 
+                        showMessage("${messageSource.getMessage('jws.lastTopic')}", "info"); 
+                    }
+     } else
+     {
+                         tree.deselect_all();
+                        $('#tree_container').jstree('select_node', 'ul > li:last'); 
+                        showMessage("${messageSource.getMessage('jws.lastTopic')}", "info"); 
+                          
+                    }
+ 
+                    var  sn = tree.get_selected (false) ; 
+                          $("#"+sn+"_anchor").focus();
     
-  
-});
+}
+ 
+ 
+ /* var isOpen = $('#tree_container').jstree(true).get_json('#', { flat: true })
+    .some(function(node) {
+        return node.state.opened;
+    });*/
+   // expand="1";
+//code for collapse-all
+function expandCollapse() {
+    if (expand=="1") {
+     $('#tree_container').jstree("close_all");
+      expand="0";
+       document.getElementById("expand").title = "Expand"; 
+    } else {
+      $('#tree_container').jstree("open_all");
+      expand="1";
+      document.getElementById("expand").title = "Collapse"; 
+    }
+  }
+ 
+//code for expand-all
+function expandAll() {
+     $('#tree_container').jstree("open_all");
+     document.getElementById("expandAll").style.display = "none";
+document.getElementById("collapseAll").style.display = "block";
+}
+ 
+ 
+ 
+//Code for backward
+function backward() {
+        var tree = $('#tree_container').jstree(true),
+        curr = tree.get_selected(false);
+        tree.deselect_all();
+        var p = tree.get_prev_dom(curr);
+        if(p==false) {
+              
+                $('#tree_container').jstree('select_node', 'ul > li:first').focus(); 
+                
+                 showMessage("${messageSource.getMessage('jws.firstTopic')}", "info"); 
+            }
+        else {
+                if(tree.is_parent(p)){   
+                    var flag=tree.is_open(p);
+                       $('#tree_container').jstree("open_node", p); 
+ 
+                       
+                if(!flag){                     
+                      $('#tree_container').jstree("open_node",  p, function (e,data) {
+                               
+                                 var node = $("#tree_container").jstree("get_node", p);
+                                  if(node.children.length>0){
+                            $('#tree_container').jstree('select_node', node.children[node.children.length-1]);
+                            
+                            
+                            //break;
+                           }
+                           else
+                           {
+                               $('#tree_container').jstree("select_node", p);  
+                           }
+                        },true); 
+                    }
+                    else{
+                       $('#tree_container').jstree("select_node", p); 
+                    } 
+                    }
+                    else{
+                          tree.select_node(p);
+                    }
+            }
+ 
+            var  sn = tree.get_selected (false) ; 
+            $("#"+sn+"_anchor").focus();
+}
+ 
+//Code for forward
+function forward() {
+        var tree = $('#tree_container').jstree(true),
+        curr = tree.get_selected (false);     
+        tree.deselect_all ();
+        if(tree.is_parent(curr))
+        {
+            var flag=tree.is_open(curr);
+            if(flag)
+            {
+                   var n = tree.get_next_dom(curr);
+                $('#tree_container').jstree('select_node', n); 
+            }
+           else{ $('#tree_container').jstree("open_node", curr);
+             $('#tree_container').jstree('select_node', curr); 
+           }
+        }
+        else{
+                var n = tree.get_next_dom(curr);
+                if(n.length!=0) {
+                    $('#tree_container').jstree('select_node', n); 
+                    if(tree.is_parent(n))
+                    {
+                       $('#tree_container').jstree("open_node", n);
+                    }
+                }
+                else{
+                    showMessage("${messageSource.getMessage('jws.lastTopic')}", "info");
+                    $('#tree_container').jstree('select_node', curr);  
+                }
+                
+        }
+ 
+        var  sn = tree.get_selected (false) ; 
+                          $("#"+sn+"_anchor").focus();
+     }
+function jstree_ajax_search(str, node) {
+  //  console.log("search  "+node.id);
+    return $.inArray(node.id, search_res) >= 0;
+}
     //Code go back to previous page
 function backToWelcomePage() {
-        location.href = contextPath+"/cf/help";
+    location.href = contextPath+"/cf/help";
+}
+//Code to print
+function print() {
+    showMessage("${messageSource.getMessage('jws.comingSoon')}", "info");
 }
 
-function search(event, value) {
-    let searchText = value.toLowerCase();
-       /* let noOfManualVisible = 0;
-        let firstManual;
-        $.each( manual.helpManualDetails, function(index, manual){
-            let divContent = manual.divContent.toLowerCase();
-            if(divContent.indexOf(searchText) !== -1){
-                if(firstManual === undefined){
-                    firstManual = index;
-                }
-                $("#"+manual.manual_entry_id).show();
-                noOfManualVisible++;
-            }else{
-                $("#"+manual.manual_entry_id).hide();
-            }
-        });*/
-         var dataObject = JSON.stringify({
-                    //"finalManualDataList": treeViewMap,
-                    "searchText": searchText,
-                    "manualId":"${mt}"
-                });
+//Code to pdf
+function pdf() {
+    showMessage("${messageSource.getMessage('jws.comingSoon')}", "info");
+}
 
-                    $.ajax({                               
-                                type: "POST",                                   
-                                async: false,
-                                contentType: "application/json",
-                                url: contextPath+"/cf/search",
-                                data:dataObject,
-                                success: function (result) {
-                                   //treeViewMap.set(id[0], data); 
-                                    $("#tree_container").jstree('destroy');
-                                   $("#tree_container").jstree({
-            "core": {                       
-                        "data" : {
-                                   
-                                     'dataFilter' : function (result) {
-                                                    $.each(JSON.parse(result), function(i, data) {
-                                                            treeViewMap.set(data.id, data.entryContent);
-                                                           
-                                                    });
-                                                    return JSON.stringify(JSON.parse(data));
-                                                    
-                                    }
-                           }
-                       
-                    }
-        });
-                                                
-                                }
-                        });      
-      
-}
-function clearManualSearch(){
-	 $('#tree_container').jstree(true).refresh(true);
-}
+
+
 </script>

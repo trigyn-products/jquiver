@@ -1,19 +1,31 @@
 package com.trigyn.jws.dynamicform.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.commons.text.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
+import com.trigyn.jws.dbutils.vo.xml.FileUploadConfigExportVO;
+import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
+import com.trigyn.jws.dbutils.vo.xml.HelpManualTypeExportVO;
+import com.trigyn.jws.dbutils.vo.xml.ManualEntryDetailsExportVO;
 import com.trigyn.jws.dynamicform.dao.HelpManualDAO;
 import com.trigyn.jws.dynamicform.dao.IManualEntryDetailsRepository;
 import com.trigyn.jws.dynamicform.dao.IManualTypeRepository;
@@ -21,12 +33,16 @@ import com.trigyn.jws.dynamicform.entities.ManualEntryDetails;
 import com.trigyn.jws.dynamicform.entities.ManualEntryFileAssociation;
 import com.trigyn.jws.dynamicform.entities.ManualType;
 import com.trigyn.jws.dynamicform.utils.Constant;
+import com.trigyn.jws.dynarest.entities.FileUpload;
+import com.trigyn.jws.dynarest.entities.FileUploadConfig;
+import com.trigyn.jws.dynarest.repository.FileUploadRepository;
+import com.trigyn.jws.dynarest.repository.IFileUploadConfigRepository;
 
 @Service
 @Transactional
 public class HelpManualService {
 
-	private static final Logger logger = LogManager.getLogger(HelpManualService.class);
+	private static final Logger logger = LoggerFactory.getLogger(HelpManualService.class);
 
 	@Autowired
 	private HelpManualDAO helpManualDAO = null;
@@ -35,20 +51,30 @@ public class HelpManualService {
 	private IUserDetailsService detailsService = null;
 
 	@Autowired
-	private IManualTypeRepository iManualTypeRepository = null;
+	private IManualTypeRepository iManualTypeRepository 				= null;
 
 	@Autowired
 	private IManualEntryDetailsRepository iManualEntryDetailsRepository = null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService 		  userDetailsService 			= null;
+	
+	@Autowired
+	private PropertyMasterService 		  propertyMasterService 		= null;
+	
+	@Autowired
+	private FileUploadRepository  		  fileUploadRepository			= null;
+	
+	@Autowired
+	private IFileUploadConfigRepository	  iFileUploadConfigRepository	= null;
+
 
 	public boolean manualTypeExist(String name) {
 		return iManualTypeRepository.existsByName(name);
 		// return helpManualDAO.getManualTypeByName(name);
 	}
 
-	public String saveManualType(String manualId, String name, String isEdit) {
+	public String saveManualType(String manualId, String name, String isEdit, String headerTemplate) {
 		logger.debug("Inside HelpManualService.saveManualType(manualId: {}, name: {}, isEdit: {})", manualId, name,
 				isEdit);
 		UserDetailsVO userDetailsVO = userDetailsService.getUserDetails();
@@ -64,6 +90,7 @@ public class HelpManualService {
 			manualType.setLastUpdatedTs(date);
 		}
 		manualType.setName(name);
+		manualType.setHeaderTemplate(headerTemplate);
 
 		if (manualId != null && StringUtils.isBlank(isEdit) == false && isEdit.equals("1")) {
 			manualType.setManualId(manualId);
@@ -127,7 +154,14 @@ public class HelpManualService {
 
 		helpManualDAO.deleteHelpManualEntryId(manualType, manualEntryId);
 	}
+	
+	public void deleteHelpManualIdEntries(String manualType) {
+		logger.debug("Inside HelpManualService.deleteHelpManualIdEntries(manualType: {}, manualEntryId: {}, sortIndex: {})",
+				manualType);
 
+		helpManualDAO.deleteHelpManualIdEntries(manualType);
+	}
+	
 	public void updateHelpManualEntryId(String manualEntryId, String entryName, String entryContent, String manualId) {
 		logger.debug(
 				"Inside HelpManualService.deleteManualEntryId(manualType: {}, manualEntryId: {}, entryName: {},entryContent{})",
@@ -147,8 +181,8 @@ public class HelpManualService {
 
 	}
 
-	public List<ManualEntryDetails> fetchByNodeId(String nodeId, String manualId) {
-		return iManualEntryDetailsRepository.fetchByNodeId(nodeId, manualId);
+	public List<ManualEntryDetails> fetchByParentAndManualId(String parentId, String manualId) {
+		return iManualEntryDetailsRepository.fetchByParentAndManualId(parentId, manualId);
 
 	}
 
@@ -173,5 +207,74 @@ public class HelpManualService {
 		List<ManualEntryDetails> helpManualEntries = iManualEntryDetailsRepository.searchNode(searchText, manualId);
 		return helpManualEntries;
 	}
+	
+	
+	public Optional<ManualEntryDetails> fetchByManualEntryId(String manualEntryId) {
+		return iManualEntryDetailsRepository.findById(manualEntryId);
 
+	}
+	
+	public String getManualUploadJson(String entityId) throws Exception {
+		ManualType a_manualType =	helpManualDAO.getManualType(entityId);
+		List<ManualEntryDetails>	helpManualEntries		= iManualEntryDetailsRepository
+				.findAllByManualType(entityId);
+		String						fileUploadConfigId	= null;
+		List<ManualEntryDetailsExportVO> manualEntryDetailsVOList = new ArrayList<>();
+		List<FileUpload>			fileUploads				= fileUploadRepository
+				.findAllByFileAssociationId(entityId);
+		List<FileUploadExportVO>	fileUploadExportVOList	= new ArrayList<>();
+		for (FileUpload fu : fileUploads) {
+			fileUploadExportVOList.add(new FileUploadExportVO(fu.getFileUploadId(), fu.getPhysicalFileName(),
+					fu.getOriginalFileName(), fu.getFilePath(), fu.getUpdatedBy(), fu.getLastUpdatedTs(),
+					fu.getFileBinId(), fu.getFileAssociationId()));
+		}
+		
+		String jsonString = "";
+
+			if (helpManualEntries != null) {
+				for (ManualEntryDetails med : helpManualEntries) {
+					manualEntryDetailsVOList.add(new ManualEntryDetailsExportVO(med.getManualEntryId(), med.getManualId(),
+							med.getEntryName(),
+							med.getEntryContent().trim(),
+							med.getSortIndex(), med.getLastUpdatedBy(), med.getLastModifiedOn(), med.getCreatedBy(),med.getCreatedDate(),med.getParentId()));
+
+					if (fileUploads != null && fileUploads.isEmpty() == false)
+						fileUploadConfigId = fileUploads.get(0).getFileBinId();
+				}
+				
+				FileUploadConfigExportVO fileUploadConfigExportVO = null;
+				if (fileUploadConfigId != null) {
+					FileUploadConfig fileUploadConfig = iFileUploadConfigRepository.findById(fileUploadConfigId)
+							.orElseThrow(() -> new Exception("file not found with id : "));
+					fileUploadConfigExportVO = new FileUploadConfigExportVO(fileUploadConfig.getFileBinId(),
+							fileUploadConfig.getFileTypSupported(), fileUploadConfig.getMaxFileSize(),
+							fileUploadConfig.getNoOfFiles(),
+							StringEscapeUtils
+									.unescapeXml("<![CDATA[" + fileUploadConfig.getUploadQueryContent().trim() + "]]>"),
+							StringEscapeUtils.unescapeXml("<![CDATA[" + fileUploadConfig.getViewQueryContent().trim() + "]]>"),
+							StringEscapeUtils
+									.unescapeXml("<![CDATA[" + fileUploadConfig.getDeleteQueryContent().trim() + "]]>"),
+							fileUploadConfig.getIsDeleted(), fileUploadConfig.getLastUpdatedBy(),
+							fileUploadConfig.getLastUpdatedTs());
+				}
+
+				HelpManualTypeExportVO	helpManualTypeVO	= new HelpManualTypeExportVO(a_manualType.getManualId(),
+						a_manualType.getName(), a_manualType.getIsSystemManual(),a_manualType.getHeaderTemplate(),manualEntryDetailsVOList,a_manualType.getCreatedBy(),a_manualType.getCreatedDate(),a_manualType.getLastUpdatedBy(),a_manualType.getLastUpdatedTs(), 
+						fileUploadConfigExportVO,fileUploadExportVOList);
+
+
+				Gson gson = new Gson();
+				ObjectMapper objectMapper = new ObjectMapper();
+				String dbDateFormat = propertyMasterService.getDateFormatByName(
+						com.trigyn.jws.dbutils.utils.Constant.PROPERTY_MASTER_OWNER_TYPE,
+						com.trigyn.jws.dbutils.utils.Constant.PROPERTY_MASTER_OWNER_ID,
+						com.trigyn.jws.dbutils.utils.Constant.JWS_DATE_FORMAT_PROPERTY_NAME,
+						com.trigyn.jws.dbutils.utils.Constant.JWS_JAVA_DATE_FORMAT_PROPERTY_NAME);
+				DateFormat dateFormat = new SimpleDateFormat(dbDateFormat);
+				objectMapper.setDateFormat(dateFormat);
+				Map<String, Object> objectMap = objectMapper.convertValue(helpManualTypeVO, TreeMap.class);
+				jsonString = gson.toJson(objectMap);
+		}
+		return jsonString;
+	}
 }

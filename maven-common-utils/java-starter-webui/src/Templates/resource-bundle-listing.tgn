@@ -1,16 +1,9 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script>      
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/jscal2.js"></script>
 <script type="text/javascript" src="${contextPath!''}/webjars/1.0/JSCal2/js/lang/en.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
 <script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
 
@@ -78,15 +71,18 @@ margin:15px 0;
 </head>
 
 <div class="container">
-        <div class="topband">
-        <h2 class="title-cls-name float-left">${messageSource.getMessage('jws.multilingual')}</h2> 
-        <div class="float-right">
+          <div class="topband">
+        <h2 class="title-cls-name ">${messageSource.getMessage('jws.multilingual')}</h2> 
+        <div class="topactionbuttons">
             <div class="addonbtnblock">
-                        ${messageSource.getMessage('jws.show')}<select id="typeSelect" class="spacingclss typeSelectDropDown" onchange="changeType()" >   
-                            <option value="0">${messageSource.getMessage('jws.all')}</option>                   
-                            <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
-                            <option value="2">${messageSource.getMessage('jws.system')}</option>                 
-                        </select>
+                        <div class="showblock">
+                 <span>${messageSource.getMessage('jws.show')}</span>
+                <select id="typeSelect" class="typeSelectDropDown spacingclss" onchange="changeType()" >   
+                <option value="0">${messageSource.getMessage('jws.all')}</option>                   
+                <option value="1" selected>${messageSource.getMessage('jws.custom')}</option>                   
+                <option value="2">${messageSource.getMessage('jws.system')}</option>                 
+                  </select>       
+                </div> 
        
                     <select id="languageOptions" class="spacingclss typeSelectDropDown languageOptionsClass"  onchange="changeLanguageRB()">
                     <#list languageVOList as languageVO>
@@ -102,10 +98,10 @@ margin:15px 0;
 
                 
 
-                 <button type='button' onclick="importRB()" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.import')}" style="padding: 8px 10px !important;"><i class="fa fa-download"></i>  
+                 <button type='button' onclick="importRB()" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.import')}" ><i class="fa fa-download"></i>  
                   <input type="file" id="my_file" style="display: none;" />                
                  </button>
-                 <button type='button' onclick="exportGrid();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.export')}" style="padding: 8px 10px !important;"><i class="fa fa-upload"></i>                                   
+                 <button type='button' onclick="exportGrid();" class="spacingclss btn btn-secondary" title="${messageSource.getMessage('jws.export')}"><i class="fa fa-upload"></i>                                   
                  </button>
 
                    <button type='button' onclick="submitForm(this)" class="spacingclss btn btn-primary" title="${messageSource.getMessage('jws.back')}">${messageSource.getMessage('jws.addResourceBundle')}</button>
@@ -124,7 +120,7 @@ margin:15px 0;
         
         </div>
         
-               <div class="clearfix"></div> 
+              
         </div>
         
         <div id="divdbResourceBundleGrid" class="tablescrollcls"></div>

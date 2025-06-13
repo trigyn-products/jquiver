@@ -503,7 +503,7 @@ $(function() {
     $.ajax({
         type : "GET",
         async : false,
-        url : contextPath+"/api/dashlet-module-details",
+        url : contextPath+apiPath+"/dashlet-module-details",
         data : {
             startDate: startDate,
             endDate: endDate,

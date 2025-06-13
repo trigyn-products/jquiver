@@ -210,7 +210,7 @@ REPLACE INTO jq_template_master (template_id, template_name, template, updated_b
 				   		  	$.ajax({
 								type : "POST",
 								async: false,
-								url : contextPath+"/api/saveDDOSDetails",
+								url : contextPath+apiPath+"/saveDDOSDetails",
 								data : {
 								   	ddosPageCount : $("#ddosPageCount").val(),
 								   	ddosSiteCount : $("#ddosSiteCount").val(),

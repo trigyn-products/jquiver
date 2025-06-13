@@ -2,8 +2,6 @@ package com.trigyn.jws.usermanagement.utils;
 
 import java.util.Hashtable;
 
-import javax.naming.Context;
-
 import org.springframework.ldap.core.support.LdapContextSource;
 
 /**
@@ -21,7 +19,7 @@ public class SSLLdapContextSource extends LdapContextSource {
         Hashtable<String, Object> anonymousEnv = super.getAnonymousEnv();
         anonymousEnv.put("java.naming.security.protocol", "ssl");
         anonymousEnv.put("java.naming.ldap.factory.socket", LDAPCustomSSLSocketFactory.class.getName());
-        anonymousEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+//        anonymousEnv.put("java.naming.factory.initial", "com.sun.jndi.ldap.LdapCtxFactory");
         return anonymousEnv;
     }
 

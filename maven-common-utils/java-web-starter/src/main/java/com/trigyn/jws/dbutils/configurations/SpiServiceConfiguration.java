@@ -1,7 +1,7 @@
 package com.trigyn.jws.dbutils.configurations;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 @Configuration
 public class SpiServiceConfiguration {
 
-	private final static Logger logger = LogManager.getLogger(SpiServiceConfiguration.class);
+	private final static Logger logger = LoggerFactory.getLogger(SpiServiceConfiguration.class);
 
 	@ConditionalOnMissingBean
 	@Bean

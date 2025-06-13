@@ -112,7 +112,7 @@ public final class Constants {
 	public enum Modules {
 
 		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
-		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"), FILEBIN("File Bin"),
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), ROUTER("Router"), FILEBIN("File Bin"),
 		HELPMANUAL("Help Manual"),DASHLETS("DashLets");
 
 		final String moduleName;

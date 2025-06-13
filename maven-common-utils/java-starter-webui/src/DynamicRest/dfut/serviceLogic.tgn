@@ -1,0 +1,9 @@
+var System = Java.type('java.lang.System');
+var HashMap =  Java.type("java.util.HashMap");
+function deleteTempFileById(requestDetails) {
+    var params = new HashMap();   
+    params.put("fileUploadId", requestDetails["fileUploadId"]);
+    jq_updateDBQuery("DELETE FROM jq_file_upload_temp WHERE file_upload_id = :fileUploadId", null, params);
+}
+
+deleteTempFileById(requestDetails);

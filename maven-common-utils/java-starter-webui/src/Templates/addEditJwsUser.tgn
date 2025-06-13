@@ -1,11 +1,4 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <link rel="stylesheet" type="text/css" href="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.css" />
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dropzone/dist/dropzone.js"></script>
 <script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/fileupload/fileupload.js"></script>
@@ -13,21 +6,20 @@
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">
+        <h2 class="title-cls-name">
         <#if (jwsUser?api.getUserId())??>
                 ${messageSource.getMessage('jws.edituser')}
              <#else>
                 ${messageSource.getMessage('jws.addUser')}
              </#if>
         </h2> 
-        <div class="clearfix"></div>        
-    </div>
+     </div>
   <form method="post" name="addEditUser" id="addEditUser">
             <div class="row">
             <input type="hidden" id="userId" name="userId"/>
             <div class="col-3">
             <div class="col-inner-form full-form-fields">
-                    <label for="firstName" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                    <label for="firstName" ><span class="asteriskmark">*</span>
                       ${messageSource.getMessage('jws.firstName')}
                     </label>
                 <input type="text" id="firstName" name="firstName"  value="" maxlength="100" class="form-control">
@@ -35,7 +27,7 @@
         </div>
          <div class="col-3">
             <div class="col-inner-form full-form-fields">
-                    <label for="lastName" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                    <label for="lastName" ><span class="asteriskmark">*</span>
                       ${messageSource.getMessage('jws.lastName')}
                     </label>
                 <input type="text" id="lastName" name="lastName"  value="" maxlength="100" class="form-control">
@@ -44,7 +36,7 @@
     
             <div class="col-3">
             <div class="col-inner-form full-form-fields">
-                    <label for="email" style="white-space:nowrap"><span class="asteriskmark">*</span>
+                    <label for="email" ><span class="asteriskmark">*</span>
                       ${messageSource.getMessage('jws.email')}
                     </label>
                 <input type="email" id="email" name="email"  value="" maxlength="2000" class="form-control">
@@ -106,7 +98,7 @@
              <#list roles as role>
                 <div class="col-3">
                     <div class="col-inner-form full-form-fields">
-                            <label for="${role?api.getRoleId()}" style="white-space:nowrap">
+                            <label for="${role?api.getRoleId()}" >
                               ${role?api.getRoleName()}
                             </label>
                            <div class="onoffswitch">
@@ -128,12 +120,12 @@
         
          <div class="row">
             <div class="col-12">
-                <div id="buttons" class="pull-right">
+                <div id="buttons" class="text-end">
                     <div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
                             <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('add-edit-user', this, isEdit, saveData , backToPreviousPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
-                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
                         <div class="dropdown-menu action-cls"  id="actionDiv">
                             <ul class="dropdownmenu">
                                 <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('add-edit-user', this, isEdit, saveData, backToPreviousPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -149,7 +141,7 @@
             </div>
               <div class="row">
             <div class="col-12">
-                <div class="float-right">
+                <div class="text-end">
                     <input  class="btn btn-primary" value="${messageSource.getMessage('jws.save')}" type="button" onclick="saveData();">
                     <span onclick="backToPreviousPage();">
                         <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
@@ -178,7 +170,7 @@
     if(userId!="") {
         isEdit=1;
     }
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
   	var fileBins = new Array();
     var fileBinDisplayTexts = null;
   	let profilePicDropZone = $(".fileupload").fileUpload({
@@ -384,7 +376,7 @@
         $.ajax({
                 type : "GET",
                 async: false,
-                url : contextPath+"/api/validate-user-email-id",
+                url : contextPath+apiPath+"/validate-user-email-id",
                 data : {
                     email:  $("#email").val().trim()
                 },

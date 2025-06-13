@@ -1,28 +1,20 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 </head>
 
 <div class="container">
     <div class="topband">
-        <h2 class="title-cls-name float-left">jq-script-lib-connect</h2> 
-        <div class="float-right">
+        <h2 class="title-cls-name">jq-script-lib-connect</h2> 
+        <div class="topactionbuttons">
              <button type="submit" class="btn btn-primary" onclick="upsert(null)"> Create New </button>
             <span onclick="backToWelcomePage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="Back" type="button">
             </span> 
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
     <div class="table_responsive">
          <div class="cursor show"></div>  
@@ -33,7 +25,8 @@
 </div>
 
 <script>
-    contextPath = "${(contextPath)!''}";
+    //contextPath = "${(contextPath)!''}";
+    //viewPath = "${(viewPath)!''}";
     let primaryKeyDetails = {"scriptlibconnid":""};
      let listingData  = [];
     $(function () {
@@ -109,7 +102,7 @@
     }
 
     function upsert(a_rowID){
-    	let redirectURL = contextPath+"/view/jq-script-lib-connect-f";
+    	let redirectURL = contextPath+viewPath+"/jq-script-lib-connect-f";
         if(a_rowID != null && a_rowID != undefined && a_rowID >= 0){
     			redirectURL += '?scriptlibconnid=' + listingData[a_rowID]["script_lib_conn_id"];
     	}

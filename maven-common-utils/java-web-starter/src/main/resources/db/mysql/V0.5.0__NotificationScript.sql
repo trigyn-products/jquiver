@@ -13,5 +13,5 @@ CREATE TABLE jq_generic_user_notification (
   updated_by varchar(50) DEFAULT NULL,
   updated_date timestamp NULL DEFAULT NULL,
   PRIMARY KEY (notification_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 

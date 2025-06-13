@@ -1,0 +1,17 @@
+var HashMap =  Java.type('java.util.HashMap');
+var System = Java.type('java.lang.System');
+var params = new HashMap();
+var queryParam = new HashMap();
+
+function fetchHeaderData(){ 
+	
+    params.put("manualId", requestDetails["manualId"]);
+       
+    var queryResult = jq_getDBResult("SELECT name, header_template FROM jq_manual_type WHERE manual_id =  :manualId  ", null, params);    
+        if(queryResult != null) {
+            return queryResult.data_list[0];
+        }
+    
+}
+
+fetchHeaderData();

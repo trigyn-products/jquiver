@@ -1,0 +1,23 @@
+services:
+  api_service:
+    build: .
+    restart: always
+    ports:
+# Below is the port where application is running
+      - ${APPLICATION_PORT}:${APPLICATION_PORT}
+# Below lines should be uncommented, when we have to create database in docker and use it.
+    #depends_on:
+    #  - maria_db
+    #command: sh -c './wait-for mysql_db:3306 -- npm start'  
+#  maria_db:
+#    image: "mariadb:11.7.2"  # MariaDB version
+#    restart: always
+## Below are the details of MariaDB when its installed and used from docker
+#    environment:
+#      MYSQL_DATABASE: ${DB_NAME}
+#      MYSQL_USER: ${DB_USERNAME} 
+#      MYSQL_PASSWORD: ${DB_PASSWORD}
+#      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}    
+#    ports:
+## Below is the port on which mariadb is running
+#      - ${DB_PORT}:${DB_PORT}

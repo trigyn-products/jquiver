@@ -4,6 +4,11 @@
 <#macro resourceBundleWithDefault resourceKey defaultValue>
 	${messageSource.getMessageWithDefault(resourceKey, defaultValue)}
 </#macro>
+<#macro validateRegex regexPattern fieldValue fieldName dataType>
+  <#if (fieldValue?? && fieldValue?has_content) && !dynamicTemplate.validateRegex(regexPattern, fieldValue, fieldName, dataType)>
+    <#assign hasError = true>    
+  </#if>
+</#macro>
 <#function getSystemProperty keyName>    
 	<#list systemProperties as key, value>  
 		<#if key.propertyName == keyName>  

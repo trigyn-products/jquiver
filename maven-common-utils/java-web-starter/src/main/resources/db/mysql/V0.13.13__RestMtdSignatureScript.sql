@@ -8,4 +8,4 @@ CREATE TABLE `jq_rest_mtd_signature` (
   `help` mediumtext DEFAULT NULL,
   `description` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`help_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+);

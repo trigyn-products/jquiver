@@ -3,21 +3,20 @@ package com.trigyn.jws.dynamicform.entities;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
 
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_manual_type")
 public class ManualType {
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "manual_id")
 	private String manualId = null;
 
@@ -38,6 +37,9 @@ public class ManualType {
 
 	@Column(name = "last_updated_ts")
 	private Date lastUpdatedTs = null;
+	
+	@Column(name = "header_template")
+	private String headerTemplate = null;
 
 	public ManualType() {
 
@@ -49,10 +51,11 @@ public class ManualType {
 //		this.isSystemManual = isSystemManual;
 //	}
 
-	public ManualType(String manualId, String name, Integer isSystemManual,String createdBy,Date createdDate,String	lastUpdatedBy,Date	lastUpdatedTs) {
+	public ManualType(String manualId, String name, Integer isSystemManual,String headerTemplate,String createdBy,Date createdDate,String	lastUpdatedBy,Date	lastUpdatedTs) {
 		this.manualId		= manualId;
 		this.name			= name;
 		this.isSystemManual	= isSystemManual;
+		this.headerTemplate = headerTemplate;
 		this.createdBy=createdBy;
 		this.createdDate=createdDate;
 		this.lastUpdatedBy=lastUpdatedBy;
@@ -114,10 +117,18 @@ public class ManualType {
 	public void setLastUpdatedTs(Date lastUpdatedTs) {
 		this.lastUpdatedTs = lastUpdatedTs;
 	}
+	
+	public String getHeaderTemplate() {
+		return headerTemplate;
+	}
+
+	public void setHeaderTemplate(String headerTemplate2) {
+		this.headerTemplate = headerTemplate2;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(isSystemManual, manualId, name, createdBy, createdDate, lastUpdatedBy, lastUpdatedTs);
+		return Objects.hash(isSystemManual, manualId, name, createdBy, createdDate, lastUpdatedBy, lastUpdatedTs,headerTemplate);
 	}
 
 	@Override
@@ -147,5 +158,5 @@ public class ManualType {
 				.append(", lastUpdatedTs=").append(lastUpdatedTs).append("]");
 		return builder.toString();
 	}
-
+	
 }

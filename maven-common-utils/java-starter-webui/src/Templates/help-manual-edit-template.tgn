@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css"/>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/jquery-modal/jquery.modal.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
@@ -82,7 +75,7 @@
     <div class="topband">
       <!--  <h2 class="title-cls-name float-left"></h2> -->
          <h2 id="title" class="title-cls-name float-left help-manual-title"> </h2>
-        <div class="float-right">
+        <div class="topactionbuttons">
              <div class="addonbtnblock">
               <button type='button'id="create_btn" class="spacingclss btn btn-secondary">
                   ${messageSource.getMessage('jws.createTopic')}</button>  
@@ -92,8 +85,7 @@
         </div>
         </div>
         
-        <div class="clearfix"></div>        
-    </div>
+     </div>
         
    <form method="post" name="addEditForm" id="addEditForm">
         <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -115,12 +107,12 @@
    </form>
      <div class="row">
         <div class="col-12">
-            <div class="float-right">
+            <div class="text-end">
                 <div class="btn-group dropup custom-grp-btn">
                     <div id="savedAction">
                         <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('782a16eb-2dd7-49bf-ad4f-e31bcb983f68', this, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </div>
-                    <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+                    <button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
                     <div class="dropdown-menu action-cls" id="actionDiv">
                         <ul class="dropdownmenu">
                             <li id="saveAndEdit" onclick="typeOfActionWithIsEdit('782a16eb-2dd7-49bf-ad4f-e31bcb983f68', this, isEdit);">
@@ -156,19 +148,21 @@
         return manual["manual_id"] == "${mt!''}"
     })["name"]); 
     const treeViewMap = new Map();
-    const changedTreeViewMap = new Map(); 
+    const changedTreeViewMap = new Map();     
+    const changedContentNodeMap = []; 
     const newAndModifiedMap=new Map();
     const deletedManualDataList=[];
     const renameManualDataList=[];
     var deletedNodeList=new Array();
+
      dropzone = $(".fileupload").fileUpload({
             fileBinId : "helpManual",
-            fileAssociationId:"${mt}",
+            fileAssociationId:"",
             createFileBin : true,
             renderer: fileConfigRenderer,
             successcallback: showFileDataInEntryContent.bind(this),
             deletecallback: deleteFileDataInEntryContent.bind(this)
-        });
+    }); 
      
     let simplemde = new SimpleMDE({
                                     renderingConfig: {
@@ -212,7 +206,7 @@
                                                         }
                                                     else{
                                                         //simplemde.value(content);
-                                                        simplemde.value("");
+                                                        //simplemde.value("");
                                                     }
                                                 
                                                 }
@@ -310,9 +304,7 @@
                                                                     }
                                                                 },
                                                         ]
-                                                     });
-                                            
-                                        
+                                                     });                                                      
                                     }
                                     }
 							return items;
@@ -320,13 +312,13 @@
 					},
 					    'plugins' : ['themes','types','contextmenu']
         }).bind("loaded.jstree", function (event, data) {
-                        data.instance.select_node('ul > li:first');                       
+                        data.instance.select_node('ul > li:first');     
+                       //  data.instance.open_node('ul > li:first');                  
                     }).on('open_node.jstree', function (event, data) {
       data.instance.set_type(data.node, 'open');
    }).on('close_node.jstree', function (event, data) {
       data.instance.set_type(data.node, 'closed');
-   });
-             
+   });             
 
       var id=$('#tree_container').jstree('get_selected');
       hideShowActionButtons();
@@ -364,7 +356,23 @@
                         simplemde.value(content);
                     }
                     else{
-                        simplemde.value("");
+                          //simplemde.value("");
+                          $.ajax({
+                                async: true,
+                                type: "Get",
+                                url: contextPath+"/cf/hmfc",
+                                data:{"id":id[0]},
+                                success: function (data) {
+                                   treeViewMap.set(id[0], data); 
+                                  // const  finalcontent1= data.replaceAll("/cf/files/", contextPath + "/cf/files/")
+                                      simplemde.value(data);
+                                      // $("#previewDiv").css('display', 'none');
+                                      // $('#previews').html("");
+                                      // $('#previews').wrapInner(simplemde.options.previewRender(simplemde.value()));
+                                       //$("#contentDiv").scrollTop(0);
+                                       
+                                }
+                        });
                     }
                 }
                 if(!flag && id_flag) {
@@ -372,29 +380,89 @@
                 }
             
             }
-    });     
+    }); 
+ 
+     $("#tree_container").on("select_node.jstree", function(event, node) {
+          
+        var selected_Node_Id =$('#tree_container').jstree('get_selected');
+       // selected_Node_Id= node.instance.get_selected();
+        if(!selected_Node_Id[0].startsWith("j1_")) 
+           {               
+               dropzone.options.fileAssociationId = selected_Node_Id[0];
+               dropzone.getSelectedFiles();
+            } 
+        else 
+            {         
+               dropzone.disableDropZone("You can't edit");              
+               $(".fileupload").on("click", function(event) {
+                   var id=$('#tree_container').jstree('get_selected');
+                    if(id[0].startsWith("j1_")) 
+                    {
+                        showMessage("Files can be uploaded only after saving the node.","warn");
+                        return false;
+                    }
+            });	           
+        }       
+    }); 
+ 
     //document.getElementById("entrycontent").addEventListener("click", myFunction);
     // document.getElementByTagName("textarea").addEventListener("change", contentChange);
      // document.getElementByTagName("textarea").addEventListener("keyup", contentChange);
-    $('textarea').on('propertychange input select change paste keyup blur',function(event) {
+    $('textarea').on(' propertychange input select paste keyup',function(event) {
     
         entryContentChange();
       
     });
 	function entryContentChange()
     {
+        
         var previousNodeId = localStorage.getItem('selectedNodeId');   
         if(changedTreeViewMap.get(previousNodeId)!=simplemde.value())
         {
-            changedTreeViewMap.set(previousNodeId, simplemde.value()); 
-            newAndModifiedMap.set(previousNodeId, simplemde.value()); 
+            if(changedContentNodeMap.length==10)
+                { 
+                    if (!changedContentNodeMap.includes(previousNodeId)) 
+                    {                    
+                        if(changedTreeViewMap.get(previousNodeId)!=null) {
+                            simplemde.value(changedTreeViewMap.get(previousNodeId));
+                        }
+                        else
+                        {
+                            simplemde.value("");
+                             
+                        }
+                        $('#tree_container').jstree().delete_node($('#'+previousNodeId));
+                        $("#exceedDiv").dialog({
+                            title:"Save and Proceed",
+                            buttons: [ { text: "OK" , click: function() { $( this ).dialog( "close" ); } } ]
+                          });
+                         
+                    } 
+                    else{
+                         changedTreeViewMap.set(previousNodeId, simplemde.value()); 
+                        newAndModifiedMap.set(previousNodeId, simplemde.value()); 
+                    }
+
+
+                 }
+                 else{
+                       if (!changedContentNodeMap.includes(previousNodeId)) {
+                            changedContentNodeMap.push(previousNodeId);
+                            } 
+                    
+                        changedTreeViewMap.set(previousNodeId, simplemde.value()); 
+                        newAndModifiedMap.set(previousNodeId, simplemde.value()); 
+                 }
+          
         }
+      
+      
     }
   
      $('#tree_container').on("rename_node.jstree", function (e, data) {
             
              var new_Name = data.node.text;
-            if(new_Name.length>100)
+            if(new_Name.length>500)
             {
                 showMessage("${messageSource.getMessage('jws.topicNameLenghtValidation')}","error")
                  var tree = $("#tree_container").jstree(true);
@@ -500,7 +568,6 @@
                     "finalManualDataList": finalManualDataList,
                     "formData": fileBins
                 });
-
      }
         $.ajax({
                 type : "POST",             
@@ -510,6 +577,7 @@
                 data :dataObject,
                 success : function(data) {
                     isDataSaved = true;
+                   // $('#tree_container').jstree(true).deselect_all();
                     dropzone.enableDropZone(data);
                     $("#manualentryid").val(data);
                     showMessage("${messageSource.getMessage('jws.informationSavedSuccessfully')}", "success");
@@ -526,7 +594,12 @@
         return isDataSaved;
     }
     $('#tree_container').on("refresh.jstree", function(e) {
-  $('#tree_container').jstree('select_node', 'ul > li:first');
+       // var previousNodeId = localStorage.getItem('selectedNodeId'); 
+        $('#tree_container').jstree(true).deselect_all();
+       $('#tree_container').jstree('select_node', 'ul > li:first');
+       var firstNodeSet = localStorage.getItem('selectedNodeId'); 
+       localStorage.setItem('selectedNodeId', firstNodeSet);
+       //localStorage.setItem('selectedNodeId', id);
 });
 
         function fileConfigRenderer(fileObj) {
@@ -560,11 +633,12 @@
     }
 
     function deleteFileDataInEntryContent(fileId) {
-        let content = $("#entrycontent").val();
-        content = content.replaceAll(" ![](/cf/files"+fileId+")");
+        let content = simplemde.value();
+        content = content.replaceAll("![](/cf/files/"+fileId+")"," ");
         simplemde.value(content);
         entryContentChange();
     }
+
     function fileName(fileName){
         showMessage("${messageSource.getMessage('jws.fileName')}: " + fileName, "success");
     }

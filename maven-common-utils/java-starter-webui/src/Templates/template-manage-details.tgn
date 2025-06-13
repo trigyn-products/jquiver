@@ -1,10 +1,5 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
 <script src="${(contextPath)!''}/webjars/1.0/monaco/require.js"></script>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 <script src="${(contextPath)!''}/webjars/1.0/monaco/min/vs/loader.js"></script>
 
 </head>
@@ -30,8 +25,7 @@
 	        </#if>
 	    </div>
                               
-        <div class="clearfix"></div>                         
-    </div>
+     </div>
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<div class="row">
@@ -54,8 +48,8 @@
    
          <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
          
-         		 <a class="tipsicon collapsed " data-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
-                    <i class="fa fa-lightbulb-o" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
+         		 <a class="tipsicon collapsed " data-bs-toggle="collapse" href="#tipscolpase" role="button" aria-expanded="false">
+                    <i class="fa fa-solid fa-lightbulb" aria-hidden="true"></i>${messageSource.getMessage('jws.tips')}
                 </a>
 
                 <div class="collapse" id="tipscolpase">
@@ -89,12 +83,12 @@
                
 		<div class="row margin-t-10">
 			<div class="col-12">
-				<div class="float-right">
+				<div class="text-end">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('template-manage-details', this, isEdit, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
-		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		        	<button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
 		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('template-manage-details', this, isEdit, templateMaster.validateSaveVelocity.bind(templateMaster), templateMaster.backToTemplateListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -114,6 +108,10 @@
 <script>
 	document.title = "Manage Template Details"; 
     contextPath = "${(contextPath)!''}";
+    var env = '${(environment)!""}';
+    if(env == "" || env != "dev" || env == undefined){
+        env = "prod";
+    }
     let monacoSugg;
     let suggestionArray;
 	const ftlTemplateId = "${(templateDetails.templateId)!0}";
@@ -134,10 +132,11 @@
 			$("#defaultTemplateDiv").show();
 			$.ajax({
 				type : "GET",
-				url : contextPath+"/api/defaultTemplates",
+				url : contextPath+apiPath+"/defaultTemplates",
 				success : function(data){ 
                 
                     defaultTemplates = data["defaultTemplates"];
+                    $("#defaultTemplateId").append("<option id='-1'>--Select--</option>");
 					for(let counter = 0; counter < defaultTemplates.length; ++counter) {
                        let defaultArray = defaultTemplates[counter]["NAME"];
                        let splitValue = defaultArray.split('-');
@@ -158,6 +157,10 @@
                        $("#defaultTemplateId").append("<option id='"+defaultArray+"'>"+result+"</option>");
 					}
 					$("#defaultTemplateId").change(function(event){
+						if(event.currentTarget.selectedOptions[0].id == '-1'){
+							templateMaster.editor.setValue('');
+                           
+						}
                         for(var iCounter=0; iCounter<defaultTemplates.length;iCounter++) {
                             if(event.currentTarget.selectedOptions[0].id == defaultTemplates[iCounter]["NAME"]) {
                                 templateMaster.editor.setValue(defaultTemplates[iCounter].template);

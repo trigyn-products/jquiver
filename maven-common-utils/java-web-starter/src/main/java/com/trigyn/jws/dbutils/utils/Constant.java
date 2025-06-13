@@ -39,6 +39,10 @@ public final class Constant {
 	public static final String	JWS_JAVA_DATE_FORMAT_PROPERTY_NAME	= "java";
 	public static final String	MESSAGE_TEXT						= "Notification is valid for 1 month";
 	public static final Integer MASTER_SOURCE_VERSION_TYPE 			= 1;
+	public static final String 	MSSQLSERVER 						= "sqlserver";
+	public static final String 	POSTGRESQL 							= "postgresol";
+	public static final String 	ORACLE 								= "oracle";
+	private static final int 	MSSQL_DATETIMEOFFSET 				= -155;
 
 	public enum RecordStatus {
 		INSERTED(0), DELETED(1);
@@ -57,7 +61,7 @@ public final class Constant {
 	public enum MasterModuleType {
 		TEMPLATES("Templates"), AUTOCOMPLETE("Autocomplete"), RESOURCEBUNDLE("ResourceBundle"), DASHBOARD("Dashboard"),
 		DASHLET("Dashlets"), DYNAREST("DynaRest"), DYNAMICFORM("DynamicForm"), GRID("Grid"),
-		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), SITELAYOUT("SiteLayout"),
+		NOTIFICATION("Notification"), FILEMANAGER("FileManager"), PERMISSION("Permission"), ROUTER("Router"),
 		APPLICATIONCONFIGURATION("ApplicationConfiguration"), MANAGEUSERS("ManageUsers"), MANAGEROLES("ManageRoles"),
 		HELPMANUAL("HelpManual"), APICLIENTDETAILS("ApiClientDetails"), ADDITIONALDATASOURCE("AdditionalDatasource"),
 		SCHEDULER("Scheduler");

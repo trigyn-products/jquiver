@@ -1,8 +1,8 @@
 <script src="${(contextPath)!''}/webjars/1.0/manuals/helpmanual.js"></script>
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/highlight/github.min.css" />
 <script src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
+<script src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
 
 <div class="container-fluid ">
     <div class="pg-manual-display">
@@ -68,7 +68,7 @@
             
     <script>
     document.title = "JQuvier Help Manual";
-    contextPath = "${contextPath}";
+    //contextPath = "${contextPath}";
     <#if !mt?? || !mt?has_content>
         location.href = contextPath+"/cf/not-found";
     </#if>

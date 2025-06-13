@@ -12,9 +12,13 @@ import com.trigyn.jws.dbutils.cipher.utils.AESCipherUtilFactory;
 import com.trigyn.jws.dbutils.cipher.utils.CipherUtilFactory;
 import com.trigyn.jws.dbutils.service.ApplicationContextProvider;
 import com.trigyn.jws.usermanagement.security.config.JwtUtil;
+import com.trigyn.jws.webstarter.utils.JQuiverProperties;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class HttpClient {
 	
 	
@@ -22,11 +26,15 @@ public class HttpClient {
 
 	private static UserDetailsService		userDetailsService		= ApplicationContextProvider
 			.getBean(UserDetailsService.class);
+	
+	@Autowired
+	private static JQuiverProperties 			jQuiverPropeties 			= null;
+	
 
 	public static void main(String[] args) {
 		try {
 			
-			String requestURL = "http://localhost:8080/api/manual-entry-sequence?manualType=07cf45ae-2987-11eb-a9be-e454e805e22f";
+			String requestURL = "http://localhost:8080"+jQuiverPropeties.getApiPath()+"/manual-entry-sequence?manualType=07cf45ae-2987-11eb-a9be-e454e805e22f";
 			
 
 //			AESCipherUtil			cu					= new AESCipherUtil();

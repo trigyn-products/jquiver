@@ -2,13 +2,7 @@ package com.trigyn.jws.usermanagement.entities;
 
 import java.util.Calendar;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "jq_reset_password_token")

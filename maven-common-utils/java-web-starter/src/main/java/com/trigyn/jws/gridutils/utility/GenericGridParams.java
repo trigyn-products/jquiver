@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -23,6 +21,8 @@ import com.google.gson.reflect.TypeToken;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.gridutils.utility.Constants.Comparator;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 public class GenericGridParams {
 	private String sortIndex = null;
 	private String sortOrder = null;
@@ -31,6 +31,7 @@ public class GenericGridParams {
 	private int startIndex = Integer.MIN_VALUE;
 	private FilterParams filterParams = null;
 	private Map<String, Object> criteriaParams = null;
+	private boolean isMobile = false;
 
 	public GenericGridParams() {
 		super();
@@ -170,9 +171,24 @@ public class GenericGridParams {
 					 * else { obj = request.getParameter(reqParamKey); }
 					 */
 				this.criteriaParams.put(reqParamKey.replace("cr_", ""), obj);
+			} else if (reqParamKey.contains("additionalParameters") ) {
+				String additonalParamStr = request.getParameter(reqParamKey).toString();
+				Map<String, String> additonalParamMap = new Gson().fromJson(additonalParamStr,
+						new TypeToken<Map<String, String>>() {
+						}.getType());
+				if (CollectionUtils.isEmpty(additonalParamMap) == false) {
+					for (Map.Entry<String, String> additionalParam : additonalParamMap.entrySet()) {
+						if ("mobile".equals(additionalParam.getKey()) 
+								&& additionalParam.getValue().contains("true")) {
+							this.isMobile = true;
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
+	
 
 	public GenericGridParams(String sortIndex, String sortOrder, int rowsPerPage, JSONObject jsonObj)
 			throws JsonProcessingException, IOException, JSONException {
@@ -259,10 +275,11 @@ public class GenericGridParams {
 			this.setFilterParams(filterParams);
 		}
 		
-		Set<String> reqParamKeys = request.getParameterMap().keySet();
 		if (filterParams.getGroupOp() == null) {
 			filterParams.setGroupOp("AND");
 		}
+
+		Set<String> reqParamKeys = request.getParameterMap().keySet();
 		for (String reqParamKey : reqParamKeys) {
 			SearchFields searchField = new SearchFields();
 			if (reqParamKey.contains("cr_")) {
@@ -296,6 +313,11 @@ public class GenericGridParams {
 						this.criteriaParams = new HashMap<String, Object>();
 					}
 					for (Map.Entry<String, String> additionalParam : additonalParamMap.entrySet()) {
+						if ("m".equals(additionalParam.getKey()) 
+								&& additionalParam.getValue().contains("true")) {
+							this.isMobile = true;
+						}
+						
 						Object obj = null;
 						if (additionalParam.getValue().contains("int_")) {
 							obj = Long.parseLong(additionalParam.getValue().replace("int_", ""));
@@ -380,6 +402,14 @@ public class GenericGridParams {
 
 	public void setCriteriaParams(Map<String, Object> criteriaParams) {
 		this.criteriaParams = criteriaParams;
+	}
+
+	public boolean isMobile() {
+		return isMobile;
+	}
+
+	public void setMobile(boolean isMobile) {
+		this.isMobile = isMobile;
 	}
 
 }

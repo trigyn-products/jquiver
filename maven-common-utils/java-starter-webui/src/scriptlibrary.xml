@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<scriptLibraryData>
+    <scriptLibraryDetails>
+        <createdBy>anonymous</createdBy>
+        <description>Create Table Script</description>
+        <isCustomUpdated>1</isCustomUpdated>
+        <libraryName>createFormDataTbl</libraryName>
+        <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
+        <scriptLibraryConnection>
+            <createdBy>anonymous</createdBy>
+            <entityId>3722482e-c18f-4120-9fd5-f4ed5bf7e24a</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
+            <scriptlibconnId>9eef7976-b451-4a9c-8b0e-7fbd2fe242e7</scriptlibconnId>
+            <updatedBy>anonymous</updatedBy>
+            <updatedDate>2025-05-01T16:05:05+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptLibraryConnection>
+            <createdBy>anonymous</createdBy>
+            <entityId>02943afd-4855-4e57-a596-9c3fc09e12e1</entityId>
+            <isCustomUpdated>1</isCustomUpdated>
+            <moduletypeId>47030ee1-0ecf-11eb-94b2-f48e38ab9348</moduletypeId>
+            <scriptLibId>a2a7e46b-f9af-11ef-9980-7c8ae1bb24d8</scriptLibId>
+            <scriptlibconnId>d98429a3-c9d8-496b-b160-43a007a0a304</scriptlibconnId>
+            <updatedBy>anonymous</updatedBy>
+            <updatedDate>2025-05-01T16:04:51+05:30</updatedDate>
+        </scriptLibraryConnection>
+        <scriptType>1</scriptType>
+        <templateId>27beb436-741a-4753-9fff-dacb5d689fed</templateId>
+        <updatedBy>anonymous</updatedBy>
+        <updatedDate>2025-05-05T19:09:44+05:30</updatedDate>
+    </scriptLibraryDetails>
+</scriptLibraryData>

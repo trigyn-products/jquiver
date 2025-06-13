@@ -5,16 +5,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "jq_language")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "languages") // Provide cache strategy.
 public class Language implements Serializable {
 
 	private static final long		serialVersionUID	= 4495981831880458994L;

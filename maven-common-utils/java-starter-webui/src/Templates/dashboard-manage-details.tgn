@@ -25,9 +25,9 @@
 		<div class="row topband">
 			<div class="col-4">
 				<#if (dashboard?api.getDashboardId())?? && (dashboard?api.getDashboardId())?has_content>
-				    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashboard")}</h2> 
+				    <h2 class="title-cls-name">${messageSource.getMessage("jws.editDashboard")}</h2> 
 		        <#else>
-		            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashboard")}</h2>  
+		            <h2 class="title-cls-name">${messageSource.getMessage("jws.addDashboard")}</h2>  
 		        </#if>
 		   	</div>
 	    
@@ -42,8 +42,7 @@
 	     		</#if> 
 			</div>
 			
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 
 	<div id="formDiv">
 		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -53,25 +52,24 @@
 			
 			<div class="col-4" id="dashboardTypeDiv">
 				<div class="col-inner-form full-form-fields">
-					<label for="flammableState" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
+					<label for="flammableState" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.dashboardName")}</label>
 					<input type="text"  id = "dashboardName" name = "dashboardName" value = "${(dashboard?api.getDashboardName())!''}" maxlength="100" class="form-control">
 				</div>
 			</div>
 		
          <div class="col-4">
             <div class="col-inner-form full-form-fields">
-				<label for="associatedDashlets" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.dashlets')}</label>
+				<label for="associatedDashlets" ><span class="asteriskmark">*</span>${messageSource.getMessage('jws.dashlets')}</label>
 				<div class="search-cover">
 					<input class="form-control" id="associatedDashlets" type="text">
 					<i class="fa fa-search" aria-hidden="true"></i>
             	</div>
  			</div>
  </div>		
- <div class="clearfix"></div>
-    		
+     		
              <div class="col-4">
 				<div id="draagableDiv" class="flexpoerpty">
-                    <label class="pull-left" for="isDraggableId">${messageSource.getMessage("jws.draggableDashboard")}</label>
+                    <label class="pull-left" for="isDraggableId" style="    margin-bottom: 10px;">${messageSource.getMessage("jws.draggableDashboard")}</label>
                     <label class="newswitch">
                       <input type="checkbox" id="isDraggableId"  name="isDraggable" value="${(dashboard?api.getIsDraggable())!''}" ${(dashboard?api.getIsDraggable()==1)?then("checked" , "")} onclick="addEditDashboardFn.changeDraggableValue();">
                        <span class="slider round"></span>
@@ -96,7 +94,7 @@
 		<div class="col-12">
 			<h3 class="titlename"><span class="asteriskmark">*</span>Dashboard Header</h3>
 			<div class="html_script">
-				<div class="grp_lblinp">
+				<div class="grp_lblinp" >
 					<div id="htmlContainer" class="ace-editor-container">
 						<div id="htmlEditor" class="ace-editor"></div>
 					</div>
@@ -109,7 +107,7 @@
      	</div>
 	 
 	 	<div class="row">
-			<div class="col-3">   
+			<div class="col-3" style="margin-top:20px">   
 	 			<input id="moduleId" value="b0f8646c-0ecf-11eb-94b2-f48e38ab9348" name="moduleId" type="hidden">
     			<@templateWithoutParams "role-autocomplete"/>
     		</div>
@@ -117,12 +115,12 @@
 		
 		<div class="row margin-t-10">
 			<div class="col-12">
-				<div class="float-right">
+				<div class="text-end">
 					<div class="btn-group dropup custom-grp-btn">
 			            <div id="savedAction">
 		    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		                </div>
-		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		        	<button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            	<div class="dropdown-menu action-cls"  id="actionDiv">
 		                	<ul class="dropdownmenu">
 		                    	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dashboard-manage-details', this, isEdit, addEditDashboardFn.saveDashboard.bind(addEditDashboardFn), addEditDashboardFn.backToDashboardListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -146,6 +144,7 @@
 <script>
 	document.title = "Manage Dashboard Module Details";
 	contextPath = "${(contextPath)!''}";
+	var env = '${(environment)!""}';
     var dashboardHTMLEditor;
 	const dashboardId = "${(dashboard?api.getDashboardId())!''}"; 
     let isEdit = 0;
@@ -166,7 +165,7 @@
 	  	savedAction("dashboard-manage-details", isEdit);
 	  	hideShowActionButtons();
         if(dashboardId == ""){
-            $("#htmlContent").text('<script>\n$(function() {\n\t//console.log( "ready!" );\n});\n<\/\script>\n<style>\n</style>');
+            getDashboardCssDefaultContent();
         }
         
 	});
@@ -257,5 +256,17 @@ $(function () {
         addEditDashboardFn.getdashboarddashlet();
 	});
   
+    function getDashboardCssDefaultContent() {
+        $.ajax({
+				type: "GET",
+				url: contextPath + apiPath+"/getDashboardCssDefaultContent",
+				async: false,
+				success: function(data) {
+					$("#htmlContent").text(data);
+				},
+				error: function(xhr, error) {					
+				},
+			});
+    }
 </script>
 <script src="${(contextPath)!''}/webjars/1.0/dashboard/addEditDashboard.js"></script>

@@ -4,20 +4,23 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import org.apache.commons.text.StringEscapeUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 @Entity
 @Table(name = "jq_resource_bundle")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "resourceBundles") // Provide cache strategy.
 public class ResourceBundle implements Serializable {
 
 	private static final long serialVersionUID = 7131861420493139106L;
@@ -170,6 +173,8 @@ public class ResourceBundle implements Serializable {
 		resourceBundle.setLanguage(lang);
 		resourceBundle.setCreatedBy(createdBy != null ? createdBy.trim() : "admin@jquiver.io");
 		resourceBundle.setCreatedDate(createdDate);
+		resourceBundle.setUpdatedBy(updatedBy != null ? updatedBy.trim() : updatedBy);
+		resourceBundle.setUpdatedDate(updatedDate);
 		return resourceBundle;
 	}
 

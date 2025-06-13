@@ -6,29 +6,27 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.trigyn.jws.dbutils.configurations.UUIDEntityListener;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
+@EntityListeners(value = { UUIDEntityListener.class })
 @Table(name = "jq_dashboard")
 public class Dashboard implements Serializable {
 
 	private static final long					serialVersionUID			= 1L;
 
 	@Id
-	@GeneratedValue(generator = "inquisitive-uuid")
-	@GenericGenerator(name = "inquisitive-uuid", strategy = "com.trigyn.jws.dbutils.configurations.CustomUUIDGenerator")
 	@Column(name = "dashboard_id")
 	private String								dashboardId					= null;
 
@@ -218,7 +216,7 @@ public class Dashboard implements Serializable {
 		this.dashboardName = dashboardName;
 		return this;
 	}
-
+    
 	@Override
 	public int hashCode() {
 		return Objects.hash(createdBy, createdDate,dashboardId, dashboardName,

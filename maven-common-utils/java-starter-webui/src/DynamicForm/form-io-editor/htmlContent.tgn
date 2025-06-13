@@ -1,0 +1,487 @@
+<head>
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/formio/bootstrap-icons.css">  
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/formio/bootstrap.min.css"> 
+<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.css">
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/aes.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/mode-ecb.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/enc-utf16.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/crypto-js/pbkdf2.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/bootstrap.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/common/jQuiverCommon.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/markdown/highlight/highlight.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/markdown/dist/simplemde.min.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/formio.js"></script>
+<script type="text/javascript" src="${(contextPath)!''}/webjars/1.0/formio/jqFormIO.js"></script>
+
+<style>
+    .displayflex{
+        display:flex;
+        flex-direction: column;
+    }
+
+    .displayflex label{
+		font-weight:bold;
+    }
+
+    .captchacenter{
+	    display: flex;
+	    align-items: center;
+	    margin-top: 21px;
+	}
+
+	.captchafeildbx{
+		font-weight:bold;
+	}
+
+	.captchacenter #imgCaptcha{
+	    height: 47px;
+        margin:0px;
+	}
+
+    .captchafeildbx input{
+	    height: 47px;
+        margin:0px;
+	}
+
+     #reloadCaptcha{
+        margin:0px 8px;
+            width: 60px;
+         height: 28px;
+    }
+
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<div class="container">
+	<div class="topband">
+		<h2 class="title-cls-name float-left pageHeader">${messageSource.getMessage("jws.adddetails")}</h2> 
+ 	</div>
+  <form name="addEditForm" id="addEditForm" action="#">
+		<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
+	   	<input type="hidden" id="primaryKey" name="primaryKey" value="${(resultSetObject.form_io_id)!""}">
+		<input type="hidden" id="entityName" name="entityName" value="FormIO">
+		<input type="hidden" data-type="text" id="formIoId" name="formIoId"  value="${(resultSetObject.form_io_id)!""}" > 
+    	<input type="hidden" data-type="text" id="entityId" name="entityId"  value="${(resultSetObject.form_io_id)!""}" > 
+	  
+    	<div class="row">	    
+    				
+			<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+                	<label for="formIoName" >
+		            	<span class="asteriskmark">*</span>
+							 ${messageSource.getMessage("jws.formName")}
+					</label>
+					<input type="text" data-type="text" id="formIoName" name="formIoName"  value="${(resultSetObject.form_name)!""}" maxlength="50" placeholder="Form Name" class="form-control ">
+				</div>                       
+			</div>
+
+    		<div class="col-4">
+				<div class="col-inner-form full-form-fields">
+			            <label for="formDescription" >
+			            	${messageSource.getMessage("jws.formDescription")}
+			            </label>
+					<input type="text" id="formDescription" name="formDescription"  value="${(resultSetObject.form_description)!""}" maxlength="200" placeholder="Form Description" class="form-control  optional ">
+				</div>
+			</div>
+			
+			<div class="col-4">
+               <div class="col-inner-form full-form-fields">
+                  <label for="formDescription" >
+                  ${messageSource.getMessage("jws.persistenceType")}
+                  </label>
+                  <select class="form-control drpodowncls" id="persistenceType" name="persistenceType" onchange="changePersistenceTypeSection()">
+					<option value="1">Default</option>
+					<option value="2">Custom</option>					
+				  </select>
+               </div>
+            </div>
+			
+			<input type="hidden" id="formIoJson" name="formIoJson"> 
+
+			<input type="hidden" id="formIoChecksum" name="formIoChecksum"  value="${(resultSetObject.form_io_checksum)!""}" > 
+
+			<input type="hidden" id="formIoType" name="formIoType"  value="1" > 
+
+			<input type="hidden" id="isCustomUpdated" name="isCustomUpdated"  value="1" > 
+
+			<input type="hidden" id="createdBy" name="createdBy"  value="${(resultSetObject.created_by)!""}" > 
+
+			<input type="hidden" id="createdDate" name="createdDate"  value="${(resultSetObject.created_date)!""}" > 
+
+			<input type="hidden" id="lastUpdatedBy" name="lastUpdatedBy"  value="${(resultSetObject.last_updated_by)!""}" > 
+
+			<input type="hidden" id="lastUpdatedTs" name="lastUpdatedTs"  value="${(resultSetObject.last_updated_ts)!""}" > 
+    	      
+        <div id="builder" class="customformio"></div>	
+		<div id="tabs" style="display:none">
+			<ul>
+                <li><a href="#htmlContent" data-target="htmlContent">${messageSource.getMessage("jws.htmlContent")}</a></li>
+			   
+                <li><a href="#selectContent" data-target="selectContent">${messageSource.getMessage("jws.selectscript")}</a>
+				</li>
+				 <li><a href="#jsContent" data-target="jsContent">${messageSource.getMessage("jws.saveScriptContent")}</a>
+				</li>
+            </ul>
+            <div id="htmlContent">
+				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
+					<div id="contentDiv">
+						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('htmlPreview');">
+						${messageSource.getMessage("jws.copyhtml")} 				 
+						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+						</span>
+						<div id="htmlPreview" class="default-previews cm-scrollbar"></div>
+					</div>
+				</div>
+			</div>
+            <div id="selectContent">
+				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
+					<div id="contentDiv">
+						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('selectPreview');">
+						${messageSource.getMessage("jws.copyjavascript")} 				 
+						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+						</span>
+						<div id="selectPreview" class="default-previews cm-scrollbar"></div>
+					</div>
+				</div>
+			</div>			
+			<div id="jsContent">
+				<div class="cm-main-wrapper preview cm-scrollbar clearfix">
+					<div id="contentDiv">
+						<span class="copyblockcls tabcopybtn editfilebin" onclick="copyGenericContent('jsPreview');">
+						${messageSource.getMessage("jws.copyjavascript")} 				 
+						<i class="fa fa-regular fa-copy" aria-hidden="true"></i>
+						</span>
+						<div id="jsPreview" class="default-previews cm-scrollbar"></div>
+					</div>
+				</div>
+			</div>
+			<div id="manual-container" class="cm-rightbar">
+				<div class="row">
+					<div class="col-md-3">
+						<div id="previewDiv" style="display:none;">
+							<textarea id="previewContent" style="display:none;"></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<div class="row">
+		<div class="col-3"> 
+			<input id="moduleId" value="1faee99c-021c-11ef-a019-7c8ae1bb24d8" name="moduleId" type="hidden">
+			<@templateWithoutParams "role-autocomplete"/>
+		</div>
+		<div class="col-12">
+			<div class="text-end">
+				<div class="btn-group dropup custom-grp-btn">
+                    <span id="savedAction">
+                    <button type="button" id="saveAndReturn" class="btn btn-primary" >${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    </span>
+                    <span id="actionDropdownBtn"  data-bs-toggle="dropdown" aria-expanded="false" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" ></span>
+                    <div class="dropdown-menu action-cls"  id="actionDiv">
+                    	<ul class="dropdownmenu">
+                            <li id="saveAndCreateNew" >${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" >${messageSource.getMessage("jws.saveAndEdit")}</li>
+                        </ul>
+                    </div>  
+                </div>
+				<span >
+					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
+				</span> 
+			</div>
+		</div>
+	</div>
+	
+	
+	</form>
+</div>
+<script>
+	document.title = "Manage Form IO";
+	contextPath = "${contextPath}";	 
+	viewPath = "${(viewPath)!'/view'}";
+    formId = "${formId}";
+    localStorage.setItem('r', null);
+  	let isEdit = 0;
+	
+
+	$(function(){
+        
+            const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
+            const backBtn = document.getElementById("backBtn");
+            const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+            
+            actionDropdownBtn.addEventListener("click", function (event) {
+                actionOptions();
+            });
+            
+            backBtn.addEventListener("click", function (event) {
+                backToPreviousPage();
+            });
+            Object.keys(saveFunctionMap).forEach(actionId => {
+            const $el = $('#' + actionId);
+                if ($el.length) {
+                    $el.on("click", () => {
+                        onSaveButtonClick(saveFunctionMap[actionId], isEdit);
+                    });
+                }
+            });
+    // setting value on edit.
+        const urlParams = new URLSearchParams(window.location.search);
+        const formioid = urlParams.get('formioid');
+        // formIOMaster = new JQFormIO();
+		$("#tabs").tabs();
+	      <#if (resultSet)??>
+	      	<#list resultSet as resultSetList>
+	      	</#list>
+	    </#if>
+    
+		<#if (resultSet)?? && resultSet?has_content>
+  			isEdit = 1;
+			$(".pageHeader").html("Edit Details ${(formName)!''}");
+			let persistenceType = ${(resultSetObject.persistence_type)!""};
+			$("#persistenceType").val(persistenceType);
+			getFormIoEntityRoles();
+			changePersistenceTypeSection(formioid);
+            jqFormIO.loadFormIoDetails(formioid);
+  		<#else>
+			const random_uuid = uuidv4();			
+			$("#formIoId").val(random_uuid);
+			let defaultAdminRole= {"roleId":"ae6465b3-097f-11eb-9a16-f48e38ab9348","roleName":"ADMIN"};
+        	multiselect.setSelectedObject(defaultAdminRole);
+        	$("#persistenceType").val(1).trigger("change");
+            jqFormIO.loadFormIoDetails(formioid);
+  		</#if>
+		changeDefaultAction()
+		hideShowActionButtons();
+		jqFormIO.setQueryContent();
+		//jqFormIO.loadFormIoDetails(formioid);
+		$("a[href='#htmlContent']").click();
+		
+		 const builderOptions = {
+		  noDefaultSubmitButton: true,
+		  builder: {		
+			premium: false
+			// Exclude the Premium group by not defining it or setting it to false
+		  }
+		};
+		
+		
+		var jsnStr = {"components":[{"input":false,"columns":[{"pull":0,"components":[],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0},{"pull":0,"components":[{"label":"JQFmioSaveButton","attrs":[{"attr":"","value":""}],"content":"<div id=\"jqFmioSaveButton\" style=\"display: flex; justify-content: flex-end;\"><img src=\"../webjars/1.0/images/Savendsubmit.png\" style=\"float:right;\" height=\"50px\" /></div>","refreshOnChange":false,"key":"jqFmioSaveButton","type":"htmlelement","input":false,"tableView":false}],"offset":0,"size":"md","currentWidth":12,"width":12,"push":0}],"tableView":false,"label":"Columns","type":"columns","key":"columns1"}]};
+		<#if (resultSetObject)?? && resultSetObject.form_io_json?has_content>          
+		        jsnStr = ${resultSetObject.form_io_json};
+		        $('#isEdit').val("1");
+		        
+		</#if>
+		$('#formIoJson').val(JSON.stringify(jsnStr));
+		Formio.builder(document.getElementById('builder'), jsnStr, builderOptions).then(function(form) {
+	
+			form.on("change", function(e){
+				$('#formIoJson').val(JSON.stringify(form.schema));
+			});
+			
+			// Trigger on adding a component
+			form.on('addComponent', (component) => {
+				//console.log('Component Added:', component);
+			});
+			
+			// Trigger on updating a component
+			form.on('updateComponent', (component) => {
+				//console.log('Component Updated:', component);
+				//triggerFunction('update', component);
+			});
+			
+			// Trigger on removing a component
+			form.on('removeComponent', (component) => {
+				//console.log('Component Removed:', component);
+				//triggerFunction('remove', component);
+			});
+	        //$(".card form-builder-panel").hide();
+		});
+	
+  	});
+  
+	
+	function checkAndUpdateCustomLogic(formIoJson){
+	    $.ajax({
+			  type : "POST",
+			  async: false,
+			  url : contextPath+"/cf/cucl",
+	          data : {
+			    formIoJson : formIoJson
+		      },			 
+			  success : function(data) {    
+				//$('#formIoJson').val(JSON.parse(data));	
+	             $('#formIoJson').val('');	
+	            $('#formIoJson').val(JSON.stringify(data));	
+	            //console.log(('#formIoJson').val());		
+			  },
+			  error : function(xhr, error){
+				showMessage("Error occurred while saving", "error");
+			  },
+		});
+	    
+	}	
+    
+    function changePersistenceTypeSection(formioid) {  
+		let persistenceType = $("#persistenceType").val();		
+		if(persistenceType != "-1"){
+			$("#tabs").css("display", "block");	
+			if(persistenceType == "2"){
+				$('a[data-target="selectContent"]').hide();
+				$('a[data-target="jsContent"]').hide();
+			} else if(persistenceType == "1") {
+				$('a[data-target="selectContent"]').show();
+				$('a[data-target="jsContent"]').show();
+			}
+			
+		} else {			
+			$("#tabs").hide();
+		}
+		jqFormIO.loadFormIoDetails(formioid);	
+        $('a[data-target="htmlContent"]').click();		
+	}
+	
+	function validateSaveData() {
+	
+		var formname = $("#formIoName").val();
+		let persistenceType = $("#persistenceType").val();
+		
+		if (formname == "" || formname == undefined) {
+			showMessage("Form Name is required", "error");
+			$("#formIoName").focus();
+			return false;
+		}
+		
+		if (persistenceType === "-1") {
+			showMessage("Select Persistence Type", "error");
+			$("#persistenceType").focus();
+			return false;
+		} 
+		return true;
+	}
+	
+	function sfioera() {    
+		let context = this;
+		let roleIds = [];
+		let entityRoles = new Object();
+		entityRoles.entityName = $("#formIoName").val();
+		entityRoles.moduleId = $("#moduleId").val();
+		entityRoles.entityId = $("#formIoId").val();
+		$.each($("#rolesMultiselect_selectedOptions_ul span.ml-selected-item"), function(key, val) {
+			roleIds.push(val.id);
+		});
+		entityRoles.roleIds = roleIds;        
+		$.ajax({
+			async: false,
+			type: "POST",
+			contentType: "application/json",
+			url: contextPath +"/cf/ser",
+			data: JSON.stringify(entityRoles),
+			success: function(data) {
+				return true;
+			}
+		});
+	}
+	
+	function getFormIoEntityRoles(){
+		$.ajax({
+            async : false,
+            type : "GET",
+            url : contextPath+"/cf/ler", 
+            data : {
+            	entityId:$("#entityId").val(),
+            	moduleId:$("#moduleId").val(),
+            },
+            success : function(data) {
+                $.each(data, function(key,val){
+                	multiselect.setSelectedObject(val);
+                	
+                });
+		    }
+        });
+	}
+  
+  /**
+	* This method should return non null or defined object in order to 
+ 	* submit the form. return null or undefined in case your custom / additional 
+	* validation fails. If you don't want to perform any validation then either
+	* delete the method or return the same object.
+	* 
+	* If you want to change the name of the form, then implement below method and return 
+	* the form name in String
+	* 
+	*      getFormName();
+	* 
+	* If you want to change the URL/router of the form, then implement below method and return 
+	* the form url/router in String
+	* 
+	*      getformURL();
+	*
+	* you also want to call below lines to focus and highlight erroneous field
+	*      $("#"+fieldName).focus();
+	*      $("#"+fieldName).closest("div").parent().effect("highlight", {}, 3000);
+	*      showMessage("Issue in input", "warn");
+	* 
+	* In case a processed value has to be passed to the server for saving/processing, then you can call
+	* function pushToSerializedData.
+	* The default parameters to be passed will be, 
+	*		a_serializedFormData: This is the input for this method.
+	* 		a_name				: This is the parameter name, which will be used to access the parameter at server side.
+	*		a_value				: This will be String value, which will be saved at the used to save/update at server.
+	*		a_valueType			: Data type of the parameter, which will be saved/updated to DB.
+	*
+	*/
+	function onValidation(a_serializedFormData){
+		if(validateSaveData()== true){
+            return a_serializedFormData;
+		}  
+	    
+	}
+	
+  /**
+	* this method is called when there is a successful response from server.
+	* you can use this to take other actions in case you need to. Success 
+	* message will be shown before calling this method. 
+	* you can define getSuccessMessage() function and return string for custom success message
+	*/
+	function onSuccess(a_serverResponse){
+		sfioera();					
+		let formIoData = $("#addEditForm").serialize() + "&formId="+formId;
+		enableVersioning(formIoData);		
+	}
+	
+  /**
+	* this method is called when there is any error at server while executing server side 
+	* code.
+	* you can use this to take other actions in case you need to.
+	* error message will be shown before calling this method. If you don't want the message to be 
+	* shown, then define getErrorMessage() function and return null or undefined.
+	*
+	* you can define getErrorMessage() function and return string for custom error message
+	*/
+	function onError(jqXHR, exception){
+	    showMessage(exception, "error");
+	}
+
+	//Code go back to previous page
+	function backToPreviousPage() {
+			location.href = contextPath+"/cf/fiol";
+	}
+	
+	function toggleBooleanVal() {
+		let isChecked = $('#toggleBooleanChkBox').is(':checked')? 1 : 0;		
+        $("#toggleBoolean").val(isChecked);  
+    }  
+  
+	$("#reloadCaptcha").click(function(event){
+		var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
+		generateCaptch(imagesrc);
+		$("#formCaptcha").val("");
+	});
+	
+	
+	
+</script>

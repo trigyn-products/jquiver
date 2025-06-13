@@ -7,7 +7,7 @@ CREATE TABLE jq_datasource_lookup (
    driver_class_name VARCHAR(200),
    is_deleted INT(5) DEFAULT '0',
   PRIMARY KEY (datasource_lookup_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 DROP TABLE IF EXISTS jq_additional_datasource;
 CREATE TABLE jq_additional_datasource (
@@ -24,7 +24,7 @@ CREATE TABLE jq_additional_datasource (
   UNIQUE KEY datasource_name (datasource_name),
   KEY jq_additional_datasource_ibfk_1 (datasource_lookup_id),
   CONSTRAINT jq_additional_datasource_ibfk_1 FOREIGN KEY (datasource_lookup_id) REFERENCES jq_datasource_lookup (datasource_lookup_id) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 INSERT INTO jq_datasource_lookup(datasource_lookup_id,database_product_name,driver_class_name,is_deleted) VALUES 

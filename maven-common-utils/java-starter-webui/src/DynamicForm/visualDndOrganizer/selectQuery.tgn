@@ -34,8 +34,10 @@ for(var iCounter=0;iCounter<getVisualData.data_list.length;iCounter++)
         "openInNewTab": getVisualData.data_list[iCounter].openInNewTab+""
         }
         var parent = visualDndData[getVisualData.data_list[iCounter].parentModuleName];
-        parent.children.push(visualChildData);
-        visualDndData[getVisualData.data_list[iCounter].parentModuleName] = parent;
+        if(parent != undefined && parent != null) {
+            parent.children.push(visualChildData);
+            visualDndData[getVisualData.data_list[iCounter].parentModuleName] = parent;
+        }
 }
     queryResult.visualDndData = visualDndData;
 }

@@ -1,4 +1,3 @@
-
 package com.trigyn.jws.dashboard.dao;
 
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.dashboard.entities.Dashboard;
@@ -19,27 +17,20 @@ import com.trigyn.jws.dbutils.repository.DBConnection;
 @Repository
 public class DashboardDaoImpl extends DBConnection {
 
-	@Autowired
 	public DashboardDaoImpl(DataSource dataSource) {
 		super(dataSource);
 	}
 
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
-		Dashboard dashboard =  hibernateTemplate.get(Dashboard.class, dashboardId);
+		Dashboard dashboard =  getCurrentSession().get(Dashboard.class, dashboardId);
 		if(dashboard != null) getCurrentSession().evict(dashboard);
 		return dashboard;
 	}
 
 	public Object findDashletByDashletId(String dashletId) {
-		Dashlet dashlet =  hibernateTemplate.get(Dashlet.class, dashletId);
+		Dashlet dashlet =  getCurrentSession().get(Dashlet.class, dashletId);
 		if(dashlet != null) getCurrentSession().evict(dashlet);
 		return dashlet;
-	}
-
-	public Dashboard saveDashboardDetails(Dashboard dashboard) throws Exception {
-		getCurrentSession().saveOrUpdate(dashboard);
-		getCurrentSession().flush();
-		return dashboard;
 	}
 
 	public void saveDashboardRoleAssociation(DashboardRoleAssociation dashboardRoleAssociation) throws Exception {
@@ -47,7 +38,7 @@ public class DashboardDaoImpl extends DBConnection {
 	}
 
 	public List<Object[]> findDashboardsByContextId(List<String> userRoles, String userId) throws Exception {
-		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_FIND_DASHBOARD_BY_CONTEXT_ID);
+		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_FIND_DASHBOARD_BY_CONTEXT_ID, List.class);
 		query.setParameterList("userRoles", userRoles);
 		query.setParameter("userId", userId);
 		List<Object[]> dashboards = (List<Object[]>) query.getResultList();
@@ -55,7 +46,7 @@ public class DashboardDaoImpl extends DBConnection {
 	}
 
 	public List<Object[]> loadDashboardDashlets(String dashboardId) throws Exception {
-		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_LOAD_DASHBOARD_DASHLETS);
+		Query query = getCurrentSession().createQuery(QueryStore.HQL_QUERY_LOAD_DASHBOARD_DASHLETS, List.class);
 		query.setParameter("dashboardId", dashboardId);
 		return query.list();
 	}
@@ -84,14 +75,14 @@ public class DashboardDaoImpl extends DBConnection {
 
 	public Long getDashboardCount(String dashboardId) {
 		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM Dashboard AS d WHERE d.dashboardId = :dashboardId");
-		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
+		Query			query			= getCurrentSession().createQuery(stringBuilder.toString(), Long.class);
 		query.setParameter("dashboardId", dashboardId);
 		return (Long) query.uniqueResult();
 	}
 
 	public Long getDashletsCount(String dashletId) {
 		StringBuilder	stringBuilder	= new StringBuilder("SELECT count(*) FROM Dashlet AS d WHERE d.dashletId = :dashletId");
-		Query			query			= getCurrentSession().createQuery(stringBuilder.toString());
+		Query			query			= getCurrentSession().createQuery(stringBuilder.toString(), Long.class);
 		query.setParameter("dashletId", dashletId);
 		return (Long) query.uniqueResult();
 	}

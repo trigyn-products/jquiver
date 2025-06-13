@@ -1,5 +1,7 @@
 package com.trigyn.jws.typeahead.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +12,9 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.query.NativeQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -34,10 +36,11 @@ import com.trigyn.jws.typeahead.model.AutocompleteParams;
 @Repository
 public class TypeAheadDAO extends DBConnection {
 
-	private final static Logger				logger							= LogManager.getLogger(TypeAheadDAO.class);
+	public TypeAheadDAO(DataSource dataSource) {
+		super(dataSource);
+	}
 
-	@Autowired
-	private DataSource						dataSource						= null;
+	private final static Logger				logger							= LoggerFactory.getLogger(TypeAheadDAO.class);
 
 	@Autowired
 	private IUserDetailsService				detailsService					= null;
@@ -51,17 +54,12 @@ public class TypeAheadDAO extends DBConnection {
 	@Autowired
 	private TemplatingUtils					templatingUtils					= null;
 
-	@Autowired
-	public TypeAheadDAO(DataSource dataSource) {
-		super(dataSource);
-	}
-
 	private static final String AUTOCOMPLETE_QUERY_SELECTOR = "SELECT ac_select_query FROM jq_autocomplete_details WHERE ac_id = :ac_id";
 
 	public List<Map<String, Object>> getAutocompleteData(AutocompleteParams autocompleteParams,
 			Map<String, Object> requestParamMap) throws Exception, CustomStopException {
 		try {
-			NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
+			NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR, String.class);
 			sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
 			String list = (String) sqlQuery.uniqueResult();
 			Map<String, Object> criteriaParams = autocompleteParams.getCriteriaParams();
@@ -134,7 +132,7 @@ public class TypeAheadDAO extends DBConnection {
 	}
 
 	private String getQueryForAutoComplete(AutocompleteParams autocompleteParams) {
-		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR);
+		NativeQuery sqlQuery = getCurrentSession().createNativeQuery(AUTOCOMPLETE_QUERY_SELECTOR, String.class);
 		sqlQuery.setParameter("ac_id", autocompleteParams.getAutocompleteId());
 		String list = (String) sqlQuery.uniqueResult();
 		return list;
@@ -162,17 +160,17 @@ public class TypeAheadDAO extends DBConnection {
 	//		return resultSet;
 	//	}
 
-	public List<Map<String, Object>> getColumnNamesByTableName(String additionalDataSourceId, String tableName) {
+	public List<Map<String, Object>> getColumnNamesByTableName(String additionalDataSourceId, String tableName) throws SQLException {
 
 		DataSourceVO	dataSourceVO			= additionalDatasourceRepository.getDataSourceConfiguration(additionalDataSourceId);
-		DataSource		additionalDataSource	= dataSource;
+		Connection		additionalDataSourceConnection	= jdbcTemplate.getDataSource().getConnection();
 		if (dataSourceVO != null) {
-			additionalDataSource = DataSourceFactory.getDataSource(dataSourceVO);
+			additionalDataSourceConnection = DataSourceFactory.getDataSource(dataSourceVO).getConnection();
 		}
 		List<Map<String, Object>>	resultSet					= new ArrayList<>();
 
 		try {
-			resultSet =  DBExtractor.getCols(tableName, additionalDataSource);
+			resultSet =  DBExtractor.getCols(tableName, additionalDataSourceConnection);
 		} catch (Throwable a_exc) {
 			logger.error("Error while fetching data from DB ", a_exc);
 		}
@@ -180,7 +178,7 @@ public class TypeAheadDAO extends DBConnection {
 	}
 
 	public Autocomplete findAutocomplete(String autocompleteId) {
-		Autocomplete autocomplete =  hibernateTemplate.get(Autocomplete.class, autocompleteId);
+		Autocomplete autocomplete =  getCurrentSession().get(Autocomplete.class, autocompleteId);
 		if(autocomplete != null) getCurrentSession().evict(autocomplete);
 		return autocomplete;
 	}
@@ -188,9 +186,9 @@ public class TypeAheadDAO extends DBConnection {
 	@Transactional(readOnly = false)
 	public void saveAutocomplete(Autocomplete autocomplete) {
 		if(autocomplete.getAutocompleteId() == null || findAutocomplete(autocomplete.getAutocompleteId()) == null) {
-			getCurrentSession().save(autocomplete);			
+			getCurrentSession().persist(autocomplete);			
 		}else {
-			getCurrentSession().saveOrUpdate(autocomplete);
+			getCurrentSession().merge(autocomplete);
 		}
 	}
 

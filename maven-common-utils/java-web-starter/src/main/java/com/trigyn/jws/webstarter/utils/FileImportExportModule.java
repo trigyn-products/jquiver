@@ -24,6 +24,7 @@ import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.vo.xml.FileUploadExportVO;
 import com.trigyn.jws.dynarest.entities.FileUpload;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
 import com.trigyn.jws.dynarest.service.FilesStorageServiceImpl;
 import com.trigyn.jws.webstarter.vo.FileUploadImportEntity;
 import com.trigyn.jws.webstarter.xml.FileUploadXMLVO;
@@ -46,7 +47,7 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 	}
 
 	@Override
-	public void uploadCodeToDB(String uploadFileName) throws Exception {
+	public void uploadCodeToDB(String fileTypeId,String uploadFileName) throws Exception {
 
 	}
 
@@ -111,7 +112,8 @@ public class FileImportExportModule implements DownloadUploadModule<FileUpload> 
 					Files.deleteIfExists(downloadPath.resolve(fu.getPhysicalFileName()));
 					Files.copy(in, downloadPath.resolve(fu.getPhysicalFileName()));
 				}
-				fileBinId = fu.getFileBinId();
+				//fileBinId = fu.getFileBinId();
+				fileBinId = fu.getFileUploadId();
 				
 			}
 			Map<String, Object>	map				= new HashMap<>();

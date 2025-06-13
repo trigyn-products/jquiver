@@ -78,7 +78,7 @@ $(function () {
 		sessionStorage.setItem("dynamic-rest-form", formDataJson);
   		$.ajax({
 			type : "GET",
-			url : contextPath+"/api/dynarestDetails",
+			url : contextPath+apiPath+"/dynarestDetails",
       		async: false,
 			success : function(data) {
 				for(let counter = 0; counter < data["methodTypes"].length; ++counter) {
@@ -488,7 +488,7 @@ WHERE jdrd.jws_dynamic_rest_url = "${primaryId}"', '<head>
 
 	function getDynarestBAseURL(){ 
 		$.ajax({
-			url:contextPath+"/api/rest-api-base-url",
+			url:contextPath+apiPath+"/rest-api-base-url",
 			type:"GET",
 	        data:{
 	        	

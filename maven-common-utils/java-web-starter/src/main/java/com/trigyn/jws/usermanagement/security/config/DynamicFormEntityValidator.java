@@ -2,22 +2,23 @@ package com.trigyn.jws.usermanagement.security.config;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.trigyn.jws.usermanagement.repository.AuthorizedValidatorDAO;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationDAO;
 import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
 import com.trigyn.jws.usermanagement.utils.Constants;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class DynamicFormEntityValidator implements EntityValidator {
 
-	private final static Logger					logger							= LogManager.getLogger(DynamicFormEntityValidator.class);
+	private final static Logger					logger							= LoggerFactory.getLogger(DynamicFormEntityValidator.class);
 
 	@Autowired
 	private AuthorizedValidatorDAO				authorizedValidatorDAO			= null;
@@ -26,6 +27,9 @@ public class DynamicFormEntityValidator implements EntityValidator {
 	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
 
 	private String								primaryKeyName					= "formId";
+	
+	@Autowired
+	private JwsEntityRoleAssociationDAO entityRoleAssociationDAO = null;
 
 	@Override
 	public boolean hasAccessToEntity(HttpServletRequest reqObject, List<String> roleNames, ProceedingJoinPoint a_joinPoint) {
@@ -47,7 +51,7 @@ public class DynamicFormEntityValidator implements EntityValidator {
 
 		String	dynamicFormId	= reqObject.getParameter(primaryKeyName);
 		String	dynamicFormName	= authorizedValidatorDAO.getDynamicFormNameById(dynamicFormId);
-		return entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICFORM.getModuleName(),
+		return entityRoleAssociationDAO.getEntityNameByEntityAndRoleId(Constants.Modules.DYNAMICFORM.getModuleName(),
 				dynamicFormName);
 	}
 

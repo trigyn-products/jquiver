@@ -9,9 +9,9 @@
 	<div class="row topband">
 		<div class="col-4">
 			<#if (dashletVO.dashletId)?? && (dashletVO.dashletId)?has_content>
-			    <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editDashlet")}</h2> 
+			    <h2 class="title-cls-name">${messageSource.getMessage("jws.editDashlet")}</h2> 
 		    <#else>
-		        <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addDashlet")}</h2> 
+		        <h2 class="title-cls-name">${messageSource.getMessage("jws.addDashlet")}</h2> 
 		    </#if> 
 		</div>
         
@@ -26,8 +26,7 @@
 		     </#if>
 		 </div>
 		
-		<div class="clearfix"></div>		
-	</div>
+ 	</div>
 
 	<div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
 	<div class="row">
@@ -71,7 +70,7 @@
 									
 		<div class="col-3">
 			<div class="col-inner-form full-form-fields">
-	        	<label for="flammableState" style="white-space:nowrap">${messageSource.getMessage('jws.datasource')}</label>
+	        	<label for="flammableState" >${messageSource.getMessage('jws.datasource')}</label>
 	        	<select id="dataSource" name="dataSourceId" class="form-control" onchange="showHideTableAutocomplete()">
 	        		<option id="defaultConnection" value="">${messageSource.getMessage('jws.defaultconnection')}</option>
 	        	</select>
@@ -187,7 +186,7 @@
 											<td>
 												<span id="upArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"   class="tblicon pull-left ${(dashletProperty?is_first)?then("disable_cls" , "")}" ><i class="fa fa-chevron-up" title="${messageSource.getMessage('jws.moveUp')}"></i></span>				  
 												<span id="downArrow_${dashletProperty.sequence}" onclick="addEditDashletFn.moveUpDown(this.id);"  class="tblicon pull-left ${(dashletProperty?is_last)?then("disable_cls", "" )}" ><i class="fa fa-chevron-down" title="${messageSource.getMessage('jws.moveDown')}"></i></span>
-												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.deleteProperty(this.id);" class="tblicon pull-left" ><i class="fa fa-trash-o" title="${messageSource.getMessage('jws.deleteProperty')}"></i></span>
+												<span id="removeProperty_${dashletProperty.sequence}" onclick="addEditDashletFn.deleteProperty(this.id);" class="tblicon pull-left" ><i class="fa-solid fa-trash" title="${messageSource.getMessage('jws.deleteProperty')}"></i></span>
 											</td>
 			
 										</tr>
@@ -205,7 +204,7 @@
    
     <div id="ftlParameterDiv" class="col-12 method-sign-info-div">
 		<h3 class="titlename method-sign-info">
-		    <i class="fa fa-lightbulb-o" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
+		    <i class="fa-solid fa-lightbulb" aria-hidden="true"></i><label for="ftlParameter">SQL/FTL Parameters and Macros</label>
 	    </h3>
 		<span id="ftlParameter">loggedInUserId, loggedInUserName, fullName, userObject {}, loggedInUserRoleList {}, templateWithoutParams {}, templateWithParams {}, resourceBundle {}, resourceBundleWithDefault {}, scriptUtil{}</span>
     </div>
@@ -229,7 +228,7 @@
 			<h3  class="titlename"><span class="asteriskmark">*</span>${messageSource.getMessage('jws.sqlScript')}</h3>
             
             <div id="sqlContainer" class="html_script">
-				<div class="grp_lblinp">
+				<div class="grp_lblinp" style="margin-top: 30px;margin-bottom:30px;">
 					<div id="sqlContainer" class="ace-editor-container">
 						<div id="sqlEditor" class="ace-editor"></div>
 					</div>
@@ -247,12 +246,12 @@
 	 
 	<div class="row margin-t-10">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
 		            <div id="savedAction">
 	    	            <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('dashlet-manage-details', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndReturn")}</button>
 		            </div>
-		        	<button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
+		        	<button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></button>
 		            <div class="dropdown-menu action-cls"  id="actionDiv">
 		               	<ul class="dropdownmenu">
 		                   	<li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('dashlet-manage-details', this, isEdit, addEditDashletFn.saveDashlet.bind(addEditDashletFn), addEditDashletFn.backToDashletListing);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -281,6 +280,7 @@
 <script>
 	document.title = "Manage Dashlet Details";
 	contextPath = "${(contextPath)!''}";
+    var env = '${(environment)!""}';
 	let dashletSQLEditor;
 	var dashletHTMLEditor;
 	let componentArray = new Array();

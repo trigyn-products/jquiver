@@ -51,14 +51,23 @@ public final class Constants {
 	
 	public final static Integer	CLUSTER_ACTIVE_TIME		= 1;
 	
+	public final static String	GOOGLE					= "google";
+	
+	public final static String	OFFICE365				= "office365";
+	
+	public final static String	FACEBOOK				= "facebook";
+	
+	public final static String	POSTLOGOUTREDIRECTURI   = "post_logout_redirect_uri"; 
+	
+	public final static String	FROMURI   				= "fromURI";
+	
 	public enum AuthType {
 		@Deprecated
 		INMEMORY("inmemore", 1), 
 		DAO("7d1dba821", 2), 
 		LDAP("7d1ldap821", 3), 
-		OAUTH("7d1oa821", 4);
-		//TODO : SAML will be uncommented once its implemented.
-		//,SAML("", 5);
+		OAUTH("7d1oa821", 4)
+		,SAML("7d1sa821", 5);
 
 		private final Integer authType;
 		private final String authAtID;
@@ -89,9 +98,8 @@ public final class Constants {
 		INMEMORY("inmemore", 1), 
 		DAO("enableDatabaseAuthentication", 2), 
 		LDAP("enableLdapAuthentication", 3), 
-		OAUTH("enableOAuthentication", 4);
-		//TODO : SAML will be uncommented once its implemented.
-		//,SAML("", 5);
+		OAUTH("enableOAuthentication", 4),
+		SAML("enableSamlAuthentication", 5);
 		final String authTypeByName;
 		final Integer authTypeById;
 		private static Map<String, AuthTypeByName> authTypeMap = new HashMap<>();
@@ -138,10 +146,10 @@ public final class Constants {
 	public enum Modules {
 
 		GRIDUTILS("Grid Utils"), TEMPLATING("Templating"), DYNAMICFORM("Form Builder"), DYNAMICREST("REST API Builder"),
-		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), SITELAYOUT("Site Layout"), FILEBIN("File Bin"),
+		AUTOCOMPLETE("TypeAhead Autocomplete"), DASHBOARD("Dashboard"), ROUTER("Router"), FILEBIN("File Bin"),
 		HELPMANUAL("Help Manual"), MULTILINGUAL("MultiLingual"), NOTIFICATION("Notification"),
 		APPLICATIONCONFIGURATION("Application Configuration"), USERMANAGEMENT("User Management"),
-		APICLIENTS("API Clients"), SCHEDULER("Scheduler");
+		APICLIENTS("API Clients"), SCHEDULER("Scheduler"), FORMIO("Form IO");
 
 		final String moduleName;
 
@@ -199,7 +207,7 @@ public final class Constants {
 	public final static String	DYNAMICREST					= "REST API Builder";
 	public final static String	AUTOCOMPLETE				= "TypeAhead Autocomplete";
 	public final static String	DASHBOARD					= "Dashboard";
-	public final static String	SITELAYOUT					= "Site Layout";
+	public final static String	ROUTER						= "Router";
 	public final static String	FILEBIN						= "File Bin";
 	public final static String	HELPMANUAL					= "Help Manual";
 	public final static String	MULTILINGUAL				= "MultiLingual";
@@ -219,7 +227,7 @@ public final class Constants {
 
 	public enum AuthTypeHeaderKey {
 		@Deprecated
-		INMEMORY(""), DAO("7d1dba821"), LDAP("7d1ldap821"), OAUTH("7d1oa821"), SAML("");
+		INMEMORY(""), DAO("7d1dba821"), LDAP("7d1ldap821"), OAUTH("7d1oa821"), SAML("7d1sa821");
 
 		final String authTypeHeaderKey;
 
@@ -237,5 +245,20 @@ public final class Constants {
 	public static final String	OAUTH_ID	= "4";
 
 	public static final String	DAO_ID		= "2";
+	
+	public static final String	SAML_ID		= "5";
+	
+	public static String getAuthType(String authType, String authTypeHeader) {
+		if (authType == null || authType.isEmpty()|| authType.isBlank()) {
+			if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.DAO.getAuthTypeHeaderKey())) {
+				authType = Constants.DAO_ID;
+			} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.LDAP.getAuthTypeHeaderKey())) {
+				authType = Constants.LDAP_ID;
+			} else if (authTypeHeader.equals(Constants.AuthTypeHeaderKey.OAUTH.getAuthTypeHeaderKey())) {
+				authType = Constants.OAUTH_ID;
+			}
+		}
+		return authType;
+	}
 
 }

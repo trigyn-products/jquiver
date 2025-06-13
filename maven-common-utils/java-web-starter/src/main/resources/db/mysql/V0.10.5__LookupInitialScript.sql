@@ -5,7 +5,7 @@ CREATE TABLE jq_lookup(
 , is_deleted tinyint(4) DEFAULT 0
 , PRIMARY KEY (lookup_id)
 , UNIQUE KEY(`lookup_name`,`record_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 CREATE TABLE jq_lookup_i18n(
 id VARCHAR(50) NOT NULL 
@@ -16,4 +16,4 @@ id VARCHAR(50) NOT NULL
 , UNIQUE KEY (`jws_lookup_id`, `language_id`)
 , KEY `lookup_id` (`jws_lookup_id`)
 , CONSTRAINT `jq_lookup_i18n_ibfk_1` FOREIGN KEY (`jws_lookup_id`) REFERENCES `jq_lookup` (`lookup_id`) 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);

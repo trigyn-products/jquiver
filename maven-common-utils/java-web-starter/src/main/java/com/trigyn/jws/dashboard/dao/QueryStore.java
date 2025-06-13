@@ -33,7 +33,7 @@ public final class QueryStore {
 			+ " (dp.propertyId AS dashletPropertyId, dp.placeholderName AS placeholderName, dp.displayName AS displayName "
 			+ " , dp.type AS type, dp.value AS value, dp.validation AS validation, dp.defaultValue AS defaultValue, dp.configurationScript AS configurationScript "
 			+ " , dp.toDisplay AS toDisplay, dp.sequence AS sequence , dp.isDeleted AS isDeleted) " + " FROM DashletProperties AS dp "
-			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.id.sequence ASC";
+			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.sequence ASC";
 
 	public static final String		JPQ_QUERY_TO_GET_DASHLET_ROLES_ASSOCIATION_BY_ID	= "SELECT new com.trigyn.jws.dashboard.vo.DashletRoleAssociationVO "
 			+ " (dra.id.roleId AS roleId, dra.id.dashletId AS dashletId) " + " FROM DashletRoleAssociation AS dra "
@@ -59,6 +59,6 @@ public final class QueryStore {
 			+ " , dlc.lookupDescription AS type, dp.value AS value, dp.validation AS validation, COALESCE(dpc.propertyValue, dp.defaultValue) AS defaultValue) "
 			+ " FROM DashletProperties AS dp " + " LEFT OUTER JOIN dp.dashletPropertyConfigurations AS dpc ON dpc.id.userId = :userId "
 			+ " LEFT OUTER JOIN dp.dashboardLookupCategory AS dlc "
-			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.id.sequence ASC";
+			+ " WHERE dp.dashletId = :dashletId AND dp.isDeleted = :isDeleted ORDER BY dp.sequence ASC";
 	
 }

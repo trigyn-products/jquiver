@@ -1,14 +1,7 @@
 <head>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" /white>
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-<script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-<script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js">
 </script><script src="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.js"></script>          
 <script src="${(contextPath)!''}/webjars/1.0/gridutils/gridutils.js"></script> 
 <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/pqGrid/pqgrid.min.css" />
-<link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />       
 <script src="${(contextPath)!''}/webjars/1.0/importExport/import.js"></script> 
 <script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
 
@@ -33,26 +26,25 @@
 
 
 </head>
-<div class="pg-import-config">
+<div class="pg-import-config1">
 <div class="container">
 	<form id="homePageForm" action="${(contextPath)!''}/cf/home" method="post">
 		<input type="hidden" name="isRedirect" value="true"/>
 	</form>
-    <div class="cm-card">
-	<div class="topband cm-card-header">
+    <div >
+	<div class="topband ">
         
                 
               
-		<h2 class="title-cls-name float-left">${messageSource.getMessage('jws.importconfiguration')}</h2>
+		<h2 class="title-cls-name ">${messageSource.getMessage('jws.importconfiguration')}</h2>
 		<span onclick="backToPreviousPage();" class="float-right">
 			<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
 		</span>	
-		<div class="clearfix"></div>
-
+ 
 	</div>
 	
 
-    <div class="cm-card-body">
+    <div >
        <div class="cm-customimport" id="parentUploadBox">
 
      <div class="upload" id="parentUpload">
@@ -66,7 +58,7 @@
                     </select>
                 </div>
                 <div class="displayflximport" >
-                    <label for="filepathLabel" id="filepathLabel" style="white-space:nowrap;display:none;margin-bottom: 0px;">
+                    <label for="filepathLabel" id="filepathLabel" style="display:none;margin-bottom: 0px;">
                         ${messageSource.getMessage('jws.filepath')}
                         </label>
                     <div class="col-5 " id="showFilePath" style="display:none">
@@ -132,7 +124,7 @@
    </div>
 <script>
 	document.title = "Import Configuration Module";
-	contextPath = "${contextPath}";
+	//contextPath = "${contextPath}";
 	var accepted_file_endings = ["zip"];
 	
 	var zipFileJsonDataMap = new Map();

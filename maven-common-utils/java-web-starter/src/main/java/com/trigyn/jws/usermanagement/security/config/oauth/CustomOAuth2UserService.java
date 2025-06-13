@@ -3,8 +3,8 @@ package com.trigyn.jws.usermanagement.security.config.oauth;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -27,7 +27,7 @@ import com.trigyn.jws.usermanagement.vo.JwsRoleVO;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-	private final static Logger					logger							= LogManager.getLogger(CustomOAuth2UserService.class);
+	private final static Logger					logger							= LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
 	@Autowired
 	private JwsUserRepository					jwsUserRepository				= null;

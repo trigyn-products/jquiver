@@ -6,12 +6,12 @@ package com.trigyn.jws.dynarest.service;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.trigyn.jws.dbutils.vo.FileInfo;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface FilesStorageService {
 

@@ -5,14 +5,19 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.trigyn.jws.dbutils.repository.PropertyMasterDAO;
 import com.trigyn.jws.dbutils.service.DownloadUploadModule;
 import com.trigyn.jws.dbutils.service.ModuleVersionService;
@@ -22,17 +27,22 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.dbutils.vo.xml.MetadataXMLVO;
 import com.trigyn.jws.dbutils.vo.xml.Modules;
 import com.trigyn.jws.dbutils.vo.xml.TemplateExportVO;
+import com.trigyn.jws.dbutils.vo.xml.XMLVO;
+import com.trigyn.jws.dynarest.entities.JwsDynamicRestDetail;
+import com.trigyn.jws.dynarest.service.DynaRestModule;
 import com.trigyn.jws.templating.dao.DBTemplatingRepository;
 import com.trigyn.jws.templating.dao.TemplateDAO;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.utils.Constant;
 import com.trigyn.jws.templating.vo.TemplateVO;
+import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
+import com.trigyn.jws.usermanagement.repository.JwsEntityRoleAssociationRepository;
+import com.trigyn.jws.webstarter.utils.ImportExportUtility;
+import com.trigyn.jws.webstarter.utils.XMLUtil;
+import com.trigyn.jws.webstarter.xml.PermissionXMLVO;
 
 @Component("template")
 public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
-
-	@Autowired
-	private DBTemplatingService					dbTemplatingService		= null;
 
 	@Autowired
 	private PropertyMasterDAO					propertyMasterDAO		= null;
@@ -53,18 +63,35 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 	@Autowired
 	private IUserDetailsService					detailsService			= null;
+	
+	@Autowired
+	private ImportExportUtility 				importExportUtility 	= null;
+	
+	@Autowired
+	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository	= null;
+	
+	@Autowired
+	private DynaRestModule	dynaRestModule	= null;
+	
+	Map<String, String> moduleListMap = null;
+	String htmlTableJSON;
 
 	@Override
 	public void downloadCodeToLocal(TemplateMaster a_templateMaster, String folderLocation) throws Exception {
 		List<TemplateMaster>	templates	= new ArrayList<>();
 		List<TemplateVO>		templateVOs	= new ArrayList<>();
+		Set<String> existingModuleIDs = new HashSet<>();
+		ObjectMapper mapper = new ObjectMapper();
+		ArrayNode jsonHtmlArr = mapper.createArrayNode();
+		ArrayNode jsonPermArr = mapper.createArrayNode();
+		
 		if (a_templateMaster != null) {
 			templates.add(a_templateMaster);
 			templateVOs = templates.stream().map((template) -> new TemplateVO(template.getTemplateId(), template.getTemplateName(),
 					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
-			templateVOs = dbTemplatingService.getAllDefaultTemplates();
+			templateVOs = getAllDefaultTemplates();
 		}
 
 		String	ftlCustomExtension	= Constant.CUSTOM_FILE_EXTENSION;
@@ -85,10 +112,62 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 			File file = new File(folderLocation + File.separator + "metadata.xml");
 			if (file.exists()) {
 				metadataXMLVO = (MetadataXMLVO) unMarshaling(MetadataXMLVO.class, file.getAbsolutePath());
+				if (metadataXMLVO != null && metadataXMLVO.getExportModules() != null &&
+				        metadataXMLVO.getExportModules().getModule() != null) {
+				        for (Modules vo : metadataXMLVO.getExportModules().getModule()) {
+				            existingModuleIDs.add(vo.getModuleID());
+				        }
+				    }
 			}
 		}
+		
+		Map<String, XMLVO> xmlVOMap = new HashMap<>();
+		String targetLocation = null;
+
+		targetLocation = propertyMasterDAO.findPropertyMasterValue("system", "system", "template-storage-path");
+		
+		MetadataXMLVO metaXMLVO = importExportUtility.readMetaDataXML(targetLocation);
+		if(metadataXMLVO != null && metadataXMLVO.getInfo() != null && metadataXMLVO.getInfo() != "" ) {
+		//	existingLocalData = new JSONArray(metadataXMLVO.getInfo());
+		}
+		xmlVOMap = importExportUtility.readFiles(targetLocation, metaXMLVO, moduleListMap);
+
+		XMLVO xmlVO = xmlVOMap.get(Constant.PERMISSION + ".xml");
+
+		PermissionXMLVO permissionXMLVO = (xmlVO == null) ? null : (PermissionXMLVO) xmlVO;
+
+		Map<String, Object> moduleListMap = new HashMap<>();
 
 		for (TemplateVO templateVO : templateVOs) {
+			if (existingModuleIDs.contains(templateVO.getTemplateId())) {
+		        continue; // Skip if already present in XML
+		    }
+			
+			Map<String, Object> map = new HashMap<>();
+
+			Map<String, Integer> positionMap = new HashMap<>();
+			if (permissionXMLVO != null && permissionXMLVO.getJwsRoleDetails().isEmpty() == false) {
+				int counter = 0;
+				for (JwsEntityRoleAssociation permission : permissionXMLVO.getJwsRoleDetails()) {
+					positionMap.put(permission.getEntityRoleId(), counter);
+					counter = counter + 1;
+				}
+			}
+			
+			List<JwsEntityRoleAssociation> roles = entityRoleAssociationRepository.getEntityRoles(templateVO.getTemplateId(), Constant.TEMP_MOD_ID);
+			for (JwsEntityRoleAssociation role : roles) {
+				ObjectNode modulePermObj = mapper.createObjectNode();
+			    permissionXMLVO.getJwsRoleDetails().add(role.getObject());
+			    modulePermObj.put("moduleType", "Permission");
+			    modulePermObj.put("moduleID", role.getEntityRoleId());
+			    modulePermObj.put("moduleName", role.getEntityName());
+			    modulePermObj.put("moduleVersion", "NA");
+			    jsonPermArr.add(modulePermObj);
+			}
+
+			
+			
+			
 			String	newFileCheckSum	= null;
 			File	file			= new File(folderLocation + File.separator + templateVO.getTemplateName() + ftlCustomExtension);
 			if (file.exists()) {
@@ -106,37 +185,44 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 				newFileCheckSum = fileUtilities.writeFileContents(templateVO.getTemplate(), file);
 				templateVO.setChecksum(newFileCheckSum);
 			}
-		}
-		for (TemplateVO templateVO : templateVOs) {
+	//	}
+		//for (TemplateVO templateVO : templateVOs) {
 			if (templateVO.isChecksumChanged()) {
 				templateDAO.updateChecksum(templateVO);
 
 				TemplateExportVO	temMaster	= new TemplateExportVO(templateVO.getTemplateId(), templateVO.getTemplateName(),
 						templateVO.getTemplateType(), templateVO.getTemplateName() + ftlCustomExtension, templateVO.getUpdatedDate());
 
-				Map<String, Object>	map			= new HashMap<>();
+		//		Map<String, Object>	map			= new HashMap<>();
 				map.put("moduleName", templateVO.getTemplateName());
 				map.put("moduleObject", temMaster);
 				moduleDetailsMap.put(templateVO.getTemplateId(), map);
+				
+				// Build JSON object for exportData
+				ObjectNode moduleObj = mapper.createObjectNode();
+				moduleObj.put("moduleType", "Templates");
+				moduleObj.put("moduleID", templateVO.getTemplateId());
+				moduleObj.put("moduleName", templateVO.getTemplateName());
+				moduleObj.put("moduleVersion", "1.0");
 
-				List<Modules> moduleList = new ArrayList<>();
-				if (metadataXMLVO != null && metadataXMLVO.getExportModules() != null
-						&& metadataXMLVO.getExportModules().getModule() != null) {
-					for (Modules vo : metadataXMLVO.getExportModules().getModule()) {
-						if (!vo.getModuleID().equals(templateVO.getTemplateId())) {
-							moduleList.add(vo);
-						}
-					}
-					metadataXMLVO.getExportModules().setModule(moduleList);
-				}
+				// Add object to array
+				jsonHtmlArr.add(moduleObj);
+				
+				moduleListMap.put("DynaRest", jsonHtmlArr);
+				moduleListMap.put("Permission", jsonPermArr);
+
 			}
 		}
-
+		
+		htmlTableJSON = dynaRestModule.exportConfigData(folderLocation, null , moduleListMap,true);
+		if (permissionXMLVO != null)
+			XMLUtil.marshaling(permissionXMLVO, "Permission", targetLocation);
+		
 		generateMetadataXML(metadataXMLVO, moduleDetailsMap, folderLocation, version, userName);
 	}
 
 	@Override
-	public void uploadCodeToDB(String uploadFileName) throws Exception {
+	public void uploadCodeToDB(String templateTypeID,String uploadFileName) throws Exception {
 		String	user				= "admin";
 		String	ftlCustomExtension	= Constant.CUSTOM_FILE_EXTENSION;
 		String	templateDirectory	= Constant.TEMPLATE_DIRECTORY_NAME;
@@ -172,8 +258,8 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 			for (File file : files) {
 				if (file.isFile()) {
 					String fileName = file.getName();
-
-					if (fileName.equals(templateExportVO.getTemplateFileName())) {
+					Integer templateTypeId = templateExportVO.getTemplateTypeId();
+					if (Integer.parseInt(templateTypeID) == templateTypeId && fileName.equals(templateExportVO.getTemplateFileName())) {
 						TemplateMaster	template				= templateDAO.findTemplateById(moduleID);
 
 						String			content					= fileUtilities.readContentsOfFile(file.getAbsolutePath());
@@ -230,7 +316,7 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 					template.getTemplate(), template.getChecksum(), template.getTemplateTypeId(), template.getCreatedBy(), template.getUpdatedDate()))
 					.collect(Collectors.toList());
 		} else {
-			templateVOs = dbTemplatingService.getAllDefaultTemplates();
+			templateVOs = getAllDefaultTemplates();
 		}
 
 		String	ftlCustomExtension	= Constant.CUSTOM_FILE_EXTENSION;
@@ -342,6 +428,11 @@ public class TemplateModule implements DownloadUploadModule<TemplateMaster> {
 
 	public void setModuleDetailsMap(Map<String, Map<String, Object>> moduleDetailsMap) {
 		this.moduleDetailsMap = moduleDetailsMap;
+	}
+
+	public List<TemplateVO> getAllDefaultTemplates() {
+		List<TemplateVO> templateVOs = dbTemplatingRepository.getAllDefaultTemplates(Constant.DEFAULT_TEMPLATE_TYPE);
+		return templateVOs;
 	}
 
 }

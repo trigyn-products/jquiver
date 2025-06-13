@@ -1,63 +1,61 @@
 package com.trigyn.jws.webstarter.dao;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.hibernate.query.MutationQuery;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.trigyn.jws.dashboard.dao.QueryStore;
 import com.trigyn.jws.dashboard.entities.Dashboard;
 import com.trigyn.jws.dashboard.entities.DashboardDashletAssociation;
 import com.trigyn.jws.dashboard.entities.DashboardRoleAssociation;
 import com.trigyn.jws.dashboard.entities.Dashlet;
 import com.trigyn.jws.dashboard.entities.DashletProperties;
-import com.trigyn.jws.dashboard.vo.DashletVO;
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.webstarter.controller.DashboardCrudController;
 
 @Repository
 public class DashboardCrudDAO extends DBConnection {
 
-	private final static Logger logger = LogManager.getLogger(DashboardCrudController.class);
+	private final static Logger logger = LoggerFactory.getLogger(DashboardCrudController.class);
 
-	@Autowired
 	public DashboardCrudDAO(DataSource dataSource) {
 		super(dataSource);
 	}
 
 	public Dashboard findDashboardByDashboardId(String dashboardId) throws Exception {
-		Dashboard dashboard =  hibernateTemplate.get(Dashboard.class, dashboardId);
+		Dashboard dashboard =  getCurrentSession().get(Dashboard.class, dashboardId);
 		if(dashboard != null) getCurrentSession().evict(dashboard);
 		return dashboard;
 	}
 
 	public Dashlet findDashletByDashletId(String dashletId) throws Exception {
-		Dashlet dashlet =  hibernateTemplate.get(Dashlet.class, dashletId);
+		Dashlet dashlet =  getCurrentSession().get(Dashlet.class, dashletId);
 		if(dashlet != null) getCurrentSession().evict(dashlet);
 		return dashlet;
 	}
 
 	public List<DashboardRoleAssociation> findDashboardRoleByDashboardId(String dashboardId) throws Exception {
-		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_FIND_DASHBOARD_ROLE_DASHBOARD_ID);
+		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_FIND_DASHBOARD_ROLE_DASHBOARD_ID, DashboardRoleAssociation.class);
 		query.setParameter("dashboardId", dashboardId);
 		return query.list();
 	}
 
 	public void deleteAllDashletFromDashboard(String dashboardId) throws Exception {
-		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_ALL_DELETE_DASHLET_FROM_DASHBOARD.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(CrudQueryStore.HQL_QUERY_ALL_DELETE_DASHLET_FROM_DASHBOARD.toString());
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
 	}
 
 	public void deleteAllDashboardRoles(String dashboardId) throws Exception {
-		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHBOARD_ROLES.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHBOARD_ROLES.toString());
 		query.setParameter("dashboardId", dashboardId);
 		query.executeUpdate();
 	}
@@ -66,8 +64,10 @@ public class DashboardCrudDAO extends DBConnection {
 		getCurrentSession().saveOrUpdate(dashboardDashletAssociation);
 	}
 
-	public void saveDashletProperties(DashletProperties dashletProperties) throws Exception {
-		getCurrentSession().saveOrUpdate(dashletProperties);
+	public DashboardDashletAssociation findDashboardDashletAssociationById(String dashboardDashletAssociationId) throws Exception {
+		DashboardDashletAssociation dashboardDashletAssociation =  getCurrentSession().get(DashboardDashletAssociation.class, dashboardDashletAssociationId);
+		if(dashboardDashletAssociation != null) getCurrentSession().evict(dashboardDashletAssociation);
+		return dashboardDashletAssociation;
 	}
 
 	public void deleteAllDashletProperty(String dashletId, List<String> propertyIdList) throws Exception {
@@ -76,7 +76,7 @@ public class DashboardCrudDAO extends DBConnection {
 		if (!StringUtils.isEmpty(propertyIdList)) {
 			deleteQuery.append(" NOT IN(:propertyId) ");
 		}
-		Query query = getCurrentSession().createQuery(deleteQuery.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(deleteQuery.toString());
 		query.setParameter("dashletId", dashletId);
 		if (!StringUtils.isEmpty(propertyIdList)) {
 			query.setParameterList("propertyId", propertyIdList);
@@ -85,7 +85,7 @@ public class DashboardCrudDAO extends DBConnection {
 	}
 
 	public void deleteAllDashletRoles(String dashletId) throws Exception {
-		Query query = getCurrentSession().createQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHLET_ROLES.toString());
+		MutationQuery query = getCurrentSession().createMutationQuery(CrudQueryStore.HQL_QUERY_TO_DELETE_ALL_DASHLET_ROLES.toString());
 		query.setParameter("dashletId", dashletId);
 		query.executeUpdate();
 	}
@@ -93,26 +93,26 @@ public class DashboardCrudDAO extends DBConnection {
 	@Transactional(readOnly = false)
 	public void saveDashboard(Dashboard dashboard, List<DashboardRoleAssociation> dashboardRoleAssociations, List<DashboardDashletAssociation>	dashboardDashlets) throws Exception {
 		if(dashboard.getDashboardId() == null || findDashboardByDashboardId(dashboard.getDashboardId()) == null) {
-			getCurrentSession().save(dashboard);			
+			getCurrentSession().persist(dashboard);			
 		}else {
-			getCurrentSession().saveOrUpdate(dashboard);
+			getCurrentSession().merge(dashboard);
 		}
 		
 		deleteAllDashboardRoles(dashboard.getDashboardId());
 		for(DashboardRoleAssociation dra : dashboardRoleAssociations) {
-			getCurrentSession().save(dra);
+			getCurrentSession().persist(dra);
 		}
 
 		deleteAllDashletFromDashboard(dashboard.getDashboardId());
 		for(DashboardDashletAssociation dra : dashboardDashlets) {
-			getCurrentSession().save(dra);
+			getCurrentSession().persist(dra);
 		}
 	}
 
 	public void saveDashlet(Dashlet dashlet) throws Exception {
 		getCurrentSession().flush();
 		if(dashlet.getDashletId() == null || findDashletByDashletId(dashlet.getDashletId()) == null) {
-			getCurrentSession().save(dashlet);			
+			getCurrentSession().persist(dashlet);			
 		}else {
 			getCurrentSession().merge(dashlet);
 		}
@@ -120,7 +120,7 @@ public class DashboardCrudDAO extends DBConnection {
 	
 	public void updateDashboard(Dashboard dashboard) throws Exception {
 		getCurrentSession().flush();
-			getCurrentSession().merge(dashboard);			
+		getCurrentSession().merge(dashboard);			
 		
 	}
 

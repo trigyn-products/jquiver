@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,20 +19,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trigyn.jws.dbutils.service.PropertyMasterService;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dynamicform.entities.DynamicForm;
 import com.trigyn.jws.templating.entities.TemplateMaster;
 import com.trigyn.jws.templating.service.ModuleService;
 import com.trigyn.jws.webstarter.service.MasterCreatorService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
 @PreAuthorize("hasPermission('module','Master Generator')")
 public class MasterCreatorController {
 
-	private final static Logger		logger					= LogManager.getLogger(MasterCreatorController.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(MasterCreatorController.class);
 
 	@Autowired
 	private MasterCreatorService	masterCreatorService	= null;
@@ -44,7 +46,10 @@ public class MasterCreatorController {
 	private ModuleService			moduleService			= null;
 	
 	@Autowired
-	private PropertyMasterService			propertyMasterService			= null;
+	private PropertyMasterService	propertyMasterService	= null;
+	
+	@Autowired
+	private FileUtilities 			fileUtilities 			= null;
 
 	@GetMapping(value = "/mg", produces = MediaType.TEXT_HTML_VALUE)
 	public String masterGenertor(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
@@ -59,7 +64,7 @@ public class MasterCreatorController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}
@@ -87,10 +92,10 @@ public class MasterCreatorController {
 		} catch (Exception exception) {
 			logger.error("Error occured while saving Master Module (formData: {})"+formData, exception);
 			if(null!=exception.getMessage() && exception.getMessage().equalsIgnoreCase(HttpStatus.PRECONDITION_FAILED.toString())){
-				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "File Bin already exist");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(), "File Bin already exist");
 			}
 			else if (httpServletResponse.getStatus() != HttpStatus.FORBIDDEN.value()) {
-				httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
 			}
 		}
 	}
@@ -106,7 +111,7 @@ public class MasterCreatorController {
 			return masterList;
 		} catch (Exception a_exception) {
 			logger.error("Error occured while loading table details : TableName : " + tableName, a_exception);
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 	}

@@ -5,8 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.trigyn.jws.webstarter.vo.GenericUserNotification;
 
-
-
 @Repository
 public interface INotificationRepository extends JpaRepository<GenericUserNotification, String> {
 

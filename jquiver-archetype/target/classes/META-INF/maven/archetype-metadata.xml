@@ -55,6 +55,9 @@
         <include>.gitignore</include>
         <include>mvnw</include>
         <include>mvnw.cmd</include>
+        <include>docker-compose.yml</include>
+        <include>Dockerfile</include>
+        <include>readme.txt</include>
       </includes>
     </fileSet>
   </fileSets>

@@ -1,0 +1,5 @@
+<#if isEdit == 1>
+      UPDATE jq_form_io SET form_name = :formIoName,form_description = :formDescription,form_io_json = :formIoJson,form_io_checksum = :formIoChecksum,form_io_type = :formIoType,is_custom_updated = :isCustomUpdated,persistence_type = :persistenceType,last_updated_by = :loggedInUserName,last_updated_ts = NOW()  WHERE form_io_id = :formIoId
+<#else>
+    INSERT INTO jq_form_io (form_io_id,form_name,form_description,form_io_json,form_io_checksum,form_io_type,is_custom_updated,persistence_type,created_by,created_date,last_updated_by,last_updated_ts) VALUES (:formIoId,:formIoName,:formDescription,:formIoJson,:formIoChecksum,:formIoType,:isCustomUpdated,:persistenceType,:loggedInUserName,NOW(),:loggedInUserName,NOW())
+</#if>

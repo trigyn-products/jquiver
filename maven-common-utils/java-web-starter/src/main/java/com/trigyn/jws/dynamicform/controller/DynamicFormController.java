@@ -5,11 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,26 +17,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.google.gson.Gson;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.CustomeFileStorageException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
+import com.trigyn.jws.dbutils.utils.JwsCustomException;
 import com.trigyn.jws.dynamicform.service.DynamicFormService;
 import com.trigyn.jws.dynarest.service.FilesStorageService;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
 import freemarker.core.StopException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/cf")
 public class DynamicFormController {
  
-	private static final Logger	logger				= LogManager.getLogger(DynamicFormController.class);
+	private static final Logger	logger				= LoggerFactory.getLogger(DynamicFormController.class);
 
 	@Autowired
 	private DynamicFormService	dynamicFormService	= null;
 
 	@Autowired
 	private FilesStorageService	filesStorageService	= null;
+	
+	@Autowired
+	private FileUtilities		fileUtilities				= null;
 	
 	@PostMapping("/df")
 	@Authorized(moduleName = Constants.DYNAMICFORM)
@@ -58,7 +64,7 @@ public class DynamicFormController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),exception.getMessage());
 			return null;
 		}
 	}
@@ -70,18 +76,18 @@ public class DynamicFormController {
 			HttpServletResponse httpServletResponse) throws Exception {
 		logger.debug("Inside DynamicFormController.saveDynamicForm(formData: {})", formData.getFirst("formId"));
 		try {
-			return dynamicFormService.saveDynamicForm(formData);
+			return dynamicFormService.saveDynamicForm(formData,httpServletResponse);
 		} catch (Exception exception) {
 			logger.error("Error occured while saving dynamic form (formId: {})", formData.getFirst("formId"), exception);
 			if(exception.getMessage().equalsIgnoreCase(HttpStatus.PRECONDITION_FAILED.toString()))
 			{
-				httpServletResponse.sendError(HttpStatus.PRECONDITION_FAILED.value(), "File Bin already exist");
+				fileUtilities.customSendError(httpServletResponse,HttpStatus.PRECONDITION_FAILED.value(),"File Bin already exist");
 				return null;
 			}
 			else if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(),exception.getMessage());
 			return null;
 		}
 	}
@@ -141,44 +147,48 @@ public class DynamicFormController {
 
 	@Authorized(moduleName = Constants.DYNAMICFORM)
 	public Map<String, Object> saveDynamicFormV2(HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletRepsonse, Map<String, Object> parameterMap) throws IOException, CustomStopException {
-		
-		logger.debug("Inside DynamicFormController.saveDynamicFormV2()");
-		List<Map<String, String>> formData = null;
-		try {
-			 formData = new Gson().fromJson(httpServletRequest.getParameter("formData"),
-					List.class);
-			Map<String, Object> result = dynamicFormService.saveDynamicFormV2(formData, httpServletRequest, httpServletRepsonse);
+			HttpServletResponse httpServletRepsonse, Map<String, Object> parameterMap)
+			throws IOException, CustomStopException {
 
-			// validate resultMap
-			for (Map<String, String> formEntry : formData) {
-				if (formEntry.containsKey("valueType") && formEntry.get("valueType").equalsIgnoreCase("fileBin") && formEntry.get("fileUploadTempId")!=null) {
-					filesStorageService.commitChanges(formEntry.get("FileBinID"), formEntry.get("fileAssociationID"), formEntry.get("fileUploadTempId"));
-				}
-			}
+		Map<String, Object> result = new HashMap<>();
+		logger.debug("Inside DynamicFormController.saveDynamicFormV2()");
+		try {  
+			result = dynamicFormService.saveDynamicFormV2(httpServletRequest, httpServletRepsonse, parameterMap);
 			return result;
-			
-		} catch (CustomStopException custStopException) {
+		}catch (CustomStopException custStopException) {
 			logger.error("Error occured while loading dynamic form.", custStopException);
 			throw custStopException;
 		} catch (Throwable a_throwable) {
-
-			logger.error("Error occurred while saving dynamic form: "+formData.get(0), a_throwable);
+			logger.error("Error occurred while saving dynamic form: ", a_throwable);
 			Throwable rootCause = a_throwable;
 			while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
 				if (rootCause instanceof StopException) {
-					httpServletRepsonse.sendError(HttpStatus.EXPECTATION_FAILED.value(),
-							((StopException) rootCause).getMessageWithoutStackTop());
+					fileUtilities.customSendError(httpServletRepsonse,HttpStatus.EXPECTATION_FAILED.value(),((StopException) rootCause).getMessageWithoutStackTop());
 				}
+				
 				rootCause = rootCause.getCause();
 			}
-			
-			httpServletRepsonse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+			if(rootCause instanceof CustomeFileStorageException) {
+				fileUtilities.customSendError(httpServletRepsonse,HttpStatus.PRECONDITION_REQUIRED.value(),
+						((CustomeFileStorageException) rootCause).getMessage());
+				return null;
+			}
+			if(rootCause instanceof NumberFormatException) {
+				fileUtilities.customSendError(httpServletRepsonse,HttpStatus.PRECONDITION_REQUIRED.value(),
+						((CustomStopException) rootCause).getMessage());
+				return null;
+			}
+			if(rootCause instanceof JwsCustomException) {
+				fileUtilities.customSendError(httpServletRepsonse,HttpStatus.PRECONDITION_REQUIRED.value(),
+						((JwsCustomException) rootCause).getMessage());
+				return null;
+			}
+			fileUtilities.customSendError(httpServletRepsonse,HttpStatus.INTERNAL_SERVER_ERROR.value(),
 					HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 		}
 		return null;
 	}
-
+	
 	private Map<String, Object> processRequestParams(HttpServletRequest httpServletRequest) {
 		
 		Map<String, Object> requestParams = new HashMap<>();

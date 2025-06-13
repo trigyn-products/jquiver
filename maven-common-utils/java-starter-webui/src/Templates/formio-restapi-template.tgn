@@ -1,0 +1,18 @@
+<#if selectedTab == "htmlContent">
+```HTML
+	Rest HTML Content
+	
+```
+
+<#elseif selectedTab == "selectContent">
+```JavaScript
+	Rest Select JS Content	 
+	   
+```
+<#elseif selectedTab == "jsContent">
+```JavaScript
+	Rest Save JS Content
+	    
+```
+
+</#if>

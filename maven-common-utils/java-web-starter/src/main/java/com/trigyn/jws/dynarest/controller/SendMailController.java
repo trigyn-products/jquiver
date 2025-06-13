@@ -1,6 +1,5 @@
 package com.trigyn.jws.dynarest.controller;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -15,6 +14,8 @@ import com.trigyn.jws.dynarest.vo.Email;
 import com.trigyn.jws.templating.service.DBTemplatingService;
 import com.trigyn.jws.templating.vo.TemplateVO;
 import com.trigyn.jws.usermanagement.security.config.ApplicationSecurityDetails;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/cf")

@@ -1,0 +1,1 @@
+UPDATE jq_master_modules SET module_name = "Router", module_type = "Router" WHERE module_id = 'c6cc466a-0ed3-11eb-94b2-f48e38ab9348';

@@ -7,52 +7,72 @@ import javax.sql.DataSource;
 
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.usermanagement.entities.JwsEntityRoleAssociation;
+import com.trigyn.jws.webstarter.utils.RedissonQueryCacheManagerUtil;
 
 @Repository
 public class JwsEntityRoleAssociationDAO extends DBConnection {
 
-	private final static String QUERY_TO_GET_ENTITY_ROLE_ASSOC_ID = " SELECT jera.entityRoleId FROM JwsEntityRoleAssociation jera WHERE jera.entityId=:entityId"
-			+ " AND jera.entityName=:entityName AND jera.moduleId=:moduleId AND jera.roleId=:roleId";
-
-	@Autowired
 	public JwsEntityRoleAssociationDAO(DataSource dataSource) {
 		super(dataSource);
 	}
 
+	@Autowired
+	private JwsEntityRoleAssociationRepository	entityRoleAssociationRepository;
+	@Autowired
+	private RedissonQueryCacheManagerUtil		cacheManager;
+
+	private final static String					QUERY_TO_GET_ENTITY_ROLE_ASSOC_ID	= " SELECT jera.entityRoleId FROM JwsEntityRoleAssociation jera WHERE jera.entityId=:entityId"
+			+ " AND jera.entityName=:entityName AND jera.moduleId=:moduleId AND jera.roleId=:roleId";
+
+	private static final String					CACHE_NAME							= "entityNameByModuleAndEntity";
+
+	@Value("${jquiver.redis.cache.ttl:1800}") // 30 minutes
+	private int									defaultTTLMinutes;
+
+	public String getEntityNameByEntityAndRoleId(String moduleName, String entityName) {
+		String key = moduleName + ":" + entityName;
+
+		return cacheManager.fetchJpaDto(CACHE_NAME, key,
+				() -> entityRoleAssociationRepository.getEntityNameByEntityAndRoleId(moduleName, entityName),
+				defaultTTLMinutes);
+	}
+
 	public JwsEntityRoleAssociation findPermissionById(String entityRoleId) {
-		JwsEntityRoleAssociation entityRole = hibernateTemplate.get(JwsEntityRoleAssociation.class, entityRoleId);
+		JwsEntityRoleAssociation entityRole = getCurrentSession().get(JwsEntityRoleAssociation.class, entityRoleId);
 		if (entityRole != null)
 			getCurrentSession().evict(entityRole);
 		return entityRole;
 	}
 
 	public JwsEntityRoleAssociation findJERAByName(String entityId, String entityName, String moduleId, String roleId) {
-		Query query = getCurrentSession().createQuery(QUERY_TO_GET_ENTITY_ROLE_ASSOC_ID);
+		Query query = getCurrentSession().createQuery(QUERY_TO_GET_ENTITY_ROLE_ASSOC_ID, String.class);
 		query.setParameter("entityId", entityId);
 		query.setParameter("entityName", entityName);
 		query.setParameter("moduleId", moduleId);
 		query.setParameter("roleId", roleId);
 		Object jeraValueObj = query.uniqueResult();
 		if (jeraValueObj != null) {
-			String jeraId = jeraValueObj.toString();
-			JwsEntityRoleAssociation entityRole = hibernateTemplate.get(JwsEntityRoleAssociation.class, jeraId);
+			String						jeraId		= jeraValueObj.toString();
+			JwsEntityRoleAssociation	entityRole	= getCurrentSession().get(JwsEntityRoleAssociation.class, jeraId);
 			return entityRole;
 		} else {
 			String queryStr = " SELECT jera.entityRoleId FROM JwsEntityRoleAssociation jera WHERE jera.entityId=:entityId"
 					+ " AND jera.moduleId=:moduleId AND jera.roleId=:roleId";
-			query = getCurrentSession().createQuery(queryStr);
+			query = getCurrentSession().createQuery(queryStr, String.class);
 			query.setParameter("entityId", entityId);
 			query.setParameter("moduleId", moduleId);
 			query.setParameter("roleId", roleId);
 			jeraValueObj = query.uniqueResult();
 			if (jeraValueObj != null) {
-				String jeraId = jeraValueObj.toString();
-				JwsEntityRoleAssociation entityRole = hibernateTemplate.get(JwsEntityRoleAssociation.class, jeraId);
+				String						jeraId		= jeraValueObj.toString();
+				JwsEntityRoleAssociation	entityRole	= getCurrentSession().get(JwsEntityRoleAssociation.class,
+						jeraId);
 				return entityRole;
 			}
 
@@ -70,11 +90,11 @@ public class JwsEntityRoleAssociationDAO extends DBConnection {
 
 			if (entityRole.getEntityRoleId() == null
 					|| (findPermissionById(entityRole.getEntityRoleId()) == null && jera == null)) {
-				getCurrentSession().save(entityRole);
+				getCurrentSession().persist(entityRole);
 			} else {
 				if (jera != null)
 					entityRole.setEntityRoleId(jera.getEntityRoleId());
-				getCurrentSession().saveOrUpdate(entityRole);
+				getCurrentSession().merge(entityRole);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,7 +102,7 @@ public class JwsEntityRoleAssociationDAO extends DBConnection {
 	}
 
 	public void createPermission(String roleId, Integer isActive, String updatedBy) {
-		String insertQuery = "INSERT INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id, is_custom_updated, role_type_id) "
+		String				insertQuery	= "INSERT INTO jq_entity_role_association(entity_role_id, entity_id, entity_name, module_id, role_id, last_updated_date, last_updated_by, is_active, module_type_id, is_custom_updated, role_type_id) "
 				+ " SELECT UUID(), entity_id, entity_name, module_id, :roleId, NOW(), :updatedBy, :isActive, module_type_id, 1, role_type_id FROM jq_entity_role_association WHERE role_id= :adminRoleId ";
 
 		Map<String, Object>	paramMap	= new HashMap<>();

@@ -1,9 +1,16 @@
 <#assign optionalClass=" optional ">
+<#noparse>
+<#assign scriptNonce = (enableCSP?? && enableCSP && dynamicNonce??)?then('nonce="${dynamicNonce}"', '') />
+</#noparse>
 <head>
 <script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/dynamicform/addEditDynamicForm.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/crypto-js/aes.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/crypto-js/mode-ecb.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/crypto-js/enc-utf16.js"></script>
+<script type="text/javascript" src="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/crypto-js/pbkdf2.js"></script>
 <#if (columnDetails)??>
 	<#list columnDetails as columnDetailsList>
-        <#if columnDetailsList?api.get('columnType') == "date">
+        <#if columnDetailsList?api.get('columnType') == "date" || columnDetailsList?api.get('columnType') == "datetime">
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/jscal2.css" />
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/border-radius.css" />
 <link rel="stylesheet" type="text/css" href="<#noparse>${(contextPath)!''}</#noparse>/webjars/1.0/JSCal2/css/steel/steel.css" />
@@ -39,8 +46,20 @@
 	}
 
 	.captchacenter #imgCaptcha{
-	    margin:0 0 0 15px !important;
+	    height: 47px;
+        margin:0px;
 	}
+
+    .captchafeildbx input{
+	    height: 47px;
+        margin:0px;
+	}
+
+     #reloadCaptcha{
+        margin:0px 8px;
+            width: 60px;
+         height: 28px;
+    }
 
     </style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -48,9 +67,8 @@
 
 <div class="container">
 	<div class="topband">
-		<h2 class="title-cls-name float-left pageHeader">${messageSource.getMessage('jws.adddetails')}</h2> 
-		<div class="clearfix"></div>		
-	</div>
+		<h2 class="title-cls-name pageHeader">${messageSource.getMessage('jws.adddetails')}</h2> 
+ 	</div>
   <form name="addEditForm" id="addEditForm" onsubmit="return false;" action="#">
     <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
     
@@ -64,9 +82,9 @@
 	    		<div class="col-lg-3 col-12">
 					<div class="col-inner-form full-form-fields">
 						<#if (columnDetailsList.i18NPresent)?? && (columnDetailsList.i18NPresent) == true>
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "boolean">
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date"  && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean">
                                     
-						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap">
+						            <label for="${(columnDetailsList.columnName)}" >
 						            <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
@@ -75,7 +93,7 @@
 						            </label>
 								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder=<#noparse>"<@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/>"</#noparse> class="form-control  ${optionalClass!''}">
                                     
-				            <#elseif (columnDetailsList.columnType) == "date">
+				            <#elseif (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
 				                   <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
@@ -83,7 +101,7 @@
 				                    <label for="${(columnDetailsList.columnName)}"><#noparse><@resourceBundle</#noparse> "${(columnDetailsList.fieldName)!''}" <#noparse>/></#noparse></label>
 				                    <span>
 										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control" placeholder=<#noparse><@resourceBundle</#noparse> '${(columnDetailsList.fieldName)!''}' <#noparse>/></#noparse> />
-				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon" type="button" aria-label="calendar button"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
 							<#else>
 								<#if (columnDetailsList.isMandatory)>
@@ -95,9 +113,9 @@
 							</#if>
 							
 						<#else>	
-							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "boolean">
+							<#if (columnDetailsList.columnType) != "textarea" && (columnDetailsList.columnType) != "date" && (columnDetailsList.columnType) != "datetime" && (columnDetailsList.columnType) != "boolean">
                              
-						            <label for="${(columnDetailsList.columnName)}" style="white-space:nowrap">
+						            <label for="${(columnDetailsList.columnName)}" >
 									<#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
@@ -106,6 +124,7 @@
 						            </label>
 								<input type="${(columnDetailsList.columnType)}" data-type="${(columnDetailsList.dataType)}" id="${(columnDetailsList.columnName)}" name="${(columnDetailsList.columnName)}"  value="<#noparse>${(resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>)!""}</#noparse>" maxlength="${(columnDetailsList.columnSize)!""}" placeholder="${(columnDetailsList.fieldName)!''}" class="form-control ${optionalClass!''}">
                             <#elseif (columnDetailsList.columnType) == "boolean">
+                            
                                     <div class="displayflex">
 										<label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 										<label class="newswitch">
@@ -113,15 +132,17 @@
 											       id="toggleBoolean"
 											       name="${(columnDetailsList.columnName)}"
 											       value="0">
+											       <#assign colName = columnDetailsList.tableColumnName>
 												<input type="checkbox"
-												       name="toggleBooleanChkBox"
-												       class="onoffswitch-checkbox"
-												       id="toggleBooleanChkBox"
-												       onchange="toggleBooleanVal()">
+												   name="toggleBooleanChkBox"
+												   class="onoffswitch-checkbox"
+												   id="toggleBooleanChkBox"												   
+												   <#noparse><#if resultSetObject?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?? && resultSetObject.</#noparse>${(columnDetailsList.tableColumnName)}<#noparse>?number != 0>checked</#if></#noparse>>
+													
 													<span class="slider round"/>
 												</label>
 									</div>                  
-				            <#elseif (columnDetailsList.columnType) == "date">
+				            <#elseif (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
 				                    <#if (columnDetailsList.isMandatory)>
 						            <span class="asteriskmark">*</span>
 						            <#assign optionalClass="">
@@ -129,7 +150,7 @@
 				                    <label for="${(columnDetailsList.columnName)}">${(columnDetailsList.fieldName)!''}</label>
 				                    <span>
 										<input id="${(columnDetailsList.columnName)}" readonly name="${(columnDetailsList.columnName)}" class="form-control ${optionalClass!''}" placeholder="${(columnDetailsList.fieldName)!''}">
-				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon"><i class="fa fa-calendar" aria-hidden="true"></i></button>
+				                        <button id="${(columnDetailsList.columnName)}-trigger" class="calender_icon" type="button" aria-label="calendar button"><i class="fa fa-calendar" aria-hidden="true"></i></button>
 									</span>
 							<#else>
 								<#if (columnDetailsList.isMandatory)>
@@ -162,27 +183,23 @@
     	</div>
     </#if>
     <#if (toggleCaptcha)?? && (toggleCaptcha) == true>
+      <input type="hidden" id="isCaptchaEnabled" name="isCaptchaEnabled" value="1"/>
      <div class="row">
-		<div class="col-lg-5 col-12" title="Reload Captcha">
-			 <div class="col-inner-form full-form-fields">
-                 <div class="captchacenter">
-                 <div class="captchafeildbx">				 
-					<label for="formCaptcha">Enter Captcha <span class="asteriskmark">*</span></label>
-					<input type="text" id="formCaptcha" name="formCaptcha" class="form-control" placeholder="Type your captcha here"  >
-                 </div>
-                 <div clas="captachimblock">
-                    <img id="imgCaptcha" name="imgCaptcha" src="${(contextPath)!''}/cf/captcha/<#noparse>${formId}</#noparse>_captcha">
-					<i id="reloadCaptcha" class="fa fa-refresh" aria-hidden="true" ></i>
+	 <div class="col-lg-3 col-12" >
+			<div class="col-inner-form full-form-fields">
+                 <div class="captchablock">
+					 <img id="imgCaptcha" name="imgCaptcha" src="">
+					  <span id="reloadCaptcha"><i class="fa fa-refresh" aria-hidden="true"></i></span>
+					<label for="captcha" class="sr-only">${messageSource.getMessage('jws.entercaptcha')}</label>
+					<input type="text" id="formCaptcha" name="formCaptcha" class="form-control" placeholder="Enter Captcha" required autofocus >
                     </div>
-                    </div>
-                    
-        
-                
 			</div>
-		 </div>
+		</div>
     </div>
      </#if>
-     
+      <#if (toggleCsrf)?? && (toggleCsrf) == true>
+       <input type="hidden" id="isCsrfEnabled" name="isCsrfEnabled" value="1"/>
+      </#if>
      <#if (toggleFileBin)?? && (toggleFileBin) == true >     
         <#noparse> <#if (resultSetObject.</#noparse>${editCondition}<#noparse>)?? ></#noparse>
       <div class="row">
@@ -196,20 +213,20 @@
    <#noparse>
 	<div class="row">
 		<div class="col-12">
-			<div class="float-right">
+			<div class="text-end">
 				<div class="btn-group dropup custom-grp-btn">
                     <span id="savedAction">
-                    <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="onSaveButtonClick(SaveAction.Return, isEdit);">${messageSource.getMessage("jws.saveAndReturn")}</button>
+                    <button type="button" id="saveAndReturn" class="btn btn-primary" >${messageSource.getMessage("jws.saveAndReturn")}</button>
                     </span>
-                    <span id="actionDropdownBtn" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();"></span>
+                    <span id="actionDropdownBtn"  data-bs-toggle="dropdown" aria-expanded="false" type="button" class="caret-icon btn btn-primary dropdown-toggle panel-collapsed" ></span>
                     <div class="dropdown-menu action-cls"  id="actionDiv">
                     	<ul class="dropdownmenu">
-                            <li id="saveAndCreateNew" onclick="onSaveButtonClick(SaveAction.CreateNew, isEdit);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
-                            <li id="saveAndEdit" onclick="onSaveButtonClick(SaveAction.Edit, isEdit);">${messageSource.getMessage("jws.saveAndEdit")}</li>
+                            <li id="saveAndCreateNew" >${messageSource.getMessage("jws.saveAndCreateNew")}</li>
+                            <li id="saveAndEdit" >${messageSource.getMessage("jws.saveAndEdit")}</li>
                         </ul>
                     </div>  
                 </div>
-				<span onclick="backToPreviousPage();">
+				<span >
 					<input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.cancel')}" type="button">
 				</span> 
 			</div>
@@ -217,28 +234,57 @@
 	</div>
 	</#noparse>
 </div>
-<script>
+<script <#noparse>${scriptNonce} </#noparse>>
 	document.title = "Manage ${(formName)!''}";
   <#noparse>
 	contextPath = "${contextPath}";	 
+	viewPath = "${(viewPath)!'/view'}";
     formId = "${formId}";
-	 let isEdit = 0;
-	</#noparse>
-
+    localStorage.setItem('r', null);
+  	let isEdit = 0;
+  </#noparse>
+  
+    const actionDropdownBtn = document.getElementById("actionDropdownBtn");	
+	const backBtn = document.getElementById("backBtn");
+	const toggleBooleanChkBox = document.getElementById("toggleBooleanChkBox");
+	
+	actionDropdownBtn.addEventListener("click", function (event) {
+	    actionOptions();
+	});
+	
+	backBtn.addEventListener("click", function (event) {
+	    backToPreviousPage();
+	});
+	
+	if (toggleBooleanChkBox) {
+		toggleBooleanChkBox.addEventListener("change", function (event) {
+		    toggleBooleanVal();
+		});
+	}
   function toggleBooleanVal() {
 		let isChecked = $('#toggleBooleanChkBox').is(':checked')? 1 : 0;		
         $("#toggleBoolean").val(isChecked);  
     }  
   
   $("#reloadCaptcha").click(function(event){
-    $("#imgCaptcha").attr("src", $("#imgCaptcha").attr("src")+"#");
+     var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha"+"#";
+     generateCaptch(imagesrc);
     $("#formCaptcha").val("");
 });
   $(function(){
+  
+    Object.keys(saveFunctionMap).forEach(actionId => {
+		const $el = $('#' + actionId);
+		if ($el.length) {
+			$el.on("click", () => {
+				onSaveButtonClick(saveFunctionMap[actionId], isEdit);
+			});
+		}
+	});
     // setting value on edit.
     <#if (columnDetails)??>
         <#list columnDetails as columnDetailsList>
-        <#if (columnDetailsList.columnType) == "date">
+        <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
         Calendar.setup({
 			trigger    : "${(columnDetailsList.columnName)!""}-trigger",
 			inputField : "${(columnDetailsList.columnName)!""}",
@@ -262,9 +308,9 @@
     </#noparse>  		
       		<#if (columnDetails)??>
     	        <#list columnDetails as columnDetailsList>
-                    <#if (columnDetailsList.columnType) == "date">
+                    <#if (columnDetailsList.columnType) == "date" || (columnDetailsList.columnType) == "datetime">
                     try{
-                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)}</#noparse>',false),"%d-%B-%Y"));
+                       $("#"+"${(columnDetailsList.columnName)}") .val(Calendar.printDate(Calendar.parseDate('<#noparse>${(resultSetList</#noparse>.${(columnDetailsList.tableColumnName!'')}<#noparse>)!""}</#noparse>',false),"%d-%B-%Y"));
                     }catch(excp){}
                     </#if>
                 </#list>    
@@ -285,6 +331,10 @@
     </#noparse>
     <#if (toggleFileBin)?? && (toggleFileBin) == true>
       ${(fileBinId)}dropZone.getSelectedFiles();
+    </#if>
+    <#if (toggleCaptcha)?? && (toggleCaptcha) == true>
+       var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha";
+       generateCaptch(imagesrc);
     </#if>
 	changeDefaultAction()
 	hideShowActionButtons();
@@ -321,7 +371,44 @@
 	*
 	*/
 	function onValidation(a_serializedFormData){
-	    
+		const isCsrfEnabled = a_serializedFormData.get('isCsrfEnabled');
+        let parsedFormData;
+        try {
+            if(isCsrfEnabled != null && isCsrfEnabled == "1"){
+                var decryptedFormData = decryptFormData(a_serializedFormData.get('formData'),$("#formCaptcha").val());
+                parsedFormData = JSON.parse(decryptedFormData); 
+            }else{
+                parsedFormData = JSON.parse(a_serializedFormData.get('formData')); 
+            }
+        } catch (exec) {
+            showMessage("Invalid JSON in formData", "error");
+            return false;
+        }	            
+        let fieldList = ${(fieldList)!''}        
+        for (let field of parsedFormData) {
+	        let fieldName = field.name;
+	        let fieldValue = field.value ?? '';  
+	        let fieldConfig = fieldList.find(f => f.fieldName === fieldName);    
+	        if (fieldConfig) {
+	            let pattern = fieldConfig.regexPattern;
+	            let regex = new RegExp(pattern);
+	             if (regex.test(fieldValue) == false) {
+	                 var errorMessage = "Invalid value";
+                   let labelText = $("input[name='" + fieldName + "']")
+							    .parents(".col-inner-form")
+							    .find("label")
+							    .text()
+							    .trim();
+					if(labelText != ''){
+						errorMessage = errorMessage +" for "+labelText;
+					}
+	                showMessage(errorMessage, "warn");
+	                 $("[name="+fieldName+"]").focus();
+	                 $("[name="+fieldName+"]").effect("highlight", {}, 3000);
+	                 return null;
+	             }
+	        }
+	    }	    
 	    return a_serializedFormData;
 	}
 	
@@ -332,7 +419,10 @@
 	* you can define getSuccessMessage() function and return string for custom success message
 	*/
 	function onSuccess(a_serverResponse){
-	    
+     <#if (toggleCaptcha)?? && (toggleCaptcha) == true>
+            var imagesrc=contextPath+"/cf/captcha/"+formId+"_captcha";
+            generateCaptch(imagesrc);
+     </#if>
 	}
 	
   /**
@@ -351,7 +441,7 @@
 	//Code go back to previous page
 	function backToPreviousPage() {
 		<#if moduleURL?? && moduleURL?has_content>
-			location.href = contextPath+"/view/${(moduleURL)!''}";
+			location.href = contextPath+viewPath+"/${(moduleURL)!''}";
 		<#else>
 			location.href = contextPath+"/cf/home";
 		</#if>
@@ -365,16 +455,31 @@
     });
 
    
-     function fileConfigRenderer(fileObj) {
+   function fileConfigRenderer(fileObj) {
         let fileUploadId = fileObj["id"];
         let fileName = fileObj["name"];
         let btnTxt = resourceBundleData("jws.copyFilePath,jws.fileName");
-        let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right'  onclick=\"copyFilePath('"+fileUploadId+"')\"></i></span>" +
-        "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' onclick=\"fileName('"+fileName+"')\"></i></span>"+ 
-        "<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' onclick=\"deleteFile('"+fileUploadId+"')\"></i></span></div>";        
+        let actionElem = "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.copyFilePath"]+"'><i class='fileupload-actions fa fa-copy float-right' data-action='copy-path' data-file-id='"+fileUploadId+"'></i></span>" +
+        "<div class='fileicons'><span class='iconcovercls' title='"+btnTxt["jws.fileName"]+"'><i class='fileupload-actions fa fa-info float-right' data-action='show-name'  data-file-name='"+fileName+"'></i></span>"+ 
+        "<div class='fileicons'><span class='iconcovercls' title='Delete'><i class='fileupload-actions fa fa-trash float-right' data-action='delete' data-file-id='"+fileUploadId+"'></i></span></div>";        
         return actionElem;
   
 	}
+	
+	  $(document).on('click', '.fileupload-actions', function () {
+        let action = $(this).data('action');
+
+        if (action === 'copy-path') {
+            let fileId = $(this).data('file-id');
+            copyFilePath(fileId);
+        } else if (action === 'show-name') {
+            let fileNameDisplay = $(this).data('file-name');
+            fileName(fileNameDisplay);
+        } else if (action === 'delete') {
+            let fileId = $(this).data('file-id');
+            deleteFile(fileId);
+        }
+    });
     
     function fileName(a_fileName){
         showMessage("File Name: " + a_fileName, "success");
@@ -393,4 +498,51 @@
         ${(fileBinId)}dropZone.deleteFileById(fileUploadId);
     }
 	</#if>
+<#if (toggleCaptcha)?? && (toggleCaptcha) == true>
+     function generateCaptch(imagesrc) {
+       // alert("generate Captch");
+     const imgElement = document.getElementById('imgCaptcha');    
+     fetch(imagesrc, {
+        headers: {
+
+        'r':  localStorage.getItem('r')
+        }
+      }) // Fetch the image using its 'src' attribute
+     .then(response => {
+      // Access the desired header
+       localStorage.setItem('r', response.headers.get('r'));
+	    if (response.ok) {
+	      return response.blob();
+	     // console.log('Image URL is valid');
+	    } else {
+	     // console.log('Image URL is invalid');
+	      return null;
+	    }	
+       
+	     })
+	    .then((blob) => {
+	       if(blob!=null){
+	             //set image to image Src
+	              const objectURL = URL.createObjectURL(blob);
+	              imgElement.src = objectURL;
+                      
+                         if ($('#captcha').prop('disabled')) {
+                           $("#formCaptcha").removeAttr('disabled');
+			}
+		   }
+		else{
+		     //set path and show error Message and disable text
+		      imgElement.src = "${(contextPath)!''}/webjars/1.0/images/noimg.png";
+		      $("#formCaptcha").attr('disabled','disabled');
+              //$("#captchaGenerationError").html("<@resourceBundle "jws.captchGenerationFailed"/>");
+              showMessage("<@resourceBundle "jws.captchGenerationFailed"/>", "warn");
+             // alert(resourceBundleData("jws.clearTxt"));
+		    }
+	     })
+      .catch(error => {
+          showMessage("<@resourceBundle "jws.fetchCaptchError"/>", "warn");
+
+     });
+    }
+    </#if>
 </script>

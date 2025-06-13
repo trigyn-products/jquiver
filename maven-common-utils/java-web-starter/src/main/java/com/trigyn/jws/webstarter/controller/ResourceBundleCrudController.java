@@ -6,12 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +29,7 @@ import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.trigyn.jws.dbutils.spi.IUserDetailsService;
 import com.trigyn.jws.dbutils.utils.ActivityLog;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
+import com.trigyn.jws.dbutils.utils.FileUtilities;
 import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 import com.trigyn.jws.resourcebundle.service.ResourceBundleService;
 import com.trigyn.jws.resourcebundle.vo.LanguageVO;
@@ -41,24 +38,31 @@ import com.trigyn.jws.templating.service.MenuService;
 import com.trigyn.jws.usermanagement.utils.Constants;
 import com.trigyn.jws.webstarter.utils.Constant;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+
 @RestController
 @RequestMapping(value = "/cf")
 @PreAuthorize("hasPermission('module','Internalization')")
 public class ResourceBundleCrudController {
 
-	private final static Logger logger = LogManager.getLogger(ResourceBundleCrudController.class);
+	private final static Logger logger = LoggerFactory.getLogger(ResourceBundleCrudController.class);
 
 	@Autowired
 	private ResourceBundleService resourceBundleService = null;
 
 	@Autowired
-	private MenuService menuService = null;
+	private MenuService 		  menuService 			= null;
 
 	@Autowired
-	private IUserDetailsService userDetailsService = null;
+	private IUserDetailsService   userDetailsService 	= null;
 
 	@Autowired
-	private ActivityLog activitylog = null;
+	private ActivityLog 		  activitylog 			= null;
+	
+	@Autowired
+	private FileUtilities 		  fileUtilities 		= null;
 
 	@GetMapping(value = "/rb", produces = MediaType.TEXT_HTML_VALUE)
 	public String dbResourceBundleListing(HttpServletResponse httpServletResponse) throws IOException, CustomStopException {
@@ -76,7 +80,7 @@ public class ResourceBundleCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -110,7 +114,7 @@ public class ResourceBundleCrudController {
 			if (httpServletResponse.getStatus() == HttpStatus.FORBIDDEN.value()) {
 				return null;
 			}
-			httpServletResponse.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
+			fileUtilities.customSendError(httpServletResponse,HttpStatus.INTERNAL_SERVER_ERROR.value(), a_exception.getMessage());
 			return null;
 		}
 
@@ -199,7 +203,7 @@ public class ResourceBundleCrudController {
 		return resourceBundleService.findTextByKeyAndLanguageId(resourceBundleKey, languageId);
 	}
 
-	/**@author Rashmi Shirke
+	/**
 	 * Export Resource Bundle Grid Data in Excel-xml spreadSheet.
 	 * 
 	 * @param request  - HttpServletRequest
@@ -214,7 +218,7 @@ public class ResourceBundleCrudController {
 	}
 
 	/**
-	 * @author Rashmi Shirke
+	 * 
 	 * Download the export created by the export request.
 	 * 
 	 * @param request - HttpServletRequest
@@ -229,7 +233,6 @@ public class ResourceBundleCrudController {
 	}
 
 	/**
-	 * @author Rashmi Shirke
 	 * 
 	 * Import resource bundle data in to the database by importing  excel-xml file.
 	 * 

@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.core.support.DefaultTlsDirContextAuthenticationStrategy;
@@ -24,7 +24,7 @@ import com.trigyn.jws.usermanagement.vo.MultiAuthSecurityDetailsVO;
 
 public class LdapConfigHelper {
 
-	private final static Logger logger = LogManager.getLogger(LdapConfigHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(LdapConfigHelper.class);
 
 	/**
 	 * @param  ldapAuthSecurityDetails is the security details object

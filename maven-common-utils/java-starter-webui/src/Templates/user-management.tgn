@@ -4,13 +4,31 @@
   <script src="${(contextPath)!''}/webjars/jquery-blockui/2.70/jquery.blockUI.js"></script>
   <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
   <script src="${(contextPath)!''}/webjars/1.0/usermanagement/userManagement.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  
+  <style>
+        .newcls{
+           margin: 22px 0px 0px !important;
+            width: 30%;
+            display: flex;
+        }
+
+        .enableRegex  .newcls{
+            width: 100%;
+            margin: 0px !important;
+        }
+
+        </style>
 </head>
 <form action="${(contextPath)!''}/cf/sat" method="POST" id="userManagement" name="userManagement">
   <div class="container">
-    <div class="cm-card">
-      <div class="topband cm-card-header">
-        <h2 class="title-cls-name float-left">User Management</h2>
-        <div class="float-right">
+     <div class="usermangementblock">
+     
+     
+      <div class="topband">
+        <h2 class="title-cls-name ">User Management</h2>
+        <div class="topactionbuttons">
           <div class="addonbtnblock">
             <span class="iconscover spacingclss">
               <button type="button" title="Manage Permissions" id="btnManagePermission" class="managepermisionicon  actionimgbtn lefrightspace"></button>
@@ -23,14 +41,13 @@
 						</span>
 					</div>
 				</div>
-				<div class=" clearfix">
-          </div>
+           </div>
         </div>
         <div class="col-3 float-left col-inner-form full-form-fields" id="authenticationHeader-0">
           <label for="isAuthenticationEnabled">
             <span class="asteriskmark">*</span>Authentication </label>
           <div class="onoffswitch">
-            <input type="checkbox" name="isAuthenticationEnabled" class="onoffswitch-checkbox" id="isAuthenticationEnabled" onchange="showAuthTypeDropDown(this);" />
+            <input type="checkbox" data-bs-toggle="modal" data-bs-target="#adminModalDialog" name="isAuthenticationEnabled" class="onoffswitch-checkbox" id="isAuthenticationEnabled" onchange="showAuthTypeDropDown(this);" />
             <label class="onoffswitch-label" for="isAuthenticationEnabled">
               <span class="onoffswitch-inner"></span>
               <span class="onoffswitch-switch"></span>
@@ -38,13 +55,17 @@
           </div>
         </div>
         <!-- Modal -->
-        <div class="modal fade" id="adminModalDialog" role="dialog" tabindex="-1">
+
+ 
+
+
+        <div class="modal usermanagment-model fade" id="adminModalDialog" aria-labelledby="adminModalDialog" tabindex="-1">
           <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="ui-dialog-titlebar">${messageSource.getMessage('jws.addUser')}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -69,7 +90,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="saveUserDetails();">Save</button>
-                <button type="button" id="modalCloseBtn" onclick="closeModalBtn();" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="modalCloseBtn"  class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               </div>
             </div>
           </div>
@@ -77,11 +98,11 @@
         <!-- Modal -->
         <div class="cm-card-body" id="authTypeDiv-1"></div>
         <div class="cm-card-footer">
-          <div id="note" class="margin-t-10 clearfix">
+          <div id="note" class="margin-t-10 usermanagement-footer">
             <span class="pull-left">
               <i>Kindly restart your server to get your configuration working.</i>
             </span>
-            <div class="btn-icons nomargin-right-cls pull-right">
+            <div class="btn-icons nomargin-right-cls text-end">
               <button id="btnAddSection" class="add_section btn btn-primary" type="button" onclick="addAuthType('-1')" style=<#if isAuthenticationEnabled?? && !isAuthenticationEnabled>"display:none" </#if> class="add_section btn btn-primary"> <i class="fa fa-plus"></i> Add </button>
               <input type="submit" value="Save" class="btn btn-primary" />
               <span onclick="backToHomePage();">
@@ -224,8 +245,7 @@ if(num<1)						$("#isAuthenticationEnabled").prop("checked",false).trigger("chan
 			formData.isAuthenticationEnabled = $('#isAuthenticationEnabled').is(':checked'); 
 			formData.authProperties	= authProperties;		
 			var formJsonData = JSON.stringify(formData);
-			//console.log('Form Data : '+formJsonData);                
-                       
+		//	console.log('Form Data : '+formJsonData);                
 			$.ajax({
 				type : "POST",				
 				url : contextPath+"/cf/sat",
@@ -329,9 +349,7 @@ if(num<1)						$("#isAuthenticationEnabled").prop("checked",false).trigger("chan
 
 
 function changeAuthType(thisObj){	
-	
 	let authTypeId = thisObj.id;	
-
 	let authTypeVal = $("#"+authTypeId).val();
 	if(typeof thisObj == 'undefined' && thisObj == null && authTypeVal == '-1' 
 	&& typeof authTypeId == 'undefined'){
@@ -394,7 +412,7 @@ function changeAuthType(thisObj){
 				}				
 				if(typeof key != 'undefined' && key == 'authenticationDetail'){					
 					$.each(val, function(configKeys, configVals){
-					if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP){
+					if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP || authTypeVal == AuthType.SAML){
 						propertyElem +='<button class="addSection btn btn-primary" type="button" id="add-section-'+elementId+'" name="add-section" onclick="addSection(this)">Add</button>';
 					}
 						
@@ -406,7 +424,7 @@ function changeAuthType(thisObj){
 								
 								if(typeof configurationVal != 'undefined'){	
 									elementId = idx+'-'+lastIndex;
-									if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP){								
+									if(authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.LDAP || authTypeVal == AuthType.SAML){								
 										propertyElem +='<div class="row addSectionDiv configuration" id="addSection-' +elementId +'"><div class="col-12"><div class="col-inner-form full-form-fields"><table id="headerTable-'+elementId+'"  class="customtblecls"><tr><th colspan="3"><div class="displyflx"><span class="titleclsnm">${messageSource.getMessage('jws.requestparameters')} </span></div></th></tr><tr><td class="bgtd">${messageSource.getMessage('jws.name')}</td><td class="bgtd">${messageSource.getMessage('jws.value')}</td><td class="bgtd" style="width:50px;"><span onclick="addRow(this)" class="plusticon" id="'+elementId+'"><i class="fa fa-plus-circle" aria-hidden="true"></i></span></td></tr>';				
 									}
 									$.each(configurationVal, function(idxConf, configuration) {
@@ -420,11 +438,11 @@ function changeAuthType(thisObj){
 										$.each(configuration.additionalDetails.additionalProperties, function(additionalPropKeys, additionalPropVals){	
 											
 												var addClassType = 'additionalProperty';
-												propertyElem += '<div class="childElement col-inner-form full-form-fields"  data-parent="'+configuration.name+'">';			
+												propertyElem += '<div class="col-4"><div class="childElement col-inner-form full-form-fields"  data-parent="'+configuration.name+'">';			
 												if(typeof additionalPropVals != 'undefined'){											
 													propertyElem = propertyElem + addInputFields(additionalPropVals, authTypeId, elementId, addClassType);
 												}
-												propertyElem += '</div>';
+												propertyElem += '</div></div>';
 											
 												
 										});														
@@ -433,7 +451,7 @@ function changeAuthType(thisObj){
 										propertyElem += '</div>';	
 									}
 								});	
-								if(authTypeVal == AuthType.LDAP || authTypeVal == AuthType.OAUTH){	
+								if(authTypeVal == AuthType.LDAP || authTypeVal == AuthType.OAUTH || authTypeVal == AuthType.SAML){	
 									propertyElem += '</table></div></div></div>';
 								}
 								}
@@ -474,6 +492,8 @@ function showAuthTypeDropDown(thisObj) {
 			$("#adminModalDialog").modal({
 				keyboard: false
 			});
+			
+			$("#adminModalDialog").show();
 		} else {
 			showAuthDropDown = true;
 		}
@@ -507,7 +527,7 @@ function addAuthType(selectedElement){
 		dropdown+='<option defProperties="'+encodeURIComponent(JSON.stringify(defJsonProperties))+'" properties="'+encodeURIComponent(JSON.stringify(jsonProperties))+'" value="'+${authType?api.getId()}+'">${authType?api.getAuthenticationName()}</option>';	
 		</#list>
 	</#if>		
-	dropdown += '</div></select><button class="removebtncls btn btn-danger rem_section" id="delAuthRow-'+ele_len+'"><i class="fa fa-trash-o" aria-hidden="true"></i></button></div><div class="row col-inner-form full-form-fields configurations"><div id="props-'+ele_len+'" class="" style="width:100%;"></div></div></div>';
+	dropdown += '</div></select><button class="removebtncls btn btn-danger rem_section" id="delAuthRow-'+ele_len+'"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div><div class="row col-inner-form full-form-fields configurations"><div id="props-'+ele_len+'" class="" style="width:100%;"></div></div></div>';
 	var $target = $(".cm-card-body:last");
 	$(dropdown).insertAfter($target);
 	if(selectedElement != "-1"){
@@ -530,10 +550,10 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 			}			
 			
 			if(propVal.value == "true"){						
-				propertyElem = '<div class=" col-inner-form full-form-fields "><label for="' +propVal.name+'">'+propVal.textValue+'</label><div class="onoffswitch"><input type="checkbox" id="' +elementId+'" checked name="' +propVal.name+'" class="' +elementClass +'" onchange="' +method+'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><label class="onoffswitch-label" for="' +elementId+'"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>';
+				propertyElem = '<div class=" col-4 col-inner-form full-form-fields "><label for="' +propVal.name+'">'+propVal.textValue+'</label><div class="onoffswitch"><input type="checkbox" id="' +elementId+'" checked name="' +propVal.name+'" class="' +elementClass +'" onchange="' +method+'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><label class="onoffswitch-label" for="' +elementId+'"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>';
 				
 			}else{
-				propertyElem = '<div class="marginright col-inner-form full-form-fields"><label for="' +propVal.name+'">'+propVal.textValue+'</label><div class="onoffswitch"><input type="checkbox" id="' +elementId+'" name="' +propVal.name+'" require= "' +propVal.required+'" class="' +elementClass +'" textValue= "' +propVal.textValue+'" onchange="' +method+'"><label class="onoffswitch-label" for="' +elementId+'"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>';				
+				propertyElem = '<div class="col-4 col-inner-form full-form-fields"><label for="' +propVal.name+'">'+propVal.textValue+'</label><div class="onoffswitch"><input type="checkbox" id="' +elementId+'" name="' +propVal.name+'" require= "' +propVal.required+'" class="' +elementClass +'" textValue= "' +propVal.textValue+'" onchange="' +method+'"><label class="onoffswitch-label" for="' +elementId+'"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div></div>';				
 			}
 			
 		}
@@ -576,7 +596,7 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 				if((typeof propertyValue == 'undefined' || propertyValue == "") && propVal.name == 'regexPattern'){
 					propertyValue = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=])[A-Za-z\\d@#$%^&+=]{6,20}$";					
 				}
-				propertyElem += ' <div  style="margin-left:10px;" class="blockdivcls row col-inner-form full-form-fields"><label for="' +elementId+'" style="white-space:nowrap"><span class="asteriskmark">*</span>' +propVal.textValue+'<input class="' +elementClass +'" type="' +type+'" id="' +elementId +'" name="' +strName+'" value= "' +propertyValue+'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></label></div>';
+				propertyElem += ' <div  class="blockdivcls row col-inner-form full-form-fields"><label for="' +elementId+'" ><span class="asteriskmark">*</span>' +propVal.textValue+'<input class="' +elementClass +'" type="' +type+'" id="' +elementId +'" name="' +strName+'" value= "' +propertyValue+'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></label></div>';
 			} else if(authTypeVal != AuthType.DAO){			
 				if(propVal.condition == "row-added"){
 					elementId = elementId.replace(/[_\W]+/g, "-");
@@ -608,7 +628,7 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 		}
 		if(propVal.type == "formAutocomplete"){	
 			elementClass += " form-control";		
-			propertyElem += '<div id="dynamicFormDiv"><label for="dynamicFormName" style="white-space:nowrap"><span class="asteriskmark">*</span>Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="' +elementClass +'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'" name="' +propVal.name+'"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><input type="hidden" id="formId" value= "" name="formId" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></div>';
+			propertyElem += '<div id="dynamicFormDiv"><label for="dynamicFormName" ><span class="asteriskmark">*</span>Form Name</label><div class="search-cover"><input type="text" id="dynamicFormName" class="' +elementClass +'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'" name="' +propVal.name+'"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="formName" value= "" name="formName" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><input type="hidden" id="formId" value= "" name="formId" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></div>';
 			if(propVal.formId !== undefined){
 				$("#formId").val(data.formId);
 				$("#formName").val(data.formName);
@@ -618,7 +638,7 @@ function addInputFields(propVal, authTypeId, elementId, classType){
 		}
 		if(propVal.type == "templateAutocomplete"){	
 			elementClass += " form-control";		
-			propertyElem += '<div id="templateDiv"><label for="templateNameAC" style="white-space:nowrap"><span class="asteriskmark">*</span>Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="' +elementClass +'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'" name="' +propVal.name+'"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><input type="hidden" id="templateId" value= "" name="templateId" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></div>';
+			propertyElem += '<div id="templateDiv"><label for="templateNameAC" ><span class="asteriskmark">*</span>Template Name</label><div class="search-cover"><input type="text" id="templateNameAC" class="' +elementClass +'" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'" name="' +propVal.name+'"><i class="fa fa-search" aria-hidden="true"></i></div><input type="hidden" id="templateName" value= "" name="templateName" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"><input type="hidden" id="templateId" value= "" name="templateId" textValue= "' +propVal.textValue+'" require= "' +propVal.required+'"></div>';
 			var inputId = "user-profile-template-details";
 			$.ajax({
 				type : "GET",

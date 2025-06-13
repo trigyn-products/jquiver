@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CustomAccessTokenResponseConverter implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
+public class CustomAccessTokenResponseConverter implements Converter<Map<String, Object>, OAuth2AccessTokenResponse> {
     private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = Stream.of(
             OAuth2ParameterNames.ACCESS_TOKEN,
             OAuth2ParameterNames.TOKEN_TYPE,
@@ -19,21 +19,21 @@ public class CustomAccessTokenResponseConverter implements Converter<Map<String,
             OAuth2ParameterNames.SCOPE).collect(Collectors.toSet());
 
     @Override
-    public OAuth2AccessTokenResponse convert(Map<String, String> tokenResponseParameters) {
-        String accessToken = tokenResponseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN);
+    public OAuth2AccessTokenResponse convert(Map<String, Object> tokenResponseParameters) {
+        String accessToken = String.valueOf(tokenResponseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN));
 
         OAuth2AccessToken.TokenType accessTokenType = OAuth2AccessToken.TokenType.BEARER;
 
         long expiresIn = 0;
         if (tokenResponseParameters.containsKey(OAuth2ParameterNames.EXPIRES_IN)) {
             try {
-                expiresIn = Long.valueOf(tokenResponseParameters.get(OAuth2ParameterNames.EXPIRES_IN));
+                expiresIn = Long.valueOf(String.valueOf(tokenResponseParameters.get(OAuth2ParameterNames.EXPIRES_IN)));
             } catch (NumberFormatException ex) { }
         }
 
         Set<String> scopes = Collections.emptySet();
         if (tokenResponseParameters.containsKey(OAuth2ParameterNames.SCOPE)) {
-            String scope = tokenResponseParameters.get(OAuth2ParameterNames.SCOPE);
+            String scope = String.valueOf(tokenResponseParameters.get(OAuth2ParameterNames.SCOPE));
             scopes = Arrays.stream(StringUtils.delimitedListToStringArray(scope, " ")).collect(Collectors.toSet());
         }
 

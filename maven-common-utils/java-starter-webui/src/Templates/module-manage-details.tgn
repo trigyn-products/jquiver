@@ -1,15 +1,7 @@
 <head>
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/bootstrap/css/bootstrap.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.theme.css" />
-    <script src="${(contextPath)!''}/webjars/jquery/3.5.1/jquery.min.js"></script>
-    <script src="${(contextPath)!''}/webjars/jquery-ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="${(contextPath)!''}/webjars/bootstrap/4.5.2/js/bootstrap.min.js"></script>`
     <script src="${(contextPath)!''}/webjars/1.0/rich-autocomplete/jquery.richAutocomplete.min.js"></script>
     <script src="${(contextPath)!''}/webjars/1.0/typeahead/typeahead.js"></script>
     <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/rich-autocomplete/richAutocomplete.min.css" />
-    <link rel="stylesheet" href="${(contextPath)!''}/webjars/1.0/css/starter.style.css" />
 
 </head>
 
@@ -17,18 +9,17 @@
 
     <div class="topband">
         <#if (moduleDetailsVO?api.getModuleId())??>
-            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.editModule")}</h2> 
+            <h2 class="title-cls-name  ">${messageSource.getMessage("jws.editModule")}</h2> 
         <#else>
-            <h2 class="title-cls-name float-left">${messageSource.getMessage("jws.addModule")}</h2> 
+            <h2 class="title-cls-name">${messageSource.getMessage("jws.addModule")}</h2> 
         </#if>
-        <div class="float-right">
+        <div class="topactionbuttons">
             <span onclick="addEditModule.backToModuleListingPage();">
                 <input id="backBtn" class="btn btn-secondary" name="backBtn" value="${messageSource.getMessage('jws.back')}" type="button">
             </span>
         </div>
 
-        <div class="clearfix"></div>
-    </div>
+     </div>
 
     <div id="formDiv">
         <div id="errorMessage" class="alert errorsms alert-danger alert-dismissable" style="display:none"></div>
@@ -38,14 +29,14 @@
            <input type="hidden" id = "isHomePage" name="isHomePage" value="${(moduleDetailsVO?api.getIsHomePage())!''}">
             <div class="col-4">
                 <div class="col-inner-form full-form-fields">
-                    <label for="moduleName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
+                    <label for="moduleName" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleName")}</label>
                     <input type="text"  id = "moduleName" name = "moduleName" value = "${(moduleDetailsVO?api.getModuleName())!''}" maxlength="100" class="form-control">
                 </div>
             </div>
             <input type="hidden" id = "parentModuleId" name="parentModuleId" value="${(moduleDetailsVO?api.getParentModuleId())!''}">
             <div class="col-4">
                 <div class="col-inner-form full-form-fields">
-                    <label for="parentModuleName" style="white-space:nowrap">${messageSource.getMessage("jws.parentModuleName")}</label>
+                    <label for="parentModuleName" >${messageSource.getMessage("jws.parentModuleName")}</label>
                     <select id="parentModuleName" name="parentModuleName" class="form-control" onchange="addEditModule.getSequenceByParent()">
                         <option value="">Root</option>
                         <#if (moduleListingVOList)??>
@@ -63,7 +54,7 @@
             </div>
                <div class="col-4">
                 <div class="col-inner-form full-form-fields">
-                    <label for="sequence" style="white-space:nowrap">${messageSource.getMessage("jws.sequence")}</label>
+                    <label for="sequence" >${messageSource.getMessage("jws.sequence")}</label>
                     <#if (moduleDetailsVO?api.getModuleId())?? && (moduleDetailsVO?api.getModuleId())?has_content>
                         <input type="number"  id = "sequence" name = "sequence" value = "${(moduleDetailsVO?api.getSequence())!''}" maxlength="100" class="form-control">
                     <#else>
@@ -95,7 +86,7 @@
 
                 <div class="col-4">
             <div class="col-inner-form full-form-fields">
-                    <label for="openInNewTab" style="white-space:nowrap">${messageSource.getMessage("jws.openinnewtab")}</label>
+                    <label for="openInNewTab" >${messageSource.getMessage("jws.openinnewtab")}</label>
                     <div class="onoffswitch">
                         <input type="hidden" id="isOpenInNewTab" name="isOpenInNewTab" value="${(moduleDetailsVO?api.getOpenInNewTab())!''}">
                         <#if (moduleDetailsVO?api.getOpenInNewTab())?? && moduleDetailsVO?api.getOpenInNewTab() == 1>
@@ -144,14 +135,14 @@
         <div class="row">    
               <div class="col-4">
                     <div class="col-inner-form full-form-fields">
-                    <label for="menuStyle" style="white-space:nowrap">${messageSource.getMessage("jws.menuStyle")}</label>
+                    <label for="menuStyle" >${messageSource.getMessage("jws.menuStyle")}</label>
                     <input type="text"  id = "menuStyle" name = "menuStyle" value = "${(moduleDetailsVO?api.getMenuStyle())!''}" maxlength="100" placeholder="Enter your CSS Class Name" class="form-control">
                 </div>  
                  </div>
                    
             <div class="col-4">
                 <div class="col-inner-form full-form-fields">
-                    <label for="targetLookupType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextType")}</label>
+                    <label for="targetLookupType" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextType")}</label>
                     <select id="targetLookupType" name="targetLookupType" onchange="addEditModule.getTargeTypeNames();" class="form-control">
                         <#if (moduleTargetLookupVOList)??>
                             <#list moduleTargetLookupVOList as moduleTargetLookupVO>
@@ -168,7 +159,7 @@
             </div>
             <div class="col-4" id="divContextName">
                 <div class="col-inner-form full-form-fields">
-                    <label for="targetTypeName" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
+                    <label for="targetTypeName" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.contextName")}</label>
                         <div class="search-cover">
                         <input type="text" id="targetTypeName" value= "" name="targetTypeName" autocomplete="off" class="form-control">
                         <i class="fa fa-search" aria-hidden="true"></i>
@@ -177,7 +168,7 @@
                 </div>
             </div>
             <div class="col-4" id="divTargetType" style="display:none">
-				<label for="divTargetType" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.requestType")}</label>
+				<label for="divTargetType" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.requestType")}</label>
 				<select id="targetType" name="targetType" class="form-control">
 					<option value="DELETE">DELETE</option>
 					<option value="GET">GET</option>
@@ -189,21 +180,21 @@
             
             
                 <div class="col-inner-form full-form-fields">			
-                    <label for="moduleURL" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleUrl")}</label>  
+                    <label for="moduleURL" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.moduleUrl")}</label>  
                     <span class="copyblockcls" >				
 						${(urlPrefix)!''} 				
-					<i class="fa fa-clipboard" aria-hidden="true"  onclick="addEditModule.copyUrl()" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
-					<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyUrlActualPath('${urlPrefix}','moduleURL')" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
+					<i class="fa fa-regular fa-copy" aria-hidden="true"  onclick="addEditModule.copyUrl()" title="<@resourceBundleWithDefault "jws.copyUrlMessageTitle" "Click here to copy URL path"/>"></i>
+					<i id="copyIcon" class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyUrlActualPath('${urlPrefix}','moduleURL')" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy absolute path"/>"></i>
 					</span>
                     <input type="text"  id = "moduleURL" name = "moduleURL" value = "${(moduleDetailsVO?api.getModuleUrl())!''}" maxlength="200" class="form-control">
                 </div>
             </div>		
 			<div class="col-6" id="divExternalURL" style="display:none">
                 <div class="col-inner-form full-form-fields">
-                    <label for="externalURL" style="white-space:nowrap"><span class="asteriskmark">*</span>${messageSource.getMessage("jws.externalURL")}</label>
+                    <label for="externalURL" ><span class="asteriskmark">*</span>${messageSource.getMessage("jws.externalURL")}</label>
                     <span class="copyblockcls" style="float:none !important;" title="<@resourceBundleWithDefault "jws.copyMessageTitle" "Click here to copy path"/>">
                      	<input type="text" id="externalURL" value= "" name="externalURL" autocomplete="off" class="form-control"/>  
-						<i id="copyIcon" class="fa fa-clipboard" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyTargetUrl('externalURL')"></i>
+						<i id="copyIcon" class="fa fa-regular fa-copy" aria-hidden="true" onclick="event.stopPropagation();addEditModule.copyTargetUrl('externalURL')"></i>
             		</span>               
                 </div>`
             </div>      
@@ -268,12 +259,12 @@
 
         <div class="row">
             <div class="col-12">
-                <div id="buttons" class="pull-right">
+                <div id="buttons" class="text-end">
                     <div class="btn-group dropup custom-grp-btn">
                         <div id="savedAction">
                             <button type="button" id="saveAndReturn" class="btn btn-primary" onclick="typeOfActionWithIsEdit('module-manage-details', this, isEdit, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndReturn")}</button>
                         </div>
-                        <button id="actionDropdownBtn" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
+                        <button id="actionDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" type="button" class="btn btn-primary dropdown-toggle panel-collapsed" onclick="actionOptions();" > </button>
                         <div class="dropdown-menu action-cls"  id="actionDiv">
                             <ul class="dropdownmenu">
                                 <li id="saveAndCreateNew" onclick="typeOfActionWithIsEdit('module-manage-details', this, isEdit, addEditModule.saveModule.bind(addEditModule), addEditModule.backToModuleListingPage);">${messageSource.getMessage("jws.saveAndCreateNew")}</li>
@@ -291,7 +282,7 @@
     </div>
 
 <script>
-document.title = "Manage Site Layout Module";
+document.title = "Manage Router Module";
 contextPath = "${(contextPath)!''}";
 let addEditModule;
 let autocomplete;

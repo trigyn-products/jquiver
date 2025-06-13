@@ -9,12 +9,16 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import com.trigyn.jws.dbutils.repository.DBConnection;
 import com.trigyn.jws.dbutils.utils.ApplicationContextUtils;
 import com.trigyn.jws.dbutils.utils.CustomStopException;
 import com.trigyn.jws.gridutils.entities.GridDetails;
@@ -22,11 +26,15 @@ import com.trigyn.jws.gridutils.utility.Constants.Comparator;
 import com.trigyn.jws.templating.utils.TemplatingUtils;
 
 @Component
-public class GridUtility {
+public class GridUtility extends DBConnection {
 
-	private final static Logger logger = LogManager.getLogger(GridUtility.class);
+	public GridUtility(DataSource dataSource) {
+		super(dataSource);
+	}
 
-	public static String generateQueryForCount(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
+	private final static Logger logger = LoggerFactory.getLogger(GridUtility.class);
+
+	public String generateQueryForCount(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
 			throws Exception {
 		logger.debug("Inside GridUtility.generateQueryForCount(gridDetails: {}, gridParams: {})", gridDetails, gridParams);
 		boolean			criteriaParamsPressent	= gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0 ? true
@@ -34,6 +42,8 @@ public class GridUtility {
 		boolean			filterParamsPresent		= gridParams.getFilterParams() != null
 				&& (gridParams.getFilterParams().getRules() != null && gridParams.getFilterParams().getRules().size() > 0) ? true : false;
 		StringBuilder	query					= new StringBuilder("SELECT COUNT(*) FROM " + gridDetails.getGridTableName() + " ");
+		
+		
 		if (criteriaParamsPressent) {
 			StringJoiner joiner = new StringJoiner(" = ? AND ", " WHERE ", " ");
 			for (Map.Entry<String, Object> criteriaParams : gridParams.getCriteriaParams().entrySet()) {
@@ -49,37 +59,58 @@ public class GridUtility {
 			}
 		}
 		if (filterParamsPresent) {
-			String			groupOn			= gridParams.getFilterParams().getGroupOp();
-			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
 			if(query.toString().contains(" WHERE ")) {
 				query.append("AND ");
 			}else {
 				query.append(" WHERE ");
 			}
-			int counter = 0;
-			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
-				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
-					query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
-				} else {
-					query.append("(" + sf.getField() +" = ?");
-				}
-
-				if(sf.getData() != null) {
-					String values[] = sf.getData().split(",");
-					for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
-						if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-							query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-						} else {
-						query.append( "OR " + sf.getField() + " LIKE ? ");
-						}
+			
+			if(gridParams.isMobile() == true) {
+				String searchVal = "";
+				
+				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					if(sf.getData() != null && sf.getData() != "") {
+						searchVal = sf.getData();
 					}
 				}
-				query.append(") ");
-				if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
-					query.append(conditionType);
-					counter++;
+				JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
+				StringBuilder colQuery = new StringBuilder("SELECT GROUP_CONCAT(CONCAT('`', COLUMN_NAME, '` "
+						+ " LIKE \"%" + searchVal  + "%\"') SEPARATOR ' OR ')"
+						+ " FROM INFORMATION_SCHEMA.COLUMNS "
+						+ " WHERE TABLE_NAME = '" + gridDetails.getGridTableName() + "' AND TABLE_SCHEMA = '"
+						+ jdbcTemplate.getDataSource().getConnection().getCatalog() + "'");
+				List<String> colList = jdbcTemplate.queryForList(colQuery.toString(), String.class);
+				query.append(" (" + colList.get(0) + ")");
+				
+			} else {
+			
+				String			groupOn			= gridParams.getFilterParams().getGroupOp();
+				StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
+				int counter = 0;
+				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
+						query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+					} else {
+						query.append("(" + sf.getField() +" = ?");
+					}
+	
+					if(sf.getData() != null) {
+						String values[] = sf.getData().split(",");
+						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
+							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+							} else {
+							query.append( "OR " + sf.getField() + " LIKE ? ");
+							}
+						}
+					}
+					query.append(") ");
+					if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
+						query.append(conditionType);
+						counter++;
+					}
 				}
 			}
 		}
@@ -88,7 +119,7 @@ public class GridUtility {
 		return query.toString();
 	}
 
-	public static Object[] generateCriteriaForCount(GenericGridParams gridParams) {
+	public Object[] generateCriteriaForCount(GenericGridParams gridParams) {
 		logger.debug("Inside GridUtility.generateCriteriaForCount(gridDetails: {})", gridParams);
 
 		boolean				criteriaParamsPressent	= gridParams.getCriteriaParams() != null && gridParams.getCriteriaParams().size() > 0
@@ -107,7 +138,7 @@ public class GridUtility {
 				}
 			}
 		}
-		if (filterParamsPresent) {
+		if (filterParamsPresent && gridParams.isMobile() == false) {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {				
 				if(sf.getData() != null) {
 					String originalData = sf.getData();
@@ -131,7 +162,7 @@ public class GridUtility {
 		return params.toArray();
 	}
 
-	public static String generateQueryForList(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
+	public String generateQueryForList(String dbProductName, GridDetails gridDetails, GenericGridParams gridParams, Map<String, Object> requestParam)
 			throws Exception {
 		logger.debug("Inside GridUtility.generateQueryForList(datasourceProductName: {}, gridDetails: {}, gridParams: {})", dbProductName,
 				gridDetails, gridParams);
@@ -156,38 +187,58 @@ public class GridUtility {
 			}
 		}
 		if (filterParamsPresent) {
-			String			groupOn			= gridParams.getFilterParams().getGroupOp();
-			StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
 			if(query.toString().contains(" WHERE ")) {
 				query.append("AND ");
 			}else {
-			query.append(" WHERE ");
+				query.append(" WHERE ");
 			}
-			int counter = 0;
-			for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
-				if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-					query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-				} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
-					query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
-				} else {
-					query.append("(" + sf.getField() +" = ?");
-				}
-
-				if(sf.getData() != null) {
-					String values[] = sf.getData().split(",");
-					for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
-						if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
-							query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
-						}  
-						else {
-						query.append( "OR " + sf.getField() + " LIKE ? ");
-						}
+			
+			if(gridParams.isMobile() == true) {
+				String searchVal = "";
+				
+				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					if(sf.getData() != null && sf.getData() != "") {
+						searchVal = sf.getData();
 					}
 				}
-				query.append(") ");
-				if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
-					query.append(conditionType);
-					counter++;
+				JdbcTemplate	jdbcTemplate	= updateJdbcTemplateDataSource(gridDetails.getDatasourceId());
+				StringBuilder colQuery = new StringBuilder("SELECT GROUP_CONCAT(CONCAT('`', COLUMN_NAME, '` "
+						+ " LIKE \"%" + searchVal  + "%\"') SEPARATOR ' OR ')"
+						+ " FROM INFORMATION_SCHEMA.COLUMNS "
+						+ " WHERE TABLE_NAME = '" + gridDetails.getGridTableName() + "' AND TABLE_SCHEMA = '"
+						+ jdbcTemplate.getDataSource().getConnection().getCatalog() + "'");
+				List<String> colList = jdbcTemplate.queryForList(colQuery.toString(), String.class);
+				query.append(" (" + colList.get(0) + ")");
+				
+			} else {
+				String			groupOn			= gridParams.getFilterParams().getGroupOp();
+				StringBuilder	conditionType	= new StringBuilder(groupOn).append(" ");
+				int counter = 0;
+				for (SearchFields sf : gridParams.getFilterParams().getRules()) {	
+					if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+						query.append("(CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+					} else if (sf.getOp() != null && EnumUtils.isValidEnum(Comparator.class, sf.getOp())) {
+						query.append("(" + sf.getField() + " " + Comparator.valueOf(sf.getOp()).getoperation() + " ? ");
+					} else {
+						query.append("(" + sf.getField() +" = ?");
+					}
+	
+					if(sf.getData() != null) {
+						String values[] = sf.getData().split(",");
+						for(int valueCounter = 1; valueCounter < values.length; valueCounter++) {
+							if (StringUtils.isBlank(dbProductName) == false && dbProductName.equals("postgresql") == true) {
+								query.append("OR CAST(" + sf.getField() + " AS VARCHAR) LIKE ? ");
+							}  
+							else {
+							query.append( "OR " + sf.getField() + " LIKE ? ");
+							}
+						}
+					}
+					query.append(") ");
+					if(counter < (gridParams.getFilterParams().getRules().size()-1)) {
+						query.append(conditionType);
+						counter++;
+					}
 				}
 			}
 		}
@@ -211,7 +262,7 @@ public class GridUtility {
 		return query.toString();
 	}
 
-	private static void generateCustomCriteria(GridDetails gridDetails, boolean criteriaParamsPressent,
+	private void generateCustomCriteria(GridDetails gridDetails, boolean criteriaParamsPressent,
 			boolean filterParamsPresent, StringBuilder query, Map<String, Object> requestParam)
 			throws Exception, CustomStopException {
 		try {
@@ -237,7 +288,7 @@ public class GridUtility {
 		}
 	}
 
-	public static Object[] generateCriteriaForList(String datasourceProductName, GenericGridParams gridParams) {
+	public Object[] generateCriteriaForList(String datasourceProductName, GenericGridParams gridParams) {
 		logger.debug("Inside GridUtility.generateCriteriaForList(datasourceProductName: {}, gridParams: {})", datasourceProductName,
 				gridParams);
 
@@ -252,7 +303,7 @@ public class GridUtility {
 				params.add(criteriaParams.getValue());
 			}
 		}
-		if (filterParamsPresent) {
+		if (filterParamsPresent && gridParams.isMobile() == false) {
 			for (SearchFields sf : gridParams.getFilterParams().getRules()) {
 				String originalData = sf.getData();
 				String data;
@@ -277,7 +328,7 @@ public class GridUtility {
 		return params.toArray();
 	}
 
-	public static Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams,
+	public Map<String, Object> generateParamMap(GridDetails gridDetails, GenericGridParams gridParams,
 			boolean forCnt, Map<String, Object> requestParam) throws Exception, CustomStopException {
 		logger.debug("Inside GridUtility.generateParamMap(gridDetails: {}, gridParams: {}, forCnt: {})", gridDetails,
 				gridParams, forCnt);
@@ -334,6 +385,12 @@ public class GridUtility {
 						.forEach(elem -> customCriteriaMap.put(elem[0].trim(), (elem[1].trim())));
 				inParamMap.putAll(customCriteriaMap);
 			}
+			
+			if(gridParams.isMobile() == true) {
+				inParamMap.put("isMobile", 1);
+			} else {
+				inParamMap.put("isMobile", 0);
+			}
 
 			if (forCnt) {
 				inParamMap.put("sortIndex", null);
@@ -361,7 +418,7 @@ public class GridUtility {
 		}
 	}
 
-	public static String escapeSql(String data) {
+	public String escapeSql(String data) {
 		data	= data.replace("\\", "\\\\\\\\");
 		data	= data.replace("%", "\\%");
 		data	= data.replace("'", "''");

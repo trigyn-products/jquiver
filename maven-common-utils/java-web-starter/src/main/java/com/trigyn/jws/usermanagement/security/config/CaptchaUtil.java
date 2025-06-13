@@ -1,6 +1,7 @@
 package com.trigyn.jws.usermanagement.security.config;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -44,18 +45,53 @@ public final class CaptchaUtil {
 	}
 
 	static {
-		ColourSet.add(new Color[] { new Color(0, 161, 143), new Color(255, 255, 255) });
-		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(255, 255, 255) });
+		ColourSet.add(new Color[] { new Color(0, 0, 50), new Color(201, 189, 255) });
+		ColourSet.add(new Color[] { new Color(1, 3, 0), new Color(169, 232, 101) });
+		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(246, 255, 220) });
+		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(248, 252, 255) });
+		ColourSet.add(new Color[] { new Color(126, 126, 126), new Color(249, 249, 249) });
+
+		ColourSet.add(new Color[] { new Color(218, 235, 248), new Color(88, 6, 43) });
 		ColourSet.add(new Color[] { new Color(255, 255, 255), new Color(0, 0, 0) });
-		ColourSet.add(new Color[] { new Color(11, 97, 254), new Color(255, 255, 255) });
-		ColourSet.add(new Color[] { new Color(254, 125, 11), new Color(0, 0, 0) });
-		ColourSet.add(new Color[] { new Color(174, 214, 215), new Color(25, 40, 124) });
-		ColourSet.add(new Color[] { new Color(115, 240, 128), new Color(13, 45, 35) });
-		ColourSet.add(new Color[] { new Color(242, 238, 15), new Color(33, 12, 2) });
-		ColourSet.add(new Color[] { new Color(9, 7, 61), new Color(226, 240, 11) });
-		ColourSet.add(new Color[] { new Color(216, 246, 97), new Color(138, 26, 66) });
-		ColourSet.add(new Color[] { new Color(94, 14, 103), new Color(236, 232, 116) });
-		ColourSet.add(new Color[] { new Color(97, 221, 246), new Color(96, 13, 21) });
+		ColourSet.add(new Color[] { new Color(223, 215, 230), new Color(124, 79, 58)});
+		ColourSet.add(new Color[] { new Color(255, 246, 255), new Color(90, 52, 139)});
+		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(228, 252, 128) });
+
+		ColourSet.add(new Color[] { new Color(172, 234, 25), new Color(1, 122, 72) });
+		ColourSet.add(new Color[] { new Color(255, 255, 207), new Color(65, 101, 87)});
+		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(141, 249, 137)});
+		ColourSet.add(new Color[] { new Color(225, 225, 225), new Color(36, 102, 37)});
+		ColourSet.add(new Color[] { new Color(254, 254, 254), new Color(78, 84, 0)});
+
+		ColourSet.add(new Color[] { new Color(34, 1, 46), new Color(224, 79, 184) });
+		ColourSet.add(new Color[] { new Color(0, 0, 30), new Color(253, 252, 134)});
+		ColourSet.add(new Color[] { new Color(228, 186, 222), new Color(75, 15, 111)});
+		ColourSet.add(new Color[] { new Color(225, 225, 225), new Color(152, 29, 21)});
+		ColourSet.add(new Color[] { new Color(33, 0, 47), new Color(246, 79, 195)});
+
+		ColourSet.add(new Color[] { new Color(255, 225, 225), new Color(3, 103, 101) });
+		ColourSet.add(new Color[] { new Color(0, 0, 0), new Color(255, 254, 248)});
+		ColourSet.add(new Color[] { new Color(255, 254, 255), new Color(19,2,0)});
+		ColourSet.add(new Color[] { new Color(253, 219, 236), new Color(113, 37, 37)});
+		ColourSet.add(new Color[] { new Color(225, 225, 225), new Color(105, 83, 89)});
+
+		ColourSet.add(new Color[] { new Color(0, 11, 23), new Color(112, 165, 139) });
+		ColourSet.add(new Color[] { new Color(32, 8, 8), new Color(104, 135, 243)});
+		ColourSet.add(new Color[] { new Color(252, 255, 255), new Color(135, 112, 81)});
+		ColourSet.add(new Color[] { new Color(4, 29, 10), new Color(180, 233, 145)});
+		ColourSet.add(new Color[] { new Color(205, 233, 192), new Color(142, 108, 82)});
+
+		ColourSet.add(new Color[] { new Color(255, 254, 255), new Color(9, 58, 75) });
+		ColourSet.add(new Color[] { new Color(255, 255, 255), new Color(87, 56, 12)});
+		ColourSet.add(new Color[] { new Color(0, 24, 0), new Color(241, 229, 241)});
+		ColourSet.add(new Color[] { new Color(126, 28, 114), new Color(253, 253, 253)});
+		ColourSet.add(new Color[] { new Color(0, 0, 4), new Color(255, 182, 209)});
+
+		ColourSet.add(new Color[] { new Color(239, 246, 230), new Color(34, 76, 13) });
+		ColourSet.add(new Color[] { new Color(254, 255, 250), new Color(42, 13, 44)});
+		ColourSet.add(new Color[] { new Color(49, 63, 37), new Color(176, 219, 163)});
+		ColourSet.add(new Color[] { new Color(1, 15, 0), new Color(133, 225, 250)});
+		ColourSet.add(new Color[] { new Color(11, 19, 21), new Color(214, 120, 230)});
 	}
 
 	private CaptchaUtil() {
@@ -82,7 +118,7 @@ public final class CaptchaUtil {
 	// }
 	// }
 
-	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream, int captchaType) throws Throwable {
+	public static void generateCaptcha(Dimension size, String captchaStr, OutputStream outputStream, int captchaType) throws Exception {
 		int				width			= size.width;
 		int				height			= size.height;
 		Color[]			colours			= getColours();
@@ -125,11 +161,11 @@ public final class CaptchaUtil {
 		// ((Graphics2D) graphics).dispose();
 		for (int iCounter = 12; iCounter <= 60; iCounter = iCounter + 12) {
 			Graphics2D		graphics2d		= (Graphics2D) cpimg.getGraphics();
-			AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+			AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 			graphics2d.setComposite(alphaChannel);
 			graphics2d.setColor(foregroundColor);
 			FontMetrics	fontMetrics		= graphics2d.getFontMetrics();
-			String		watermarkText	= RandomStringUtils.random(20, true, false);
+			String		watermarkText	= RandomStringUtils.random(20, true, true);
 			Rectangle2D	rectangle		= fontMetrics.getStringBounds(watermarkText, graphics2d);
 
 			// calculates the coordinate where the String is painted
@@ -138,9 +174,7 @@ public final class CaptchaUtil {
 
 			graphics2d.drawString(watermarkText, centerX, centerY);
 		}
-
 		drawLines(foregroundColor, size, graphics);
-
 		ImageIO.write(cpimg, FILE_TYPE, outputStream);
 	}
 
@@ -149,8 +183,9 @@ public final class CaptchaUtil {
 		int				horizontalCount	= (int) Math.ceil(size.height / lineGap);
 		int				verticalCount	= (int) Math.ceil(size.width / lineGap);
 
-		AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f);
+		AlphaComposite	alphaChannel	= AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f);
 		((Graphics2D) graphics).setComposite(alphaChannel);
+		((Graphics2D) graphics).setStroke(new BasicStroke(0));
 		graphics.setColor(lineColor);
 
 		for (int iHorizontalCounter = 0; iHorizontalCounter < horizontalCount; iHorizontalCounter++) {
@@ -158,8 +193,8 @@ public final class CaptchaUtil {
 		}
 
 		for (int iVerticalCounter = 0; iVerticalCounter < verticalCount; iVerticalCounter++) {
-			// System.out.println("CaptchaGeneratorServlet.drawLines() " +
-			// iVerticalCounter);
+			//System.out.println("CaptchaGeneratorServlet.drawLines() " +
+			//iVerticalCounter);
 			graphics.drawLine(15 * iVerticalCounter, 2, 15 * iVerticalCounter, size.height);
 		}
 	}
@@ -229,9 +264,7 @@ public final class CaptchaUtil {
 		}
 		List<String> stringList = Arrays.asList(chars);
 		Collections.shuffle(stringList);
-
 		stringList.toArray(chars);
-
 		return chars;
 	}
 
@@ -261,22 +294,24 @@ public final class CaptchaUtil {
 	}
 
 	public static Map<String, String> getMathCaptcha() {
-		System.out.println("MathCaptcha.main()");
-
+		//System.out.println("MathCaptcha.main()");
 		Map<String, String>	captchaMap		= new HashMap<>();
-		int					firstPart		= getRandomNumber(1, 20);
-
-		int					secondPart		= getRandomNumber(1, 20);
-
+		int					firstPart		= getRandomNumber(1, 10);
+		int					secondPart		= getRandomNumber(1, 10);
 		int					operation		= getRandomNumber(0, 2);
+		
+		/* Handling negative values in captcha | Mini Pillai | 04-April-2024 [Start] */
+		if(operation == MathOperator.Subtraction.ordinal() && secondPart > firstPart){
+		    firstPart = firstPart + secondPart;
+		    secondPart = firstPart - secondPart;
+		    firstPart = firstPart - secondPart;
+		}
+		/* Handling negative values in captcha | Mini Pillai | 04-April-2024 [End] */
 		
 		String				captchaString	= firstPart + MathOperator.values()[operation].getDisplaySign() + secondPart
 				+ "= ";
-
 		captchaMap.put("cs", captchaString);
-
 		String captchaValue = "";
-
 		switch (MathOperator.values()[operation]) {
 			case Addition:
 				captchaValue = firstPart + secondPart + "";
@@ -287,7 +322,6 @@ public final class CaptchaUtil {
 		}
 
 		captchaMap.put("cv", captchaValue);
-
 		return captchaMap;
 	}
 

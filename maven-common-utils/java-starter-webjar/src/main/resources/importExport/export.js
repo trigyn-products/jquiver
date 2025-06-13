@@ -101,11 +101,19 @@ function openTab(evt, gridID, moduleType) {
 	for (i = 0; i < tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(" active", "");
 	}
+	$("#permissionChkBx").removeAttr('disabled');
 	if (moduleType == "Dashboard") {
 		$("#dashletChkBx").removeAttr('disabled');
+	} else if (moduleType == "DynamicForm") {
+		$("#formioChkBx").removeAttr('disabled');
+	} else if (moduleType == "DynamicForm") {
+		$("#formioChkBx").removeAttr('disabled');
+	} else if (moduleType == "Files") {
+		$("#permissionChkBx").attr("disabled", "disabled");
 	} else {
 		$("#dashletChkBx").attr("disabled", "disabled");
-	}
+		$("#formioChkBx").attr("disabled", "disabled");
+	} 
 	let isSelectTypeApplicable;
 	let additionalParameterKey;
 	let additionalParameterValue;
@@ -453,7 +461,7 @@ function openTab(evt, gridID, moduleType) {
 				sortIndex = 5, 3;
 				isSelectTypeApplicable = false;
 				additionalParameterKey = "";
-			} else if (moduleType == "SiteLayout") {
+			} else if (moduleType == "Router") {
 				colM = [
 					{
 						title: "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",true)'><i class='fa fa-check-square selectallcls' ></i></button>"
@@ -698,7 +706,32 @@ function openTab(evt, gridID, moduleType) {
 						},
 					});
 				}
-
+			} else if (moduleType == "FormIO") {
+				colM = [
+					{
+						title: "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",true)'><i class='fa fa-check-square selectallcls' ></i></button>"
+							+ "<button type='button' class='select_btn_new'  onclick='selectAll(\"" + moduleType + "\",false)'><i class='fa fa-window-close deslectcls' ></i></button> ", width: 90, maxWidth: 90, align: "center", sortable: false, render: updateFormIOFormRenderer, dataIndx: ""
+					},
+					{
+						title: "Form Name", width: 130, dataIndx: "form_name", align: "left", halign: "center",
+						filter: { type: "textbox", condition: "contain", listeners: ["change"] }
+					},
+					{ title: "Updated By", width: 100, dataIndx: "last_updated_by", align: "left", halign: "center" },
+					{ title: "Updated Date", width: 100, dataIndx: "last_updated_ts", align: "left", halign: "center", render: formIOFormDateRenderer }
+				];
+				if (selectedType != 0) {
+					grid = $("#" + moduleType + "").grid({
+						gridId: gridID,
+						colModel: colM,
+						height: 300,
+						pageModel: { type: "remote", rPP: 10, strRpp: "{0}", rPPOptions: [10, 20, 50, 100, 500] },
+						dataModel: {
+							url: contextPath + "/cf/pq-grid-data",
+							sortIndx: sortIndex,
+							sortDir: "up"
+						}
+					});
+				}
 			}
 			exportObj = new ImportExportConfig(systemConfigIncludeList, customConfigExcludeList, gridID,
 				colM, moduleType, exportableDataListMap, isSelectTypeApplicable, additionalParameterKey);
@@ -821,6 +854,9 @@ function getVersion(uiObject) {
 	return version;
 }
 
+function formIOFormDateRenderer(uiObject) {
+	return formatDate(uiObject.rowData.last_updated_ts);
+}
 
 function updateExportGridFormatter(uiObject) {
 	const gridId = uiObject.rowData.gridId;
@@ -1023,7 +1059,7 @@ function updateSiteLayoutRenderer(uiObject) {
 	const name = $('<div />').text(moduleName).html();
 	const version = "NA";
 	const isSystemVariable = uiObject.rowData.moduleTypeId;
-	const moduleType = "SiteLayout";
+	const moduleType = "Router";
 
 	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
 	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
@@ -1267,6 +1303,9 @@ function checkCustomVar(checkedCustom, id, moduleType, name, version, isSystemVa
 	if ($('#dashletChkBx').is(':checked') && moduleType == "Dashboard") {
 		selectDashlet(checkedCustom, id, moduleType, name, version, isSystemVariable);
 	}
+	if ($('#formioChkBx').is(':checked') && moduleType == "DynamicForm") {
+		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable);
+	}
 	let exportableData = new ExportableData(moduleType, id, name, version, isSystemVariable);
 
 	if (!checkedCustom) {
@@ -1301,7 +1340,9 @@ function checkSystemVar(checkedSystem, id, moduleType, name, version, isSystemVa
 	if ($('#dashletChkBx').is(':checked') && moduleType == "Dashboard") {
 		selectDashlet(checkedSystem, id, moduleType, name, version, isSystemVariable);
 	}
-
+	if ($('#formioChkBx').is(':checked') && moduleType == "DynamicForm") {
+		selectFormIOData(checkedCustom, id, moduleType, name, version, isSystemVariable);
+	}
 	if (checkedSystem) {
 		map.get(moduleType).getSystemConfigIncludeList().push(id);
 		map.get(moduleType).getExportableDataListMap().set(id, exportableData);
@@ -1467,7 +1508,7 @@ function changeType() {
 						postData = { gridId: "customResourceBundleListingGrid", "cr_resource_type": "str_" + selectedType }
 					}
 				}
-			} else if (moduleType == "SiteLayout") {
+			} else if (moduleType == "Router") {
 				if (selectedType == 0) {
 					if (isSelectAsPerDate == true) {
 						postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
@@ -1551,11 +1592,11 @@ function changeType() {
 						postData = { gridId: gridID }
 					}
 				} else {
-				if (isSelectAsPerDate == true) {
-					postData = postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
-				} else {
-					postData = { gridId: gridID }
-				}
+					if (isSelectAsPerDate == true) {
+						postData = postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+					} else {
+						postData = { gridId: gridID }
+					}
 				}
 			} else if (moduleType == "ScriptLibrary") {
 				if (selectedType == 0) {
@@ -1571,6 +1612,21 @@ function changeType() {
 						postData = { gridId: gridID }
 					}
 				}
+			} else if (moduleType == "FormIO") {
+				if (selectedType == 0) {
+					if (isSelectAsPerDate == true) {
+						postData = { gridId: gridID, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+					} else {
+						postData = { gridId: gridID }
+					}
+				} else {
+					if (isSelectAsPerDate == true) {
+						postData = { gridId: gridID, "cr_form_io_type": "str_" + selectedType, "cr_isAfterDate": "str_" + formatAfterDate($("#modifiedAfter").val()), "cmp_isAfterDate": "gte" }
+					} else {
+						postData = { gridId: gridID, "cr_form_io_type": "str_" + selectedType }
+					}
+				}
+
 			}
 			if (gridID != null && moduleType != null && postData != null && postData.gridId != null) {
 				let gridNew = $("#" + moduleType + "").pqGrid();
@@ -1580,7 +1636,7 @@ function changeType() {
 
 		}
 	});
-	
+
 }
 
 
@@ -1731,7 +1787,7 @@ function getGridDetails(rowData, modType) {
 			isSystemVariable = 2;
 			moduleType = "Permission";
 			break;
-		case "SiteLayout":
+		case "Router":
 			moduleId = rowData.moduleId;
 			name = rowData.moduleName;
 			version = "NA";
@@ -1739,7 +1795,7 @@ function getGridDetails(rowData, modType) {
 				version = "1.0";
 			}
 			isSystemVariable = rowData.moduleTypeId;
-			moduleType = "SiteLayout";
+			moduleType = "Router";
 			break;
 		case "ApplicationConfiguration":
 			moduleId = rowData.propertyMasterId
@@ -1812,6 +1868,16 @@ function getGridDetails(rowData, modType) {
 			}
 			isSystemVariable = 1;
 			moduleType = "ScriptLibrary";
+			break;
+		case "FormIO":
+			moduleId = rowData.form_io_id
+			name = rowData.form_name;
+			version = rowData.max_version_id;
+			if (version == null) {
+				version = "1.0";
+			}
+			isSystemVariable = 1;
+			moduleType = "FormIO";
 			break;
 
 	}
@@ -1970,7 +2036,14 @@ function exportData() {
 			},
 
 			error: function(xhr, error) {
-				showMessage("Error occurred while exporting", "error");
+				//showMessage("Error occurred while exporting", "error");
+				if (xhr.responseText != '' && xhr.status == 428) {
+					showMessage(xhr.responseText, "warn");
+				}
+				else {
+					showMessage("Error occurred while exporting", "error");
+				}
+
 			},
 
 		});
@@ -2134,14 +2207,14 @@ function selectPermissions() {
 function permissions(checked, id, moduleType, name, version, isSystemVariable) {
 	let modType = "Permission";
 	let moduleId;
-	if( moduleType != "Dashlets"){
-		let moduleElement = document.getElementsByClassName("tablinks active");	
+	if (moduleType != "Dashlets") {
+		let moduleElement = document.getElementsByClassName("tablinks active");
 		if (moduleElement && moduleElement.length > 0) {
 			moduleId = moduleElement[0].id;
-		   }
+		}
 	}
-	else{
-		moduleId=moduleType;
+	else {
+		moduleId = moduleType;
 	}
 	$.ajax({
 		async: false,
@@ -2260,7 +2333,7 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 						}
 					}
 				}
-				
+
 				if ($('#permissionChkBx').is(':checked')) {
 					permissions(check, dashletId, modType, name, version, isSystemVariable);
 				}
@@ -2270,6 +2343,88 @@ function selectDashlet(check, id, moduleType, name, version, isSystemVariable) {
 			showMessage("Error occurred while selecting/deselecting permission", "error");
 		},
 	});
+}
+
+function updateFormIOFormRenderer(uiObject) {
+	const formId = uiObject.rowData.form_io_id;
+	const id = $('<div />').text(formId).html();
+	const formName = uiObject.rowData.form_name;
+	const name = $('<div />').text(formName).html();
+	let version = getVersion(uiObject);
+	const isSystemVariable = 1;
+	const moduleType = "FormIO";
+
+	let systemConfigIncludeList = map.get(moduleType).getSystemConfigIncludeList();
+	let customConfigExcludeList = map.get(moduleType).getCustomConfigExcludeList();
+
+	return renderCheckBox(systemConfigIncludeList, customConfigExcludeList, moduleType, id, name, version, isSystemVariable);
+
+}
+
+function selectFormIOData(check, id, moduleType, name, version, isSystemVariable) {
+	modType = "FormIO";
+	$.ajax({
+		async: false,
+		type: "GET",
+		url: contextPath + "/cf/fmios",
+		data: {
+			formId: id,
+		},
+		success: function(data) {
+			let exportableData;
+			let exportableDataListMapNew;
+			let exportObjNew;
+			let systemConfigIncludeListNew = [];
+			let customConfigExcludeListNew = [];
+			$.each(data, function(key, val) {
+				let formIoId = val.formIoId;
+				let formName = val.formName;
+				let max_version = "1.0";
+				if (formIoId != null && formIoId != "") {
+					exportableData = new ExportableData(modType, formIoId, formName, max_version, isSystemVariable);
+					if (map.get(modType) == null) {
+						exportableDataListMapNew = new Map();
+						exportObjNew = new ImportExportConfig(systemConfigIncludeListNew, customConfigExcludeListNew, null, null, modType, exportableDataListMapNew);
+						map.set(modType, exportObjNew);
+						defaultMap.set(modType, exportObjNew);
+						map.get(modType).getExportableDataListMap().set(formIoId, exportableData);
+						defaultMap.get(modType).getExportableDataListMap().set(formIoId, exportableData);
+					}
+
+					if (check) {
+						if (map.get(modType).getCustomConfigExcludeList().includes(formIoId)) {
+							var i = map.get(modType).getCustomConfigExcludeList().indexOf(formIoId);
+							if (i != -1) {
+								map.get(modType).getCustomConfigExcludeList().splice(i, 1);
+							}
+							map.get(modType).getExportableDataListMap().set(formIoId, exportableData);
+							$('#' + modType + formIoId).prop("checked", true);
+							let count = $('#selectedCount_' + modType).text();
+							let countInt = parseInt(count);
+							$('#selectedCount_' + modType).text(countInt + 1);
+						}
+					} else {
+						let count = $('#selectedCount_' + modType).text();
+						let countInt = parseInt(count);
+						if (!map.get(modType).getCustomConfigExcludeList().includes(formIoId)) {
+							map.get(modType).getCustomConfigExcludeList().push(formIoId);
+							map.get(modType).getExportableDataListMap().delete(formIoId);
+							$('#' + modType + formIoId).prop("checked", false);
+							$('#selectedCount_' + modType).text(countInt - 1);
+						}
+					}
+				}
+				if ($('#permissionChkBx').is(':checked')) {
+					permissions(check, formIoId, modType, name, version, isSystemVariable);
+				}
+
+			});
+		},
+		error: function(xhr, error) {
+			showMessage("Error occurred while selecting/deselecting Form IO", "error");
+		}
+	});
+
 }
 
 

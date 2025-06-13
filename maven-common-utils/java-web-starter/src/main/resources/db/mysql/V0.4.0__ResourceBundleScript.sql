@@ -6,7 +6,7 @@ CREATE TABLE `jq_language` (
   `last_update_ts` datetime DEFAULT NULL,
   `is_deleted` int(11) DEFAULT 0,
   PRIMARY KEY (`language_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 DROP TABLE IF EXISTS `jq_resource_bundle`;
@@ -17,7 +17,7 @@ CREATE TABLE `jq_resource_bundle` (
   PRIMARY KEY (`resource_key`,`language_id`),
   KEY `resource_bundle_ibfk_1` (`language_id`),
   CONSTRAINT `resource_bundle_ibfk_1` FOREIGN KEY (`language_id`) REFERENCES `jq_language` (`language_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+);
 
 
 

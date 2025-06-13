@@ -48,7 +48,11 @@ public class JwtUtil {
 			secretKey = propertyMasterService.findPropertyMasterValue("system", "system",
 					"jwsSecretKey");
 			if(secretKey !=null) {
-				return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+				return Jwts.parser()
+				          .setSigningKey(secretKey)
+				          .build()
+				          .parseClaimsJws(token)
+				          .getBody();
 			}
 		}catch (ExpiredJwtException exec) {
 			logger.error("Failed : Invalid JWT Token. " + exec.getMessage());

@@ -52,7 +52,8 @@
         </div>
 <script>
 contextPath = "${(contextPath)!''}";
-//adding quickJumpAutocomplete for fields all, custom, system and favourites	
+
+//adding quickJumpAutocomplete for fields all, custom, system and favourites
 let autocompleteQJ;
 
 	$(function () {
@@ -61,7 +62,7 @@ let autocompleteQJ;
         autocompleteId: "quickJumpAutocomplete",
         prefetch : true,
         enableClearText: true,
-        additionalParamaters: {type_id: $('#typeSelect').val()},
+        additionalParamaters: {type_id: $('#typeSelect').val(),env: env},
         render: function(item) {
             var renderStr = "";
             imageName = getImageNameByType(item.entityType);
@@ -99,11 +100,10 @@ let autocompleteQJ;
     });
 
     function getSavedEntity(){
-     
         let entityIdVar = "${innerTemplateObj.entityId}";
         let entityNameVar = "${innerTemplateObj.entityName}";
         $.ajax({
-			url:contextPath+"/api/user-favorite-entity-by-type",
+			url:contextPath+apiPath+"/user-favorite-entity-by-type",
 			type:"POST",
 	        data:{
                 entityType: "${innerTemplateObj.entityType}",
@@ -121,10 +121,11 @@ let autocompleteQJ;
 	    }); 
     }
     
-    function changeType() {    
+    function changeType() {  
 	var type_id = $("#typeSelect").val();
 	if (type_id == '3') {
 		autocompleteQJ.options["autocompleteId"] = "user-favorite-entity-autocomplete";
+        autocompleteQJ.options["additionalParamaters"]["env"] = env;
 		autocompleteQJ.resetAutocomplete();
 	} else {
 		if (autocompleteQJ.options["autocompleteId"] == "user-favorite-entity-autocomplete") {
@@ -141,7 +142,7 @@ let autocompleteQJ;
         let entityIdVar = "${innerTemplateObj.entityId}";
         let entityNameVar = "${innerTemplateObj.entityName}";
         $.ajax({
-			url:contextPath+"/api/user-favorite-entity",
+			url:contextPath+apiPath+"/user-favorite-entity",
 			type:"POST",
 	        data:{
                 entityType: "${innerTemplateObj.entityType}",

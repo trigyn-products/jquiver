@@ -1,5 +1,6 @@
 package com.trigyn.jws.typeahead.service;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +9,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +33,7 @@ import com.trigyn.jws.usermanagement.utils.Constants;
 @Transactional(readOnly = false)
 public class TypeAheadService {
 
-	private final static Logger		logger					= LogManager.getLogger(TypeAheadService.class);
+	private final static Logger		logger					= LoggerFactory.getLogger(TypeAheadService.class);
 
 	@Autowired
 	private TypeAheadDAO			typeAheadDAO			= null;
@@ -199,7 +200,7 @@ public class TypeAheadService {
 
 	}
 
-	public List<Map<String, Object>> getColumnNamesByTableName(String additionalDataSourceId, String tableName) {
+	public List<Map<String, Object>> getColumnNamesByTableName(String additionalDataSourceId, String tableName) throws SQLException {
 		logger.debug("Inside TypeAheadService.getColumnNamesByTableName(additionalDataSourceId: {}, tableName: {})",
 				additionalDataSourceId, tableName);
 		return typeAheadDAO.getColumnNamesByTableName(additionalDataSourceId, tableName);

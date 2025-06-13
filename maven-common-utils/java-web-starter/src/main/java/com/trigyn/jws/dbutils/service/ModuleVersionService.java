@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ import com.trigyn.jws.dbutils.vo.UserDetailsVO;
 @Transactional
 public class ModuleVersionService {
 
-	private final static Logger				logger					= LogManager.getLogger(ModuleVersionService.class);
+	private final static Logger				logger					= LoggerFactory.getLogger(ModuleVersionService.class);
 
 	@Autowired
 	private ModuleVersionDAO				moduleVersionDAO		= null;

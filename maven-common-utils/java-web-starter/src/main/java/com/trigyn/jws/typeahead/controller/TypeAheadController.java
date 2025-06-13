@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,20 +21,21 @@ import com.trigyn.jws.typeahead.service.TypeAheadService;
 import com.trigyn.jws.usermanagement.security.config.Authorized;
 import com.trigyn.jws.usermanagement.utils.Constants;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@Api(tags = "Perform all autocomplete related operations.")
+@Tag(name = "Perform all autocomplete related operations.")
 @RequestMapping(value = "/cf")
 public class TypeAheadController {
 
 	@Autowired
 	private TypeAheadService typeAheadService = null;
 	
-	private final static Logger				logger							= LogManager.getLogger(TypeAheadController.class);
+	private final static Logger				logger							= LoggerFactory.getLogger(TypeAheadController.class);
 
-	@ApiOperation(value = "Get count of autocomplete data by autocomplete id.")
+	@Operation(summary  = "Get count of autocomplete data by autocomplete id.")
 	@PostMapping(value = "/autocomplete-data", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@Authorized(moduleName = Constants.AUTOCOMPLETE)
 	public List<Map<String, Object>> getAutocompleteData(HttpServletRequest request) throws Exception , CustomStopException{
@@ -51,7 +50,7 @@ public class TypeAheadController {
 		}
 	}
 
-	@ApiOperation(value = "Get count of autocomplete data by autocomplete id")
+	@Operation(summary  = "Get count of autocomplete data by autocomplete id")
 	@GetMapping(value = "/count-data", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@Authorized(moduleName = Constants.AUTOCOMPLETE)
 	public Integer getCountOfData(@RequestBody AutocompleteParams requestParams) {
